@@ -4,16 +4,18 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
+const appConst = require('../../libs/app_const');
 
 describe('Menu Items: Save as fragment and Detach from Fragment specification', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
@@ -22,7 +24,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -57,13 +59,13 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             //Open text-component's context menu:
             await pageComponentView.openMenu("Text");
             //Click on 'Save as Fragment' menu item:
-            await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
-            await pageComponentView.pause(3000);
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await pageComponentView.pause(4000);
             //Open text-component's context menu:
             await pageComponentView.openMenu("Text");
             studioUtils.saveScreenshot('text_saved_as_fragment');
             //"'Detach from Fragment' menu item should appear in the menu"
-            await pageComponentView.waitForMenuItemPresent(appConstant.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
         });
 
     it(`WHEN existing site with a fragment is opened THEN single fragment should be displayed in Page Components View`,
@@ -80,14 +82,14 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             assert.equal(result[0], FRAGMENT_NAME, "Expected fragment display name should be present");
             //3. Select the fragment, open the context-menu and verify all menu items:
             await pageComponentView.openMenu(FRAGMENT_NAME);
-            await pageComponentView.waitForMenuItemPresent(appConstant.COMPONENT_VIEW_MENU_ITEMS.SELECT_PARENT);
-            await pageComponentView.waitForMenuItemPresent(appConstant.COMPONENT_VIEW_MENU_ITEMS.INSERT);
-            await pageComponentView.waitForMenuItemPresent(appConstant.COMPONENT_VIEW_MENU_ITEMS.INSPECT);
-            await pageComponentView.waitForMenuItemPresent(appConstant.COMPONENT_VIEW_MENU_ITEMS.RESET);
-            await pageComponentView.waitForMenuItemPresent(appConstant.COMPONENT_VIEW_MENU_ITEMS.REMOVE);
-            await pageComponentView.waitForMenuItemPresent(appConstant.COMPONENT_VIEW_MENU_ITEMS.DUPLICATE);
-            await pageComponentView.waitForMenuItemPresent(appConstant.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
-            await pageComponentView.waitForMenuItemPresent(appConstant.COMPONENT_VIEW_MENU_ITEMS.EDIT);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.SELECT_PARENT);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.DUPLICATE);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT);
         });
 
     //verifies: New fragment should be created in the same workflow state as the content it was created from xp/issues/7244
@@ -107,7 +109,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             assert.isTrue(result, "Fragment Wizard Step should be present in the toolbar");
             //parent site is 'Work in progress', so this fragment must have the same state
             let state = await contentWizard.getToolbarWorkflowState();
-            assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS, "Work in progress state should be in fragment-wizard ");
+            assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "Work in progress state should be in fragment-wizard ");
         });
 
     //Verifies: Page Component View loses selection after changes are saved #936
@@ -138,18 +140,21 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             //text-component context menu has been opened:
             await pageComponentView.openMenu("Text");
             //'Detach from Fragment' menu item has been clicked:
-            await pageComponentView.selectMenuItem([appConstant.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT]);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT]);
             await pageComponentView.pause(2000);
             //text-component context menu has been opened:
             await pageComponentView.openMenu("Text");
             studioUtils.saveScreenshot('text_is_detached');
             //"'Save as Fragment' menu item should appear again"
-            await pageComponentView.waitForMenuItemPresent(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

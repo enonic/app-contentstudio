@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
@@ -17,15 +16,18 @@ const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.re
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const contentBuilder = require("../../libs/content.builder");
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const appConst = require('../../libs/app_const');
 
 describe('project.author.spec - ui-tests for user with Author role', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const FOLDER_NAME = studioUtils.generateRandomName("folder");
     let USER;
-    const PASSWORD = appConstant.PASSWORD.MEDIUM;
+    const PASSWORD = appConst.PASSWORD.MEDIUM;
     const CONTROLLER_NAME = 'main region';
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;
@@ -35,7 +37,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName("author");
-            let roles = [appConstant.SYSTEM_ROLES.ADMIN_CONSOLE];
+            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -56,10 +58,10 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             let result = await projectWizard.isDescriptionInputClickable();
             //3. Select the user in roles, assign Author role him:
             await projectWizard.selectProjectAccessRoles(USER.displayName);
-            await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.AUTHOR);
+            await projectWizard.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.AUTHOR);
             await projectWizard.waitAndClickOnSave();
             await projectWizard.waitForNotificationMessage();
-            await projectWizard.waitForSpinnerNotVisible(appConstant.longTimeout);
+            await projectWizard.waitForSpinnerNotVisible();
             studioUtils.saveScreenshot("project_author_1");
             //4. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
@@ -75,7 +77,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             //2. Select the user's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             //3. SU adds new site:
-            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
             //Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -138,7 +140,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             //1. Do log in with the user-author and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Open folder-wizard and save new folder:
-            await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             studioUtils.saveScreenshot("project_author_4");
             await contentWizard.waitAndClickOnSave();
@@ -165,10 +167,10 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await contentBrowsePanel.openPublishMenu();
             studioUtils.saveScreenshot("project_author_7");
             //4. Verify that Create Task and Request Publishing menu items are enabled for Author role:
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             //5. Verify that Publish menu item is disabled:
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
         });
 
     //Verifies - issue#1920 User with author role - Last stage in publishing workflow for Project gives user option to "Publish Now"
@@ -183,7 +185,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Select the folder and open Request wizard:
             await studioUtils.findAndSelectItem(FOLDER_NAME);
-            await contentBrowsePanel.openPublishMenuSelectItem(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.clickOnNextButton();
             await createRequestPublishDialog.typeInChangesInput("author request");
@@ -202,12 +204,15 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
-        if (title.includes(appConstant.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConstant.TAB_TITLE_PART)) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 
 });

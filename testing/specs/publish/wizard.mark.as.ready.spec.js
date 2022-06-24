@@ -12,7 +12,9 @@ const CreateRequestPublishDialog = require('../../page_objects/issue/create.requ
 
 describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER;
 
     // verifies https://github.com/enonic/app-contentstudio/issues/792
@@ -90,7 +92,10 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

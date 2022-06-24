@@ -5,7 +5,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const ImageFormPanel = require('../page_objects/wizardpanel/image.form.panel');
@@ -15,12 +14,12 @@ const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard
 const appConst = require('../libs/app_const');
 
 describe("image.wizard.photo.properties.spec: Open an image and update photo properties then rollback the previous version", function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
 
-    let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.NORD;
+    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.NORD;
 
     // verifies https://github.com/enonic/app-contentstudio/issues/388  and https://github.com/enonic/app-contentstudio/issues/618
     //Image Wizard - some field values are not updated after version rollback

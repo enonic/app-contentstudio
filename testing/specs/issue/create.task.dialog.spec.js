@@ -4,14 +4,16 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('create.task.dialog.spec: Create Task Dialog specification', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN 'Issues List' dialog is opened WHEN 'New Task...' button has been clicked THEN 'Create Task Dialog' should be loaded`,
         async () => {
@@ -62,7 +64,7 @@ describe('create.task.dialog.spec: Create Task Dialog specification', function (
 
             studioUtils.saveScreenshot("check_validation_message");
             let result = await createTaskDialog.getValidationMessageForTitleInput();
-            assert.equal(result, appConstant.THIS_FIELD_IS_REQUIRED, "Expected validation message should appear");
+            assert.equal(result, appConst.THIS_FIELD_IS_REQUIRED, "Expected validation message should appear");
         });
 
     it(`GIVEN 'Create Task' has been opened WHEN 'Esc' key has been clicked THEN modal dialog closes`,
@@ -80,7 +82,10 @@ describe('create.task.dialog.spec: Create Task Dialog specification', function (
     afterEach(function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

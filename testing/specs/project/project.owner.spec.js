@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const contentBuilder = require("../../libs/content.builder");
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
@@ -20,18 +19,20 @@ const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const IssueDetailsDialogAssigneesTab = require('../../page_objects/issue/issue.details.dialog.assignees.tab');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
-
+const appConst = require('../../libs/app_const');
 
 describe('project.owner.spec - ui-tests for user with Owner role', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const FOLDER_NAME = studioUtils.generateRandomName("folder");
     const FOLDER_NAME_2 = studioUtils.generateRandomName("folder");
     let USER;
     let FOLDER_ISSUE;
-    const PASSWORD = appConstant.PASSWORD.MEDIUM;
+    const PASSWORD = appConst.PASSWORD.MEDIUM;
     const TASK_TITLE = "task for owner";
 
     it(`Preconditions: new system user should be created`,
@@ -39,7 +40,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName("owner");
-            let roles = [appConstant.SYSTEM_ROLES.ADMIN_CONSOLE];
+            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -59,7 +60,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await projectWizard.clickOnAccessModeRadio("Private");
             //3. Select the user in roles, assign Owner role him:
             await projectWizard.selectProjectAccessRoles(USER.displayName);
-            await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.OWNER);
+            await projectWizard.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.OWNER);
             await studioUtils.saveScreenshot("project_owner_0");
             await projectWizard.waitAndClickOnSave();
             await projectWizard.waitForNotificationMessage();
@@ -69,7 +70,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
             //5. Verify that expected role is assigned to the user
             let role = await projectWizard.getSelectedProjectAccessRole(USER.displayName);
-            assert.equal(role[0], appConstant.PROJECT_ROLES.OWNER, "expected role should be assigned to the user");
+            assert.equal(role[0], appConst.PROJECT_ROLES.OWNER, "expected role should be assigned to the user");
         });
 
     //Verifies https://github.com/enonic/xp/issues/8139  Users with Owner or Editor roles can not be assigned to issues
@@ -94,7 +95,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //4. Click on 'Create Task' button and create new task:
             await createTaskDialog.clickOnCreateTaskButton();
             let message = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(message, appConstant.TASK_CREATED_MESSAGE);
+            assert.equal(message, appConst.TASK_CREATED_MESSAGE);
             await taskDetailsDialog.clickOnAssigneesTabBarItem();
             await studioUtils.saveScreenshot("project_owner_assignees_tab");
             let actualUsers = await issueDetailsDialogAssigneesTab.getSelectedUsers();
@@ -182,7 +183,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Open folder-wizard and save new folder:
-            await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             studioUtils.saveScreenshot("project_owner_4");
             await contentWizard.waitAndClickOnSave();
@@ -209,12 +210,12 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await contentBrowsePanel.openPublishMenu();
             studioUtils.saveScreenshot("project_owner_7");
             //4. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Owner role:
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             //5. Verify that 'Publish' menu item is enabled:
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.PUBLISH);
             //6 Verify that 'Publish Tree' menu item is disabled, because the folder has no children:
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH_TREE);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH_TREE);
         });
 
     //Verifies that user with Owner role can publish content in 'Publish Request Details' Dialog - "Publish Now" should be enabled in the Last stage.
@@ -230,7 +231,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Select the folder and open new Request wizard:
             await studioUtils.findAndSelectItem(FOLDER_NAME);
-            await contentBrowsePanel.openPublishMenuSelectItem(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.clickOnNextButton();
             await createRequestPublishDialog.typeInChangesInput("owner request");
@@ -267,21 +268,23 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //3. wait for the project is opened:
             await projectWizard.waitForLoaded();
             //4. Select a language in the wizard page:
-            await projectWizard.selectLanguage(appConstant.LANGUAGES.EN);
+            await projectWizard.selectLanguage(appConst.LANGUAGES.EN);
             await projectWizard.waitAndClickOnSave();
             await projectWizard.waitForNotificationMessage();
             let actualLanguage = await projectWizard.getSelectedLanguage();
-            assert.equal(actualLanguage, appConstant.LANGUAGES.EN, "expected and actual language should be equal");
+            assert.equal(actualLanguage, appConst.LANGUAGES.EN, "expected and actual language should be equal");
         });
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
-        if (title.includes(appConstant.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConstant.TAB_TITLE_PART)) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

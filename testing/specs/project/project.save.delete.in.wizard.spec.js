@@ -4,15 +4,17 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deleting a project', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
 
@@ -29,7 +31,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             await projectWizard.waitAndClickOnSave();
             let actualMessage = await projectWizard.waitForNotificationMessage();
             studioUtils.saveScreenshot("project_saved_1");
-            assert.equal(actualMessage, appConstant.projectCreatedMessage(PROJECT_DISPLAY_NAME))
+            assert.equal(actualMessage, appConst.projectCreatedMessage(PROJECT_DISPLAY_NAME))
         });
 
     it(`GIVEN new project wizard is opened WHEN try to save an name that is already being used by existing project THEN expected notification should appear`,
@@ -45,7 +47,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             await projectWizard.waitAndClickOnSave();
             let actualMessage = await projectWizard.waitForNotificationMessage();
             studioUtils.saveScreenshot("project_name_already_used");
-            assert.equal(actualMessage, appConstant.projectNameAlreadyExistsMessage(PROJECT_DISPLAY_NAME))
+            assert.equal(actualMessage, appConst.projectNameAlreadyExistsMessage(PROJECT_DISPLAY_NAME))
         });
 
     it("GIVEN a project is selected and 'Delete' button pressed AND Confirm Value dialog is opened WHEN incorrect identifier has been typed THEN 'Confirm' button should be disabled",
@@ -82,7 +84,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             //6. Verify the notification message:
             let actualMessage = await settingsBrowsePanel.waitForNotificationMessage();
             studioUtils.saveScreenshot("project_deleted_2");
-            assert.equal(actualMessage, appConstant.projectDeletedMessage(PROJECT_DISPLAY_NAME))
+            assert.equal(actualMessage, appConst.projectDeletedMessage(PROJECT_DISPLAY_NAME))
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/1946
@@ -103,7 +105,10 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

@@ -4,18 +4,19 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const contentBuilder = require("../../libs/content.builder");
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const appConst = require('../../libs/app_const');
 
 describe('change.access.mode.spec - Update Access Mode in project wizard', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let FOLDER;
     let TEST_FOLDER_NAME = studioUtils.generateRandomName("folder");
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
@@ -57,7 +58,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             let actualMessages = await projectWizard.waitForNotificationMessages();
             //4. Verify the notification message:
             studioUtils.saveScreenshot("project_access_mode_updated");
-            assert.equal(actualMessages[1], appConstant.projectModifiedMessage(PROJECT_DISPLAY_NAME));
+            assert.equal(actualMessages[1], appConst.projectModifiedMessage(PROJECT_DISPLAY_NAME));
             assert.isTrue(actualMessages[0].includes("Permissions"), "Permissions are applied - the second expected notification message");
             assert.isTrue(actualMessages[0].includes("are applied"), "Permissions are applied - the second expected notification message");
         });
@@ -92,7 +93,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             await studioUtils.openBrowseDetailsPanel();
             studioUtils.saveScreenshot("project_access_mode_updated_widget");
             let actualHeader = await userAccessWidget.getHeader();
-            assert.equal(actualHeader, appConstant.ACCESS_WIDGET_HEADER.EVERYONE_CAN_READ,
+            assert.equal(actualHeader, appConst.ACCESS_WIDGET_HEADER.EVERYONE_CAN_READ,
                 "'Everyone can read this item' - header should be displayed");
         });
 
@@ -100,7 +101,10 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

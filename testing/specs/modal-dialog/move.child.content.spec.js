@@ -12,7 +12,9 @@ const contentBuilder = require('../../libs/content.builder');
 
 describe('move.child.content.spec: Move a child content to another location then delete the parent folder', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let issueTitle = appConst.generateRandomName('task');
     let PARENT_FOLDER;
     let CHILD_FOLDER;
@@ -59,7 +61,10 @@ describe('move.child.content.spec: Move a child content to another location then
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

@@ -4,21 +4,23 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentDuplicateDialog = require('../../page_objects/content.duplicate.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN folder(12 children) is selected WHEN 'Duplicate...' button has been clicked THEN 'Content Duplicate Dialog' should be loaded and expected elements should be present`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
             //1. Select the folder(12 children)
-            await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
+            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
             //2. Open Duplicate dialog:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             let result = await contentDuplicateDialog.isIncludeChildTogglerDisplayed();
@@ -36,23 +38,23 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             let totalNumber = await contentDuplicateDialog.getTotalNumberItemsToDuplicate();
             assert.equal(totalNumber, '13', "Expected number in the Duplicate button should be displayed");
             let names = await contentDuplicateDialog.getDisplayNamesToDuplicate();
-            assert.equal(names[0], appConstant.TEST_FOLDER_WITH_IMAGES, `expected parent's display name should be present`);
+            assert.equal(names[0], appConst.TEST_FOLDER_WITH_IMAGES, `expected parent's display name should be present`);
         });
 
-    it(`GIVEN 2 folder with children are selected WHEN 'Duplicate...' button has been clicked THEN expected display names should be present on the dialog`,
+    it(`GIVEN 2 folders with children are selected WHEN 'Duplicate...' button has been clicked THEN expected display names should be present on the dialog`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
             //1. Two folders have been selected:
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_NAME);
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_2_NAME);
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_NAME);
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_2_NAME);
             //2. Open Duplicate dialog:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             await studioUtils.saveScreenshot("duplicate_dialog_2_items");
             let names = await contentDuplicateDialog.getDisplayNamesToDuplicate();
             assert.equal(names.length, 2, '2 items to duplicate should be displayed');
-            assert.equal(names[0], appConstant.TEST_FOLDER_WITH_IMAGES, 'expected parent\'s display name should be present');
-            assert.equal(names[1], appConstant.TEST_FOLDER_2_DISPLAY_NAME, 'expected parent\'s display name should be present');
+            assert.equal(names[0], appConst.TEST_FOLDER_WITH_IMAGES, 'expected parent\'s display name should be present');
+            assert.equal(names[1], appConst.TEST_FOLDER_2_DISPLAY_NAME, 'expected parent\'s display name should be present');
         });
 
     it(`GIVEN 'Content Duplicate' dialog is opened WHEN 'exclude child' has been clicked THEN 'Show Dependent Items' should not be displayed `,
@@ -60,7 +62,7 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
             //1. Select the folder(12 children) :
-            await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
+            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             // 2. Click on the 'Include child toggler' and exclude children items
             await contentDuplicateDialog.clickOnIncludeChildToggler();
@@ -76,13 +78,13 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
-            await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
+            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
+            //1. Open Duplicate dialog:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
-            //Click on 'Show dependent items'
+            //2. Click on 'Show dependent items'
             await contentDuplicateDialog.clickOnShowDependentItemLink();
-            // 'Hide dependent items' should appear, otherwise exception will be thrown
+            //3. Verify that 'Hide dependent items' should appear, otherwise exception will be thrown
             await contentDuplicateDialog.waitForHideDependentItemLinkDisplayed();
-
             await studioUtils.saveScreenshot("duplicate_show_dependent_clicked");
             let names = await contentDuplicateDialog.getDependentsName();
             assert.equal(names.length, 12, '12 dependents to duplicate should be displayed');
@@ -92,7 +94,10 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
     afterEach(function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

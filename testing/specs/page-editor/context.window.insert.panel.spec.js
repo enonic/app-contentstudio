@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -12,10 +11,13 @@ const InsertablesPanel = require('../../page_objects/wizardpanel/liveform/insert
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const appConst = require('../../libs/app_const');
 
 describe('context.window.insert.panel: tests for insertables panel and wizard toolbar', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let CONTROLLER_NAME = 'main region';
 
@@ -26,10 +28,10 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             let contentWizard = new ContentWizard();
             let siteFormPanel = new SiteFormPanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            await studioUtils.openContentWizard(appConstant.contentTypes.SITE);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
+            await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(displayName);
-            await siteFormPanel.filterOptionsAndSelectApplication(appConstant.APP_CONTENT_TYPES);
+            await siteFormPanel.filterOptionsAndSelectApplication(appConst.APP_CONTENT_TYPES);
             //Application is selected, the site should be automatically saved:
             await contentWizard.waitForNotificationMessage();
             //Verify that 'Show Component' toggler is not visible now:
@@ -62,7 +64,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             await contentWizard.waitForComponentVewTogglerNotVisible();
             //Click on 'Show Page Editor' button
             await contentWizard.clickOnPageEditorToggler();
-            await contentWizard.waitForSpinnerNotVisible(appConstant.mediumTimeout);
+            await contentWizard.waitForSpinnerNotVisible(appConst.mediumTimeout);
         });
 
     //verifies https://github.com/enonic/app-contentstudio/issues/335
@@ -83,7 +85,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             await wizardVersionsWidget.clickOnRevertButton();
             //4. Verify  the notification message:
             let actualMessage = await contentWizard.waitForNotificationMessage();
-            assert.include(actualMessage, appConstant.CONTENT_REVERTED_MESSAGE, "Expected notification message should appear");
+            assert.include(actualMessage, appConst.CONTENT_REVERTED_MESSAGE, "Expected notification message should appear");
             //5. Verify that widget is displayed :
             let isDisplayed = await wizardVersionsWidget.isWidgetLoaded();
             assert.isTrue(isDisplayed, "Versions widget remains visible in Details Panel after reverting versions");
@@ -91,7 +93,10 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

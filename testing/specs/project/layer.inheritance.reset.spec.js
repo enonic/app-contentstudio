@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
@@ -12,10 +11,13 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const appConst = require('../../libs/app_const');
 
 describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolbar', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const FOLDER_NAME = studioUtils.generateRandomName("folder");
@@ -36,7 +38,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             //1. Select the project's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             //2. Create new site:
-            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -46,7 +48,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
             await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
-            await layerWizard.selectLanguage(appConstant.LANGUAGES.EN);
+            await layerWizard.selectLanguage(appConst.LANGUAGES.EN);
             //2. Click on 'Private' radio button:
             await layerWizard.clickOnAccessModeRadio("Private");
             await layerWizard.waitAndClickOnSave();
@@ -79,7 +81,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             let language = await settingsStepForm.getSelectedLanguage();
             studioUtils.saveScreenshot("reset_not_confirmed");
             //5. Verify that site is not reverted to initial inherited state:
-            assert.equal(language, appConstant.LANGUAGES.EN, "layer's data should not be reset");
+            assert.equal(language, appConst.LANGUAGES.EN, "layer's data should not be reset");
             //6. Verify that Reset button still displayed in the wizard toolbar:
             await contentWizard.waitForResetButtonDisplayed();
         });
@@ -98,7 +100,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             let language = await settingsStepForm.getSelectedLanguage();
             studioUtils.saveScreenshot("reset_confirmed");
             //4. Verify that content is reverted to initial inherited state:
-            assert.equal(language, appConstant.LANGUAGES.EN, "layer's language should be reset");
+            assert.equal(language, appConst.LANGUAGES.EN, "layer's language should be reset");
             //5. Verify that 'Reset' button is not displayed in the wizard toolbar:
             await contentWizard.waitForResetButtonNotDisplayed();
             //6. Verify that language is not selected in the settings form:
@@ -123,7 +125,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             studioUtils.saveScreenshot("reset_confirmed_w_status");
             let actualStatus = await contentWizard.getIconWorkflowState();
             //5. Verify that workflow status is 'work in progress' ( initial inherited state):
-            assert.equal(actualStatus, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS,
+            assert.equal(actualStatus, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
                 "'Work in progress' status should be after the resetting");
             //6. Verify that 'Reset' button is not displayed in the wizard toolbar:
             await contentWizard.waitForResetButtonNotDisplayed();
@@ -161,7 +163,10 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
         return await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

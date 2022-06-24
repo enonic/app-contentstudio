@@ -15,7 +15,9 @@ const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard
 
 describe('wizard.compare.versions.dialog - open the dialog and verify elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let FOLDER;
 
@@ -142,7 +144,10 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

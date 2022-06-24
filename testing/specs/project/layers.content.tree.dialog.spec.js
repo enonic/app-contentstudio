@@ -4,16 +4,18 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal dialog', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const TEST_FOLDER_DISPLAY_NAME = studioUtils.generateRandomName("folder");
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER1_DISPLAY_NAME = studioUtils.generateRandomName("layer");
@@ -37,7 +39,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
             let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
             await layerWizard.clickOnAccessModeRadio("Public");
             await layerWizard.typeDisplayName(LAYER1_DISPLAY_NAME);
-            await layerWizard.selectLanguage(appConstant.LANGUAGES.EN);
+            await layerWizard.selectLanguage(appConst.LANGUAGES.EN);
             //2. Save the layer:
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
@@ -50,7 +52,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
             let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(LAYER1_DISPLAY_NAME);
             await layerWizard.clickOnAccessModeRadio("Public");
             await layerWizard.typeDisplayName(LAYER2_DISPLAY_NAME);
-            await layerWizard.selectLanguage(appConstant.LANGUAGES.NORSK_NO);
+            await layerWizard.selectLanguage(appConst.LANGUAGES.NORSK_NO);
             //2. Save the layer:
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
@@ -139,7 +141,10 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

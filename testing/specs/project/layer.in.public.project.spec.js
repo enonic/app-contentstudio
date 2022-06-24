@@ -4,16 +4,18 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const LayerWizard = require('../../page_objects/project/layer.wizard.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('layer.in.public.project.spec - ui-tests for layer in existing project', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
@@ -22,7 +24,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
     it(`Preconditions: new project(with Norsk (no) language) and 'Private' access mode should be added`,
         async () => {
             //1. Save new project (mode access is Public):
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConstant.LANGUAGES.NORSK_NO, null, "Public");
+            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.NORSK_NO, null, "Public");
         });
 
     it("GIVEN existing project is selected AND wizard for new layer is opened WHEN 'Private' radio has been clicked and name input filled in THEN 'Copy Access mode' button gets enabled",
@@ -55,7 +57,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             //4. Save the layer:
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
-            await layerWizard.waitForSpinnerNotVisible(appConstant.saveProjectTimeout);
+            await layerWizard.waitForSpinnerNotVisible(appConst.saveProjectTimeout);
             //5. Switch to Content Mode:
             let contentBrowsePanel = await studioUtils.switchToContentMode();
             //6. Open modal dialog and select the layer's context:
@@ -94,7 +96,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await layerWizard.waitForLoaded();
             //2. Update the language:
             await layerWizard.clickOnRemoveLanguage();
-            await layerWizard.selectLanguage(appConstant.LANGUAGES.EN);
+            await layerWizard.selectLanguage(appConst.LANGUAGES.EN);
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
             //3. Switch to content mode and select the context:
@@ -184,7 +186,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
 
             //3. Switch to content mode and verify that parent project's context is loaded:
             await studioUtils.switchToContentMode();
-            let expectedMessage = appConstant.projectDeletedMessage(LAYER_DISPLAY_NAME);
+            let expectedMessage = appConst.projectDeletedMessage(LAYER_DISPLAY_NAME);
             assert.equal(message, expectedMessage, "'Project is deleted' this message should appear");
             let actualContextName2 = await contentBrowsePanel.getSelectedProjectDisplayName();
             assert.equal(actualContextName1, LAYER_DISPLAY_NAME, "layer's context should be loaded before the deleting of the layer");
@@ -209,7 +211,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await confirmValueDialog.typeNumberOrName(LAYER_DISPLAY_NAME);
             await confirmValueDialog.clickOnConfirmButton();
             await confirmValueDialog.waitForDialogClosed();
-            await settingsBrowsePanel.waitForGridLoaded(appConstant.shortTimeout);
+            await settingsBrowsePanel.waitForGridLoaded(appConst.shortTimeout);
             //4. Verify that the layer is deleted in Browse Panel:
             await settingsBrowsePanel.waitForProjectNotDisplayed(LAYER_DISPLAY_NAME);
             //5. Verify that expander-icon gets not visible in the parent project
@@ -252,7 +254,10 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

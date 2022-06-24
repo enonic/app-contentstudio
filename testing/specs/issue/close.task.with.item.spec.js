@@ -4,18 +4,20 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const contentBuilder = require("../../libs/content.builder");
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const appConst = require('../../libs/app_const');
 
 describe('close.task.with.item.spec: close an task and verify control elements on the ItemPreview Panel', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-    let issueTitle = appConstant.generateRandomName('task');
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+    let issueTitle = appConst.generateRandomName('task');
     let TEST_FOLDER;
 
     //verifies https://github.com/enonic/app-contentstudio/issues/356
@@ -26,7 +28,7 @@ describe('close.task.with.item.spec: close an task and verify control elements o
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.clickOnCreateTaskButton();
             await createTaskDialog.waitForDialogLoaded();
-            await createTaskDialog.waitForSpinnerNotVisible(appConstant.TIMEOUT_5);
+            await createTaskDialog.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
         });
 
     it(`Precondition: new folder and new task have been created`,
@@ -65,7 +67,10 @@ describe('close.task.with.item.spec: close an task and verify control elements o
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
@@ -18,7 +17,7 @@ const appConst = require('../libs/app_const');
 
 describe('Content with image-selector, select images and verify that Outbound dependencies are refreshed ',
     function () {
-        this.timeout(appConstant.SUITE_TIMEOUT);
+        this.timeout(appConst.SUITE_TIMEOUT);
         if (typeof browser === "undefined") {
             webDriverHelper.setupBrowser();
         }
@@ -45,7 +44,7 @@ describe('Content with image-selector, select images and verify that Outbound de
                 //1. Open existing site:
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
                 //2. Open Site Configurator:
-                await siteFormPanel.openSiteConfiguratorDialog(appConstant.APP_CONTENT_TYPES);
+                await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_CONTENT_TYPES);
                 await siteConfiguratorDialog.showToolbarAndClickOnInsertImageButton();
                 await insertImageDialog.waitForDialogVisible();
                 //3. Insert an image:
@@ -66,7 +65,7 @@ describe('Content with image-selector, select images and verify that Outbound de
                 let wizardDependenciesWidget = new WizardDependenciesWidget();
                 let contentWizard = new ContentWizard();
                 //1. Open new wizard and type a name:
-                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
+                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
                 await contentWizard.typeDisplayName(contentDisplayName);
                 //2. Select two images and save:
                 await imageSelectorForm.selectImages([IMAGE_DISPLAY_NAME1, IMAGE_DISPLAY_NAME2]);
@@ -85,7 +84,7 @@ describe('Content with image-selector, select images and verify that Outbound de
                 let wizardDetailsPanel = new WizardDetailsPanel();
                 let contentWizard = new ContentWizard();
                 //1. Open new wizard and type a name:
-                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
+                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
                 await contentWizard.typeDisplayName(CONTENT_NAME2);
                 //2. Click on dropdown handle, expand the options and click on 5 checkboxes:
                 await imageSelectorForm.clickOnDropDownHandleAndSelectImages(5);

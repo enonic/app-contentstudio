@@ -31,7 +31,6 @@ class BaseBrowsePanel extends Page {
     async waitForGridLoaded(ms) {
         try {
             let timeout = typeof ms !== 'undefined' ? ms : appConst.mediumTimeout;
-            console.log("timeout##############: " + timeout);
             await this.waitForElementDisplayed(this.treeGrid, timeout);
             await this.waitForSpinnerNotVisible(timeout);
         } catch (err) {

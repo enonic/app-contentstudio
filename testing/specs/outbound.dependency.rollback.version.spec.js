@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
@@ -16,7 +15,7 @@ const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard
 const appConst = require('../libs/app_const');
 
 describe('Check Outbound dependencies after rollback a version of content with image-selector', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -40,7 +39,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
         async () => {
             let contentWizard = new ContentWizard();
             let imageSelectorForm = new ImageSelectorForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
             await contentWizard.typeDisplayName(CONTENT_NAME);
             //select the first image
             await imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME1);

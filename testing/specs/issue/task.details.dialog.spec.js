@@ -4,19 +4,21 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const IssueDetailsDialogCommentsTab = require('../../page_objects/issue/issue.details.dialog.comments.tab');
+const appConst = require('../../libs/app_const');
 
 describe('task.details.dialog.spec: add a comment and check CommentsTabItem', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-    let MY_COMMENT = appConstant.generateRandomName('comment');
-    let TASK_TITLE = appConstant.generateRandomName('task');
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+    let MY_COMMENT = appConst.generateRandomName('comment');
+    let TASK_TITLE = appConst.generateRandomName('task');
     let newText = "Comment is updated";
 
     it(`WHEN new task(no items) has been created THEN expected notification should be displayed`,
@@ -85,7 +87,7 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             //4. Verify the notification message:
             let message = await taskDetailsDialog.waitForNotificationMessage();
             await studioUtils.saveScreenshot("issue_comment_added");
-            assert.equal(message, appConstant.YOUR_COMMENT_ADDED,
+            assert.equal(message, appConst.YOUR_COMMENT_ADDED,
                 'Expected notification message should be shown when the comment has been added');
             await studioUtils.saveScreenshot("issue_comment_button_disabled");
             //5. Verify that 'Comment' button gets disabled:
@@ -153,7 +155,10 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

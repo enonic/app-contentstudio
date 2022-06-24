@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -13,10 +12,13 @@ const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form
 const CountryForm = require('../../page_objects/wizardpanel/country.form.panel');
 const CityForm = require('../../page_objects/wizardpanel/city.form.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const appConst = require('../../libs/app_const');
 
 describe('my.first.site.country.spec - Create a site with country content', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let TEMPLATE;
     let USA_CONTENT_NAME;
@@ -37,7 +39,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let pageComponentView = new PageComponentView();
             let liveFormPanel = new LiveFormPanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConstant.MY_FIRST_APP]);
+            SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConst.MY_FIRST_APP]);
             await studioUtils.doAddSite(SITE);
 
             TEMPLATE = contentBuilder.buildPageTemplate(COUNTRY_TEMPLATE_NAME, "Country", PAGE_CONTROLLER_COUNTRY);
@@ -188,7 +190,10 @@ describe('my.first.site.country.spec - Create a site with country content', func
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

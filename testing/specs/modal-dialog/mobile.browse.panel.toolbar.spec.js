@@ -12,7 +12,10 @@ const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel
 
 describe('Tests for browse panel toolbar in mobile mode', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser(414, 736);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser(414, 736);
+    }
+
     let FOLDER;
 
     it("WHEN Mobile Browse panel is loaded THEN 'New' button should be enabled, 'Edit...','Archive..' buttons should be disabled",
@@ -64,7 +67,10 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
     afterEach(function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(414, 736);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

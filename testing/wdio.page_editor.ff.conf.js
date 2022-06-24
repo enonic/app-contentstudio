@@ -7,14 +7,18 @@ exports.config = {
     // Specify Test Files
     // ==================
     specs: [
-        __dirname +  '/specs/content-types-2/*.spec.js'
+        __dirname + '/specs/page-editor/*.spec.js'
     ],
     exclude: [
-        __dirname + '/specs/content-types-2/occurrences.image.selector.spec.js'
+        __dirname + '/specs/page-editor/revert.site.with.components.spec.js',
+        __dirname + '/specs/page-editor/text.component.cke.url.link.spec.js',
+        __dirname + '/specs/page-editor/fragment.save.detach.spec.js',
+        __dirname + '/specs/page-editor/text.component.image.outbound.spec.js',
+        __dirname + '/specs/page-editor/fragment.layout.inspect.panel.spec',
     ],
 
     maxInstances: 1,
-
+//"--headless",
     capabilities: [{
         browserName: 'firefox',
         'moz:firefoxOptions': {
@@ -27,7 +31,7 @@ exports.config = {
         }
     }],
 
-    logLevel: 'info',
+    logLevel: 'error',
     //
     // Enables colors for log output.
     coloredLogs: true,
@@ -56,9 +60,9 @@ exports.config = {
 
     reporters: ['spec',
         ["html-nice", {
-            outputDir: './build/mochawesome-report/',
-            filename: 'report.html',
-            reportTitle: 'Tests for Input Types (2)',
+            outputDir:  "./build/mochawesome-report/",
+            filename: 'spec-report.html',
+            reportTitle: 'Tests for Page Editor',
             linkScreenshots: true,
             //to show the report in a browser when done
             showInBrowser: true,
@@ -69,6 +73,8 @@ exports.config = {
         ]
     ],
 
+    // Options to be passed to Mocha.
+    // See the full list at http://mochajs.org/
     mochaOpts: {
         ui: 'bdd',
         timeout: 60000
@@ -80,20 +86,24 @@ exports.config = {
     },
 
     onPrepare: function (config, capabilities) {
-
-        reportAggregator = new ReportAggregator({
-            outputDir: './build/mochawesome-report/',
-            filename: 'report.html',
-            reportTitle: 'Tests for Input Types (2) Report',
+        let reportAggregator = new ReportAggregator({
+            outputDir: "./build/mochawesome-report/",
+            filename: 'app-report.html',
+            reportTitle: 'Content Studio, Page Editor Tests Report',
             browserName: capabilities.browserName,
             collapseTests: true
         });
         reportAggregator.clean();
+        //todo
+        global.reportAggregator = reportAggregator;
     },
 
     onComplete: function (exitCode, config, capabilities, results) {
         (async () => {
-            await reportAggregator.createReport();
+            console.log("########################### onComplete: Started");
+            //await reportAggregator.createReport();
+            await global.reportAggregator.createReport();
+            console.log("########################### onComplete: App report created");
         })();
     },
 
