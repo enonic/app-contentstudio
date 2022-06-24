@@ -31,18 +31,11 @@ export interface InspectionsPanelConfig {
 export class InspectionsPanel
     extends Panel {
 
-    private deck: DeckPanel;
-    private buttonContainer: DivEl;
+    private readonly deck: DeckPanel;
+    private readonly buttonContainer: DivEl;
 
-    private noSelectionPanel: NoSelectionInspectionPanel;
-    private imageInspectionPanel: ImageInspectionPanel;
-    private partInspectionPanel: PartInspectionPanel;
-    private layoutInspectionPanel: LayoutInspectionPanel;
-    private contentInspectionPanel: ContentInspectionPanel;
-    private pageInspectionPanel: PageInspectionPanel;
-    private regionInspectionPanel: RegionInspectionPanel;
-    private fragmentInspectionPanel: FragmentInspectionPanel;
-    private textInspectionPanel: TextInspectionPanel;
+    private readonly noSelectionPanel: NoSelectionInspectionPanel;
+    private readonly pageInspectionPanel: PageInspectionPanel;
 
     constructor(config: InspectionsPanelConfig) {
         super('inspections-panel');
@@ -50,23 +43,24 @@ export class InspectionsPanel
         this.deck = new DeckPanel();
 
         this.noSelectionPanel = new NoSelectionInspectionPanel();
-        this.imageInspectionPanel = config.imageInspectionPanel;
-        this.partInspectionPanel = config.partInspectionPanel;
-        this.layoutInspectionPanel = config.layoutInspectionPanel;
-        this.contentInspectionPanel = config.contentInspectionPanel;
         this.pageInspectionPanel = config.pageInspectionPanel;
-        this.regionInspectionPanel = config.regionInspectionPanel;
-        this.fragmentInspectionPanel = config.fragmentInspectionPanel;
-        this.textInspectionPanel = config.textInspectionPanel;
 
-        this.deck.addPanel(this.imageInspectionPanel);
-        this.deck.addPanel(this.partInspectionPanel);
-        this.deck.addPanel(this.layoutInspectionPanel);
-        this.deck.addPanel(this.contentInspectionPanel);
-        this.deck.addPanel(this.regionInspectionPanel);
+        const imageInspectionPanel = config.imageInspectionPanel;
+        const partInspectionPanel = config.partInspectionPanel;
+        const layoutInspectionPanel = config.layoutInspectionPanel;
+        const contentInspectionPanel = config.contentInspectionPanel;
+        const regionInspectionPanel = config.regionInspectionPanel;
+        const fragmentInspectionPanel = config.fragmentInspectionPanel;
+        const textInspectionPanel = config.textInspectionPanel;
+
+        this.deck.addPanel(imageInspectionPanel);
+        this.deck.addPanel(partInspectionPanel);
+        this.deck.addPanel(layoutInspectionPanel);
+        this.deck.addPanel(contentInspectionPanel);
+        this.deck.addPanel(regionInspectionPanel);
         this.deck.addPanel(this.pageInspectionPanel);
-        this.deck.addPanel(this.fragmentInspectionPanel);
-        this.deck.addPanel(this.textInspectionPanel);
+        this.deck.addPanel(fragmentInspectionPanel);
+        this.deck.addPanel(textInspectionPanel);
         this.deck.addPanel(this.noSelectionPanel);
 
         this.deck.showPanel(this.pageInspectionPanel);
@@ -76,38 +70,32 @@ export class InspectionsPanel
 
         this.appendChildren(<Element>this.deck, this.buttonContainer);
 
-        this.partInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
-        this.layoutInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
+        partInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
+        layoutInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
     }
 
-    private getPanelDescriptor(panel: Panel): Descriptor {
-        if (panel instanceof DescriptorBasedComponentInspectionPanel || panel instanceof PageInspectionPanel) {
-            return panel.getDescriptor();
-        }
-
-        return null;
-    }
-
-    public showInspectionPanel(panel: Panel) {
+    public showInspectionPanel(panel: Panel): void {
         this.deck.showPanel(panel);
+    }
 
-        const descriptor = this.getPanelDescriptor(panel);
-        if (!descriptor) {
-            this.buttonContainer.setVisible(false);
+    public setButtonContainerVisible(isVisible: boolean = true): void {
+        this.buttonContainer.setVisible(isVisible);
+    }
+
+    public updateButtonsVisibility(descriptor?: Descriptor): void {
+        let thisDescriptor: Descriptor = descriptor;
+        if (!thisDescriptor) {
+            const panel: Panel = this.deck.getPanelShown();
+            if (panel instanceof DescriptorBasedComponentInspectionPanel || panel instanceof PageInspectionPanel) {
+                thisDescriptor = panel.getDescriptor();
+            }
         }
+        const showButtons = thisDescriptor ? thisDescriptor.getConfig()?.getFormItems().length > 0 : false;
+        this.setButtonContainerVisible(showButtons);
     }
 
-    private updateButtonsVisibility(descriptor: Descriptor): void {
-        const showButtons = descriptor ? descriptor.getConfig()?.getFormItems().length > 0 : false;
-        this.buttonContainer.setVisible(showButtons);
-    }
-
-    public clearInspection() {
+    public clearInspection(): void {
         this.showInspectionPanel(this.pageInspectionPanel);
-    }
-
-    public isInspecting(): boolean {
-        return this.deck.getPanelShown() !== this.noSelectionPanel;
     }
 
     public getPanelShown(): Panel {

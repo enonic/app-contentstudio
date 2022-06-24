@@ -2,7 +2,6 @@ import * as $ from 'jquery';
 import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {PageView} from '../../../page-editor/PageView';
@@ -421,13 +420,6 @@ export class LiveEditPageProxy {
 
         // Notify loaded no matter the result
         this.notifyLoaded();
-    }
-
-    private handlePlaceholderIFrameLoadedEvent(iframe: IFrameEl) {
-        let window = iframe.getHTMLElement()['contentWindow'];
-
-        $(window.document.body).find('.page-placeholder-info-line1').text(i18n('text.nocontrollers'));
-        $(window.document.body).find('.page-placeholder-info-line2').text(i18n('text.addapplications'));
     }
 
     public loadComponent(componentView: ComponentView<Component>, componentUrl: string,

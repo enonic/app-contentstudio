@@ -597,6 +597,10 @@ export class PageView
         return this;
     }
 
+    getPageViewController(): PageViewController {
+        return PageViewController.get();
+    }
+
     getCurrentContextMenu(): ItemViewContextMenu {
         return this.lockedContextMenu || super.getCurrentContextMenu();
     }
