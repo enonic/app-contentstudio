@@ -1,10 +1,13 @@
 /**
  * Created on 01.03.2022
  */
+const chai = require('chai');
+const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const MobileContentBrowsePanel = require('../../page_objects/browsepanel/mobile.content.browse.panel');
+const contentBuilder = require("../../libs/content.builder");
 const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 
 describe('Tests for browse panel toolbar in mobile mode', function () {
@@ -12,6 +15,8 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser(414, 736);
     }
+
+    let FOLDER;
 
     it("WHEN Mobile Browse panel is loaded THEN 'New' button should be enabled, 'Edit...','Archive..' buttons should be disabled",
         async () => {

@@ -31,6 +31,7 @@ describe('geopoint.content.spec: tests for geo point content', function () {
     it(`GIVEN wizard for 'GeoPoint 0:0' is opened WHEN valid value has been typed THEN validation message should not be present`,
         async () => {
             let geoPoint = new GeoPointForm();
+            let contentWizard = new ContentWizardPanel();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.GEOPOINT_0_0);
             //1. Type a correct geo point:
             await geoPoint.typeGeoPoint(VALID_GEO_LOCATION, 0);

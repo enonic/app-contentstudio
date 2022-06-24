@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -13,10 +12,13 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const MoveContentDialog = require('../../page_objects/browsepanel/move.content.dialog');
+const appConst = require('../../libs/app_const');
 
-describe('Text Component with CKE - insert download-link specification', function () {
+describe('Text Component with CKE - insert download-link  specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let TEST_CONTENT_DISPLAY_NAME = 'server';
@@ -46,7 +48,6 @@ describe('Text Component with CKE - insert download-link specification', functio
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
-            let insertLinkDialog = new InsertLinkDialog();
             //1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.clickOnShowComponentViewToggler();
@@ -59,24 +60,15 @@ describe('Text Component with CKE - insert download-link specification', functio
             //3. Open Insert Link dialog:
             await textComponentCke.clickOnInsertLinkButton();
             //4. Type a link-name and select a target:
-            //await studioUtils.insertDownloadLinkInCke("test", TEST_CONTENT_DISPLAY_NAME);
-            await insertLinkDialog.typeInLinkTextInput("test");
-            //Select a media content in the dropdown selector
-            await insertLinkDialog.selectTargetInContentTab(TEST_CONTENT_DISPLAY_NAME);
-            //5. Click on 'Download file' radio:
-            await insertLinkDialog.clickOnRadioButton(appConst.INSERT_LINK_DIALOG_TABS.DOWNLOAD_FILE);
-            await studioUtils.saveScreenshot('download_link_dialog');
-            await insertLinkDialog.clickOnInsertButton();
-            await insertLinkDialog.pause(700);
+            await studioUtils.insertDownloadLinkInCke("test", TEST_CONTENT_DISPLAY_NAME);
             await textComponentCke.switchToLiveEditFrame();
-            await studioUtils.saveScreenshot('download_link_inserted');
-            //5. Verify the text in CKE: 'media://download' should be present in the htmlarea
+            studioUtils.saveScreenshot('download_link_inserted');
+            //5. Verify the text in CKE:
             let actualText = await textComponentCke.getTextFromEditor();
             assert.include(actualText, EXPECTED_SRC, "Expected text should be in CKE");
             //Save the changes:
             await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
-            await contentWizard.waitForNotificationMessage();
         });
 
     it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN download-link should be present in the page`,
@@ -88,7 +80,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             //2. Verify that new added link is present
             let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
-            await studioUtils.saveScreenshot('download_link_present');
+            studioUtils.saveScreenshot('download_link_present');
             assert.isTrue(isDisplayed, 'download link should be present on the page');
         });
 

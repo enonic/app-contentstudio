@@ -77,7 +77,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
     it(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN min value has been typed THEN input validation recording should not be visible`,
         async () => {
             let longForm = new LongForm();
-             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
+            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
             //1. Min value has been typed:
             await longForm.typeLong(1);
             await longForm.pause(700);
