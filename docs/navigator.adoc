@@ -37,30 +37,13 @@ image::navigator-toolbar.png[]
 These options are also available in the context menu that appears when right-clicking on a content item in the tree grid panel.
 
 
-== Search Panel
-
-The search panel can be toggled with the `magnifying glass` icon at the far left of the menu bar. When opened, it has a text search field and categories to limit search results by *<<content-types#,Content Types>>* and *Last Modified*. *All* content will match an empty search field.
-
-image::navigator-search.png[]
-
-Search results are instantly updated in the tree grid as search parameters are changed. Children of matching content will also exist in the tree grid but won’t be visible unless the parent is expanded with the triangle.
-
-The number of hits will appear below the search field, along with a `Clear` button that will remove all search parameters.
-
-Each content type that has at least one matching content will appear in the <<content-types#,Content Types>> list with the number of matches in parenthesis `()`. Checking the box next to a content type will remove the results that do not match that type. Multiple content types can be “checked”.
-
-The *Last Modified* list works in a similar manner. It is used to limit results to content that has been modified in the last month, week, day or hour. This list may not appear if other search parameters have limited results to content that was modified more than a month ago.
-
-TIP: Search results remain in the tree grid when the search panel is closed. Don’t forget to clear the search when finished with it.
-
-
 == Content tree grid
 
-The content tree lists all the content that the logged in user has read access to. Content can be organized and stored in a hierarchy with child content collapsed under parent content. Parent content will have a gray triangle to the left of the content icon that can be clicked to expand or collapse the view of its children.
+The content tree lists all the content that current user has read access to. Content can be organized and stored in a hierarchy with child content collapsed under parent content. Parent content will have a gray triangle to the left of the content icon that can be clicked to expand or collapse the view of its children.
 
 The content tree can also be navigated with the keyboard arrow keys.
 
-The top of the content tree has a button to refresh the tree and a checkbox to select (_checked_) or deselect (_unchecked_) all content.
+The top of the content tree has a button to refresh the tree and a checkbox to select (_checked_) or deselect (_unchecked_) all the content items in the grid.
 
 image::navigator-grid.png[]
 
@@ -70,9 +53,9 @@ Information about the content is displayed in four columns. The number of column
 
 * The second column shows the icon, representing the current <<actions#sort,sorting>> order of the content's children.
 
-* The third column shows the status of the content which will be `New`, `Published`, `Unpublished`, `Modified` or `Deleted`.
+* The third column shows status of the content: `New`, `Published`, `Unpublished` or `Modified`.
 
-* The fourth column shows the date that content was last modified.
+* The fourth column shows the date when content was last modified.
 
 If the current user has only read access to a content item, such item will be slightly dimmed in the grid.
 
@@ -82,6 +65,35 @@ Double-click on a content item will open it for <<editor#,edit>> in a new browse
 
 Right-click on a content item will expand its context menu.
 
+== Search Panel
+
+The search panel can be toggled with the `magnifying glass` icon at the far left of the menu bar. When opened, it has a text search field and categories to filter Content Grid by the following content properties:
+
+ * Free-text search (by content Id, display name and path)
+ * <<content-types#,Content Types>>
+ * Workflow state (`Work in progress`)
+ * Last modifier
+ * Last modification date
+ * Owner
+ * Language
+
+image::navigator-search.png[550]
+
+Search results are instantly updated in the tree grid as search parameters are changed. Children of matching content items will also be displayed in the tree grid but won’t be visible unless the parent node is expanded.
+
+The number of hits will appear below the search field, along with a `Clear` button that will reset the filter.
+
+Each content type that has at least one matching content will appear in the <<content-types#,Content Types>> filter list with the number of matches in parenthesis `()`. Checking the box next to a content type will hide the results that do not match that type. Multiple content types can be selected. By default, only the 5 most popular content types will be shown, followed by "Show more" link to expand the entire list.
+
+image::navigator-search-expanded.png[550]
+
+The *Last Modified* list works in a similar manner. It is used to limit results to content that has been modified in the last month, week, day or hour. This list may not appear if other search parameters have limited results to content that was modified more than a month ago.
+
+Filter aggregations for *Last modified by* and *Owner* are dropdowns with the list of users who last modified content or are content owners. To simplify search for the current user, there's *Me* checkbox in both aggregations which serves as an alias for the current user. Selected users will be displayed as checkboxes above the dropdown.
+
+image::navigator-search-modifier-expanded.png[550]
+
+TIP: Search results remain in the tree grid when the search panel is collapsed. Don’t forget to clear the search when you are done with your search.
 
 == Preview panel
 
