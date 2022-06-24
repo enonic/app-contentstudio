@@ -3,6 +3,8 @@
  * verifies Publish Content dialog - Validation messages should be reset when the dialog is reopened #1199
  *          https://github.com/enonic/app-contentstudio/issues/1199
  */
+const chai = require('chai');
+const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -70,8 +72,10 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             await createRequestPublishDialog.waitForInvalidIconNotDisplayed();
         });
 
-    beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    beforeEach(() => studioUtils.navigateToContentStudioApp()
+    );
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome()
+    );
     before(async () => {
         if (typeof browser !== "undefined") {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

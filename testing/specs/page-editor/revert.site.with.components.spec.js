@@ -46,8 +46,8 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             await textComponentCke.typeTextInCkeEditor(TEXT);
             await contentWizard.waitAndClickOnSave();
             await textComponentCke.switchToLiveEditFrame();
-            //Verify that text component in edit mode is present:
-            await liveFormPanel.waitForEditableTextComponentDisplayed(TEXT);
+            //Verify that text component is present:
+            await liveFormPanel.waitForTextComponentDisplayed(TEXT);
         });
 
     it(`GIVEN existing site with image component is opened WHEN do right click on the image-component THEN component's context menu should appear`,

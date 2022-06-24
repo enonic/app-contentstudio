@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -13,6 +12,7 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const appConst = require('../../libs/app_const');
 
 describe('Text Component with CKE - insert link and table specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -21,7 +21,7 @@ describe('Text Component with CKE - insert link and table specification', functi
     }
 
     let SITE;
-    let INVALID_URL_SPEC = 'http://test$$.com';
+    let NOT_VALID_URL = 'test';
     let CONTROLLER_NAME = 'main region';
     let EXPECTED_URL = '<a href="http://google.com">test</a>';
 
@@ -52,7 +52,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await textComponentCke.waitForTableDisplayedInCke();
         });
 
-    it(`GIVEN 'Insert Link' dialog is opened WHEN invalid 'url' has been typed AND 'Insert' button pressed THEN validation message should appear`,
+    it(`GIVEN 'Insert Link' dialog is opened WHEN incorrect 'url' has been typed AND 'Insert' button pressed THEN validation message should appear`,
         async () => {
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
@@ -68,9 +68,8 @@ describe('Text Component with CKE - insert link and table specification', functi
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
             await textComponentCke.clickOnInsertLinkButton();
-            await insertLinkDialog.clickOnBarItem("URL")
-            await insertLinkDialog.typeInLinkTextInput("url_link");
-            await insertLinkDialog.typeUrl(INVALID_URL_SPEC);
+            await insertLinkDialog.typeText("url_link");
+            await insertLinkDialog.typeUrl(NOT_VALID_URL);
             //2. Click on 'Insert" in the modal dialog:
             await insertLinkDialog.clickOnInsertButton();
             //Validation message gets visible:
