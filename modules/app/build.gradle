@@ -40,7 +40,7 @@ dependencies {
     include "com.enonic.xp:lib-grid:${xpVersion}"
     include "com.enonic.xp:lib-event:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-    include "com.enonic.lib:lib-mustache:2.0.0"
+    include "com.enonic.lib:lib-mustache:2.1.0"
     include "com.enonic.xp:lib-io:${xpVersion}"
     include "com.enonic.lib:lib-license:3.0.0"
     include project( ':lib-contentstudio' )
