@@ -244,7 +244,6 @@ export class PageComponentsTreeGrid
         const node: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
 
         if (node) {
-            node.getData().getItemView().scrollComponentIntoView();
             this.scrollToRow(this.getGrid().getDataView().getRowById(node.getId()));
         }
     }

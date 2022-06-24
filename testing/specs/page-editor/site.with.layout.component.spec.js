@@ -60,7 +60,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await textComponentCke.typeTextInCkeEditor("text left");
             await contentWizard.waitAndClickOnSave();
             await contentWizard.switchToLiveEditFrame();
-            let result = await liveFormPanel.getTextInLayoutComponent();
+            let result = await liveFormPanel.getTextInEditableLayoutComponent()
             assert.equal(result[0], "text left", "Expected text should be present in the layout component");
         });
 
@@ -81,7 +81,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await textComponentCke.typeTextInCkeEditor("text center");
             await contentWizard.waitAndClickOnSave();
             await contentWizard.switchToLiveEditFrame();
-            let result = await liveFormPanel.getTextInLayoutComponent();
+            let result = await liveFormPanel.getTextInEditableLayoutComponent();
             assert.equal(result[1], "text center", "Expected text should be present in the layout component");
         });
 
@@ -102,7 +102,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await textComponentCke.typeTextInCkeEditor("text right");
             await contentWizard.waitAndClickOnSave();
             await contentWizard.switchToLiveEditFrame();
-            let result = await liveFormPanel.getTextInLayoutComponent();
+            let result = await liveFormPanel.getTextInEditableLayoutComponent();
             assert.equal(result[2], "text right", "Expected text should be present in the layout component");
         });
 

@@ -14,11 +14,13 @@ const xpath = {
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
     textComponentView: "//div[contains(@id,'TextComponentView')]",
+    editableTextComponentView: "//div[contains(@id,'TextComponentView') and @contenteditable='true']",
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
     imageInTextComponentByDisplayName:
         displayName => `//figure[contains(@data-widget,'image')]//img[contains(@src,'${displayName}')]`,
+    editableTextComponentByText: text => `//div[contains(@id,'TextComponentView') and @contenteditable='true']//p[contains(.,'${text}')]`,
     textComponentByText: text => `//div[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
-    captionByText: text => `//div[contains(@id,'TextComponentView')]//figcaption[contains(.,'${text}')]`
+    captionByText: text => `//div[contains(@id,'TextComponentView') and @contenteditable='true']//figcaption[contains(.,'${text}')]`
 };
 
 class LiveFormPanel extends Page {
@@ -91,6 +93,16 @@ class LiveFormPanel extends Page {
             throw new Error("Error when getting text in the layout component! " + err);
         }
     }
+    async getTextInEditableLayoutComponent() {
+        try {
+            let selector = xpath.layoutComponentView + xpath.editableTextComponentView + "/p";
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            return await this.getTextInDisplayedElements(selector);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_layout_text'));
+            throw new Error("Error when getting text in the layout component! " + err);
+        }
+    }
 
     async waitForImageDisplayed(imageName) {
         try {
@@ -112,9 +124,9 @@ class LiveFormPanel extends Page {
         }
     }
 
-    async waitForTextComponentDisplayed(text) {
+    async waitForEditableTextComponentDisplayed(text) {
         try {
-            let selector = xpath.textComponentByText(text);
+            let selector = xpath.editableTextComponentByText(text);
             return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot("err_live_frame_text_component1");

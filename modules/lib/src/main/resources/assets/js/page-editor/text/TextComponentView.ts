@@ -16,7 +16,7 @@ import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
 import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
 import {TextComponent} from '../../app/page/region/TextComponent';
 import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
-import {HtmlEditor} from '../../app/inputtype/ui/text/HtmlEditor';
+import {HtmlEditor, HtmlEditorCursorPosition} from '../../app/inputtype/ui/text/HtmlEditor';
 import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
@@ -29,6 +29,7 @@ import {ContentPath} from '../../app/content/ContentPath';
 import {ItemViewSelectedEvent} from '../ItemViewSelectedEvent';
 import {SelectedHighlighter} from '../SelectedHighlighter';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder<TextComponent> {
@@ -50,6 +51,8 @@ export class TextComponentView
     private focusOnInit: boolean;
 
     private editorContainer: DivEl;
+
+    private editorReadyListeners: { (): void; }[] = [];
 
     public static debug: boolean = false;
 
@@ -314,6 +317,7 @@ export class TextComponentView
         this.setDraggable(!edit);
 
         if (edit) {
+            SelectedHighlighter.get().hide();
             if (!this.isEditorPresentOrInitializing()) {
                 this.initEditor();
             }
@@ -325,6 +329,14 @@ export class TextComponentView
                 this.rootElement.setHtml(TextComponentView.DEFAULT_TEXT, false);
             }
         }
+    }
+
+    getCursorPosition(): HtmlEditorCursorPosition {
+        return this.htmlAreaEditor.getCursorPosition();
+    }
+
+    setCursorPosition(pos: HtmlEditorCursorPosition): void {
+        this.htmlAreaEditor.setSelectionByCursorPosition(pos);
     }
 
     private onMouseLeftHandler(e: MouseEvent, mousePressed?: boolean) {
@@ -361,23 +373,42 @@ export class TextComponentView
     }
 
     private onKeydownHandler(e: KeyboardEvent) {
-        let saveShortcut = (e.keyCode === 83 && (e.ctrlKey || e.metaKey));
-
-        if (saveShortcut) { //Cmd-S
+        if (this.isSaveShortcutPressed(e)) {
             this.processEditorValue();
+            return;
         }
 
-        if (e.keyCode === 27 || saveShortcut) { // esc or Cmd-S
-            PageViewController.get().setTextEditMode(false);
-            this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
-        } else if ((e.altKey) && e.keyCode === 9) { // alt+tab for OSX
-            let nextFocusable = FormEl.getNextFocusable(this, '.xp-page-editor-text-view', true);
-            if (nextFocusable) {
-                $(nextFocusable.getHTMLElement()).simulate('click');
-                nextFocusable.giveFocus();
-            } else {
-                this.htmlAreaEditor.fire('blur');
-            }
+        if (KeyHelper.isEscKey(e)) {
+            this.handleEscPressed();
+            return;
+        }
+
+        if (this.isAltTabPressed(e)) { // alt+tab for OSX
+            this.handleAltTabPressed();
+        }
+    }
+
+    private isSaveShortcutPressed(e: KeyboardEvent): boolean {
+        return e.code === 'KeyS' && (e.ctrlKey || e.metaKey);
+    }
+
+    private handleEscPressed(): void {
+        PageViewController.get().setTextEditMode(false);
+        this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+    }
+
+    private isAltTabPressed(e: KeyboardEvent): boolean {
+        return e.altKey && KeyHelper.isTabKey(e);
+    }
+
+    private handleAltTabPressed(): void {
+        const nextFocusable: Element = FormEl.getNextFocusable(this, '.xp-page-editor-text-view', true);
+
+        if (nextFocusable) {
+            $(nextFocusable.getHTMLElement()).simulate('click');
+            nextFocusable.giveFocus();
+        } else {
+            this.htmlAreaEditor.fire('blur');
         }
     }
 
@@ -448,6 +479,7 @@ export class TextComponentView
         }
         this.focusOnInit = false;
         this.isInitializingEditor = false;
+        this.notifyEditorReady();
     }
 
     private forceEditorFocus(): void {
@@ -511,7 +543,7 @@ export class TextComponentView
         this.htmlAreaEditor = null;
     }
 
-    private startPageTextEditMode() {
+    startPageTextEditMode() {
         let pageView = this.getPageView();
 
         if (!pageView.isTextEditMode()) {
@@ -550,5 +582,31 @@ export class TextComponentView
         }
 
         return this.rootElement.getHTMLElement().textContent.trim();
+    }
+
+    scrollComponentIntoView() {
+        if (!this.getPageView().isTextEditMode()) {
+            super.scrollComponentIntoView();
+        }
+    }
+
+    onEditorReady(listener: () => void) {
+        if (this.isEditorReady()) {
+            listener();
+        } else {
+            this.editorReadyListeners.push(listener);
+        }
+    }
+
+    unEditorReady(listener: () => void) {
+        this.editorReadyListeners = this.editorReadyListeners.filter((currentListener: () => void) => {
+            return listener !== currentListener;
+        });
+    }
+
+    private notifyEditorReady(): void {
+        this.editorReadyListeners.forEach((listener: () => void) => {
+            listener.call(this);
+        });
     }
 }
