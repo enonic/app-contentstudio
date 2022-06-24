@@ -1,9 +1,7 @@
 /**
  * Created on 09.07.2021
- *
  */
 const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -55,7 +53,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot('text_component_image_caption');
+            await studioUtils.saveScreenshot('text_component_image_caption');
             await contentWizard.waitForNotificationMessage();
             await contentWizard.switchToLiveEditFrame();
             //5. Verify that the caption is present in Page Editor:
