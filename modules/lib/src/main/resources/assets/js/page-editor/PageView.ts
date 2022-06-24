@@ -19,7 +19,7 @@ import {PageItemType} from './PageItemType';
 import {PageViewContextMenuTitle} from './PageViewContextMenuTitle';
 import {PagePlaceholder} from './PagePlaceholder';
 import {PageInspectedEvent} from './PageInspectedEvent';
-import {ItemViewSelectedEvent} from './ItemViewSelectedEvent';
+import {ItemViewSelectedEvent, ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {TextItemType} from './text/TextItemType';
 import {TextComponentView} from './text/TextComponentView';
@@ -303,7 +303,8 @@ export class PageView
                     PageViewController.get().setTextEditMode(false);
                 }
                 if (event.isNewlyCreated()) {
-                    itemView.select(null, ItemViewContextMenuPosition.NONE, true);
+                    const config = <ItemViewSelectedEventConfig>{itemView, position: null, newlyCreated: true};
+                    itemView.select(config, ItemViewContextMenuPosition.NONE);
                 }
             }
         };
@@ -414,14 +415,13 @@ export class PageView
         });
     }
 
-    select(clickPosition?: ClickPosition,
-           menuPosition?: ItemViewContextMenuPosition,
-           newlyCreated: boolean = false,
-           rightClicked: boolean = false
-    ) {
-        super.select(clickPosition, menuPosition, false, rightClicked);
+    select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
+        config.newlyCreated = false;
+        config.rightClicked = false;
 
-        new PageSelectedEvent(this, rightClicked).fire();
+        super.select(config, menuPosition);
+
+        new PageSelectedEvent(this, config.rightClicked).fire();
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {

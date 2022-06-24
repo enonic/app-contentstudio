@@ -18,7 +18,7 @@ import {Highlighter} from './Highlighter';
 import {SelectedHighlighter} from './SelectedHighlighter';
 import {Cursor} from './Cursor';
 import {ItemViewId} from './ItemViewId';
-import {ItemViewSelectedEvent} from './ItemViewSelectedEvent';
+import {ItemViewSelectedEvent, ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
 import {ItemViewDeselectedEvent} from './ItemViewDeselectedEvent';
 import {ItemViewIconClassResolver} from './ItemViewIconClassResolver';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
@@ -672,7 +672,14 @@ export class ItemView
                     PageViewController.get().setTextEditMode(false);
                     this.unhighlight();
                 } else {
-                    this.select(clickPosition, menuPosition, false, rightClicked);
+                    const config = <ItemViewSelectedEventConfig>{
+                        itemView: this,
+                        position: clickPosition,
+                        newlyCreated: false,
+                        rightClicked
+                    };
+
+                    this.select(config, menuPosition);
                 }
 
             } else if (isViewInsideSelectedContainer && rightClicked) {
@@ -815,14 +822,12 @@ export class ItemView
         return this.getEl().hasAttribute('data-live-edit-selected');
     }
 
-    select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, newlyCreated?: boolean, rightClicked?: boolean,
-        avoidInspectComponentRefresh?: boolean) {
+    select(config: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
 
         Highlighter.get().hide();
         this.selectItem();
-        this.showContextMenu(clickPosition, menuPosition);
-        new ItemViewSelectedEvent({itemView: this, position: clickPosition, newlyCreated, rightClicked, avoidInspectComponentRefresh})
-            .fire();
+        this.showContextMenu(config.position, menuPosition);
+        new ItemViewSelectedEvent(config).fire();
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {
@@ -1128,7 +1133,8 @@ export class ItemView
 
     private selectItemView(itemView: ItemView) {
         this.deselect();
-        itemView.select(null, ItemViewContextMenuPosition.TOP, false, true);
+        const config = <ItemViewSelectedEventConfig>{itemView, position: null, newlyCreated: false, rightClicked: true};
+        itemView.select(config, ItemViewContextMenuPosition.TOP);
         itemView.scrollComponentIntoView();
     }
 

@@ -15,7 +15,7 @@ import {PageUnlockedEvent} from '../../../page-editor/PageUnlockedEvent';
 import {PageUnloadedEvent} from '../../../page-editor/PageUnloadedEvent';
 import {PageTextModeStartedEvent} from '../../../page-editor/PageTextModeStartedEvent';
 import {RegionSelectedEvent} from '../../../page-editor/RegionSelectedEvent';
-import {ItemViewSelectedEvent} from '../../../page-editor/ItemViewSelectedEvent';
+import {ItemViewSelectedEvent, ItemViewSelectedEventConfig} from '../../../page-editor/ItemViewSelectedEvent';
 import {ItemViewDeselectedEvent} from '../../../page-editor/ItemViewDeselectedEvent';
 import {ComponentAddedEvent} from '../../../page-editor/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../../../page-editor/ComponentRemovedEvent';
@@ -433,10 +433,6 @@ export class LiveEditPageProxy {
             url: componentUrl,
             type: 'GET',
             success: (htmlAsString: string) => {
-                let clickPosition: ClickPosition,
-                    menuPosition: ItemViewContextMenuPosition,
-                    newlyCreated: boolean,
-                    rightClicked: boolean;
                 const newElement: Element = Element.fromString(htmlAsString);
                 const itemViewIdProducer: ItemViewIdProducer = componentView.getItemViewIdProducer();
                 const itemViewFactory: ItemViewFactory = componentView.getItemViewFactory();
@@ -457,7 +453,8 @@ export class LiveEditPageProxy {
                 const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView, componentView);
                 event.fire(this.liveEditWindow);
 
-                newComponentView.select(clickPosition, menuPosition, newlyCreated, rightClicked, avoidInspectComponentRefresh);
+                const config = <ItemViewSelectedEventConfig>{itemView: newComponentView, position: null, avoidInspectComponentRefresh};
+                newComponentView.select(config, null);
                 newComponentView.hideContextMenu();
 
                 deferred.resolve('');

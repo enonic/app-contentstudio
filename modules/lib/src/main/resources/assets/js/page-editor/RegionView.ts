@@ -2,7 +2,6 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ClickPosition} from './ClickPosition';
 import {ItemView, ItemViewBuilder} from './ItemView';
 import {RegionItemType} from './RegionItemType';
 import {RegionViewContextMenuTitle} from './RegionViewContextMenuTitle';
@@ -12,6 +11,7 @@ import {LiveEditModel} from './LiveEditModel';
 import {ItemViewAddedEvent} from './ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
+import {ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
 import {RegionSelectedEvent} from './RegionSelectedEvent';
 import {ComponentAddedEvent as PageEditorComponentAddedEvent} from './ComponentAddedEvent';
 import {ComponentRemovedEvent as PageEditorComponentRemovedEvent} from './ComponentRemovedEvent';
@@ -294,13 +294,13 @@ export class RegionView
         }
     }
 
-    select(clickPosition?: ClickPosition,
-           menuPosition?: ItemViewContextMenuPosition,
-           isNew: boolean = false,
-           rightClicked: boolean = false) {
-        super.select(clickPosition, menuPosition, false, rightClicked);
+    select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
+        config.newlyCreated = false;
+        config.rightClicked = false;
 
-        new RegionSelectedEvent(this, rightClicked).fire();
+        super.select(config, menuPosition);
+
+        new RegionSelectedEvent(this, config.rightClicked).fire();
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {
