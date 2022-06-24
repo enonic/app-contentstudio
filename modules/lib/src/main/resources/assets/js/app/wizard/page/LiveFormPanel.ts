@@ -88,6 +88,9 @@ import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {BrEl} from '@enonic/lib-admin-ui/dom/BrEl';
 import {ContentId} from '../../content/ContentId';
+import {ItemView} from '../../../page-editor/ItemView';
+import {HtmlEditorCursorPosition} from "../../inputtype/ui/text/HtmlEditor";
+import * as $ from "jquery";
 
 export interface LiveFormPanelConfig {
 
@@ -665,16 +668,24 @@ export class LiveFormPanel
 
         let path;
         let isComponentView: boolean = false;
+        let textEditorCursorPos: HtmlEditorCursorPosition;
 
         BeforeContentSavedEvent.on(() => {
             path = null;
+            textEditorCursorPos = null;
+
             if (!this.pageView) {
                 return;
             }
-            const selected = this.pageView.getSelectedView();
+            const selected: ItemView = this.pageView.getSelectedView();
+
             if (ObjectHelper.iFrameSafeInstanceOf(selected, ComponentView)) {
                 path = (<ComponentView<any>>selected).getComponentPath();
                 isComponentView = true;
+
+                if (this.pageView.isTextEditMode() && ObjectHelper.iFrameSafeInstanceOf(selected, TextComponentView)) {
+                    textEditorCursorPos = (<TextComponentView>selected).getCursorPosition();
+                }
             } else if (ObjectHelper.iFrameSafeInstanceOf(selected, RegionView)) {
                 path = (<RegionView>selected).getRegionPath();
             }
@@ -694,6 +705,20 @@ export class LiveFormPanel
                                                                         : this.pageView.getRegionViewByPath(path);
                 if (selected) {
                     selected.selectWithoutMenu(true);
+                    selected.scrollComponentIntoView();
+
+                    if (textEditorCursorPos && ObjectHelper.iFrameSafeInstanceOf(selected, TextComponentView)) {
+                        this.pageView.appendContainerForTextToolbar();
+                        const textView: TextComponentView = (<TextComponentView>selected);
+                        textView.startPageTextEditMode();
+                        $(textView.getHTMLElement()).simulate('click');
+
+                        textView.onEditorReady(() => {
+                            setTimeout(() => {
+                                textView.setCursorPosition(textEditorCursorPos);
+                            }, 100);
+                        });
+                    }
                 }
             }
         };

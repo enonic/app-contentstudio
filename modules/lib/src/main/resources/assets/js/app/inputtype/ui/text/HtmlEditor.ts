@@ -624,7 +624,7 @@ export class HtmlEditor {
                 const config: any = {
                     editor: editor,
                     editorParams: this.editorParams,
-                    cursorPosition: this.getCursorPosition(editor)
+                    cursorPosition: this.getCursorPosition()
                 };
 
                 this.notifyFullscreenDialog(config);
@@ -674,13 +674,13 @@ export class HtmlEditor {
         });
     }
 
-    private getCursorPosition(editor: CKEDITOR.editor): HtmlEditorCursorPosition {
-        const selection: CKEDITOR.dom.selection = editor.getSelection();
+    getCursorPosition(): HtmlEditorCursorPosition {
+        const selection: CKEDITOR.dom.selection = this.editor.getSelection();
         const range: CKEDITOR.dom.range = selection.getRanges()[0];
         const isCursorSetOnText: boolean = (!!range && !!range.startContainer && range.startContainer.$.nodeName === '#text');
 
         return {
-            selectionIndexes: editor.elementPath().elements.map(e => e.getIndex()).reverse().slice(1),
+            selectionIndexes: this.editor.elementPath().elements.map(e => e.getIndex()).reverse().slice(1),
             indexOfSelectedElement: isCursorSetOnText ? range.startContainer.getIndex() : -1,
             startOffset: isCursorSetOnText ? range.startOffset : null
         };
@@ -923,19 +923,22 @@ export class HtmlEditor {
         this.editor.on(eventName, handler);
     }
 
-    public setSelectionByCursorPosition(cursorPositon: HtmlEditorCursorPosition) {
-        let elementContainer: CKEDITOR.dom.element = this.editor.document.getBody();
-        cursorPositon.selectionIndexes.forEach((index: number) => {
+    public setSelectionByCursorPosition(cursorPosition: HtmlEditorCursorPosition) {
+        let elementContainer: CKEDITOR.dom.element = this.editorParams.isInline() ?
+            this.editor.container :
+            this.editor.document.getBody();
+
+        cursorPosition.selectionIndexes.forEach((index: number) => {
             elementContainer = <CKEDITOR.dom.element>elementContainer.getChild(index);
         });
 
         elementContainer.scrollIntoView();
 
         const selectedElement: CKEDITOR.dom.node =
-            cursorPositon.indexOfSelectedElement > -1 ? elementContainer.getChild(cursorPositon.indexOfSelectedElement) : elementContainer;
+            cursorPosition.indexOfSelectedElement > -1 ? elementContainer.getChild(cursorPosition.indexOfSelectedElement) : elementContainer;
 
         const range: CKEDITOR.dom.range = this.editor.createRange();
-        range.setStart(selectedElement, cursorPositon.startOffset || 0);
+        range.setStart(selectedElement, cursorPosition.startOffset || 0);
         range.select();
     }
 }
