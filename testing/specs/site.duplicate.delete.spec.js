@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const ContentDuplicateDialog = require('../page_objects/content.duplicate.dialog');
@@ -14,7 +13,7 @@ const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialo
 const appConst = require('../libs/app_const');
 
 describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Value dialogs', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -23,7 +22,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 

@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const HtmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
@@ -12,18 +11,18 @@ const InsertImageDialog = require('../page_objects/wizardpanel/insert.image.dial
 const appConst = require('../libs/app_const');
 
 describe('insert.image.dlg.style.selector.spec: style selector, select Original option', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
-    let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.POP_03;
+    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
 
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -42,7 +41,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
             let actualOptions = await insertImageDialog.getStyleSelectorOptions();
             studioUtils.saveScreenshot('image_digradlew cleanalog_style_options');
             assert.equal(actualOptions[0], "<None>", "First option should be '<None>' ");
-            assert.equal(actualOptions[1], appConstant.IMAGE_STYLE_ORIGINAL, "one available option should be present in options list");
+            assert.equal(actualOptions[1], appConst.IMAGE_STYLE_ORIGINAL, "one available option should be present in options list");
         });
 
     it(`GIVEN htmlarea-content, image is selected on the modal dialog WHEN 'Original' option has been selected THEN 'Custom Width' checkbox is getting disabled`,

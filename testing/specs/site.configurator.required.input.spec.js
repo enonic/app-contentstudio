@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
@@ -14,7 +13,7 @@ const SiteConfiguratorDialog = require('../page_objects/wizardpanel/site.configu
 const appConst = require('../libs/app_const');
 
 describe('site.configurator.required.input.spec: verifies wizard validation when the dialog contains required input', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -25,12 +24,12 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             let siteFormPanel = new SiteFormPanel();
             let siteConfiguratorDialog = new SiteConfiguratorDialog();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConstant.APP_WITH_CONFIGURATOR]);
+            SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConst.APP_WITH_CONFIGURATOR]);
             await studioUtils.doAddSite(SITE, true);
             //1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             //2. Click on Edit icon and open Site Configurator Dialog:
-            await siteFormPanel.openSiteConfiguratorDialog(appConstant.APP_WITH_CONFIGURATOR);
+            await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_WITH_CONFIGURATOR);
             studioUtils.saveScreenshot('site_configurator_1');
             //3. Verify that this input is focused by default( issue#427)
             let isElementFocused = await siteConfiguratorDialog.isFocused(`//input[contains(@name,'trackingId')]`);
@@ -60,7 +59,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
         async () => {
             let siteFormPanel = new SiteFormPanel();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            let isInvalid = await siteFormPanel.isSiteConfiguratorViewInvalid(appConstant.APP_WITH_CONFIGURATOR);
+            let isInvalid = await siteFormPanel.isSiteConfiguratorViewInvalid(appConst.APP_WITH_CONFIGURATOR);
             assert.isTrue(isInvalid, 'Selected option view should be red colour because, the required input is empty');
         });
 
@@ -71,13 +70,13 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             let siteConfiguratorDialog = new SiteConfiguratorDialog();
             //1. Open the site and open Site Configurator Dialog:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await siteFormPanel.openSiteConfiguratorDialog(appConstant.APP_WITH_CONFIGURATOR);
+            await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_WITH_CONFIGURATOR);
             //2. Fill the required input:
             await siteConfiguratorDialog.typeInTextInput('test');
             //3. Click on 'Apply' button and close the dialog:
             await siteConfiguratorDialog.clickOnApplyButton();
             //4. Verify that SiteConfiguratorView gets valid:
-            await siteFormPanel.waitUntilSiteConfiguratorViewValid(appConstant.APP_WITH_CONFIGURATOR);
+            await siteFormPanel.waitUntilSiteConfiguratorViewValid(appConst.APP_WITH_CONFIGURATOR);
             studioUtils.saveScreenshot('site_conf_gets_valid');
             //5. Verify that red icon gets not visible:
             let isInvalid = await contentWizard.isContentInvalid();
@@ -91,7 +90,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             let siteConfiguratorDialog = new SiteConfiguratorDialog();
             //1. Open the site and open Site Configurator Dialog:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await siteFormPanel.openSiteConfiguratorDialog(appConstant.APP_WITH_CONFIGURATOR);
+            await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_WITH_CONFIGURATOR);
             //2. Clear the required text input:
             await siteConfiguratorDialog.typeInTextInput("");
             //3. Verify that 'Apply' button gets disabled

@@ -99,7 +99,7 @@ class PageComponentView extends Page {
 
     waitForMenuItemPresent(name) {
         let selector = xpath.contextMenuItemByName(name);
-        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
     waitForMenuItemNotDisplayed(menuItem) {

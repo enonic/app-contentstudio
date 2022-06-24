@@ -5,15 +5,17 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
+const appConst = require('../../libs/app_const');
 
-describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolbar`', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolbar', function () {
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let FOLDER;
@@ -46,15 +48,15 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             // open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
             await studioUtils.saveScreenshot("publish_menu_Folder_ready");
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.PUBLISH);
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH_TREE);
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.MARK_AS_READY);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH_TREE);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
             //3.  do publish the folder:
             await studioUtils.doPublish();
             let status = await contentBrowsePanel.getContentStatus(FOLDER.displayName);
-            assert.equal(status, appConstant.CONTENT_STATUS.PUBLISHED, "The folder should be Published");
+            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "The folder should be Published");
         });
 
     it(`GIVEN existing 'published' folder WHEN publish menu has been expanded THEN 'Unpublish' and 'Create Task...' menu items should be enabled`,
@@ -65,11 +67,11 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             //2. Open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
             await studioUtils.saveScreenshot("publish_menu_Folder_published");
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.UNPUBLISH);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH_TREE);
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.MARK_AS_READY);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.UNPUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH_TREE);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
         });
 
     it(`WHEN existing folder has been unpublished THEN status of menu items should be updated`,
@@ -86,11 +88,11 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             // open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
             await studioUtils.saveScreenshot("publish_menu_Folder_unpublished");
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.PUBLISH);
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH_TREE);
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.MARK_AS_READY);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH_TREE);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
         });
 
     it(`WHEN site(Ready to publish) has been published (children were not included) THEN 'PUBLISH TREE...' button should appear in the browse-toolbar`,
@@ -117,7 +119,10 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

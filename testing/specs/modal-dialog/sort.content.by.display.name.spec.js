@@ -11,7 +11,9 @@ const studioUtils = require('../../libs/studio.utils.js');
 
 describe('sort.content.by.display.name.spec, tests for ascending/descending order', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN 'Sort Content' dialog is opened WHEN 'Display name' menu item has been clicked THEN the sort order should be updated`,
         async () => {
@@ -41,7 +43,10 @@ describe('sort.content.by.display.name.spec, tests for ascending/descending orde
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

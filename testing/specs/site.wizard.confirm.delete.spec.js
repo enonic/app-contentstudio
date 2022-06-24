@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
@@ -15,7 +14,7 @@ const appConst = require('../libs/app_const');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 
 describe('site.wizard.confirm.delete.spec: opens a site and delete it', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -28,11 +27,11 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             let deleteContentDialog = new DeleteContentDialog();
             let confirmValueDialog = new ConfirmValueDialog();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConst.APP_CONTENT_TYPES]);
             //wizard for new site has been opened and data has been typed:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(SITE.displayName);
-            await siteFormPanel.addApplications([appConstant.APP_CONTENT_TYPES]);
+            await siteFormPanel.addApplications([appConst.APP_CONTENT_TYPES]);
             //the site should be automatically saved:
             await contentWizard.waitForNotificationMessage();
             //Click on Archive... button and open Delete Content Dialog:

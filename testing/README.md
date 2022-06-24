@@ -24,5 +24,13 @@ Go to 'app-contentstudio' directory and run tests:
 run tests with geckodriver(Firefox browser):
 
 1. gradlew testWizardsGridFirefoxLocal - run ui-tests on local started XP
+   gradlew testPageEditorFirefoxLocal
 2. gradlew testWizardsGridFirefox - downloads XP then starts the server then deploys applications and runs tests
+3. gradlew testPageEditorFirefox
+4. gradlew testInputTypesFirefox_2
+5. gradlew testInputTypesFirefox
+6. gradlew testContentStudioProjectsFirefox
+7. For switching all tests to FF, specify the suite in gradle.yml:
+   suite: [ testContentStudioProjectsFirefox, testPageEditorFirefox, testInputTypesFirefox, testInputTypesFirefox_2, testWizardsGridFirefox, testPublishIssuesFirefox, testModalDialogFirefox ]
+
 

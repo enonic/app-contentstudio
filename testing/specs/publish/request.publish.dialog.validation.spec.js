@@ -13,7 +13,9 @@ const CreateRequestPublishDialog = require('../../page_objects/issue/create.requ
 
 describe('request.publish.dialog.validation.spec - opens request publish modal dialog and checks validation message', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it("GIVEN existing folder with children(valid) is selected AND 'Request Publishing...' menu item has been clicked WHEN 'Include child' icon has been clicked THEN Invalid icon should not be visible",
         async () => {
@@ -74,7 +76,10 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
     );
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome()
     );
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

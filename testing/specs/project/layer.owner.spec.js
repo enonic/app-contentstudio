@@ -4,17 +4,18 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
-const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
@@ -23,14 +24,14 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;
     let USER;
-    const PASSWORD = appConstant.PASSWORD.MEDIUM;
+    const PASSWORD = appConst.PASSWORD.MEDIUM;
 
     it(`Precondition 1: new system user should be created`,
         async () => {
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName("layer-owner");
-            let roles = [appConstant.SYSTEM_ROLES.ADMIN_CONSOLE];
+            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -53,7 +54,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             //2. Select the new user's context:
             await contentBrowsePanel.selectContext(PROJECT_DISPLAY_NAME);
             //3. SU adds new site:
-            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -70,7 +71,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             //3. Select the users in Project Access selector:
             await layerWizard.selectProjectAccessRoles(USER.displayName);
             //4. Set 'Owner' role to the user:
-            await layerWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.OWNER);
+            await layerWizard.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.OWNER);
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
             //Do log out:
@@ -93,7 +94,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await contentBrowsePanel.waitForLocalizeButtonEnabled();
             //4. Verify that workflow state the same as in the parent project:
             let actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE_NAME);
-            assert.equal(actualWorkflow, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS);
+            assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
     //Verifies - https://github.com/enonic/app-contentstudio/issues/2309
@@ -107,7 +108,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
             //3. Verify that 'Mark as Ready' is default action in Publish Menu
-            await contentBrowsePanel.waitForDefaultAction(appConstant.PUBLISH_MENU.MARK_AS_READY);
+            await contentBrowsePanel.waitForDefaultAction(appConst.PUBLISH_MENU.MARK_AS_READY);
         });
 
     it("GIVEN user with 'Owner'-layer role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
@@ -152,18 +153,20 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await contentBrowsePanel.waitForLocalizeButtonEnabled();
             //4. Verify that workflow state the same as in the parent project:
             let actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE_NAME);
-            assert.equal(actualWorkflow, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+            assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
         });
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         //Do not close the Login page:
-        if (title.includes(appConstant.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConstant.TAB_TITLE_PART)) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

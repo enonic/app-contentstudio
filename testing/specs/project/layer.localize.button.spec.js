@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
@@ -13,10 +12,13 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SettingsForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const appConst = require('../../libs/app_const');
 
 describe('layer.localize.button.spec - checks Localize button in browse toolbar and Layers widget', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const FOLDER_NAME = studioUtils.generateRandomName('folder');
     const FOLDER_2_NAME = studioUtils.generateRandomName('folder');
@@ -31,7 +33,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard("Default");
             await layerWizard.clickOnAccessModeRadio("Public");
             await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
-            await layerWizard.selectLanguage(appConstant.LANGUAGES.NORSK_NO);
+            await layerWizard.selectLanguage(appConst.LANGUAGES.NORSK_NO);
             //2. Save the layer:
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
@@ -181,7 +183,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             await contentWizardPanel.waitForOpened();
             let localizedMes = await contentWizardPanel.waitForNotificationMessage();
             //Expected Message: Language was copied from current project
-            assert.equal(localizedMes, appConstant.LOCALIZED_MESSAGE_1, "Expected message should appear after the content has been opened");
+            assert.equal(localizedMes, appConst.LOCALIZED_MESSAGE_1, "Expected message should appear after the content has been opened");
             //3. Remove the current notification message:
             await contentWizardPanel.removeNotificationMessage();
             //4. Open Layers widget in the wizard:
@@ -191,7 +193,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             //6. Verify the notification message:
             let actualMessage = await contentWizardPanel.waitForNotificationMessage();
             //Expected Message: Inherited content was localized:
-            assert.equal(actualMessage, appConstant.LOCALIZED_MESSAGE_2, "Expected message should appear after saving the content");
+            assert.equal(actualMessage, appConst.LOCALIZED_MESSAGE_2, "Expected message should appear after saving the content");
             //7. Verify that 'Edit' button gets visible in the widget:
             //await wizardLayersWidget.waitForEditButtonEnabled(LAYER_DISPLAY_NAME);
             //8. Verify that postfix '(?)' is not present in the name in the widget item
@@ -216,7 +218,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             await contentWizardPanel.waitAndClickOnSave();
             //5. Verify the notification message:
             let actualMessage = await contentWizardPanel.waitForNotificationMessage();
-            let expectedMessage = appConstant.itemSavedNotificationMessage(FOLDER_NAME);
+            let expectedMessage = appConst.itemSavedNotificationMessage(FOLDER_NAME);
             assert.equal(actualMessage, expectedMessage, "Item is saved - this message should appear");
         });
 
@@ -252,7 +254,10 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
         return await studioUtils.navigateToContentStudioWithProjects();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

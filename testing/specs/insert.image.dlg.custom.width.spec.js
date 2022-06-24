@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const HtmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
@@ -15,19 +14,19 @@ const VersionsWidget = require('../page_objects/wizardpanel/details/wizard.versi
 const appConst = require('../libs/app_const');
 
 describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkbox and check `image range value`', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
-    let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.POP_03;
+    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
 
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 

@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const ContentFilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -18,19 +17,22 @@ const BrowseDependenciesWidget = require('../../page_objects/browsepanel/details
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const FragmentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel');
+const appConst = require('../../libs/app_const');
 
 describe('Generate name for fragments specification', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
-    let TEST_IMAGE_NAME = appConstant.TEST_IMAGES.FOSS;
+    let TEST_IMAGE_NAME = appConst.TEST_IMAGES.FOSS;
 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.SIMPLE_SITE_APP], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.SIMPLE_SITE_APP], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -55,7 +57,7 @@ describe('Generate name for fragments specification', function () {
             //4. Save the text-component as fragment:
             await contentWizard.clickOnShowComponentViewToggler();
             await pageComponentView.openMenu("Text");
-            await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(700);
             await studioUtils.doSwitchToNewWizard();
             //5. Verify the generated display name:
@@ -95,7 +97,7 @@ describe('Generate name for fragments specification', function () {
             await contentWizard.clickOnShowComponentViewToggler();
             //2. Click on text-component and expand the menu, then click on Remove menu item:
             await pageComponentView.openMenu("Text");
-            await pageComponentView.selectMenuItemAndCloseDialog([appConstant.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
+            await pageComponentView.selectMenuItemAndCloseDialog([appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
             //3. Save the site:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -120,7 +122,7 @@ describe('Generate name for fragments specification', function () {
             await contentWizard.clickOnShowComponentViewToggler();
             //2. Insert existing text-component
             await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItemAndCloseDialog([appConstant.COMPONENT_VIEW_MENU_ITEMS.INSERT, "Fragment"]);
+            await pageComponentView.selectMenuItemAndCloseDialog([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, "Fragment"]);
             await contentWizard.clickOnComponentViewToggler();
             await liveFormPanel.selectFragmentByDisplayName("Text");
             await contentWizard.switchToMainFrame();
@@ -142,7 +144,7 @@ describe('Generate name for fragments specification', function () {
             await pageComponentView.selectMenuItem(["Insert", "Layout"]);
             //3. Save the empty layout-component as fragment:
             await pageComponentView.openMenu("Layout");
-            await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(700);
             await studioUtils.doSwitchToNewWizard();
             //4. Verify the generated display name(should be 'Layout'):
@@ -176,7 +178,10 @@ describe('Generate name for fragments specification', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

@@ -18,9 +18,11 @@ const ContentFilterPanel = require('../../page_objects/browsepanel/content.filte
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 
-describe('fragment.inspect.panel.spec - Select a site with not valid child and try to publish it', function () {
+describe('fragment.layout.inspect.panel.spec - Select a site with not valid child and try to publish it', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+        if (typeof browser === "undefined") {
+                webDriverHelper.setupBrowser();
+        }
 
     let FRAGMENT_LAYOUT_DESCRIPTION = "layout";
     const MAIN_REGION_CONTROLLER = "main region";
@@ -57,12 +59,13 @@ describe('fragment.inspect.panel.spec - Select a site with not valid child and t
             await contentWizardPanel.waitForSpinnerNotVisible();
             //5. Type new site's name and save:
             await contentWizardPanel.typeDisplayName(SITE_1_NAME);
+            await contentWizardPanel.pause(1000);
             await contentWizardPanel.waitAndClickOnSave();
             await contentWizardPanel.waitForSpinnerNotVisible();
             // wait for the description is refreshing:
-            await contentWizardPanel.pause(1000);
+            await contentWizardPanel.pause(4000);
             await studioUtils.saveScreenshot("fragment_path_updated");
-            //6. Fragment Inspection Panel should be loaded automatically. Verify that path is updated in the dropdown:
+            //6. Fragment Inspection Panel should be loaded automatically in the site wizard. Verify that path is updated in the dropdown:
             let actualPath = await fragmentInspectionPanel.getSelectedOptionPath();
             assert.include(actualPath, SITE_1_NAME, "Path should be updated in Fragment Inspection Panel");
             //7. Verify that expected description should be in the fragment 'component item'
@@ -220,7 +223,10 @@ describe('fragment.inspect.panel.spec - Select a site with not valid child and t
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

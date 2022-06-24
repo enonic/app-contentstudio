@@ -4,13 +4,15 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
+const appConst = require('../../libs/app_const');
 
 describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of buttons in the toolbar', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`WHEN setting browse panel is opened(no selections) THEN expected button should be present in the browse toolbar`,
         async () => {
@@ -27,7 +29,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Select 'Projects' folder
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.PROJECTS.ROOT_FOLDER);
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.PROJECTS.ROOT_FOLDER);
             studioUtils.saveScreenshot("settings_toolbar_2");
             //'New...' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();
@@ -41,7 +43,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Select 'Default' folder:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.PROJECTS.DEFAULT_PROJECT_NAME);
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.PROJECTS.DEFAULT_PROJECT_NAME);
             studioUtils.saveScreenshot("settings_toolbar_2");
             //'New...' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();
@@ -56,7 +58,10 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

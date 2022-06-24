@@ -10,7 +10,8 @@ exports.config = {
         __dirname + '/specs/*.spec.js'
     ],
     exclude: [
-        __dirname + '/specs/content.unsaved.changes.spec.js'
+        __dirname + '/specs/content.unsaved.changes.spec.js',
+        __dirname + '/specs/archive.confirm.content.spec.js'
     ],
     maxInstances: 1,
 
@@ -26,7 +27,7 @@ exports.config = {
         }
     }],
 
-    logLevel: 'info',
+    logLevel: 'error',
     //
     // Enables colors for log output.
     coloredLogs: true,

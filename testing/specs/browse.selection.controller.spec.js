@@ -4,14 +4,13 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentFilterPanel = require('../page_objects/browsepanel/content.filter.panel');
 const appConst = require('../libs/app_const');
 
 describe('Browse panel selection controller spec. Tests for Selection Controller checkBox and Show/Hide selection toggler', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -22,8 +21,8 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Select 2 folders:
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_NAME);
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_2_NAME);
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_NAME);
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_2_NAME);
             //3. Click on Selection Toggle (circle, Show Selection):
             await contentBrowsePanel.clickOnSelectionToggler();
             await contentBrowsePanel.pause(500);
@@ -33,7 +32,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             let result = await contentBrowsePanel.isSelectionControllerSelected();
             assert.isTrue(result, "Selection Controller checkBox should be selected");
             //5. Verify that checkboxes are clickable: Unselect one item in the filtered grid:
-            await contentBrowsePanel.clickOnCheckbox(appConstant.TEST_FOLDER_2_NAME);
+            await contentBrowsePanel.clickOnCheckbox(appConst.TEST_FOLDER_2_NAME);
             await contentBrowsePanel.pause(1000);
             await studioUtils.saveScreenshot("filtered_grid_one_item_unselected");
             //6. Verify that only one item remains visible in the filtered grid now:
@@ -47,9 +46,9 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Click on the row :
-            await contentBrowsePanel.clickOnRowByName(appConstant.TEST_FOLDER_NAME);
+            await contentBrowsePanel.clickOnRowByName(appConst.TEST_FOLDER_NAME);
             //2. Click on checkbox in the highlighted row:
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_NAME);
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_NAME);
             //3. Click on Selection Toggle (circle, Show Selection):
             await contentBrowsePanel.clickOnSelectionToggler();
             await contentBrowsePanel.pause(500);

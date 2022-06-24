@@ -14,7 +14,9 @@ const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel
 
 describe('content.publish.dialog.spec - opens publish modal dialog and checks control elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let FOLDER1_NAME;
     let PARENT_FOLDER;
     let CHILD_FOLDER;
@@ -213,7 +215,10 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

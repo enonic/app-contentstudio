@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const contentBuilder = require("../../libs/content.builder");
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
@@ -12,23 +11,26 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('project.viewer.spec - ui-tests for user with Viewer role', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let TEST_FOLDER;
     let FOLDER_NAME = studioUtils.generateRandomName("folder");
     let USER;
-    let PASSWORD = appConstant.PASSWORD.MEDIUM;
+    let PASSWORD = appConst.PASSWORD.MEDIUM;
 
     it(`Preconditions: new system user should be created`,
         async () => {
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName("viewer");
-            let roles = [appConstant.SYSTEM_ROLES.ADMIN_CONSOLE];
+            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
         });
@@ -112,21 +114,23 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             studioUtils.saveScreenshot("project_viewer_3");
             //TODO this assert temporarily skipped
             //5. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Viewer role:
-            //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.CREATE_TASK);
-            //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             //6. Verify that 'Publish' menu item is disabled:
-            //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
+            //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
         });
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         //Do not close the Login page:
-        if (title.includes(appConstant.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConstant.TAB_TITLE_PART)) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

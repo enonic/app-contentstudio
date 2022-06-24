@@ -4,15 +4,15 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ImageEditor = require('../../page_objects/wizardpanel/image.editor');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const appConst = require('../../libs/app_const');
 
 describe("image.editor.focus.spec: tests for focus button", function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -23,8 +23,8 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
             //1. Open an existing image:
-            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.POP_02);
-            await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
+            await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
             //2. Verify that red circle is not displayed
             await imageEditor.waitForFocusCircleNotDisplayed();
             //3. Click on 'Focus' button and switch to 'edit' mode
@@ -48,8 +48,8 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
             //1. Open an existing image:
-            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.POP_02);
-            await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
+            await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
             //2. Verify that red circle is not displayed
             await imageEditor.waitForFocusCircleNotDisplayed();
             //3. Click on 'Focus' button and switch to 'edit' mode
@@ -70,8 +70,8 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();
             //1. Open the focused image:
-            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.POP_02);
-            await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
+            await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
             await studioUtils.saveScreenshot("image_focused");
             //2. Verify that 'Reset filters' button is displayed
             await imageEditor.waitForResetFiltersDisplayed();
@@ -84,8 +84,8 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
             //1. Open the focused image:
-            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.POP_02);
-            await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
+            await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
             //2. Click on 'Focus' button and switch to 'edit' mode
             await imageEditor.clickOnFocusButton();
             //3. Click on 'Reset Autofocus' button
@@ -107,8 +107,8 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
             //1. Open the image:
-            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.POP_02);
-            await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
+            await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
             //2. Open Versions Panel
             await contentWizard.openVersionsHistoryPanel();
             //3. Revert the focused version:
@@ -119,10 +119,12 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             await imageEditor.waitForFocusCircleDisplayed();
         });
 
-
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

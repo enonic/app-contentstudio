@@ -13,7 +13,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('request.publish.dialog.spec - opens request publish modal dialog and checks control elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let FOLDER1_NAME;
 
     it(`GIVEN folder is opened AND 'Marked as ready' is done WHEN request publish dialog has been opened THEN 'Next' button AND one item should be present in the dialog`,
@@ -107,7 +109,10 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

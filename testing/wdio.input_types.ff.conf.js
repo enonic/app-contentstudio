@@ -9,6 +9,11 @@ exports.config = {
     specs: [
         __dirname +  '/specs/content-types/*.spec.js'
     ],
+    exclude: [
+        __dirname + '/specs/content-types/image.editor.focus.spec.js',
+        __dirname + '/specs/content-types/attachments.wizard.spec.js'
+    ],
+
     maxInstances: 1,
 
     capabilities: [{
@@ -21,7 +26,6 @@ exports.config = {
                 'window-size=1970,1000'
             ]
         }
-
     }],
     logLevel: 'info',
     //
@@ -47,11 +51,11 @@ exports.config = {
         timeout: 70000
     },
     // Set directory to store all logs into
-    outputDir: __dirname+"/build/mochawesome-report/",
+    outputDir: "./build/mochawesome-report/",
 
     reporters: ['spec',
         ["html-nice", {
-            outputDir: './build/mochawesome-report/',
+            outputDir:  "./build/mochawesome-report/",
             filename: 'report.html',
             reportTitle: 'Tests for Input Types',
             linkScreenshots: true,

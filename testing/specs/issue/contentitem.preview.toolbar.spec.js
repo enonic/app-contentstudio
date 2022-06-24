@@ -7,19 +7,21 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const contentBuilder = require("../../libs/content.builder");
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const appConst = require('../../libs/app_const');
 
 describe('contentItem.preview.toolbar.spec: create a task and check it in the preview toolbar', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-    let firstIssueTitle = appConstant.generateRandomName('issue');
-    let secondIssueTitle = appConstant.generateRandomName('issue');
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+    let firstIssueTitle = appConst.generateRandomName('issue');
+    let secondIssueTitle = appConst.generateRandomName('issue');
     let TEST_FOLDER;
 
     it(`GIVEN folder has been created WHEN the folder is selected THEN 'New' status should be displayed in the preview-toolbar`,
@@ -66,7 +68,7 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
             await studioUtils.doPublish();
             //3. Published status should be displayed in the item preview toolbar:
             let status = await contentItemPreviewPanel.getContentStatus();
-            assert.equal(status, appConstant.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
+            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
             await contentItemPreviewPanel.waitForAuthorNotDisplayed();
         });
 
@@ -168,7 +170,10 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

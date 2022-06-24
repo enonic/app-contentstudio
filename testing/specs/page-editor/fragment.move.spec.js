@@ -5,7 +5,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -14,10 +13,13 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const MoveContentDialog = require('../../page_objects/browsepanel/move.content.dialog');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const TextComponent = require('../../page_objects/components/text.component');
+const appConst = require('../../libs/app_const');
 
 describe('Move Fragment specification', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
@@ -26,7 +28,7 @@ describe('Move Fragment specification', function () {
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -48,7 +50,7 @@ describe('Move Fragment specification', function () {
             //2. wait for (1500) page is rendered and open the menu
             await pageComponentView.openMenu("text_component_1");
             //3. Click on Save as Fragment menu item:
-            await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             studioUtils.saveScreenshot('text_saved_as_fragment2');
             //4. Wait for the description is refreshing:
             await contentWizard.pause(5500);
@@ -92,7 +94,10 @@ describe('Move Fragment specification', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

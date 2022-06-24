@@ -4,14 +4,16 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('project.wizard.panel.spec - ui-tests for project wizard', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = "Project1";
 
@@ -59,15 +61,15 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Select 'Super User' in in Roles Access combobox:
-            await projectWizard.selectProjectAccessRoles(appConstant.systemUsersDisplayName.SUPER_USER);
+            await projectWizard.selectProjectAccessRoles(appConst.systemUsersDisplayName.SUPER_USER);
             studioUtils.saveScreenshot("project_wizard_3");
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems.length, 1, "One access item should be present");
-            assert.equal(projectAccessItems[0], appConstant.systemUsersDisplayName.SUPER_USER,
+            assert.equal(projectAccessItems[0], appConst.systemUsersDisplayName.SUPER_USER,
                 "Expected item should be displayed in selected options");
 
             let actualRole = await projectWizard.getSelectedRoleInProjectAccessControlEntry("su");
-            assert.equal(actualRole, appConstant.PROJECT_ROLES.CONTRIBUTOR, "Contributor role should be set by default");
+            assert.equal(actualRole, appConst.PROJECT_ROLES.CONTRIBUTOR, "Contributor role should be set by default");
         });
 
     it(`GIVEN 'SU' is selected in Project Access WHEN the item has been removed THEN the item should not be present in the selected options`,
@@ -77,7 +79,7 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Select 'Super User' in Roles Access combobox:
-            await projectWizard.selectProjectAccessRoles(appConstant.systemUsersDisplayName.SUPER_USER);
+            await projectWizard.selectProjectAccessRoles(appConst.systemUsersDisplayName.SUPER_USER);
             //3. Remove the item:
             await projectWizard.removeProjectAccessItem("su");
             studioUtils.saveScreenshot("project_wizard_4");
@@ -90,7 +92,10 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

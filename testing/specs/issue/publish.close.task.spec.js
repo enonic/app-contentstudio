@@ -7,7 +7,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
@@ -16,11 +15,14 @@ const TaskDetailsDialogItemsTab = require('../../page_objects/issue/task.details
 const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
+const appConst = require('../../libs/app_const');
 
 describe('publish.close.task.spec: publish a content and close the task.', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-    let TASK_TITLE = appConstant.generateRandomName('task');
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+    let TASK_TITLE = appConst.generateRandomName('task');
     let TEST_FOLDER;
 
     it(`Precondition: create new folder and create new task for it`, async () => {
@@ -60,7 +62,7 @@ describe('publish.close.task.spec: publish a content and close the task.', funct
             await contentPublishDialog.clickOnPublishNowButton();
             //4. Verify the notification message:
             let message = await taskDetailsDialog.waitForNotificationMessage();
-            let expected = appConstant.itemPublishedNotificationMessage(TEST_FOLDER.displayName);
+            let expected = appConst.itemPublishedNotificationMessage(TEST_FOLDER.displayName);
             assert.equal(message, expected, 'expected message should be displayed');
             //5. 'Reopen Task' button should appear in the bottom of the dialog:
             await taskDetailsDialogItemsTab.waitForReopenTaskButtonDisplayed();
@@ -93,7 +95,10 @@ describe('publish.close.task.spec: publish a content and close the task.', funct
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

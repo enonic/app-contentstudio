@@ -4,7 +4,7 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
+const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -13,8 +13,11 @@ const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/
 const MobileContentBrowsePanel = require('../../page_objects/browsepanel/mobile.content.browse.panel');
 
 describe('Tests for preview panel in mobile mode', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser(414, 736);
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        //set the mobile resolution:
+        webDriverHelper.setupBrowser(414, 736);
+    }
     let FOLDER;
 
 
@@ -76,7 +79,10 @@ describe('Tests for preview panel in mobile mode', function () {
     afterEach(function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(414, 736);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

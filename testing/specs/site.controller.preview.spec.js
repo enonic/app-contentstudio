@@ -6,7 +6,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
@@ -18,7 +17,7 @@ const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem
 const appConst = require('../libs/app_const');
 
 describe('site.controller.preview.spec: checks Preview button and options in selector for Page Templates and Controllers', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -30,7 +29,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
         async () => {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'test preview site', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'test preview site', [appConst.APP_CONTENT_TYPES]);
             //1. Open new site-wizard:
             await studioUtils.doOpenSiteWizard();
             //2. Controller is not selected in the wizard
@@ -119,7 +118,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let contentWizard = new ContentWizard();
             //1. Select the site, then open new wizard for folder:
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             //2. Verify that Page Editor toggler is displayed:
             await contentWizard.waitForPageEditorTogglerDisplayed();
         });

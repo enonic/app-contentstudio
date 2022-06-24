@@ -7,7 +7,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -15,10 +14,13 @@ const contentBuilder = require("../../libs/content.builder");
 const LiveContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
 const PageTemplateForm = require('../../page_objects/wizardpanel/page.template.form.panel');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('page.template.controller: select a controller in a template-wizard', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let TEMPLATE;
     let SUPPORT = 'Site';
@@ -27,7 +29,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -66,7 +68,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             //2. Open the template:
             await studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
             //3. 'site' has been selected in 'support' and the template has been saved
-            await pageTemplateForm.filterOptionsAndSelectSupport(appConstant.TEMPLATE_SUPPORT.SITE);
+            await pageTemplateForm.filterOptionsAndSelectSupport(appConst.TEMPLATE_SUPPORT.SITE);
             await contentWizard.waitAndClickOnSave();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             //4. Template should be applied in the site-wizard:
@@ -115,7 +117,10 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 

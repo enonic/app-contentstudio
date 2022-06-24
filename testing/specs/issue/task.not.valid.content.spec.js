@@ -4,18 +4,20 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const TaskDetailsDialogItemsTab = require('../../page_objects/issue/task.details.items.tab');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const appConst = require('../../libs/app_const');
 
 describe('task.not.valid.content.spec: create a task with not valid content', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-    let TASK_TITLE = appConstant.generateRandomName('task');
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+    let TASK_TITLE = appConst.generateRandomName('task');
     const TEST_CONTENT_NAME = "circles";
 
     it(`GIVEN existing folder with one not valid child is selected WHEN 'Create Task' menu item has been selected and issue created THEN '10' number should be in 'Items' on IssueDetailsDialog`,
@@ -24,12 +26,12 @@ describe('task.not.valid.content.spec: create a task with not valid content', fu
             let createTaskDialog = new CreateTaskDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Select existing folder with children:
-            await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_2_NAME);
+            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_2_NAME);
             await contentBrowsePanel.waitForPublishButtonVisible();
             //2. open 'Create Task' dialog
             await contentBrowsePanel.openPublishMenuAndClickOnCreateTask();
             await createTaskDialog.typeTitle(TASK_TITLE);
-            await createTaskDialog.clickOnIncludeChildrenToggler(appConstant.TEST_FOLDER_2_DISPLAY_NAME);
+            await createTaskDialog.clickOnIncludeChildrenToggler(appConst.TEST_FOLDER_2_DISPLAY_NAME);
             studioUtils.saveScreenshot("create_task_dialog1");
             //3. Create this task:
             await createTaskDialog.clickOnCreateTaskButton();
@@ -105,7 +107,10 @@ describe('task.not.valid.content.spec: create a task with not valid content', fu
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });
