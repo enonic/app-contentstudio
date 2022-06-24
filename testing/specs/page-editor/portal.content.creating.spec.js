@@ -4,7 +4,7 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
+const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -15,14 +15,13 @@ const CityCreationPage = require('../../page_objects/wizardpanel/city.creation.p
 const LauncherPanel = require('../../page_objects/launcher.panel');
 const CityFormPanel = require('../../page_objects/wizardpanel/city.form.panel');
 
-
 describe('portal.content.creating.spec - tests for portal creating', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
     const COUNTRY_NAME = "Norway";
     const CITY_NAME = "lillestrom";
-    const COUNTRY_CONTENT_PATH = appConstant.generateRandomName("Norway");
+    const COUNTRY_CONTENT_PATH = appConst.generateRandomName("Norway");
     const SUPPORT = "Country";
     let TEMPLATE;
     const CONTROLLER = "Country Region";
@@ -35,7 +34,7 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             let pageComponentView = new PageComponentView();
             let liveFormPanel = new LiveFormPanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConstant.MY_FIRST_APP]);
+            SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConst.MY_FIRST_APP]);
             await studioUtils.doAddSite(SITE);
 
             TEMPLATE = contentBuilder.buildPageTemplate(COUNTRY_TEMPLATE_NAME, SUPPORT, CONTROLLER);
@@ -84,7 +83,7 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             //5. Verify that new city content is present in the grid:
             let cityFormPanel = new CityFormPanel();
             //6. Open just created city content and verify the population:
-            await studioUtils.openContentAndSwitchToTabByDisplayName(CITY_NAME, CITY_NAME + " / Content Studio");
+            await studioUtils.openContentAndSwitchToTabByDisplayName(CITY_NAME, CITY_NAME + appConst.TAB_TITLE_PART);
             await studioUtils.saveScreenshot("verify_city_wizard");
             let actualPopulation = await cityFormPanel.getPopulation();
             assert.equal(actualPopulation, CITY_POPULATION, "Expected population should be present in the wizard page");
