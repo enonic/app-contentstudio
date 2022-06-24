@@ -6,6 +6,7 @@ import {Dropdown} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 
 export class WidgetsSelectionRow
     extends DivEl {
@@ -124,6 +125,8 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
         AppHelper.focusInOut(this, () => {
             this.hideDropdown();
         });
+
+        ResponsiveManager.onAvailableSizeChanged(this, () => this.refresh.bind(this));
     }
 
     private static isDefaultOptionDisplayValueViewer(object: Object) {
