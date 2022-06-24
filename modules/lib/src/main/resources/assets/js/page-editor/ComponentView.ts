@@ -4,12 +4,12 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
-import {ClickPosition} from './ClickPosition';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {ItemView, ItemViewBuilder} from './ItemView';
 import {ItemViewAddedEvent} from './ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
+import {ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
 import {ComponentViewContextMenuTitle} from './ComponentViewContextMenuTitle';
 import {ComponentItemType} from './ComponentItemType';
 import {ComponentInspectedEvent} from './ComponentInspectedEvent';
@@ -286,12 +286,10 @@ export class ComponentView<COMPONENT extends Component>
 
     }
 
-    select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, newlyCreated: boolean = false,
-           rightClicked: boolean = false, avoidInspectComponentRefresh?: boolean) {
-
+    select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
         Element.fromHtmlElement(<HTMLElement>window.frameElement).giveFocus();
 
-        super.select(clickPosition, menuPosition, newlyCreated, rightClicked, avoidInspectComponentRefresh);
+        super.select(config, menuPosition);
         KeyBindings.get().bindKeys(this.keyBinding);
 
     }

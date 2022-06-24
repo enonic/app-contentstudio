@@ -4,7 +4,7 @@ import {ItemView} from './ItemView';
 import {ClickPosition} from './ClickPosition';
 import {SelectedByClickEvent} from './SelectedByClickEvent';
 
-interface ItemViewSelectedEventConfig {
+export interface ItemViewSelectedEventConfig {
     itemView: ItemView;
     position: ClickPosition;
     newlyCreated?: boolean;
