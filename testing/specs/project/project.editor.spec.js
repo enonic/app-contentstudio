@@ -143,7 +143,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
-        if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
+        if (title.includes(appConstant.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConstant.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });

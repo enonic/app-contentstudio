@@ -290,7 +290,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         //Do not close the Login page:
-        if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
+        if (title.includes(appConstant.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConstant.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
