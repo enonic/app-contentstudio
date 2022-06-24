@@ -83,7 +83,7 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             //5. Verify that new city content is present in the grid:
             let cityFormPanel = new CityFormPanel();
             //6. Open just created city content and verify the population:
-            await studioUtils.openContentAndSwitchToTabByDisplayName(CITY_NAME, CITY_NAME + appConst.TAB_TITLE_PART);
+            await studioUtils.openContentAndSwitchToTabByDisplayName(CITY_NAME, CITY_NAME + " " + appConst.TAB_TITLE_PART);
             await studioUtils.saveScreenshot("verify_city_wizard");
             let actualPopulation = await cityFormPanel.getPopulation();
             assert.equal(actualPopulation, CITY_POPULATION, "Expected population should be present in the wizard page");
