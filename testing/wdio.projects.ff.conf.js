@@ -7,10 +7,11 @@ exports.config = {
     // Specify Test Files
     // ==================
     specs: [
-        __dirname +  '/specs/content-types-2/*.spec.js'
+        __dirname + '/specs/project/*.spec.js'
     ],
     exclude: [
-        __dirname + '/specs/content-types-2/occurrences.image.selector.spec.js'
+        __dirname + '/specs/project/change.access.mode.spec.js',
+        __dirname + '/specs/project/create.content.in.project.spec.js',
     ],
 
     maxInstances: 1,
@@ -27,7 +28,7 @@ exports.config = {
         }
     }],
 
-    logLevel: 'info',
+    logLevel: 'error',
     //
     // Enables colors for log output.
     coloredLogs: true,
@@ -58,7 +59,7 @@ exports.config = {
         ["html-nice", {
             outputDir: './build/mochawesome-report/',
             filename: 'report.html',
-            reportTitle: 'Tests for Input Types (2)',
+            reportTitle: 'Tests for Projects',
             linkScreenshots: true,
             //to show the report in a browser when done
             showInBrowser: true,
@@ -69,6 +70,8 @@ exports.config = {
         ]
     ],
 
+    // Options to be passed to Mocha.
+    // See the full list at http://mochajs.org/
     mochaOpts: {
         ui: 'bdd',
         timeout: 60000
@@ -80,11 +83,10 @@ exports.config = {
     },
 
     onPrepare: function (config, capabilities) {
-
         reportAggregator = new ReportAggregator({
             outputDir: './build/mochawesome-report/',
             filename: 'report.html',
-            reportTitle: 'Tests for Input Types (2) Report',
+            reportTitle: 'Content Studio, Projects Tests Report',
             browserName: capabilities.browserName,
             collapseTests: true
         });

@@ -16,7 +16,9 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 
 describe('publish.work.in.progress.spec - publishes work in progress content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER;
     let SITE;
     let CONTROLLER_NAME = 'main region';
@@ -126,7 +128,10 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

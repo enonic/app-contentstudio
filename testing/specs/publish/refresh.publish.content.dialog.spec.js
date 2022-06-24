@@ -15,7 +15,9 @@ const DateRangeInput = require('../../page_objects/components/datetime.range');
 
 describe('refresh.publish.dialog.spec - opens publish content modal dialog and checks control elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let FOLDER;
 
     //verifies https://github.com/enonic/app-contentstudio/issues/697
@@ -116,7 +118,10 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

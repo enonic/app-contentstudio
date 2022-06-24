@@ -4,14 +4,13 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const appConst = require('../libs/app_const');
 
 describe('save.folder.existing.name.spec: Save a folder with a name that is already in use', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -28,7 +27,7 @@ describe('save.folder.existing.name.spec: Save a folder with a name that is alre
         async () => {
             let wizard = new ContentWizard();
             //1. Open new folder-wizard:
-            await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             //2. type the name of existing folder:
             await wizard.typeDisplayName(TEST_FOLDER.displayName);
             //3. 'Save' button should be disabled:

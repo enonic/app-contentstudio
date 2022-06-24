@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const appConst = require('../libs/app_const');
@@ -12,7 +11,7 @@ const SettingsStepForm = require('../page_objects/wizardpanel/settings.wizard.st
 const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 
 describe('wizard.setting.panel.spec:  test for Owner and Language selectors', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }

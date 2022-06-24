@@ -12,10 +12,13 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
+const appConst = require('../../libs/app_const');
 
 describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal dialog`, function () {
     this.timeout(csConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TASK_TITLE = csConst.generateRandomName('task');
     let TEST_FOLDER;
     let PUBLISH_REQUEST_TITLE = "my first request";
@@ -41,7 +44,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
     it(`Precondition: new request publish should be added`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let createRequestPublishDialog = new  CreateRequestPublishDialog();
+            let createRequestPublishDialog = new CreateRequestPublishDialog();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(csConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
@@ -120,9 +123,9 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             //Number in 'All()' should be reduced, because 'Open' button is active:
             assert.equal(filterInputNumberBeforeClose - filterInputNumber, 1, "Number in TypeFilter should be reduced by 1");
             //Number of Open issues should be reduced:
-            assert.equal(openNumberBeforeClose - openNumber , 1, "Number in 'Open' button should be reduced by 1");
+            assert.equal(openNumberBeforeClose - openNumber, 1, "Number in 'Open' button should be reduced by 1");
             //Number of closed issues should be increased:
-            assert.equal(closedNumber - closedNumberBeforeClose , 1, "Number of closed issues should be increased by 1");
+            assert.equal(closedNumber - closedNumberBeforeClose, 1, "Number of closed issues should be increased by 1");
         });
 
     //verifies https://github.com/enonic/app-contentstudio/issues/1233
@@ -188,7 +191,10 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

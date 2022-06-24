@@ -8,7 +8,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require("../../page_objects/browsepanel/content.browse.panel");
 const PdfForm = require('../../page_objects/wizardpanel/pdf.form.panel');
-const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentFilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 
 describe('pdf.content.spec tests for extraction data for pdf content', function () {
@@ -83,7 +82,10 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

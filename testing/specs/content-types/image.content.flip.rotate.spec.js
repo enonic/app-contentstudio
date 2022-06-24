@@ -4,15 +4,15 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ImageEditor = require('../../page_objects/wizardpanel/image.editor');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
+const appConst = require('../../libs/app_const');
 
 describe("image.content.flip.rotate.spec: Open an image and flip and rotate it", function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -21,7 +21,7 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
         async () => {
             let imageEditor = new ImageEditor();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.NORD);
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.NORD);
             //1. Click on Rotate button
             await imageEditor.clickOnRotateButton();
             //2. Verify that 'Reset filters' button gets visible
@@ -42,7 +42,7 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
         async () => {
             let imageEditor = new ImageEditor();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.NORD);
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.NORD);
             await studioUtils.saveScreenshot("image_flip_reset_filter_pressed1");
             //1. Click on Flip button:
             await imageEditor.clickOnFlipButton();
@@ -63,13 +63,13 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.NORD);
-            await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.NORD);
+            await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
             await imageEditor.clickOnRotateButton();
             await contentWizard.waitAndClickOnSave();
             await studioUtils.doCloseWizardAndSwitchToGrid();
             //clicks on Edit button and open this selected content:
-            await studioUtils.doClickOnEditAndOpenContent(appConstant.TEST_IMAGES.NORD);
+            await studioUtils.doClickOnEditAndOpenContent(appConst.TEST_IMAGES.NORD);
             // Reset Filter button should be displayed
             await imageEditor.waitForResetFiltersDisplayed();
             //'Save' button should be disabled:
@@ -84,8 +84,8 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
             //1. open existing image and click on Rotate button:
-            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.CAPE);
-            await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.CAPE);
+            await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
             await imageEditor.clickOnRotateButton();
             await studioUtils.saveScreenshot("image_rotated");
             // 2. Save the image:
@@ -107,8 +107,8 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
             //1. Open an existing image:
-            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.RENAULT);
-            await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.RENAULT);
+            await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
             //2. Rotate the image
             await imageEditor.clickOnRotateButton();
             //3. Save the content
@@ -127,7 +127,10 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

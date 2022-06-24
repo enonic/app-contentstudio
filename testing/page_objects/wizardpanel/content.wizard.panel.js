@@ -410,7 +410,7 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.showComponentViewToggler, appConst.mediumTimeout);
             await this.waitForElementEnabled(this.showComponentViewToggler, appConst.mediumTimeout);
             await this.clickOnElement(this.showComponentViewToggler);
-            return await this.pause(400);
+            return await this.pause(500);
         } catch (err) {
             await this.saveScreenshot('err_click_on_show_component_view');
             throw new Error("Error when clicking on 'Show Component View!'" + err);

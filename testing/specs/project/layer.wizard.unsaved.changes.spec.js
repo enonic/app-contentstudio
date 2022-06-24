@@ -4,16 +4,18 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const LayerWizardPanel = require('../../page_objects/project/layer.wizard.panel');
 const SettingsItemStatisticsPanel = require('../../page_objects/project/settings.item.statistics.panel');
+const appConst = require('../../libs/app_const');
 
 describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wizard', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
 
     it("GIVEN new layer(in Default) with roles is saved WHEN 'Copy roles from parent' has been clicked THEN 'Save' button gets enabled",
@@ -23,8 +25,8 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard("Default");
             await layerWizard.clickOnAccessModeRadio("Public");
             await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
-            await layerWizard.selectProjectAccessRoles(appConstant.systemUsersDisplayName.SUPER_USER);
-            await layerWizard.selectLanguage(appConstant.LANGUAGES.EN);
+            await layerWizard.selectProjectAccessRoles(appConst.systemUsersDisplayName.SUPER_USER);
+            await layerWizard.selectLanguage(appConst.LANGUAGES.EN);
             //2. Save the layer:
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
@@ -45,7 +47,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await studioUtils.saveScreenshot("layer_created_with_language");
             let actualLanguage = await settingsItemStatisticsPanel.getLanguage();
-            assert.equal(actualLanguage, appConstant.LANGUAGES.EN, "Expected language should be displayed in Statistics panel.");
+            assert.equal(actualLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed in Statistics panel.");
         });
 
     it("GIVEN existing layer with roles is opened WHEN 'Copy roles from parent' has been clicked AND close icon pressed THEN Confirmation Dialog should appear",
@@ -65,7 +67,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             studioUtils.saveScreenshot("layer_wizard_unsaved_changes_1");
             await confirmationDialog.waitForDialogOpened();
             let actualMessage = await confirmationDialog.getWarningMessage();
-            assert.equal(actualMessage, appConstant.PROJECT_UNSAVED_CHANGES_MESSAGE);
+            assert.equal(actualMessage, appConst.PROJECT_UNSAVED_CHANGES_MESSAGE);
         });
 
     it("GIVEN existing layer is opened WHEN 'Copy access mode from parent' has been clicked AND close icon pressed THEN Confirmation Dialog should appear",
@@ -86,7 +88,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             studioUtils.saveScreenshot("layer_wizard_unsaved_changes_2");
             await confirmationDialog.waitForDialogOpened();
             let actualMessage = await confirmationDialog.getWarningMessage();
-            assert.equal(actualMessage, appConstant.PROJECT_UNSAVED_CHANGES_MESSAGE);
+            assert.equal(actualMessage, appConst.PROJECT_UNSAVED_CHANGES_MESSAGE);
         });
 
     it("GIVEN existing layer with 'En' language is opened WHEN 'Copy language mode from parent' has been clicked AND close icon pressed THEN Confirmation Dialog should appear",
@@ -106,7 +108,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             studioUtils.saveScreenshot("layer_wizard_unsaved_changes_3");
             await confirmationDialog.waitForDialogOpened();
             let actualMessage = await confirmationDialog.getWarningMessage();
-            assert.equal(actualMessage, appConstant.PROJECT_UNSAVED_CHANGES_MESSAGE);
+            assert.equal(actualMessage, appConst.PROJECT_UNSAVED_CHANGES_MESSAGE);
         });
 
     it("WHEN existing layer selected and has been deleted THEN expected notification message should appear",
@@ -120,7 +122,10 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

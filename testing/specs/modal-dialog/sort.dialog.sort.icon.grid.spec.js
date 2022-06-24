@@ -5,14 +5,16 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 const studioUtils = require('../../libs/studio.utils.js');
+const appConst = require('../../libs/app_const');
 
 describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks the sort-icon in the grid`', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     //verifies https://github.com/enonic/app-contentstudio/issues/608
     //Sort icon menu is not updated after a sorting-type has been changed in modal dialog
@@ -20,21 +22,21 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();
-            await contentBrowsePanel.waitForSpinnerNotVisible(appConstant.mediumTimeout);
+            await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
             //1. Select the folder with children an open sort-dialog:
-            await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
+            await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickOnSortButton();
             await sortContentDialog.waitForDialogVisible();
             await sortContentDialog.clickOnMenuButton();
             //2. 'Manually sorted' menu item has been clicked:
-            await sortContentDialog.selectSortMenuItem(appConstant.sortMenuItem.MANUALLY_SORTED);
+            await sortContentDialog.selectSortMenuItem(appConst.sortMenuItem.MANUALLY_SORTED);
             await studioUtils.saveScreenshot('sort_menu_item_clicked');
             //3. Save the sorting and close the dialog:
             await sortContentDialog.clickOnSaveButton();
             await studioUtils.saveScreenshot('manually_sorted');
             //4. The folder is selected, get sorting-type in grid:
-            let sortingType = await contentBrowsePanel.getSortingIcon(appConstant.TEST_FOLDER_WITH_IMAGES);
-            assert.equal(sortingType, appConstant.sortMenuItem.MANUALLY_SORTED,
+            let sortingType = await contentBrowsePanel.getSortingIcon(appConst.TEST_FOLDER_WITH_IMAGES);
+            assert.equal(sortingType, appConst.sortMenuItem.MANUALLY_SORTED,
                 "expected icon for Manually sorted folder should appear in grid");
         });
 
@@ -43,9 +45,9 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();
-            await contentBrowsePanel.waitForSpinnerNotVisible(appConstant.mediumTimeout);
+            await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
             //1. Select the folder with children an open sort-dialog:
-            await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
+            await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickOnSortButton();
             await sortContentDialog.waitForDialogVisible();
             await sortContentDialog.pause(2000);
@@ -56,8 +58,8 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
             await sortContentDialog.clickOnSaveButton();
             await studioUtils.saveScreenshot('manually_sorted');
             //4. The folder is selected, get sorting-type in grid:
-            let sortingType = await contentBrowsePanel.getSortingIcon(appConstant.TEST_FOLDER_WITH_IMAGES);
-            assert.equal(sortingType, appConstant.sortMenuItem.MANUALLY_SORTED, "expected icon for Manually sorted folder should appear");
+            let sortingType = await contentBrowsePanel.getSortingIcon(appConst.TEST_FOLDER_WITH_IMAGES);
+            assert.equal(sortingType, appConst.sortMenuItem.MANUALLY_SORTED, "expected icon for Manually sorted folder should appear");
         });
 
     it(`GIVEN existing folder is selected AND 'Published date' order has been set in modal dialog WHEN sort dialog is reopened THEN expected order should be present in the selected option`,
@@ -66,25 +68,28 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
             let sortContentDialog = new SortContentDialog();
             await contentBrowsePanel.pause(1000);
             //1. Select the folder with children an open sort-dialog:
-            await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
+            await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickOnSortButton();
             await sortContentDialog.waitForDialogVisible();
             //2. Expand the menu:
             await sortContentDialog.clickOnMenuButton();
             //3. 'Published date' sorted menu item has been clicked
-            await sortContentDialog.selectSortMenuItem(appConstant.sortMenuItem.PUBLISHED_DATE, 'ascending');
+            await sortContentDialog.selectSortMenuItem(appConst.sortMenuItem.PUBLISHED_DATE, 'ascending');
             await sortContentDialog.clickOnSaveButton();
             await contentBrowsePanel.pause(1000);
             //4. reopen sort dialog:
             await contentBrowsePanel.clickOnSortButton();
             let sortingType = await sortContentDialog.getSelectedOrder();
-            let expected = appConstant.sortOrderTitle(appConstant.sortMenuItem.PUBLISHED_DATE, 'ascending');
+            let expected = appConst.sortOrderTitle(appConst.sortMenuItem.PUBLISHED_DATE, 'ascending');
             assert.equal(sortingType, expected, "expected sorting order should be present on the dialog");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

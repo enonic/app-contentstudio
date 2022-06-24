@@ -4,14 +4,13 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const LauncherPanel = require('../page_objects/launcher.panel');
 const LoginPage = require('../page_objects/login.page');
 const appConst = require('../libs/app_const');
 
 describe('launcher.panel.spec: test for Launcher Panel', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -19,7 +18,7 @@ describe('launcher.panel.spec: test for Launcher Panel', function () {
     it("WHEN su is logged in THEN 'Home' link should be active, Super User is current user",
         async () => {
             let launcherPanel = new LauncherPanel();
-            await launcherPanel.waitForPanelDisplayed(appConstant.mediumTimeout);
+            await launcherPanel.waitForPanelDisplayed(appConst.mediumTimeout);
             let currentUser = await launcherPanel.getCurrentUser();
             assert.equal(currentUser, "Super User");
             let result = await launcherPanel.getActiveLink();
@@ -29,7 +28,7 @@ describe('launcher.panel.spec: test for Launcher Panel', function () {
     it("GIVEN su is logged in WHEN 'Close XP menu' button has been clicked THEN launcher panel gets not visible",
         async () => {
             let launcherPanel = new LauncherPanel();
-            await launcherPanel.waitForPanelDisplayed(appConstant.mediumTimeout);
+            await launcherPanel.waitForPanelDisplayed(appConst.mediumTimeout);
             await launcherPanel.clickOnLauncherToggler();
             await studioUtils.saveScreenshot("launcher_closed");
             await launcherPanel.waitForPanelClosed();
@@ -43,7 +42,7 @@ describe('launcher.panel.spec: test for Launcher Panel', function () {
             if (!result) {
                 await launcherPanel.clickOnLauncherToggler();
             }
-            await launcherPanel.waitForPanelDisplayed(appConstant.mediumTimeout);
+            await launcherPanel.waitForPanelDisplayed(appConst.mediumTimeout);
             await launcherPanel.clickOnLogoutLink();
             await studioUtils.saveScreenshot("logout_link_pressed");
             await loginPage.waitForPageLoaded();

@@ -4,14 +4,14 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const GeoPointForm = require('../../page_objects/wizardpanel/geopoint.form.panel');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('geopoint.content.spec: tests for geo point content', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -24,7 +24,7 @@ describe('geopoint.content.spec: tests for geo point content', function () {
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -32,7 +32,7 @@ describe('geopoint.content.spec: tests for geo point content', function () {
         async () => {
             let geoPoint = new GeoPointForm();
             let contentWizard = new ContentWizardPanel();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.GEOPOINT_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.GEOPOINT_0_0);
             //1. Type a correct geo point:
             await geoPoint.typeGeoPoint(VALID_GEO_LOCATION, 0);
             await geoPoint.pause(500);
@@ -47,14 +47,14 @@ describe('geopoint.content.spec: tests for geo point content', function () {
         async () => {
             let geoPoint = new GeoPointForm();
             let contentWizard = new ContentWizardPanel();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.GEOPOINT_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.GEOPOINT_0_0);
             //1. Type an incorrect geo point:
             await geoPoint.typeGeoPoint(INCORRECT_GEO_LOCATION, 0);
             await contentWizard.typeDisplayName(GEO_POINT_CONTENT_NAME_1);
             await studioUtils.saveScreenshot('geo_point_content_not_valid');
             //2. Verify that validation message is displayed: 'Invalid value entered'
             let recording = await geoPoint.getOccurrenceValidationRecording(0);
-            assert.equal(recording, appConstant.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Validation recording should be displayed');
+            assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Validation recording should be displayed');
             //3. Save the content and check the red icon in the wizard:
             await contentWizard.waitAndClickOnSave();
             let result = await contentWizard.isContentInvalid();
@@ -81,13 +81,13 @@ describe('geopoint.content.spec: tests for geo point content', function () {
         async () => {
             let geoPoint = new GeoPointForm();
             let contentWizard = new ContentWizardPanel();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.GEOPOINT_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.GEOPOINT_1_1);
             await contentWizard.typeDisplayName(GEO_POINT_CONTENT_NAME_2);
             await geoPoint.typeGeoPoint(INCORRECT_GEO_LOCATION, 0);
             //2. Verify the validation message:
             await studioUtils.saveScreenshot('geo_point_content_not_valid_required');
             let recording = await geoPoint.getOccurrenceValidationRecording(0);
-            assert.equal(recording, appConstant.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Validation recording should be displayed');
+            assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Validation recording should be displayed');
             //3. Verify that the content is not valid, because geo point input is required
             let result = await contentWizard.isContentInvalid();
             assert.isTrue(result, "This content should be not valid");
@@ -97,7 +97,10 @@ describe('geopoint.content.spec: tests for geo point content', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

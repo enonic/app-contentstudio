@@ -4,21 +4,22 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 const ContentWidgetView = require('../../page_objects/browsepanel/detailspanel/content.widget.item.view');
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const appConst = require('../../libs/app_const');
 
 describe('create.content.in.project.spec - create new content in the selected context and verify a language in wizards', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER_NAME = studioUtils.generateRandomName("folder");
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
@@ -29,7 +30,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             //1. Navigate to Settings Panel:
             await studioUtils.openSettingsPanel();
             //1. Save new project (mode access is Private):
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConstant.LANGUAGES.NORSK_NO);
+            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.NORSK_NO);
         });
 
     it(`WHEN existing project has been clicked in 'Select Context' dialog THEN empty grid should be loaded`,
@@ -40,7 +41,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             //Verify that 'No open issues' - this label should be in Issues Button:
             let actualLabel = await settingsBrowsePanel.getTextInShowIssuesButton();
-            assert.equal(actualLabel, appConstant.SHOW_ISSUES_BUTTON_LABEL.NO_OPEN_ISSUES, "'No open issues' should be displayed");
+            assert.equal(actualLabel, appConst.SHOW_ISSUES_BUTTON_LABEL.NO_OPEN_ISSUES, "'No open issues' should be displayed");
             //Verify that the grid is empty:
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 0, "Browse Panel should not contain content");
@@ -56,11 +57,11 @@ describe('create.content.in.project.spec - create new content in the selected co
             //1. Select the project's context in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             //2. Open new folder wizard:
-            await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             studioUtils.saveScreenshot("project_default_language");
             //3. Verify the language in the wizard:
             let actualLanguage = await settingsStepForm.getSelectedLanguage();
-            assert.equal(actualLanguage, appConstant.LANGUAGES.NORSK_NO, "Expected language should be selected in the wizard step form");
+            assert.equal(actualLanguage, appConst.LANGUAGES.NORSK_NO, "Expected language should be selected in the wizard step form");
             //4. Verify that expected project display name is present in the wizard-toolbar:
             let actualProjectName = await contentWizardPanel.getProjectDisplayName();
             assert.equal(actualProjectName, PROJECT_DISPLAY_NAME + "(no)", "Actual and expected display name should be equal");
@@ -73,7 +74,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             //1. Select the project's context in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             //2. Open new folder wizard:
-            await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizardPanel.typeDisplayName(TEST_FOLDER_NAME);
             await contentWizardPanel.waitAndClickOnSave();
             await contentWizardPanel.pause(1000);
@@ -99,7 +100,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             await studioUtils.findAndSelectItem(TEST_FOLDER_NAME);
             await studioUtils.openBrowseDetailsPanel();
             let actualHeader = await userAccessWidget.getHeader();
-            assert.equal(actualHeader, appConstant.ACCESS_WIDGET_HEADER.RESTRICTED_ACCESS,
+            assert.equal(actualHeader, appConst.ACCESS_WIDGET_HEADER.RESTRICTED_ACCESS,
                 "'Restricted access to item' - header should be displayed");
 
         });
@@ -140,7 +141,10 @@ describe('create.content.in.project.spec - create new content in the selected co
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

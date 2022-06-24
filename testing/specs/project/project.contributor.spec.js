@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
@@ -19,14 +18,17 @@ const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentI
 const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const appConst = require('../../libs/app_const');
 
 describe('project.contributor.spec - ui-tests for user with Contributor role', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let USER;
-    let PASSWORD = appConstant.PASSWORD.MEDIUM;
+    let PASSWORD = appConst.PASSWORD.MEDIUM;
     let FOLDER_WORK_IN_PROGRESS;
     let FOLDER_READY_TO_PUBLISH;
     let FOLDER_NAME_1 = studioUtils.generateRandomName("folder");
@@ -39,7 +41,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName("contributor");
-            let roles = [appConstant.SYSTEM_ROLES.ADMIN_CONSOLE];
+            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -78,7 +80,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.doAddFolder(FOLDER_WORK_IN_PROGRESS);
             await studioUtils.doAddReadyFolder(FOLDER_READY_TO_PUBLISH);
 
-            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
             //Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -172,10 +174,10 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentBrowsePanel.openPublishMenu();
             studioUtils.saveScreenshot("project_contributor_3");
             //5. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Contributor role:
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             //6. Verify that 'Publish' menu item is disabled:
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
         });
 
     //Verifies - https://github.com/enonic/app-contentstudio/issues/1984
@@ -195,13 +197,13 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentBrowsePanel.openPublishMenu();
             studioUtils.saveScreenshot("project_contributor_10");
             //5. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Contributor role:
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
             //6. Verify that 'Request Publish' menu item is disabled
             // This assert temporarily skipped TODO uncomment it when issue#1984 will be fixed.
-            //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             //7. Verify that 'Publish' menu item is disabled:
             let menuItems = await contentBrowsePanel.getPublishMenuItems();
-            assert.isFalse(menuItems.includes(appConstant.PUBLISH_MENU.PUBLISH), "Publish menu item should not be present");
+            assert.isFalse(menuItems.includes(appConst.PUBLISH_MENU.PUBLISH), "Publish menu item should not be present");
         });
 
     it("GIVEN user with 'Contributor' role is logged in WHEN double click on an existing folder THEN the folder should be opened in the new browser tab AND all inputs should be disabled",
@@ -256,7 +258,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Select the folder and open Request wizard:
             await studioUtils.findAndSelectItem(FOLDER_READY_TO_PUBLISH.displayName);
-            await contentBrowsePanel.openPublishMenuSelectItem(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.clickOnNextButton();
             await createRequestPublishDialog.typeInChangesInput("contributor request");
@@ -290,12 +292,14 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         //Do not close the Login page:
-        if (title.includes(appConstant.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConstant.TAB_TITLE_PART)) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

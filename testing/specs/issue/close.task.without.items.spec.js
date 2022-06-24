@@ -4,16 +4,18 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('close.task.without.items.spec: create task without items, close the task and reopen it again', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-    let issueTitle = appConstant.generateRandomName('task');
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+    let issueTitle = appConst.generateRandomName('task');
 
     it(`WHEN new task without items has been created THEN 'No items to publish' should be displayed in the Items-tab`,
         async () => {
@@ -43,7 +45,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await taskDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             studioUtils.saveScreenshot("empty_issue_closed");
             //'The issue is Closed.' - this message should appear
-            await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.TASK_CLOSED_MESSAGE);
+            await taskDetailsDialog.waitForExpectedNotificationMessage(appConst.TASK_CLOSED_MESSAGE);
         });
 
     it(`GIVEN 'closed' task is clicked and Task Details dialog is opened WHEN 'Reopen Issue' button has been pressed THEN the tsk gets 'Open'`,
@@ -60,7 +62,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await taskDetailsDialog.clickOnReopenTaskButton();
             studioUtils.saveScreenshot("empty_task_reopened");
             //3. 'The issue is Open - this message should appear:
-            await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.TASK_OPENED_MESSAGE);
+            await taskDetailsDialog.waitForExpectedNotificationMessage(appConst.TASK_OPENED_MESSAGE);
             let actualStatus = await taskDetailsDialog.getCurrentStatusInStatusSelector();
             assert.equal(actualStatus, "Open", "'Open' status should be displayed in status selector button");
         });
@@ -101,7 +103,10 @@ describe('close.task.without.items.spec: create task without items, close the ta
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

@@ -4,15 +4,17 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('project.wizard.unsaved.changes.spec - checks unsaved changes in project wizard', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN new project wizard - display name has been typed WHEN 'close' icon has been clicked THEN Confirmation Dialog should appear`,
         async () => {
@@ -29,7 +31,7 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             studioUtils.saveScreenshot("project_wizard_unsaved_changes_1");
             await confirmationDialog.waitForDialogOpened();
             let actualMessage = await confirmationDialog.getWarningMessage();
-            assert.equal(actualMessage, appConstant.PROJECT_UNSAVED_CHANGES_MESSAGE);
+            assert.equal(actualMessage, appConst.PROJECT_UNSAVED_CHANGES_MESSAGE);
         });
 
     it(`GIVEN display name has been typed WHEN 'No' button in Confirmation dialog has been pressed THEN new project should not be created`,
@@ -91,7 +93,7 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             //3. Verify tgat the modal dialog is loaded:
             await confirmationDialog.waitForDialogOpened();
             let actualMessage = await confirmationDialog.getWarningMessage();
-            assert.equal(actualMessage, appConstant.PROJECT_UNSAVED_CHANGES_MESSAGE);
+            assert.equal(actualMessage, appConst.PROJECT_UNSAVED_CHANGES_MESSAGE);
         });
 
     it(`GIVEN no changes in new project wizard WHEN 'close' icon has been clicked THEN Confirmation Dialog should not appear`,
@@ -112,7 +114,10 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

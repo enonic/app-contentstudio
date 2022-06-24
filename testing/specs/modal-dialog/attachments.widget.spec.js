@@ -8,11 +8,11 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const AttachmentsItemView = require('../../page_objects/browsepanel/detailspanel/attachments.widget');
 
-
 describe('attachments.widget.spec: Tests for attachments widget in Details Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it("WHEN image content has been selected THEN attachment's name should be displayed on the widget",
         async () => {
@@ -36,7 +36,10 @@ describe('attachments.widget.spec: Tests for attachments widget in Details Panel
     afterEach(function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

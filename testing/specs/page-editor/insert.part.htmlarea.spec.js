@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -12,10 +11,13 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const TextComponentCke = require('../../page_objects/components/text.component');
+const appConst = require('../../libs/app_const');
 
 describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let CONTROLLER_NAME = 'main region';
     let CONTENT_NAME;
@@ -26,7 +28,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -129,7 +131,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await contentWizard.clickOnShowComponentViewToggler();
             //3. Expand the menu and click on "Save as Fragment" menu item
             await pageComponentView.openMenu("Html Area Example");
-            await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             //4. Go to Fragment Wizard (generated displayName is 'Html Area Example'")
             await studioUtils.switchToContentTabWindow("Html Area Example");
             //5. Open Page Component View in Fragment Wizard:
@@ -153,7 +155,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await contentWizard.clickOnShowComponentViewToggler();
             //3. Expand the menu and click on "Detach from fragment" menu item
             await pageComponentView.openMenuByDescription("part");
-            await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
             //4. Verify that custom icon should be displayed after the part detached from fragment:
             let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 0);
             assert.isFalse(isDefaultIcon, "The part should be displayed with the custom icon");
@@ -184,14 +186,17 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await pageComponentView.openMenu("test text");
             await studioUtils.saveScreenshot("fragment-template-context-menu");
             //6. Verify that 'Save as Fragment' menu item is not present in the menu:
-            await pageComponentView.waitForMenuItemNotDisplayed(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await pageComponentView.waitForMenuItemNotDisplayed(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             //7. Verify that 'Save as Template' menu item is not present in the menu:
-            await pageComponentView.waitForMenuItemNotDisplayed(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE);
+            await pageComponentView.waitForMenuItemNotDisplayed(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

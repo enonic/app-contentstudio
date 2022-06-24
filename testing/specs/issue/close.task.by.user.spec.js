@@ -10,7 +10,6 @@ const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const IssueDetailsDialogAssigneesTab = require('../../page_objects/issue/issue.details.dialog.assignees.tab');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
@@ -18,7 +17,9 @@ const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspane
 
 describe('close.task.by.user.spec: create a task for user and close it', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER;
     let USER;
     const PASSWORD = appConst.PASSWORD.MEDIUM;
@@ -154,7 +155,10 @@ describe('close.task.by.user.spec: create a task for user and close it', functio
             await studioUtils.doLogout();
         });
 
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

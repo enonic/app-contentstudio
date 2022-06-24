@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const XDataImageSelector = require('../page_objects/wizardpanel/xdata.image.selector.wizard.step.form');
@@ -15,7 +14,7 @@ const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wi
 const appConst = require('../libs/app_const');
 
 describe('content.xdata.outbound.dependency.spec: checks outbound dependency for a content with x-data(image)', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -28,7 +27,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -106,7 +105,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             let contentWizard = new ContentWizard();
             let xDataContentSelector = new XDataContentSelector();
             //1. Open new wizard with x-data (content selector):
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.COMBOBOX_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.COMBOBOX_0_0);
             await contentWizard.typeDisplayName(CONTENT_XDATA_CONTENT_SELECTOR);
             //2. Click on '+' and enable the x-data
             await contentWizard.clickOnXdataToggler();

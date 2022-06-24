@@ -12,7 +12,9 @@ const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('browse.panel.mark.as.ready.multiselection.spec - select 2 folders and do Mark as Ready action`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER1;
     let TEST_FOLDER2;
 
@@ -59,7 +61,10 @@ describe('browse.panel.mark.as.ready.multiselection.spec - select 2 folders and 
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

@@ -4,15 +4,17 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('edit.project.spec - ui-tests for editing a project', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName("project");
@@ -31,10 +33,10 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
             await projectWizard.typeDescription(TEST_DESCRIPTION);
             await projectWizard.clickOnAccessModeRadio("Private");
-            await projectWizard.selectLanguage(appConstant.LANGUAGES.EN);
+            await projectWizard.selectLanguage(appConst.LANGUAGES.EN);
             await projectWizard.waitForProjectIdentifierInputEnabled();
             await projectWizard.waitAndClickOnSave();
-            await projectWizard.waitForSpinnerNotVisible(appConstant.longTimeout);
+            await projectWizard.waitForSpinnerNotVisible(appConst.longTimeout);
             //3. Verify that Identifier Input gets disabled after saving the project
             await projectWizard.waitForProjectIdentifierInputDisabled();
             //4. verify the saved data:
@@ -43,7 +45,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             let actualProjectIdentifier = await projectWizard.getProjectIdentifier();
             assert.equal(actualProjectIdentifier, PROJECT_DISPLAY_NAME, "Expected identifier should be displayed");
             let actualLanguage = await projectWizard.getSelectedLanguage();
-            assert.equal(actualLanguage, appConstant.LANGUAGES.EN, "Expected language should be displayed");
+            assert.equal(actualLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed");
             //5. Verify that 'Delete' button gets enabled, because new project is created now:
             await projectWizard.waitForDeleteButtonEnabled();
         });
@@ -63,7 +65,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.waitAndClickOnSave();
             let actualMessage = await projectWizard.waitForNotificationMessage();
             //4. Verify the notification message:
-            assert.equal(actualMessage, appConstant.projectModifiedMessage(PROJECT_DISPLAY_NAME));
+            assert.equal(actualMessage, appConst.projectModifiedMessage(PROJECT_DISPLAY_NAME));
             //5. Click on 'close-icon' button and close the wizard:
             await settingsBrowsePanel.clickOnCloseIcon(PROJECT_DISPLAY_NAME);
             await projectWizard.waitForWizardClosed();
@@ -85,12 +87,12 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             //2. click on 'Custom' radio:
             await projectWizard.clickOnAccessModeRadio("Custom");
             //3. Select SU in the selector's options:
-            await projectWizard.selectUserInCustomReadAccess(appConstant.systemUsersDisplayName.SUPER_USER);
+            await projectWizard.selectUserInCustomReadAccess(appConst.systemUsersDisplayName.SUPER_USER);
             await projectWizard.waitAndClickOnSave();
             //4. Verify that SU is added in 'Custom Read Access'
             let result = await projectWizard.getSelectedCustomReadAccessOptions();
             assert.equal(result.length, 1, "One option should be selected in Custom Read Access");
-            assert.equal(result[0], appConstant.systemUsersDisplayName.SUPER_USER, "SU should be in 'Custom Read Access'");
+            assert.equal(result[0], appConst.systemUsersDisplayName.SUPER_USER, "SU should be in 'Custom Read Access'");
         });
 
     it(`WHEN existing project with selected 'Custom Access mode' has been opened THEN 'Custom Access mode' radio should be selected AND expected user should be in this form`,
@@ -104,7 +106,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             //2. Verify that expected user is displayed in Custom Read Access
             let result = await projectWizard.getSelectedCustomReadAccessOptions();
             assert.equal(result.length, 1, "One option should be selected in Custom Access mode");
-            assert.equal(result[0], appConstant.systemUsersDisplayName.SUPER_USER, "'SU' option should be in 'Custom Read Access'");
+            assert.equal(result[0], appConst.systemUsersDisplayName.SUPER_USER, "'SU' option should be in 'Custom Read Access'");
         });
 
     it(`GIVEN existing project with selected 'Custom Access mode' WHEN 'Public' radio has been clicked THEN 'Custom Access' combobox gets disabled`,
@@ -204,7 +206,10 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

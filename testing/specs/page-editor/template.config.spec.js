@@ -1,21 +1,19 @@
 /**
  * Created on 12.09.2019.
- *
  * Verifies: https://github.com/enonic/xp/issues/7396 and  https://github.com/enonic/app-contentstudio/issues/947
- *
  */
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const DefaultPageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/default.page.inspection.panel');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const appConst = require('../../libs/app_const');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
     let TEMPLATE;
@@ -26,7 +24,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -44,7 +42,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let defaultPageInspectionPanel = new DefaultPageInspectionPanel();
             let wizardDetailsPanel = new WizardDetailsPanel();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
             await wizardDetailsPanel.waitForDetailsPanelLoaded();
@@ -60,7 +58,10 @@ describe('template.config.spec: template config should be displayed in the Inspe
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 
