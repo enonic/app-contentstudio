@@ -16,7 +16,6 @@ const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const contentBuilder = require("../../libs/content.builder");
-const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('project.author.spec - ui-tests for user with Author role', function () {
@@ -203,7 +202,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
-        if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
+        if (title.includes(appConstant.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConstant.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });

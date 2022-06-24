@@ -16,7 +16,6 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
-const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const IssueDetailsDialogAssigneesTab = require('../../page_objects/issue/issue.details.dialog.assignees.tab');
@@ -277,7 +276,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
-        if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
+        if (title.includes(appConstant.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConstant.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });

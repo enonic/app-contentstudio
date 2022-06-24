@@ -79,6 +79,8 @@ module.exports = Object.freeze({
     LOCALIZED_MESSAGE_2: "Inherited content was localized",
     CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
+    TAB_TITLE_PART:"/ Content Studio",
+    CONTENT_STUDIO_TITLE:"Content Studio",
     ACCESS_WIDGET_HEADER: {
         RESTRICTED_ACCESS: "Restricted access to item",
         EVERYONE_CAN_READ: "Everyone can read this item"
