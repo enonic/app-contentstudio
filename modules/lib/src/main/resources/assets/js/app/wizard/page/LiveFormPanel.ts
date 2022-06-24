@@ -89,8 +89,8 @@ import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {BrEl} from '@enonic/lib-admin-ui/dom/BrEl';
 import {ContentId} from '../../content/ContentId';
 import {ItemView} from '../../../page-editor/ItemView';
-import {HtmlEditorCursorPosition} from "../../inputtype/ui/text/HtmlEditor";
-import * as $ from "jquery";
+import {HtmlEditorCursorPosition} from '../../inputtype/ui/text/HtmlEditor';
+import * as $ from 'jquery';
 
 export interface LiveFormPanelConfig {
 

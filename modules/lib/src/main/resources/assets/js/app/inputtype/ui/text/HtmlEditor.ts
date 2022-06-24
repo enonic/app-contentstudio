@@ -934,8 +934,9 @@ export class HtmlEditor {
 
         elementContainer.scrollIntoView();
 
-        const selectedElement: CKEDITOR.dom.node =
-            cursorPosition.indexOfSelectedElement > -1 ? elementContainer.getChild(cursorPosition.indexOfSelectedElement) : elementContainer;
+        const selectedElement: CKEDITOR.dom.node = cursorPosition.indexOfSelectedElement > -1 ?
+            elementContainer.getChild(cursorPosition.indexOfSelectedElement) :
+            elementContainer;
 
         const range: CKEDITOR.dom.range = this.editor.createRange();
         range.setStart(selectedElement, cursorPosition.startOffset || 0);
