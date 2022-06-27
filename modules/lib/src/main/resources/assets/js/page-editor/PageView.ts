@@ -356,6 +356,7 @@ export class PageView
     appendContainerForTextToolbar() {
         if (!this.hasToolbarContainer()) {
             this.editorToolbar = new DivEl('cke-toolbar-container').setId('cke-toolbar-container').setContentEditable(true);
+            this.editorToolbar.hide();
             this.appendChild(this.editorToolbar);
             this.addClass('has-toolbar-container');
             PageViewController.get().setEditorToolbar(this.editorToolbar);
@@ -557,6 +558,7 @@ export class PageView
     }
 
     setTextEditMode(flag: boolean) {
+        this.editorToolbar?.setVisible(flag);
         PageViewController.get().setHighlightingDisabled(flag);
         this.toggleClass('text-edit-mode', flag);
 
@@ -570,10 +572,6 @@ export class PageView
                 this.closeTextEditModeButton.toggleClass('active', flag);
             }
         });
-
-        if (this.editorToolbar) {
-            this.editorToolbar.toggleClass('visible', flag);
-        }
 
         if (flag) {
             this.addVerticalSpaceForEditorToolbar();
