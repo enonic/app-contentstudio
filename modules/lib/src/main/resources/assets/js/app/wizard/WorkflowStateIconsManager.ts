@@ -29,8 +29,13 @@ export class WorkflowStateIconsManager {
         this.statusChangedListeners = [];
     }
 
-    updateIcons() {
+    updateIcons(isFirstUpdate: boolean = false) {
         const status = this.createWorkflowStateStatus();
+
+        if (isFirstUpdate && status.ready && this.wizard.getContent().isPublished()) {
+            status.ready = false;
+        }
+
         const isStatusChanged = this.isWorkflowStateStatusChanged(status);
 
         if (isStatusChanged) {

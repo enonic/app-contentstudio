@@ -711,6 +711,8 @@ export class ContentWizardPanel
 
             const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
 
+            let firstRender: boolean = true;
+
             this.onValidityChanged((event: ValidityChangedEvent) => {
                 if (!this.persistedContent) {
                     return;
@@ -718,7 +720,7 @@ export class ContentWizardPanel
 
                 const isThisValid: boolean = this.isValid();
                 this.isContentFormValid = isThisValid;
-                this.workflowStateIconsManager.updateIcons();
+                this.workflowStateIconsManager.updateIcons(firstRender);
                 this.wizardActions
                     .setContentCanBePublished(this.checkContentCanBePublished())
                     .setIsValid(isThisValid)
@@ -726,6 +728,8 @@ export class ContentWizardPanel
                 if (!this.isNew()) {
                     this.displayValidationErrors(!(isThisValid && event.isValid()));
                 }
+
+                firstRender = false;
             });
 
             thumbnailUploader.setEnabled(!this.contentType.isImage());
@@ -754,7 +758,7 @@ export class ContentWizardPanel
             }
 
             return rendered;
-        });
+        })
     }
 
     protected prepareMainPanel(): Panel {
