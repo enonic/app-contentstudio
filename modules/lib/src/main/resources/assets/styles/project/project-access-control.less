@@ -11,9 +11,9 @@
 
   .project-access-control-entry.selected-option {
     position: relative;
-    padding: 5px 42px 5px 5px;
+    padding: 5px;
     display: flex;
-    flex-flow: row wrap;
+    flex-flow: row;
     .clearfix();
 
     &.dirty {
@@ -53,6 +53,7 @@
       float: left;
       min-width: 150px;
       margin: 0 10px 0 0;
+      flex-shrink: 0;
 
       &.expanded {
         .tab-menu-button {
