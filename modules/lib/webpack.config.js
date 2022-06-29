@@ -13,7 +13,6 @@ module.exports = {
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
         'styles/contentlib': './styles/main.less',
-        'lib/vendors': './lib/index.js',
         'lib/ckeditor/plugins/pasteModeSwitcher/plugin': './lib/ckeditor/plugins/pasteModeSwitcher/plugin.raw.js',
         // html editor css imported separately in the HTMLAreaBuilder for legacy mode
         'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less'
