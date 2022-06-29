@@ -24,9 +24,6 @@ const init = () => {
         throw 'Unable to init wysiwyg editor';
     }
 
-    window.CKEDITOR_BASEPATH = `${assetUrl}/lib/ckeditor/`;
-    window['ckeInit']();
-
     // Notify parent frame if any modifier except shift is pressed
     // For the parent shortcuts to work if the inner iframe has focus
     $(document).on('keypress keydown keyup', (event: JQuery.TriggeredEvent) => {
