@@ -130,4 +130,10 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
         afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+        before(async () => {
+            if (typeof browser !== "undefined") {
+                await studioUtils.getBrowser().setWindowSize(width, height)();
+            }
+            return console.log('specification starting: ' + this.title);
+        });
     });

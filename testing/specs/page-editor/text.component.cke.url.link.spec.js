@@ -6,7 +6,7 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
+const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -17,7 +17,7 @@ const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.mod
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('Text Component with CKE - insert link and table specification', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let SITE;
@@ -68,6 +68,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
             await textComponentCke.clickOnInsertLinkButton();
+            await insertLinkDialog.clickOnBarItem("URL")
             await insertLinkDialog.typeText("url_link");
             await insertLinkDialog.typeUrl(NOT_VALID_URL);
             //2. Click on 'Insert" in the modal dialog:
@@ -154,7 +155,10 @@ describe('Text Component with CKE - insert link and table specification', functi
             return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         })
     });
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

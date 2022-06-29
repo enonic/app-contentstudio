@@ -102,6 +102,7 @@ module.exports = {
     },
     async insertUrlLinkInCke(text, url) {
         let insertLinkDialog = new InsertLinkDialog();
+        await insertLinkDialog.clickOnBarItem("URL");
         await insertLinkDialog.typeText(text);
         await insertLinkDialog.typeUrl(url);
         await insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
