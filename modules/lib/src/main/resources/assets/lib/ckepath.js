@@ -11,5 +11,4 @@
     }
 
     window.CKEDITOR_BASEPATH = `${ckeBasePath}/`;
-    console.log(ckeBasePath);
 })();
