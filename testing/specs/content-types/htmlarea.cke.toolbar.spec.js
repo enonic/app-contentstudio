@@ -13,7 +13,6 @@ const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.d
 const InsertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
 const InsertSpecialDialog = require('../../page_objects/wizardpanel/insert.special.character.dialog.cke');
 const InsertMacroDialog = require('../../page_objects/wizardpanel/macro/insert.macro.dialog.cke');
-const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 
 describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -81,14 +80,6 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await insertMacroDialog.waitForDialogClosed();
         });
 
-    it(`GIVEN 'htmlArea' content is opened WHEN 'insert link' icon has been clicked THEN 'Insert Link Dialog' should appear`,
-        async () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            //'Insert Link Dialog should appear:
-            await insertLinkDialog.waitForDialogLoaded();
-        });
 
     it(`WHEN 'htmlArea' content is opened THEN Increase Indent, Bulleted List, Align Right,Table buttons should be present on the toolbar`,
         async () => {
@@ -126,6 +117,8 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await contentWizard.pause(1000);
             //Open Insert Link dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            //Go to URL tab:
+            await insertLinkDialog.clickOnBarItem("URL");
             await insertLinkDialog.typeText(NORWEGIAN_TEXT);
             //type the URL:
             await insertLinkDialog.typeUrl('http://google.com');
@@ -134,7 +127,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await contentWizard.waitAndClickOnSave();
             //get text in Html-area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            studioUtils.saveScreenshot('htmlarea_0_1_url_link');
+            await studioUtils.saveScreenshot('htmlarea_0_1_url_link');
             assert.equal(result[0], EXPECTED_URL, 'correct data should be in CKE');
         });
 
@@ -179,7 +172,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             //Insert Table button has been pressed:
             await htmlAreaForm.showToolbarAndClickOnTableButton();
             studioUtils.saveScreenshot('table_drop_down_menu_cke');
-            //drop down menu with table should appears:
+            //drop down menu with table should appear:
             await htmlAreaForm.isTableMenuItemVisible();
         });
 
