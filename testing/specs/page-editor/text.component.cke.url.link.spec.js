@@ -1,9 +1,12 @@
 /**
  * Created on 10.05.2018.
+ * Verifies:
+ * https://github.com/enonic/lib-admin-ui/issues/485   impossible to insert a table into Text Editor(CKE)
  */
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -12,18 +15,15 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
-const appConst = require('../../libs/app_const');
 
 describe('Text Component with CKE - insert link and table specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
-        webDriverHelper.setupBrowser();
-    }
+    webDriverHelper.setupBrowser();
 
     let SITE;
     let NOT_VALID_URL = 'test';
     let CONTROLLER_NAME = 'main region';
-    let EXPECTED_URL = '<a href="http://google.com">test</a>';
+    let EXPECTED_URL = '<p><a href="http://google.com">test</a></p>';
 
     it(`Precondition: new site should be added`,
         async () => {
@@ -68,6 +68,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
             await textComponentCke.clickOnInsertLinkButton();
+            await insertLinkDialog.clickOnBarItem("URL")
             await insertLinkDialog.typeText("url_link");
             await insertLinkDialog.typeUrl(NOT_VALID_URL);
             //2. Click on 'Insert" in the modal dialog:
@@ -96,13 +97,12 @@ describe('Text Component with CKE - insert link and table specification', functi
             await textComponentCke.clickOnInsertLinkButton();
             await studioUtils.insertUrlLinkInCke("test", 'http://google.com');
             await textComponentCke.switchToLiveEditFrame();
-            await studioUtils.saveScreenshot('url_link_inserted');
+            studioUtils.saveScreenshot('url_link_inserted');
             //3. Get and check the text in CKE:
             let result = await textComponentCke.getTextFromEditor();
-            assert.isTrue(result.includes( EXPECTED_URL), 'expected URL should appear in CKE');
+            assert.equal(result, EXPECTED_URL, 'expected URL should appear in CKE');
             await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
-            await contentWizard.waitForNotificationMessage();
         });
 
     it(`GIVEN site is selected WHEN 'Preview' button has been pressed AND inserted link has been clicked THEN 'Enonic' site should be loaded in the page`,
@@ -133,7 +133,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentItemPreviewPanel.clickOnElementInFrame("a=test");
-            await studioUtils.saveScreenshot('enonic_not_loaded_in_preview_panel');
+            studioUtils.saveScreenshot('enonic_not_loaded_in_preview_panel');
             //The Link gets not visible:
             let result = await contentItemPreviewPanel.waitForElementNotDisplayedInFrame("a=test");
             assert.isTrue(result, "The link should not be visible");

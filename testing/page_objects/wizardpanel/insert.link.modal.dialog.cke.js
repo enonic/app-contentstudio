@@ -11,6 +11,7 @@ const XPATH = {
     linkTooltipFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::label[text()='Tooltip']]`,
     urlPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and contains(@class,'panel url-panel')]",
     emailPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and @class='panel']",
+    radioButtonByLabel: label => `//span[contains(@id,'RadioButton') and child::label[contains(.,'${label}')]]`,
 };
 
 class InsertLinkDialog extends Page {
@@ -34,6 +35,10 @@ class InsertLinkDialog extends Page {
 
     get urlInputValidationRecording() {
         return XPATH.container + XPATH.urlPanel + lib.VALIDATION_RECORDING_VIEWER;
+    }
+
+    get emailInputValidationRecording() {
+        return XPATH.container + XPATH.emailPanel + lib.VALIDATION_RECORDING_VIEWER;
     }
 
     get emailInput() {
@@ -63,14 +68,15 @@ class InsertLinkDialog extends Page {
     //types text in link tooltip input
     async typeInLinkTooltip(text) {
         try {
-            await this.waitForElementDisplayed(this.linkTooltipInput,appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.linkTooltipInput, appConst.mediumTimeout);
             return await this.typeTextInInput(this.linkTooltipInput, text)
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_tooltip_link'));
             throw new Error('error when type text in link-text input ' + err);
         }
     }
-    getTextInLinkTooltipInput(){
+
+    getTextInLinkTooltipInput() {
         return this.getTextInInput(this.linkTooltipInput);
     }
 
@@ -187,9 +193,25 @@ class InsertLinkDialog extends Page {
         return this.waitForElementDisplayed(this.urlInputValidationRecording, appConst.mediumTimeout);
     }
 
+    waitForValidationMessageForEmailInputDisplayed() {
+        return this.waitForElementDisplayed(this.emailInputValidationRecording, appConst.mediumTimeout);
+    }
+
     async getUrlInputValidationMessage() {
         await this.waitForValidationMessageForUrlInputDisplayed();
         return await this.getText(this.urlInputValidationRecording);
+    }
+
+    async getEmailInputValidationMessage() {
+        await this.waitForValidationMessageForEmailInputDisplayed();
+        return await this.getText(this.emailInputValidationRecording);
+    }
+
+   //Click on a radio in Media options:
+    async clickOnRadioButton(label) {
+        let locator = XPATH.container+ XPATH.radioButtonByLabel(label)
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator + "//input");
     }
 }
 
