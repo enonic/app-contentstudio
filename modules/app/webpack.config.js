@@ -14,7 +14,6 @@ module.exports = {
         'js/main': './js/main.ts',
         'js/settings': './js/settings.ts',
         'page-editor/js/editor': './js/page-editor.ts',
-        'page-editor/lib/vendors': './page-editor/lib/index.js',
         'page-editor/styles/main': './page-editor/styles/main.less'
     },
     output: {
