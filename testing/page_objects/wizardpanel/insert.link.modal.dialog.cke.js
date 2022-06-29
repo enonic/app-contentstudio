@@ -7,34 +7,37 @@ const XPATH = {
     container: `//div[contains(@id,'LinkModalDialog')]`,
     insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
-    textInput: `//div[contains(@id,'FormItem') and child::label[text()='Text']]//input[@type='text']`,
-    urlInput: `//div[contains(@id,'FormItem') and child::label[text()='Url']]//input[@type='text']`,
-    emailInput: `//div[contains(@id,'FormItem') and child::label[text()='Email']]//input[@type='text']`,
-    urlInputValidationRecording: "//div[contains(@id,'FormItem') and child::label[text()='Url']]/..",
-    textInputValidationRecording: "//div[contains(@id,'FormItem') and child::label[text()='Text']]/..",
+    linkTextFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::label[text()='Text']]`,
+    linkTooltipFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::label[text()='Tooltip']]`,
+    urlPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and contains(@class,'panel url-panel')]",
+    emailPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and @class='panel']",
 };
 
 class InsertLinkDialog extends Page {
 
-    get textInput() {
-        return XPATH.container + XPATH.textInput;
+    get linkTooltipInput() {
+        return XPATH.container + XPATH.linkTooltipFieldset + lib.TEXT_INPUT;
     }
 
-    get textInputValidationRecording() {
-        return XPATH.container + XPATH.textInputValidationRecording + lib.VALIDATION_RECORDING_VIEWER;
+    get linkTextInput() {
+        return XPATH.container + XPATH.linkTextFieldset + lib.TEXT_INPUT;
+    }
+
+    get linkTextInputValidationRecording() {
+        return XPATH.container + XPATH.linkTextFieldset + lib.VALIDATION_RECORDING_VIEWER;
     }
 
 
     get urlInput() {
-        return XPATH.container + XPATH.urlInput;
+        return XPATH.container + XPATH.urlPanel + lib.TEXT_INPUT;
     }
 
     get urlInputValidationRecording() {
-        return XPATH.container + XPATH.urlInputValidationRecording + lib.VALIDATION_RECORDING_VIEWER;
+        return XPATH.container + XPATH.urlPanel + lib.VALIDATION_RECORDING_VIEWER;
     }
 
     get emailInput() {
-        return XPATH.container + XPATH.emailInput;
+        return XPATH.container + XPATH.emailPanel + lib.TEXT_INPUT;
     }
 
     get cancelButton() {
@@ -49,13 +52,29 @@ class InsertLinkDialog extends Page {
         return XPATH.container + XPATH.insertButton;
     }
 
+    //types text in link text input
     typeText(text) {
-        return this.typeTextInInput(this.textInput, text).catch(err => {
+        return this.typeTextInInput(this.linkTextInput, text).catch(err => {
             this.saveScreenshot('err_type_link_text');
             throw new Error('error when type text in link-text input ' + err);
         });
     }
 
+    //types text in link tooltip input
+    async typeInLinkTooltip(text) {
+        try {
+            await this.waitForElementDisplayed(this.linkTooltipInput,appConst.mediumTimeout);
+            return await this.typeTextInInput(this.linkTooltipInput, text)
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_tooltip_link'));
+            throw new Error('error when type text in link-text input ' + err);
+        }
+    }
+    getTextInLinkTooltipInput(){
+        return this.getTextInInput(this.linkTooltipInput);
+    }
+
+    //types text in URL input(URL tab)
     typeUrl(url) {
         return this.typeTextInInput(this.urlInput, url).catch(err => {
             this.saveScreenshot('err_type_link_url');
@@ -132,12 +151,15 @@ class InsertLinkDialog extends Page {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
 
-    clickOnBarItem(name) {
-        let selector = XPATH.container + lib.tabBarItemByName(name);
-        return this.clickOnElement(selector).catch(err => {
-            this.saveScreenshot('err_click_on_bar_item');
-            throw new Error('Insert Link Dialog, error when click on the bar item ' + name + " " + err);
-        });
+    async clickOnBarItem(name) {
+        try {
+            let selector = XPATH.container + lib.tabBarItemByName(name);
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.clickOnElement(selector)
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_bar_item'));
+            throw new Error('Insert Link Dialog-  error when click on the bar item ' + err);
+        }
     }
 
     isTabActive(name) {
@@ -153,12 +175,12 @@ class InsertLinkDialog extends Page {
     }
 
     waitForValidationMessageForTextInputDisplayed() {
-        return this.waitForElementDisplayed(this.textInputValidationRecording, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.linkTextInputValidationRecording, appConst.mediumTimeout);
     }
 
     async getTextInputValidationMessage() {
         await this.waitForValidationMessageForTextInputDisplayed();
-        return await this.getText(this.textInputValidationRecording);
+        return await this.getText(this.linkTextInputValidationRecording);
     }
 
     waitForValidationMessageForUrlInputDisplayed() {
