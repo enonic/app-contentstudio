@@ -952,27 +952,27 @@ export class LinkModalDialog
             return {
                 url: LinkModalDialog.mediaInlinePrefix + contentSelectorValue,
                 target: '_blank'
-            }
+            };
         }
 
         if (mediaContentRadioSelectedOption === MediaContentRadioAction.DOWNLOAD) {
             return {
                 url: LinkModalDialog.mediaDownloadPrefix + contentSelectorValue,
                 target: ''
-            }
+            };
         }
 
         if (mediaContentRadioSelectedOption === MediaContentRadioAction.LINK) {
             return {
                 url: this.getContentLinkUrl(contentSelectorValue),
                 target: this.getContentLinkTarget()
-            }
+            };
         }
 
         return {
             url: '',
             target: ''
-        }
+        };
     }
 
     private getContentSelectorValue(): string {
@@ -987,7 +987,7 @@ export class LinkModalDialog
         return {
             url: this.getContentLinkUrl(contentSelectorValue, queryParams, fragment),
             target: this.getContentLinkTarget()
-        }
+        };
     }
 
     private createUrlLink() {
