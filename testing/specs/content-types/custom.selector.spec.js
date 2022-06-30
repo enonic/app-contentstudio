@@ -30,7 +30,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
 
     //Verifies Custom Selector incorrectly loads options #3407
     //https://github.com/enonic/app-contentstudio/issues/3407
-    it(`GIVEN wizard with 'custom-selector' (0:2) is opened WHEN non existing option has been typed THEN 'No matching items' should be displayed`,
+    it.skip(`GIVEN wizard with 'custom-selector' (0:2) is opened WHEN non existing option has been typed THEN 'No matching items' should be displayed`,
         async () => {
             let contentWizard = new ContentWizard();
             let customSelectorForm = new CustomSelectorForm();
@@ -55,7 +55,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             assert.equal(results.length, 2, "Two options should be present in the options list");
         });
 
-    it(`GIVEN wizard with 'custom-selector' (0:2) is opened WHEN one option has been selected THEN option filter input should be displayed`,
+    it.skip(`GIVEN wizard with 'custom-selector' (0:2) is opened WHEN one option has been selected THEN option filter input should be displayed`,
         async () => {
             let contentWizard = new ContentWizard();
             let customSelectorForm = new CustomSelectorForm();
@@ -73,7 +73,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             assert.equal(options[0], OPTION_1, "Expected option should be selected");
         });
 
-    it("GIVEN existing content with 'custom-selector' (0:2) is opened WHEN second option has been selected THEN option filter input gets not visible",
+    it.skip("GIVEN existing content with 'custom-selector' (0:2) is opened WHEN second option has been selected THEN option filter input gets not visible",
         async () => {
             let contentWizard = new ContentWizard();
             let customSelectorForm = new CustomSelectorForm();
@@ -91,7 +91,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
         });
 
     //verifies "Drag'n'Drop of selected options in Custom selector is not working #440"
-    it(`GIVEN wizard with 'custom-selector' is opened AND 2 options are selected WHEN options have been swapped THEN order of selected options should be changed`,
+    it.skip(`GIVEN wizard with 'custom-selector' is opened AND 2 options are selected WHEN options have been swapped THEN order of selected options should be changed`,
         async () => {
             let customSelectorForm = new CustomSelectorForm();
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
@@ -103,7 +103,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             assert.equal(options[1], OPTION_1, "Order of selected Options should be changed");
         });
 
-    it(`GIVEN wizard with 'custom-selector'(1:1) is opened WHEN display name has been typed THEN the content should be invalid`,
+    it.skip(`GIVEN wizard with 'custom-selector'(1:1) is opened WHEN display name has been typed THEN the content should be invalid`,
         async () => {
             let customSelectorForm = new CustomSelectorForm();
             let contentWizard = new ContentWizard();
@@ -121,7 +121,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             assert.equal(actualMessage, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "'This field is required' should appear");
         });
 
-    it("GIVEN existing content with 2 selected options(not required) is opened WHEN one selected option has been removed THEN option filter input gets visible",
+    it.skip("GIVEN existing content with 2 selected options(not required) is opened WHEN one selected option has been removed THEN option filter input gets visible",
         async () => {
             let customSelectorForm = new CustomSelectorForm();
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
