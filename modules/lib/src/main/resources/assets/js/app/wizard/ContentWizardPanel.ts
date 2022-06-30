@@ -758,7 +758,7 @@ export class ContentWizardPanel
             }
 
             return rendered;
-        })
+        });
     }
 
     protected prepareMainPanel(): Panel {
