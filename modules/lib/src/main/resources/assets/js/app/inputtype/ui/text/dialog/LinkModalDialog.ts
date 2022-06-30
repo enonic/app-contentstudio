@@ -41,6 +41,7 @@ import {FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import eventInfo = CKEDITOR.eventInfo;
 
 export interface LinkModalDialogConfig
@@ -800,11 +801,20 @@ export class LinkModalDialog
         });
 
         mediaUploader.onFileUploaded((event: UploadedEvent<Content>) => {
-            let item = event.getUploadItem();
-            let createdContent = item.getModel();
+            const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
+            const checkbox: Checkbox = <Checkbox>this.getFieldById('contentTarget');
 
-            let selectedOption = contentSelector.getSelectedOptionView().getById(item.getId());
-            let option = selectedOption.getOption();
+            this.mediaOptionRadioFormItem.show();
+
+            if (mediaRadio.doGetValue() === MediaContentRadioAction.LINK) {
+                checkbox.show();
+            }
+
+            const item: UploadItem<Content> = event.getUploadItem();
+            const createdContent: Content = item.getModel();
+
+            const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionView().getById(item.getId());
+            const option: Option<ContentTreeSelectorItem> = selectedOption.getOption();
             option.setDisplayValue(new MediaTreeSelectorItem(createdContent));
             option.setValue(createdContent.getContentId().toString());
 
@@ -839,6 +849,7 @@ export class LinkModalDialog
         contentSelector.getComboBox().onHidden(() => {
             mediaUploader.hide();
         });
+
         contentSelector.getComboBox().onShown(() => {
             mediaUploader.show();
         });
@@ -859,71 +870,78 @@ export class LinkModalDialog
         return mainFormValid && dockPanelValid;
     }
 
+    private getContentLinkQueryParams(): string {
+        const queryParamsString: string = this.paramsFormIds.reduce((prev, {keyId, valueId}) => {
+                const key: string = (<TextInput>this.getFieldById(keyId)).getValue();
+                const value: string = (<TextInput>this.getFieldById(valueId)).getValue();
+                return prev === '' ? `${key}=${value}` : `${prev}&${key}=${value}`;
+            }, '');
+
+        if (!queryParamsString) {
+            return StringHelper.EMPTY_STRING;
+        }
+
+        return '?' + LinkModalDialog.queryParamsPrefix + encodeURIComponent(queryParamsString);
+    }
+
+    private getContentLinkFragment(hasQueryParams: boolean): string {
+        const anchorString: string = encodeURIComponent((<TextInput>this.getFieldById('contentFragment')).getValue());
+
+        const fragment: string = anchorString ? `${LinkModalDialog.fragmentPrefix}${anchorString}`: '';
+
+        if (!fragment) {
+            return StringHelper.EMPTY_STRING;
+        }
+
+        return hasQueryParams ? '&' + fragment : '?' + fragment;
+    }
+
+    private getContentLinkUrl(contentSelectorValue: string, queryParams?: string, fragment?: string): string {
+        return LinkModalDialog.contentPrefix + contentSelectorValue + (queryParams || '') + (fragment || '');
+    }
+
+    private getContentLinkTarget(): string {
+        const isOpenInNewTab: boolean = (<Checkbox>this.getFieldById('contentTarget')).isChecked();
+        return isOpenInNewTab ? '_blank' : '';
+    }
+
     private createContentLink() {
-        let isOpenInNewTab: boolean = false;
         let url: string = '';
         let target: string = '';
 
         const contentSelector = <ContentComboBox<ContentTreeSelectorItem>>this.getFieldById('contentId');
-        const contentSelectorValue = contentSelector.getValue();
-        const contentSelectorSelectedContent = contentSelector.getSelectedContent();
+        const contentSelectorValue: string = contentSelector.getValue();
+        const contentSelectorSelectedContent: ContentSummary = contentSelector.getSelectedContent();
 
+        if (contentSelectorSelectedContent?.getType().isDescendantOfMedia()) {
+            const mediaContentRadioSelectedOption: string = (<RadioGroup>this.getFieldById('contentMediaRadio')).doGetValue();
 
-        const getQueryParamsString = () => {
-            const queryParamsString = this.paramsFormIds.reduce((prev, {keyId, valueId}) => {
-                    const key = (<TextInput>this.getFieldById(keyId)).getValue();
-                    const value = (<TextInput>this.getFieldById(valueId)).getValue();
-                    return prev === '' ? `${key}=${value}` : `${prev}&${key}=${value}`;
-                }, '');
-
-            if (!queryParamsString) {
-                return StringHelper.EMPTY_STRING;
-            }
-
-            return '?' + LinkModalDialog.queryParamsPrefix + encodeURIComponent(queryParamsString);
-        };
-
-        const getFragment = () => {
-            const anchorString = encodeURIComponent((<TextInput>this.getFieldById('contentFragment')).getValue());
-
-            const fragment = anchorString ? `${LinkModalDialog.fragmentPrefix}${anchorString}`: '';
-
-            return getQueryParamsString() ? '&' + fragment : '?' + fragment;
-        };
-
-
-        const setUrl = () => {
-            isOpenInNewTab = (<Checkbox>this.getFieldById('contentTarget')).isChecked();
-            target = isOpenInNewTab ? '_blank' : '';
-            url = LinkModalDialog.contentPrefix
-                + contentSelectorValue
-                + getQueryParamsString()
-                + getFragment();
-        };
-
-        if (contentSelectorSelectedContent.getType().isDescendantOfMedia()) {
-            switch ((<RadioGroup>this.getFieldById('contentMediaRadio')).doGetValue()) {
+            switch (mediaContentRadioSelectedOption) {
                 case MediaContentRadioAction.OPEN:
                     url = LinkModalDialog.mediaInlinePrefix + contentSelectorValue;
-                    isOpenInNewTab = true;
+                    target = '_blank';
                     break;
                 case MediaContentRadioAction.DOWNLOAD:
                     url = LinkModalDialog.mediaDownloadPrefix + contentSelectorValue;
                     break;
                 case MediaContentRadioAction.LINK:
-                    setUrl();
+                    url = this.getContentLinkUrl(contentSelectorValue);
+                    target = this.getContentLinkTarget();
                     break;
                 default:
                     break;
             }
         } else {
-            setUrl();
+            const queryParams = this.getContentLinkQueryParams();
+            const fragment = this.getContentLinkFragment(!!queryParams);
+            url = this.getContentLinkUrl(contentSelectorValue, queryParams, fragment);
+            target = this.getContentLinkTarget();
         }
 
         this.getOriginalLinkTypeElem().setValue('url', false);
-        this.getOriginalTargetElem().setValue(target, false);
         this.getOriginalProtocolElem().setValue('', false);
         this.getOriginalUrlElem().setValue(url, false);
+        this.getOriginalTargetElem().setValue(target, false);
     }
 
 
