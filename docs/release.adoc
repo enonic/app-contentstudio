@@ -3,6 +3,30 @@
 
 TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.com/docs/content-studio/3.x/release[here]
 
+== Content Studio 4 Update 2
+
+Content Studio 4.2.0 comes with several major improvements in the Filter panel.
+
+=== New search parameters
+
+The Filter panel have been expanded with the following parameters:
+
+* Workflow (content that is work in progress)
+* Last Modified By (user who last changed the content)
+* Owner
+* Language
+
+=== Limited number of options in multi-select parameters
+
+The list of Content Types by default shows the 5 most popular types. The entire list can be expanded with the "Show more" link.
+
+=== Search by id
+
+Free-text field can be used for search by content id.
+
+:imagesdir: navigator/images
+image::navigator-search-modifier-expanded.png[Filter panel, 550]
+
 == Content Studio 4 Update 1
 
 IMPORTANT: Content Studio 4.1 requires XP 7.9.0 or higher.
