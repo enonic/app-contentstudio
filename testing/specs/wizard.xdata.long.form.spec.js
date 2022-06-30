@@ -60,7 +60,7 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
         if (typeof browser !== "undefined") {
-            await studioUtils.getBrowser().setWindowSize(width, height)();
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
     });
