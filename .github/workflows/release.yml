@@ -48,9 +48,9 @@ jobs:
                 uses: actions/setup-java@v3
                 with:
                     java-version: 11
-                    distribution: 'adopt'
+                    distribution: 'temurin'
 
-            -   uses: actions/cache@v3.0.2
+            -   uses: actions/cache@v3
                 with:
                     path: |
                         ~/.gradle/caches
