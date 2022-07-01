@@ -60,15 +60,16 @@ describe('Text Component with CKE - insert download-link specification', functio
             await textComponentCke.clickOnInsertLinkButton();
             //4. Type a link-name and select a target:
             //await studioUtils.insertDownloadLinkInCke("test", TEST_CONTENT_DISPLAY_NAME);
-            await insertLinkDialog.typeText("test");
+            await insertLinkDialog.typeInTextInput("test");
             await insertLinkDialog.selectTargetInContentTab(TEST_CONTENT_DISPLAY_NAME);
-            await insertLinkDialog.clickOnRadioButton("Download file");
+            //5. Click on 'Download file' radio:
+            await insertLinkDialog.clickOnRadioButton(appConst.INSERT_LINK_DIALOG_TABS.DOWNLOAD_FILE);
             await studioUtils.saveScreenshot('download_link_dialog');
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.pause(700);
             await textComponentCke.switchToLiveEditFrame();
             await studioUtils.saveScreenshot('download_link_inserted');
-            //5. Verify the text in CKE:
+            //5. Verify the text in CKE: 'media://download' should be present in the htmlarea
             let actualText = await textComponentCke.getTextFromEditor();
             assert.include(actualText, EXPECTED_SRC, "Expected text should be in CKE");
             //Save the changes:

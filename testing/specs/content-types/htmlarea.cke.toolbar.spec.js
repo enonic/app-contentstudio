@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
@@ -13,9 +12,10 @@ const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.d
 const InsertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
 const InsertSpecialDialog = require('../../page_objects/wizardpanel/insert.special.character.dialog.cke');
 const InsertMacroDialog = require('../../page_objects/wizardpanel/macro/insert.macro.dialog.cke');
+const appConst = require('../../libs/app_const');
 
 describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -26,7 +26,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -47,7 +47,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             let insertAnchorDialog = new InsertAnchorDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.showToolbarAndClickOnInsertAnchorButton();
-            studioUtils.saveScreenshot('cke_insert_anchor_dialog1');
+            await studioUtils.saveScreenshot('cke_insert_anchor_dialog1');
             //'Insert Anchor' Dialog should appear:
             await insertAnchorDialog.waitForDialogLoaded();
             await insertAnchorDialog.pause(1000);
@@ -62,7 +62,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             let insertSpecialDialog = new InsertSpecialDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.showToolbarAndClickOnInsertSpecialCharactersButton();
-            studioUtils.saveScreenshot('cke_insert_special_char_dialog');
+            await studioUtils.saveScreenshot('cke_insert_special_char_dialog');
             await insertSpecialDialog.waitForDialogLoaded();
         });
 
@@ -119,7 +119,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             //Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
-            await insertLinkDialog.typeText(NORWEGIAN_TEXT);
+            await insertLinkDialog.typeInTextInput(NORWEGIAN_TEXT);
             //type the URL:
             await insertLinkDialog.typeUrl('http://google.com');
             await insertLinkDialog.clickOnInsertButton();
@@ -178,4 +178,10 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });
