@@ -657,7 +657,8 @@ export class LinkModalDialog
         keyFormItem.getInput().giveFocus();
 
         removeButton.onClicked(() => {
-            this.paramsFormIds = this.paramsFormIds.filter((formParam: FormParam) => formParam.keyId !== keyFormItemId && formParam.valueId !== valueFormItemId);
+            this.paramsFormIds = this.paramsFormIds.filter(
+                (formParam: FormParam) => formParam.keyId !== keyFormItemId && formParam.valueId !== valueFormItemId);
             this.removeFieldById(keyFormItemId);
             this.removeFieldById(valueFormItemId);
             this.paramsFormItem.removeChild(divWrapper);
@@ -902,7 +903,7 @@ export class LinkModalDialog
             return StringHelper.EMPTY_STRING;
         }
 
-        return `?${LinkModalDialog.queryParamsPrefix}${encodeURIComponent(queryParamsString)}`
+        return `?${LinkModalDialog.queryParamsPrefix}${encodeURIComponent(queryParamsString)}`;
     }
 
     private getContentLinkFragment(hasQueryParams: boolean): string {
