@@ -3,8 +3,12 @@ plugins {
     id 'com.enonic.xp.app' version '3.2.0' apply false
     id 'com.enonic.xp.base' version '3.2.0' apply false
     id 'com.github.node-gradle.node' version '3.4.0' apply false
-    id 'org.asciidoctor.convert' version '2.4.0'
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
     id 'org.aim42.htmlSanityCheck' version '1.1.6'
+}
+
+repositories {
+    mavenCentral()
 }
 
 subprojects {
@@ -38,7 +42,6 @@ subprojects {
 asciidoctor {
     sourceDir = file('docs')
     outputDir = file('build/docs')
-    requires project.file('verbose-mode.rb')
     attributes 'source-highlighter': 'coderay',
                idseparator: '-'
 
@@ -53,7 +56,7 @@ asciidoctor {
 
 htmlSanityCheck {
     dependsOn asciidoctor
-    sourceDir = new File( "$buildDir/docs/html5" )
+    sourceDir = tasks.asciidoctor.outputDir
 
     sourceDocuments = fileTree(sourceDir) {
         include "index.html"
