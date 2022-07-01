@@ -21,7 +21,10 @@ import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem'
 import {MediaSelectorDisplayValue} from '../../selector/media/MediaSelectorDisplayValue';
 import {ContentComboBox} from '../../selector/ContentComboBox';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
-import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../../selector/ContentSummaryOptionDataLoader';
+import {
+    ContentSummaryOptionDataLoader,
+    ContentSummaryOptionDataLoaderBuilder
+} from '../../selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 import {Content} from '../../../../content/Content';
 import {Site} from '../../../../content/Site';
@@ -41,6 +44,7 @@ import {FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import eventInfo = CKEDITOR.eventInfo;
 
 export interface LinkModalDialogConfig
@@ -56,6 +60,16 @@ interface UrlProtocol {
     title: string,
     prefix: string,
     validator: (input: FormItemEl) => string
+}
+
+interface ContentLinkParams {
+    url: string,
+    target: string
+}
+
+interface FormParam {
+    keyId: string,
+    valueId: string
 }
 
 export class LinkModalDialog
@@ -75,7 +89,7 @@ export class LinkModalDialog
 
     private tabNames: any;
 
-    private paramsFormIds: {keyId: string, valueId: string}[];
+    private paramsFormIds: FormParam[];
 
     protected config: LinkModalDialogConfig;
 
@@ -107,7 +121,11 @@ export class LinkModalDialog
             {title: 'Https', prefix: 'https://', validator: LinkModalDialog.validationRequiredUrl},
             {title: 'Http', prefix: 'http://', validator: LinkModalDialog.validationRequiredUrl},
             {title: 'Ftp', prefix: 'ftp://', validator: LinkModalDialog.validationRequiredFtpUrl},
-            {title: i18n('dialog.link.urlprotocols.relative'), prefix: '', validator: LinkModalDialog.validationRequiredRelativeUrl}
+            {
+                title: i18n('dialog.link.urlprotocols.relative'),
+                prefix: '',
+                validator: LinkModalDialog.validationRequiredRelativeUrl
+            }
         ];
     }
 
@@ -191,19 +209,19 @@ export class LinkModalDialog
 
     protected setDialogInputValues() {
         switch (this.getOriginalLinkTypeElem().getValue()) {
-        case 'email':
-            this.link = LinkModalDialog.emailPrefix + this.getOriginalEmailElem().getValue();
-            break;
-        case 'anchor':
-            this.link = LinkModalDialog.anchorPrefix + this.getOriginalAnchorElem().getValue();
-            break;
-        default: {
-            const val = this.getOriginalUrlElem().getValue();
-            const protocol: string = this.getOriginalProtocolElem().getValue();
-            this.link = StringHelper.isEmpty(val) ?
-                        StringHelper.EMPTY_STRING :
-                        protocol + this.getOriginalUrlElem().getValue();
-        }
+            case 'email':
+                this.link = LinkModalDialog.emailPrefix + this.getOriginalEmailElem().getValue();
+                break;
+            case 'anchor':
+                this.link = LinkModalDialog.anchorPrefix + this.getOriginalAnchorElem().getValue();
+                break;
+            default: {
+                const val = this.getOriginalUrlElem().getValue();
+                const protocol: string = this.getOriginalProtocolElem().getValue();
+                this.link = StringHelper.isEmpty(val) ?
+                    StringHelper.EMPTY_STRING :
+                    protocol + this.getOriginalUrlElem().getValue();
+            }
         }
     }
 
@@ -374,7 +392,7 @@ export class LinkModalDialog
     }
 
     private createTargetCheckbox(id: string, isTabSelectedFn: Function, showOnCreate: boolean = false): FormItem {
-        const checkbox = Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
+        const checkbox: Checkbox = Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
             InputAlignment.LEFT).build();
 
         if (!showOnCreate) {
@@ -383,24 +401,22 @@ export class LinkModalDialog
 
         checkbox.setChecked(this.getTarget(isTabSelectedFn.call(this)));
 
-        const formItemBuilder = new ModalDialogFormItemBuilder(id).setInputEl(checkbox);
-
-        return this.createFormItem(formItemBuilder);
+        return this.createFormItem(new ModalDialogFormItemBuilder(id).setInputEl(checkbox));
     }
 
     private createFragmentOption(id: string, label: string): FormItem {
         const addButton: Button = new Button(i18n('action.add'));
+        const hideAnchorFormButton: Button = this.createRemoveButton();
 
-        const hideAnchorFormButton = this.createRemoveButton();
-
-        const getFragment = () => {
+        const getFragment: Function = () => {
             if (this.link.indexOf(LinkModalDialog.fragmentPrefix) === -1) {
                 return StringHelper.EMPTY_STRING;
             }
 
-            const fragment = this.link.slice(this.link.indexOf(LinkModalDialog.fragmentPrefix) + LinkModalDialog.fragmentPrefix.length);
+            const fragmentUri: string =
+                this.link.slice(this.link.indexOf(LinkModalDialog.fragmentPrefix) + LinkModalDialog.fragmentPrefix.length);
 
-            return decodeURIComponent(fragment);
+            return decodeURIComponent(fragmentUri);
         };
 
         this.anchorFormItem = this.createFormItemWithPostponedValue(id, label, getFragment, LinkModalDialog.validationAlwaysValid);
@@ -455,8 +471,8 @@ export class LinkModalDialog
             this.paramsFormItem.appendChild(addButton);
         });
 
-        const keyValueMap = this.getKeyValueMapFromLink();
-        Object.keys(keyValueMap).forEach(key => this.createKeyValueFormItems(key, keyValueMap[key]));
+        const keyValueMap: Map<string, string> = this.getKeyValueMapFromLink();
+        keyValueMap.forEach((value: string, key: string) => this.createKeyValueFormItems(key, value));
 
         this.paramsFormItem.appendChild(addButton);
 
@@ -483,7 +499,7 @@ export class LinkModalDialog
         });
 
         mediaRadio.onValueChanged((event: ValueChangedEvent) => {
-            const radioValue = event.getNewValue() ;
+            const radioValue = event.getNewValue();
             const checkbox = <Checkbox>this.getFieldById('contentTarget');
 
             if (radioValue === MediaContentRadioAction.LINK) {
@@ -520,7 +536,9 @@ export class LinkModalDialog
             const usedProtocol = this.getUsedProtocolFromValue(urlValue);
             const actionTitle = urlValue ? usedProtocol.title : 'Https';
             const action = this.protocolsDropdownButton.getMenuActions().find(action => action.getLabel() === actionTitle);
-            if (action) { action.execute(); }
+            if (action) {
+                action.execute();
+            }
         });
 
         urlInput.onValueChanged((event: ValueChangedEvent) => {
@@ -554,7 +572,7 @@ export class LinkModalDialog
                 textInput.setValue(newUrlValue);
                 textInput.updateValue();
                 textInput.giveFocus();
-             });
+            });
 
             return action;
         });
@@ -585,45 +603,50 @@ export class LinkModalDialog
         return usedProtocol;
     }
 
-    private getKeyValueMapFromLink(): {[key: string]: string}{
-        const keyValueMap = {};
+    private getKeyValueMapFromLink(): Map<string, string> {
+        const keyValueMap: Map<string, string> = new Map<string, string>();
 
         if (this.link.indexOf(LinkModalDialog.queryParamsPrefix) === -1) {
             return keyValueMap;
         }
 
-        let queryString = this.link.split(LinkModalDialog.queryParamsPrefix).pop();
-        queryString = queryString.slice(0, queryString.indexOf(LinkModalDialog.fragmentPrefix));
-        queryString = decodeURIComponent(queryString);
-        const keyValues = queryString.split('&');
+        const keyValues: string[] = this.extractQueryStringFromLink().split('&');
 
         keyValues.forEach((keyValue: string) => {
             const [key, value] = keyValue.split('=');
 
             if (key && value) {
-                keyValueMap[key] = value;
+                keyValueMap.set(key, value);
             }
         });
 
         return keyValueMap;
     }
 
+    private extractQueryStringFromLink(): string {
+        let queryString: string = this.link.split(LinkModalDialog.queryParamsPrefix).pop();
+        queryString = queryString.slice(0, queryString.indexOf(LinkModalDialog.fragmentPrefix));
+        queryString = decodeURIComponent(queryString);
+
+        return queryString;
+    }
+
     private createKeyValueFormItems(initialKey: string = '', initialValue: string = ''): void {
-        const uniqueParamIdentifier = this.paramsFormIds.length
+        const uniqueParamIdentifier: number = this.paramsFormIds.length
             ? parseFloat(this.paramsFormIds[this.paramsFormIds.length - 1].keyId.split('-')[1]) + 1
             : 0;
 
-        const keyFormItemId = `paramsKey-${uniqueParamIdentifier}`;
-        const keyFormItem = this.createFormItemWithPostponedValue(keyFormItemId, '', () => initialKey, null,
+        const keyFormItemId: string = `paramsKey-${uniqueParamIdentifier}`;
+        const keyFormItem: FormItem = this.createFormItemWithPostponedValue(keyFormItemId, '', () => initialKey, null,
             i18n('dialog.link.parameters.name'));
 
-        const valueFormItemId = `paramsValue-${uniqueParamIdentifier}`;
-        const valueFormItem = this.createFormItemWithPostponedValue(valueFormItemId, '', () => initialValue, null,
+        const valueFormItemId: string = `paramsValue-${uniqueParamIdentifier}`;
+        const valueFormItem: FormItem = this.createFormItemWithPostponedValue(valueFormItemId, '', () => initialValue, null,
             i18n('dialog.link.parameters.value'));
 
-        const removeButton = this.createRemoveButton();
+        const removeButton: Button = this.createRemoveButton();
 
-        const divWrapper = new DivEl('params-wrapper')
+        const divWrapper: DivEl = new DivEl('params-wrapper')
             .appendChild(keyFormItem)
             .appendChild(valueFormItem)
             .appendChild(removeButton);
@@ -634,7 +657,8 @@ export class LinkModalDialog
         keyFormItem.getInput().giveFocus();
 
         removeButton.onClicked(() => {
-            this.paramsFormIds = this.paramsFormIds.filter(({keyId, valueId}) => keyId !== keyFormItemId && valueId !== valueFormItemId);
+            this.paramsFormIds = this.paramsFormIds.filter(
+                (formParam: FormParam) => formParam.keyId !== keyFormItemId && formParam.valueId !== valueFormItemId);
             this.removeFieldById(keyFormItemId);
             this.removeFieldById(valueFormItemId);
             this.paramsFormItem.removeChild(divWrapper);
@@ -643,7 +667,7 @@ export class LinkModalDialog
     }
 
     private createRemoveButton(): Button {
-        const button = new Button();
+        const button: Button = new Button();
         button.addClass('remove-button transparent icon-close');
         return button;
     }
@@ -667,7 +691,7 @@ export class LinkModalDialog
     private createDockedPanel(): DockedPanel {
         this.initTabNames();
 
-        const dockedPanel = new DockedPanel();
+        const dockedPanel: DockedPanel = new DockedPanel();
         dockedPanel.addItem(this.tabNames.content, true, this.createContentPanel());
         dockedPanel.addItem(this.tabNames.url, true, this.createUrlPanel());
         dockedPanel.addItem(this.tabNames.email, true, this.createEmailPanel());
@@ -723,59 +747,59 @@ export class LinkModalDialog
 
     private createSelectorFormItem(id: string, label: string, contentSelector: ContentComboBox<ContentTreeSelectorItem>,
                                    addValueValidation: boolean = false): FormItem {
+        const formItemBuilder: ModalDialogFormItemBuilder =
+            new ModalDialogFormItemBuilder(id, label).setValidator(Validators.required).setInputEl(contentSelector);
+        const formItem: FormItem = this.createFormItem(formItemBuilder);
 
-        const formItemBuilder = new ModalDialogFormItemBuilder(id, label).setValidator(Validators.required).setInputEl(contentSelector);
-        const formItem = this.createFormItem(formItemBuilder);
-
-        const mediaUploader = this.createMediaUploader(contentSelector);
+        const mediaUploader: MediaUploaderEl = this.createMediaUploader(contentSelector);
         mediaUploader.insertAfterEl(contentSelector);
 
         if (!addValueValidation) {
             return formItem;
         }
 
-        const callbackFn = (selectedContent: ContentSummary) => {
-            const mediaRadio = <RadioGroup>this.getFieldById('contentMediaRadio');
-            const checkbox = <Checkbox>this.getFieldById('contentTarget');
-
-            if (!selectedContent) {
-                formItem.setValidator(Validators.required);
-                this.mediaOptionRadioFormItem.hide();
-                checkbox.hide();
-                this.anchorFormItem.hide();
-                this.paramsFormItem.hide();
-                return;
-            }
-
-            if (selectedContent.getType().isDescendantOfMedia()) {
-                this.mediaOptionRadioFormItem.show();
-                this.anchorFormItem.hide();
-                this.paramsFormItem.hide();
-                if (mediaRadio.doGetValue() === MediaContentRadioAction.LINK) {
-                    checkbox.show();
-                }
-            } else {
-                this.mediaOptionRadioFormItem.hide();
-                checkbox.show();
-                this.anchorFormItem.show();
-                this.paramsFormItem.show();
-            }
-        };
-
         contentSelector.onLoaded((items: ContentTreeSelectorItem[]) => {
-            setTimeout(() => callbackFn(contentSelector.getSelectedContent()), 1);
+            setTimeout(() => this.handleSelectorValueChanged(contentSelector.getSelectedContent(), formItem), 1);
         });
 
         contentSelector.onValueChanged(() => {
-            const selectedContent = contentSelector.getSelectedContent();
-            callbackFn(selectedContent);
+            const selectedContent: ContentSummary = contentSelector.getSelectedContent();
+            this.handleSelectorValueChanged(selectedContent, formItem);
         });
 
         return formItem;
     }
 
+    private handleSelectorValueChanged(selectedContent: ContentSummary, formItem: FormItem): void {
+        const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
+        const checkbox: Checkbox = <Checkbox>this.getFieldById('contentTarget');
+
+        if (!selectedContent) {
+            formItem.setValidator(Validators.required);
+            this.mediaOptionRadioFormItem.hide();
+            checkbox.hide();
+            this.anchorFormItem.hide();
+            this.paramsFormItem.hide();
+            return;
+        }
+
+        if (selectedContent.getType().isDescendantOfMedia()) {
+            this.mediaOptionRadioFormItem.show();
+            this.anchorFormItem.hide();
+            this.paramsFormItem.hide();
+            if (mediaRadio.doGetValue() === MediaContentRadioAction.LINK) {
+                checkbox.show();
+            }
+        } else {
+            this.mediaOptionRadioFormItem.hide();
+            checkbox.show();
+            this.anchorFormItem.show();
+            this.paramsFormItem.show();
+        }
+    }
+
     private createMediaUploader(contentSelector: ContentComboBox<ContentTreeSelectorItem>): MediaUploaderEl {
-        const mediaUploader = new MediaUploaderEl({
+        const mediaUploader: MediaUploaderEl = new MediaUploaderEl({
             params: {
                 parent: this.contentId.toString()
             },
@@ -788,23 +812,32 @@ export class LinkModalDialog
 
         mediaUploader.onUploadStarted((event: UploadStartedEvent<Content>) => {
             event.getUploadItems().forEach((uploadItem: UploadItem<Content>) => {
-                const value = new MediaTreeSelectorItem(null).setDisplayValue(
+                const value: MediaTreeSelectorItem = new MediaTreeSelectorItem(null).setDisplayValue(
                     MediaSelectorDisplayValue.fromUploadItem(uploadItem));
 
-                const option = Option.create<MediaTreeSelectorItem>()
-                        .setValue(value.getId())
-                        .setDisplayValue(value)
-                        .build();
+                const option: Option<MediaTreeSelectorItem> = Option.create<MediaTreeSelectorItem>()
+                    .setValue(value.getId())
+                    .setDisplayValue(value)
+                    .build();
                 contentSelector.selectOption(option);
             });
         });
 
         mediaUploader.onFileUploaded((event: UploadedEvent<Content>) => {
-            let item = event.getUploadItem();
-            let createdContent = item.getModel();
+            const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
+            const checkbox: Checkbox = <Checkbox>this.getFieldById('contentTarget');
 
-            let selectedOption = contentSelector.getSelectedOptionView().getById(item.getId());
-            let option = selectedOption.getOption();
+            this.mediaOptionRadioFormItem.show();
+
+            if (mediaRadio.doGetValue() === MediaContentRadioAction.LINK) {
+                checkbox.show();
+            }
+
+            const item: UploadItem<Content> = event.getUploadItem();
+            const createdContent: Content = item.getModel();
+
+            const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionView().getById(item.getId());
+            const option: Option<ContentTreeSelectorItem> = selectedOption.getOption();
             option.setDisplayValue(new MediaTreeSelectorItem(createdContent));
             option.setValue(createdContent.getContentId().toString());
 
@@ -812,9 +845,9 @@ export class LinkModalDialog
         });
 
         mediaUploader.onUploadFailed((event: UploadFailedEvent<Content>) => {
-            let item = event.getUploadItem();
+            const item: UploadItem<Content> = event.getUploadItem();
+            const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionView().getById(item.getId());
 
-            let selectedOption = contentSelector.getSelectedOptionView().getById(item.getId());
             if (!!selectedOption) {
                 (<BaseSelectedOptionsView<ContentTreeSelectorItem>>contentSelector.getSelectedOptionView()).removeOption(
                     selectedOption.getOption());
@@ -839,6 +872,7 @@ export class LinkModalDialog
         contentSelector.getComboBox().onHidden(() => {
             mediaUploader.hide();
         });
+
         contentSelector.getComboBox().onShown(() => {
             mediaUploader.show();
         });
@@ -847,87 +881,121 @@ export class LinkModalDialog
     }
 
     private validateDockPanel(): boolean {
-        const form = <Form>this.dockedPanel.getDeck().getPanelShown().getFirstChild();
-
+        const form: Form = <Form>this.dockedPanel.getDeck().getPanelShown().getFirstChild();
         return form.validate(true).isValid();
     }
 
     protected validate(): boolean {
-        const mainFormValid = super.validate();
-        const dockPanelValid = this.validateDockPanel();
+        const isMainFormValid: boolean = super.validate();
+        const isDockPanelValid: boolean = this.validateDockPanel();
 
-        return mainFormValid && dockPanelValid;
+        return isMainFormValid && isDockPanelValid;
+    }
+
+    private getContentLinkQueryParams(): string {
+        const queryParamsString: string = this.paramsFormIds.reduce((prev, formParam: FormParam) => {
+            const key: string = (<TextInput>this.getFieldById(formParam.keyId)).getValue();
+            const value: string = (<TextInput>this.getFieldById(formParam.valueId)).getValue();
+            return prev === '' ? `${key}=${value}` : `${prev}&${key}=${value}`;
+        }, '');
+
+        if (!queryParamsString) {
+            return StringHelper.EMPTY_STRING;
+        }
+
+        return `?${LinkModalDialog.queryParamsPrefix}${encodeURIComponent(queryParamsString)}`;
+    }
+
+    private getContentLinkFragment(hasQueryParams: boolean): string {
+        const anchorString: string = encodeURIComponent((<TextInput>this.getFieldById('contentFragment')).getValue());
+        const fragment: string = anchorString ? `${LinkModalDialog.fragmentPrefix}${anchorString}` : '';
+
+        if (!fragment) {
+            return StringHelper.EMPTY_STRING;
+        }
+
+        return hasQueryParams ? `&${fragment}` : `?${fragment}`;
+    }
+
+    private getContentLinkUrl(contentSelectorValue: string, queryParams?: string, fragment?: string): string {
+        return `${LinkModalDialog.contentPrefix}${contentSelectorValue}${queryParams || ''}${fragment || ''}`;
+    }
+
+    private getContentLinkTarget(): string {
+        const isOpenInNewTab: boolean = (<Checkbox>this.getFieldById('contentTarget')).isChecked();
+        return isOpenInNewTab ? '_blank' : '';
     }
 
     private createContentLink() {
-        let isOpenInNewTab: boolean = false;
-        let url: string = '';
-        let target: string = '';
-
-        const contentSelector = <ContentComboBox<ContentTreeSelectorItem>>this.getFieldById('contentId');
-        const contentSelectorValue = contentSelector.getValue();
-        const contentSelectorSelectedContent = contentSelector.getSelectedContent();
-
-
-        const getQueryParamsString = () => {
-            const queryParamsString = this.paramsFormIds.reduce((prev, {keyId, valueId}) => {
-                    const key = (<TextInput>this.getFieldById(keyId)).getValue();
-                    const value = (<TextInput>this.getFieldById(valueId)).getValue();
-                    return prev === '' ? `${key}=${value}` : `${prev}&${key}=${value}`;
-                }, '');
-
-            if (!queryParamsString) {
-                return StringHelper.EMPTY_STRING;
-            }
-
-            return '?' + LinkModalDialog.queryParamsPrefix + encodeURIComponent(queryParamsString);
-        };
-
-        const getFragment = () => {
-            const anchorString = encodeURIComponent((<TextInput>this.getFieldById('contentFragment')).getValue());
-
-            const fragment = anchorString ? `${LinkModalDialog.fragmentPrefix}${anchorString}`: '';
-
-            return getQueryParamsString() ? '&' + fragment : '?' + fragment;
-        };
-
-
-        const setUrl = () => {
-            isOpenInNewTab = (<Checkbox>this.getFieldById('contentTarget')).isChecked();
-            target = isOpenInNewTab ? '_blank' : '';
-            url = LinkModalDialog.contentPrefix
-                + contentSelectorValue
-                + getQueryParamsString()
-                + getFragment();
-        };
-
-        if (contentSelectorSelectedContent.getType().isDescendantOfMedia()) {
-            switch ((<RadioGroup>this.getFieldById('contentMediaRadio')).doGetValue()) {
-                case MediaContentRadioAction.OPEN:
-                    url = LinkModalDialog.mediaInlinePrefix + contentSelectorValue;
-                    isOpenInNewTab = true;
-                    break;
-                case MediaContentRadioAction.DOWNLOAD:
-                    url = LinkModalDialog.mediaDownloadPrefix + contentSelectorValue;
-                    break;
-                case MediaContentRadioAction.LINK:
-                    setUrl();
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            setUrl();
-        }
+        const urlParams: ContentLinkParams = this.generateUrlParams();
 
         this.getOriginalLinkTypeElem().setValue('url', false);
-        this.getOriginalTargetElem().setValue(target, false);
         this.getOriginalProtocolElem().setValue('', false);
-        this.getOriginalUrlElem().setValue(url, false);
+        this.getOriginalUrlElem().setValue(urlParams.url, false);
+        this.getOriginalTargetElem().setValue(urlParams.target, false);
     }
 
+    private generateUrlParams(): ContentLinkParams {
+        const contentSelectorSelectedContent: ContentSummary = this.getContentIdFormItemEl().getSelectedContent();
 
-    private createUrlLink() {
+        if (contentSelectorSelectedContent?.getType().isDescendantOfMedia()) {
+            return this.generateUrlParamsForMedia();
+        }
+
+        return this.generateUrlParamsForNonMedia();
+    }
+
+    private getContentIdFormItemEl(): ContentComboBox<ContentTreeSelectorItem> {
+        return <ContentComboBox<ContentTreeSelectorItem>>this.getFieldById('contentId');
+    }
+
+    private generateUrlParamsForMedia(): ContentLinkParams {
+        const mediaContentRadioSelectedOption: string = (<RadioGroup>this.getFieldById('contentMediaRadio')).doGetValue();
+        const contentSelectorValue: string = this.getContentSelectorValue();
+
+        if (mediaContentRadioSelectedOption === MediaContentRadioAction.OPEN) {
+            return {
+                url: LinkModalDialog.mediaInlinePrefix + contentSelectorValue,
+                target: '_blank'
+            };
+        }
+
+        if (mediaContentRadioSelectedOption === MediaContentRadioAction.DOWNLOAD) {
+            return {
+                url: LinkModalDialog.mediaDownloadPrefix + contentSelectorValue,
+                target: ''
+            };
+        }
+
+        if (mediaContentRadioSelectedOption === MediaContentRadioAction.LINK) {
+            return {
+                url: this.getContentLinkUrl(contentSelectorValue),
+                target: this.getContentLinkTarget()
+            };
+        }
+
+        return {
+            url: '',
+            target: ''
+        };
+    }
+
+    private getContentSelectorValue(): string {
+        return this.getContentIdFormItemEl().getValue();
+    }
+
+    private generateUrlParamsForNonMedia(): ContentLinkParams {
+        const contentSelectorValue: string = this.getContentSelectorValue();
+        const queryParams: string = this.getContentLinkQueryParams();
+        const fragment: string = this.getContentLinkFragment(!!queryParams);
+
+        return {
+            url: this.getContentLinkUrl(contentSelectorValue, queryParams, fragment),
+            target: this.getContentLinkTarget()
+        };
+    }
+
+    private createUrlLink(): void {
         const url: string = (<TextInput>this.getFieldById('url')).getValue();
         const isOpenInNewTab: boolean = (<Checkbox>this.getFieldById('urlTarget')).isChecked();
         const target: string = isOpenInNewTab ? '_blank' : '';
@@ -938,7 +1006,7 @@ export class LinkModalDialog
         this.getOriginalUrlElem().setValue(url, false);
     }
 
-    private createEmailLink() {
+    private createEmailLink(): void {
         const email = (<TextInput>this.getFieldById('email')).getValue();
         const subject = (<TextInput>this.getFieldById('subject')).getValue();
 
@@ -947,7 +1015,7 @@ export class LinkModalDialog
         this.getOriginalSubjElem().setValue(subject, false);
     }
 
-    private createAnchor() {
+    private createAnchor(): void {
         const anchorName = (<TextInput>this.getFieldById('anchor')).getValue().replace(LinkModalDialog.anchorPrefix,
             StringHelper.EMPTY_STRING);
 
@@ -965,18 +1033,18 @@ export class LinkModalDialog
         this.getOriginalTitleElem().setValue(toolTip, false);
 
         switch (selectedTab.getLabel()) {
-        case (this.tabNames.content):
-            this.createContentLink();
-            break;
-        case (this.tabNames.url):
-            this.createUrlLink();
-            break;
-        case (this.tabNames.email):
-            this.createEmailLink();
-            break;
-        case (this.tabNames.anchor):
-            this.createAnchor();
-            break;
+            case (this.tabNames.content):
+                this.createContentLink();
+                break;
+            case (this.tabNames.url):
+                this.createUrlLink();
+                break;
+            case (this.tabNames.email):
+                this.createEmailLink();
+                break;
+            case (this.tabNames.anchor):
+                this.createAnchor();
+                break;
         }
     }
 
@@ -1034,7 +1102,7 @@ export class LinkModalDialog
 
     isDirty(): boolean {
         return (<TextInput>this.textFormItem.getInput()).isDirty() || (<TextInput>this.toolTipFormItem.getInput()).isDirty() ||
-               AppHelper.isDirty(this.dockedPanel);
+            AppHelper.isDirty(this.dockedPanel);
     }
 
 }

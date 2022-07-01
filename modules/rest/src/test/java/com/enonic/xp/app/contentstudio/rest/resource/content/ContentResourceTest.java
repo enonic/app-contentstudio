@@ -349,7 +349,7 @@ public class ContentResourceTest
         Mockito.when( contentService.getByPath( Mockito.isA( ContentPath.class ) ) ).thenReturn( aContent );
 
         String jsonString =
-            request().path( "content/bypath" ).queryParam( "path", "/my_a_content" ).queryParam( "expand", "summary" ).get().getAsString();
+            request().path( "content/bypath" ).queryParam( "path", "my_a_content" ).queryParam( "expand", "summary" ).get().getAsString();
 
         assertJson( "get_content_summary.json", jsonString );
     }
@@ -369,7 +369,7 @@ public class ContentResourceTest
 
         Mockito.when( contentService.getPermissionsById( Mockito.isA( ContentId.class ) ) ).thenReturn( permissions );
 
-        String jsonString = request().path( "content/contentPermissions" ).queryParam( "id", "/my_a_content" ).get().getAsString();
+        String jsonString = request().path( "content/contentPermissions" ).queryParam( "id", "my_a_content" ).get().getAsString();
 
         assertJson( "get_content_permissions_success.json", jsonString );
     }
@@ -1259,7 +1259,7 @@ public class ContentResourceTest
 
         Mockito.when( contentService.getPermissionsById( Mockito.isA( ContentId.class ) ) ).thenReturn( permissions );
 
-        String jsonString = request().path( "content/effectivePermissions" ).queryParam( "id", "/my_content" ).get().getAsString();
+        String jsonString = request().path( "content/effectivePermissions" ).queryParam( "id", "my_content" ).get().getAsString();
 
         assertJson( "get_effective_permissions_success.json", jsonString );
     }
