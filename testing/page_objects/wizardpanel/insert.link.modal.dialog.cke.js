@@ -58,7 +58,7 @@ class InsertLinkDialog extends Page {
     }
 
     //types text in link text input
-    typeText(text) {
+    typeInTextInput(text) {
         return this.typeTextInInput(this.linkTextInput, text).catch(err => {
             this.saveScreenshot('err_type_link_text');
             throw new Error('error when type text in link-text input ' + err);
@@ -98,16 +98,14 @@ class InsertLinkDialog extends Page {
         })
     }
 
-    fillEmailForm(email) {
-        let selector = XPATH.container + lib.tabBarItemByName('Email');
-        return this.clickOnElement(selector).then(() => {
-            return this.waitForElementDisplayed(this.emailInput, appConst.shortTimeout);
-        }).then(() => {
-            return this.typeTextInInput(this.emailInput, email);
-        }).catch(err => {
-            this.saveScreenshot('err_type_email');
-            throw new Error('error when type email in Insert Link modal dialog ' + err);
-        });
+    async typeTextInEmailInput(email) {
+        try {
+            await this.waitForElementDisplayed(this.emailInput, appConst.shortTimeout);
+            await this.typeTextInInput(this.emailInput, email);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_email'));
+            throw new Error('error when type in email input, Insert Link modal dialog ' + err);
+        }
     }
 
     async selectTargetInContentTab(targetDisplayName) {
@@ -161,7 +159,8 @@ class InsertLinkDialog extends Page {
         try {
             let selector = XPATH.container + lib.tabBarItemByName(name);
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-            await this.clickOnElement(selector)
+            await this.clickOnElement(selector);
+            return await this.pause(300);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_bar_item'));
             throw new Error('Insert Link Dialog-  error when click on the bar item ' + err);
@@ -207,9 +206,9 @@ class InsertLinkDialog extends Page {
         return await this.getText(this.emailInputValidationRecording);
     }
 
-   //Click on a radio in Media options:
+    //Click on a radio in Media options:
     async clickOnRadioButton(label) {
-        let locator = XPATH.container+ XPATH.radioButtonByLabel(label)
+        let locator = XPATH.container + XPATH.radioButtonByLabel(label)
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator + "//input");
     }

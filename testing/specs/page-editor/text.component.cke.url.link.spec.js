@@ -69,7 +69,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await textComponentCke.switchToLiveEditFrame();
             await textComponentCke.clickOnInsertLinkButton();
             await insertLinkDialog.clickOnBarItem("URL")
-            await insertLinkDialog.typeText("url_link");
+            await insertLinkDialog.typeInTextInput("url_link");
             await insertLinkDialog.typeUrl(NOT_VALID_URL);
             //2. Click on 'Insert" in the modal dialog:
             await insertLinkDialog.clickOnInsertButton();

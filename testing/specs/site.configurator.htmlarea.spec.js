@@ -45,7 +45,7 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             await insertLinkDialog.waitForDialogLoaded();
             //4.click on URL tab item:
             await insertLinkDialog.clickOnBarItem("URL");
-            await insertLinkDialog.typeText(LINK_TEXT);
+            await insertLinkDialog.typeInTextInput(LINK_TEXT);
             //5. Fill in the URL input and insert the link:
             await insertLinkDialog.typeUrl(TEST_URL);
             await insertLinkDialog.clickOnInsertButton();

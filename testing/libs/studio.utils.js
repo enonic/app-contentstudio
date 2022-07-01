@@ -103,14 +103,14 @@ module.exports = {
     async insertUrlLinkInCke(text, url) {
         let insertLinkDialog = new InsertLinkDialog();
         await insertLinkDialog.clickOnBarItem("URL");
-        await insertLinkDialog.typeText(text);
+        await insertLinkDialog.typeInTextInput(text);
         await insertLinkDialog.typeUrl(url);
         await insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
         return await this.getBrowser().pause(500);
     },
     async insertDownloadLinkInCke(text, contentDisplayName) {
         let insertLinkDialog = new InsertLinkDialog();
-        await insertLinkDialog.typeText(text);
+        await insertLinkDialog.typeInTextInput(text);
         await insertLinkDialog.selectTargetInDownloadTab(contentDisplayName);
         await this.saveScreenshot('download_link_dialog');
         await insertLinkDialog.clickOnInsertButton();
@@ -118,16 +118,17 @@ module.exports = {
     },
     async insertEmailLinkInCke(text, email) {
         let insertLinkDialog = new InsertLinkDialog();
-        await insertLinkDialog.typeText(text);
-        await insertLinkDialog.fillEmailForm(email);
-        this.saveScreenshot('email_link_dialog');
+        await insertLinkDialog.clickOnBarItem("Email");
+        await insertLinkDialog.typeInTextInput(text);
+        await insertLinkDialog.typeTextInEmailInput(email);
+        await this.saveScreenshot('email_link_dialog');
         await insertLinkDialog.clickOnInsertButton();
         return await insertLinkDialog.pause(700);
     },
 
     async insertContentLinkInCke(text, contentDisplayName) {
         let insertLinkDialog = new InsertLinkDialog();
-        await insertLinkDialog.typeText(text);
+        await insertLinkDialog.typeInTextInput(text);
         await insertLinkDialog.selectTargetInContentTab(contentDisplayName);
         this.saveScreenshot('content_link_dialog');
         await insertLinkDialog.clickOnInsertButton();
