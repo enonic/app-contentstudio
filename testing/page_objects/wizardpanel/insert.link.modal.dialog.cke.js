@@ -12,9 +12,14 @@ const XPATH = {
     urlPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and contains(@class,'panel url-panel')]",
     emailPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and @class='panel']",
     radioButtonByLabel: label => `//span[contains(@id,'RadioButton') and child::label[contains(.,'${label}')]]`,
+    urlTypeButton: "//div[contains(@id,'MenuButton')]//button[contains(@id,'ActionButton') and child::span[text()='Type']]"
 };
 
 class InsertLinkDialog extends Page {
+
+    get urlTypeButton() {
+        return XPATH.container + XPATH.urlTypeButton;
+    }
 
     get linkTooltipInput() {
         return XPATH.container + XPATH.linkTooltipFieldset + lib.TEXT_INPUT;
@@ -27,7 +32,6 @@ class InsertLinkDialog extends Page {
     get linkTextInputValidationRecording() {
         return XPATH.container + XPATH.linkTextFieldset + lib.VALIDATION_RECORDING_VIEWER;
     }
-
 
     get urlInput() {
         return XPATH.container + XPATH.urlPanel + lib.TEXT_INPUT;
@@ -42,7 +46,10 @@ class InsertLinkDialog extends Page {
     }
 
     get emailInput() {
-        return XPATH.container + XPATH.emailPanel + lib.TEXT_INPUT;
+        return XPATH.container + XPATH.emailPanel + "//fieldset[descendant::label[text()='Email']]" + lib.TEXT_INPUT;
+    }
+    get subjectInput() {
+        return XPATH.container + XPATH.emailPanel + "//fieldset[descendant::label[text()='Subject']]" + lib.TEXT_INPUT;
     }
 
     get cancelButton() {
@@ -88,6 +95,18 @@ class InsertLinkDialog extends Page {
         });
     }
 
+    async clickOnUrlTypeButton() {
+        await this.waitForElementDisplayed(this.urlTypeButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.urlTypeButton);
+        return await this.pause(200);
+    }
+
+    async getUrlTypeMenuOptions() {
+        let locator = XPATH.container + "//div[contains(@id,'MenuButton')]//li";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
     selectTargetInDownloadTab(targetDisplayName) {
         let loaderComboBox = new LoaderComboBox();
         let selector = XPATH.container + lib.tabBarItemByName('Download');
@@ -100,7 +119,8 @@ class InsertLinkDialog extends Page {
 
     async typeTextInEmailInput(email) {
         try {
-            await this.waitForElementDisplayed(this.emailInput, appConst.shortTimeout);
+            await this.waitForElementDisplayed(XPATH.emailPanel, appConst.shortTimeout);
+            let res = await this.findElements(this.emailInput);
             await this.typeTextInInput(this.emailInput, email);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_email'));
