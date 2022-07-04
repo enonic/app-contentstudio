@@ -8,10 +8,4 @@ export interface CollaborationEventJson
 export interface CollaborationEventDataJson {
     collaborators: string[];
     contentId: string;
-    newCollaborator?: NewCollaboratorJson;
-}
-
-export interface NewCollaboratorJson {
-    sessionId: string;
-    userKey: string;
 }
