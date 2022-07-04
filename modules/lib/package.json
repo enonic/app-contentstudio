@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
-    "flag-icons": "^6.6.2",
+    "flag-icons": "^6.6.3",
     "hasher": "^1.2.0",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.13.1",
