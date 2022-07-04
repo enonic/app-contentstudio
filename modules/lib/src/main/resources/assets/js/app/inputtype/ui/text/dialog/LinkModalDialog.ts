@@ -121,11 +121,7 @@ export class LinkModalDialog
             {title: 'Https', prefix: 'https://', validator: LinkModalDialog.validationRequiredUrl},
             {title: 'Http', prefix: 'http://', validator: LinkModalDialog.validationRequiredUrl},
             {title: 'Ftp', prefix: 'ftp://', validator: LinkModalDialog.validationRequiredFtpUrl},
-            {
-                title: i18n('dialog.link.urlprotocols.relative'),
-                prefix: '',
-                validator: LinkModalDialog.validationRequiredRelativeUrl
-            }
+            {title: i18n('dialog.link.urlprotocols.relative'), prefix: '', validator: LinkModalDialog.validationRequiredRelativeUrl}
         ];
     }
 
@@ -523,14 +519,14 @@ export class LinkModalDialog
 
         const urlFormItem: FormItem = this.createFormItemWithPostponedValue(textId, textLabel, getUrl, Validators.required);
         const urlInput: TextInput = <TextInput>urlFormItem.getInput();
-        this.initUrlInputHandlers(urlInput);
+        this.initUrlInputHandlers(urlFormItem, urlInput);
 
         urlFormItem.getLabel().addClass('required');
 
         return urlFormItem;
     }
 
-    private initUrlInputHandlers(urlInput: TextInput) {
+    private initUrlInputHandlers(urlFormItem: FormItem, urlInput: TextInput) {
         urlInput.onRendered(() => {
             const urlValue = urlInput.getValue();
             const usedProtocol = this.getUsedProtocolFromValue(urlValue);
@@ -544,6 +540,8 @@ export class LinkModalDialog
         urlInput.onValueChanged((event: ValueChangedEvent) => {
             const urlValue = event.getNewValue();
             const usedProtocol = this.getUsedProtocolFromValue(urlValue);
+
+            urlFormItem.setValidator(usedProtocol.validator);
 
             this.protocolsDropdownButton.getMenuItems().forEach(menuItem => {
                 menuItem.removeClass('menu-item-selected');
