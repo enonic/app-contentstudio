@@ -18,7 +18,7 @@ describe('htmlarea.insert.link.email.url.spec: insert `email-link` and url-link 
     let TEST_TOOLTIP = "my tooltip";
     let INVALID_EMAIL = "john@@mail.com";
     let VALID_EMAIL = "john@mail.com";
-    const EXPECTED_EMAIL_TXT_PART = "a title=\"Email link\" href=\"mailto:john@mail.com\"";
+    const EXPECTED_EMAIL_TXT_PART = "a title=\"Email\" href=\"mailto:john@mail.com\"";
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -78,7 +78,7 @@ describe('htmlarea.insert.link.email.url.spec: insert `email-link` and url-link 
             await insertLinkDialog.clickOnBarItem("Email");
             await insertLinkDialog.typeInTextInput("Email link");
             //4. Fill in the tooltip input:
-            await insertLinkDialog.typeInLinkTooltip("Email link");
+            await insertLinkDialog.typeInLinkTooltip("Email");
             //5. Fill in the email input (invalid value):
             await insertLinkDialog.typeTextInEmailInput(VALID_EMAIL);
             //6. click on 'Insert' button:
@@ -97,11 +97,11 @@ describe('htmlarea.insert.link.email.url.spec: insert `email-link` and url-link 
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            //3. Go to Email tab:
-            await insertLinkDialog.clickOnBarItem("URL");
+            //3. Go to 'Email' tab:
+            await insertLinkDialog.clickOnBarItem("Email");
             await insertLinkDialog.typeInTextInput("Email link");
             //4. Fill in the tooltip input:
-            await insertLinkDialog.typeInLinkTooltip("Email link");
+            await insertLinkDialog.typeInLinkTooltip("Email");
             //5. Fill in the email input (invalid value):
             await insertLinkDialog.typeTextInEmailInput(VALID_EMAIL);
             //6. click on 'Insert' button:
