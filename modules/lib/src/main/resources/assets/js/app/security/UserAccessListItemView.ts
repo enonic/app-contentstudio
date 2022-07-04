@@ -1,6 +1,5 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
@@ -8,6 +7,7 @@ import {EffectivePermission} from './EffectivePermission';
 import {EffectivePermissionMember} from './EffectivePermissionMember';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export class UserAccessListItemView
     extends Viewer<EffectivePermission> {
@@ -16,7 +16,7 @@ export class UserAccessListItemView
 
     private accessLine: DivEl;
 
-    private resizeListener: (item: ResponsiveItem) => void;
+    private resizeListener: () => void;
 
     private currentUser: Principal;
 
@@ -44,6 +44,9 @@ export class UserAccessListItemView
 
             this.resizeListener = this.setExtraCount.bind(this);
             ResponsiveManager.onAvailableSizeChanged(this, this.resizeListener);
+            if (window.ResizeObserver) {
+                new ResizeObserver(AppHelper.debounce(this.resizeListener, 200)).observe(this.getHTMLElement());
+            }
 
             this.userLine.onRendered(() => {
                 this.setExtraCount();
