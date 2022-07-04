@@ -1,4 +1,5 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
@@ -42,6 +43,7 @@ export class UserAccessListItemView
             this.appendChildren(this.accessLine, this.userLine);
 
             this.resizeListener = this.setExtraCount.bind(this);
+            ResponsiveManager.onAvailableSizeChanged(this, this.resizeListener);
             if (window.ResizeObserver) {
                 new ResizeObserver(AppHelper.debounce(this.resizeListener, 200)).observe(this.getHTMLElement());
             }
@@ -65,6 +67,11 @@ export class UserAccessListItemView
                 }
             });
         }
+    }
+
+    remove(): any {
+        ResponsiveManager.unAvailableSizeChanged(this);
+        return super.remove();
     }
 
     private setExtraCount() {
