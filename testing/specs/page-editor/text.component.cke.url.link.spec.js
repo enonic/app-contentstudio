@@ -21,7 +21,7 @@ describe('Text Component with CKE - insert link and table specification', functi
     webDriverHelper.setupBrowser();
 
     let SITE;
-    let NOT_VALID_URL = 'test';
+    let INVALID_URL_SPEC = 'http://test$$.com';
     let CONTROLLER_NAME = 'main region';
     let EXPECTED_URL = '<p><a href="http://google.com">test</a></p>';
 
@@ -52,7 +52,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await textComponentCke.waitForTableDisplayedInCke();
         });
 
-    it(`GIVEN 'Insert Link' dialog is opened WHEN incorrect 'url' has been typed AND 'Insert' button pressed THEN validation message should appear`,
+    it(`GIVEN 'Insert Link' dialog is opened WHEN invalid 'url' has been typed AND 'Insert' button pressed THEN validation message should appear`,
         async () => {
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
@@ -70,7 +70,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await textComponentCke.clickOnInsertLinkButton();
             await insertLinkDialog.clickOnBarItem("URL")
             await insertLinkDialog.typeInTextInput("url_link");
-            await insertLinkDialog.typeUrl(NOT_VALID_URL);
+            await insertLinkDialog.typeUrl(INVALID_URL_SPEC);
             //2. Click on 'Insert" in the modal dialog:
             await insertLinkDialog.clickOnInsertButton();
             //Validation message gets visible:
