@@ -29,7 +29,7 @@ public class ContentQueryFilterDslHelper
     {
         if ( isConstraintItemsPresent() )
         {
-            return dslFromBoolean( containsTextOrMatchesIdOnConstraints() );
+            return dslFromBoolean( containsTextAndMatchesIdOnConstraints() );
         }
 
         if ( this.contentQueryJson.getInboundReferenceId() != null )
@@ -48,7 +48,7 @@ public class ContentQueryFilterDslHelper
         return DslExpr.from( expr );
     }
 
-    private PropertySet containsTextOrMatchesIdOnConstraints()
+    private PropertySet containsTextAndMatchesIdOnConstraints()
     {
         final List<NamedPropertySet> props = new ArrayList<>();
 
@@ -64,7 +64,10 @@ public class ContentQueryFilterDslHelper
         final List<NamedPropertySet> props = new ArrayList<>();
 
         props.add( new NamedPropertySet( "boolean", mustContainText( searchText ) ) );
-        props.add( new NamedPropertySet( "term", idMustMatch( searchText ) ) );
+
+        if (!searchText.isEmpty()) {
+            props.add( new NamedPropertySet( "term", idMustMatch( searchText ) ) );
+        }
 
         return dslShould( props );
     }
@@ -79,24 +82,28 @@ public class ContentQueryFilterDslHelper
         return dslBooleanOperator( "should", shouldExpressions );
     }
 
-    private PropertySet dslBooleanOperator( final String operator, final List<NamedPropertySet> subExpressions )
+    private PropertySet dslBooleanOperator( final String operator, final List<NamedPropertySet> expressions )
     {
-        final PropertySet resultingPropertySet = new PropertySet();
-        final PropertySet booleanExpr = resultingPropertySet.addSet( operator );
+        final PropertySet booleanPropertySet = new PropertySet();
+        final List<PropertySet> wrapperSets = new ArrayList<>();
 
-        subExpressions.forEach( entry -> {
-            booleanExpr.addSet( entry.name, entry.props );
+        expressions.forEach( expression -> {
+            PropertySet wrapperPropertySet = new PropertySet();
+            wrapperPropertySet.addSet( expression.name, expression.props );
+            wrapperSets.add( wrapperPropertySet );
         } );
 
-        return resultingPropertySet;
+        booleanPropertySet.addSets( operator, wrapperSets.toArray( new PropertySet[0] ) );
+
+        return booleanPropertySet;
     }
 
     private PropertySet makeFulltextOrNgramExpr( final String searchText )
     {
         final List<NamedPropertySet> props = new ArrayList<>();
 
-        props.add( new NamedPropertySet( "fulltext", this.makeSearchTextDslTree( searchText ) ) );
-        props.add( new NamedPropertySet( "ngram", this.makeSearchTextDslTree( searchText ) ) );
+        props.add( new NamedPropertySet( "fulltext", this.makeSearchTextDslPropertySet( searchText ) ) );
+        props.add( new NamedPropertySet( "ngram", this.makeSearchTextDslPropertySet( searchText ) ) );
 
         return dslShould( props );
     }
@@ -109,7 +116,7 @@ public class ContentQueryFilterDslHelper
         return dslShould( props );
     }
 
-    private PropertySet makeSearchTextDslTree( final String searchText )
+    private PropertySet makeSearchTextDslPropertySet( final String searchText )
     {
         final PropertySet props = new PropertySet();
 

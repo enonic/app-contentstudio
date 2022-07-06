@@ -18,6 +18,8 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.data.PropertyTree;
+import com.enonic.xp.query.expr.DslExpr;
+import com.enonic.xp.query.expr.DslOrderExpr;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.security.PrincipalKey;
@@ -25,6 +27,7 @@ import com.enonic.xp.util.Reference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContentQueryJsonToContentQueryConverterTest
 {
@@ -154,6 +157,21 @@ public class ContentQueryJsonToContentQueryConverterTest
         assertEquals( "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') " +
                           "OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) ORDER BY _modifiedtime DESC",
                       contentQuery.getQueryExpr().toString() );
+    }
+
+    @Test
+    public void testFilterQuery()
+    {
+        ContentQueryJson contentQueryJson =
+            new ContentQueryJson( null, 0, 100, new ArrayList<>(), null, "summary", null, null, "features", null, new ArrayList<>() );
+
+        ContentQueryJsonToContentQueryConverter processor =
+            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
+
+        final ContentQuery contentQuery = processor.createQuery();
+
+        assertTrue( contentQuery.getQueryExpr().getConstraint() instanceof DslExpr );
+        assertTrue( contentQuery.getQueryExpr().getOrderList().stream().allMatch( orderExpr -> orderExpr instanceof DslOrderExpr ) );
     }
 
     private Content createContent( final String id, final PropertyTree data, final ContentTypeName contentTypeName )

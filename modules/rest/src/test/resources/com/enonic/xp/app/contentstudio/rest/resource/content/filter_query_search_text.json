@@ -1,0 +1,40 @@
+{
+    "boolean": {
+        "should": [
+            {
+                "boolean": {
+                    "should": [
+                        {
+                            "fulltext": {
+                                "fields": [
+                                    "displayName^5",
+                                    "_name^3",
+                                    "_allText"
+                                ],
+                                "query": "features",
+                                "operator": "AND"
+                            }
+                        },
+                        {
+                            "ngram": {
+                                "fields": [
+                                    "displayName^5",
+                                    "_name^3",
+                                    "_allText"
+                                ],
+                                "query": "features",
+                                "operator": "AND"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "term": {
+                    "field": "_id",
+                    "value": "features"
+                }
+            }
+        ]
+    }
+}

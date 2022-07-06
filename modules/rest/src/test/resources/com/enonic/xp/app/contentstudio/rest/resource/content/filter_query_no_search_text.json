@@ -1,0 +1,15 @@
+{
+    "boolean": {
+        "should": [
+            {
+                "boolean": {
+                    "should": [
+                        {
+                            "matchAll": {}
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

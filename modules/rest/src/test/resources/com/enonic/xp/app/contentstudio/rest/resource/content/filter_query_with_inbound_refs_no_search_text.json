@@ -1,0 +1,43 @@
+{
+    "boolean": {
+        "must": [
+            {
+                "boolean": {
+                    "should": [
+                        {
+                            "boolean": {
+                                "should": [
+                                    {
+                                        "matchAll": {}
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "boolean": {
+                    "must": [
+                        {
+                            "term": {
+                                "field": "_references",
+                                "value": "inboundContentId"
+                            }
+                        },
+                        {
+                            "boolean": {
+                                "mustNot": {
+                                    "term": {
+                                        "field": "_id",
+                                        "value": "inboundContentId"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

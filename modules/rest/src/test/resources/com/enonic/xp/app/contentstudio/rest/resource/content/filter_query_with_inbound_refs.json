@@ -1,0 +1,68 @@
+{
+    "boolean": {
+        "must": [
+            {
+                "boolean": {
+                    "should": [
+                        {
+                            "boolean": {
+                                "should": [
+                                    {
+                                        "fulltext": {
+                                            "fields": [
+                                                "displayName^5",
+                                                "_name^3",
+                                                "_allText"
+                                            ],
+                                            "query": "features",
+                                            "operator": "AND"
+                                        }
+                                    },
+                                    {
+                                        "ngram": {
+                                            "fields": [
+                                                "displayName^5",
+                                                "_name^3",
+                                                "_allText"
+                                            ],
+                                            "query": "features",
+                                            "operator": "AND"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "term": {
+                                "field": "_id",
+                                "value": "features"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "boolean": {
+                    "must": [
+                        {
+                            "term": {
+                                "field": "_references",
+                                "value": "inboundContentId"
+                            }
+                        },
+                        {
+                            "boolean": {
+                                "mustNot": {
+                                    "term": {
+                                        "field": "_id",
+                                        "value": "inboundContentId"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
