@@ -122,7 +122,7 @@ public class ContentQueryJsonToContentQueryConverter
         {
             builder.queryExpr( QueryParser.parse( queryExprString ) );
         }
-        else if ( contentQueryJson.getSearchText() != null )
+        else
         {
             final QueryExpr queryExpr = new ContentQueryFilterDslHelper( contentQueryJson ).createFilterDslQuery();
             builder.queryExpr( queryExpr );
