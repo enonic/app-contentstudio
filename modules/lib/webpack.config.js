@@ -2,7 +2,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ProvidePlugin = require('webpack/lib/ProvidePlugin');
-const ErrorLoggerPlugin = require('error-logger-webpack-plugin');
 const path = require('path');
 
 const MiniCssExtractPluginCleanup = require('./util/MiniCssExtractPluginCleanup');
@@ -15,7 +14,8 @@ module.exports = {
         'styles/contentlib': './styles/main.less',
         'lib/ckeditor/plugins/pasteModeSwitcher/plugin': './lib/ckeditor/plugins/pasteModeSwitcher/plugin.raw.js',
         // html editor css imported separately in the HTMLAreaBuilder for legacy mode
-        'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less'
+        'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less',
+        'lib/ckeditor': ['./lib/ckepath.js', './lib/ckeditor/ckeditor.js']
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),

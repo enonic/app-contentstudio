@@ -33,12 +33,13 @@
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/admin/common/styles/lib.css">
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/contentlib.css">
     <script type="text/javascript" src="{{assetsUri}}/admin/common/js/lib.js"></script>
-    <script type="text/javascript" src="{{assetsUri}}/lib/ckepath.js" data-asset-url="{{assetsUri}}"></script>
-    <script type="text/javascript" src="{{assetsUri}}/lib/ckeditor/ckeditor.js"></script>
 </head>
 <body>
 
 <!-- App javascript -->
+{{^isBrowseMode}}
+<script type="text/javascript" src="{{assetsUri}}/lib/ckeditor.js" data-asset-url="{{assetsUri}}"></script>
+{{/isBrowseMode}}
 <script type="text/javascript" src="{{assetsUri}}/js/vendors.main~editor.js"></script>
 <script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-service-url="{{configServiceUrl}}"></script>
 
