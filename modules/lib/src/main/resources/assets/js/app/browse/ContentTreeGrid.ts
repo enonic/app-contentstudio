@@ -220,8 +220,10 @@ export class ContentTreeGrid
             this.filterQuery
                 .setSize(ContentTreeGrid.MAX_FETCH_SIZE)
                 .setQueryFilters(query.getQueryFilters())
-                .setQueryExpr(query.getQueryExpr())
+                .setSearchText(query.getSearchText())
+                .setInboundReferenceId(query.getInboundReferenceId())
                 .setContentTypeNames(query.getContentTypes())
+                .setConstraintItemsIds(query.getConstraintItemsIds())
                 .setMustBeReferencedById(query.getMustBeReferencedById());
 
             this.getRoot().setFiltered(true);

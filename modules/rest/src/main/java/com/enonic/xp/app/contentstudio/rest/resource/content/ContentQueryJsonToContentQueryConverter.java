@@ -12,6 +12,7 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.query.expr.QueryExpr;
 import com.enonic.xp.query.parser.QueryParser;
 
 public class ContentQueryJsonToContentQueryConverter
@@ -46,17 +47,18 @@ public class ContentQueryJsonToContentQueryConverter
     private ContentQuery doCreateQuery()
         throws ContentQueryJsonConvertException
     {
-        final ContentQuery.Builder builder = ContentQuery.create().
-            from( contentQueryJson.getFrom() ).
-            size( contentQueryJson.getSize() ).
-            queryExpr( QueryParser.parse( contentQueryJson.getQueryExprString() ) ).
-            addContentTypeNames( contentQueryJson.getContentTypeNames() );
+        final ContentQuery.Builder builder = ContentQuery.create()
+            .from( contentQueryJson.getFrom() )
+            .size( contentQueryJson.getSize() )
+            .addContentTypeNames( contentQueryJson.getContentTypeNames() );
 
         addOutboundContentIdsToFilter( builder );
 
         addAggregationQueries( builder );
 
         addQueryFilters( builder );
+
+        addQueryExpr( builder );
 
         return builder.build();
     }
@@ -109,6 +111,21 @@ public class ContentQueryJsonToContentQueryConverter
             {
                 builder.queryFilter( queryFilterJson.getFilter() );
             }
+        }
+    }
+
+    private void addQueryExpr( final ContentQuery.Builder builder )
+    {
+        final String queryExprString = contentQueryJson.getQueryExprString();
+
+        if ( queryExprString != null )
+        {
+            builder.queryExpr( QueryParser.parse( queryExprString ) );
+        }
+        else if ( contentQueryJson.getSearchText() != null )
+        {
+            final QueryExpr queryExpr = new ContentQueryFilterDslHelper( contentQueryJson ).createFilterDslQuery();
+            builder.queryExpr( queryExpr );
         }
     }
 

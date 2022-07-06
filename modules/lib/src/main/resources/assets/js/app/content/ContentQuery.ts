@@ -15,9 +15,15 @@ export class ContentQuery
 
     private queryExpr: QueryExpr;
 
+    private searchText: string;
+
     private contentTypeNames: ContentTypeName[] = [];
 
     private mustBeReferencedById: ContentId;
+
+    private inboundReferenceId: ContentId;
+
+    private constraintItemsIds: string[] = [];
 
     private aggregationQueries: AggregationQuery[] = [];
 
@@ -52,6 +58,38 @@ export class ContentQuery
 
     getMustBeReferencedById(): ContentId {
         return this.mustBeReferencedById;
+    }
+
+    setSearchText(value: string): ContentQuery {
+        this.searchText = value;
+        return this;
+    }
+
+    getSearchText(): string {
+        return this.searchText;
+    }
+
+    setInboundReferenceId(value: ContentId): ContentQuery {
+        this.inboundReferenceId = value;
+        return this;
+    }
+
+    getInboundReferenceId(): ContentId {
+        return this.inboundReferenceId;
+    }
+
+    setConstraintItemsIds(value: string[]): ContentQuery {
+        this.constraintItemsIds = value || [];
+        return this;
+    }
+
+    addConstraintItemsId(value: string): ContentQuery {
+        this.constraintItemsIds.push(value);
+        return this;
+    }
+
+    getConstraintItemsIds(): string[] {
+        return this.constraintItemsIds;
     }
 
     setFrom(from: number): ContentQuery {
@@ -115,6 +153,11 @@ export class ContentQuery
             return false;
         }
 
+        if (!ObjectHelper.stringEquals(this.searchText, other.searchText)) {
+            return false;
+        }
+
+
         if (!ObjectHelper.arrayEquals(this.contentTypeNames, other.contentTypeNames)) {
             return false;
         }
@@ -126,7 +169,16 @@ export class ContentQuery
         if (!ObjectHelper.anyArrayEquals(this.queryFilters, other.queryFilters)) {
             return false;
         }
+
         if (!ObjectHelper.equals(this.mustBeReferencedById, other.mustBeReferencedById)) {
+            return false;
+        }
+
+        if (!ObjectHelper.equals(this.inboundReferenceId, other.inboundReferenceId)) {
+            return false;
+        }
+
+        if (!ObjectHelper.stringArrayEquals(this.constraintItemsIds, other.constraintItemsIds)) {
             return false;
         }
 
