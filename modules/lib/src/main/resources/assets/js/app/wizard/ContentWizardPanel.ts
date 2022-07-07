@@ -2816,9 +2816,7 @@ export class ContentWizardPanel
                                ? UrlAction.LOCALIZE
                                : UrlAction.EDIT;
         Router.get().setPath(UrlHelper.createContentEditUrl(this.getPersistedItem().getId(), action));
-        if (!window.name) {
-            window.name = `${action}:${this.getPersistedItem().getId()}`;
-        }
+        window.name = `${action}:${ProjectContext.get().getProject().getName()}:${this.getPersistedItem().getId()}`;
     }
 
     protected setPersistedItem(newPersistedItem: Content): void {
