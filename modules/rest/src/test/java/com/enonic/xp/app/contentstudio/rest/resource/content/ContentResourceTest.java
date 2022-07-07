@@ -2001,8 +2001,8 @@ public class ContentResourceTest
         Mockito.when( contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) )
             .thenReturn( Contents.from( content ) );
 
-        AbstractContentQueryResultJson result =
-            contentResource.query( new ContentQueryJson( "", 0, 10, new ArrayList<>(), null, null, null, null ) );
+        AbstractContentQueryResultJson result = contentResource.query(
+            new ContentQueryJson( "", 0, 10, new ArrayList<>(), null, null, null, null, null, null, new ArrayList<>() ) );
 
         assertEquals( 1, result.getContents().size() );
         assertTrue( result.getContents().contains( new ContentIdJson( content.getId() ) ) );

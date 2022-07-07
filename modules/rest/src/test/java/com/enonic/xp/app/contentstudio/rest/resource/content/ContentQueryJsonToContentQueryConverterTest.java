@@ -18,6 +18,8 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.data.PropertyTree;
+import com.enonic.xp.query.expr.DslExpr;
+import com.enonic.xp.query.expr.DslOrderExpr;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.security.PrincipalKey;
@@ -25,6 +27,7 @@ import com.enonic.xp.util.Reference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContentQueryJsonToContentQueryConverterTest
 {
@@ -44,11 +47,10 @@ public class ContentQueryJsonToContentQueryConverterTest
         contentTypeNames.add( "myApplication:comment" );
         contentTypeNames.add( "myApplication:site" );
 
-        final ContentQueryJson contentQueryJson = new ContentQueryJson( "", 0, 100, contentTypeNames, null, "summary", null, null );
-        final ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create().
-            contentQueryJson( contentQueryJson ).
-            contentService( contentService ).
-            build();
+        final ContentQueryJson contentQueryJson =
+            new ContentQueryJson( "", 0, 100, contentTypeNames, null, "summary", null, null, null, null, new ArrayList<>() );
+        final ContentQueryJsonToContentQueryConverter processor =
+            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
 
         final ContentQuery contentQuery = processor.createQuery();
 
@@ -76,12 +78,11 @@ public class ContentQueryJsonToContentQueryConverterTest
             .thenReturn( ContentIds.from( folderRefContent1.getId(), folderRefContent2.getId() ) );
 
         final ContentQueryJson contentQueryJson =
-            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null );
+            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null, null, null,
+                                  new ArrayList<>() );
 
-        ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create().
-            contentQueryJson( contentQueryJson ).
-            contentService( contentService ).
-            build();
+        ContentQueryJsonToContentQueryConverter processor =
+            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
 
         final ContentQuery contentQuery = processor.createQuery();
 
@@ -98,15 +99,14 @@ public class ContentQueryJsonToContentQueryConverterTest
         Mockito.when( contentService.getOutboundDependencies( content.getId() ) ).thenReturn( ContentIds.empty() );
 
         final ContentQueryJson contentQueryJson =
-            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null );
+            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null, null, null,
+                                  new ArrayList<>() );
 
         Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
         Mockito.when( contentService.getByIds( new GetContentByIdsParams( ContentIds.empty() ) ) ).thenReturn( Contents.empty() );
 
-        ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create().
-            contentQueryJson( contentQueryJson ).
-            contentService( contentService ).
-            build();
+        ContentQueryJsonToContentQueryConverter processor =
+            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
 
         final ContentQuery contentQuery = processor.createQuery();
 
@@ -118,7 +118,7 @@ public class ContentQueryJsonToContentQueryConverterTest
     {
         final ContentQueryJson contentQueryJson = new ContentQueryJson(
             "((fulltext('displayName^5,_name^3,_alltext', '', 'AND') OR ngram('displayName^5,_name^3,_alltext', '', 'AND')) AND inboundDependencies('_references', 'test-content-id'))",
-            0, 100, new ArrayList(), null, "summary", null, null );
+            0, 100, new ArrayList(), null, "summary", null, null, null, null, new ArrayList<>() );
 
         final ContentQueryJsonToContentQueryConverter processor = getProcessor( contentQueryJson );
 
@@ -133,10 +133,7 @@ public class ContentQueryJsonToContentQueryConverterTest
 
     private ContentQueryJsonToContentQueryConverter getProcessor( final ContentQueryJson json )
     {
-        return ContentQueryJsonToContentQueryConverter.create().
-            contentQueryJson( json ).
-            contentService( contentService ).
-            build();
+        return ContentQueryJsonToContentQueryConverter.create().contentQueryJson( json ).contentService( contentService ).build();
     }
 
     @Test
@@ -147,12 +144,10 @@ public class ContentQueryJsonToContentQueryConverterTest
 
         ContentQueryJson contentQueryJson = new ContentQueryJson(
             "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) " +
-                "ORDER BY _modifiedTime DESC", 0, 100, contentTypeNames, null, "summary", null, null );
+                "ORDER BY _modifiedTime DESC", 0, 100, contentTypeNames, null, "summary", null, null, null, null, new ArrayList<>() );
 
-        ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create().
-            contentQueryJson( contentQueryJson ).
-            contentService( contentService ).
-            build();
+        ContentQueryJsonToContentQueryConverter processor =
+            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
 
         final ContentQuery contentQuery = processor.createQuery();
 
@@ -164,20 +159,35 @@ public class ContentQueryJsonToContentQueryConverterTest
                       contentQuery.getQueryExpr().toString() );
     }
 
+    @Test
+    public void testFilterQuery()
+    {
+        ContentQueryJson contentQueryJson =
+            new ContentQueryJson( null, 0, 100, new ArrayList<>(), null, "summary", null, null, "features", null, new ArrayList<>() );
+
+        ContentQueryJsonToContentQueryConverter processor =
+            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
+
+        final ContentQuery contentQuery = processor.createQuery();
+
+        assertTrue( contentQuery.getQueryExpr().getConstraint() instanceof DslExpr );
+        assertTrue( contentQuery.getQueryExpr().getOrderList().stream().allMatch( orderExpr -> orderExpr instanceof DslOrderExpr ) );
+    }
+
     private Content createContent( final String id, final PropertyTree data, final ContentTypeName contentTypeName )
     {
-        return Content.create().
-            id( ContentId.from( id ) ).
-            data( data ).
-            parentPath( ContentPath.ROOT ).
-            name( id ).
-            valid( true ).
-            creator( PrincipalKey.from( "user:system:admin" ) ).
-            owner( PrincipalKey.from( "user:myStore:me" ) ).
-            language( Locale.ENGLISH ).
-            displayName( "My Content" ).
-            modifier( PrincipalKey.from( "user:system:admin" ) ).
-            type( contentTypeName ).
-            build();
+        return Content.create()
+            .id( ContentId.from( id ) )
+            .data( data )
+            .parentPath( ContentPath.ROOT )
+            .name( id )
+            .valid( true )
+            .creator( PrincipalKey.from( "user:system:admin" ) )
+            .owner( PrincipalKey.from( "user:myStore:me" ) )
+            .language( Locale.ENGLISH )
+            .displayName( "My Content" )
+            .modifier( PrincipalKey.from( "user:system:admin" ) )
+            .type( contentTypeName )
+            .build();
     }
 }

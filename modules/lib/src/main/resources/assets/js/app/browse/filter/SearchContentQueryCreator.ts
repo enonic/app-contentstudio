@@ -18,14 +18,6 @@ import {
 import {DateRangeAggregationQuery} from '@enonic/lib-admin-ui/query/aggregation/DateRangeAggregationQuery';
 import {DateRange} from '@enonic/lib-admin-ui/query/aggregation/DateRange';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentSummaryRequest} from '../../resource/ContentSummaryRequest';
-import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
-import {LogicalExpr} from '@enonic/lib-admin-ui/query/expr/LogicalExpr';
-import {LogicalOperator} from '@enonic/lib-admin-ui/query/expr/LogicalOperator';
-import {Expression} from '@enonic/lib-admin-ui/query/expr/Expression';
-import {FulltextSearchExpressionBuilder} from '@enonic/lib-admin-ui/query/FulltextSearchExpression';
-import {CompareExpr} from '@enonic/lib-admin-ui/query/expr/CompareExpr';
-import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
 import {ContentId} from '../../content/ContentId';
 import {ContentAggregation} from './ContentAggregation';
 import {WorkflowState} from '../../content/WorkflowState';
@@ -60,7 +52,7 @@ export class SearchContentQueryCreator {
     }
 
     create(contentAggregations?: string[]): ContentQuery {
-        this.appendQueryExpression();
+        this.appendQueryParams();
         this.setSize();
 
         this.appendAggregationsAndFilter(contentAggregations);
@@ -108,61 +100,16 @@ export class SearchContentQueryCreator {
         return this;
     }
 
-    private appendQueryExpression(): void {
-        this.contentQuery.setQueryExpr(this.createQueryExpression());
-    }
-
-    private createQueryExpression(): QueryExpr {
-        const searchExpr: LogicalExpr =
-            new LogicalExpr(this.makeFulltextSearchExpr(), LogicalOperator.OR, this.createIdSearchExpr());
+    private appendQueryParams(): void {
+        this.contentQuery.setSearchText(this.searchInputValues.textSearchFieldValue || null);
 
         if (this.constraintItems) {
-            return new QueryExpr(new LogicalExpr(searchExpr, LogicalOperator.AND, this.makeSelectedItemsSearchExpr()),
-                ContentSummaryRequest.ROOT_ORDER);
+            this.contentQuery.setConstraintItemsIds(this.constraintItems);
         }
 
         if (this.dependency?.isInbound) {
-            return new QueryExpr(
-                new LogicalExpr(searchExpr, LogicalOperator.AND, this.makeInboundDependenciesSearchExpr()),
-                ContentSummaryRequest.ROOT_ORDER);
+            this.contentQuery.setInboundReferenceId(this.dependency.dependencyId);
         }
-
-        return new QueryExpr(searchExpr, ContentSummaryRequest.ROOT_ORDER);
-    }
-
-    private makeFulltextSearchExpr(): Expression {
-        return new FulltextSearchExpressionBuilder()
-            .setSearchString(this.searchInputValues.getTextSearchFieldValue())
-            .addField(new QueryField(QueryField.DISPLAY_NAME, 5))
-            .addField(new QueryField(QueryField.NAME, 3))
-            .addField(new QueryField(QueryField.ALL))
-            .build();
-    }
-
-    private createIdSearchExpr(): Expression {
-        return CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(this.searchInputValues.getTextSearchFieldValue()));
-    }
-
-    private makeSelectedItemsSearchExpr(): Expression {
-        let query: QueryExpr;
-
-        this.constraintItems.forEach((id: string) => {
-            if (!!query) {
-                query = new QueryExpr(new LogicalExpr(query, LogicalOperator.OR,
-                    CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(id))));
-            } else {
-                query = new QueryExpr(CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(id)));
-            }
-        });
-
-        return query;
-    }
-
-    private makeInboundDependenciesSearchExpr(): Expression {
-        return new QueryExpr(new LogicalExpr(
-            CompareExpr.eq(new FieldExpr(QueryField.REFERENCES), ValueExpr.string(this.dependency.dependencyId.toString())),
-            LogicalOperator.AND,
-            CompareExpr.neq(new FieldExpr(QueryField.ID), ValueExpr.string(this.dependency.dependencyId.toString()))));
     }
 
     private appendOutboundReferencesFilter(): void {
