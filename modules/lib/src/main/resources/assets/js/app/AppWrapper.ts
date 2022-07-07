@@ -228,7 +228,7 @@ export class AppWrapper
         );
 
         if (isSidebarVisible) {
-            localStorage.setItem(AppWrapper.HIDE_SIDEBAR_BY_DEFAULT, 'true')
+            localStorage.setItem(AppWrapper.HIDE_SIDEBAR_BY_DEFAULT, 'true');
         } else {
             localStorage.removeItem(AppWrapper.HIDE_SIDEBAR_BY_DEFAULT);
         }
