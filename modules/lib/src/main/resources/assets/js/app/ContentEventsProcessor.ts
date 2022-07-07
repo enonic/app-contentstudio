@@ -20,7 +20,7 @@ import {UrlHelper} from './util/UrlHelper';
 
 export class ContentEventsProcessor {
 
-    static openTabs: Map<string, Window> = new Map<string, Window>();
+    static openWindows: Window[] = [];
 
     static openWizardTab(params: ContentWizardPanelParams): Window {
         const wizardUrl: string = UrlHelper.getPrefixedUrl(ContentEventsProcessor.generateURL(params), '');
@@ -28,29 +28,41 @@ export class ContentEventsProcessor {
     }
 
     private static makeWizardId(params: ContentWizardPanelParams): string {
-        const isNew: boolean = !params.contentId;
-
-        if (isNew) {
-            return undefined;
-        }
-
         return params.tabId.toString();
     }
 
-    static openTab(url: string, target?: string): Window {
-        if (ContentEventsProcessor.openTabs.has(target)) {
-            const existingWindow: Window = ContentEventsProcessor.openTabs.get(target);
+    static openTab(url: string, name: string): Window {
+        if (ContentEventsProcessor.hasWindowWithName(name)) {
+            const existingWindow: Window = ContentEventsProcessor.getWindowWithName(name);
 
-            if (!existingWindow.closed) {
+            if (existingWindow.closed) {
+                ContentEventsProcessor.removeClosedWindow(existingWindow);
+            } else {
                 existingWindow.focus();
                 return existingWindow;
             }
         }
 
-        const newWindow: Window = window.open(url, target);
-        ContentEventsProcessor.openTabs.set(target, newWindow);
+        return ContentEventsProcessor.openNewTab(url);
+    }
+
+    private static openNewTab(url: string): Window {
+        const newWindow: Window = window.open(url);
+        ContentEventsProcessor.openWindows.push(newWindow);
 
         return newWindow;
+    }
+
+    private static removeClosedWindow(closedWindow: Window): void {
+        ContentEventsProcessor.openWindows = ContentEventsProcessor.openWindows.filter((window: Window) => window !== closedWindow);
+    }
+
+    static hasWindowWithName(name: string): boolean {
+        return ContentEventsProcessor.openWindows.some((window: Window) => window.name === name);
+    }
+
+    static getWindowWithName(name: string): Window {
+        return ContentEventsProcessor.openWindows.find((window: Window) => window.name === name);
     }
 
     static popupBlocked(win: Window) {
@@ -79,7 +91,7 @@ export class ContentEventsProcessor {
 
             const contentSummary: ContentSummary = content.getContentSummary();
             const contentTypeName: ContentTypeName = contentSummary.getType();
-            const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(`${event.getProject().getName()}/${contentSummary.getId()}`);
+            const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(contentSummary.getId());
             const isLocalize: boolean = !content.isReadOnly() && content.isDataInherited() && event.getProject().getName() ===
                                         ProjectContext.get().getProject().getName();
 
@@ -123,7 +135,7 @@ export class ContentEventsProcessor {
         const project: string = ProjectContext.get().getProject().getName();
         const url = UrlHelper.getPrefixedUrl(`${project}/${mode}/${id}${!!type ? `/${type}` : ''}`);
 
-        ContentEventsProcessor.openTab(url);
+        ContentEventsProcessor.openNewTab(url);
     }
 
     private static generateURL(params: ContentWizardPanelParams): string {
