@@ -40,6 +40,8 @@ export class AppWrapper
 
     private widgetAddedListeners: { (Widget): void }[] = [];
 
+    private static HIDE_SIDEBAR_BY_DEFAULT: string = 'contentstudio:hideSidebarByDefault';
+
     constructor(className?: string) {
         super(`main-app-wrapper ${(className || '')}`.trim());
 
@@ -47,7 +49,11 @@ export class AppWrapper
         this.initListeners();
         this.addStudioWidget();
         this.updateSidebarWidgets();
-        this.toggleSidebar();
+
+        if (this.isSidebarToBeShownOnEnter()) {
+            this.toggleSidebar();
+        }
+
         TooltipHelper.init();
     }
 
@@ -161,6 +167,10 @@ export class AppWrapper
         return widget === this.widgets[0];
     }
 
+    private isSidebarToBeShownOnEnter(): boolean {
+        return !localStorage.getItem(AppWrapper.HIDE_SIDEBAR_BY_DEFAULT);
+    }
+
     private fetchAndAppendWidget(widget: Widget): void {
         if (this.isDefaultWidget(widget)) { // default studio app
             const widgetEl: Element = this.createStudioWidgetEl();
@@ -210,13 +220,18 @@ export class AppWrapper
     }
 
     private toggleSidebar() {
-        this.sidebar.show();
         const isSidebarVisible: boolean = this.hasClass('sidebar-expanded');
         this.toggleClass('sidebar-expanded', !isSidebarVisible);
         this.toggleSidebarButton.toggleClass('toggled', !isSidebarVisible);
         this.toggleSidebarButton.setTitle(
             this.toggleSidebarButton.hasClass('toggled') ? i18n('tooltip.sidebar.close') : i18n('tooltip.sidebar.open'), false
         );
+
+        if (isSidebarVisible) {
+            localStorage.setItem(AppWrapper.HIDE_SIDEBAR_BY_DEFAULT, 'true')
+        } else {
+            localStorage.removeItem(AppWrapper.HIDE_SIDEBAR_BY_DEFAULT);
+        }
 
         if (!isSidebarVisible) {
             Body.get().onTouchStart(this.touchListener, false);
