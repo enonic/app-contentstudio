@@ -4,7 +4,7 @@ import {Style, StyleType} from '../../styles/Style';
 
 export class ImageStyleOption {
 
-    private style: Style;
+    private readonly style: Style;
 
     constructor(style: Style) {
         this.style = style;
@@ -24,6 +24,10 @@ export class ImageStyleOption {
 
     isEmpty(): boolean {
         return this.style.isEmpty();
+    }
+
+    toString(): string {
+        return this.getDisplayName();
     }
 }
 
