@@ -12,7 +12,8 @@ const XPATH = {
     urlPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and contains(@class,'panel url-panel')]",
     emailPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and @class='panel']",
     radioButtonByLabel: label => `//span[contains(@id,'RadioButton') and child::label[contains(.,'${label}')]]`,
-    urlTypeButton: "//div[contains(@id,'MenuButton')]//button[contains(@id,'ActionButton') and child::span[text()='Type']]"
+    urlTypeButton: "//div[contains(@id,'MenuButton')]//button[contains(@id,'ActionButton') and child::span[text()='Type']]",
+    menuItemByName: optionName => `//div[contains(@id,'MenuButton')]//li[text()='${optionName}']`,
 };
 
 class InsertLinkDialog extends Page {
@@ -48,6 +49,7 @@ class InsertLinkDialog extends Page {
     get emailInput() {
         return XPATH.container + XPATH.emailPanel + "//fieldset[descendant::label[text()='Email']]" + lib.TEXT_INPUT;
     }
+
     get subjectInput() {
         return XPATH.container + XPATH.emailPanel + "//fieldset[descendant::label[text()='Subject']]" + lib.TEXT_INPUT;
     }
@@ -95,6 +97,15 @@ class InsertLinkDialog extends Page {
         });
     }
 
+    async getTextInUrlInput() {
+        try {
+            return await this.getTextInInput(this.urlInput);
+        } catch (err) {
+            await this.saveScreenshot('err_url_input');
+            throw new Error('URL input, Insert Link modal dialog ' + err);
+        }
+    }
+
     async clickOnUrlTypeButton() {
         await this.waitForElementDisplayed(this.urlTypeButton, appConst.mediumTimeout);
         await this.clickOnElement(this.urlTypeButton);
@@ -105,6 +116,21 @@ class InsertLinkDialog extends Page {
         let locator = XPATH.container + "//div[contains(@id,'MenuButton')]//li";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
+    }
+
+    async isUrlTypeOptionSelected(option) {
+        let locator = XPATH.container + XPATH.menuItemByName(option);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let attr = await this.getAttribute(locator, "class");
+        return attr.includes("selected");
+    }
+
+    async clickOnUrlTypeMenuOption(option) {
+        let optionLocator = XPATH.container + XPATH.menuItemByName(option);
+        await this.clickOnUrlTypeButton();
+        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+        await this.clickOnElement(optionLocator);
+        return await this.pause(300);
     }
 
     selectTargetInDownloadTab(targetDisplayName) {
@@ -137,7 +163,6 @@ class InsertLinkDialog extends Page {
         return await loaderComboBox.typeTextAndSelectOption(targetDisplayName, "//div[contains(@id,'ContentComboBox')]");
     }
 
-
     async clickOnCancelButton() {
         await this.clickOnElement(this.cancelButton);
         return await this.pause(300);
@@ -164,11 +189,13 @@ class InsertLinkDialog extends Page {
         return this.isElementDisplayed(XPATH.container);
     }
 
-    waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_open_insert_link_dialog');
-            throw new Error('Insert Link Dialog should be opened!' + err);
-        });
+    async waitForDialogLoaded() {
+        try {
+            return await this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout)
+        } catch (err) {
+            await this.saveScreenshot('err_open_insert_link_dialog');
+            throw new Error('Insert Link Dialog should be open!' + err);
+        }
     }
 
     waitForDialogClosed() {
@@ -208,8 +235,22 @@ class InsertLinkDialog extends Page {
         return await this.getText(this.linkTextInputValidationRecording);
     }
 
-    waitForValidationMessageForUrlInputDisplayed() {
-        return this.waitForElementDisplayed(this.urlInputValidationRecording, appConst.mediumTimeout);
+    async waitForValidationMessageForUrlInputDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.urlInputValidationRecording, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_validation"));
+            throw new Error("Validation message for URL input is not displayed " + err);
+        }
+    }
+
+    async waitForValidationMessageForUrlInputNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.urlInputValidationRecording, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_close_insert_link"));
+            throw new Error("Insert link dialog should be closed " + err);
+        }
     }
 
     waitForValidationMessageForEmailInputDisplayed() {

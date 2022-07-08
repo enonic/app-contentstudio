@@ -9,7 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 
-describe('htmlarea.insert.link.email.url.spec: insert `email-link` and url-link into htmlArea', function () {
+describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
