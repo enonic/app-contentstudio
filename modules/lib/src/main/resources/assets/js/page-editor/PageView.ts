@@ -53,6 +53,7 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {ContentSummaryViewer} from '../app/content/ContentSummaryViewer';
+import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 
 export class PageViewBuilder {
 
@@ -332,12 +333,15 @@ export class PageView
     }
 
     private createCloseTextEditModeEl(): Element {
-        const closeButton = new AEl('close-edit-mode-button icon-close');
+        const closeButton: ButtonEl = new ButtonEl();
+        closeButton.addClass('close-edit-mode-button icon-close');
+
         closeButton.onClicked((event: MouseEvent) => {
             PageViewController.get().setTextEditMode(false);
             event.stopPropagation();
             return false;
         });
+
         return closeButton;
     }
 
