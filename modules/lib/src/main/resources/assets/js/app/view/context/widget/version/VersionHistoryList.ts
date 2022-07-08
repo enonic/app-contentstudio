@@ -92,7 +92,7 @@ export class VersionHistoryList
 
                     if (!version.isUnpublished()) {
                         versionHistoryItems.push(
-                            VersionHistoryItem.fromContentVersion(version, isFirstVersion ? modifiedDate : null)
+                            VersionHistoryItem.fromContentVersion(version, isFirstVersion ? timestamp : null)
                                 .setSkipDate(timestampAsString === lastDate)
                                 .setActiveVersionId(this.activeVersionId)
                         );

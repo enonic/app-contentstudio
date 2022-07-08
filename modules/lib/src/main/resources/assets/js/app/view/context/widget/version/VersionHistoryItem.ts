@@ -73,7 +73,7 @@ export class VersionHistoryItem {
         return item;
     }
 
-    static fromContentVersion(contentVersion: ContentVersion, createdDate: Date): VersionHistoryItem {
+    static fromContentVersion(contentVersion: ContentVersion, createdDate?: Date): VersionHistoryItem {
         const item: VersionHistoryItem = new VersionHistoryItem();
 
         item.id = contentVersion.getId();
