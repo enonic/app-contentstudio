@@ -33,7 +33,7 @@ describe("insert.relative.link.url.spec: insert relative links into htmlArea", f
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             //1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard("site492190", 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -54,7 +54,7 @@ describe("insert.relative.link.url.spec: insert relative links into htmlArea", f
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             //1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard("site492190", 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -79,7 +79,7 @@ describe("insert.relative.link.url.spec: insert relative links into htmlArea", f
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             //1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard("site492190", 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -145,6 +145,7 @@ describe("insert.relative.link.url.spec: insert relative links into htmlArea", f
             let message = await insertLinkDialog.getUrlInputValidationMessage();
             assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, "Invalid value entered - message gets visible");
         });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
