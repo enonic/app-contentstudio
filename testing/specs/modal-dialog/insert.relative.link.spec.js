@@ -100,7 +100,7 @@ describe("insert.relative.link.url.spec: insert relative links into htmlArea", f
             assert.isTrue(result[0].includes(VALID_RELATIVE_HTML_FILE_2), "Expected text should be present in HtmlArea");
         });
 
-    it.skip("GIVEN Insert Link dialog, URL tab is open WHEN invalid url (with spaces) has been inserted THEN expected validation recording gets visible",
+    it("GIVEN Insert Link dialog, URL tab is open WHEN invalid url (with spaces) has been inserted THEN expected validation recording gets visible",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             //1. Open new wizard for htmlArea content:
@@ -115,15 +115,16 @@ describe("insert.relative.link.url.spec: insert relative links into htmlArea", f
             await insertLinkDialog.clickOnUrlTypeMenuOption("Relative");
             //5. Fill in the input with the invalid(spaces) relative url:
             await insertLinkDialog.typeUrl(INVALID_RELATIVE_SPACES);
+            await studioUtils.saveScreenshot("insert_invalid_relative_1");
             //6. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             //7. Verify the validation error message:
-            await studioUtils.saveScreenshot("insert_invalid_relative_1");
+            await studioUtils.saveScreenshot("insert_invalid_relative_2");
             let message = await insertLinkDialog.getUrlInputValidationMessage();
             assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, "Invalid value entered - message gets visible");
         });
 
-    it.skip("GIVEN Insert Link dialog, URL tab is open WHEN invalid relative url (with special symbols) has been inserted THEN expected validation recording gets visible",
+    it("GIVEN Insert Link dialog, URL tab is open WHEN invalid relative url (with special symbols) has been inserted THEN expected validation recording gets visible",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             //1. Open new wizard for htmlArea content:
@@ -138,10 +139,11 @@ describe("insert.relative.link.url.spec: insert relative links into htmlArea", f
             await insertLinkDialog.clickOnUrlTypeMenuOption("Relative");
             //5. Fill in the input with the invalid(special symbols $) relative url:
             await insertLinkDialog.typeUrl(INVALID_RELATIVE_SYMBOLS);
+            await studioUtils.saveScreenshot("insert_invalid_relative_3");
             //6. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             //7. Verify the validation error message:
-            await studioUtils.saveScreenshot("insert_invalid_relative_2");
+            await studioUtils.saveScreenshot("insert_invalid_relative_4");
             let message = await insertLinkDialog.getUrlInputValidationMessage();
             assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, "Invalid value entered - message gets visible");
         });
