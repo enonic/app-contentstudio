@@ -362,7 +362,7 @@ export class LinkModalDialog
 
     private validationQueryParams(): string {
         const isValid = Array.from(this.paramsFormItem.getHTMLElement().getElementsByTagName('input'))
-            .every((input: HTMLInputElement) => input.value !== '');
+            .every((input: HTMLInputElement) => input.value.trim() !== '');
 
         return !isValid ? i18n('dialog.link.queryparams.empty') : undefined;
     }
