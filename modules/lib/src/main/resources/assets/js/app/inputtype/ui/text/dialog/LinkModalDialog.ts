@@ -622,11 +622,14 @@ export class LinkModalDialog
     }
 
     private extractQueryStringFromLink(): string {
-        let queryString: string = this.link.split(LinkModalDialog.queryParamsPrefix).pop();
-        queryString = queryString.slice(0, queryString.indexOf(LinkModalDialog.fragmentPrefix));
-        queryString = decodeURIComponent(queryString);
+        const queryString: string = this.link.split(LinkModalDialog.queryParamsPrefix).pop();
+        const fragmentPrefixIndex = queryString.indexOf(LinkModalDialog.fragmentPrefix);
 
-        return queryString;
+        if (fragmentPrefixIndex >= 0) {
+            return decodeURIComponent(queryString.slice(0, fragmentPrefixIndex));
+        }
+
+        return decodeURIComponent(queryString);
     }
 
     private createKeyValueFormItems(initialKey: string = '', initialValue: string = ''): void {
