@@ -362,6 +362,7 @@ export class LinkModalDialog
 
     private validationQueryParams(): string {
         const isValid = Array.from(this.paramsFormItem.getHTMLElement().getElementsByTagName('input'))
+            .filter((input: HTMLInputElement) => input.className.indexOf('params-key') >= 0)
             .every((input: HTMLInputElement) => input.value.trim() !== '');
 
         return !isValid ? i18n('dialog.link.queryparams.empty') : undefined;
@@ -613,8 +614,8 @@ export class LinkModalDialog
         keyValues.forEach((keyValue: string) => {
             const [key, value] = keyValue.split('=');
 
-            if (key && value) {
-                keyValueMap.set(key, value);
+            if (key) {
+                keyValueMap.set(key, value || '');
             }
         });
 
@@ -640,6 +641,7 @@ export class LinkModalDialog
         const keyFormItemId: string = `paramsKey-${uniqueParamIdentifier}`;
         const keyFormItem: FormItem = this.createFormItemWithPostponedValue(keyFormItemId, '', () => initialKey, null,
             i18n('dialog.link.parameters.name'));
+        keyFormItem.getInput().addClass('params-key');
 
         const valueFormItemId: string = `paramsValue-${uniqueParamIdentifier}`;
         const valueFormItem: FormItem = this.createFormItemWithPostponedValue(valueFormItemId, '', () => initialValue, null,
