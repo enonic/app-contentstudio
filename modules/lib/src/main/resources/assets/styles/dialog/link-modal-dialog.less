@@ -2,6 +2,7 @@
   background-color: lightgray;
   height: 35px;
   width: 75px;
+  z-index: 1;
 
   .menu-item-selected {
     background-color: lightgray;
@@ -15,6 +16,12 @@
     span {
       color: @admin-dark-gray;
     }
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+      border: none;
+    }
   }
 
   .xp-admin-common-dropdown-handle {
@@ -23,6 +30,19 @@
     &::after {
       border-top-color: @admin-dark-gray;
     }
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+      border: none;
+    }
+  }
+
+
+
+  &:focus,
+  &:focus-within {
+    outline: 1px solid black;
   }
 }
 
