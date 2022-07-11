@@ -257,10 +257,6 @@ class InsertLinkDialog extends Page {
         return this.waitForElementDisplayed(this.emailInputValidationRecording, appConst.mediumTimeout);
     }
 
-    waitForValidationMessageForEmailInputDisplayed() {
-        return this.waitForElementDisplayed(this.emailInputValidationRecording, appConst.mediumTimeout);
-    }
-
     async getUrlInputValidationMessage() {
         await this.waitForValidationMessageForUrlInputDisplayed();
         return await this.getText(this.urlInputValidationRecording);
