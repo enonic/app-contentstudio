@@ -18,7 +18,8 @@ describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', f
     let TEST_TOOLTIP = "my tooltip";
     let INVALID_EMAIL = "john@@mail.com";
     let VALID_EMAIL = "john@mail.com";
-    const EXPECTED_EMAIL_TXT_PART = "a title=\"Email\" href=\"mailto:john@mail.com\"";
+    const EXPECTED_EMAIL_TXT_PART_1 = "href=\"mailto:john@mail.com\"";
+    const EXPECTED_EMAIL_TXT_PART_2 = "title=\"Email\"";
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -85,7 +86,8 @@ describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', f
             await insertLinkDialog.clickOnInsertButton();
             //7. Verify that expected email link is present in the htmlArea
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART), "Expected text should be inserted in HtmlArea");
+            assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART_1), "Expected text should be inserted in HtmlArea");
+            assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART_2), "Expected text should be inserted in HtmlArea");
         });
 
 
@@ -108,7 +110,8 @@ describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', f
             await insertLinkDialog.clickOnInsertButton();
             //7. Verify that expected email link is present in the htmlArea
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART), "Expected text should be inserted in HtmlArea");
+            assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART_1), "Expected text should be inserted in HtmlArea");
+            assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART_2), "Expected text should be inserted in HtmlArea");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
