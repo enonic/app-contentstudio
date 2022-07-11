@@ -1,5 +1,6 @@
 import {ContentVersionPublishInfoJson} from './ContentVersionPublishInfoJson';
 import {WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
+import {ChildOrderJson} from './ChildOrderJson';
 
 export interface ContentVersionJson {
 
@@ -14,6 +15,8 @@ export interface ContentVersionJson {
     comment: string;
 
     id: string;
+
+    childOrder: ChildOrderJson;
 
     publishInfo: ContentVersionPublishInfoJson;
 

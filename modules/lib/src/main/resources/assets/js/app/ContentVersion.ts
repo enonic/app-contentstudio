@@ -3,6 +3,7 @@ import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {Workflow} from './content/Workflow';
 import {WorkflowState} from './content/WorkflowState';
+import {ChildOrder} from './resource/order/ChildOrder';
 
 export class ContentVersion
     implements Cloneable {
@@ -14,6 +15,8 @@ export class ContentVersion
     private displayName: string;
 
     private modified: Date;
+
+    private childOrder: ChildOrder;
 
     private comment: string;
 
@@ -33,6 +36,7 @@ export class ContentVersion
         this.modifier = builder.modifier;
         this.displayName = builder.displayName;
         this.modified = builder.modified;
+        this.childOrder = builder.childOrder;
         this.modifierDisplayName = builder.modifierDisplayName;
         this.comment = builder.comment;
         this.id = builder.id;
@@ -89,6 +93,10 @@ export class ContentVersion
 
     getModified(): Date {
         return this.modified;
+    }
+
+    getChildOrder(): ChildOrder {
+        return this.childOrder;
     }
 
     getComment(): string {
@@ -194,6 +202,8 @@ export class ContentVersionBuilder {
 
     modified: Date;
 
+    childOrder: ChildOrder;
+
     comment: string;
 
     id: string;
@@ -210,6 +220,7 @@ export class ContentVersionBuilder {
             this.modifierDisplayName = source.getModifierDisplayName();
             this.displayName = source.getDisplayName();
             this.modified = !!source.getModified() ? new Date(source.getModified().getTime()) : null;
+            this.childOrder = source.getChildOrder();
             this.comment = source.getComment();
             this.id = source.getId();
             this.workspaces = source.getWorkspaces().slice();
@@ -222,6 +233,7 @@ export class ContentVersionBuilder {
         this.modifier = contentVersionJson.modifier;
         this.displayName = contentVersionJson.displayName;
         this.modified = !!contentVersionJson.modified ? new Date(contentVersionJson.modified) : null;
+        this.childOrder = ChildOrder.fromJson(contentVersionJson.childOrder);
         this.modifierDisplayName = contentVersionJson.modifierDisplayName;
         this.comment = contentVersionJson.comment;
         this.id = contentVersionJson.id;
