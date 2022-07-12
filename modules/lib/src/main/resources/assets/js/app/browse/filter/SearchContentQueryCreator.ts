@@ -125,7 +125,7 @@ export class SearchContentQueryCreator {
                     this.createConstraintsJson()
                 ]
             }
-        }
+        };
     }
 
     private createConstraintsJson(): Object {
@@ -134,7 +134,7 @@ export class SearchContentQueryCreator {
                 'field': '_id',
                 'values': this.constraintItems
             }
-        }
+        };
     }
 
     private createContainsTextOrMatchesIdJson(): Object {
@@ -187,7 +187,7 @@ export class SearchContentQueryCreator {
                     }
                 ]
             }
-        }
+        };
     }
 
     private matchAllQuery(): Object {
@@ -204,7 +204,7 @@ export class SearchContentQueryCreator {
                     this.createInboundRefsJson()
                 ]
             }
-        }
+        };
     }
 
     private createInboundRefsJson(): Object {
@@ -229,7 +229,7 @@ export class SearchContentQueryCreator {
                     }
                 ]
             }
-        }
+        };
     }
 
     private makeSort(): Object[] {
