@@ -1,6 +1,68 @@
 .link-modal-dialog {
+  .content-panel {
+    .remove-button.transparent {
+      cursor: pointer;
+      padding: 0 10px;
+
+      &::before,
+      &:hover::before {
+        color: @admin-dark-gray;
+      }
+    }
+
+    .anchor-form-item {
+      display: flex;
+      flex-wrap: wrap;
+
+      .input-wrapper {
+        margin-top: 10px;
+        width: calc(100% - 40px);
+      }
+
+      label {
+        order: -1;
+        width: 100%;
+      }
+
+      button {
+        margin-top: 10px;
+      }
+    }
+
+    .params-form-item {
+      display: flex;
+      flex-direction: column;
+
+      button {
+        align-self: flex-start;
+      }
+
+      .params-wrapper {
+        display: flex;
+
+        .input-view {
+          width: calc(50% - 20px);
+          margin: 10px 0;
+
+          &:first-child {
+            width: calc(50% - 30px);
+            margin-right: 10px;
+          }
+        }
+
+        button {
+          align-self: center;
+        }
+      }
+    }
+
+    .validation-viewer {
+      order: 1;
+    }
+  }
+
   .url-panel {
-    fieldset {
+    .modal-dialog-fieldset {
       .menu-button.menu-button-type {
         background-color: lightgray;
         height: 35px;
@@ -27,7 +89,7 @@
           }
         }
 
-        .xp-admin-common-dropdown-handle {
+        .@{_COMMON_PREFIX}dropdown-handle {
           width: 25px;
 
           &::after {
@@ -64,79 +126,6 @@
             height: 35px;
           }
         }
-
-        .validation-viewer {
-          width: 100%;
-        }
-      }
-    }
-  }
-
-  .content-panel {
-    .remove-button.transparent {
-      cursor: pointer;
-      padding: 0 10px;
-
-      &::before {
-        color: @admin-dark-gray;
-      }
-
-      &:hover::before {
-        color: @admin-dark-gray;
-      }
-    }
-
-    .anchor-form-item {
-      display: flex;
-      flex-wrap: wrap;
-
-      .input-wrapper {
-        margin-top: 10px;
-        width: calc(100% - 40px);
-      }
-
-      label {
-        order: -1;
-        width: 100%;
-      }
-
-      .validation-viewer {
-        order: 1;
-      }
-
-      button {
-        margin-top: 10px;
-      }
-    }
-
-    .params-form-item {
-      display: flex;
-      flex-direction: column;
-
-      button {
-        align-self: flex-start;
-      }
-
-      .params-wrapper {
-        display: flex;
-
-        .input-view {
-          width: calc(50% - 20px);
-          margin: 10px 0;
-
-          &:first-child {
-            width: calc(50% - 30px);
-            margin-right: 10px;
-          }
-        }
-
-        button {
-          align-self: center;
-        }
-      }
-
-      .validation-viewer {
-        order: 1;
       }
     }
   }
