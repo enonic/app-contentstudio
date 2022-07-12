@@ -15,15 +15,13 @@ export class ContentQuery
 
     private queryExpr: QueryExpr;
 
-    private searchText: string;
-
     private contentTypeNames: ContentTypeName[] = [];
 
     private mustBeReferencedById: ContentId;
 
-    private inboundReferenceId: ContentId;
+    private query: Object;
 
-    private constraintItemsIds: string[] = [];
+    private querySort: Object[];
 
     private aggregationQueries: AggregationQuery[] = [];
 
@@ -60,36 +58,22 @@ export class ContentQuery
         return this.mustBeReferencedById;
     }
 
-    setSearchText(value: string): ContentQuery {
-        this.searchText = value;
+    setQuery(value: Object): ContentQuery {
+        this.query = value;
         return this;
     }
 
-    getSearchText(): string {
-        return this.searchText;
+    getQuery(): Object {
+        return this.query;
     }
 
-    setInboundReferenceId(value: ContentId): ContentQuery {
-        this.inboundReferenceId = value;
+    setQuerySort(value: Object[]): ContentQuery {
+        this.querySort = value;
         return this;
     }
 
-    getInboundReferenceId(): ContentId {
-        return this.inboundReferenceId;
-    }
-
-    setConstraintItemsIds(value: string[]): ContentQuery {
-        this.constraintItemsIds = value || [];
-        return this;
-    }
-
-    addConstraintItemsId(value: string): ContentQuery {
-        this.constraintItemsIds.push(value);
-        return this;
-    }
-
-    getConstraintItemsIds(): string[] {
-        return this.constraintItemsIds;
+    getQuerySort(): Object[] {
+        return this.querySort;
     }
 
     setFrom(from: number): ContentQuery {
@@ -153,10 +137,13 @@ export class ContentQuery
             return false;
         }
 
-        if (!ObjectHelper.stringEquals(this.searchText, other.searchText)) {
+        if (!ObjectHelper.stringEquals(JSON.stringify(this.query), JSON.stringify(other.query))) {
             return false;
         }
 
+        if (!ObjectHelper.stringEquals(JSON.stringify(this.querySort), JSON.stringify(other.querySort))) {
+            return false;
+        }
 
         if (!ObjectHelper.arrayEquals(this.contentTypeNames, other.contentTypeNames)) {
             return false;
@@ -171,14 +158,6 @@ export class ContentQuery
         }
 
         if (!ObjectHelper.equals(this.mustBeReferencedById, other.mustBeReferencedById)) {
-            return false;
-        }
-
-        if (!ObjectHelper.equals(this.inboundReferenceId, other.inboundReferenceId)) {
-            return false;
-        }
-
-        if (!ObjectHelper.stringArrayEquals(this.constraintItemsIds, other.constraintItemsIds)) {
             return false;
         }
 

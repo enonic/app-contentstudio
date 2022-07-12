@@ -64,9 +64,8 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
             expand: this.expandAsString(),
             aggregationQueries: this.aggregationQueriesToJson(this.contentQuery.getAggregationQueries()),
             queryFilters: this.queryFiltersToJson(this.contentQuery.getQueryFilters()),
-            searchText: this.contentQuery.getSearchText(),
-            constraintItemsIds: this.contentQuery.getConstraintItemsIds(),
-            inboundReferenceId: this.contentQuery.getInboundReferenceId()?.toString() || null
+            query: this.contentQuery.getQuery(),
+            querySort: this.contentQuery.getQuerySort()
         };
     }
 

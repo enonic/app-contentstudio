@@ -101,15 +101,147 @@ export class SearchContentQueryCreator {
     }
 
     private appendQueryParams(): void {
-        this.contentQuery.setSearchText(this.searchInputValues.textSearchFieldValue || null);
+        this.contentQuery.setQuery(this.makeQueryJson());
+        this.contentQuery.setQuerySort(this.makeSort());
+    }
 
-        if (this.constraintItems) {
-            this.contentQuery.setConstraintItemsIds(this.constraintItems);
+    private makeQueryJson(): Object {
+        if (this.constraintItems?.length > 0) {
+            return this.containsTextAndMatchesIdsOnConstraintsJson();
         }
 
         if (this.dependency?.isInbound) {
-            this.contentQuery.setInboundReferenceId(this.dependency.dependencyId);
+            return this.containsTextOrMatchesIdOnInboundIds();
         }
+
+        return this.createContainsTextOrMatchesIdJson();
+    }
+
+    private containsTextAndMatchesIdsOnConstraintsJson(): Object {
+        return {
+            'boolean': {
+                'must': [
+                    this.createContainsTextOrMatchesIdJson(),
+                    this.createConstraintsJson()
+                ]
+            }
+        }
+    }
+
+    private createConstraintsJson(): Object {
+        return {
+            'in': {
+                'field': '_id',
+                'values': this.constraintItems
+            }
+        }
+    }
+
+    private createContainsTextOrMatchesIdJson(): Object {
+        if (this.searchInputValues.textSearchFieldValue) {
+            return this.createContainsTextAndMatchesIdJson();
+        }
+
+        return this.matchAllQuery();
+    }
+
+    private createContainsTextAndMatchesIdJson(): Object {
+        const textValue: string = this.searchInputValues.textSearchFieldValue;
+
+        return {
+            'boolean': {
+                'should': [
+                    {
+                        'boolean': {
+                            'should': [
+                                {
+                                    'fulltext': {
+                                        'fields': [
+                                            'displayName^5',
+                                            '_name^3',
+                                            '_allText'
+                                        ],
+                                        'query': textValue,
+                                        'operator': 'AND'
+                                    }
+                                },
+                                {
+                                    'ngram': {
+                                        'fields': [
+                                            'displayName^5',
+                                            '_name^3',
+                                            '_allText'
+                                        ],
+                                        'query': textValue,
+                                        'operator': 'AND'
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        'term': {
+                            'field': '_id',
+                            'value': textValue
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+    private matchAllQuery(): Object {
+        return {
+            'matchAll': {}
+        };
+    }
+
+    private containsTextOrMatchesIdOnInboundIds(): Object {
+        return {
+            'boolean': {
+                'must': [
+                    this.createContainsTextOrMatchesIdJson(),
+                    this.createInboundRefsJson()
+                ]
+            }
+        }
+    }
+
+    private createInboundRefsJson(): Object {
+        return  {
+            'boolean': {
+                'must': [
+                    {
+                        'term': {
+                            'field': '_references',
+                            'value': this.dependency.dependencyId.toString()
+                        }
+                    },
+                    {
+                        'boolean': {
+                            'mustNot': {
+                                'term': {
+                                    'field': '_id',
+                                    'value': this.dependency.dependencyId.toString()
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+    private makeSort(): Object[] {
+        return [
+            {
+                'field': '_score'
+            },
+            {
+                'field': '_path',
+                'direction': 'ASC'
+            }
+        ];
     }
 
     private appendOutboundReferencesFilter(): void {

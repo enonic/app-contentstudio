@@ -2,6 +2,7 @@ package com.enonic.xp.app.contentstudio.rest.resource.content;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.AggregationQueryJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentQueryJson;
@@ -12,8 +13,12 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.query.expr.DslExpr;
+import com.enonic.xp.query.expr.DslOrderExpr;
+import com.enonic.xp.query.expr.OrderExpr;
 import com.enonic.xp.query.expr.QueryExpr;
 import com.enonic.xp.query.parser.QueryParser;
+import com.enonic.xp.util.JsonHelper;
 
 public class ContentQueryJsonToContentQueryConverter
 {
@@ -116,17 +121,26 @@ public class ContentQueryJsonToContentQueryConverter
 
     private void addQueryExpr( final ContentQuery.Builder builder )
     {
-        final String queryExprString = contentQueryJson.getQueryExprString();
-
-        if ( queryExprString != null )
+        if ( contentQueryJson.getQuery() != null )
         {
-            builder.queryExpr( QueryParser.parse( queryExprString ) );
+            builder.queryExpr( QueryExpr.from( createDslExpr() , createDslSortExpr() ) );
         }
         else
         {
-            final QueryExpr queryExpr = new ContentQueryFilterDslHelper( contentQueryJson ).createFilterDslQuery();
-            builder.queryExpr( queryExpr );
+            builder.queryExpr( QueryParser.parse( contentQueryJson.getQueryExprString() ) );
         }
+    }
+
+    private DslExpr createDslExpr()
+    {
+        return DslExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( contentQueryJson.getQuery() ) ) );
+    }
+
+    private List<OrderExpr> createDslSortExpr()
+    {
+        return contentQueryJson.getQuerySort().stream()
+            .map( expr -> DslOrderExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( expr ) ) ) )
+            .collect( Collectors.toList() );
     }
 
     static class Builder

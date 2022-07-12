@@ -1,6 +1,7 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -18,8 +19,6 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.data.PropertyTree;
-import com.enonic.xp.query.expr.DslExpr;
-import com.enonic.xp.query.expr.DslOrderExpr;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.security.PrincipalKey;
@@ -27,7 +26,6 @@ import com.enonic.xp.util.Reference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContentQueryJsonToContentQueryConverterTest
 {
@@ -48,7 +46,7 @@ public class ContentQueryJsonToContentQueryConverterTest
         contentTypeNames.add( "myApplication:site" );
 
         final ContentQueryJson contentQueryJson =
-            new ContentQueryJson( "", 0, 100, contentTypeNames, null, "summary", null, null, null, null, new ArrayList<>() );
+            new ContentQueryJson( "", 0, 100, contentTypeNames, null, "summary", null, null, new HashMap<>(), new ArrayList<>() );
         final ContentQueryJsonToContentQueryConverter processor =
             ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
 
@@ -78,7 +76,7 @@ public class ContentQueryJsonToContentQueryConverterTest
             .thenReturn( ContentIds.from( folderRefContent1.getId(), folderRefContent2.getId() ) );
 
         final ContentQueryJson contentQueryJson =
-            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null, null, null,
+            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null, new HashMap<>(),
                                   new ArrayList<>() );
 
         ContentQueryJsonToContentQueryConverter processor =
@@ -99,7 +97,7 @@ public class ContentQueryJsonToContentQueryConverterTest
         Mockito.when( contentService.getOutboundDependencies( content.getId() ) ).thenReturn( ContentIds.empty() );
 
         final ContentQueryJson contentQueryJson =
-            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null, null, null,
+            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null, new HashMap<>(),
                                   new ArrayList<>() );
 
         Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
@@ -118,7 +116,7 @@ public class ContentQueryJsonToContentQueryConverterTest
     {
         final ContentQueryJson contentQueryJson = new ContentQueryJson(
             "((fulltext('displayName^5,_name^3,_alltext', '', 'AND') OR ngram('displayName^5,_name^3,_alltext', '', 'AND')) AND inboundDependencies('_references', 'test-content-id'))",
-            0, 100, new ArrayList(), null, "summary", null, null, null, null, new ArrayList<>() );
+            0, 100, new ArrayList(), null, "summary", null, null, null, null );
 
         final ContentQueryJsonToContentQueryConverter processor = getProcessor( contentQueryJson );
 
@@ -144,7 +142,7 @@ public class ContentQueryJsonToContentQueryConverterTest
 
         ContentQueryJson contentQueryJson = new ContentQueryJson(
             "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) " +
-                "ORDER BY _modifiedTime DESC", 0, 100, contentTypeNames, null, "summary", null, null, null, null, new ArrayList<>() );
+                "ORDER BY _modifiedTime DESC", 0, 100, contentTypeNames, null, "summary", null, null, null, null );
 
         ContentQueryJsonToContentQueryConverter processor =
             ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
@@ -157,21 +155,6 @@ public class ContentQueryJsonToContentQueryConverterTest
         assertEquals( "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') " +
                           "OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) ORDER BY _modifiedtime DESC",
                       contentQuery.getQueryExpr().toString() );
-    }
-
-    @Test
-    public void testFilterQuery()
-    {
-        ContentQueryJson contentQueryJson =
-            new ContentQueryJson( null, 0, 100, new ArrayList<>(), null, "summary", null, null, "features", null, new ArrayList<>() );
-
-        ContentQueryJsonToContentQueryConverter processor =
-            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
-
-        final ContentQuery contentQuery = processor.createQuery();
-
-        assertTrue( contentQuery.getQueryExpr().getConstraint() instanceof DslExpr );
-        assertTrue( contentQuery.getQueryExpr().getOrderList().stream().allMatch( orderExpr -> orderExpr instanceof DslOrderExpr ) );
     }
 
     private Content createContent( final String id, final PropertyTree data, final ContentTypeName contentTypeName )
