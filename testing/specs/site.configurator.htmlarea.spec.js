@@ -43,18 +43,20 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             await siteConfiguratorDialog.showToolbarAndClickOnInsertLinkButton();
             await studioUtils.saveScreenshot('site_configurator_html_1');
             await insertLinkDialog.waitForDialogLoaded();
-            await insertLinkDialog.typeText(LINK_TEXT);
-            //4. Fill in the URL input and insert the link:
+            //4.click on URL tab item:
+            await insertLinkDialog.clickOnBarItem("URL");
+            await insertLinkDialog.typeInTextInput(LINK_TEXT);
+            //5. Fill in the URL input and insert the link:
             await insertLinkDialog.typeUrl(TEST_URL);
             await insertLinkDialog.clickOnInsertButton();
             await studioUtils.saveScreenshot("site_config_link_inserted");
-            //5. Verify the text in htmlArea:
+            //6. Verify the text in htmlArea:
             let result = await siteConfiguratorDialog.getTextInHtmlArea(0);
             assert.isTrue(result.includes(TEST_URL), "Expected URL should be present in the htmlArea");
-            //6. Click on 'Apply' button in Site Configurator Dialog:
+            //7. Click on 'Apply' button in Site Configurator Dialog:
             await siteConfiguratorDialog.clickOnApplyButton();
             await siteConfiguratorDialog.waitForDialogClosed();
-            //7. Verify that the Site should be automatically saved:
+            //8. Verify that the Site should be automatically saved:
             let message = await contentWizard.waitForNotificationMessage();
             assert.equal(message, appConst.itemSavedNotificationMessage(SITE.displayName));
         });
