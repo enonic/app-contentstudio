@@ -79,8 +79,8 @@ module.exports = Object.freeze({
     LOCALIZED_MESSAGE_2: "Inherited content was localized",
     CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
-    TAB_TITLE_PART:"/ Content Studio",
-    CONTENT_STUDIO_TITLE:"Content Studio",
+    TAB_TITLE_PART: "/ Content Studio",
+    CONTENT_STUDIO_TITLE: "Content Studio",
     ACCESS_WIDGET_HEADER: {
         RESTRICTED_ACCESS: "Restricted access to item",
         EVERYONE_CAN_READ: "Everyone can read this item"
@@ -127,9 +127,13 @@ module.exports = Object.freeze({
     TIMEOUT_1: 1000,
     SUITE_TIMEOUT: 180000,
     DELETE_INBOUND_MESSAGE: 'One or more items are referenced from another content',
-    BROWSER_WIDTH:1950,
-    BROWSER_HEIGHT:1050,
-
+    BROWSER_WIDTH: 1950,
+    BROWSER_HEIGHT: 1050,
+    INSERT_LINK_DIALOG_TABS: {
+        DOWNLOAD_FILE: 'Download file',
+        OPEN_FILE: 'Open file',
+        LINK_TO_PAGE: 'Link to page (treat media as regular content)',
+    },
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
     WIDGET_SELECTOR_OPTIONS: {
         VERSION_HISTORY: 'Version history',
@@ -271,14 +275,14 @@ module.exports = Object.freeze({
         CUSTOM_SELECTOR_0_2: 'custom-selector0_2',
         CUSTOM_SELECTOR_1_1: 'custom-selector1_1',
         OPTION_SET: 'optionset',
-        OPTION_SET_0_2:'optionset0_2',
+        OPTION_SET_0_2: 'optionset0_2',
         ITEM_SET_0_0: 'item-set0_0',
         SET_IN_SET: "set-in-set",
         ARTICLE: 'article',
         CUSTOM_REL_0_1: "custom-relationship0_1",
         CUSTOM_RELATIONSHIP: 'custom-relationship2_4',
-        OPTION_SET_HELP_TEXT:'optionset_help',
-        PERSON:"Person",
+        OPTION_SET_HELP_TEXT: 'optionset_help',
+        PERSON: "Person",
     },
     permissions: {
         FULL_ACCESS: `Full Access`,
@@ -353,12 +357,12 @@ module.exports = Object.freeze({
         READY_FOR_PUBLISHING: 'Ready for publishing',
         PUBLISHED: 'Published'
     },
-    FILTER_PANEL_AGGREGATION_BLOCK:{
+    FILTER_PANEL_AGGREGATION_BLOCK: {
         CONTENT_TYPES: "Content Types",
         WORKFLOW: "Workflow",
-        LAST_MODIFIED:"Last Modified",
+        LAST_MODIFIED: "Last Modified",
         LAST_MODIFIED_BY: "Last Modified by",
-        OWNER:"Owner",
+        OWNER: "Owner",
         LANGUAGE: "Language",
 
     },

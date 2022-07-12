@@ -21,7 +21,10 @@ import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem'
 import {MediaSelectorDisplayValue} from '../../selector/media/MediaSelectorDisplayValue';
 import {ContentComboBox} from '../../selector/ContentComboBox';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
-import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../../selector/ContentSummaryOptionDataLoader';
+import {
+    ContentSummaryOptionDataLoader,
+    ContentSummaryOptionDataLoaderBuilder
+} from '../../selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 import {Content} from '../../../../content/Content';
 import {Site} from '../../../../content/Site';
@@ -29,17 +32,44 @@ import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest'
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {Checkbox, InputAlignment} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
 import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
+import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import {FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import eventInfo = CKEDITOR.eventInfo;
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
     contentId: ContentId;
+}
+
+enum MediaContentRadioAction {
+    OPEN = '1', DOWNLOAD = '2', LINK = '3'
+}
+
+interface UrlProtocol {
+    title: string,
+    prefix: string,
+    validator: (input: FormItemEl) => string
+}
+
+interface ContentLinkParams {
+    url: string,
+    target: string
+}
+
+interface FormParam {
+    keyId: string,
+    valueId: string
 }
 
 export class LinkModalDialog
@@ -49,18 +79,29 @@ export class LinkModalDialog
     private link: string;
     private textFormItem: FormItem;
     private toolTipFormItem: FormItem;
+    private mediaOptionRadioFormItem: FormItem;
+    private anchorFormItem: FormItem;
+    private paramsFormItem: FormItem;
+    private protocolsDropdownButton: MenuButton;
 
     private contentId: ContentId;
     private parentSitePath: string;
 
     private tabNames: any;
 
+    private paramsFormIds: FormParam[];
+
     protected config: LinkModalDialogConfig;
 
     private static contentPrefix: string = 'content://';
-    private static downloadPrefix: string = 'media://download/';
+    private static mediaDownloadPrefix: string = 'media://download/';
+    private static mediaInlinePrefix: string = 'media://inline/';
     private static emailPrefix: string = 'mailto:';
     private static anchorPrefix: string = '#';
+    private static fragmentPrefix: string = 'fragment=';
+    private static queryParamsPrefix: string = 'query=';
+
+    private readonly urlProtocols: UrlProtocol[];
 
     constructor(config: eventInfo, content: ContentSummary) {
         super(<LinkModalDialogConfig>{
@@ -75,6 +116,13 @@ export class LinkModalDialog
                 noCallback: () => this.close(),
             }
         });
+
+        this.urlProtocols = [
+            {title: 'Https', prefix: 'https://', validator: LinkModalDialog.validationRequiredUrl},
+            {title: 'Http', prefix: 'http://', validator: LinkModalDialog.validationRequiredUrl},
+            {title: 'Ftp', prefix: 'ftp://', validator: LinkModalDialog.validationRequiredFtpUrl},
+            {title: i18n('dialog.link.urlprotocols.relative'), prefix: '', validator: LinkModalDialog.validationRequiredRelativeUrl}
+        ];
     }
 
     protected initElements() {
@@ -157,32 +205,36 @@ export class LinkModalDialog
 
     protected setDialogInputValues() {
         switch (this.getOriginalLinkTypeElem().getValue()) {
-        case 'email':
-            this.link = LinkModalDialog.emailPrefix + this.getOriginalEmailElem().getValue();
-            break;
-        case 'anchor':
-            this.link = LinkModalDialog.anchorPrefix + this.getOriginalAnchorElem().getValue();
-            break;
-        default: {
-            const val = this.getOriginalUrlElem().getValue();
-            const protocol: string = this.getOriginalProtocolElem().getValue();
-            this.link = StringHelper.isEmpty(val) ?
-                        StringHelper.EMPTY_STRING :
-                        protocol + this.getOriginalUrlElem().getValue();
-        }
+            case 'email':
+                this.link = LinkModalDialog.emailPrefix + this.getOriginalEmailElem().getValue();
+                break;
+            case 'anchor':
+                this.link = LinkModalDialog.anchorPrefix + this.getOriginalAnchorElem().getValue();
+                break;
+            default: {
+                const val = this.getOriginalUrlElem().getValue();
+                const protocol: string = this.getOriginalProtocolElem().getValue();
+                this.link = StringHelper.isEmpty(val) ?
+                    StringHelper.EMPTY_STRING :
+                    protocol + this.getOriginalUrlElem().getValue();
+            }
         }
     }
 
     private isContentLink(): boolean {
-        return this.link.indexOf(LinkModalDialog.contentPrefix) === 0;
+        return this.isInlineLink() || this.isDownloadLink() || this.link.indexOf(LinkModalDialog.contentPrefix) === 0;
+    }
+
+    private isInlineLink(): boolean {
+        return this.link.indexOf(LinkModalDialog.mediaInlinePrefix) === 0;
     }
 
     private isDownloadLink(): boolean {
-        return this.link.indexOf(LinkModalDialog.downloadPrefix) === 0;
+        return this.link.indexOf(LinkModalDialog.mediaDownloadPrefix) === 0;
     }
 
     private isUrl(): boolean {
-        return this.link ? !(this.isContentLink() || this.isDownloadLink() || this.isEmail()) : false;
+        return this.link ? !(this.isContentLink() || this.isEmail() || this.isAnchor()) : false;
     }
 
     private isEmail(): boolean {
@@ -199,43 +251,59 @@ export class LinkModalDialog
 
     private createContentPanel(): Panel {
         const getContentId: Function = () => {
-            if (this.link && this.isContentLink()) {
-                return this.link.replace(LinkModalDialog.contentPrefix, StringHelper.EMPTY_STRING);
+            if (!this.link) {
+                return StringHelper.EMPTY_STRING;
             }
+
+            if (this.isInlineLink()) {
+                return this.link.replace(LinkModalDialog.mediaInlinePrefix, StringHelper.EMPTY_STRING);
+            }
+
+            if (this.isDownloadLink()) {
+                return this.link.replace(LinkModalDialog.mediaDownloadPrefix, StringHelper.EMPTY_STRING);
+            }
+
+            if (this.isContentLink()) {
+                const regex = new RegExp(/^(.*?)(\#|\?|$)/g);
+                const regexResult = regex.exec(this.link);
+                return (regexResult.length > 1 ? regexResult[1] : this.link)
+                    .replace(LinkModalDialog.contentPrefix, StringHelper.EMPTY_STRING);
+            }
+
             return StringHelper.EMPTY_STRING;
         };
 
-        return this.createFormPanel([
+        const contentPanel = this.createFormPanel([
             this.createSelectorFormItem('contentId', i18n('dialog.link.formitem.target'),
                 this.createSelector(getContentId, this.createContentSelectorBuilder()),
                 true),
-            this.createTargetCheckbox('contentTarget', this.isContentLink)
+            this.createMediaOptionRadio('contentMediaRadio'),
+            this.createTargetCheckbox('contentTarget', this.isContentLink),
+            this.createFragmentOption('contentFragment', i18n('dialog.link.fragment')),
+            this.createParamsOptions('contentParams', i18n('dialog.link.parameters')),
         ]);
+
+        contentPanel.addClass('content-panel');
+
+        return contentPanel;
     }
 
-    private createDownloadPanel(): Panel {
-        const getDownloadId: Function = () => {
-            return this.isDownloadLink()
-                   ? this.link.replace(LinkModalDialog.downloadPrefix, StringHelper.EMPTY_STRING)
-                   : StringHelper.EMPTY_STRING;
-        };
-
-        return this.createFormPanel([
-            this.createSelectorFormItem('downloadId', i18n('dialog.link.formitem.target'),
-                this.createSelector(getDownloadId, this.createMediaSelectorBuilder()))
-        ]);
-    }
 
     private createUrlPanel(): Panel {
-        const getUrl: Function = () => {
-            return this.isUrl() ? this.link : 'https://';
-        };
+        const urlFormItem = this.createUrlFormItem('url', 'Link');
+        const urlInput = <TextInput>urlFormItem.getInput();
+        this.protocolsDropdownButton = this.createProtocolsDropdownButton(urlFormItem, urlInput);
+        urlFormItem.prependChild(this.protocolsDropdownButton);
 
-        return this.createFormPanel([
-            this.createFormItemWithPostponedValue('url', i18n('dialog.link.formitem.url'), getUrl,
-                LinkModalDialog.validationRequiredUrl, 'https://example.com/mypage'),
-            this.createTargetCheckbox('urlTarget', this.isUrl)
+        const urlPanel = this.createFormPanel([
+            urlFormItem,
+            this.createTargetCheckbox('urlTarget', this.isUrl, true)
         ]);
+
+        urlPanel.onRendered(() => urlInput.forceChangedEvent());
+        urlPanel.addClass('url-panel');
+
+        return urlPanel;
     }
 
     private createEmailPanel(): Panel {
@@ -288,6 +356,18 @@ export class LinkModalDialog
         return this.createFormItem(formItemBuilder);
     }
 
+    private static validationAlwaysValid(): string {
+        return undefined;
+    }
+
+    private validationQueryParams(): string {
+        const isValid = Array.from(this.paramsFormItem.getHTMLElement().getElementsByTagName('input'))
+            .filter((input: HTMLInputElement) => input.className.indexOf('params-key') >= 0)
+            .every((input: HTMLInputElement) => input.value.trim() !== '');
+
+        return !isValid ? i18n('dialog.link.queryparams.empty') : undefined;
+    }
+
     private static validationRequiredEmail(input: FormInputEl): string {
         return Validators.required(input) || Validators.validEmail(input);
     }
@@ -296,18 +376,303 @@ export class LinkModalDialog
         return Validators.required(input) || Validators.validUrl(input);
     }
 
+    private static validationRequiredFtpUrl(input: FormInputEl): string {
+        return Validators.required(input) || Validators.validFtpUrl(input);
+    }
+
+    private static validationRequiredRelativeUrl(input: FormInputEl): string {
+        return Validators.required(input) || Validators.validRelativeUrl(input);
+    }
+
     private getTarget(isTabSelected: boolean): boolean {
         return isTabSelected ? this.getOriginalTargetElem().getValue() === '_blank' : false;
     }
 
-    private createTargetCheckbox(id: string, isTabSelectedFn: Function): FormItem {
-        const checkbox = Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
+    private createTargetCheckbox(id: string, isTabSelectedFn: Function, showOnCreate: boolean = false): FormItem {
+        const checkbox: Checkbox = Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
             InputAlignment.LEFT).build();
+
+        if (!showOnCreate) {
+            checkbox.hide();
+        }
 
         checkbox.setChecked(this.getTarget(isTabSelectedFn.call(this)));
 
-        const formItemBuilder = new ModalDialogFormItemBuilder(id).setInputEl(checkbox);
-        return this.createFormItem(formItemBuilder);
+        return this.createFormItem(new ModalDialogFormItemBuilder(id).setInputEl(checkbox));
+    }
+
+    private createFragmentOption(id: string, label: string): FormItem {
+        const addButton: Button = new Button(i18n('action.add'));
+        const hideAnchorFormButton: Button = this.createRemoveButton();
+
+        const getFragment: Function = () => {
+            if (this.link.indexOf(LinkModalDialog.fragmentPrefix) === -1) {
+                return StringHelper.EMPTY_STRING;
+            }
+
+            const fragmentUri: string =
+                this.link.slice(this.link.indexOf(LinkModalDialog.fragmentPrefix) + LinkModalDialog.fragmentPrefix.length);
+
+            return decodeURIComponent(fragmentUri);
+        };
+
+        this.anchorFormItem = this.createFormItemWithPostponedValue(id, label, getFragment, LinkModalDialog.validationAlwaysValid);
+        this.anchorFormItem.addClass('anchor-form-item');
+        this.anchorFormItem.prependChild(addButton);
+        this.anchorFormItem.appendChild(hideAnchorFormButton);
+
+        const anchorInput: TextInput = <TextInput>this.anchorFormItem.getInput();
+
+        anchorInput.onShown(() => hideAnchorFormButton.show());
+        anchorInput.onHidden(() => hideAnchorFormButton.hide());
+        anchorInput.hide();
+
+        hideAnchorFormButton.onClicked(() => {
+            this.anchorFormItem.setValidator(LinkModalDialog.validationAlwaysValid);
+            this.anchorFormItem.validate(new ValidationResult(), true);
+            anchorInput.setValue('');
+            anchorInput.hide();
+            addButton.show();
+        });
+
+        addButton.onClicked(() => {
+            this.anchorFormItem.setValidator(Validators.required);
+            addButton.hide();
+            anchorInput.show();
+            anchorInput.giveFocus();
+        });
+
+        if (getFragment()) {
+            addButton.hide();
+            anchorInput.show();
+        }
+
+        this.anchorFormItem.hide();
+
+        return this.anchorFormItem;
+    }
+
+    private createParamsOptions(id: string, label: string): FormItem {
+        this.paramsFormIds = [];
+
+        const addButton: Button = new Button(i18n('action.add'));
+
+        this.paramsFormItem = this.createFormItem(new ModalDialogFormItemBuilder(id, label)
+            .setValidator(this.validationQueryParams.bind(this)));
+        this.paramsFormItem.removeChild(this.paramsFormItem.getInput().getParentElement());
+        this.paramsFormItem.addClass('params-form-item');
+
+        addButton.onClicked(() => {
+            this.paramsFormItem.removeChild(addButton);
+            this.createKeyValueFormItems();
+            this.paramsFormItem.appendChild(addButton);
+        });
+
+        const keyValueMap: Map<string, string> = this.getKeyValueMapFromLink();
+        keyValueMap.forEach((value: string, key: string) => this.createKeyValueFormItems(key, value));
+
+        this.paramsFormItem.appendChild(addButton);
+
+        this.paramsFormItem.hide();
+
+        return this.paramsFormItem;
+    }
+
+    private createMediaOptionRadio(id: string): FormItem {
+        const mediaRadio = new RadioGroup('radio');
+
+        mediaRadio.addOption(MediaContentRadioAction.OPEN, i18n('dialog.link.radio.options.open'));
+        mediaRadio.addOption(MediaContentRadioAction.DOWNLOAD, i18n('dialog.link.radio.options.download'));
+        mediaRadio.addOption(MediaContentRadioAction.LINK, i18n('dialog.link.radio.options.link'));
+
+        mediaRadio.onRendered(() => {
+            if (!this.link || this.isInlineLink()) {
+                mediaRadio.setValue(MediaContentRadioAction.OPEN);
+            } else if (this.isDownloadLink()) {
+                mediaRadio.setValue(MediaContentRadioAction.DOWNLOAD);
+            } else if (this.isContentLink()) {
+                mediaRadio.setValue(MediaContentRadioAction.LINK);
+            }
+        });
+
+        mediaRadio.onValueChanged((event: ValueChangedEvent) => {
+            const radioValue = event.getNewValue();
+            const checkbox = <Checkbox>this.getFieldById('contentTarget');
+
+            if (radioValue === MediaContentRadioAction.LINK) {
+                checkbox.show();
+            } else {
+                checkbox.hide();
+            }
+        });
+
+        const formItemBuilder = new ModalDialogFormItemBuilder(id, i18n('dialog.link.radio.label')).setInputEl(mediaRadio);
+
+        this.mediaOptionRadioFormItem = this.createFormItem(formItemBuilder);
+        this.mediaOptionRadioFormItem.setVisible(false);
+        this.mediaOptionRadioFormItem.getLabel().addClass('required');
+
+        return this.mediaOptionRadioFormItem;
+    }
+
+    private createUrlFormItem(textId: string, textLabel: string): FormItem {
+        const getUrl = () => this.isUrl() ? this.link : '';
+
+        const urlFormItem: FormItem = this.createFormItemWithPostponedValue(textId, textLabel, getUrl, Validators.required);
+        const urlInput: TextInput = <TextInput>urlFormItem.getInput();
+        this.initUrlInputHandlers(urlFormItem, urlInput);
+
+        urlFormItem.getLabel().addClass('required');
+
+        return urlFormItem;
+    }
+
+    private initUrlInputHandlers(urlFormItem: FormItem, urlInput: TextInput) {
+        urlInput.onRendered(() => {
+            const urlValue = urlInput.getValue();
+            const usedProtocol = this.getUsedProtocolFromValue(urlValue);
+            const actionTitle = urlValue ? usedProtocol.title : 'Https';
+            const action = this.protocolsDropdownButton.getMenuActions().find(action => action.getLabel() === actionTitle);
+            if (action) {
+                action.execute();
+            }
+        });
+
+        urlInput.onValueChanged((event: ValueChangedEvent) => {
+            const urlValue = event.getNewValue();
+            const usedProtocol = this.getUsedProtocolFromValue(urlValue);
+
+            urlFormItem.setValidator(usedProtocol.validator);
+
+            this.protocolsDropdownButton.getMenuItems().forEach(menuItem => {
+                menuItem.removeClass('menu-item-selected');
+                if (menuItem.getEl().getInnerHtml() === usedProtocol.title) {
+                    menuItem.addClass('menu-item-selected');
+                }
+            });
+        });
+    }
+
+    private createProtocolsDropdownButton(formItem: FormItem, textInput: TextInput): MenuButton {
+        const protocolsDropdownButton = new MenuButton(new Action('Type'));
+        protocolsDropdownButton.addClass('menu-button-type');
+
+        const actions = this.urlProtocols.map(({title, prefix, validator}) => {
+            const action = new Action(title);
+
+            action.onExecuted(() => {
+                const urlValue: string = textInput.getValue();
+                const usedProtocol: UrlProtocol = this.getUsedProtocolFromValue(urlValue);
+                const newUrlValue: string = !usedProtocol.prefix
+                    ? prefix + urlValue
+                    : urlValue.replace(usedProtocol.prefix, prefix);
+
+                formItem.setValidator(validator);
+                textInput.setValue(newUrlValue);
+                textInput.updateValue();
+                textInput.giveFocus();
+            });
+
+            return action;
+        });
+
+        protocolsDropdownButton.addMenuActions(actions);
+        protocolsDropdownButton.addClass('transparent');
+        protocolsDropdownButton.setToggleMenuOnAction(true);
+
+        return protocolsDropdownButton;
+    }
+
+    private getUsedProtocolFromValue(value: string) {
+        let usedProtocol: UrlProtocol;
+
+        this.urlProtocols.some(protocol => {
+            const valueProtocolSplit = value.split(protocol.prefix);
+
+            if (valueProtocolSplit.length > 1 && valueProtocolSplit[0] === '') {
+                usedProtocol = protocol;
+                return true;
+            }
+        });
+
+        if (!usedProtocol) {
+            usedProtocol = this.urlProtocols.find(protocol => protocol.title === i18n('dialog.link.urlprotocols.relative'));
+        }
+
+        return usedProtocol;
+    }
+
+    private getKeyValueMapFromLink(): Map<string, string> {
+        const keyValueMap: Map<string, string> = new Map<string, string>();
+
+        if (this.link.indexOf(LinkModalDialog.queryParamsPrefix) === -1) {
+            return keyValueMap;
+        }
+
+        const keyValues: string[] = this.extractQueryStringFromLink().split('&');
+
+        keyValues.forEach((keyValue: string) => {
+            const [key, value] = keyValue.split('=');
+
+            if (key) {
+                keyValueMap.set(key, value || '');
+            }
+        });
+
+        return keyValueMap;
+    }
+
+    private extractQueryStringFromLink(): string {
+        const queryString: string = this.link.split(LinkModalDialog.queryParamsPrefix).pop();
+        const fragmentPrefixIndex = queryString.indexOf(LinkModalDialog.fragmentPrefix);
+
+        if (fragmentPrefixIndex >= 0) {
+            return decodeURIComponent(queryString.slice(0, fragmentPrefixIndex));
+        }
+
+        return decodeURIComponent(queryString);
+    }
+
+    private createKeyValueFormItems(initialKey: string = '', initialValue: string = ''): void {
+        const uniqueParamIdentifier: number = this.paramsFormIds.length
+            ? parseFloat(this.paramsFormIds[this.paramsFormIds.length - 1].keyId.split('-')[1]) + 1
+            : 0;
+
+        const keyFormItemId: string = `paramsKey-${uniqueParamIdentifier}`;
+        const keyFormItem: FormItem = this.createFormItemWithPostponedValue(keyFormItemId, '', () => initialKey, null,
+            i18n('dialog.link.parameters.name'));
+        keyFormItem.getInput().addClass('params-key');
+
+        const valueFormItemId: string = `paramsValue-${uniqueParamIdentifier}`;
+        const valueFormItem: FormItem = this.createFormItemWithPostponedValue(valueFormItemId, '', () => initialValue, null,
+            i18n('dialog.link.parameters.value'));
+
+        const removeButton: Button = this.createRemoveButton();
+
+        const divWrapper: DivEl = new DivEl('params-wrapper')
+            .appendChild(keyFormItem)
+            .appendChild(valueFormItem)
+            .appendChild(removeButton);
+        this.paramsFormItem.appendChild(divWrapper);
+
+        this.paramsFormIds.push({keyId: keyFormItemId, valueId: valueFormItemId});
+
+        keyFormItem.getInput().giveFocus();
+
+        removeButton.onClicked(() => {
+            this.paramsFormIds = this.paramsFormIds.filter(
+                (formParam: FormParam) => formParam.keyId !== keyFormItemId && formParam.valueId !== valueFormItemId);
+            this.removeFieldById(keyFormItemId);
+            this.removeFieldById(valueFormItemId);
+            this.paramsFormItem.removeChild(divWrapper);
+            this.paramsFormItem.validate(new ValidationResult(), true);
+        });
+    }
+
+    private createRemoveButton(): Button {
+        const button: Button = new Button();
+        button.addClass('remove-button transparent icon-close');
+        return button;
     }
 
     protected getMainFormItems(): FormItem [] {
@@ -329,10 +694,9 @@ export class LinkModalDialog
     private createDockedPanel(): DockedPanel {
         this.initTabNames();
 
-        const dockedPanel = new DockedPanel();
-        dockedPanel.addItem(this.tabNames.url, true, this.createUrlPanel());
+        const dockedPanel: DockedPanel = new DockedPanel();
         dockedPanel.addItem(this.tabNames.content, true, this.createContentPanel());
-        dockedPanel.addItem(this.tabNames.download, true, this.createDownloadPanel());
+        dockedPanel.addItem(this.tabNames.url, true, this.createUrlPanel());
         dockedPanel.addItem(this.tabNames.email, true, this.createEmailPanel());
 
         const anchors: any[] = this.getAnchors();
@@ -341,13 +705,13 @@ export class LinkModalDialog
             dockedPanel.addItem(this.tabNames.anchor, true, this.createAnchorPanel(anchors), this.isAnchor());
         }
 
-        dockedPanel.getDeck().getPanels().forEach((panel, index) => {
-            if ((index === 1 && this.isContentLink()) ||
-                (index === 2 && this.isDownloadLink()) ||
-                (index === 3 && this.isEmail()) ||
-                (index === 4 && this.isAnchor())) {
+        dockedPanel.getDeck().getPanels().some((panel, index) => {
+            if ((index === 0 && this.isContentLink()) ||
+                (index === 1 && this.isUrl()) ||
+                (index === 2 && this.isEmail()) ||
+                (index === 3 && this.isAnchor())) {
                 dockedPanel.selectPanel(panel);
-                return false;
+                return true;
             }
         });
 
@@ -378,13 +742,6 @@ export class LinkModalDialog
         return selector;
     }
 
-    private createMediaSelectorBuilder(): ContentSummaryOptionDataLoaderBuilder {
-        return ContentSummaryOptionDataLoader
-            .create()
-            .setAllowedContentPaths(['*'])
-            .setContentTypeNames(ContentTypeName.getMediaTypes().map(name => name.toString()));
-    }
-
     private createContentSelectorBuilder(): ContentSummaryOptionDataLoaderBuilder {
         return ContentSummaryOptionDataLoader
             .create()
@@ -393,31 +750,59 @@ export class LinkModalDialog
 
     private createSelectorFormItem(id: string, label: string, contentSelector: ContentComboBox<ContentTreeSelectorItem>,
                                    addValueValidation: boolean = false): FormItem {
+        const formItemBuilder: ModalDialogFormItemBuilder =
+            new ModalDialogFormItemBuilder(id, label).setValidator(Validators.required).setInputEl(contentSelector);
+        const formItem: FormItem = this.createFormItem(formItemBuilder);
 
-        const formItemBuilder = new ModalDialogFormItemBuilder(id, label).setValidator(Validators.required).setInputEl(contentSelector);
-        const formItem = this.createFormItem(formItemBuilder);
-
-        const mediaUploader = this.createMediaUploader(contentSelector);
+        const mediaUploader: MediaUploaderEl = this.createMediaUploader(contentSelector);
         mediaUploader.insertAfterEl(contentSelector);
 
         if (!addValueValidation) {
             return formItem;
         }
 
-        contentSelector.onValueChanged((event) => {
-            if (contentSelector.getLoader().isLoaded()) {
+        contentSelector.onLoaded((items: ContentTreeSelectorItem[]) => {
+            setTimeout(() => this.handleSelectorValueChanged(contentSelector.getSelectedContent(), formItem), 1);
+        });
 
-                if (!event.getNewValue()) {
-                    formItem.setValidator(Validators.required);
-                }
-            }
+        contentSelector.onValueChanged(() => {
+            const selectedContent: ContentSummary = contentSelector.getSelectedContent();
+            this.handleSelectorValueChanged(selectedContent, formItem);
         });
 
         return formItem;
     }
 
+    private handleSelectorValueChanged(selectedContent: ContentSummary, formItem: FormItem): void {
+        const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
+        const checkbox: Checkbox = <Checkbox>this.getFieldById('contentTarget');
+
+        if (!selectedContent) {
+            formItem.setValidator(Validators.required);
+            this.mediaOptionRadioFormItem.hide();
+            checkbox.hide();
+            this.anchorFormItem.hide();
+            this.paramsFormItem.hide();
+            return;
+        }
+
+        if (selectedContent.getType().isDescendantOfMedia()) {
+            this.mediaOptionRadioFormItem.show();
+            this.anchorFormItem.hide();
+            this.paramsFormItem.hide();
+            if (mediaRadio.doGetValue() === MediaContentRadioAction.LINK) {
+                checkbox.show();
+            }
+        } else {
+            this.mediaOptionRadioFormItem.hide();
+            checkbox.show();
+            this.anchorFormItem.show();
+            this.paramsFormItem.show();
+        }
+    }
+
     private createMediaUploader(contentSelector: ContentComboBox<ContentTreeSelectorItem>): MediaUploaderEl {
-        const mediaUploader = new MediaUploaderEl({
+        const mediaUploader: MediaUploaderEl = new MediaUploaderEl({
             params: {
                 parent: this.contentId.toString()
             },
@@ -430,23 +815,32 @@ export class LinkModalDialog
 
         mediaUploader.onUploadStarted((event: UploadStartedEvent<Content>) => {
             event.getUploadItems().forEach((uploadItem: UploadItem<Content>) => {
-                const value = new MediaTreeSelectorItem(null).setDisplayValue(
+                const value: MediaTreeSelectorItem = new MediaTreeSelectorItem(null).setDisplayValue(
                     MediaSelectorDisplayValue.fromUploadItem(uploadItem));
 
-                const option = Option.create<MediaTreeSelectorItem>()
-                        .setValue(value.getId())
-                        .setDisplayValue(value)
-                        .build();
+                const option: Option<MediaTreeSelectorItem> = Option.create<MediaTreeSelectorItem>()
+                    .setValue(value.getId())
+                    .setDisplayValue(value)
+                    .build();
                 contentSelector.selectOption(option);
             });
         });
 
         mediaUploader.onFileUploaded((event: UploadedEvent<Content>) => {
-            let item = event.getUploadItem();
-            let createdContent = item.getModel();
+            const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
+            const checkbox: Checkbox = <Checkbox>this.getFieldById('contentTarget');
 
-            let selectedOption = contentSelector.getSelectedOptionView().getById(item.getId());
-            let option = selectedOption.getOption();
+            this.mediaOptionRadioFormItem.show();
+
+            if (mediaRadio.doGetValue() === MediaContentRadioAction.LINK) {
+                checkbox.show();
+            }
+
+            const item: UploadItem<Content> = event.getUploadItem();
+            const createdContent: Content = item.getModel();
+
+            const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionView().getById(item.getId());
+            const option: Option<ContentTreeSelectorItem> = selectedOption.getOption();
             option.setDisplayValue(new MediaTreeSelectorItem(createdContent));
             option.setValue(createdContent.getContentId().toString());
 
@@ -454,9 +848,9 @@ export class LinkModalDialog
         });
 
         mediaUploader.onUploadFailed((event: UploadFailedEvent<Content>) => {
-            let item = event.getUploadItem();
+            const item: UploadItem<Content> = event.getUploadItem();
+            const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionView().getById(item.getId());
 
-            let selectedOption = contentSelector.getSelectedOptionView().getById(item.getId());
             if (!!selectedOption) {
                 (<BaseSelectedOptionsView<ContentTreeSelectorItem>>contentSelector.getSelectedOptionView()).removeOption(
                     selectedOption.getOption());
@@ -481,6 +875,7 @@ export class LinkModalDialog
         contentSelector.getComboBox().onHidden(() => {
             mediaUploader.hide();
         });
+
         contentSelector.getComboBox().onShown(() => {
             mediaUploader.show();
         });
@@ -489,52 +884,132 @@ export class LinkModalDialog
     }
 
     private validateDockPanel(): boolean {
-        const form = <Form>this.dockedPanel.getDeck().getPanelShown().getFirstChild();
-
+        const form: Form = <Form>this.dockedPanel.getDeck().getPanelShown().getFirstChild();
         return form.validate(true).isValid();
     }
 
     protected validate(): boolean {
-        const mainFormValid = super.validate();
-        const dockPanelValid = this.validateDockPanel();
+        const isMainFormValid: boolean = super.validate();
+        const isDockPanelValid: boolean = this.validateDockPanel();
 
-        return mainFormValid && dockPanelValid;
+        return isMainFormValid && isDockPanelValid;
+    }
+
+    private getContentLinkQueryParams(): string {
+        const queryParamsString: string = this.paramsFormIds.reduce((prev, formParam: FormParam) => {
+            const key: string = (<TextInput>this.getFieldById(formParam.keyId)).getValue();
+            const value: string = (<TextInput>this.getFieldById(formParam.valueId)).getValue();
+            return prev === '' ? `${key}=${value}` : `${prev}&${key}=${value}`;
+        }, '');
+
+        if (!queryParamsString) {
+            return StringHelper.EMPTY_STRING;
+        }
+
+        return `?${LinkModalDialog.queryParamsPrefix}${encodeURIComponent(queryParamsString)}`;
+    }
+
+    private getContentLinkFragment(hasQueryParams: boolean): string {
+        const anchorString: string = encodeURIComponent((<TextInput>this.getFieldById('contentFragment')).getValue());
+        const fragment: string = anchorString ? `${LinkModalDialog.fragmentPrefix}${anchorString}` : '';
+
+        if (!fragment) {
+            return StringHelper.EMPTY_STRING;
+        }
+
+        return hasQueryParams ? `&${fragment}` : `?${fragment}`;
+    }
+
+    private getContentLinkUrl(contentSelectorValue: string, queryParams?: string, fragment?: string): string {
+        return `${LinkModalDialog.contentPrefix}${contentSelectorValue}${queryParams || ''}${fragment || ''}`;
+    }
+
+    private getContentLinkTarget(): string {
+        const isOpenInNewTab: boolean = (<Checkbox>this.getFieldById('contentTarget')).isChecked();
+        return isOpenInNewTab ? '_blank' : '';
     }
 
     private createContentLink() {
-        const contentSelectorValue: string = (<ContentComboBox<ContentTreeSelectorItem>>this.getFieldById(
-            'contentId')).getValue();
-        const isOpenInNewTab: boolean = (<Checkbox>this.getFieldById('contentTarget')).isChecked();
-        const url: string = LinkModalDialog.contentPrefix + contentSelectorValue;
-        const target: string = isOpenInNewTab ? '_blank' : '';
-
-        this.getOriginalLinkTypeElem().setValue('url', false);
-        this.getOriginalTargetElem().setValue(target, false);
-        this.getOriginalProtocolElem().setValue('', false);
-        this.getOriginalUrlElem().setValue(url, false);
-    }
-
-    private createDownloadLink() {
-        const contentSelectorValue: string = (<ContentComboBox<ContentTreeSelectorItem>>this.getFieldById(
-            'downloadId')).getValue();
-        const url: string = LinkModalDialog.downloadPrefix + contentSelectorValue;
+        const urlParams: ContentLinkParams = this.generateUrlParams();
 
         this.getOriginalLinkTypeElem().setValue('url', false);
         this.getOriginalProtocolElem().setValue('', false);
-        this.getOriginalUrlElem().setValue(url, false);
+        this.getOriginalUrlElem().setValue(urlParams.url, false);
+        this.getOriginalTargetElem().setValue(urlParams.target, false);
     }
 
-    private createUrlLink() {
+    private generateUrlParams(): ContentLinkParams {
+        const contentSelectorSelectedContent: ContentSummary = this.getContentIdFormItemEl().getSelectedContent();
+
+        if (contentSelectorSelectedContent?.getType().isDescendantOfMedia()) {
+            return this.generateUrlParamsForMedia();
+        }
+
+        return this.generateUrlParamsForNonMedia();
+    }
+
+    private getContentIdFormItemEl(): ContentComboBox<ContentTreeSelectorItem> {
+        return <ContentComboBox<ContentTreeSelectorItem>>this.getFieldById('contentId');
+    }
+
+    private generateUrlParamsForMedia(): ContentLinkParams {
+        const mediaContentRadioSelectedOption: string = (<RadioGroup>this.getFieldById('contentMediaRadio')).doGetValue();
+        const contentSelectorValue: string = this.getContentSelectorValue();
+
+        if (mediaContentRadioSelectedOption === MediaContentRadioAction.OPEN) {
+            return {
+                url: LinkModalDialog.mediaInlinePrefix + contentSelectorValue,
+                target: '_blank'
+            };
+        }
+
+        if (mediaContentRadioSelectedOption === MediaContentRadioAction.DOWNLOAD) {
+            return {
+                url: LinkModalDialog.mediaDownloadPrefix + contentSelectorValue,
+                target: ''
+            };
+        }
+
+        if (mediaContentRadioSelectedOption === MediaContentRadioAction.LINK) {
+            return {
+                url: this.getContentLinkUrl(contentSelectorValue),
+                target: this.getContentLinkTarget()
+            };
+        }
+
+        return {
+            url: '',
+            target: ''
+        };
+    }
+
+    private getContentSelectorValue(): string {
+        return this.getContentIdFormItemEl().getValue();
+    }
+
+    private generateUrlParamsForNonMedia(): ContentLinkParams {
+        const contentSelectorValue: string = this.getContentSelectorValue();
+        const queryParams: string = this.getContentLinkQueryParams();
+        const fragment: string = this.getContentLinkFragment(!!queryParams);
+
+        return {
+            url: this.getContentLinkUrl(contentSelectorValue, queryParams, fragment),
+            target: this.getContentLinkTarget()
+        };
+    }
+
+    private createUrlLink(): void {
         const url: string = (<TextInput>this.getFieldById('url')).getValue();
         const isOpenInNewTab: boolean = (<Checkbox>this.getFieldById('urlTarget')).isChecked();
         const target: string = isOpenInNewTab ? '_blank' : '';
 
         this.getOriginalLinkTypeElem().setValue('url', false);
+        this.getOriginalProtocolElem().setValue('', false);
         this.getOriginalTargetElem().setValue(target, false);
         this.getOriginalUrlElem().setValue(url, false);
     }
 
-    private createEmailLink() {
+    private createEmailLink(): void {
         const email = (<TextInput>this.getFieldById('email')).getValue();
         const subject = (<TextInput>this.getFieldById('subject')).getValue();
 
@@ -543,7 +1018,7 @@ export class LinkModalDialog
         this.getOriginalSubjElem().setValue(subject, false);
     }
 
-    private createAnchor() {
+    private createAnchor(): void {
         const anchorName = (<TextInput>this.getFieldById('anchor')).getValue().replace(LinkModalDialog.anchorPrefix,
             StringHelper.EMPTY_STRING);
 
@@ -561,21 +1036,18 @@ export class LinkModalDialog
         this.getOriginalTitleElem().setValue(toolTip, false);
 
         switch (selectedTab.getLabel()) {
-        case (this.tabNames.content):
-            this.createContentLink();
-            break;
-        case (this.tabNames.url):
-            this.createUrlLink();
-            break;
-        case (this.tabNames.download):
-            this.createDownloadLink();
-            break;
-        case (this.tabNames.email):
-            this.createEmailLink();
-            break;
-        case (this.tabNames.anchor):
-            this.createAnchor();
-            break;
+            case (this.tabNames.content):
+                this.createContentLink();
+                break;
+            case (this.tabNames.url):
+                this.createUrlLink();
+                break;
+            case (this.tabNames.email):
+                this.createEmailLink();
+                break;
+            case (this.tabNames.anchor):
+                this.createAnchor();
+                break;
         }
     }
 
@@ -633,6 +1105,7 @@ export class LinkModalDialog
 
     isDirty(): boolean {
         return (<TextInput>this.textFormItem.getInput()).isDirty() || (<TextInput>this.toolTipFormItem.getInput()).isDirty() ||
-               AppHelper.isDirty(this.dockedPanel);
+            AppHelper.isDirty(this.dockedPanel);
     }
+
 }

@@ -1,0 +1,132 @@
+.link-modal-dialog {
+  .content-panel {
+    .remove-button.transparent {
+      cursor: pointer;
+      padding: 0 10px;
+
+      &::before,
+      &:hover::before {
+        color: @admin-dark-gray;
+      }
+    }
+
+    .anchor-form-item {
+      display: flex;
+      flex-wrap: wrap;
+
+      .input-wrapper {
+        margin-top: 10px;
+        width: calc(100% - 40px);
+      }
+
+      label {
+        order: -1;
+        width: 100%;
+      }
+
+      button {
+        margin-top: 10px;
+      }
+    }
+
+    .params-form-item {
+      display: flex;
+      flex-direction: column;
+
+      button {
+        align-self: flex-start;
+      }
+
+      .params-wrapper {
+        display: flex;
+
+        .input-view {
+          width: calc(50% - 20px);
+          margin: 10px 0;
+
+          &:first-child {
+            width: calc(50% - 30px);
+            margin-right: 10px;
+          }
+        }
+
+        button {
+          align-self: center;
+        }
+      }
+    }
+
+    .validation-viewer {
+      order: 1;
+    }
+  }
+
+  .url-panel {
+    .modal-dialog-fieldset {
+      .menu-button.menu-button-type {
+        background-color: lightgray;
+        height: 35px;
+        width: 75px;
+        z-index: 1;
+
+        .menu-item-selected {
+          background-color: lightgray;
+        }
+
+        .action-button {
+          order: -1;
+          min-width: auto;
+          padding: 0 5px 0 10px;
+
+          span {
+            color: @admin-dark-gray;
+          }
+
+          &:focus {
+            outline: none;
+            box-shadow: none;
+            border: none;
+          }
+        }
+
+        .@{_COMMON_PREFIX}dropdown-handle {
+          width: 25px;
+
+          &::after {
+            border-top-color: @admin-dark-gray;
+          }
+
+          &:focus {
+            outline: none;
+            box-shadow: none;
+            border: none;
+          }
+        }
+
+        &:focus,
+        &:focus-within {
+          outline: 1px solid black;
+        }
+      }
+
+      label {
+        width: 100%;
+        order: -1;
+      }
+
+      .input-view {
+        display: flex;
+        flex-grow: 1;
+        flex-wrap: wrap;
+
+        .input-wrapper {
+          width: calc(100% - 75px);
+
+          input {
+            height: 35px;
+          }
+        }
+      }
+    }
+  }
+}
