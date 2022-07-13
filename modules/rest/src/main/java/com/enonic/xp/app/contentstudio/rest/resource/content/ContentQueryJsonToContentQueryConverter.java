@@ -2,6 +2,9 @@ package com.enonic.xp.app.contentstudio.rest.resource.content;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.ImmutableList;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.AggregationQueryJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentQueryJson;
@@ -12,7 +15,12 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.query.expr.DslExpr;
+import com.enonic.xp.query.expr.DslOrderExpr;
+import com.enonic.xp.query.expr.OrderExpr;
+import com.enonic.xp.query.expr.QueryExpr;
 import com.enonic.xp.query.parser.QueryParser;
+import com.enonic.xp.util.JsonHelper;
 
 public class ContentQueryJsonToContentQueryConverter
 {
@@ -46,17 +54,18 @@ public class ContentQueryJsonToContentQueryConverter
     private ContentQuery doCreateQuery()
         throws ContentQueryJsonConvertException
     {
-        final ContentQuery.Builder builder = ContentQuery.create().
-            from( contentQueryJson.getFrom() ).
-            size( contentQueryJson.getSize() ).
-            queryExpr( QueryParser.parse( contentQueryJson.getQueryExprString() ) ).
-            addContentTypeNames( contentQueryJson.getContentTypeNames() );
+        final ContentQuery.Builder builder = ContentQuery.create()
+            .from( contentQueryJson.getFrom() )
+            .size( contentQueryJson.getSize() )
+            .addContentTypeNames( contentQueryJson.getContentTypeNames() );
 
         addOutboundContentIdsToFilter( builder );
 
         addAggregationQueries( builder );
 
         addQueryFilters( builder );
+
+        addQueryExpr( builder );
 
         return builder.build();
     }
@@ -110,6 +119,35 @@ public class ContentQueryJsonToContentQueryConverter
                 builder.queryFilter( queryFilterJson.getFilter() );
             }
         }
+    }
+
+    private void addQueryExpr( final ContentQuery.Builder builder )
+    {
+        if ( contentQueryJson.getQuery() != null )
+        {
+            builder.queryExpr( QueryExpr.from( createDslExpr() , createDslSortExpr() ) );
+        }
+        else
+        {
+            builder.queryExpr( QueryParser.parse( contentQueryJson.getQueryExprString() ) );
+        }
+    }
+
+    private DslExpr createDslExpr()
+    {
+        return DslExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( contentQueryJson.getQuery() ) ) );
+    }
+
+    private List<OrderExpr> createDslSortExpr()
+    {
+        if ( contentQueryJson.getQuerySort() == null )
+        {
+            return ImmutableList.of();
+        }
+
+        return contentQueryJson.getQuerySort().stream()
+            .map( expr -> DslOrderExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( expr ) ) ) )
+            .collect( Collectors.toList() );
     }
 
     static class Builder

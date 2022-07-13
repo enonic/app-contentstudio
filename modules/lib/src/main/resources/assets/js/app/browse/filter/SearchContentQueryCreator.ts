@@ -18,14 +18,6 @@ import {
 import {DateRangeAggregationQuery} from '@enonic/lib-admin-ui/query/aggregation/DateRangeAggregationQuery';
 import {DateRange} from '@enonic/lib-admin-ui/query/aggregation/DateRange';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentSummaryRequest} from '../../resource/ContentSummaryRequest';
-import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
-import {LogicalExpr} from '@enonic/lib-admin-ui/query/expr/LogicalExpr';
-import {LogicalOperator} from '@enonic/lib-admin-ui/query/expr/LogicalOperator';
-import {Expression} from '@enonic/lib-admin-ui/query/expr/Expression';
-import {FulltextSearchExpressionBuilder} from '@enonic/lib-admin-ui/query/FulltextSearchExpression';
-import {CompareExpr} from '@enonic/lib-admin-ui/query/expr/CompareExpr';
-import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
 import {ContentId} from '../../content/ContentId';
 import {ContentAggregation} from './ContentAggregation';
 import {WorkflowState} from '../../content/WorkflowState';
@@ -60,7 +52,7 @@ export class SearchContentQueryCreator {
     }
 
     create(contentAggregations?: string[]): ContentQuery {
-        this.appendQueryExpression();
+        this.appendQueryParams();
         this.setSize();
 
         this.appendAggregationsAndFilter(contentAggregations);
@@ -108,61 +100,148 @@ export class SearchContentQueryCreator {
         return this;
     }
 
-    private appendQueryExpression(): void {
-        this.contentQuery.setQueryExpr(this.createQueryExpression());
+    private appendQueryParams(): void {
+        this.contentQuery.setQuery(this.makeQueryJson());
+        this.contentQuery.setQuerySort(this.makeSort());
     }
 
-    private createQueryExpression(): QueryExpr {
-        const searchExpr: LogicalExpr =
-            new LogicalExpr(this.makeFulltextSearchExpr(), LogicalOperator.OR, this.createIdSearchExpr());
-
-        if (this.constraintItems) {
-            return new QueryExpr(new LogicalExpr(searchExpr, LogicalOperator.AND, this.makeSelectedItemsSearchExpr()),
-                ContentSummaryRequest.ROOT_ORDER);
+    private makeQueryJson(): Object {
+        if (this.constraintItems?.length > 0) {
+            return this.containsTextAndMatchesIdsOnConstraintsJson();
         }
 
         if (this.dependency?.isInbound) {
-            return new QueryExpr(
-                new LogicalExpr(searchExpr, LogicalOperator.AND, this.makeInboundDependenciesSearchExpr()),
-                ContentSummaryRequest.ROOT_ORDER);
+            return this.containsTextOrMatchesIdOnInboundIds();
         }
 
-        return new QueryExpr(searchExpr, ContentSummaryRequest.ROOT_ORDER);
+        return this.createContainsTextOrMatchesIdJson();
     }
 
-    private makeFulltextSearchExpr(): Expression {
-        return new FulltextSearchExpressionBuilder()
-            .setSearchString(this.searchInputValues.getTextSearchFieldValue())
-            .addField(new QueryField(QueryField.DISPLAY_NAME, 5))
-            .addField(new QueryField(QueryField.NAME, 3))
-            .addField(new QueryField(QueryField.ALL))
-            .build();
-    }
-
-    private createIdSearchExpr(): Expression {
-        return CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(this.searchInputValues.getTextSearchFieldValue()));
-    }
-
-    private makeSelectedItemsSearchExpr(): Expression {
-        let query: QueryExpr;
-
-        this.constraintItems.forEach((id: string) => {
-            if (!!query) {
-                query = new QueryExpr(new LogicalExpr(query, LogicalOperator.OR,
-                    CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(id))));
-            } else {
-                query = new QueryExpr(CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(id)));
+    private containsTextAndMatchesIdsOnConstraintsJson(): Object {
+        return {
+            'boolean': {
+                'must': [
+                    this.createContainsTextOrMatchesIdJson(),
+                    this.createConstraintsJson()
+                ]
             }
-        });
-
-        return query;
+        };
     }
 
-    private makeInboundDependenciesSearchExpr(): Expression {
-        return new QueryExpr(new LogicalExpr(
-            CompareExpr.eq(new FieldExpr(QueryField.REFERENCES), ValueExpr.string(this.dependency.dependencyId.toString())),
-            LogicalOperator.AND,
-            CompareExpr.neq(new FieldExpr(QueryField.ID), ValueExpr.string(this.dependency.dependencyId.toString()))));
+    private createConstraintsJson(): Object {
+        return {
+            'in': {
+                'field': '_id',
+                'values': this.constraintItems
+            }
+        };
+    }
+
+    private createContainsTextOrMatchesIdJson(): Object {
+        if (this.searchInputValues.textSearchFieldValue) {
+            return this.createContainsTextAndMatchesIdJson();
+        }
+
+        return this.matchAllQuery();
+    }
+
+    private createContainsTextAndMatchesIdJson(): Object {
+        const textValue: string = this.searchInputValues.textSearchFieldValue;
+
+        return {
+            'boolean': {
+                'should': [
+                    {
+                        'boolean': {
+                            'should': [
+                                {
+                                    'fulltext': {
+                                        'fields': [
+                                            'displayName^5',
+                                            '_name^3',
+                                            '_allText'
+                                        ],
+                                        'query': textValue,
+                                        'operator': 'AND'
+                                    }
+                                },
+                                {
+                                    'ngram': {
+                                        'fields': [
+                                            'displayName^5',
+                                            '_name^3',
+                                            '_allText'
+                                        ],
+                                        'query': textValue,
+                                        'operator': 'AND'
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        'term': {
+                            'field': '_id',
+                            'value': textValue
+                        }
+                    }
+                ]
+            }
+        };
+    }
+
+    private matchAllQuery(): Object {
+        return {
+            'matchAll': {}
+        };
+    }
+
+    private containsTextOrMatchesIdOnInboundIds(): Object {
+        return {
+            'boolean': {
+                'must': [
+                    this.createContainsTextOrMatchesIdJson(),
+                    this.createInboundRefsJson()
+                ]
+            }
+        };
+    }
+
+    private createInboundRefsJson(): Object {
+        return  {
+            'boolean': {
+                'must': [
+                    {
+                        'term': {
+                            'field': '_references',
+                            'value': this.dependency.dependencyId.toString()
+                        }
+                    },
+                    {
+                        'boolean': {
+                            'mustNot': {
+                                'term': {
+                                    'field': '_id',
+                                    'value': this.dependency.dependencyId.toString()
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        };
+    }
+
+    private makeSort(): Object[] {
+        return [
+            {
+                'field': '_score'
+            },
+            {
+                'field': '_path',
+                'direction': 'ASC'
+            }
+        ];
     }
 
     private appendOutboundReferencesFilter(): void {

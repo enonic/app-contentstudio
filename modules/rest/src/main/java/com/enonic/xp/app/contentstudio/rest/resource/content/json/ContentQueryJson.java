@@ -1,6 +1,7 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.json;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -28,15 +29,22 @@ public class ContentQueryJson
 
     private final List<FilterJson> queryFilters;
 
+    private final Map<String, Object> query;
+
+    private final List<Map<String, Object>> querySort;
+
     @JsonCreator
-    public ContentQueryJson( @JsonProperty("queryExpr") final String queryExprString, //
-                             @JsonProperty("from") final Integer from, //
-                             @JsonProperty("size") final Integer size, //
-                             @JsonProperty("contentTypeNames") final List<String> contentTypeNameString,
-                             @JsonProperty("mustBeReferencedById") final String mustBeReferencedById,
-                             @JsonProperty("expand") final String expand,
-                             @JsonProperty("aggregationQueries") final List<AggregationQueryJson> aggregationQueries, //
-                             @JsonProperty("queryFilters") final List<FilterJson> queryFilters )
+    public ContentQueryJson(@JsonProperty("queryExpr") final String queryExprString, //
+                            @JsonProperty("from") final Integer from, //
+                            @JsonProperty("size") final Integer size, //
+                            @JsonProperty("contentTypeNames") final List<String> contentTypeNameString,
+                            @JsonProperty("mustBeReferencedById") final String mustBeReferencedById,
+                            @JsonProperty("expand") final String expand,
+                            @JsonProperty("aggregationQueries") final List<AggregationQueryJson> aggregationQueries, //
+                            @JsonProperty("queryFilters") final List<FilterJson> queryFilters,
+                            @JsonProperty("query") final Map<String, Object> query,
+                            @JsonProperty("querySort") final List<Map<String, Object>> querySort
+                            )
     {
 
         this.queryExprString = queryExprString;
@@ -46,7 +54,8 @@ public class ContentQueryJson
         this.mustBeReferencedById = mustBeReferencedById != null ? ContentId.from( mustBeReferencedById ) : null;
         this.aggregationQueries = aggregationQueries;
         this.queryFilters = queryFilters;
-
+        this.query = query;
+        this.querySort = querySort;
         this.expand = expand != null ? expand : "none";
     }
 
@@ -97,4 +106,17 @@ public class ContentQueryJson
     {
         return expand;
     }
+
+    @JsonIgnore
+    public Map<String, Object> getQuery()
+    {
+        return query;
+    }
+
+    @JsonIgnore
+    public List<Map<String, Object>> getQuerySort()
+    {
+        return querySort;
+    }
+
 }

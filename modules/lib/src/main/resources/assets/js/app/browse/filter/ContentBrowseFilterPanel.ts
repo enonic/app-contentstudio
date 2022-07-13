@@ -219,7 +219,7 @@ export class ContentBrowseFilterPanel
 
     private getAggregations(): Q.Promise<AggregationsQueryResult> {
         this.aggregationsFetcher.setSearchInputValues(this.getSearchInputValues());
-        this.aggregationsFetcher.setConstraintItemsIds(this.hasConstraint() ? this.getSelectionItems() : null);
+        this.aggregationsFetcher.setConstraintItemsIds(this.hasConstraint() ? this.getSelectionItems().slice() : null);
         this.aggregationsFetcher.setDependency(this.getDependency());
 
         return this.aggregationsFetcher.getAggregations();
