@@ -53,8 +53,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
     }
 
     getParams(): Object {
-
-        let queryExprAsString = this.contentQuery.getQueryExpr() ? this.contentQuery.getQueryExpr().toString() : '';
+        const queryExprAsString: string = this.contentQuery.getQueryExpr()?.toString();
 
         return {
             queryExpr: queryExprAsString,
@@ -64,7 +63,9 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
             mustBeReferencedById: this.getMustBereferencedById(),
             expand: this.expandAsString(),
             aggregationQueries: this.aggregationQueriesToJson(this.contentQuery.getAggregationQueries()),
-            queryFilters: this.queryFiltersToJson(this.contentQuery.getQueryFilters())
+            queryFilters: this.queryFiltersToJson(this.contentQuery.getQueryFilters()),
+            query: this.contentQuery.getQuery(),
+            querySort: this.contentQuery.getQuerySort()
         };
     }
 

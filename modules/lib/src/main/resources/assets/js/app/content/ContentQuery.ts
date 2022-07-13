@@ -19,6 +19,10 @@ export class ContentQuery
 
     private mustBeReferencedById: ContentId;
 
+    private query: Object;
+
+    private querySort: Object[];
+
     private aggregationQueries: AggregationQuery[] = [];
 
     private queryFilters: Filter[] = [];
@@ -52,6 +56,24 @@ export class ContentQuery
 
     getMustBeReferencedById(): ContentId {
         return this.mustBeReferencedById;
+    }
+
+    setQuery(value: Object): ContentQuery {
+        this.query = value;
+        return this;
+    }
+
+    getQuery(): Object {
+        return this.query;
+    }
+
+    setQuerySort(value: Object[]): ContentQuery {
+        this.querySort = value;
+        return this;
+    }
+
+    getQuerySort(): Object[] {
+        return this.querySort;
     }
 
     setFrom(from: number): ContentQuery {
@@ -115,6 +137,14 @@ export class ContentQuery
             return false;
         }
 
+        if (!ObjectHelper.stringEquals(JSON.stringify(this.query), JSON.stringify(other.query))) {
+            return false;
+        }
+
+        if (!ObjectHelper.stringEquals(JSON.stringify(this.querySort), JSON.stringify(other.querySort))) {
+            return false;
+        }
+
         if (!ObjectHelper.arrayEquals(this.contentTypeNames, other.contentTypeNames)) {
             return false;
         }
@@ -126,6 +156,7 @@ export class ContentQuery
         if (!ObjectHelper.anyArrayEquals(this.queryFilters, other.queryFilters)) {
             return false;
         }
+
         if (!ObjectHelper.equals(this.mustBeReferencedById, other.mustBeReferencedById)) {
             return false;
         }
