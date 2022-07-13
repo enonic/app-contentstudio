@@ -423,13 +423,18 @@ export class LinkModalDialog
 
         const anchorInput: TextInput = <TextInput>this.anchorFormItem.getInput();
 
-        anchorInput.onShown(() => hideAnchorFormButton.show());
-        anchorInput.onHidden(() => hideAnchorFormButton.hide());
+        anchorInput.onShown(() => {
+            this.anchorFormItem.setValidator(Validators.required);
+            hideAnchorFormButton.show();
+        });
+        anchorInput.onHidden(() => {
+            this.anchorFormItem.setValidator(LinkModalDialog.validationAlwaysValid);
+            this.anchorFormItem.validate(new ValidationResult(), true);
+            hideAnchorFormButton.hide();
+        });
         anchorInput.hide();
 
         hideAnchorFormButton.onClicked(() => {
-            this.anchorFormItem.setValidator(LinkModalDialog.validationAlwaysValid);
-            this.anchorFormItem.validate(new ValidationResult(), true);
             anchorInput.setValue('');
             anchorInput.hide();
             addButton.show();
