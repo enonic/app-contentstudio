@@ -822,12 +822,15 @@ export class ItemView
         return this.getEl().hasAttribute('data-live-edit-selected');
     }
 
-    select(config: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
+    select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
 
         Highlighter.get().hide();
         this.selectItem();
-        this.showContextMenu(config.position, menuPosition);
-        new ItemViewSelectedEvent(config).fire();
+        this.showContextMenu(config?.position, menuPosition);
+
+        if (config) {
+            new ItemViewSelectedEvent(config).fire();
+        }
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {
