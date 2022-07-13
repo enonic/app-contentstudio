@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableList;
+
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.AggregationQueryJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentQueryJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.filter.FilterJson;
@@ -138,6 +140,11 @@ public class ContentQueryJsonToContentQueryConverter
 
     private List<OrderExpr> createDslSortExpr()
     {
+        if ( contentQueryJson.getQuerySort() == null )
+        {
+            return ImmutableList.of();
+        }
+
         return contentQueryJson.getQuerySort().stream()
             .map( expr -> DslOrderExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( expr ) ) ) )
             .collect( Collectors.toList() );

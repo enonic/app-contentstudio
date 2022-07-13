@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,8 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.data.PropertyTree;
+import com.enonic.xp.query.expr.DslExpr;
+import com.enonic.xp.query.expr.DslOrderExpr;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.security.PrincipalKey;
@@ -26,6 +29,7 @@ import com.enonic.xp.util.Reference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContentQueryJsonToContentQueryConverterTest
 {
@@ -155,6 +159,47 @@ public class ContentQueryJsonToContentQueryConverterTest
         assertEquals( "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') " +
                           "OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) ORDER BY _modifiedtime DESC",
                       contentQuery.getQueryExpr().toString() );
+    }
+
+    @Test
+    public void testFilterQuery()
+    {
+        final Map<String, Object> dslQueryMap = new HashMap<>();
+        dslQueryMap.put( "matchAll", new Object() );
+
+        final List<Map<String, Object>> sortQueryList = new ArrayList<>();
+        final Map<String, Object> dslSortQueryMap = new HashMap<>();
+        dslSortQueryMap.put( "field", "_score" );
+        sortQueryList.add( dslSortQueryMap );
+
+        ContentQueryJson contentQueryJson =
+            new ContentQueryJson( null, 0, 100, new ArrayList<>(), null, "summary", null, null, dslQueryMap, sortQueryList );
+
+        ContentQueryJsonToContentQueryConverter processor =
+            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
+
+        final ContentQuery contentQuery = processor.createQuery();
+
+        assertTrue( contentQuery.getQueryExpr().getConstraint() instanceof DslExpr );
+        assertTrue( contentQuery.getQueryExpr().getOrderList().size() > 0 &&
+                        contentQuery.getQueryExpr().getOrderList().stream().allMatch( orderExpr -> orderExpr instanceof DslOrderExpr ) );
+    }
+
+    @Test
+    public void testFilterQueryNoSort()
+    {
+        final Map<String, Object> dslQueryMap = new HashMap<>();
+        dslQueryMap.put( "matchAll", new Object() );
+
+        ContentQueryJson contentQueryJson =
+            new ContentQueryJson( null, 0, 100, new ArrayList<>(), null, "summary", null, null, dslQueryMap, null );
+
+        ContentQueryJsonToContentQueryConverter processor =
+            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService( contentService ).build();
+
+        final ContentQuery contentQuery = processor.createQuery();
+
+        assertTrue( contentQuery.getQueryExpr().getOrderList().isEmpty() );
     }
 
     private Content createContent( final String id, final PropertyTree data, final ContentTypeName contentTypeName )
