@@ -165,7 +165,7 @@ export class CompareContentVersionsDialog
     createVersionRevertButton(dropdown: Dropdown<ContentVersion>): Button {
         const revertAction: Action = new Action(i18n('field.version.revert')).onExecuted(() => {
             const version: ContentVersion = dropdown.getSelectedOption().getDisplayValue();
-            this.revertVersionCallback(version.getId(), version.getModified(), this.activeVersionId);
+            this.revertVersionCallback(version.getId(), version.getTimestamp(), this.activeVersionId);
         });
         revertAction.setTitle(i18n('field.version.makeCurrent'));
 
@@ -327,7 +327,7 @@ export class CompareContentVersionsDialog
 
                 const options: Option<ContentVersion>[] = [];
                 const versions = contentVersions.getContentVersions().sort((v1: ContentVersion, v2: ContentVersion) => {
-                    return v2.getModified().getTime() - v1.getModified().getTime();
+                    return v2.getTimestamp().getTime() - v1.getTimestamp().getTime();
                 });
                 for (let i = 0; i < versions.length; i++) {
                     const version = versions[i];
@@ -347,7 +347,7 @@ export class CompareContentVersionsDialog
                     this.rightVersionId = newestVersionOption.getDisplayValue().getId();
                 }
 
-                const leftAliases = this.createAliases(options, newestVersionOption.getDisplayValue().getModified().getTime());
+                const leftAliases = this.createAliases(options, newestVersionOption.getDisplayValue().getTimestamp().getTime());
                 const rightAliases = this.createAliases(options);
 
                 this.leftDropdown.setOptions(leftAliases.concat(options).sort(this.optionSorter.bind(this)));
@@ -377,7 +377,7 @@ export class CompareContentVersionsDialog
 
         let aliasFound;
         this.createAliases(dropdown.getOptions(),
-            isLeft ? selectedOption.getDisplayValue().getModified().getTime() : null).forEach(alias => {
+            isLeft ? selectedOption.getDisplayValue().getTimestamp().getTime() : null).forEach(alias => {
             dropdown.addOption(alias);
             if (alias.getDisplayValue().getAliasType() === selectedAliasType) {
                 aliasFound = true;
@@ -406,7 +406,7 @@ export class CompareContentVersionsDialog
         let newest = opts.find(opt => opt.getDisplayValue().getAliasType() === AliasType.NEWEST);
         if (!newest) {
             opts.forEach(opt => {
-                if (!newest || opt.getDisplayValue().getModified() > newest.getDisplayValue().getModified()) {
+                if (!newest || opt.getDisplayValue().getTimestamp() > newest.getDisplayValue().getTimestamp()) {
                     newest = opt;
                 }
             });
@@ -418,7 +418,7 @@ export class CompareContentVersionsDialog
     private getNewestPublishedVersion(options: Option<ContentVersion>[], maxDateTime: number): ContentVersion {
         return options
             .map(option => option.getDisplayValue())
-            .filter((version: ContentVersion) => version.isPublished() && (!maxDateTime || version.getModified().getTime() <= maxDateTime))
+            .filter((version: ContentVersion) => version.isPublished() && (!maxDateTime || version.getTimestamp().getTime() <= maxDateTime))
             .sort((v1, v2) => v2.getPublishInfo().getTimestamp().getTime() - v1.getPublishInfo().getTimestamp().getTime())[0];
 
     }
@@ -426,7 +426,7 @@ export class CompareContentVersionsDialog
     private getNewestVersion(options: Option<ContentVersion>[]): ContentVersion {
         return options
             .map(option => option.getDisplayValue())
-            .sort((v1, v2) => v2.getModified().getTime() - v1.getModified().getTime())[0];
+            .sort((v1, v2) => v2.getTimestamp().getTime() - v1.getTimestamp().getTime())[0];
     }
 
     private getVersionIndexInOptions(options: Option<ContentVersion>[], versionId: string) {
@@ -541,12 +541,12 @@ export class CompareContentVersionsDialog
             return aVal.getAliasType() - bVal.getAliasType();
         }
 
-        return bVal.getModified().getTime() - aVal.getModified().getTime();
+        return bVal.getTimestamp().getTime() - aVal.getTimestamp().getTime();
     }
 
     private leftVersionRequiresForcedSelection() {
-        const leftTime = this.leftDropdown.getSelectedOption().getDisplayValue().getModified();
-        const rightTime = this.rightDropdown.getSelectedOption().getDisplayValue().getModified();
+        const leftTime = this.leftDropdown.getSelectedOption().getDisplayValue().getTimestamp();
+        const rightTime = this.rightDropdown.getSelectedOption().getDisplayValue().getTimestamp();
 
         return leftTime.getTime() > rightTime.getTime();
     }
