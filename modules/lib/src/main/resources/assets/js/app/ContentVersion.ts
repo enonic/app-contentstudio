@@ -3,6 +3,7 @@ import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {Workflow} from './content/Workflow';
 import {WorkflowState} from './content/WorkflowState';
+import {ChildOrder} from './resource/order/ChildOrder';
 
 export class ContentVersion
     implements Cloneable {
@@ -14,6 +15,10 @@ export class ContentVersion
     private displayName: string;
 
     private modified: Date;
+
+    private childOrder: ChildOrder;
+
+    private timestamp: Date;
 
     private comment: string;
 
@@ -33,6 +38,8 @@ export class ContentVersion
         this.modifier = builder.modifier;
         this.displayName = builder.displayName;
         this.modified = builder.modified;
+        this.childOrder = builder.childOrder;
+        this.timestamp = builder.timestamp;
         this.modifierDisplayName = builder.modifierDisplayName;
         this.comment = builder.comment;
         this.id = builder.id;
@@ -41,7 +48,7 @@ export class ContentVersion
         this.workflowInfo = builder.workflowInfo;
 
         if (this.publishInfo && this.publishInfo.getPublishedFrom()) {
-            if (ContentVersion.equalDates(this.publishInfo.getPublishedFrom(), this.publishInfo.getTimestamp())) {
+            if (ContentVersion.equalDates(this.publishInfo.getPublishedFrom(), this.publishInfo.getTimestamp(), 500)) {
                 // Version date/time and publishFrom on the server might be off by several milliseconds, in this case make them equal
                 this.publishInfo.setPublishedFrom(this.publishInfo.getTimestamp());
             }
@@ -52,8 +59,8 @@ export class ContentVersion
         return new ContentVersionBuilder().fromJson(contentVersionJson, workspaces).build();
     }
 
-    static equalDates(date1: Date, date2: Date): boolean {
-        return Math.abs(Number(date1) - Number(date2)) < 500; // Allow 500 ms difference
+    static equalDates(date1: Date, date2: Date, delta: number): boolean {
+        return Math.abs(Number(date1) - Number(date2)) < delta; // Allow 500 ms difference
     }
 
     getModifier(): string {
@@ -84,11 +91,19 @@ export class ContentVersion
             return publishInfo.getTimestamp();
         }
 
-        return this.getModified();
+        return this.getTimestamp();
     }
 
     getModified(): Date {
         return this.modified;
+    }
+
+    getChildOrder(): ChildOrder {
+        return this.childOrder;
+    }
+
+    getTimestamp(): Date {
+        return this.timestamp;
     }
 
     getComment(): string {
@@ -194,6 +209,10 @@ export class ContentVersionBuilder {
 
     modified: Date;
 
+    childOrder: ChildOrder;
+
+    timestamp: Date;
+
     comment: string;
 
     id: string;
@@ -210,6 +229,8 @@ export class ContentVersionBuilder {
             this.modifierDisplayName = source.getModifierDisplayName();
             this.displayName = source.getDisplayName();
             this.modified = !!source.getModified() ? new Date(source.getModified().getTime()) : null;
+            this.childOrder = source.getChildOrder();
+            this.timestamp = !!source.getTimestamp() ? new Date(source.getTimestamp().getTime()) : null;
             this.comment = source.getComment();
             this.id = source.getId();
             this.workspaces = source.getWorkspaces().slice();
@@ -222,6 +243,8 @@ export class ContentVersionBuilder {
         this.modifier = contentVersionJson.modifier;
         this.displayName = contentVersionJson.displayName;
         this.modified = !!contentVersionJson.modified ? new Date(contentVersionJson.modified) : null;
+        this.childOrder = ChildOrder.fromJson(contentVersionJson.childOrder);
+        this.timestamp = !!contentVersionJson.timestamp ? new Date(contentVersionJson.timestamp) : null;
         this.modifierDisplayName = contentVersionJson.modifierDisplayName;
         this.comment = contentVersionJson.comment;
         this.id = contentVersionJson.id;

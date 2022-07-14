@@ -2,6 +2,7 @@ import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersionPublishInfo} from '../../../../ContentVersionPublishInfo';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ChildOrder} from '../../../../resource/order/ChildOrder';
 
 export enum VersionItemStatus {
     PUBLISHED = 'published',
@@ -11,7 +12,15 @@ export enum VersionItemStatus {
     RESTORED = 'restored',
     CREATED = 'created',
     MARKED_AS_READY = 'markedAsReady',
-    EDITED = 'edited'
+    EDITED = 'edited',
+    SORTED = 'sorted',
+    PERMISSIONS = 'permissions'
+}
+
+export interface CreateParams {
+    createdDate?: Date;
+    isSort?: boolean;
+    isPermissionChange?: boolean;
 }
 
 export class VersionHistoryItem {
@@ -73,17 +82,23 @@ export class VersionHistoryItem {
         return item;
     }
 
-    static fromContentVersion(contentVersion: ContentVersion, createdDate: Date): VersionHistoryItem {
+    static fromContentVersion(contentVersion: ContentVersion, createParams: CreateParams): VersionHistoryItem {
         const item: VersionHistoryItem = new VersionHistoryItem();
 
         item.id = contentVersion.getId();
         item.revertable = !contentVersion.isActive();
-        item.dateTime = createdDate || contentVersion.getModified();
+        item.dateTime = createParams.createdDate || contentVersion.getTimestamp();
         item.user = contentVersion.getModifierDisplayName() || contentVersion.getModifier();
 
-        if (!!createdDate) {
+        if (createParams.createdDate) {
             item.iconCls = 'icon-wand';
             item.status = VersionItemStatus.CREATED;
+        } else if (createParams.isSort) {
+            item.iconCls = 'icon-sort-amount-asc';
+            item.status = VersionItemStatus.SORTED;
+        } else if (createParams.isPermissionChange) {
+            item.iconCls = 'icon-masks';
+            item.status = VersionItemStatus.PERMISSIONS;
         } else if (contentVersion.isInReadyState()) {
             item.iconCls = 'icon-state-ready';
             item.status = VersionItemStatus.MARKED_AS_READY;
@@ -185,5 +200,13 @@ export class VersionHistoryItem {
 
     isArchived(): boolean {
         return this.status === VersionItemStatus.ARCHIVED;
+    }
+
+    isSorted(): boolean {
+        return this.status === VersionItemStatus.SORTED;
+    }
+
+    isPermissionsUpdated(): boolean {
+        return this.status === VersionItemStatus.PERMISSIONS;
     }
 }
