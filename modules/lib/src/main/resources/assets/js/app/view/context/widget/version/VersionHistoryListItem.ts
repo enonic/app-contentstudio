@@ -45,7 +45,7 @@ export class VersionHistoryListItem
 
         versionViewer.setObject(this.version);
 
-        if (!this.version.isActive() && !this.version.isPublishAction()) {
+        if (this.isCompareButtonRequired()) {
             const compareButton: ActionButton = this.createCompareButton();
             versionViewer.appendToNamesAndIconViewWrapper(compareButton);
         }
@@ -57,6 +57,13 @@ export class VersionHistoryListItem
         }
 
         return versionViewer;
+    }
+
+    private isCompareButtonRequired(): boolean {
+        return !this.version.isActive() &&
+               !this.version.isPublishAction() &&
+               !this.version.isSorted() &&
+               !this.version.isPermissionsUpdated();
     }
 
     private createTooltip() {

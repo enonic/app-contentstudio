@@ -3,6 +3,7 @@ package com.enonic.xp.app.contentstudio.json.content;
 import java.time.Instant;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
 import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.security.Principal;
 
@@ -17,6 +18,8 @@ public class ContentVersionJson
     private final Instant modified;
 
     private final Instant timestamp;
+
+    private final ChildOrderJson childOrder;
 
     private final String comment;
 
@@ -38,6 +41,7 @@ public class ContentVersionJson
         this.modifierDisplayName = modifier != null ? modifier.getDisplayName() : "";
         this.modifier = contentVersion.getModifier().toString();
         this.id = contentVersion.getId().toString();
+        this.childOrder = contentVersion.getChildOrder() != null ? new ChildOrderJson(contentVersion.getChildOrder()) : null;
         this.publishInfo = contentVersion.getPublishInfo() != null ? new ContentVersionPublishInfoJson( contentVersion.getPublishInfo(),
                                                                                                         principalsResolver ) : null;
 
@@ -79,6 +83,11 @@ public class ContentVersionJson
     public String getId()
     {
         return id;
+    }
+
+    public ChildOrderJson getChildOrder()
+    {
+        return childOrder;
     }
 
     @SuppressWarnings("UnusedDeclaration")
