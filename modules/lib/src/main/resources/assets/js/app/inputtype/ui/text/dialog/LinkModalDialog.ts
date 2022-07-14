@@ -356,16 +356,20 @@ export class LinkModalDialog
         return this.createFormItem(formItemBuilder);
     }
 
+    private isQueryParamsValid(): boolean {
+        const isValid = Array.from(this.paramsFormItem.getHTMLElement().getElementsByTagName('input'))
+            .filter((input: HTMLInputElement) => input.className.indexOf('params-key') >= 0)
+            .every((input: HTMLInputElement) => input.value.trim() !== '');
+
+        return isValid;
+    }
+
     private static validationAlwaysValid(): string {
         return undefined;
     }
 
     private validationQueryParams(): string {
-        const isValid = Array.from(this.paramsFormItem.getHTMLElement().getElementsByTagName('input'))
-            .filter((input: HTMLInputElement) => input.className.indexOf('params-key') >= 0)
-            .every((input: HTMLInputElement) => input.value.trim() !== '');
-
-        return !isValid ? i18n('dialog.link.queryparams.empty') : undefined;
+        return !this.isQueryParamsValid() ? i18n('dialog.link.queryparams.empty') : undefined;
     }
 
     private static validationRequiredEmail(input: FormInputEl): string {
@@ -464,12 +468,12 @@ export class LinkModalDialog
 
         addButton.onClicked(() => {
             this.paramsFormItem.removeChild(addButton);
-            this.createKeyValueFormItems();
+            this.createParamsFormItems();
             this.paramsFormItem.appendChild(addButton);
         });
 
         const keyValueMap: Map<string, string> = this.getKeyValueMapFromLink();
-        keyValueMap.forEach((value: string, key: string) => this.createKeyValueFormItems(key, value));
+        keyValueMap.forEach((value: string, key: string) => this.createParamsFormItems(key, value));
 
         this.paramsFormItem.appendChild(addButton);
 
@@ -633,40 +637,68 @@ export class LinkModalDialog
         return decodeURIComponent(queryString);
     }
 
-    private createKeyValueFormItems(initialKey: string = '', initialValue: string = ''): void {
-        const uniqueParamIdentifier: number = this.paramsFormIds.length
-            ? parseFloat(this.paramsFormIds[this.paramsFormIds.length - 1].keyId.split('-')[1]) + 1
-            : 0;
+    private getNewParamIdentifier(): number {
+        if (this.paramsFormIds.length === 0) {
+            return 0;
+        }
 
-        const keyFormItemId: string = `paramsKey-${uniqueParamIdentifier}`;
-        const keyFormItem: FormItem = this.createFormItemWithPostponedValue(keyFormItemId, '', () => initialKey, null,
-            i18n('dialog.link.parameters.name'));
-        keyFormItem.getInput().addClass('params-key');
+        const lastParamsFormIdsElement: FormParam = this.paramsFormIds[this.paramsFormIds.length - 1];
+        const lastKeyIdNumber: number = parseFloat(lastParamsFormIdsElement.keyId.split('-')[1]);
+        const nextParamIdentifier = lastKeyIdNumber + 1;
 
-        const valueFormItemId: string = `paramsValue-${uniqueParamIdentifier}`;
-        const valueFormItem: FormItem = this.createFormItemWithPostponedValue(valueFormItemId, '', () => initialValue, null,
-            i18n('dialog.link.parameters.value'));
+        return nextParamIdentifier + 1;
+    }
 
+    private createParamKeyFormItem(initialKey: string): [FormItem, string] {
+        const id: string = `paramsKey-${this.getNewParamIdentifier()}`;
+        const label: string = i18n('dialog.link.parameters.name');
+        const formItem: FormItem = this.createFormItemWithPostponedValue(id, '', () => initialKey, null, label);
+        formItem.getInput().addClass('params-key');
+
+        (<TextInput>formItem.getInput()).onValueChanged(() => {
+            if (this.isQueryParamsValid()) {
+                this.paramsFormItem.validate(new ValidationResult(), true);
+            }
+        });
+
+        return [formItem, id];
+    }
+
+    private createParamValueFormItem(initialValue: string): [FormItem, string] {
+        const id: string = `paramsValue-${this.getNewParamIdentifier()}`;
+        const label: string = i18n('dialog.link.parameters.value');
+        const formItem: FormItem = this.createFormItemWithPostponedValue(id, '', () => initialValue, null, label);
+
+        return [formItem, id];
+    }
+
+    private createRemoveButtonForParams(keyFormItemId: string, valueFormItemId: string, divParamsWrapper: DivEl): Button {
         const removeButton: Button = this.createRemoveButton();
-
-        const divWrapper: DivEl = new DivEl('params-wrapper')
-            .appendChild(keyFormItem)
-            .appendChild(valueFormItem)
-            .appendChild(removeButton);
-        this.paramsFormItem.appendChild(divWrapper);
-
-        this.paramsFormIds.push({keyId: keyFormItemId, valueId: valueFormItemId});
-
-        keyFormItem.getInput().giveFocus();
 
         removeButton.onClicked(() => {
             this.paramsFormIds = this.paramsFormIds.filter(
                 (formParam: FormParam) => formParam.keyId !== keyFormItemId && formParam.valueId !== valueFormItemId);
             this.removeFieldById(keyFormItemId);
             this.removeFieldById(valueFormItemId);
-            this.paramsFormItem.removeChild(divWrapper);
+            this.paramsFormItem.removeChild(divParamsWrapper);
             this.paramsFormItem.validate(new ValidationResult(), true);
         });
+
+        return removeButton;
+    }
+
+    private createParamsFormItems(initialKey: string = '', initialValue: string = ''): void {
+        const divWrapper: DivEl = new DivEl('params-wrapper');
+
+        const [keyFormItem, keyFormItemId]: [FormItem, string] = this.createParamKeyFormItem(initialKey);
+        const [valueFormItem, valueFormItemId]: [FormItem, string] = this.createParamValueFormItem(initialValue);
+        const removeButton: Button = this.createRemoveButtonForParams(keyFormItemId, valueFormItemId, divWrapper);
+
+        divWrapper.appendChildren<FormItem | Button>(keyFormItem, valueFormItem, removeButton);
+        this.paramsFormIds.push({keyId: keyFormItemId, valueId: valueFormItemId});
+        this.paramsFormItem.appendChild(divWrapper);
+
+        keyFormItem.getInput().giveFocus();
     }
 
     private createRemoveButton(): Button {
