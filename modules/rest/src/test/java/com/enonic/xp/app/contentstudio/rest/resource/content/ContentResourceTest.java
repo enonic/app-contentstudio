@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
@@ -2176,6 +2177,7 @@ public class ContentResourceTest
             .id( ContentVersionId.from( "a" ) )
             .modified( Instant.now() )
             .modifier( PrincipalKey.ofAnonymous() )
+            .childOrder( ChildOrder.manualOrder() )
             .publishInfo( ContentVersionPublishInfo.create()
                               .message( "My version 1" )
                               .publisher( PrincipalKey.ofAnonymous() )
@@ -2192,6 +2194,7 @@ public class ContentResourceTest
             .id( ContentVersionId.from( "b" ) )
             .modified( contentVersion1.getModified() )
             .modifier( PrincipalKey.ofAnonymous() )
+            .childOrder( ChildOrder.manualOrder() )
             .publishInfo( ContentVersionPublishInfo.create()
                               .message( "My version 2" )
                               .publisher( PrincipalKey.ofAnonymous() )
@@ -2758,6 +2761,7 @@ public class ContentResourceTest
 
     private void assertContentVersionJsonsEquality( final ContentVersionJson first, final ContentVersionJson second )
     {
+        Assertions.assertThat( first ).usingRecursiveComparison().isEqualTo( second );
         assertEquals( first.getModifier(), second.getModifier() );
         assertEquals( first.getTimestamp(), second.getTimestamp() );
         assertEquals( first.getDisplayName(), second.getDisplayName() );
