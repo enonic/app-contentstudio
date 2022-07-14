@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {ContentVersion} from '../../../../ContentVersion';
@@ -11,6 +10,7 @@ import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummary
 import {VersionHistoryListItem} from './VersionHistoryListItem';
 import {VersionHistoryItem} from './VersionHistoryItem';
 import {ContentId} from '../../../../content/ContentId';
+import {ContentVersionsConverter} from './ContentVersionsConverter';
 
 interface VersionDate {
     [date: number]: string;
@@ -21,7 +21,6 @@ export class VersionHistoryList
 
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
-    private versionDates: VersionDate;
     private activeVersionId: string;
 
     constructor() {
@@ -45,64 +44,6 @@ export class VersionHistoryList
             this.updateView(contentVersions);
             this.notifyLoaded();
         }).catch(DefaultErrorHandler.handle);
-    }
-
-    private isRepublished(contentVersions: ContentVersion[], version: ContentVersion, index: number) {
-        if (!version.isPublished()) {
-            return false;
-        }
-        const publishedFrom = DateHelper.formatDateTime(version.getPublishInfo().getPublishedFrom());
-        return contentVersions.some((v: ContentVersion, i: number) => {
-            if (i <= index || !v.isPublished()) {
-                return false;
-            }
-            const vPublishedFrom = DateHelper.formatDateTime(v.getPublishInfo().getPublishedFrom());
-            return publishedFrom === vPublishedFrom;
-        });
-    }
-
-    private versionsToHistoryItems(contentVersions: ContentVersion[]): VersionHistoryItem[] {
-        const versionHistoryItems: VersionHistoryItem[] = [];
-        let lastDate: string = null;
-        const lastIndex = contentVersions.length - 1;
-
-        contentVersions
-            .sort((v1: ContentVersion, v2: ContentVersion) => {
-                return Number(v2.getDisplayDate()) - Number(v1.getDisplayDate());
-            })
-            .forEach((version: ContentVersion, index) => {
-                const displayDate = version.getDisplayDate();
-                const skipDuplicateVersion: boolean = this.versionDates[Number(version.getModified())] !== version.getId();
-
-                if (version.hasPublishInfo()) {
-                    const publishInfo = version.getPublishInfo();
-                    const publishDateAsString: string = DateHelper.formatDate(displayDate);
-                    versionHistoryItems.push(
-                        VersionHistoryItem.fromPublishInfo(publishInfo)
-                            .setSkipDate(publishDateAsString === lastDate)
-                            .setRepublished(this.isRepublished(contentVersions, version, index))
-                    );
-                    lastDate = publishDateAsString;
-                }
-
-                if (!skipDuplicateVersion) {
-                    const isFirstVersion: boolean = index === lastIndex;
-                    const modifiedDate: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getModified();
-                    const modifiedDateAsString: string = DateHelper.formatDate(modifiedDate);
-
-                    if (!version.isUnpublished()) {
-                        versionHistoryItems.push(
-                            VersionHistoryItem.fromContentVersion(version, isFirstVersion ? modifiedDate : null)
-                                .setSkipDate(modifiedDateAsString === lastDate)
-                                .setActiveVersionId(this.activeVersionId)
-                        );
-                    }
-
-                    lastDate = modifiedDateAsString;
-                }
-            });
-
-        return versionHistoryItems;
     }
 
     createItemView(version: VersionHistoryItem): Element {
@@ -134,21 +75,32 @@ export class VersionHistoryList
             throw new Error('Required contentId not set for ActiveContentVersionsTreeGrid');
         }
 
-        this.versionDates = {};
         return new GetContentVersionsRequest(this.getContentId()).sendAndParse().then((contentVersions: ContentVersions) => {
-            contentVersions.getContentVersions().forEach((version: ContentVersion, index: number) => {
-                this.versionDates[Number(version.getModified())] = version.getId();
+            contentVersions.getContentVersions().some((version: ContentVersion) => {
                 if (version.isActive()) {
                     this.activeVersionId = version.getId();
+                    return true;
                 }
+
+                return false;
             });
+
             return contentVersions.getContentVersions();
         });
     }
 
     private updateView(contentVersions: ContentVersion[]) {
         this.clearItems();
-        this.setItems(this.versionsToHistoryItems(contentVersions));
+        this.setItems(this.convertVersionsToHistoryItems(contentVersions));
+    }
+
+    private convertVersionsToHistoryItems(contentVersions: ContentVersion[]): VersionHistoryItem[] {
+        return ContentVersionsConverter.create()
+            .setContent(this.content)
+            .setContentVersions(contentVersions.slice())
+            .setActiveVersionId(this.activeVersionId)
+            .build()
+            .toVersionHistoryItems();
     }
 
 }
