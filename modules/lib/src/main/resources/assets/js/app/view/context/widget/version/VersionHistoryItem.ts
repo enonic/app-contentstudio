@@ -41,8 +41,6 @@ export class VersionHistoryItem {
 
     private message: string;
 
-    private revertable: boolean;
-
     private skipDate: boolean = false;
 
     private activeVersionId: string;
@@ -52,7 +50,6 @@ export class VersionHistoryItem {
     static fromPublishInfo(publishInfo: ContentVersionPublishInfo): VersionHistoryItem {
         const item: VersionHistoryItem = new VersionHistoryItem();
 
-        item.revertable = false;
         item.dateTime = publishInfo.getTimestamp();
         item.user = publishInfo.getPublisherDisplayName() || publishInfo.getPublisher();
 
@@ -86,7 +83,6 @@ export class VersionHistoryItem {
         const item: VersionHistoryItem = new VersionHistoryItem();
 
         item.id = contentVersion.getId();
-        item.revertable = !contentVersion.isActive();
         item.dateTime = createParams.createdDate || contentVersion.getTimestamp();
         item.user = contentVersion.getModifierDisplayName() || contentVersion.getModifier();
 
@@ -182,12 +178,8 @@ export class VersionHistoryItem {
         return this.message ? this.message.trim() : undefined;
     }
 
-    isRevertable(): boolean {
-        return this.revertable;
-    }
-
     isActive(): boolean {
-        return this.activeVersionId === this.id;
+        return this.activeVersionId && this.activeVersionId === this.id;
     }
 
     skipsDate(): boolean {

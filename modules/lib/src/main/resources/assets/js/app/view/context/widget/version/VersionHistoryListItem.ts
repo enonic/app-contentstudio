@@ -33,11 +33,9 @@ export class VersionHistoryListItem
     private createVersionViewer(): VersionHistoryListItemViewer {
         const versionViewer: VersionHistoryListItemViewer = new VersionHistoryListItemViewer();
 
-        if (this.version.isRevertable() || this.version.isActive()) {
+        if (this.isInteractableItem()) {
             this.addOnClickHandler(versionViewer);
-        }
 
-        if (this.version.isRevertable()) {
             ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
                 this.version.setActiveVersionId(event.getVersionId());
             });
@@ -56,14 +54,21 @@ export class VersionHistoryListItem
             versionViewer.appendChild(messageBlock);
         }
 
+        versionViewer.toggleClass('interactable', this.isInteractableItem());
+
         return versionViewer;
     }
 
     private isCompareButtonRequired(): boolean {
-        return !this.version.isActive() &&
-               !this.version.isPublishAction() &&
+        return !this.version.isActive() && this.isInteractableItem();
+    }
+
+    private isInteractableItem(): boolean {
+        return !this.version.isPublishAction() &&
                !this.version.isSorted() &&
-               !this.version.isPermissionsUpdated();
+               !this.version.isPermissionsUpdated() &&
+               !this.version.isRestored() &&
+               !this.version.isArchived();
     }
 
     private createTooltip() {
