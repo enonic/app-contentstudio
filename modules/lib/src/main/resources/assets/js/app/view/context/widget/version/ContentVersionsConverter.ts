@@ -28,7 +28,7 @@ export class ContentVersionsConverter {
     private sortByDate(): void {
         this.contentVersions.sort((v1: ContentVersion, v2: ContentVersion) => {
             return Number(v2.getDisplayDate()) - Number(v1.getDisplayDate());
-        })
+        });
     }
 
     private convert(): VersionHistoryItem[] {
@@ -48,7 +48,7 @@ export class ContentVersionsConverter {
         const publishDateAsString: string = DateHelper.formatDate(version.getDisplayDate());
         const item: VersionHistoryItem = VersionHistoryItem.fromPublishInfo(publishInfo)
             .setSkipDate(publishDateAsString === this.lastDate)
-            .setRepublished(this.isRepublished(this.contentVersions, version, index))
+            .setRepublished(this.isRepublished(this.contentVersions, version, index));
 
         this.lastDate = publishDateAsString;
 
@@ -76,7 +76,7 @@ export class ContentVersionsConverter {
         const timestampAsString: string = this.getVersionTimestampAsString(version, index);
         const item: VersionHistoryItem = VersionHistoryItem.fromContentVersion(version, this.createHistoryItemsParams(version, index))
             .setSkipDate(timestampAsString === this.lastDate)
-            .setActiveVersionId(this.activeVersionId)
+            .setActiveVersionId(this.activeVersionId);
 
         this.lastDate = timestampAsString;
 
@@ -109,7 +109,7 @@ export class ContentVersionsConverter {
             isPermissionChange: isPermissionChange
         };
 
-        return createParams
+        return createParams;
     }
 
     static create(): Builder {
