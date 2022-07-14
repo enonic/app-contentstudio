@@ -80,6 +80,8 @@ export class LinkModalDialog
     private textFormItem: FormItem;
     private toolTipFormItem: FormItem;
     private mediaOptionRadioFormItem: FormItem;
+    private contentTargetCheckBoxFormItem: FormItem;
+    private urlTargetCheckboxFormItem: FormItem;
     private anchorFormItem: FormItem;
     private paramsFormItem: FormItem;
     private protocolsDropdownButton: MenuButton;
@@ -278,7 +280,7 @@ export class LinkModalDialog
                 this.createSelector(getContentId, this.createContentSelectorBuilder()),
                 true),
             this.createMediaOptionRadio('contentMediaRadio'),
-            this.createTargetCheckbox('contentTarget', this.isContentLink),
+            this.createContentTargetCheckboxFormItem('contentTarget', this.isContentLink),
             this.createFragmentOption('contentFragment', i18n('dialog.link.fragment')),
             this.createParamsOptions('contentParams', i18n('dialog.link.parameters')),
         ]);
@@ -297,7 +299,7 @@ export class LinkModalDialog
 
         const urlPanel = this.createFormPanel([
             urlFormItem,
-            this.createTargetCheckbox('urlTarget', this.isUrl, true)
+            this.createUrlTargetCheckboxFormItem('urlTarget', this.isUrl, true)
         ]);
 
         urlPanel.onRendered(() => urlInput.forceChangedEvent());
@@ -392,17 +394,39 @@ export class LinkModalDialog
         return isTabSelected ? this.getOriginalTargetElem().getValue() === '_blank' : false;
     }
 
-    private createTargetCheckbox(id: string, isTabSelectedFn: Function, showOnCreate: boolean = false): FormItem {
+    private createContentTargetCheckboxFormItem(id: string, isTabSelectedFn: Function, showOnCreate: boolean = false): FormItem {
+        const checkbox = this.createCheckbox(isTabSelectedFn);
+
+        const formItemBuilder = new ModalDialogFormItemBuilder(id).setInputEl(checkbox);
+        this.contentTargetCheckBoxFormItem = this.createFormItem(formItemBuilder);
+
+        if (!showOnCreate) {
+            this.contentTargetCheckBoxFormItem.hide();
+        }
+
+        return this.contentTargetCheckBoxFormItem;
+    }
+
+    private createUrlTargetCheckboxFormItem(id: string, isTabSelectedFn: Function, showOnCreate: boolean = false): FormItem {
+        const checkbox = this.createCheckbox(isTabSelectedFn);
+
+        const formItemBuilder = new ModalDialogFormItemBuilder(id).setInputEl(checkbox);
+        this.urlTargetCheckboxFormItem = this.createFormItem(formItemBuilder);
+
+        if (!showOnCreate) {
+            this.urlTargetCheckboxFormItem.hide();
+        }
+
+        return this.urlTargetCheckboxFormItem;
+    }
+
+    private createCheckbox(isTabSelectedFn: Function): Checkbox {
         const checkbox: Checkbox = Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
             InputAlignment.LEFT).build();
 
-        if (!showOnCreate) {
-            checkbox.hide();
-        }
-
         checkbox.setChecked(this.getTarget(isTabSelectedFn.call(this)));
 
-        return this.createFormItem(new ModalDialogFormItemBuilder(id).setInputEl(checkbox));
+        return checkbox;
     }
 
     private createHideButtonForFragment(addButton: Button): Button {
@@ -531,13 +555,16 @@ export class LinkModalDialog
         });
 
         mediaRadio.onValueChanged((event: ValueChangedEvent) => {
+            if (!this.mediaOptionRadioFormItem.isVisible()) {
+                return;
+            }
+
             const radioValue = event.getNewValue();
-            const checkbox = <Checkbox>this.getFieldById('contentTarget');
 
             if (radioValue === MediaContentRadioAction.LINK) {
-                checkbox.show();
+                this.contentTargetCheckBoxFormItem.show();
             } else {
-                checkbox.hide();
+                this.contentTargetCheckBoxFormItem.hide();
             }
         });
 
@@ -836,12 +863,11 @@ export class LinkModalDialog
 
     private handleSelectorValueChanged(selectedContent: ContentSummary, formItem: FormItem): void {
         const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
-        const checkbox: Checkbox = <Checkbox>this.getFieldById('contentTarget');
 
         if (!selectedContent) {
             formItem.setValidator(Validators.required);
             this.mediaOptionRadioFormItem.hide();
-            checkbox.hide();
+            this.contentTargetCheckBoxFormItem.hide();
             this.anchorFormItem.hide();
             this.paramsFormItem.hide();
             return;
@@ -852,11 +878,11 @@ export class LinkModalDialog
             this.anchorFormItem.hide();
             this.paramsFormItem.hide();
             if (mediaRadio.doGetValue() === MediaContentRadioAction.LINK) {
-                checkbox.show();
+                this.contentTargetCheckBoxFormItem.show();
             }
         } else {
             this.mediaOptionRadioFormItem.hide();
-            checkbox.show();
+            this.contentTargetCheckBoxFormItem.show();
             this.anchorFormItem.show();
             this.paramsFormItem.show();
         }
@@ -889,12 +915,11 @@ export class LinkModalDialog
 
         mediaUploader.onFileUploaded((event: UploadedEvent<Content>) => {
             const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
-            const checkbox: Checkbox = <Checkbox>this.getFieldById('contentTarget');
 
             this.mediaOptionRadioFormItem.show();
 
             if (mediaRadio.doGetValue() === MediaContentRadioAction.LINK) {
-                checkbox.show();
+                this.contentTargetCheckBoxFormItem.show();
             }
 
             const item: UploadItem<Content> = event.getUploadItem();
@@ -986,7 +1011,7 @@ export class LinkModalDialog
     }
 
     private getContentLinkTarget(): string {
-        const isOpenInNewTab: boolean = (<Checkbox>this.getFieldById('contentTarget')).isChecked();
+        const isOpenInNewTab: boolean = (<Checkbox>this.contentTargetCheckBoxFormItem.getInput()).isChecked();
         return isOpenInNewTab ? '_blank' : '';
     }
 
