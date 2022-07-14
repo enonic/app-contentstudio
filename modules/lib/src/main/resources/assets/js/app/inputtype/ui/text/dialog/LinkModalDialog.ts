@@ -405,53 +405,79 @@ export class LinkModalDialog
         return this.createFormItem(new ModalDialogFormItemBuilder(id).setInputEl(checkbox));
     }
 
-    private createFragmentOption(id: string, label: string): FormItem {
+    private createHideButtonForFragment(addButton: Button): Button {
+        const anchorInput: TextInput = <TextInput>this.anchorFormItem.getInput();
+        const hideButton: Button = this.createRemoveButton();
+
+        hideButton.onClicked(() => {
+            anchorInput.setValue('');
+            anchorInput.hide();
+            addButton.show();
+        });
+
+        return hideButton;
+    }
+
+    private createAddButtonForFragment(): Button {
+        const anchorInput: TextInput = <TextInput>this.anchorFormItem.getInput();
         const addButton: Button = new Button(i18n('action.add'));
-        const hideAnchorFormButton: Button = this.createRemoveButton();
 
-        const getFragment: Function = () => {
-            if (this.link.indexOf(LinkModalDialog.fragmentPrefix) === -1) {
-                return StringHelper.EMPTY_STRING;
-            }
+        addButton.onClicked(() => {
+            addButton.hide();
+            anchorInput.show();
+            anchorInput.giveFocus();
+        });
 
-            const fragmentUri: string =
-                this.link.slice(this.link.indexOf(LinkModalDialog.fragmentPrefix) + LinkModalDialog.fragmentPrefix.length);
+        return addButton;
+    }
 
-            return decodeURIComponent(fragmentUri);
-        };
-
-        this.anchorFormItem = this.createFormItemWithPostponedValue(id, label, getFragment, LinkModalDialog.validationAlwaysValid);
-        this.anchorFormItem.addClass('anchor-form-item');
-        this.anchorFormItem.prependChild(addButton);
-        this.anchorFormItem.appendChild(hideAnchorFormButton);
-
+    private initializeFragmentAnchorInputListeners(hideAnchorFormButton: Button): void {
         const anchorInput: TextInput = <TextInput>this.anchorFormItem.getInput();
 
         anchorInput.onShown(() => {
             this.anchorFormItem.setValidator(Validators.required);
             hideAnchorFormButton.show();
         });
+
+        anchorInput.onValueChanged(() => {
+            this.anchorFormItem.validate(new ValidationResult(), true);
+        });
+
         anchorInput.onHidden(() => {
             this.anchorFormItem.setValidator(LinkModalDialog.validationAlwaysValid);
             this.anchorFormItem.validate(new ValidationResult(), true);
             hideAnchorFormButton.hide();
         });
+    }
+
+    private getFragment() {
+        if (this.link.indexOf(LinkModalDialog.fragmentPrefix) === -1) {
+            return StringHelper.EMPTY_STRING;
+        }
+
+        const fragmentUri: string =
+            this.link.slice(this.link.indexOf(LinkModalDialog.fragmentPrefix) + LinkModalDialog.fragmentPrefix.length);
+
+        return decodeURIComponent(fragmentUri);
+    }
+
+    private createFragmentOption(id: string, label: string): FormItem {
+
+        this.anchorFormItem = this.createFormItemWithPostponedValue(id, label, this.getFragment, LinkModalDialog.validationAlwaysValid);
+        this.anchorFormItem.addClass('anchor-form-item');
+
+        const anchorInput = <TextInput>this.anchorFormItem.getInput();
         anchorInput.hide();
 
-        hideAnchorFormButton.onClicked(() => {
-            anchorInput.setValue('');
-            anchorInput.hide();
-            addButton.show();
-        });
+        const addButton: Button = this.createAddButtonForFragment();
+        this.anchorFormItem.prependChild(addButton);
 
-        addButton.onClicked(() => {
-            this.anchorFormItem.setValidator(Validators.required);
-            addButton.hide();
-            anchorInput.show();
-            anchorInput.giveFocus();
-        });
+        const hideAnchorFormButton: Button = this.createHideButtonForFragment(addButton);
+        this.anchorFormItem.appendChild(hideAnchorFormButton);
 
-        if (getFragment()) {
+        this.initializeFragmentAnchorInputListeners(hideAnchorFormButton);
+
+        if (this.getFragment()) {
             addButton.hide();
             anchorInput.show();
         }
@@ -798,14 +824,12 @@ export class LinkModalDialog
             return formItem;
         }
 
-        contentSelector.onLoaded((items: ContentTreeSelectorItem[]) => {
-            setTimeout(() => this.handleSelectorValueChanged(contentSelector.getSelectedContent(), formItem), 1);
-        });
+        const callHandleSelectorValueChanged = () => {
+            this.handleSelectorValueChanged(contentSelector.getSelectedContent(), formItem);
+        };
 
-        contentSelector.onValueChanged(() => {
-            const selectedContent: ContentSummary = contentSelector.getSelectedContent();
-            this.handleSelectorValueChanged(selectedContent, formItem);
-        });
+        contentSelector.onValueLoaded(callHandleSelectorValueChanged);
+        contentSelector.onValueChanged(callHandleSelectorValueChanged);
 
         return formItem;
     }
