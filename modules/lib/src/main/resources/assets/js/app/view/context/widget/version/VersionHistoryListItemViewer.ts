@@ -26,11 +26,14 @@ export class VersionHistoryListItemViewer
     }
 
     resolveSubName(version: VersionHistoryItem): string {
+        const byUser: string = i18n('widget.versionhistory.byUser', version.getUser());
+
         if (this.isPublishedFrom(version)) {
-            return i18n('tooltip.from', DateHelper.formatDateTime(version.getActiveFrom(), false));
+            const from: string = i18n('tooltip.from', DateHelper.formatDateTime(version.getActiveFrom(), false));
+            return `${from} ${byUser}`;
         }
 
-        return i18n('widget.versionhistory.byUser', version.getUser());
+        return byUser;
     }
 
     private isPublishedFrom(version: VersionHistoryItem): boolean {
@@ -39,7 +42,6 @@ export class VersionHistoryListItemViewer
 
     setObject(version: VersionHistoryItem) {
         this.toggleClass('publish-action', version.isPublishAction());
-        this.toggleClass('publish-from', this.isPublishedFrom(version));
         this.toggleClass('active', version.isActive());
         return super.setObject(version);
     }
