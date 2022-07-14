@@ -74,7 +74,11 @@
           margin-top: 0;
         }
 
-        &:not(.publish-action) {
+        &:not(.interactable) {
+          padding: 5px 7px 5px 12px;
+        }
+
+        &.interactable {
           padding: 7px 7px 7px 12px;
           flex-direction: column;
           box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.2);
@@ -204,7 +208,7 @@
       }
 
       &.expanded {
-        .version-viewer:not(.publish-action) {
+        .version-viewer.interactable {
           border-color: @admin-black;
 
           &:hover {
