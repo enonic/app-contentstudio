@@ -677,7 +677,12 @@ export class HtmlEditor {
     getCursorPosition(): HtmlEditorCursorPosition {
         const selection: CKEDITOR.dom.selection = this.editor.getSelection();
         const range: CKEDITOR.dom.range = selection.getRanges()[0];
-        const isCursorSetOnText: boolean = (!!range && !!range.startContainer && range.startContainer.$.nodeName === '#text');
+
+        if (!range) {
+            return null;
+        }
+
+        const isCursorSetOnText: boolean = range.startContainer?.$.nodeName === '#text';
 
         return {
             selectionIndexes: this.editor.elementPath().elements.map(e => e.getIndex()).reverse().slice(1),
