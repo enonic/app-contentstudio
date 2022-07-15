@@ -15,7 +15,6 @@ describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', f
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let TEST_TOOLTIP = "my tooltip";
     let INVALID_EMAIL = "john@@mail.com";
     let VALID_EMAIL = "john@mail.com";
     const EXPECTED_EMAIL_TXT_PART_1 = "href=\"mailto:john@mail.com\"";

@@ -40,7 +40,6 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
                 let pageComponentView = new PageComponentView();
                 let contentWizard = new ContentWizard();
                 let imageInspectPanel = new ImageInspectPanel();
-                let siteFormPanel = new SiteFormPanel();
                 //1. Open the site:
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
                 await contentWizard.clickOnShowComponentViewToggler();
@@ -68,7 +67,6 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
                 let pageComponentView = new PageComponentView();
                 let contentWizard = new ContentWizard();
                 let imageInspectPanel = new ImageInspectPanel();
-                let siteFormPanel = new SiteFormPanel();
                 //1. Open the site:
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
                 await contentWizard.clickOnShowComponentViewToggler();

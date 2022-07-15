@@ -39,5 +39,6 @@ class HtmlArea extends Page {
             return res;
         })
     }
-};
+}
+
 module.exports = HtmlArea;

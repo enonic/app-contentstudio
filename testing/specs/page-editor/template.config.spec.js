@@ -50,7 +50,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             //Inspection Panel should be automatically opened:
             await defaultPageInspectionPanel.waitForTitleInputDisplayed();
             await defaultPageInspectionPanel.typeTitle(TITLE_TEXT);
-            //Click on Apply button in the Inspect Panel and save the changes:
+            //Click on Apply button in Inspect Panel and save the changes:
             await defaultPageInspectionPanel.clickOnApplyButton();
             let result = await defaultPageInspectionPanel.getTitle();
             assert.equal(result, TITLE_TEXT, "expected and actual title should be equal");

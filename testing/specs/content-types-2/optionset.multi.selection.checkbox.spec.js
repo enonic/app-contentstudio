@@ -52,7 +52,6 @@ describe("optionset.multi.selection.checkbox.spec: tests for option set with mul
     it.skip(`WHEN existing option set with 2 selected options is opened THEN the third checkbox should be disabled`,
         async () => {
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
-            let contentWizard = new ContentWizard();
             //1. existing option set with 2 selected options is opened
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
             //2. two checkboxes should be selected:

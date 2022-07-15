@@ -6,8 +6,10 @@ const BaseVersionsWidget = require('../../details_panel/base.versions.widget');
 const xpath = {
     widget: "//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'VersionHistoryView')]",
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
-    versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action'))]]",
-    publishActionItems: "//li[contains(@class,'version-list-item')and child::div[contains(@class,'publish-action')]]",
+    versionsListItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
+    publishActionListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@id,'VersionHistoryListItemViewer') and contains(@class,'publish-action')]]",
+    versionsSortedListItem: "//li[contains(@class,'version-list-item')and descendant::h6[contains(.,'Sorted')]]",
+    versionsPermissionsUpdatedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Permissions updated')]]",
 };
 
 class WizardVersionsWidget extends BaseVersionsWidget {
@@ -16,13 +18,24 @@ class WizardVersionsWidget extends BaseVersionsWidget {
         return xpath.widget;
     }
 
+    //Gets items with headers - Edited, Sorted, Marked as Ready,Created
     get versionItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.versionItem;
+        return this.versionsWidget + xpath.versionsList + xpath.versionsListItem;
     }
 
+    //Gets items with headers - Published, Unpublished
     get publishActionItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.publishActionItems;
+        return this.versionsWidget + xpath.versionsList + xpath.publishActionListItem;
     }
 
+    //Gets items with headers - Sorted
+    get sortedItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.versionsSortedListItem;
+    }
+
+    get permissionsUpdatedItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.versionsPermissionsUpdatedListItem;
+    }
 }
+
 module.exports = WizardVersionsWidget;

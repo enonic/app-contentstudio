@@ -36,7 +36,7 @@ describe('filtering.by.workflow.spec: tests for filter panel', function () {
             //5. Get the number in the 'Work in progress' checkbox:
             let numberInCheckbox = await filterPanel.getNumberOfItemsInAggregationView("Workflow",
                 appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
-            //6. Get the number of items in the grid"
+            //6. Get the number of items in the grid
             let items = await contentBrowsePanel.getDisplayNamesInGrid();
             //7. Verify that the numbers are equal:
             assert.equal(numberInCheckbox, items.length,

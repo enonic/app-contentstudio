@@ -73,7 +73,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             // Select the option in the dropdown
             await freeFormNestedSet.selectInputType("image");
             studioUtils.saveScreenshot('set_in_set_save_issue');
-            //"Save" button gets enabled, because radio button has been checked"
+            //"Save" button gets enabled, because radio button has been checked
             await contentWizard.waitForSaveButtonEnabled();
         });
 

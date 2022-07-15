@@ -111,7 +111,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(SITE.displayName);
-            //PUBLISH TREE.. button has been pressed then Publish Now pressed
+            //'PUBLISH TREE...' button has been pressed then Publish Now pressed
             await studioUtils.doPublishTree();
             //'UNPUBLISH...' button should appear in browse-toolbar
             await contentBrowsePanel.waitForUnPublishButtonVisible();

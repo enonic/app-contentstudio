@@ -132,8 +132,8 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //3. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
             //4. Click on the first item in versions widget:
-            await browseVersionsWidget.clickAndExpandVersionByName("Created");
-            studioUtils.saveScreenshot("revert_button_should_be_disabled1");
+            await browseVersionsWidget.clickAndExpandVersionItemByHeader("Created");
+            await studioUtils.saveScreenshot("revert_button_should_be_disabled1");
             //5. Verify that Revert button in browse versions panel is disabled:
             await browseVersionsWidget.waitForRevertButtonDisabled();
         });
@@ -154,8 +154,8 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentWizard.openVersionsHistoryPanel();
             studioUtils.saveScreenshot("revert_button_should_be_disabled2");
             //4. Click on the first item in versions widget:
-            await wizardVersionsWidget.clickAndExpandVersionByName("Created");
-            //5. Verify that 'Revert' button in wizard versions panel is disabled:
+            await wizardVersionsWidget.clickAndExpandVersionItemByHeader("Created");
+            //5. Verify that 'Revert' button in wizard-versions panel is disabled:
             await wizardVersionsWidget.waitForRevertButtonDisabled();
         });
 

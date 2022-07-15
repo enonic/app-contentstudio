@@ -64,7 +64,7 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             await studioUtils.openFilterPanel();
             //2. Click on Deutsch checkbox:
             await filterPanel.clickOnCheckboxInLanguageBlock("Deutsch");
-            //3. Verify that Me is displayed in 'Last Modofoed By' and 'Owner' aggregation checkboxes:
+            //3. Verify that Me is displayed in 'Last Modified By' and 'Owner' aggregation checkboxes:
             await filterPanel.waitForCheckboxDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY, "Me");
             await filterPanel.waitForCheckboxDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.OWNER, "Me");
             // TODO workflow checkbox temporarily not visible

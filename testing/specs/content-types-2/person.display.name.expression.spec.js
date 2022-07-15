@@ -61,7 +61,7 @@ describe('person.display.name-expression.spec: tests for Display name expression
             let contentBrowsePanel = new ContentBrowsePanel();
             //2. Verify that expected title-expression should be displayed in the grid
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
-            assert.equal(result, "John O'Brien from Oslo", "Expected title-expression should be displayed");
+            assert.equal(result[0], "John O'Brien from Oslo", "Expected title-expression should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
