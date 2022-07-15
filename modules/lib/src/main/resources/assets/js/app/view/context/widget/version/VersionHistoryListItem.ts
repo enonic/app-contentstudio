@@ -35,9 +35,7 @@ export class VersionHistoryListItem
 
         if (this.isInteractableItem()) {
             this.addOnClickHandler(versionViewer);
-        }
 
-        if (this.isInteractableItem()) {
             ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
                 this.version.setActiveVersionId(event.getVersionId());
             });
