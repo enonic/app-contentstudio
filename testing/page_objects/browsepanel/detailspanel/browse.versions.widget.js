@@ -8,7 +8,7 @@ const appConst = require('../../../libs/app_const');
 const XPATH = {
     widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'VersionHistoryView')]",
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
-    versionItem: "//li[contains(@class,'version-list-item') and child::div[contains(@class,'version-viewer')]]",
+    versionItem: "//li[contains(@class,'version-list-item') and child::div[contains(@class,'version-viewer')] and not(descendant::h6[contains(.,'Permissions updated')])]",
     publishActionItems: "//li[contains(@class,'version-list-item')and child::div[contains(@class,'publish-action')]]",
 };
 

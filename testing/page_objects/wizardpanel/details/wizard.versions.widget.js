@@ -6,7 +6,7 @@ const BaseVersionsWidget = require('../../details_panel/base.versions.widget');
 const xpath = {
     widget: "//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'VersionHistoryView')]",
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
-    versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action'))]]",
+    versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
     publishActionItems: "//li[contains(@class,'version-list-item')and child::div[contains(@class,'publish-action')]]",
 };
 
