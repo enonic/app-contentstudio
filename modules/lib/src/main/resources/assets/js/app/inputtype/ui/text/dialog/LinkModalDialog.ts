@@ -714,9 +714,7 @@ export class LinkModalDialog
         formItem.getInput().addClass('params-key');
 
         (<TextInput>formItem.getInput()).onValueChanged(() => {
-            if (this.isQueryParamsValid()) {
-                this.paramsFormItem.validate(new ValidationResult(), true);
-            }
+            this.paramsFormItem.validate(new ValidationResult(), true);
         });
 
         return [formItem, id];
