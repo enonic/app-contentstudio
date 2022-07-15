@@ -19,7 +19,6 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
-    const FOLDER_NAME = studioUtils.generateRandomName("folder");
     const CONTROLLER_NAME = 'main region';
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;

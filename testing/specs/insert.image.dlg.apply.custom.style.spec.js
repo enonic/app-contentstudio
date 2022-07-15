@@ -78,7 +78,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             //1. Open existing content:
             await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME);
             await htmlAreaForm.pause(2000);
-            //2. Do double click in htmlarea and open InsertImage dialog:
+            //2. Do double-click in htmlArea and open InsertImage dialog:
             await htmlAreaForm.doubleClickOnHtmlArea();
             await insertImageDialog.waitForDialogVisible();
             //3. Verify the selected style option:

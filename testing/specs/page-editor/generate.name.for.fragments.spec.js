@@ -107,7 +107,7 @@ describe('Generate name for fragments specification', function () {
             await contentWizard.clickOnComponentViewToggler();
             let result = await pageComponentView.getFragmentsDisplayName();
             assert.equal(result.length, 0, "Fragment should not be present in Page Component View");
-            //5. 'Show outbound" button should disappear in the widget, because the fragment was removed in Page Component View
+            //5. 'Show outbound' button should disappear in the widget, because the fragment was removed in Page Component View
             await wizardDependenciesWidget.waitForOutboundButtonNotVisible();
             //6. 'No outgoing dependencies' message should be displayed:
             await wizardDependenciesWidget.waitForNoOutgoingDependenciesMessage();

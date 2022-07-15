@@ -81,6 +81,15 @@ module.exports = Object.freeze({
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     TAB_TITLE_PART: "/ Content Studio",
     CONTENT_STUDIO_TITLE: "Content Studio",
+    VERSIONS_ITEM_HEADER: {
+        PERMISSIONS_UPDATED: 'Permissions updated',
+        CREATED: "Created",
+        EDITED: "Edited",
+        MARKED_AS_READY: "Marked as Ready",
+        SORTED: "Sorted",
+        PUBLISHED: "Published",
+    },
+
     ACCESS_WIDGET_HEADER: {
         RESTRICTED_ACCESS: "Restricted access to item",
         EVERYONE_CAN_READ: "Everyone can read this item"

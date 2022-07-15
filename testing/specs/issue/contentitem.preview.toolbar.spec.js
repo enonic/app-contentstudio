@@ -136,18 +136,18 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
         });
 
     //verifies  https://github.com/enonic/app-contentstudio/issues/721
-    //drop down handle for issues remains after the content is unselected
+    //dropdown handle for issues remains after the content is unselected
     it(`GIVEN existing folder with 2 tasks is selected WHEN this folder has been unselected THEN 'tasks drop down handle' gets not visible`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             //select the folder with 2 issues:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            //Drop down handle for issues should be displayed on the Preview Panel:
+            //Dropdown handle for issues should be displayed on the Preview Panel:
             await contentItemPreviewPanel.waitForIssueDropDownHandleDisplayed();
             //unselect the folder:
             await contentBrowsePanel.clickOnRowByDisplayName(TEST_FOLDER.displayName);
-            //Drop down handle for issues gets not visible(exception will be thrown after the timeout)
+            //Dropdown handle for issues gets not visible(exception will be thrown after the timeout)
             await contentItemPreviewPanel.waitForIssueDropDownHandleNotDisplayed();
         });
     //verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar

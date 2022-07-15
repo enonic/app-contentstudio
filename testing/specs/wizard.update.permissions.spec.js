@@ -123,7 +123,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await editPermissionsDialog.waitForDialogLoaded();
             //2. Update permissions(add default permissions for 'Everyone')
             await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.EVERYONE);
-            return editPermissionsDialog.clickOnApplyButton();
+            await editPermissionsDialog.clickOnApplyButton();
             //3. Check the notification message:
             let expectedMessage = appConst.permissionsAppliedNotificationMessage(DISPLAY_NAME);
             await contentWizard.waitForExpectedNotificationMessage(expectedMessage);

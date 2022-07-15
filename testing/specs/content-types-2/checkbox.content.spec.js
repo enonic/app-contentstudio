@@ -105,7 +105,7 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
             //2. unselect the required checkbox
             await checkBoxForm.clickOnCheckbox();
             //3. Verify that the checkbox is not selected now:
-            await studioUtils.saveScreenshot('checkbox_umselected_2');
+            await studioUtils.saveScreenshot('checkbox_unselected_2');
             let isSelected = await checkBoxForm.isCheckBoxSelected();
             assert.isFalse(isSelected, "CheckBox should be unselected");
             //4. The content gets invalid now:

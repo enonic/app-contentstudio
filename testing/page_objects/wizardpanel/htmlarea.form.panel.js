@@ -166,7 +166,7 @@ class HtmlAreaForm extends OccurrencesFormView {
         return await this.pause(300);
     }
 
-    //double clicks on the html-area
+    //do double-lick in the html-area
     async doubleClickOnHtmlArea() {
         await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
         await this.doDoubleClick(XPATH.ckeTextArea);

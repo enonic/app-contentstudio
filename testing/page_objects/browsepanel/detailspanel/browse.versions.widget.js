@@ -8,8 +8,10 @@ const appConst = require('../../../libs/app_const');
 const XPATH = {
     widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'VersionHistoryView')]",
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
-    versionItem: "//li[contains(@class,'version-list-item') and child::div[contains(@class,'version-viewer')]]",
-    publishActionItems: "//li[contains(@class,'version-list-item')and child::div[contains(@class,'publish-action')]]",
+    versionsListItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
+    publishActionListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@id,'VersionHistoryListItemViewer') and contains(@class,'publish-action')]]",
+    versionsSortedListItem: "//li[contains(@class,'version-list-item')and descendant::h6[contains(.,'Sorted')]]",
+    versionsPermissionsUpdatedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Permissions updated')]]",
 };
 
 class BrowseVersionsWidget extends BaseVersionsWidget {
@@ -19,15 +21,24 @@ class BrowseVersionsWidget extends BaseVersionsWidget {
     }
 
     get versionItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.versionItem;
+        return this.versionsWidget + XPATH.versionsList + XPATH.versionsListItem;
     }
 
     get publishActionItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.publishActionItems;
+        return this.versionsWidget + XPATH.versionsList + XPATH.publishActionListItem;
+    }
+
+    //Gets items with headers - Sorted
+    get sortedItems() {
+        return this.versionsWidget + XPATH.versionsList + XPATH.versionsSortedListItem;
+    }
+
+    get permissionsUpdatedItems() {
+        return this.versionsWidget + XPATH.versionsList + XPATH.versionsPermissionsUpdatedListItem;
     }
 
     async getOwnerName() {
-        let locator = XPATH.widget + XPATH.versionItem + lib.P_SUB_NAME;
+        let locator = XPATH.widget + XPATH.versionsListItem + lib.P_SUB_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }

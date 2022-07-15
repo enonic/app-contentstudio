@@ -96,7 +96,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            //1. Open existing content and double click in html-area
+            //1. Open existing content and double-click in html-area
             await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME);
             await htmlAreaForm.pause(2000);
             await htmlAreaForm.doubleClickOnHtmlArea();

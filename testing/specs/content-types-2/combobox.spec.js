@@ -61,7 +61,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             //2. Select a required option:
             await comboBoxForm.typeInFilterAndClickOnOption(OPTION_A);
-            //3. Verify that Options filter Input gets not visible/disabled after selecting a option
+            //3. Verify that Options filter Input gets not visible/disabled after selecting an option
             await comboBoxForm.waitForOptionFilterInputDisabled();
             //4. Verify that the content gets valid even before clicking on the 'Save' button
             let isInValid = await contentWizard.isContentInvalid();
