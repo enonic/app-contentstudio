@@ -93,7 +93,9 @@ export class FullscreenDialog
             this.fseditor = htmlEditor;
             htmlEditor.onReady(() => {
                 setTimeout(() => {
-                    htmlEditor.setSelectionByCursorPosition(this.config.cursorPosition);
+                    if (this.config.cursorPosition) {
+                        htmlEditor.setSelectionByCursorPosition(this.config.cursorPosition);
+                    }
                 }, 100);
 
                 this.fseditor.on('closeFullscreenDialog', () => {
