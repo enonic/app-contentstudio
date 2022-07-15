@@ -119,7 +119,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             //Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
-            await insertLinkDialog.typeInTextInput(NORWEGIAN_TEXT);
+            await insertLinkDialog.typeInLinkTextInput(NORWEGIAN_TEXT);
             //type the URL:
             await insertLinkDialog.typeUrl('http://google.com');
             await insertLinkDialog.clickOnInsertButton();

@@ -105,7 +105,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInTextInput("google url");
+            await insertLinkDialog.typeInLinkTextInput("google url");
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Fill in the URL input with a valid https url:
@@ -128,7 +128,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInTextInput("google url");
+            await insertLinkDialog.typeInLinkTextInput("google url");
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Fill in the URL input with a valid https url:
@@ -151,7 +151,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInTextInput("google url");
+            await insertLinkDialog.typeInLinkTextInput("google url");
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Fill in the URL input with a valid https url:
@@ -174,7 +174,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInTextInput("google url");
+            await insertLinkDialog.typeInLinkTextInput("google url");
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Fill in the URL input with the invalid(spaces) https url:
@@ -194,7 +194,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInTextInput("google url");
+            await insertLinkDialog.typeInLinkTextInput("google url");
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Fill in the URL input with the invalid(special symbols $) https url:
@@ -214,7 +214,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInTextInput("ftp url");
+            await insertLinkDialog.typeInLinkTextInput("ftp url");
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Select 'Ftp' option in the dropdown selector:
@@ -240,7 +240,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInTextInput("ftp url");
+            await insertLinkDialog.typeInLinkTextInput("ftp url");
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Select 'Ftp' option in the dropdown selector:

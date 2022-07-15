@@ -107,6 +107,7 @@ module.exports = Object.freeze({
         SCHEDULE_FORM_ONLINE_FROM_EMPTY: "Online to cannot be set without Online from",
         THIS_FIELD_IS_REQUIRED: 'This field is required',
         SINGLE_SELECTION_OPTION_SET: "At least one option must be selected",
+        LINK_PARAMETERS: "All parameters must have a name",
     },
     ISSUES: {
         TASK_CLOSED: "Task is closed",

@@ -14,9 +14,31 @@ const XPATH = {
     radioButtonByLabel: label => `//span[contains(@id,'RadioButton') and child::label[contains(.,'${label}')]]`,
     urlTypeButton: "//div[contains(@id,'MenuButton')]//button[contains(@id,'ActionButton') and child::span[text()='Type']]",
     menuItemByName: optionName => `//div[contains(@id,'MenuButton')]//li[text()='${optionName}']`,
+    anchorFormItem: "//div[contains(@class,'anchor-form-item')]",
+    parametersFormItem: "//div[contains(@id,'FormItem') and descendant::label[text()='Parameters']]",
 };
 
 class InsertLinkDialog extends Page {
+
+    get addAnchorButton() {
+        return XPATH.container + XPATH.anchorFormItem + lib.BUTTON_WITH_SPAN_ADD;
+    }
+
+    get addAnchorInput() {
+        return XPATH.container + XPATH.anchorFormItem + lib.TEXT_INPUT;
+    }
+
+    get parameterNameInput() {
+        return XPATH.container + XPATH.parametersFormItem + "//input[contains(@id,'TextInput') and @placeholder='Name']";
+    }
+
+    get parameterValueInput() {
+        return XPATH.container + XPATH.parametersFormItem + "//input[contains(@id,'TextInput') and @placeholder='Value']";
+    }
+
+    get addParametersButton() {
+        return XPATH.container + XPATH.parametersFormItem + lib.BUTTON_WITH_SPAN_ADD;
+    }
 
     get urlTypeButton() {
         return XPATH.container + XPATH.urlTypeButton;
@@ -67,7 +89,7 @@ class InsertLinkDialog extends Page {
     }
 
     //types text in link text input
-    typeInTextInput(text) {
+    typeInLinkTextInput(text) {
         return this.typeTextInInput(this.linkTextInput, text).catch(err => {
             this.saveScreenshot('err_type_link_text');
             throw new Error('error when type text in link-text input ' + err);
@@ -272,6 +294,74 @@ class InsertLinkDialog extends Page {
         let locator = XPATH.container + XPATH.radioButtonByLabel(label)
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator + "//input");
+    }
+
+    async waitForAddAnchorButtonDisplayed() {
+        try {
+            return this.waitForElementDisplayed(this.addAnchorButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_anchor_btn"));
+            throw new Error("Add Anchor button should be displayed! " + err);
+        }
+    }
+
+    async waitForAddAnchorButtonNotDisplayed() {
+        try {
+            return this.waitForElementNotDisplayed(this.addAnchorButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_anchor_btn"));
+            throw new Error("Add Anchor button should not be displayed! " + err);
+        }
+    }
+
+    async waitForAddParametersButtonDisplayed() {
+        try {
+            return this.waitForElementDisplayed(this.addParametersButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_param_btn"));
+            throw new Error("Add parameters button should be displayed! " + err);
+        }
+    }
+
+    async clickOnAddAnchorButton() {
+        await this.waitForAddAnchorButtonDisplayed();
+        return await this.clickOnElement(this.addAnchorButton);
+    }
+
+    async clickOnAddParametersButton() {
+        await this.waitForAddParametersButtonDisplayed();
+        return await this.clickOnElement(this.addParametersButton);
+    }
+
+    async typeTextInAnchorInput(text) {
+        await this.waitForElementDisplayed(this.addAnchorInput, appConst.mediumTimeout);
+        return await this.typeTextInInput(this.addAnchorInput, text);
+    }
+
+    async typeInParameterNameInput(value, index) {
+        index = typeof index !== 'undefined' ? index : 0;
+        let longElements = await this.getDisplayedElements(this.parameterNameInput);
+        await longElements[index].setValue(value);
+        return await this.pause(300);
+    }
+
+    async typeInParameterValueInput(value, index) {
+        index = typeof index !== 'undefined' ? index : 0;
+        let longElements = await this.getDisplayedElements(this.parameterValueInput);
+        await longElements[index].setValue(value);
+        return await this.pause(300);
+    }
+
+    async getParametersFormValidationMessage() {
+        let locator = XPATH.container + XPATH.parametersFormItem + lib.VALIDATION_RECORDING_VIEWER;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    async getAnchorFormValidationMessage() {
+        let locator = XPATH.container + XPATH.anchorFormItem + lib.VALIDATION_RECORDING_VIEWER;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 }
 
