@@ -38,7 +38,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             //1. Wizard for Custom-Selector content is opened
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_SELECTOR_0_2);
             await contentWizard.typeDisplayName(CONTENT_NAME);
-            //2. non existing option has been typed in the Options Filter Input
+            //2. non-existing option has been typed in the Options Filter Input
             await customSelectorForm.typeTextInOptionsFilterInput("test");
             //3. Verify that 'No matching items' is displayed
             await customSelectorForm.waitForEmptyOptionsMessage();

@@ -268,7 +268,8 @@ class ContentWizardPanel extends Page {
             let versionPanel = new VersionsWidget();
             await this.openDetailsPanel();
             await wizardDetailsPanel.openVersionHistory();
-            return await versionPanel.waitForVersionsLoaded();
+            await versionPanel.waitForVersionsLoaded();
+            return await this.pause(200);
         } catch (err) {
             //Workaround for issue with empty selector:
             await this.refresh();

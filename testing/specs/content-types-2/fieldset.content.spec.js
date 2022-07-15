@@ -61,16 +61,16 @@ describe('fieldset.content.spec: tests for fieldSet content', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.FIELDSET);
             await contentWizard.typeDisplayName(FIELDSET_NAME_2);
             await studioUtils.saveScreenshot('fieldset_required_empty1');
-            //2. Required htmlArea and textLine are empty. Verify that the content is not valid.
-            let isNotValid = await contentWizard.isContentInvalid();
-            assert.isTrue(isNotValid, 'the content should be not valid, because the required htmlArea and texline are empty');
+            //2. Required htmlArea and textLine are empty. Verify that the content is invalid.
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.isTrue(isInvalid, 'the content should be not valid, because the required htmlArea and textline are empty');
             //3. Save the content
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('fieldset_required_empty2');
             //4. Verify that the content remains not valid after clicking on 'Save' button:
-            isNotValid = await contentWizard.isContentInvalid();
-            assert.isTrue(isNotValid, 'the content should be not valid, because the input is required');
+            isInvalid = await contentWizard.isContentInvalid();
+            assert.isTrue(isInvalid, 'the content should be not valid, because the input is required');
             //5. Verify that two validation recording appear after saving the content:
             let result = await fieldSetForm.getHtmlAreaValidationRecording();
             assert.equal(result, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Expected validation message should be displayed");

@@ -390,9 +390,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             console.log("waitForContentDisplayed, timeout is:" + timeout);
             return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), timeout);
         } catch (err) {
-            console.log("item is not displayed:" + contentName);
-            this.saveScreenshot('err_find_' + contentName);
-            throw new Error('content is not displayed ! ' + contentName + "  " + err);
+            await this.saveScreenshot(appConst.generateRandomName('err_find'));
+            throw new Error('content is not displayed ! ' + err);
         }
     }
 

@@ -2,7 +2,6 @@
  * Created on 13.07.2018.
  */
 const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');

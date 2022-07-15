@@ -2,7 +2,6 @@
  * Created on 10.04.2020
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     displayNameInput: `//input[contains(@name,'displayName')]`,
@@ -10,6 +9,7 @@ const XPATH = {
     deleteButton: "//button[contains(@id,'ActionButton') and child::span[text()='Delete']]",
 };
 
+//Base class for role and user wizards
 class WizardPanel extends Page {
 
     get displayNameInput() {
@@ -61,7 +61,7 @@ class WizardPanel extends Page {
             await this.clickOnElement(this.saveButton);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot(lib.generateRandomName("err_save_button"));
+            this.saveScreenshot(appConst.generateRandomName("err_save_button"));
             throw new Error("Error when Save button has been clicked!" + err);
         }
     }
@@ -72,7 +72,7 @@ class WizardPanel extends Page {
             throw new Error('Error when Delete button has been clicked ' + err);
         });
     }
-};
+}
 module.exports = {WizardPanel, XPATH};
 
 

@@ -141,7 +141,7 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             assert.isFalse(isInvalid, "Content should ve valid in wizard");
             //text input should be with green border:
             let isValid = await textLine.isRegExStatusValid(0);
-            assert.isTrue(isValid, "Valid", "Valid status should be present in the text input");
+            assert.isTrue(isValid, "Valid status should be present in the text input");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -85,7 +85,6 @@ describe('close.task.by.user.spec: create a task for user and close it', functio
             //1. user is logged in:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             let issueListDialog = new IssueListDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
             let taskDetailsDialog = new TaskDetailsDialog();
             //2. Open Issues List dialog:
             await studioUtils.openIssuesListDialog();
@@ -146,7 +145,7 @@ describe('close.task.by.user.spec: create a task for user and close it', functio
             //5. Open Versions widget:
             await contentBrowseDetailsPanel.openVersionHistory();
             //4. Click on the 'Created' item in versions widget:
-            await browseVersionsWidget.clickAndExpandVersionByName("Created");
+            await browseVersionsWidget.clickAndExpandVersionItemByHeader("Created");
             await studioUtils.saveScreenshot("owner_in_versions");
             //5. Verify the owner name in the version item:
             let ownerNameInVersions = await browseVersionsWidget.getOwnerName();

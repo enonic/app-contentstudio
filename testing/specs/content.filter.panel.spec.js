@@ -29,7 +29,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             await filterPanel.clickOnCheckboxInContentTypesBlock("Executable");
             //2. Get the number in the aggregation checkbox:
             let numberItems = await filterPanel.getNumberOfItemsInAggregationView("Content Types", "Executable", true);
-            //3. Get the number of items in the grid"
+            //3. Get the number of items in the grid
             let items = await contentBrowsePanel.getDisplayNamesInGrid();
             //4. Verify that the numbers are equal:
             assert.equal(numberItems, items.length,
@@ -50,7 +50,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             await filterPanel.waitForClearLinkNotDisplayed();
             await contentBrowsePanel.pause(2000);
             await studioUtils.saveScreenshot("clear_link_clicked");
-            //3. Get the number of items in the grid"
+            //3. Get the number of items in the grid
             let items2 = await contentBrowsePanel.getDisplayNamesInGrid();
             //4. the grid returns to the initial state
             assert.isAbove(items2.length, items1.length, 'Grid should return to the initial state');
