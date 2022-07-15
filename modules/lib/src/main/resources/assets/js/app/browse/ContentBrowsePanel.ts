@@ -397,6 +397,7 @@ export class ContentBrowsePanel
         }
 
         this.treeGrid.sortNodesChildren(data);
+        this.updateContextPanel(data);
     }
 
     private handleNewMediaUpload(event: NewMediaUploadEvent) {
