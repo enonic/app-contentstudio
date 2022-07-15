@@ -77,7 +77,7 @@ describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', f
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             //3. Go to Email tab:
             await insertLinkDialog.clickOnBarItem("Email");
-            await insertLinkDialog.typeInTextInput("Email link");
+            await insertLinkDialog.typeInLinkTextInput("Email link");
             //4. Fill in the tooltip input:
             await insertLinkDialog.typeInLinkTooltip("Email");
             //5. Fill in the email input (invalid value):
@@ -101,7 +101,7 @@ describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', f
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             //3. Go to 'Email' tab:
             await insertLinkDialog.clickOnBarItem("Email");
-            await insertLinkDialog.typeInTextInput("Email link");
+            await insertLinkDialog.typeInLinkTextInput("Email link");
             //4. Fill in the tooltip input:
             await insertLinkDialog.typeInLinkTooltip("Email");
             //5. Fill in the email input (invalid value):

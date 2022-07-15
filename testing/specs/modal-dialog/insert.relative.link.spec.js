@@ -58,7 +58,7 @@ describe("insert.relative.link.url.spec: insert relative links into htmlArea", f
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInTextInput("relative url 1");
+            await insertLinkDialog.typeInLinkTextInput("relative url 1");
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Expand url type selector and click on 'Relative' option
@@ -83,7 +83,7 @@ describe("insert.relative.link.url.spec: insert relative links into htmlArea", f
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInTextInput("relative url 1");
+            await insertLinkDialog.typeInLinkTextInput("relative url 1");
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Expand url type selector and click on 'Relative' option
@@ -108,7 +108,7 @@ describe("insert.relative.link.url.spec: insert relative links into htmlArea", f
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInTextInput("relative invalid");
+            await insertLinkDialog.typeInLinkTextInput("relative invalid");
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Expand url type selector and click on 'Relative' option
@@ -132,7 +132,7 @@ describe("insert.relative.link.url.spec: insert relative links into htmlArea", f
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInTextInput("invalid relative");
+            await insertLinkDialog.typeInLinkTextInput("invalid relative");
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Expand url type selector and click on 'Relative' option

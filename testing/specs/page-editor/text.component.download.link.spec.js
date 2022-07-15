@@ -60,7 +60,8 @@ describe('Text Component with CKE - insert download-link specification', functio
             await textComponentCke.clickOnInsertLinkButton();
             //4. Type a link-name and select a target:
             //await studioUtils.insertDownloadLinkInCke("test", TEST_CONTENT_DISPLAY_NAME);
-            await insertLinkDialog.typeInTextInput("test");
+            await insertLinkDialog.typeInLinkTextInput("test");
+            //Select a media content in the dropdown selector
             await insertLinkDialog.selectTargetInContentTab(TEST_CONTENT_DISPLAY_NAME);
             //5. Click on 'Download file' radio:
             await insertLinkDialog.clickOnRadioButton(appConst.INSERT_LINK_DIALOG_TABS.DOWNLOAD_FILE);

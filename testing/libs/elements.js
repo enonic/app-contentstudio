@@ -5,6 +5,7 @@
 module.exports = Object.freeze({
     NOTIFICATION_TEXT: "//div[@class='notification-text']",
     REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
+    BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
     FORM_VIEW: `//div[contains(@id,'FormView')]`,
     FORM_ITEM: "//div[contains(@id,'FormItem')]",
     DATE_TIME_PICKER_INPUT: "//div[contains(@id,'DateTimePicker')]//input[contains(@id,'TextInput')]",
