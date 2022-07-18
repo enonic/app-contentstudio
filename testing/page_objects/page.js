@@ -131,15 +131,15 @@ class Page {
 
     async getTextInInput(selector) {
         let inputElement = await this.findElement(selector);
-        return await inputElement.getValue(selector);
+        return await inputElement.getValue();
     }
 
     async clearInputText(selector) {
         try {
             let inputElement = await this.findElement(selector);
-            await inputElement.waitForDisplayed(1000);
+            await inputElement.waitForDisplayed({timeout: 2000});
             await inputElement.clearValue();
-            return await inputElement.pause(3000);
+            return await this.pause(1000);
         } catch (err) {
             throw new Error("Error when clear value in input" + err);
         }

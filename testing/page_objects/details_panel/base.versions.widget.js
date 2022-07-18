@@ -17,9 +17,9 @@ class BaseVersionsWidget extends Page {
     get compareWithCurrentVersionButton() {
         return this.versionsWidget + lib.COMPARE_WITH_CURRENT_VERSION;
     }
-
+    //Count version items that contain 'Revert' button
     async countVersionItems() {
-        let items = await this.findElements(xpath.versionItem);
+        let items = await this.findElements(this.versionItems);
         return items.length;
     }
 
