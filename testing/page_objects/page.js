@@ -131,7 +131,7 @@ class Page {
 
     async getTextInInput(selector) {
         let inputElement = await this.findElement(selector);
-        return await inputElement.getValue(selector);
+        return await inputElement.getValue();
     }
 
     async clearInputText(selector) {
