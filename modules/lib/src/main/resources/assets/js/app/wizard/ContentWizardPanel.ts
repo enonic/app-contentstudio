@@ -1378,13 +1378,13 @@ export class ContentWizardPanel
         };
 
         const sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            let indexOfCurrentContent = null;
-            const wasSorted = data.some((sorted: ContentSummaryAndCompareStatus, index: number) => {
-                indexOfCurrentContent = index;
+            const currentItem: ContentSummaryAndCompareStatus = data.find((sorted: ContentSummaryAndCompareStatus) => {
                 return this.isCurrentContentId(sorted.getContentId());
             });
-            if (wasSorted && indexOfCurrentContent != null) {
-                this.wizardActions.setContent(data[indexOfCurrentContent]).refreshState();
+
+            if (currentItem) {
+                this.wizardActions.setContent(currentItem).refreshState();
+                this.contextView.setItem(currentItem);
             }
 
             const content = this.getPersistedItem();
