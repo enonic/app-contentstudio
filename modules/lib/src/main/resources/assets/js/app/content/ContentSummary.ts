@@ -386,6 +386,9 @@ export class ContentSummary {
         if (!ObjectHelper.booleanEquals(this.editable, other.isEditable())) {
             return false;
         }
+        if (!ObjectHelper.equals(this.childOrder, other.getChildOrder())) {
+            return false;
+        }
         if (!ObjectHelper.stringEquals(this.language, other.getLanguage())) {
             return false;
         }
