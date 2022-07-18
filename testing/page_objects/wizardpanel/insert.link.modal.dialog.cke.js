@@ -24,7 +24,7 @@ class InsertLinkDialog extends Page {
         return XPATH.container + XPATH.anchorFormItem + lib.BUTTON_WITH_SPAN_ADD;
     }
 
-    get addAnchorInput() {
+    get anchorTextInput() {
         return XPATH.container + XPATH.anchorFormItem + lib.TEXT_INPUT;
     }
 
@@ -333,22 +333,33 @@ class InsertLinkDialog extends Page {
         return await this.clickOnElement(this.addParametersButton);
     }
 
+    async getTextInAnchorInput() {
+        await this.waitForElementDisplayed(this.anchorTextInput, appConst.mediumTimeout);
+        return await this.getTextInInput(this.anchorTextInput);
+    }
+
     async typeTextInAnchorInput(text) {
-        await this.waitForElementDisplayed(this.addAnchorInput, appConst.mediumTimeout);
-        return await this.typeTextInInput(this.addAnchorInput, text);
+        await this.waitForElementDisplayed(this.anchorTextInput, appConst.mediumTimeout);
+        return await this.typeTextInInput(this.anchorTextInput, text);
     }
 
     async typeInParameterNameInput(value, index) {
         index = typeof index !== 'undefined' ? index : 0;
-        let longElements = await this.getDisplayedElements(this.parameterNameInput);
-        await longElements[index].setValue(value);
+        let inputElements = await this.getDisplayedElements(this.parameterNameInput);
+        await inputElements[index].setValue(value);
         return await this.pause(300);
+    }
+
+    async getTextInParameterNameInput(index) {
+        index = typeof index !== 'undefined' ? index : 0;
+        let inputElements = await this.getDisplayedElements(this.parameterNameInput);
+        return await inputElements[index].getValue();
     }
 
     async typeInParameterValueInput(value, index) {
         index = typeof index !== 'undefined' ? index : 0;
-        let longElements = await this.getDisplayedElements(this.parameterValueInput);
-        await longElements[index].setValue(value);
+        let inputElements = await this.getDisplayedElements(this.parameterValueInput);
+        await inputElements[index].setValue(value);
         return await this.pause(300);
     }
 
