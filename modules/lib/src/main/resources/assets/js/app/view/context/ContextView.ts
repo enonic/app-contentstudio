@@ -13,7 +13,6 @@ import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
 import {PropertiesWidgetItemView} from './widget/details/PropertiesWidgetItemView';
 import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
 import {PageTemplateWidgetItemView} from './widget/details/PageTemplateWidgetItemView';
-import {ActiveContentVersionSetEvent} from '../../event/ActiveContentVersionSetEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
@@ -36,6 +35,7 @@ import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
 import {ContentId} from '../../content/ContentId';
 import {WidgetItemView} from './WidgetItemView';
+import {VersionContext} from './widget/version/VersionContext';
 
 export class ContextView
     extends DivEl {
@@ -104,8 +104,8 @@ export class ContextView
         ApplicationEvent.on(handleApplicationEvents);
         this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
 
-        ActiveContentVersionSetEvent.on(() => {
-            if (this.isVisible() && this.activeWidget === this.versionsWidgetView) {
+        VersionContext.onActiveVersionChanged((contentId: string, version: string) => {
+            if (this.item.getId() === contentId && this.isVisible() && this.activeWidget === this.versionsWidgetView) {
                 this.updateActiveWidget();
             }
         });

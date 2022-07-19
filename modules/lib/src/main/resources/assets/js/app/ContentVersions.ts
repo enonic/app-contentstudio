@@ -4,39 +4,31 @@ import {GetContentVersionsForViewResultsJson} from './resource/json/GetContentVe
 
 export class ContentVersions {
 
-    readonly contentVersions: ContentVersion[];
+    private readonly contentVersions: ContentVersion[];
 
-    constructor(contentVersions: ContentVersion[]) {
+    private readonly activeVersionId?: string;
+
+    constructor(contentVersions: ContentVersion[], activeVersionId?: string) {
         this.contentVersions = contentVersions;
+        this.activeVersionId = activeVersionId;
     }
 
-    getContentVersions(): ContentVersion[] {
+    get(): ContentVersion[] {
         return this.contentVersions;
     }
 
-    getActiveVersion(): ContentVersion {
-        return this.contentVersions.find((contentVersion: ContentVersion) => contentVersion.isActive());
+    getActiveVersion(): string {
+        return this.activeVersionId;
     }
 
     static fromJson(contentVersionForViewJson: GetContentVersionsForViewResultsJson): ContentVersions {
-        const contentVersions: ContentVersion[] = [];
+        const contentVersions: ContentVersion[] = contentVersionForViewJson.contentVersions.map(
+            (contentVersionViewJson: ContentVersionViewJson) => {
+                return ContentVersion.fromJson(contentVersionViewJson, contentVersionViewJson.workspaces);
+            });
 
-        contentVersionForViewJson.contentVersions.forEach((contentVersionViewJson: ContentVersionViewJson) => {
-            contentVersions.push(ContentVersion.fromJson(contentVersionViewJson, contentVersionViewJson.workspaces));
-        });
+        const activeVersionId: string = contentVersionForViewJson.activeVersion?.contentVersion?.id;
 
-        if (contentVersionForViewJson.activeVersion) {
-            const activeVersionId: string = ContentVersion.fromJson(contentVersionForViewJson.activeVersion.contentVersion,
-                [contentVersionForViewJson.activeVersion.branch]).getId();
-
-            let activeVersion: ContentVersion =
-                contentVersions.find((contentVersion: ContentVersion) => contentVersion.getId() === activeVersionId);
-            if (!activeVersion) {
-                activeVersion = contentVersions[0];
-            }
-            activeVersion.setActive(true);
-        }
-
-        return new ContentVersions(contentVersions);
+        return new ContentVersions(contentVersions, activeVersionId);
     }
 }

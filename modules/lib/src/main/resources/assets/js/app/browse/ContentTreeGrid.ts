@@ -5,7 +5,6 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {SortContentEvent} from './sort/SortContentEvent';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentTreeGridToolbar} from './ContentTreeGridToolbar';
-import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
 import {ContentTreeGridLoadedEvent} from './ContentTreeGridLoadedEvent';
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
@@ -110,8 +109,6 @@ export class ContentTreeGrid
         this.getGrid().subscribeOnClick(this.handleGridClick.bind(this));
         this.getGrid().subscribeOnDblClick(this.handleGridDoubleClick.bind(this));
 
-        ActiveContentVersionSetEvent.on(this.handleActiveContentVersionSetEvent.bind(this));
-
         this.onLoaded(() => {
             new ContentTreeGridLoadedEvent().fire();
         });
@@ -152,15 +149,6 @@ export class ContentTreeGrid
         }
 
         return true;
-    }
-
-    private handleActiveContentVersionSetEvent(event: ActiveContentVersionSetEvent) {
-        const root: TreeNode<ContentSummaryAndCompareStatus> = this.getRoot().getCurrentRoot();
-        const treeNode: TreeNode<ContentSummaryAndCompareStatus> = root.findNode(event.getContentId().toString());
-        if (treeNode) {
-            const content: ContentSummaryAndCompareStatus = treeNode.getData();
-            this.updateNodeByData(ContentSummaryAndCompareStatus.fromContentSummary(content.getContentSummary()));
-        }
     }
 
     setState(state: State) {

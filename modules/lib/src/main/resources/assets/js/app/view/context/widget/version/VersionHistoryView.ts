@@ -7,6 +7,12 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {ContentSummary} from '../../../../content/ContentSummary';
+import {ContentVersionsLoader} from './ContentVersionsLoader';
+import {VersionHistoryItem} from './VersionHistoryItem';
+import {ContentId} from '../../../../content/ContentId';
+import {ContentVersionsConverter} from './ContentVersionsConverter';
+import {ContentVersions} from '../../../../ContentVersions';
+import {VersionContext} from './VersionContext';
 
 export class VersionHistoryView extends WidgetItemView {
 
@@ -14,12 +20,16 @@ export class VersionHistoryView extends WidgetItemView {
 
     private statusBlock: DivEl;
 
-    private gridLoadDeferred: Q.Deferred<any>;
+    private content: ContentSummaryAndCompareStatus;
+
+    private readonly versionsLoader: ContentVersionsLoader;
 
     public static debug: boolean = false;
 
     constructor() {
         super('version-widget-item-view');
+
+        this.versionsLoader = new ContentVersionsLoader();
         this.managePublishEvent();
     }
 
@@ -31,13 +41,6 @@ export class VersionHistoryView extends WidgetItemView {
 
         return super.layout().then(() => {
             this.versionListView = new VersionHistoryList();
-            this.versionListView.onLoaded(() => {
-                if (this.gridLoadDeferred) {
-                    this.gridLoadDeferred.resolve(null);
-                    this.gridLoadDeferred = null;
-                }
-            });
-
             this.statusBlock = new DivEl('status');
             this.appendChildren(this.statusBlock, this.versionListView);
         });
@@ -76,7 +79,7 @@ export class VersionHistoryView extends WidgetItemView {
         this.statusBlock.setClass(`status ${content.getStatusClass()}`);
         this.statusBlock.setHtml(this.getContentStatus(content));
 
-        this.versionListView.setContent(content);
+        this.content = content;
         return this.reloadActivePanel();
     }
 
@@ -84,10 +87,10 @@ export class VersionHistoryView extends WidgetItemView {
         const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentPublished((contents: ContentSummaryAndCompareStatus[]) => {
-            if (this.versionListView && this.versionListView.getContentId()) {
+            if (this.versionListView && this.content?.getContentId()) {
                 // check for item because it can be null after publishing pending for delete item
-                let itemId = this.versionListView.getContentId();
-                let isPublished = contents.some((content) => {
+                const itemId: ContentId = this.content.getContentId();
+                const isPublished: boolean = contents.some((content: ContentSummaryAndCompareStatus) => {
                     return itemId.equals(content.getContentId());
                 });
 
@@ -103,20 +106,23 @@ export class VersionHistoryView extends WidgetItemView {
             console.debug('VersionsWidgetItemView.reloadActivePanel');
         }
 
-        if (this.gridLoadDeferred) {
-            return this.gridLoadDeferred.promise;
-        }
-
         if (this.versionListView) {
-            this.gridLoadDeferred = Q.defer<any>();
-            this.versionListView.reload()
-                .then(() => this.gridLoadDeferred.resolve(null))
-                .catch(reason => this.gridLoadDeferred.reject(reason))
-                .finally(() => this.gridLoadDeferred = null);
+            return this.versionsLoader.load(this.content).then((versions: ContentVersions) => {
+                VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersion());
 
-            return this.gridLoadDeferred.promise;
+                const items: VersionHistoryItem[] = ContentVersionsConverter.create()
+                    .setContent(this.content)
+                    .setContentVersions(versions)
+                    .build()
+                    .toVersionHistoryItems();
+
+                this.versionListView.setContent(this.content);
+                this.versionListView.setItems(items);
+
+                return Q.resolve();
+            });
         }
 
-        return Q(null);
+        return Q.resolve();
     }
 }

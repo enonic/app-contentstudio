@@ -1,8 +1,9 @@
-import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersionPublishInfo} from '../../../../ContentVersionPublishInfo';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ChildOrder} from '../../../../resource/order/ChildOrder';
+import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {ContentVersion} from '../../../../ContentVersion';
+import {ContentId} from '../../../../content/ContentId';
 
 export enum VersionItemStatus {
     PUBLISHED = 'published',
@@ -23,106 +24,105 @@ export interface CreateParams {
     isPermissionChange?: boolean;
 }
 
-export class VersionHistoryItem {
+export class VersionHistoryItem implements Cloneable {
 
-    private id: string;
+    private readonly contentId: ContentId;
 
-    private user: string;
+    private readonly user: string;
 
-    private dateTime: Date;
+    private readonly dateTime: Date;
 
-    private activeFrom: Date;
+    private readonly activeFrom: Date;
 
-    private activeTo: Date;
+    private readonly activeTo: Date;
 
-    private status: VersionItemStatus;
+    private readonly status: VersionItemStatus;
 
-    private iconCls: string;
+    private readonly iconCls: string;
 
-    private message: string;
+    private readonly message: string;
 
-    private skipDate: boolean = false;
+    private readonly skipDate: boolean;
 
-    private activeVersionId: string;
+    private readonly republished: boolean;
 
-    private republished: boolean = false;
+    private readonly version: ContentVersion;
 
-    static fromPublishInfo(publishInfo: ContentVersionPublishInfo): VersionHistoryItem {
-        const item: VersionHistoryItem = new VersionHistoryItem();
+    private readonly alias: VersionHistoryItemAlias;
 
-        item.dateTime = publishInfo.getTimestamp();
-        item.user = publishInfo.getPublisherDisplayName() || publishInfo.getPublisher();
+    constructor(builder: VersionHistoryItemBuilder) {
+        this.contentId = builder.contentId;
+        this.user = builder.user;
+        this.dateTime = builder.dateTime;
+        this.activeFrom = builder.activeFrom;
+        this.activeTo = builder.activeTo;
+        this.status = builder.status;
+        this.iconCls = builder.iconCls;
+        this.message = builder.message;
+        this.skipDate = builder.skipDate;
+        this.republished = builder.republished;
+        this.version = builder.version;
+        this.alias = builder.alias;
+    }
+
+    static fromPublishInfo(contentVersion: ContentVersion): VersionHistoryItemBuilder {
+        const builder: VersionHistoryItemBuilder = new VersionHistoryItemBuilder();
+        const publishInfo: ContentVersionPublishInfo = contentVersion.getPublishInfo();
+
+        builder.setVersion(contentVersion)
+            .setDateTime(publishInfo.getTimestamp())
+            .setUser(publishInfo.getPublisherDisplayName() || publishInfo.getPublisher());
 
         if (publishInfo.isPublished()) {
             if (publishInfo.isScheduled()) {
-                item.status = VersionItemStatus.SCHEDULED;
-                item.iconCls = 'icon-clock';
+                builder.setStatus(VersionItemStatus.SCHEDULED).setIconCls('icon-clock');
             } else {
-                item.status = VersionItemStatus.PUBLISHED;
-                item.iconCls = 'icon-version-published';
-                item.activeFrom = publishInfo.getPublishedFrom();
+                builder.setStatus(VersionItemStatus.PUBLISHED)
+                    .setIconCls('icon-version-published')
+                    .setActiveFrom(publishInfo.getPublishedFrom());
             }
-            item.activeTo = publishInfo.getPublishedTo();
+            builder.setActiveTo(publishInfo.getPublishedTo());
         } else if (publishInfo.isUnpublished()) {
-            item.iconCls = 'icon-version-unpublished';
-            item.status = VersionItemStatus.UNPUBLISHED;
+            builder.setIconCls('icon-version-unpublished').setStatus(VersionItemStatus.UNPUBLISHED);
         } else if (publishInfo.isArchived()) {
-            item.iconCls = 'icon-archive';
-            item.status = VersionItemStatus.ARCHIVED;
+            builder.setIconCls('icon-archive').setStatus(VersionItemStatus.ARCHIVED);
         } else if (publishInfo.isRestored()) {
-            item.iconCls = 'icon-restore';
-            item.status = VersionItemStatus.RESTORED;
+            builder.setIconCls('icon-restore').setStatus(VersionItemStatus.RESTORED);
         }
 
-        item.message = publishInfo.getMessage();
+        builder.setMessage(publishInfo.getMessage());
 
-        return item;
+        return builder;
     }
 
-    static fromContentVersion(contentVersion: ContentVersion, createParams: CreateParams): VersionHistoryItem {
-        const item: VersionHistoryItem = new VersionHistoryItem();
+    static fromContentVersion(contentVersion: ContentVersion, createParams: CreateParams): VersionHistoryItemBuilder {
+        const builder: VersionHistoryItemBuilder = new VersionHistoryItemBuilder();
 
-        item.id = contentVersion.getId();
-        item.dateTime = createParams.createdDate || contentVersion.getTimestamp();
-        item.user = contentVersion.getModifierDisplayName() || contentVersion.getModifier();
+        builder.setVersion(contentVersion)
+            .setDateTime(createParams.createdDate || contentVersion.getTimestamp())
+            .setUser(contentVersion.getModifierDisplayName() || contentVersion.getModifier());
 
         if (createParams.createdDate) {
-            item.iconCls = 'icon-wand';
-            item.status = VersionItemStatus.CREATED;
+            builder.setIconCls('icon-wand').setStatus(VersionItemStatus.CREATED);
         } else if (createParams.isSort) {
-            item.iconCls = 'icon-sort-amount-asc';
-            item.status = VersionItemStatus.SORTED;
+            builder.setIconCls('icon-sort-amount-asc').setStatus(VersionItemStatus.SORTED);
         } else if (createParams.isPermissionChange) {
-            item.iconCls = 'icon-masks';
-            item.status = VersionItemStatus.PERMISSIONS;
+            builder.setIconCls('icon-masks').setStatus(VersionItemStatus.PERMISSIONS);
         } else if (contentVersion.isInReadyState()) {
-            item.iconCls = 'icon-state-ready';
-            item.status = VersionItemStatus.MARKED_AS_READY;
+            builder.setIconCls('icon-state-ready').setStatus(VersionItemStatus.MARKED_AS_READY);
         } else {
-            item.iconCls = 'icon-version-modified';
-            item.status = VersionItemStatus.EDITED;
+            builder.setIconCls('icon-version-modified').setStatus(VersionItemStatus.EDITED);
         }
 
-        return item;
+        return builder;
     }
 
-    getActiveVersionId(): string {
-        return this.activeVersionId;
+    getContentId(): ContentId {
+        return this.contentId;
     }
 
-    setActiveVersionId(value: string): VersionHistoryItem {
-        this.activeVersionId = value;
-        return this;
-    }
-
-    setSkipDate(value: boolean): VersionHistoryItem {
-        this.skipDate = value;
-        return this;
-    }
-
-    setRepublished(value: boolean): VersionHistoryItem {
-        this.republished = value;
-        return this;
+    getContentIdAsString(): string {
+        return this.contentId.toString();
     }
 
     isRepublished(): boolean {
@@ -143,7 +143,7 @@ export class VersionHistoryItem {
     }
 
     getId(): string {
-        return this.id;
+        return this.version.getId();
     }
 
     getUser(): string {
@@ -178,10 +178,6 @@ export class VersionHistoryItem {
         return this.message ? this.message.trim() : undefined;
     }
 
-    isActive(): boolean {
-        return this.activeVersionId && this.activeVersionId === this.id;
-    }
-
     skipsDate(): boolean {
         return this.skipDate;
     }
@@ -200,5 +196,172 @@ export class VersionHistoryItem {
 
     isPermissionsUpdated(): boolean {
         return this.status === VersionItemStatus.PERMISSIONS;
+    }
+
+    getContentVersion(): ContentVersion {
+        return this.version;
+    }
+
+    isAlias(): boolean {
+        return !!this.alias;
+    }
+
+    getAlias(): VersionHistoryItemAlias {
+        return this.alias;
+    }
+
+    getAliasType(): AliasType {
+        if (!this.isAlias()) {
+            return null;
+        }
+
+        return this.getAlias().getType();
+    }
+
+    getAliasDisplayName(): string {
+        if (!this.isAlias()) {
+            return null;
+        }
+
+        return this.getAlias().getDisplayName();
+    }
+
+    createAlias(displayName: string, type: AliasType): VersionHistoryItem {
+        const versionAliasBuilder: VersionHistoryItemBuilder = this.clone();
+        const alias = new VersionHistoryItemAlias(displayName, type);
+        versionAliasBuilder.alias = alias;
+
+        return versionAliasBuilder.build();
+    }
+
+    clone(): VersionHistoryItemBuilder {
+        return new VersionHistoryItemBuilder(this);
+    }
+}
+
+export class VersionHistoryItemBuilder {
+
+    contentId: ContentId;
+
+    user: string;
+
+    dateTime: Date;
+
+    activeFrom: Date;
+
+    activeTo: Date;
+
+    status: VersionItemStatus;
+
+    iconCls: string;
+
+    message: string;
+
+    skipDate: boolean = false;
+
+    republished: boolean = false;
+
+    version: ContentVersion;
+
+    alias: VersionHistoryItemAlias;
+
+    constructor(source?: VersionHistoryItem) {
+        if (source) {
+            this.contentId = source.getContentId();
+            this.user = source.getUser();
+            this.dateTime = source.getDateTime();
+            this.activeFrom = source.getActiveFrom();
+            this.activeTo = source.getActiveTo();
+            this.status = source.getStatus();
+            this.iconCls = source.getIconCls();
+            this.message = source.getMessage();
+            this.skipDate = source.skipsDate();
+            this.republished = source.isRepublished();
+            this.version = source.getContentVersion()?.clone();
+            this.alias = source.getAlias();
+        }
+    }
+
+    setContentId(value: ContentId): VersionHistoryItemBuilder {
+        this.contentId = value;
+        return this;
+    }
+
+    setUser(value: string): VersionHistoryItemBuilder {
+        this.user = value;
+        return this;
+    }
+
+    setDateTime(value: Date): VersionHistoryItemBuilder {
+        this.dateTime = value;
+        return this;
+    }
+
+    setActiveFrom(value: Date): VersionHistoryItemBuilder {
+        this.activeFrom = value;
+        return this;
+    }
+
+    setActiveTo(value: Date): VersionHistoryItemBuilder {
+        this.activeTo = value;
+        return this;
+    }
+
+    setStatus(value: VersionItemStatus): VersionHistoryItemBuilder {
+        this.status = value;
+        return this;
+    }
+
+    setIconCls(value: string): VersionHistoryItemBuilder {
+        this.iconCls = value;
+        return this;
+    }
+
+    setMessage(value: string): VersionHistoryItemBuilder {
+        this.message = value;
+        return this;
+    }
+
+    setSkipDate(value: boolean): VersionHistoryItemBuilder {
+        this.skipDate = value;
+        return this;
+    }
+
+    setRepublished(value: boolean): VersionHistoryItemBuilder {
+        this.republished = value;
+        return this;
+    }
+
+    setVersion(value: ContentVersion): VersionHistoryItemBuilder {
+        this.version = value;
+        return this;
+    }
+
+    build(): VersionHistoryItem {
+        return new VersionHistoryItem(this);
+    }
+}
+
+export enum AliasType {
+    NEWEST, PUBLISHED, NEXT, PREV
+}
+
+export class VersionHistoryItemAlias {
+    private readonly displayName: string;
+
+    private readonly type: AliasType;
+
+    constructor(displayName: string, type: AliasType, divider: boolean = false) {
+        this.displayName = displayName;
+
+        this.type = type;
+    }
+
+    getType(): AliasType {
+        return this.type;
+    }
+
+    getDisplayName(): string {
+        return this.displayName;
     }
 }

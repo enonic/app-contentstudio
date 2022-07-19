@@ -35,7 +35,6 @@ import {CreateContentRequest} from '../resource/CreateContentRequest';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
-import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
 import {ImageErrorEvent} from '../inputtype/ui/selector/image/ImageErrorEvent';
 import {ContentFormContext} from '../ContentFormContext';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
@@ -143,6 +142,7 @@ import {WorkflowState} from '../content/WorkflowState';
 import {Workflow} from '../content/Workflow';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {ContentTabBarItem} from './ContentTabBarItem';
+import {VersionContext} from '../view/context/widget/version/VersionContext';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1462,9 +1462,11 @@ export class ContentWizardPanel
             });
         };
 
-        const versionChangeHandler = () => {
-            this.handleCUD();
-            this.updateButtonsState();
+        const versionChangeHandler = (contentId: string, version: string) => {
+            if (this.persistedContent?.getId() === contentId) {
+                this.handleCUD();
+                this.updateButtonsState();
+            }
         };
 
         const createdHandler = () => {
@@ -1515,7 +1517,7 @@ export class ContentWizardPanel
             }
         };
 
-        ActiveContentVersionSetEvent.on(versionChangeHandler);
+        VersionContext.onActiveVersionChanged(versionChangeHandler);
         ContentDeletedEvent.on(deleteHandler);
 
         serverEvents.onContentCreated(createdHandler);
@@ -1530,7 +1532,7 @@ export class ContentWizardPanel
         serverEvents.onContentArchived(archivedHandler);
 
         this.onClosed(() => {
-            ActiveContentVersionSetEvent.un(versionChangeHandler);
+            VersionContext.unActiveVersionChanged(versionChangeHandler);
             ContentDeletedEvent.un(deleteHandler);
 
             serverEvents.unContentCreated(createdHandler);
