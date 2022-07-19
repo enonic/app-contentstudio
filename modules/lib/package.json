@@ -35,7 +35,7 @@
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
     "@typescript-eslint/utils": "^5.30.7",
-    "eslint": "^8.19.0",
+    "eslint": "^8.20.0",
     "minimist": "^1.2.6",
     "postcss-loader": "^7.0.1",
     "terser": "^5.14.2",
