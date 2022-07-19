@@ -1,12 +1,11 @@
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {VersionHistoryListItemViewer} from './VersionHistoryListItemViewer';
+import {VersionHistoryItemViewer} from './VersionHistoryItemViewer';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
-import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
 import * as $ from 'jquery';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
@@ -14,6 +13,9 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {VersionHistoryItem} from './VersionHistoryItem';
+import {VersionContext} from './VersionContext';
+import * as Q from 'q';
+import {VersionHistoryHelper} from './VersionHistoryHelper';
 
 export class VersionHistoryListItem
     extends LiEl {
@@ -30,15 +32,11 @@ export class VersionHistoryListItem
         this.content = content;
     }
 
-    private createVersionViewer(): VersionHistoryListItemViewer {
-        const versionViewer: VersionHistoryListItemViewer = new VersionHistoryListItemViewer();
+    private createVersionViewer(): VersionHistoryItemViewer {
+        const versionViewer: VersionHistoryItemViewer = new VersionHistoryItemViewer();
 
         if (this.isInteractableItem()) {
             this.addOnClickHandler(versionViewer);
-
-            ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
-                this.version.setActiveVersionId(event.getVersionId());
-            });
         }
 
         versionViewer.setObject(this.version);
@@ -55,20 +53,17 @@ export class VersionHistoryListItem
         }
 
         versionViewer.toggleClass('interactable', this.isInteractableItem());
+        versionViewer.toggleClass('active', this.isActive());
 
         return versionViewer;
     }
 
     private isCompareButtonRequired(): boolean {
-        return !this.version.isActive() && this.isInteractableItem();
+        return !this.isActive() && this.isInteractableItem();
     }
 
     private isInteractableItem(): boolean {
-        return !this.version.isPublishAction() &&
-               !this.version.isSorted() &&
-               !this.version.isPermissionsUpdated() &&
-               !this.version.isRestored() &&
-               !this.version.isArchived();
+        return VersionHistoryHelper.isInteractableItem(this.version);
     }
 
     private createTooltip() {
@@ -137,7 +132,7 @@ export class VersionHistoryListItem
 
     private openCompareDialog() {
         CompareContentVersionsDialog.get()
-            .setContent(this.content.getContentSummary())
+            .setContent(this.content)
             .setReadOnly(this.content.isReadOnly())
             .setLeftVersion(this.version.getId())
             .resetRightVersion()
@@ -145,12 +140,13 @@ export class VersionHistoryListItem
             .open();
     }
 
-    private revert(versionId: string, versionDate: Date, activeVersionId?: string) {
-        const currentActiveVersionId = activeVersionId ? activeVersionId : this.version.getActiveVersionId();
-        new RevertVersionRequest(versionId, this.content.getContentId().toString())
+    private revert(versionId: string, versionDate: Date) {
+        const contentIdAsString: string = this.content.getContentId().toString();
+
+        new RevertVersionRequest(versionId, contentIdAsString)
             .sendAndParse()
             .then((newVersionId: string) => {
-                if (newVersionId === currentActiveVersionId) {
+                if (newVersionId === VersionContext.getActiveVersion(contentIdAsString)) {
                     NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
                     return;
                 }
@@ -158,7 +154,7 @@ export class VersionHistoryListItem
                 const dateTime = `${DateHelper.formatDateTime(versionDate)}`;
                 NotifyManager.get().showSuccess(i18n('notify.version.changed', dateTime));
 
-                new ActiveContentVersionSetEvent(this.content.getContentId(), newVersionId).fire();
+                VersionContext.setActiveVersion(contentIdAsString, newVersionId);
             })
             .catch(DefaultErrorHandler.handle);
     }
@@ -177,14 +173,14 @@ export class VersionHistoryListItem
         }
     }
 
-    private addOnClickHandler(viewer: VersionHistoryListItemViewer) {
+    private addOnClickHandler(viewer: VersionHistoryItemViewer) {
         viewer.onClicked(() => {
             this.collapseAllExpandedSiblings();
             this.toggleTooltip();
             this.toggleClass('expanded');
 
             if (this.hasClass('expanded') && !this.actionButton) {
-                this.actionButton = this.version.isActive() ? this.createActiveVersionButton() : this.createRevertButton();
+                this.actionButton = this.isActive() ? this.createActiveVersionButton() : this.createRevertButton();
                 this.actionButton.addClass('version-action-button');
                 viewer.appendChild(this.actionButton);
             }
@@ -202,6 +198,10 @@ export class VersionHistoryListItem
         dateDiv.setHtml(DateHelper.formatDate(date));
 
         return dateDiv;
+    }
+
+    private isActive(): boolean {
+        return VersionContext.isActiveVersion(this.version.getContentIdAsString(), this.version.getId());
     }
 
     doRender(): Q.Promise<boolean> {

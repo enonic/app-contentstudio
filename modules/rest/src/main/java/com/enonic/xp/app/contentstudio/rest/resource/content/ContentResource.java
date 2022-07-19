@@ -1544,6 +1544,19 @@ public final class ContentResource
                 Response.Status.NOT_FOUND );
         }
 
+        final Content currentContent =
+            params.getContentKey().startsWith( "/" )
+                ? contentService.getByPath( ContentPath.from( params.getContentKey() ) )
+                : contentService.getById( ContentId.from( params.getContentKey() ) );
+
+        if ( !currentContent.getChildOrder().equals( versionedContent.getChildOrder() ) )
+        {
+            contentService.setChildOrder( SetContentChildOrderParams.create()
+                                              .contentId( currentContent.getId() )
+                                              .childOrder( versionedContent.getChildOrder() )
+                                              .build() );
+        }
+
         final Content revertedContent = contentService.update( prepareUpdateContentParams( versionedContent, contentVersionId ) );
 
         final ContentVersion contentVersion = contentService.getActiveVersion(

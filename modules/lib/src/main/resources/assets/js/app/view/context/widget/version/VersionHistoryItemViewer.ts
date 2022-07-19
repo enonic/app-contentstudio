@@ -5,7 +5,7 @@ import {VersionHistoryItem} from './VersionHistoryItem';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
-export class VersionHistoryListItemViewer
+export class VersionHistoryItemViewer
     extends NamesAndIconViewer<VersionHistoryItem> {
 
     private readonly namesAndIconViewWrapperDiv: DivEl;
@@ -42,7 +42,6 @@ export class VersionHistoryListItemViewer
 
     setObject(version: VersionHistoryItem) {
         this.toggleClass('publish-action', version.isPublishAction());
-        this.toggleClass('active', version.isActive());
         return super.setObject(version);
     }
 

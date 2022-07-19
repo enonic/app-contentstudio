@@ -8,31 +8,27 @@ import {ChildOrder} from './resource/order/ChildOrder';
 export class ContentVersion
     implements Cloneable {
 
-    private modifier: string;
+    private readonly modifier: string;
 
-    private modifierDisplayName: string;
+    private readonly modifierDisplayName: string;
 
-    private displayName: string;
+    private readonly displayName: string;
 
-    private modified: Date;
+    private readonly modified: Date;
 
-    private childOrder: ChildOrder;
+    private readonly childOrder: ChildOrder;
 
-    private timestamp: Date;
+    private readonly timestamp: Date;
 
-    private comment: string;
+    private readonly comment: string;
 
-    private id: string;
+    private readonly id: string;
 
-    private workspaces: string[];
+    private readonly workspaces: string[];
 
-    private publishInfo: ContentVersionPublishInfo;
+    private readonly publishInfo: ContentVersionPublishInfo;
 
-    private workflowInfo: Workflow;
-
-    private alias: ContentVersionAlias;
-
-    private active: boolean = false;
+    private readonly workflowInfo: Workflow;
 
     constructor(builder: ContentVersionBuilder) {
         this.modifier = builder.modifier;
@@ -154,49 +150,8 @@ export class ContentVersion
         return new ContentVersionBuilder(this);
     }
 
-    isAlias(): boolean {
-        return !!this.alias;
-    }
-
-    getAlias(): ContentVersionAlias {
-        return this.alias;
-    }
-
-    getAliasType(): AliasType {
-        if (!this.isAlias()) {
-            return null;
-        }
-
-        return this.getAlias().getType();
-    }
-
-    getAliasDisplayName(): string {
-        if (!this.isAlias()) {
-            return null;
-        }
-
-        return this.getAlias().getDisplayName();
-    }
-
-    createAlias(displayName: string, type: AliasType): ContentVersion {
-        const versionAlias = this.clone();
-        const alias = new ContentVersionAlias(displayName, type);
-        versionAlias.alias = alias;
-        versionAlias.active = this.active;
-
-        return versionAlias;
-    }
-
     clone(): ContentVersion {
         return this.newBuilder().build();
-    }
-
-    isActive(): boolean {
-        return this.active;
-    }
-
-    setActive(value: boolean) {
-        this.active = value;
     }
 }
 
@@ -257,29 +212,5 @@ export class ContentVersionBuilder {
 
     build(): ContentVersion {
         return new ContentVersion(this);
-    }
-}
-
-export enum AliasType {
-    NEWEST, PUBLISHED, NEXT, PREV
-}
-
-export class ContentVersionAlias {
-    private displayName: string;
-
-    private type: AliasType;
-
-    constructor(displayName: string, type: AliasType, divider: boolean = false) {
-        this.displayName = displayName;
-
-        this.type = type;
-    }
-
-    getType(): AliasType {
-        return this.type;
-    }
-
-    getDisplayName(): string {
-        return this.displayName;
     }
 }
