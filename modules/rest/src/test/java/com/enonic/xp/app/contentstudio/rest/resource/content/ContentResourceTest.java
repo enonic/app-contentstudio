@@ -2549,8 +2549,8 @@ public class ContentResourceTest
         final PrincipalKey principalKey = RoleKeys.ADMIN;
 
         // mock
-        final Content content = Mockito.mock( Content.class );
         final Content versionedContent = Mockito.mock( Content.class );
+        final Content currentContent = Mockito.mock( Content.class );
         final ByteSource byteSource = Mockito.mock( ByteSource.class );
         final ContentVersion contentVersion =
             ContentVersion.create().id( ContentVersionId.from( "contentVersionId" ) ).modifier( principalKey ).build();
@@ -2562,8 +2562,11 @@ public class ContentResourceTest
         Mockito.when( versionedContent.getAttachments() ).thenReturn( attachments );
         Mockito.when( contentService.getByIdAndVersionId( any( ContentId.class ), any( ContentVersionId.class ) ) )
             .thenReturn( versionedContent );
-        Mockito.when( contentService.getById( any( ContentId.class ) ) ).thenReturn( content );
+        Mockito.when( contentService.getById( any( ContentId.class ) ) ).thenReturn( currentContent );
         Mockito.when( contentService.update( any( UpdateContentParams.class ) ) ).thenReturn( updatedContent );
+        Mockito.when( versionedContent.getChildOrder() ).thenReturn( ChildOrder.create().build() );
+        Mockito.when( currentContent.getId() ).thenReturn( ContentId.from( "nodeId" ) );
+        Mockito.when( currentContent.getChildOrder() ).thenReturn( ChildOrder.manualOrder() );
         Mockito.when( contentService.getBinary( any( ContentId.class ), any( ContentVersionId.class ), any( BinaryReference.class ) ) )
             .thenReturn( byteSource );
         Mockito.when( contentService.getActiveVersion( any( GetActiveContentVersionParams.class ) ) ).thenReturn( contentVersion );
@@ -2581,7 +2584,8 @@ public class ContentResourceTest
         Mockito.verify( this.contentService, Mockito.times( 1 ) )
             .getBinary( any( ContentId.class ), any( ContentVersionId.class ), any( BinaryReference.class ) );
         Mockito.verify( this.contentService, Mockito.times( 1 ) ).update( any( UpdateContentParams.class ) );
-        Mockito.verify( this.contentService, Mockito.times( 1 ) ).getById( any( ContentId.class ) );
+        Mockito.verify( this.contentService, Mockito.times( 1 ) ).setChildOrder( any( SetContentChildOrderParams.class ) );
+        Mockito.verify( this.contentService, Mockito.times( 2 ) ).getById( any( ContentId.class ) );
         Mockito.verify( this.contentService, Mockito.times( 1 ) ).getActiveVersion( any( GetActiveContentVersionParams.class ) );
         Mockito.verifyNoMoreInteractions( contentService );
     }
@@ -2596,16 +2600,20 @@ public class ContentResourceTest
         final PrincipalKey principalKey = RoleKeys.ADMIN;
 
         // mock
-        final Content content = Mockito.mock( Content.class );
         final Content versionedContent = Mockito.mock( Content.class );
+        final Content currentContent = Mockito.mock( Content.class );
         final ContentVersion contentVersion =
             ContentVersion.create().id( ContentVersionId.from( "contentVersionId" ) ).modifier( principalKey ).build();
 
         Mockito.when( versionedContent.getId() ).thenReturn( ContentId.from( "nodeId" ) );
+        Mockito.when( versionedContent.getChildOrder() ).thenReturn( ChildOrder.create().build() );
+        Mockito.when( currentContent.getId() ).thenReturn( ContentId.from( "nodeId" ) );
+        Mockito.when( currentContent.getChildOrder() ).thenReturn( ChildOrder.create().build() );
         Mockito.when( contentService.getByPathAndVersionId( any( ContentPath.class ), any( ContentVersionId.class ) ) )
             .thenReturn( versionedContent );
+        Mockito.when( contentService.getByPath( any( ContentPath.class ) ) ).thenReturn( currentContent );
         Mockito.when( contentService.update( any( UpdateContentParams.class ) ) ).thenReturn( updatedContent );
-        Mockito.when( contentService.getById( any( ContentId.class ) ) ).thenReturn( content );
+        Mockito.when( contentService.getById( any( ContentId.class ) ) ).thenReturn( currentContent );
         Mockito.when( contentService.getActiveVersion( any( GetActiveContentVersionParams.class ) ) ).thenReturn( contentVersion );
 
         // test
@@ -2618,6 +2626,7 @@ public class ContentResourceTest
         // verify
         Mockito.verify( this.contentService, Mockito.times( 1 ) )
             .getByPathAndVersionId( any( ContentPath.class ), any( ContentVersionId.class ) );
+        Mockito.verify( this.contentService, Mockito.times( 1 ) ).getByPath( any( ContentPath.class ));
         Mockito.verify( this.contentService, Mockito.times( 1 ) ).update( any( UpdateContentParams.class ) );
         Mockito.verify( this.contentService, Mockito.times( 1 ) ).getById( any( ContentId.class ) );
         Mockito.verify( this.contentService, Mockito.times( 1 ) ).getActiveVersion( any( GetActiveContentVersionParams.class ) );

@@ -5,9 +5,10 @@ import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSiz
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {VersionHistoryItem} from './VersionHistoryItem';
+import {VersionContext} from './VersionContext';
 
 export class ContentVersionViewer
-    extends Viewer<ContentVersion> {
+    extends Viewer<VersionHistoryItem> {
 
     protected namesAndIconView: NamesAndIconView;
 
@@ -17,38 +18,30 @@ export class ContentVersionViewer
         this.appendChild(this.namesAndIconView);
     }
 
-    private getIconClass(version: ContentVersion): string {
-        if (version.isPublished()) {
-            if (version.getPublishInfo().isScheduled()) {
-                return 'icon-clock';
-            }
-            return 'icon-version-published';
-        }
-        if (version.isUnpublished()) {
-            return 'icon-version-unpublished';
-        }
-        if (version.isInReadyState()) {
-            return 'icon-state-ready';
-        }
-
-        return 'icon-version-modified';
+    private getIconClass(version: VersionHistoryItem): string {
+        return version.getIconCls();
     }
 
-    setObject(version: ContentVersion) {
-        const displayDate = version.getDisplayDate();
-        const displayName = version.hasPublishInfo() ?
+    setObject(item: VersionHistoryItem) {
+        const version: ContentVersion = item.getContentVersion();
+        const displayDate: Date = version.getDisplayDate();
+        const displayName: string = version.hasPublishInfo() ?
                              version.getPublishInfo().getPublisherDisplayName() : version.getModifierDisplayName();
-        const isAlias = version.isAlias();
-        const dateTime = `${DateHelper.formatDate(displayDate)} ${DateHelper.getFormattedTimeFromDate(displayDate, false)}`;
-        const subName = i18n('dialog.compareVersions.versionSubName', isAlias ? dateTime : '', displayName);
+        const isAlias: boolean = item.isAlias();
+        const dateTime: string = `${DateHelper.formatDate(displayDate)} ${DateHelper.getFormattedTimeFromDate(displayDate, false)}`;
+        const subName: string = i18n('dialog.compareVersions.versionSubName', isAlias ? dateTime : '', displayName);
 
-        this.toggleClass('divider', version.isActive() && !version.isAlias());
+        this.toggleClass('divider', this.isVersionActive(item) && !item.isAlias());
 
         this.namesAndIconView
-            .setMainName(isAlias ? version.getAliasDisplayName() : dateTime)
+            .setMainName(isAlias ? item.getAliasDisplayName() : dateTime)
             .setSubName(subName)
-            .setIconClass(this.getIconClass(version));
+            .setIconClass(this.getIconClass(item));
 
-        return super.setObject(version);
+        return super.setObject(item);
+    }
+
+    private isVersionActive(item: VersionHistoryItem): boolean {
+        return VersionContext.isActiveVersion(item.getContentIdAsString(), item.getContentVersion().getId());
     }
 }
