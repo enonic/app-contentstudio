@@ -361,7 +361,7 @@ export class LinkModalDialog
     private isQueryParamsValid(): boolean {
         const isValid = Array.from(this.paramsFormItem.getHTMLElement().getElementsByTagName('input'))
             .filter((input: HTMLInputElement) => input.className.indexOf('params-key') >= 0)
-            .every((input: HTMLInputElement) => input.value.trim() !== '');
+            .every((input: HTMLInputElement) => input.value !== '');
 
         return isValid;
     }
@@ -981,8 +981,8 @@ export class LinkModalDialog
 
     private getContentLinkQueryParams(): string {
         const queryParamsString: string = this.paramsFormIds.reduce((prev, formParam: FormParam) => {
-            const key: string = (<TextInput>this.getFieldById(formParam.keyId)).getValue();
-            const value: string = (<TextInput>this.getFieldById(formParam.valueId)).getValue();
+            const key: string = (<TextInput>this.getFieldById(formParam.keyId)).getValue().trim();
+            const value: string = (<TextInput>this.getFieldById(formParam.valueId)).getValue().trim();
             return prev === '' ? `${key}=${value}` : `${prev}&${key}=${value}`;
         }, '');
 
@@ -994,7 +994,7 @@ export class LinkModalDialog
     }
 
     private getContentLinkFragment(hasQueryParams: boolean): string {
-        const anchorString: string = encodeURIComponent((<TextInput>this.getFieldById('contentFragment')).getValue());
+        const anchorString: string = encodeURIComponent((<TextInput>this.getFieldById('contentFragment')).getValue().trim());
         const fragment: string = anchorString ? `${LinkModalDialog.fragmentPrefix}${anchorString}` : '';
 
         if (!fragment) {
@@ -1083,7 +1083,7 @@ export class LinkModalDialog
     }
 
     private createUrlLink(): void {
-        const url: string = (<TextInput>this.getFieldById('url')).getValue();
+        const url: string = (<TextInput>this.getFieldById('url')).getValue().trim();
         const isOpenInNewTab: boolean = (<Checkbox>this.getFieldById('urlTarget')).isChecked();
         const target: string = isOpenInNewTab ? '_blank' : '';
 
@@ -1094,8 +1094,8 @@ export class LinkModalDialog
     }
 
     private createEmailLink(): void {
-        const email = (<TextInput>this.getFieldById('email')).getValue();
-        const subject = (<TextInput>this.getFieldById('subject')).getValue();
+        const email = (<TextInput>this.getFieldById('email')).getValue().trim();
+        const subject = (<TextInput>this.getFieldById('subject')).getValue().trim();
 
         this.getOriginalLinkTypeElem().setValue('email', false);
         this.getOriginalEmailElem().setValue(email, false);
