@@ -35,7 +35,7 @@ export class VersionHistoryListItem
     private createVersionViewer(): VersionHistoryItemViewer {
         const versionViewer: VersionHistoryItemViewer = new VersionHistoryItemViewer();
 
-        if (this.isInteractableItem()) {
+        if (this.isInteractableItem() || this.isActiveChangedVersion()) {
             this.addOnClickHandler(versionViewer);
         }
 
@@ -52,7 +52,7 @@ export class VersionHistoryListItem
             versionViewer.appendChild(messageBlock);
         }
 
-        versionViewer.toggleClass('interactable', this.isInteractableItem());
+        versionViewer.toggleClass('interactable', this.isInteractableItem() || this.isActiveChangedVersion());
         versionViewer.toggleClass('active', this.isActive());
 
         return versionViewer;
@@ -64,6 +64,10 @@ export class VersionHistoryListItem
 
     private isInteractableItem(): boolean {
         return VersionHistoryHelper.isInteractableItem(this.version);
+    }
+
+    private isActiveChangedVersion(): boolean {
+        return this.isActive() && this.version.isChanged();
     }
 
     private createTooltip() {

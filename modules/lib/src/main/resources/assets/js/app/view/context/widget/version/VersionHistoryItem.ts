@@ -15,13 +15,13 @@ export enum VersionItemStatus {
     MARKED_AS_READY = 'markedAsReady',
     EDITED = 'edited',
     SORTED = 'sorted',
-    PERMISSIONS = 'permissions'
+    CHANGED = 'changed'
 }
 
 export interface CreateParams {
     createdDate?: Date;
     isSort?: boolean;
-    isPermissionChange?: boolean;
+    isNonTrackableChange?: boolean;
 }
 
 export class VersionHistoryItem implements Cloneable {
@@ -106,8 +106,8 @@ export class VersionHistoryItem implements Cloneable {
             builder.setIconCls('icon-wand').setStatus(VersionItemStatus.CREATED);
         } else if (createParams.isSort) {
             builder.setIconCls('icon-sort-amount-asc').setStatus(VersionItemStatus.SORTED);
-        } else if (createParams.isPermissionChange) {
-            builder.setIconCls('icon-masks').setStatus(VersionItemStatus.PERMISSIONS);
+        } else if (createParams.isNonTrackableChange) {
+            builder.setIconCls('icon-checkmark').setStatus(VersionItemStatus.CHANGED);
         } else if (contentVersion.isInReadyState()) {
             builder.setIconCls('icon-state-ready').setStatus(VersionItemStatus.MARKED_AS_READY);
         } else {
@@ -194,8 +194,8 @@ export class VersionHistoryItem implements Cloneable {
         return this.status === VersionItemStatus.SORTED;
     }
 
-    isPermissionsUpdated(): boolean {
-        return this.status === VersionItemStatus.PERMISSIONS;
+    isChanged(): boolean {
+        return this.status === VersionItemStatus.CHANGED;
     }
 
     getContentVersion(): ContentVersion {
