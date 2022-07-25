@@ -1,5 +1,6 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {CompareStatus} from '../content/CompareStatus';
 import {ContentWizardPanel} from './ContentWizardPanel';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 
@@ -7,6 +8,7 @@ export interface WorkflowStateStatus {
     invalid: boolean;
     ready: boolean;
     inProgress: boolean;
+    published: boolean;
 }
 
 export class WorkflowStateIconsManager {
@@ -16,6 +18,8 @@ export class WorkflowStateIconsManager {
     static READY_CLASS: string = 'ready';
 
     static IN_PROGRESS_CLASS: string = 'in-progress';
+
+    static PUBLISHED_CLASS: string = 'published';
 
     private wizard: ContentWizardPanel;
 
@@ -31,6 +35,7 @@ export class WorkflowStateIconsManager {
 
     updateIcons() {
         const status = this.createWorkflowStateStatus();
+
         const isStatusChanged = this.isWorkflowStateStatusChanged(status);
 
         if (isStatusChanged) {
@@ -69,35 +74,29 @@ export class WorkflowStateIconsManager {
     createWorkflowStateStatus(): WorkflowStateStatus {
         const content = this.wizard.getContent();
 
-        if (content == null) {
-            return {
-                invalid: false,
-                ready: false,
-                inProgress: false
-            };
+        let invalid = false, ready = false, inProgress = false, published = false;
+
+        if (content) {
+            const contentSummary = content.getContentSummary();
+
+            const isInWorkflow = this.wizard.isValid() && !content.isPendingDelete();
+            const hasUnsavedChanges = this.wizard.hasUnsavedChanges();
+            const isNotMoved = content.getCompareStatus() !== CompareStatus.MOVED;
+
+            invalid = !this.wizard.isValid();
+            published = isInWorkflow && isNotMoved && !content.isModified() && content.isPublished();
+            ready = isInWorkflow && !published && !hasUnsavedChanges && contentSummary.isReady();
+            inProgress = isInWorkflow && !published && (hasUnsavedChanges || contentSummary.isInProgress());
         }
 
-        const contentSummary = content.getContentSummary();
-
-        const isValid = this.wizard.isValid();
-        const isPendingDelete = content.isPendingDelete();
-        const isInWorkflow = isValid && !isPendingDelete;
-        const hasUnsavedChanges = this.wizard.hasUnsavedChanges();
-
-        const isReady: boolean = isInWorkflow && !hasUnsavedChanges && contentSummary.isReady();
-        const isInProgress: boolean = isInWorkflow && (hasUnsavedChanges || contentSummary.isInProgress());
-
-        return {
-            invalid: !isValid,
-            ready: isReady,
-            inProgress: isInProgress
-        };
+        return {invalid, ready, inProgress, published};
     }
 
     static toggleWorkflowStateClasses(element: Element, status: WorkflowStateStatus) {
         element.toggleClass(WorkflowStateIconsManager.INVALID_CLASS, status.invalid);
         element.toggleClass(WorkflowStateIconsManager.READY_CLASS, status.ready);
         element.toggleClass(WorkflowStateIconsManager.IN_PROGRESS_CLASS, status.inProgress);
+        element.toggleClass(WorkflowStateIconsManager.PUBLISHED_CLASS, status.published);
     }
 
     public onStatusChanged(listener: (status: WorkflowStateStatus) => void) {
