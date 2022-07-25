@@ -689,7 +689,7 @@ export class CompareContentVersionsDialog
 
     private updateButtonsState() {
         const leftVersion: VersionHistoryItem = this.leftDropdown.getSelectedOption().getDisplayValue();
-        const rightVersion: VersionHistoryItem = this.leftDropdown.getSelectedOption().getDisplayValue();
+        const rightVersion: VersionHistoryItem = this.rightDropdown.getSelectedOption().getDisplayValue();
 
         this.revertLeftButton.setEnabled(this.isVersionRevertable(leftVersion));
         this.revertRightButton.setEnabled(this.isVersionRevertable(rightVersion));

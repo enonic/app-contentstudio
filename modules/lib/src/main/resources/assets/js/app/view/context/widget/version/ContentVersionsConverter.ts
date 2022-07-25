@@ -101,16 +101,16 @@ export class ContentVersionsConverter {
         const isFirstVersion: boolean = index === this.getLastItemIndex();
         const timestamp: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getTimestamp();
 
-        const isSortOrPermissionsChange: boolean = !isFirstVersion &&
+        const isNonDataChange: boolean = !isFirstVersion &&
             !ContentVersion.equalDates(version.getTimestamp(), version.getModified(), 200);
-        const isPermissionChange: boolean = isSortOrPermissionsChange && version.getChildOrder()?.equals(
-            this.contentVersions.get()[index + 1]?.getChildOrder());
-        const isSort: boolean = isSortOrPermissionsChange && !isPermissionChange;
+        const isNonTrackableChange: boolean =
+            isNonDataChange && version.getChildOrder()?.equals(this.contentVersions.get()[index + 1]?.getChildOrder());
+        const isSort: boolean = isNonDataChange && !isNonTrackableChange;
 
         const createParams: CreateParams = {
             createdDate: isFirstVersion ? timestamp : null,
             isSort: isSort,
-            isPermissionChange: isPermissionChange
+            isNonTrackableChange: isNonTrackableChange
         };
 
         return createParams;
