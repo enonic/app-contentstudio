@@ -4,7 +4,7 @@ export class VersionHistoryHelper {
 
     static isInteractableItem(version: VersionHistoryItem): boolean {
         return !version.isPublishAction() &&
-               !version.isPermissionsUpdated() &&
+               !version.isChanged() &&
                !version.isRestored() &&
                !version.isArchived();
     }
