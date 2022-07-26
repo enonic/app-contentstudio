@@ -13,13 +13,6 @@ def hasTask( name )
     return project.tasks.findByName( name ) != null
 }
 
-def applyExcludedTasks()
-{
-    def excludedTasks = gradle.startParameter.getExcludedTaskNames().findAll( { it == 'lint' || it == 'test' } )
-
-    gradle.includedBuild( 'lib-admin-ui' ).getLoadedSettings().getStartParameter().setExcludedTaskNames( excludedTasks )
-}
-
 def applyResourcesTaskDependencies()
 {
     def libAdminDevJarTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':devJar' )
@@ -32,7 +25,6 @@ def applyResourcesTaskDependencies()
 if ( hasLibAdminUi() )
 {
     afterEvaluate {
-        applyExcludedTasks()
         applyResourcesTaskDependencies()
     }
 }
