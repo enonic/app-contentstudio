@@ -4,7 +4,7 @@ import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {ContentStatusToolbar, ContentStatusToolbarConfig} from '../ContentStatusToolbar';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIconsManager';
+import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
 import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
 import {CycleButton} from '@enonic/lib-admin-ui/ui/button/CycleButton';
 import {ProjectContext} from '../project/ProjectContext';
@@ -23,7 +23,7 @@ import {WebSocketConnection} from '@enonic/lib-admin-ui/connection/WebSocketConn
 
 export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
     actions: ContentWizardActions;
-    workflowStateIconsManager: WorkflowStateIconsManager
+    workflowStateIconsManager: WorkflowStateManager
 }
 
 export class ContentWizardToolbar

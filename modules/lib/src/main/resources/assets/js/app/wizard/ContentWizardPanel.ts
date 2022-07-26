@@ -62,7 +62,7 @@ import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
-import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIconsManager';
+import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
 import {RoutineContext} from './Flow';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
@@ -264,7 +264,7 @@ export class ContentWizardPanel
 
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
-    private workflowStateIconsManager: WorkflowStateIconsManager;
+    private workflowStateManager: WorkflowStateManager;
 
     public static debug: boolean = false;
 
@@ -299,7 +299,7 @@ export class ContentWizardPanel
         this.isFirstUpdateAndRenameEventSkiped = false;
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
-        this.workflowStateIconsManager = new WorkflowStateIconsManager(this);
+        this.workflowStateManager = new WorkflowStateManager(this);
         this.debouncedEditorRefresh = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
 
@@ -586,7 +586,7 @@ export class ContentWizardPanel
     protected createMainToolbar(): Toolbar {
         return new ContentWizardToolbar({
             actions: this.wizardActions,
-            workflowStateIconsManager: this.workflowStateIconsManager,
+            workflowStateIconsManager: this.workflowStateManager,
             className: 'content-wizard-toolbar'
         });
     }
@@ -718,7 +718,7 @@ export class ContentWizardPanel
 
                 const isThisValid: boolean = this.isValid();
                 this.isContentFormValid = isThisValid;
-                this.workflowStateIconsManager.updateIcons();
+                this.workflowStateManager.update();
                 this.wizardActions
                     .setContentCanBePublished(this.checkContentCanBePublished())
                     .setIsValid(isThisValid)
@@ -731,7 +731,7 @@ export class ContentWizardPanel
             thumbnailUploader.setEnabled(!this.contentType.isImage());
             thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
 
-            this.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
+            this.workflowStateManager.onStatusChanged((status: WorkflowStateStatus) => {
                 this.wizardActions.setContentCanBeMarkedAsReady(status.inProgress).refreshState();
                 this.isMarkedAsReady = status.ready;
             });
@@ -1182,7 +1182,7 @@ export class ContentWizardPanel
         this.setPersistedContent(newContent);
         this.getMainToolbar().setItem(newContent);
         this.wizardActions.setContent(newContent).refreshState();
-        this.workflowStateIconsManager.updateIcons();
+        this.workflowStateManager.update();
 
         return this.wizardActions.refreshPendingDeleteDecorations();
     }
@@ -1573,7 +1573,7 @@ export class ContentWizardPanel
         this.setPersistedContent(updatedContent);
         this.getMainToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
-        this.workflowStateIconsManager.updateIcons();
+        this.workflowStateManager.update();
 
         if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
             this.isFirstUpdateAndRenameEventSkiped = false;
@@ -1777,7 +1777,7 @@ export class ContentWizardPanel
             this.getMainToolbar().setItem(summaryAndStatus);
             this.wizardActions.setContent(summaryAndStatus).refreshState();
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
-            this.workflowStateIconsManager.updateIcons();
+            this.workflowStateManager.update();
             this.setAllowedActionsBasedOnPermissions();
         });
     }
@@ -1810,7 +1810,7 @@ export class ContentWizardPanel
             .setParams({id})
             .setEnabled(!content.isImage())
             .setValue(new ContentIconUrlResolver().setContent(content).resolve());
-        this.workflowStateIconsManager.updateIcons();
+        this.workflowStateManager.update();
     }
 
     private initLiveEditor(formContext: ContentFormContext, content: Content): Q.Promise<void> {
@@ -2711,7 +2711,7 @@ export class ContentWizardPanel
             }
             this.getMainToolbar().setItem(this.currentContent);
             this.wizardActions.setContent(this.currentContent).refreshState();
-            this.workflowStateIconsManager.updateIcons();
+            this.workflowStateManager.update();
         }
     }
 
