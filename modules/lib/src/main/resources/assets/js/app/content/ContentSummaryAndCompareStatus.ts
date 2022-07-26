@@ -302,6 +302,10 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
         return PublishStatusChecker.isExpired(this.getPublishStatus());
     }
 
+    isMoved(): boolean {
+        return CompareStatusChecker.isMoved(this.getCompareStatus());
+    }
+
     canBeMarkedAsReady(): boolean {
         const contentSummary = this.getContentSummary();
 
