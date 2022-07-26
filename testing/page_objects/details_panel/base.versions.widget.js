@@ -10,13 +10,17 @@ const xpath = {
     versionItemExpanded: "//li[contains(@class,'version-list-item expanded')]",
     versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
     itemByDisplayName: displayName => `${lib.itemByDisplayName(displayName)}`,
-    allListItemsByHeader: header => `//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'${header}')]]`
+    anyItemByHeader: header => `//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'${header}')]]`
 };
 
 class BaseVersionsWidget extends Page {
 
     get compareWithCurrentVersionButton() {
         return this.versionsWidget + lib.COMPARE_WITH_CURRENT_VERSION;
+    }
+
+    get revertButton() {
+        return this.versionsWidget + xpath.versionItemExpanded + "//button[child::span[text()='Revert']]";
     }
 
     //Count version items that contain 'Revert' button
@@ -31,16 +35,42 @@ class BaseVersionsWidget extends Page {
         return items.length;
     }
 
+    async countChangedItems() {
+        await this.waitForElementDisplayed(this.changedItems, appConst.mediumTimeout)
+        let items = await this.findElements(this.changedItems);
+        return items.length;
+    }
+
     //click on a version and expand the content-version-item
     async clickAndExpandVersion(index) {
         try {
             await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
+            //get clickable items:
             let items = await this.findElements(this.versionItems);
+            //click on the item:
             await this.getBrowser().elementClick(items[index].elementId);
-            return await this.pause(400);
+            return await this.pause(300);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_expand_version"));
             throw new Error("Version Widget - error when clicking on the version " + err);
+        }
+    }
+
+    //get all version items with the header then click on required item:
+    async clickOnVersionItemByHeader(versionHeader, index) {
+        try {
+            let i = index === undefined ? 0 : index;
+            await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
+            //get all version items with the header:
+            let locator = xpath.anyItemByHeader(versionHeader);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            let items = await this.findElements(locator);
+            //click on the item:
+            await items[i].click();
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_expand_version"));
+            throw new Error("Error when expand the version: " + err);
         }
     }
 
@@ -48,10 +78,12 @@ class BaseVersionsWidget extends Page {
         try {
             let i = index === undefined ? 0 : index;
             await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
+            //get clickable items:
             let locator = this.versionItemByDisplayName(versionHeader);
             let items = await this.findElements(locator);
+            //click on the item:
             await items[i].click();
-            return await this.pause(500);
+            return await this.pause(300);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_expand_version"));
             throw new Error("Error when expand the version: " + err);
@@ -73,11 +105,28 @@ class BaseVersionsWidget extends Page {
         });
     }
 
+    async waitForRevertButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.revertButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_revert_button"));
+            throw new Error("Revert button should not be displayed! " + err);
+        }
+    }
+
+    async waitForRevertButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.revertButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_revert_button"));
+            throw new Error("Revert button should be displayed! " + err);
+        }
+    }
+
     async clickOnRevertButton() {
         try {
-            let selector = xpath.versionItemExpanded + "//button/span[text()='Revert']";
-            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-            await this.clickOnElement(selector);
+            await this.waitForElementDisplayed(this.revertButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.revertButton);
             return await this.pause(2000);
         } catch (err) {
             throw new Error("Version Widget - error when clicking on 'Revert' button " + err);
@@ -86,8 +135,7 @@ class BaseVersionsWidget extends Page {
 
     async waitForRevertButtonDisabled() {
         try {
-            let selector = xpath.versionItemExpanded + "//button[child::span[text()='Revert']]";
-            let res = await this.getDisplayedElements(selector);
+            let res = await this.getDisplayedElements(this.revertButton);
             await res[0].waitForEnabled({timeout: 2000, reverse: true});
             return await this.pause(appConst.mediumTimeout);
         } catch (err) {
@@ -117,7 +165,7 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    // Headers or displayNames :Created, Edited,
+    // Headers or displayNames :Created, Edited.  Permissions Updated is excluded
     versionItemByDisplayName(displayName) {
         return this.versionsWidget + xpath.versionItem + xpath.itemByDisplayName(displayName);
     }
@@ -144,7 +192,7 @@ class BaseVersionsWidget extends Page {
 
     async isCompareWithCurrentVersionButtonDisplayed(itemHeader, index) {
         let buttonLocator = ".//button[@title='Compare with current version']";
-        let itemLocator = this.versionsWidget + xpath.allListItemsByHeader(itemHeader);
+        let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
         let elements = await this.findElements(itemLocator);
         let buttonElements = await elements[index].$$(buttonLocator);
         return buttonElements.length > 0;
@@ -152,5 +200,3 @@ class BaseVersionsWidget extends Page {
 }
 
 module.exports = BaseVersionsWidget;
-
-
