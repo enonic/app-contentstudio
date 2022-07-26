@@ -2,6 +2,8 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ContentWizardPanel} from './ContentWizardPanel';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentSummary} from '../content/ContentSummary';
 
 export interface WorkflowStateStatus {
     invalid: boolean;
@@ -9,7 +11,7 @@ export interface WorkflowStateStatus {
     inProgress: boolean;
 }
 
-export class WorkflowStateIconsManager {
+export class WorkflowStateManager {
 
     static INVALID_CLASS: string = 'invalid';
 
@@ -29,33 +31,32 @@ export class WorkflowStateIconsManager {
         this.statusChangedListeners = [];
     }
 
-    updateIcons() {
-        const status = this.createWorkflowStateStatus();
-        const isStatusChanged = this.isWorkflowStateStatusChanged(status);
+    update() {
+        const status: WorkflowStateStatus = this.createWorkflowStateStatus();
+        const isStatusChanged: boolean = this.isWorkflowStateStatusChanged(status);
 
         if (isStatusChanged) {
-            const thumbnailUploader: ThumbnailUploaderEl = this.wizard.getFormIcon();
-            const toolbarIcon: DivEl = this.wizard.getMainToolbar()?.getStateIcon();
-
-            if (thumbnailUploader) {
-                WorkflowStateIconsManager.toggleWorkflowStateClasses(thumbnailUploader, status);
-            }
-
-            if (toolbarIcon) {
-                WorkflowStateIconsManager.toggleWorkflowStateClasses(toolbarIcon, status);
-            }
-
             this.status = status;
 
+            this.updateIcons();
             this.notifyStatusChanged(status);
         }
     }
 
-    getStatus(): WorkflowStateStatus {
-        return this.status;
+    private updateIcons(): void {
+        const thumbnailUploader: ThumbnailUploaderEl = this.wizard.getFormIcon();
+        const toolbarIcon: DivEl = this.wizard.getMainToolbar()?.getStateIcon();
+
+        if (thumbnailUploader) {
+            this.toggleWorkflowStateClasses(thumbnailUploader);
+        }
+
+        if (toolbarIcon) {
+            this.toggleWorkflowStateClasses(toolbarIcon);
+        }
     }
 
-    isWorkflowStateStatusChanged(status: WorkflowStateStatus) {
+    private isWorkflowStateStatusChanged(status: WorkflowStateStatus) {
         if (status == null && this.status == null) {
             return false;
         }
@@ -66,8 +67,8 @@ export class WorkflowStateIconsManager {
                this.status.ready !== status.ready;
     }
 
-    createWorkflowStateStatus(): WorkflowStateStatus {
-        const content = this.wizard.getContent();
+    private createWorkflowStateStatus(): WorkflowStateStatus {
+        const content: ContentSummaryAndCompareStatus = this.wizard.getContent();
 
         if (content == null) {
             return {
@@ -77,12 +78,11 @@ export class WorkflowStateIconsManager {
             };
         }
 
-        const contentSummary = content.getContentSummary();
-
-        const isValid = this.wizard.isValid();
-        const isPendingDelete = content.isPendingDelete();
-        const isInWorkflow = isValid && !isPendingDelete;
-        const hasUnsavedChanges = this.wizard.hasUnsavedChanges();
+        const contentSummary: ContentSummary = content.getContentSummary();
+        const isValid: boolean = this.wizard.isValid();
+        const isPendingDelete: boolean = content.isPendingDelete();
+        const isInWorkflow: boolean = isValid && !isPendingDelete;
+        const hasUnsavedChanges: boolean = this.wizard.hasUnsavedChanges();
 
         const isReady: boolean = isInWorkflow && !hasUnsavedChanges && contentSummary.isReady();
         const isInProgress: boolean = isInWorkflow && (hasUnsavedChanges || contentSummary.isInProgress());
@@ -94,10 +94,22 @@ export class WorkflowStateIconsManager {
         };
     }
 
-    static toggleWorkflowStateClasses(element: Element, status: WorkflowStateStatus) {
-        element.toggleClass(WorkflowStateIconsManager.INVALID_CLASS, status.invalid);
-        element.toggleClass(WorkflowStateIconsManager.READY_CLASS, status.ready);
-        element.toggleClass(WorkflowStateIconsManager.IN_PROGRESS_CLASS, status.inProgress);
+    private toggleWorkflowStateClasses(element: Element) {
+        element.toggleClass(WorkflowStateManager.INVALID_CLASS, this.status.invalid);
+        element.toggleClass(WorkflowStateManager.READY_CLASS, this.canMarkIconElementAsReady());
+        element.toggleClass(WorkflowStateManager.IN_PROGRESS_CLASS, this.status.inProgress);
+    }
+
+    private canMarkIconElementAsReady(): boolean {
+        return this.status.ready && !this.isPublished() && !this.isMoved();
+    }
+
+    private isPublished(): boolean {
+        return this.wizard.getContent()?.isPublished();
+    }
+
+    private isMoved(): boolean {
+        return this.wizard.getContent()?.isMoved();
     }
 
     public onStatusChanged(listener: (status: WorkflowStateStatus) => void) {

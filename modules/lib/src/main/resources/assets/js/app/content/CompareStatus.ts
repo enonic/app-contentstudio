@@ -88,4 +88,8 @@ export class CompareStatusChecker {
     public static isModified(compareStatus: CompareStatus): boolean {
         return compareStatus === CompareStatus.NEWER;
     }
+
+    public static isMoved(compareStatus: CompareStatus): boolean {
+        return compareStatus === CompareStatus.MOVED;
+    }
 }
