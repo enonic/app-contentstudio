@@ -6,10 +6,11 @@ const BaseVersionsWidget = require('../../details_panel/base.versions.widget');
 const xpath = {
     widget: "//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'VersionHistoryView')]",
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
-    versionsListItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
-    publishActionListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@id,'VersionHistoryListItemViewer') and contains(@class,'publish-action')]]",
+    versionsListItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')]) and not(descendant::h6[contains(.,'Changed')])]",
+    publishActionListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@id,'VersionHistoryItemViewer') and contains(@class,'publish-action')]]",
     versionsSortedListItem: "//li[contains(@class,'version-list-item')and descendant::h6[contains(.,'Sorted')]]",
     versionsPermissionsUpdatedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Permissions updated')]]",
+    versionsChangedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Changed')]]",
 };
 
 class WizardVersionsWidget extends BaseVersionsWidget {
@@ -35,6 +36,10 @@ class WizardVersionsWidget extends BaseVersionsWidget {
 
     get permissionsUpdatedItems() {
         return this.versionsWidget + xpath.versionsList + xpath.versionsPermissionsUpdatedListItem;
+    }
+
+    get changedItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.versionsChangedListItem;
     }
 }
 

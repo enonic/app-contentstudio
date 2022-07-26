@@ -9,9 +9,10 @@ const XPATH = {
     widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'VersionHistoryView')]",
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
     versionsListItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
-    publishActionListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@id,'VersionHistoryListItemViewer') and contains(@class,'publish-action')]]",
+    publishActionListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@id,'VersionHistoryItemViewer') and contains(@class,'publish-action')]]",
     versionsSortedListItem: "//li[contains(@class,'version-list-item')and descendant::h6[contains(.,'Sorted')]]",
     versionsPermissionsUpdatedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Permissions updated')]]",
+    versionsChangedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Changed')]]",
 };
 
 class BrowseVersionsWidget extends BaseVersionsWidget {
@@ -35,6 +36,10 @@ class BrowseVersionsWidget extends BaseVersionsWidget {
 
     get permissionsUpdatedItems() {
         return this.versionsWidget + XPATH.versionsList + XPATH.versionsPermissionsUpdatedListItem;
+    }
+
+    get changedItems() {
+        return this.versionsWidget + XPATH.versionsList + XPATH.versionsChangedListItem;
     }
 
     async getOwnerName() {

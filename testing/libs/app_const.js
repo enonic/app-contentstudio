@@ -88,6 +88,7 @@ module.exports = Object.freeze({
         MARKED_AS_READY: "Marked as Ready",
         SORTED: "Sorted",
         PUBLISHED: "Published",
+        CHANGED:"Changed"
     },
 
     ACCESS_WIDGET_HEADER: {
