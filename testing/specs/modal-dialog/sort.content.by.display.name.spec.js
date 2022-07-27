@@ -41,6 +41,8 @@ describe('sort.content.by.display.name.spec, tests for ascending/descending orde
             //5. Verify that the order is descending:
             result = await sortContentDialog.getContentName();
             assert.isTrue(result[0] === "whale", "Descending Order should be in the dialog's grid");
+
+            await sortContentDialog.clickOnSaveButton();
         });
 
     it(`GIVEN existing sorted folder is selected WHEN 'Versions Widget' has been opened THEN the 'Sorted' version item should appears in the widget`,
@@ -53,10 +55,10 @@ describe('sort.content.by.display.name.spec, tests for ascending/descending orde
             await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
             //3. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            //4. Verify that 'Sorted' version item is present in the versions widget:
+            //4. Verify that 'Sorted' version item is present in Versions widget:
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
-            //5. Revert button is displayed in the expanded sorted-item:
-            await browseVersionsWidget.waitForRevertButtonDisplayed();
+            //5. Active Version button should be displayed in the first sorted-item:
+            await browseVersionsWidget.waitForActiveVersionButtonDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
