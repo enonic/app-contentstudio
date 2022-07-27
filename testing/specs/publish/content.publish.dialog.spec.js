@@ -109,7 +109,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             assert.isTrue(isDisplayed, "Include child icon should be visible");
 
             //'Publish Now' button should be enabled!
-            let result = await contentPublishDialog.waitForPublishNowButtonEnabled();
+            await contentPublishDialog.waitForPublishNowButtonEnabled();
             //Log message link should be displayed:
             let isLinkDisplayed = await contentPublishDialog.isLogMessageLinkDisplayed();
             assert.isTrue(isLinkDisplayed, "Log message link should be displayed");

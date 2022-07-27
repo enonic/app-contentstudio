@@ -75,8 +75,8 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             await contentWizard.waitAndClickOnSave();
             //3. Verify that red icon gets visible:
             let result = await contentWizard.isContentInvalid();
-            studioUtils.saveScreenshot('cke_htmlarea_should_be_invalid');
-            assert.isTrue(result, EXPECTED_TEXT_TEXT1, 'the content should be invalid, because the input is required');
+            await studioUtils.saveScreenshot('cke_htmlarea_should_be_invalid');
+            assert.isTrue(result, 'the content should be invalid, because the input is required');
         });
 
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN text has been typed in the first area THEN the text should be present in the first area`,
@@ -88,7 +88,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             await htmlAreaForm.typeTextInHtmlArea("test text");
             //3. Verify that the text is displayed in the first area:
             let actualResult = await htmlAreaForm.getTextFromHtmlArea();
-            studioUtils.saveScreenshot('cke_html_area2');
+            await studioUtils.saveScreenshot('cke_html_area2');
             assert.equal(actualResult[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
             assert.equal(actualResult[1], '', 'the second area should be empty');
         });

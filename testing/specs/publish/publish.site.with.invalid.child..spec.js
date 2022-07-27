@@ -1,8 +1,6 @@
 /**
  * Created on 05.02.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -10,7 +8,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const LongForm = require('../../page_objects/wizardpanel/long.form.panel');
 
 describe('publish.site.with.invalid.child.spec tests for ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -20,7 +17,6 @@ describe('publish.site.with.invalid.child.spec tests for ', function () {
 
     let SITE;
     let LONG_2_4_NAME = appConst.generateRandomName('long');
-
 
     it(`Preconditions: test site and invalid child has been created`,
         async () => {
