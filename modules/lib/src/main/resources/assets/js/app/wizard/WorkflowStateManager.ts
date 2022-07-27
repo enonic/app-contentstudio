@@ -96,11 +96,11 @@ export class WorkflowStateManager {
 
     private toggleWorkflowStateClasses(element: Element) {
         element.toggleClass(WorkflowStateManager.INVALID_CLASS, this.status.invalid);
-        element.toggleClass(WorkflowStateManager.READY_CLASS, this.canMarkIconElementAsReady());
+        element.toggleClass(WorkflowStateManager.READY_CLASS, this.isWorkflowReadyIconRequired());
         element.toggleClass(WorkflowStateManager.IN_PROGRESS_CLASS, this.status.inProgress);
     }
 
-    private canMarkIconElementAsReady(): boolean {
+    private isWorkflowReadyIconRequired(): boolean {
         return this.status.ready && !this.isPublished() && !this.isMoved();
     }
 
