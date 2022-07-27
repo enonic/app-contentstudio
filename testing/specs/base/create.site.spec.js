@@ -2,7 +2,6 @@
  * Created on 02.07.2021.
  */
 const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');

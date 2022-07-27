@@ -33,7 +33,6 @@ describe('occurrences.tag.spec: tests for content with tag input', function () {
     it("GIVEN new wizard for Tag-content 2:5 is opened WHEN the name input has been filled THEN the content should be invalid",
         async () => {
             let contentWizard = new ContentWizard();
-            let tagForm = new TagForm();
             //1. Select the site and open new wizard for tag 2:5 content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TAG_2_5);
             //2. Fill in the name input:

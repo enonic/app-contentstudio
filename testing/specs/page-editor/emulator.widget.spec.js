@@ -25,7 +25,6 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
             let contentWizard = new ContentWizard();
             let siteFormPanel = new SiteFormPanel();
             let wizardDetailsPanel = new WizardDetailsPanel();
-            let emulatorWidget = new EmulatorWidget();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             //1. Open wizard for new site:
@@ -52,7 +51,6 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
 
     it(`GIVEN wizard for new site is opened WHEN Emulator widget has been opened THEN expected resolutions should be present in the widget`,
         async () => {
-            let contentWizard = new ContentWizard();
             let wizardDetailsPanel = new WizardDetailsPanel();
             let emulatorWidget = new EmulatorWidget();
             //1. Open the existing site:

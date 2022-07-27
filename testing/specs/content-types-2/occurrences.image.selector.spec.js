@@ -32,7 +32,6 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
     //verifies the "Path-search in selectors doesn't work #4786'
     it("GIVEN wizard for Image Selector-content (0:0) is opened WHEN path to an image has been typed THEN the image should be filtered",
         async () => {
-            let contentWizard = new ContentWizard();
             let imageSelectorForm = new ImageSelectorForm();
             //1. Open wizard for new content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_0_0);
@@ -112,7 +111,6 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
 
     it(`GIVEN existing image-selector(2:4) is opened WHEN the second image has been selected THEN the content gets valid`,
         async () => {
-            let contentWizard = new ContentWizard();
             let imageSelectorForm = new ImageSelectorForm();
             //1. existing image-selector(2:4) is opened:
             await studioUtils.selectAndOpenContentInWizard(IMG_SEL_2_4.displayName);
@@ -130,7 +128,6 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             //6. Verify the "Remove (2)" label in the button
             assert.equal(numberItemsToRemove, "Remove (2)", "2 should be displayed in Remove button")
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

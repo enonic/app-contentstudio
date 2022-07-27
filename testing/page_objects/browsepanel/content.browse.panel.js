@@ -942,6 +942,17 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.waitForFoldWithNameButtonDisplayed(name);
         return await this.clickOnElement(XPATH.foldButtonByName(name));
     }
+
+    waitForSortIconNotDisplayed(name) {
+        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'sort-dialog-trigger')]";
+        return this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
+    }
+
+    waitForSortIconDisplayed(name) {
+        let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'sort-dialog-trigger')]";
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+    }
+
 }
 
 module.exports = ContentBrowsePanel;

@@ -44,7 +44,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             let actualNumber = await confirmValueDialog.getSuggestedNumberToDelete();
             assert.equal(actualNumber, 2, "Expected suggested number should be displayed");
             //5. Verify that 'Confirm' button is disabled
-            confirmValueDialog.waitForConfirmButtonDisabled();
+            await confirmValueDialog.waitForConfirmButtonDisabled();
         });
 
     it("GIVEN 'Confirm Value' dialog is opened WHEN incorrect number to delete has been typed THEN 'Confirm' button remains disabled",
