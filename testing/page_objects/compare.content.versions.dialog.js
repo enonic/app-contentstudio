@@ -101,6 +101,12 @@ class CompareContentVersionsDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
+
+    async getChildOrderProperty() {
+        let locator = XPATH.container + "//li[@data-key='childOrder']/div[contains(@class,'right-value')]//pre";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
 }
 
 module.exports = CompareContentVersionsDialog;

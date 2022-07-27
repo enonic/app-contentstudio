@@ -10,7 +10,8 @@ const xpath = {
     versionItemExpanded: "//li[contains(@class,'version-list-item expanded')]",
     versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
     itemByDisplayName: displayName => `${lib.itemByDisplayName(displayName)}`,
-    anyItemByHeader: header => `//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'${header}')]]`
+    anyItemByHeader: header => `//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'${header}')]]`,
+    compareWithCurrentVersionButtonLocator: ".//button[@title='Compare with current version']",
 };
 
 class BaseVersionsWidget extends Page {
@@ -32,6 +33,12 @@ class BaseVersionsWidget extends Page {
     async countPermissionsUpdatedItems() {
         await this.waitForElementDisplayed(this.permissionsUpdatedItems, appConst.mediumTimeout)
         let items = await this.findElements(this.permissionsUpdatedItems);
+        return items.length;
+    }
+
+    async countSortedItems() {
+        await this.waitForElementDisplayed(this.sortedItems, appConst.mediumTimeout)
+        let items = await this.findElements(this.sortedItems);
         return items.length;
     }
 
@@ -157,10 +164,24 @@ class BaseVersionsWidget extends Page {
         try {
             //wait for the list of versions is loaded:
             await this.waitForElementDisplayed(this.versionsWidget + xpath.versionsList, appConst.mediumTimeout);
-            let elements = await this.findElements(this.compareWithCurrentVersionButton);
-            await elements[index].click();
+            let buttons = await this.findElements(this.compareWithCurrentVersionButton);
+            await buttons[index].click();
             return await this.pause(400);
         } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_click_on_compare"));
+            throw new Error("Version Widget - error when clicking on CompareWithCurrentVersionButton " + err);
+        }
+    }
+
+    async clickOnCompareWithCurrentVersionButtonByHeader(itemHeader, index) {
+        try {
+            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let versionItems = await this.findElements(itemLocator);
+            let buttonElements = await versionItems[index].$$(xpath.compareWithCurrentVersionButtonLocator);
+            await buttonElements[0].click();
+            return await this.pause(200);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_click_on_compare"));
             throw new Error("Version Widget - error when clicking on CompareWithCurrentVersionButton " + err);
         }
     }
@@ -191,10 +212,9 @@ class BaseVersionsWidget extends Page {
     }
 
     async isCompareWithCurrentVersionButtonDisplayed(itemHeader, index) {
-        let buttonLocator = ".//button[@title='Compare with current version']";
         let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
         let elements = await this.findElements(itemLocator);
-        let buttonElements = await elements[index].$$(buttonLocator);
+        let buttonElements = await elements[index].$$(xpath.compareWithCurrentVersionButtonLocator);
         return buttonElements.length > 0;
     }
 }

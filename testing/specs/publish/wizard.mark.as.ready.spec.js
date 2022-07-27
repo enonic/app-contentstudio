@@ -8,7 +8,6 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 
 describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

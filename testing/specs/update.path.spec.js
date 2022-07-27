@@ -1,7 +1,6 @@
 /**
  * Created on 11.11.2020.
  */
-const chai = require('chai');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');

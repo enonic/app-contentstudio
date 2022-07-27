@@ -34,7 +34,6 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
     it(`GIVEN wizard for new content with Option Set is opened WHEN name input has been filled AND Save button pressed THEN validation recording should appear`,
         async () => {
             let contentWizard = new ContentWizard();
-            let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             //1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);

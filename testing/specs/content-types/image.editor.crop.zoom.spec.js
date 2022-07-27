@@ -68,7 +68,7 @@ describe("image.content.crop.spec: tests for crop button", function () {
             //2. Open the edit-mode
             await imageEditor.clickOnCropButton();
             let initialZoom = await imageEditor.getZoomKnobValue();
-            assert.equal(initialZoom, 0);
+            assert.equal(initialZoom, 0, "Zoom value should be 0");
             //2. Move the knob to the right:
             await imageEditor.doZoomImage(30);
             //3. Verify that the image is zoomed
@@ -89,7 +89,7 @@ describe("image.content.crop.spec: tests for crop button", function () {
             //2. Open edit-mode and do zoom the image
             await imageEditor.clickOnCropButton();
             let initialZoom = await imageEditor.getZoomKnobValue();
-            assert.equal(initialZoom, 0);
+            assert.equal(initialZoom, 0, "Zoom value should be 0");
             await imageEditor.doZoomImage(30);
             await studioUtils.saveScreenshot("image_zoomed");
             //3. Verify that the image is zoomed

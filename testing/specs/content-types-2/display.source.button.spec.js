@@ -1,8 +1,6 @@
 /**
  * Created on 31.01.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -19,7 +17,6 @@ describe('display.source.button.spec - tests for Display Source button in html a
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
-    const FOLDER_NAME = studioUtils.generateRandomName("folder");
     let USER;
     let SITE;
 
@@ -64,7 +61,6 @@ describe('display.source.button.spec - tests for Display Source button in html a
             let htmlAreaForm = new HtmlAreaForm();
             let sourceCodeDialog = new SourceCodeDialog();
             await studioUtils.navigateToContentStudioApp(USER.displayName, appConst.PASSWORD.MEDIUM);
-            let contentWizard = new ContentWizard();
             //1. Open wizard for new content with htmlArea:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             //2. Verify that 'Source' button is displayed in the htmlArea toolbar

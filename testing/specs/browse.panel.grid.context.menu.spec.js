@@ -52,7 +52,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             //1. Select 2 folders:
             await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_2.displayName);
             await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_1.displayName);
-            //2. Do right click on the selected folders:
+            //2. Do right-click on the selected folders:
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_1.displayName);
             //3.Verify that Archive, Edit, Move, Publish, Duplicate  menu items are enabled in the context menu:
             await studioUtils.saveScreenshot("folder-context-menu-2");
