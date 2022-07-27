@@ -16,10 +16,13 @@ def hasTask( name )
 def applyResourcesTaskDependencies()
 {
     def libAdminDevJarTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':devJar' )
+    def libAdminBuildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
 
     if ( hasTask( 'copyDevResources' ) ) {
         copyDevResources.dependsOn libAdminDevJarTask
     }
+
+    build.dependsOn += libAdminBuildTask
 }
 
 if ( hasLibAdminUi() )
