@@ -85,7 +85,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
-            studioUtils.saveScreenshot("project_editor_2");
+            await studioUtils.saveScreenshot("project_editor_2");
         });
 
     it("GIVEN user with Editor role is logged in WHEN New Content Dialog has been opened THEN only Folder and Shortcut types are allowed for Editor role",
@@ -99,7 +99,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             let items = await newContentDialog.getItems();
-            studioUtils.saveScreenshot("project_editor_3");
+            await studioUtils.saveScreenshot("project_editor_3");
             //3. Verify that only 'Folders' and 'Shortcut' are allowed for Editor role
             assert.equal(items.length, 2, "Two items should be available for Editor");
             assert.isTrue(items.includes("Folder"), "Folder is allowed for creating");

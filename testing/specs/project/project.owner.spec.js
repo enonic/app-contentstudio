@@ -147,7 +147,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            studioUtils.saveScreenshot("project_owner_1_2");
+            await studioUtils.saveScreenshot("project_owner_1_2");
             //3. Verify that 'New' button is disabled in the toolbar:
             await settingsBrowsePanel.waitForNewButtonDisabled();
             //4. Edit button should be disabled

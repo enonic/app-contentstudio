@@ -70,6 +70,7 @@ describe('tests for Sorted versions item', function () {
             await browseVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             //4.Verify that the modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
+            await studioUtils.saveScreenshot("compare_versions_dlg_sorted_1");
             let result = await compareContentVersionsDialog.getChildOrderProperty();
             assert.isTrue(result.includes("\"displayname ASC\""),
                 "Expected current order should be displayed in the dialog -  'displayname ASC'");
@@ -113,6 +114,26 @@ describe('tests for Sorted versions item', function () {
             //5. Verify that 3 sorted items are displayed:
             let numberOfSortedItems = await browseVersionsWidget.countSortedItems();
             assert.equal(numberOfSortedItems, 3, "Three sorted items should be present in the versions widget");
+        });
+
+    it(`GIVEN existing folder is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN options with 'sorted' icon should be present in the list`,
+        async () => {
+            let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
+            let browseVersionsWidget = new BrowseVersionsWidget();
+            let compareContentVersionsDialog = new CompareContentVersionsDialog();
+            //1. folder that was sorted is selected:
+            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+            //2. open Versions Panel
+            await contentBrowseDetailsPanel.openVersionHistory();
+            //3. Click on 'Compare with current versions' button in the previous edit-item:
+            await browseVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await compareContentVersionsDialog.waitForDialogOpened();
+            //4. Click on the left dropdown handle:
+            await compareContentVersionsDialog.clickOnLeftDropdownHandle();
+            await studioUtils.saveScreenshot("compare_versions_dlg_sorted_options");
+            //5. Verify that options with the 'sorted' icon should be present in the dropdown list:
+            let result = await compareContentVersionsDialog.getSortedOptionsInDropdownList();
+            assert.equal(result.length, 4, "4 sorted items should be present in the selector options");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
