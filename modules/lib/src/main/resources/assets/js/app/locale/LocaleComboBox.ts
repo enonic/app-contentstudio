@@ -26,7 +26,7 @@ export class LocaleComboBox
     }
 }
 
-class LocaleSelectedOptionView
+export class LocaleSelectedOptionView
     extends LocaleViewer
     implements SelectedOptionView<Locale> {
 
@@ -49,7 +49,7 @@ class LocaleSelectedOptionView
 
 }
 
-class LocaleSelectedOptionsView
+export class LocaleSelectedOptionsView
     extends BaseSelectedOptionsView<Locale> {
 
     constructor() {
