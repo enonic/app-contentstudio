@@ -10,21 +10,21 @@ export class Project
 
     public static DEFAULT_PROJECT_NAME: string = 'default';
 
-    private name: string;
+    private readonly name: string;
 
-    private displayName: string;
+    private readonly displayName: string;
 
-    private description: string;
+    private readonly description: string;
 
-    private parent: string;
+    private readonly parent: string;
 
-    private icon: Attachment;
+    private readonly icon: Attachment;
 
-    private permissions: ProjectPermissions;
+    private readonly permissions: ProjectPermissions;
 
-    private readAccess: ProjectReadAccess;
+    private readonly readAccess: ProjectReadAccess;
 
-    private language: string;
+    private readonly language: string;
 
     constructor(builder: ProjectBuilder) {
         this.name = builder.name;

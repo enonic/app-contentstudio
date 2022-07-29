@@ -189,7 +189,7 @@ export class ProjectWizardPanel
         return new UpdateProjectPermissionsRequest()
             .setName(projectName)
             .setPermissions(permissions)
-            .setViewers(readAccess.getPrincipals())
+            .setViewers(readAccess.getPrincipalsKeys())
             .sendAndParse();
     }
 
@@ -261,8 +261,8 @@ export class ProjectWizardPanel
                 return true;
             }
 
-            return (!ObjectHelper.arrayEquals(item.getReadAccess().getPrincipals(),
-                this.readAccessWizardStepForm.getReadAccess().getPrincipals()));
+            return (!ObjectHelper.arrayEquals(item.getReadAccess().getPrincipalsKeys(),
+                this.readAccessWizardStepForm.getReadAccess().getPrincipalsKeys()));
         }
 
         return false;
