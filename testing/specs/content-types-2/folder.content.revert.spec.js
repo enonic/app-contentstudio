@@ -10,6 +10,9 @@ const contentBuilder = require("../../libs/content.builder");
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
+const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 
 describe('folder.content.revert.spec: tests for reverting of folder content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -182,6 +185,26 @@ describe('folder.content.revert.spec: tests for reverting of folder content', fu
             //7. Verify 2 items with 'Changed' header are displayed in the widget:
             let numberItems = await wizardVersionsWidget.countChangedItems();
             assert.equal(numberItems, 2, "Two 'Changed'  items should be present in the widget");
+        });
+
+    it(`GIVEN existing folder with updated permissions is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN options with 'changed' icon should be present in the list`,
+        async () => {
+            let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
+            let browseVersionsWidget = new BrowseVersionsWidget();
+            let compareContentVersionsDialog = new CompareContentVersionsDialog();
+            //1. Select the existing folder with updated permissions
+            await studioUtils.findAndSelectItem(FOLDER_NAME_2);
+            //2. open Versions Panel
+            await contentBrowseDetailsPanel.openVersionHistory();
+            //3. Click on 'Compare with current versions' button  in the previous edit-item:
+            await browseVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await compareContentVersionsDialog.waitForDialogOpened();
+            //4. Click on the left dropdown handle:
+            await compareContentVersionsDialog.clickOnLeftDropdownHandle();
+            await studioUtils.saveScreenshot("compare_versions_dlg_changed_options");
+            //5. Verify that options with 'Changed' icon should be present in the dropdown list:
+            let result = await compareContentVersionsDialog.getChangedOptionsInDropdownList();
+            assert.equal(result.length, 2, "2 changed items should be present in the selector options");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -20,9 +20,18 @@ class CompareContentVersionsDialog extends Page {
         return XPATH.container + XPATH.containerLeft + XPATH.revertMenuButton;
     }
 
+    get leftDropdownHandle() {
+        return XPATH.container + XPATH.containerLeft + lib.DROP_DOWN_HANDLE;
+    }
+
     get rightRevertMenuButton() {
         return XPATH.container + XPATH.containerRight + XPATH.revertMenuButton;
     }
+
+    get rightDropdownHandle() {
+        return XPATH.container + XPATH.containerRight + lib.DROP_DOWN_HANDLE;
+    }
+
 
     get olderVersionDropdownHandle() {
         return XPATH.container + XPATH.containerLeft + lib.DROP_DOWN_HANDLE;
@@ -106,6 +115,24 @@ class CompareContentVersionsDialog extends Page {
         let locator = XPATH.container + "//li[@data-key='childOrder']/div[contains(@class,'right-value')]//pre";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
+    }
+
+    async clickOnLeftDropdownHandle() {
+        await this.waitForElementDisplayed(this.leftDropdownHandle, appConst.mediumTimeout);
+        await this.clickOnElement(this.leftDropdownHandle);
+        return await this.pause(300);
+    }
+
+    async getSortedOptionsInDropdownList() {
+        let locator = XPATH.containerLeft + "//div[contains(@id,'NamesAndIconView')]//div[contains(@class,'icon-sort')]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.findElements(locator);
+    }
+
+    async getChangedOptionsInDropdownList() {
+        let locator = XPATH.containerLeft + "//div[contains(@id,'NamesAndIconView')]//div[contains(@class, 'icon-checkmark')]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.findElements(locator);
     }
 }
 
