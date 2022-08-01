@@ -8,7 +8,7 @@ import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
-import {ProjectReadAccess, ProjectReadAccessType} from '../../../data/project/ProjectReadAccess';
+import {ProjectReadAccess} from '../../../data/project/ProjectReadAccess';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {GetPrincipalsByKeysRequest} from '../../../../security/GetPrincipalsByKeysRequest';
@@ -27,6 +27,7 @@ import {LocaleComboBox} from '../../../../locale/LocaleComboBox';
 import {LocaleLoader} from '../../../../locale/LocaleLoader';
 import {PrincipalLoader} from '../../../../security/PrincipalLoader';
 import {PrincipalLoader as BasePrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
+import {ProjectReadAccessType} from '../../../data/project/ProjectReadAccessType';
 
 export class ProjectReadAccessWizardStepForm
     extends ProjectWizardStepForm {
@@ -124,7 +125,7 @@ export class ProjectReadAccessWizardStepForm
 
         this.principalsCombobox.setEnabled(true);
 
-        return new GetPrincipalsByKeysRequest(readAccess.getPrincipals()).sendAndParse().then((principals: Principal[]) => {
+        return new GetPrincipalsByKeysRequest(readAccess.getPrincipalsKeys()).sendAndParse().then((principals: Principal[]) => {
             principals.forEach((principal: Principal) => {
                 this.principalsCombobox.select(principal, false, silent);
                 this.principalsCombobox.resetBaseValues();

@@ -14,6 +14,12 @@ import {Project} from '../data/project/Project';
 import {ProjectContext} from '../../project/ProjectContext';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
+export interface ProjectIdStepData {
+    name: string;
+    displayName: string;
+    description: string;
+}
+
 export class ProjectIdDialogStep
     extends ProjectDialogStep {
 
@@ -127,11 +133,11 @@ export class ProjectIdDialogStep
         return 'project-id-step';
     }
 
-    getData(): Object {
+    getData(): ProjectIdStepData {
         return {
             name: this.nameInput.getValue(),
             displayName: this.displayNameInput.getValue(),
-            description: this.descriptionInput.getValue()
+            description: this.descriptionInput.getValue() || ''
         };
     }
 

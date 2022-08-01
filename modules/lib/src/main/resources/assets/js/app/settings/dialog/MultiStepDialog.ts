@@ -179,14 +179,22 @@ export class MultiStepDialog
             this.forwardButton.setEnabled(true);
         } else {
             this.forwardButton.setEnabled(false);
-            this.addClass('locked');
+            this.lock();
 
             this.currentStep.isValid().then((isValid: boolean) => {
                 this.forwardButton.setEnabled(isValid);
             })
                 .catch(DefaultErrorHandler.handle)
-                .finally(() => this.removeClass('locked'));
+                .finally(() => this.unlock());
         }
+    }
+
+    protected lock(): void {
+        this.addClass('locked');
+    }
+
+    protected unlock(): void {
+        this.removeClass('locked');
     }
 
     private getPreviousStep(): DialogStep {

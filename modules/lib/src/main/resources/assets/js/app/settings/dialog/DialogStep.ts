@@ -5,10 +5,6 @@ export abstract class DialogStep {
 
     private dataChangedListeners: { (): void }[] = [];
 
-    validate(): Q.Promise<void> {
-        return Q.resolve();
-    }
-
     isValid(): Q.Promise<boolean> {
         return Q.resolve(true);
     }

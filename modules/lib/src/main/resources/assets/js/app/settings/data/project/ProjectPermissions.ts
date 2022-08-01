@@ -6,13 +6,13 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 export class ProjectPermissions
     implements Equitable {
 
-    private owners: PrincipalKey[] = [];
+    private readonly owners: PrincipalKey[] = [];
 
-    private contributors: PrincipalKey[] = [];
+    private readonly contributors: PrincipalKey[] = [];
 
-    private editors: PrincipalKey[] = [];
+    private readonly editors: PrincipalKey[] = [];
 
-    private authors: PrincipalKey[] = [];
+    private readonly authors: PrincipalKey[] = [];
 
     constructor(builder: ProjectItemPermissionsBuilder) {
         this.owners = builder.owners;
