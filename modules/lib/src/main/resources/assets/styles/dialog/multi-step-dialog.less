@@ -1,13 +1,28 @@
 .multi-step-dialog {
   .dialog-buttons {
     .button-container {
+      justify-content: space-between;
+
       button {
         min-width: 100px;
         text-align: center;
       }
 
-      button:last-child {
-        margin-left: auto;
+      button:first-child {
+        background-color: @form-button-bg;
+      }
+
+      .step-counter {
+        display: flex;
+        align-items: center;
+      }
+    }
+
+    &.first-step {
+      .button-container {
+        button:first-child {
+          visibility: hidden;
+        }
       }
     }
   }

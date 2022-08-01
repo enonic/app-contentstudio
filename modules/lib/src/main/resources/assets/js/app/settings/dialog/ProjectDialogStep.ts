@@ -5,7 +5,7 @@ import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 
-export class ProjectDialogStep
+export abstract class ProjectDialogStep
     extends DialogStep {
 
     protected formItems: FormItem[];
@@ -23,12 +23,12 @@ export class ProjectDialogStep
     private setup(): void {
         this.formItems = this.createFormItems();
         this.createForm();
-        this.form.addClass(this.getFormClass());
+        this.form.addClass(`project-dialog-step ${this.getFormClass()}`.trim());
         this.listenItemsEvents();
     }
 
     protected getFormClass(): string {
-        return 'project-dialog-step';
+        return '';
     }
 
     protected createFormItems(): FormItem[] {
@@ -52,7 +52,7 @@ export class ProjectDialogStep
     }
 
     protected listenItemsEvents(): void {
-    //
+        //
     }
 
     getData(): Object {
