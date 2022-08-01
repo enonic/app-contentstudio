@@ -58,6 +58,14 @@ export class ProjectLocaleDialogStep
     protected getFormClass(): string {
         return 'project-language-step';
     }
+
+    getName(): string {
+        return 'projectLanguage';
+    }
+
+    getDescription(): string {
+        return i18n('dialog.project.wizard.language.description');
+    }
 }
 
 class LocaleWithFlagSelectedOptionsView extends LocaleSelectedOptionsView {
