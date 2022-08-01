@@ -2,17 +2,14 @@ import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectReadAccessJson} from '../../resource/json/ProjectReadAccessJson';
-
-export enum ProjectReadAccessType {
-    PRIVATE = 'private', PUBLIC = 'public', CUSTOM = 'custom'
-}
+import {ProjectReadAccessType} from './ProjectReadAccessType';
 
 export class ProjectReadAccess
     implements Equitable {
 
-    private type: ProjectReadAccessType;
+    private readonly type: ProjectReadAccessType;
 
-    private principals: PrincipalKey[];
+    private readonly principals: PrincipalKey[];
 
     constructor(type: ProjectReadAccessType, principals: PrincipalKey[] = []) {
         this.type = type;
@@ -23,7 +20,7 @@ export class ProjectReadAccess
         return this.type;
     }
 
-    getPrincipals(): PrincipalKey[] {
+    getPrincipalsKeys(): PrincipalKey[] {
         return this.principals.slice(0);
     }
 
@@ -67,6 +64,6 @@ export class ProjectReadAccess
         const other: ProjectReadAccess = <ProjectReadAccess>o;
 
         return ObjectHelper.objectEquals(this.type, other.type) &&
-               ObjectHelper.arrayEquals(this.principals, other.getPrincipals());
+               ObjectHelper.arrayEquals(this.principals, other.getPrincipalsKeys());
     }
 }

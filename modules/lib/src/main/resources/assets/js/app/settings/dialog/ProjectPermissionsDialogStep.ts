@@ -6,9 +6,10 @@ import {PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ProjectDialogStep} from './ProjectDialogStep';
-import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../data/project/ProjectPermissions';
 import {ProjectAccessControlEntry} from '../access/ProjectAccessControlEntry';
 import {ProjectAccess} from '../access/ProjectAccess';
+import {ProjectPermissionsData, ProjectPermissionsDataBuilder} from './ProjectPermissionsData';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 
 export class ProjectPermissionsDialogStep
     extends ProjectDialogStep {
@@ -52,23 +53,23 @@ export class ProjectPermissionsDialogStep
         });
     }
 
-    private getPermissions(): ProjectPermissions {
+    getPermissions(): ProjectPermissionsData {
         const selectedAccessEntries: ProjectAccessControlEntry[] = this.accessCombobox.getSelectedDisplayValues();
 
-        const owners: PrincipalKey[] = selectedAccessEntries
+        const owners: Principal[] = selectedAccessEntries
             .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.OWNER)
-            .map((ownerEntry: ProjectAccessControlEntry) => ownerEntry.getPrincipalKey());
-        const editors: PrincipalKey[] = selectedAccessEntries
+            .map((ownerEntry: ProjectAccessControlEntry) => ownerEntry.getPrincipal());
+        const editors: Principal[] = selectedAccessEntries
             .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.EDITOR)
-            .map((editorEntry: ProjectAccessControlEntry) => editorEntry.getPrincipalKey());
-        const contributors: PrincipalKey[] = selectedAccessEntries
+            .map((editorEntry: ProjectAccessControlEntry) => editorEntry.getPrincipal());
+        const contributors: Principal[] = selectedAccessEntries
             .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.CONTRIBUTOR)
-            .map((contributorEntry: ProjectAccessControlEntry) => contributorEntry.getPrincipalKey());
-        const authors: PrincipalKey[] = selectedAccessEntries
+            .map((contributorEntry: ProjectAccessControlEntry) => contributorEntry.getPrincipal());
+        const authors: Principal[] = selectedAccessEntries
             .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.AUTHOR)
-            .map((contributorEntry: ProjectAccessControlEntry) => contributorEntry.getPrincipalKey());
+            .map((contributorEntry: ProjectAccessControlEntry) => contributorEntry.getPrincipal());
 
-        return new ProjectItemPermissionsBuilder()
+        return new ProjectPermissionsDataBuilder()
             .setOwners(owners)
             .setEditors(editors)
             .setContributors(contributors)
@@ -81,8 +82,15 @@ export class ProjectPermissionsDialogStep
     }
 
     getData(): Object {
+        const data: ProjectPermissionsData = this.getPermissions();
+
         return {
-            permissions: this.getPermissions().toJson()
+            permissions: {
+                contributor: data.getContributors().map((p: Principal) => p.getKey().toString()),
+                author: data.getAuthors().map((p: Principal) => p.getKey().toString()),
+                owner: data.getOwners().map((p: Principal) => p.getKey().toString()),
+                editor: data.getEditors().map((p: Principal) => p.getKey().toString())
+            }
         }
     }
 }

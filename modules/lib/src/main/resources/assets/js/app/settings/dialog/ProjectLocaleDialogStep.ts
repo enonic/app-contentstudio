@@ -19,7 +19,6 @@ export class ProjectLocaleDialogStep
 
     private createLocaleFormItem(): FormItem {
         this.localeCombobox = <LocaleComboBox>LocaleComboBox.create()
-            // .setOptionDisplayValueViewer()
             .setSelectedOptionsView(new LocaleWithFlagSelectedOptionsView())
             .setMaximumOccurrences(1)
             .build();
