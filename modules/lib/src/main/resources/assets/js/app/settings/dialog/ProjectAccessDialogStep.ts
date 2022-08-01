@@ -2,7 +2,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
-import {ProjectReadAccessType} from '../data/project/ProjectReadAccess';
+import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 import {ProjectFormItemBuilder} from '../wizard/panel/form/element/ProjectFormItem';
 import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {PrincipalLoader as BasePrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
@@ -12,6 +12,9 @@ import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import * as Q from 'q';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {ProjectAccessData} from './ProjectAccessData';
+import {ProjectReadAccessType} from '../data/project/ProjectReadAccessType';
 
 export class ProjectAccessDialogStep
     extends ProjectDialogStep {
@@ -87,6 +90,31 @@ export class ProjectAccessDialogStep
         }
 
         return result;
+    }
+
+    getReadAccess(): ProjectAccessData {
+        if (!this.readAccessRadioGroup) {
+            return null;
+        }
+
+        const readAccessString: string = this.readAccessRadioGroup.getValue();
+
+        if (readAccessString === ProjectReadAccessType.PUBLIC) {
+            return new ProjectAccessData(ProjectReadAccessType.PUBLIC);
+        }
+
+        if (readAccessString === ProjectReadAccessType.CUSTOM) {
+            const principals: Principal[] =
+                this.principalsCombobox.getSelectedDisplayValues();
+
+            if (principals.length === 0) {
+                return new ProjectAccessData(ProjectReadAccessType.PRIVATE);
+            }
+
+            return new ProjectAccessData(ProjectReadAccessType.CUSTOM, principals);
+        }
+
+        return new ProjectAccessData(ProjectReadAccessType.PRIVATE);
     }
 
     hasData(): boolean {

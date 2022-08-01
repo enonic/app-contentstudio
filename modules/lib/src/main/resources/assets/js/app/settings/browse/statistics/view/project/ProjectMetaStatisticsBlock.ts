@@ -94,7 +94,7 @@ export class ProjectMetaStatisticsBlock extends StatisticsBlock {
             return;
         }
 
-        const canReadPrincipalsKeys: PrincipalKey[] = this.item.getReadAccess().getPrincipals();
+        const canReadPrincipalsKeys: PrincipalKey[] = this.item.getReadAccess().getPrincipalsKeys();
 
         if (canReadPrincipalsKeys.length === 0) {
             return;

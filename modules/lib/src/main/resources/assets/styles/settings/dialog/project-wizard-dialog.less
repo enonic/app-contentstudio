@@ -60,6 +60,44 @@
           width: 100%;
         }
       }
+
+      .project-summary-step {
+        .project-param-container {
+          &:not(:first-child) {
+            margin-top: 10px;
+          }
+
+          .value {
+            padding: 10px 0 0 10px;
+            font-weight: bold;
+          }
+
+          &.access-param-container {
+            .principals {
+              padding: 10px 0 0 10px;
+
+              .viewer:not(:first-child) {
+                margin-top: 8px;
+              }
+            }
+          }
+
+          &.permissions-param-container {
+            .principals-roles {
+              padding: 10px 0 0 10px;
+
+              .wrapper {
+                display: flex;
+                justify-content: space-between;
+
+                &:not(:first-child) {
+                  margin-top: 8px;
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
