@@ -164,4 +164,11 @@ export class ProjectIdDialogStep
         return StringHelper.isBlank(this.displayNameInput.getValue()) || StringHelper.isBlank(this.nameInput.getValue());
     }
 
+    getName(): string {
+        return 'projectName';
+    }
+
+    getDescription(): string {
+        return i18n('dialog.project.wizard.name.description');
+    }
 }

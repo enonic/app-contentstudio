@@ -29,6 +29,8 @@ export class ProjectWizardDialog
 
     private isNameToBeGeneratedFromParent: boolean;
 
+    private headerContent: NamesAndIconView;
+
     constructor(steps: DialogStep[], preselectedProject?: Project) {
         super({
             class: 'project-wizard-dialog grey-header',
@@ -36,6 +38,12 @@ export class ProjectWizardDialog
         });
 
         this.preSelectedProject = preselectedProject;
+    }
+
+    protected initElements() {
+        super.initElements();
+
+        this.headerContent = this.getHeaderContent();
     }
 
     protected getSubmitActionLabel(): string {
@@ -51,6 +59,8 @@ export class ProjectWizardDialog
     protected displayStep(step: ProjectDialogStep) {
         super.displayStep(step);
 
+        this.updateSubTitle();
+
         if (this.isNameToBeGeneratedFromParent && this.isProjectIdStep()) {
             this.setProjectNameFromParent();
         } else if (this.preSelectedProject && this.isProjectParentStep()) {
@@ -58,6 +68,10 @@ export class ProjectWizardDialog
         } else if (this.isSummaryStep()) {
             this.setSummaryStepData();
         }
+    }
+
+    private updateSubTitle(): void {
+        this.headerContent.setSubName(this.currentStep.getDescription() || '');
     }
 
     private isProjectIdStep(): boolean {
@@ -182,7 +196,7 @@ export class ProjectWizardDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildToHeader(this.getHeaderContent());
+            this.appendChildToHeader(this.headerContent);
 
             return rendered;
         });
@@ -192,7 +206,6 @@ export class ProjectWizardDialog
         const namesAndIconView: NamesAndIconView = new NamesAndIconView(new NamesAndIconViewBuilder()
             .setSize(NamesAndIconViewSize.medium))
             .setMainName(i18n('dialog.project.wizard.title'))
-            .setSubName(i18n('dialog.project.wizard.subtitle'))
             .setIconClass(ProjectIconUrlResolver.getDefaultProjectIcon());
 
         return namesAndIconView;
