@@ -21,6 +21,12 @@ export abstract class DialogStep {
         return false;
     }
 
+    abstract getName(): string;
+
+    getDescription(): string {
+        return null;
+    }
+
     abstract getHtmlEl(): Element;
 
     onDataChanged(listener: () => void) {

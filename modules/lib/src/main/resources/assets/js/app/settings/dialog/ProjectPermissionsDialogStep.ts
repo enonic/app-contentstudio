@@ -93,4 +93,12 @@ export class ProjectPermissionsDialogStep
             }
         }
     }
+
+    getName(): string {
+        return 'projectPermissions';
+    }
+
+    getDescription(): string {
+        return i18n('dialog.project.wizard.permissions.description');
+    }
 }

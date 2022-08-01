@@ -30,6 +30,8 @@ export class MultiStepDialog
 
     private noStepsBlock?: Element;
 
+    private stepCounter: Element;
+
     private currentStepDataChangedHandler: { (): void };
 
     protected constructor(config: MultiStepDialogConfig) {
@@ -41,7 +43,9 @@ export class MultiStepDialog
 
         this.steps = (<MultiStepDialogConfig>this.config).steps;
         this.stepsContainer = this.createStepsContainer();
+        this.stepCounter = new DivEl();
         this.backButton = this.addAction(new Action(i18n('dialog.multistep.previous')));
+        this.getButtonRow().addElement(this.stepCounter);
         this.forwardButton = this.addAction(new Action(i18n('action.next')));
     }
 
@@ -61,7 +65,9 @@ export class MultiStepDialog
         });
 
         this.forwardButton.getAction().onExecuted(() => {
-            this.forwardOrSubmit();
+            if (this.forwardButton.isEnabled()) {
+                this.forwardOrSubmit();
+            }
         });
 
         this.backButton.getAction().onExecuted(() => {
@@ -108,6 +114,7 @@ export class MultiStepDialog
         this.displayStep(step);
         this.updateButtonsState();
         this.bindCurrentStepEvents();
+        this.updateStepCounter();
     }
 
     private unbindCurrentStepEvents(): void {
@@ -116,6 +123,25 @@ export class MultiStepDialog
 
     private bindCurrentStepEvents(): void {
         this.currentStep?.onDataChanged(this.currentStepDataChangedHandler);
+    }
+
+    private updateStepCounter(): void {
+        let curIndex: number = null;
+
+        const isFound: boolean = this.steps.some((step: DialogStep, index: number) => {
+            if (step === this.currentStep) {
+                curIndex = index;
+                return true;
+            }
+            return false;
+        });
+
+        if (isFound) {
+            this.stepCounter.setHtml(i18n('dialog.project.wizard.step', ++curIndex, this.steps.length));
+            this.stepCounter.show();
+        } else {
+            this.stepCounter.hide();
+        }
     }
 
     protected handleCurrentStepDataChanged(): void {
@@ -134,10 +160,6 @@ export class MultiStepDialog
         }
 
         el.show();
-
-        if (this.isFirstStep()) {
-            this.backButton.hide();
-        }
     }
 
     private getNextStep(): DialogStep {
@@ -153,7 +175,7 @@ export class MultiStepDialog
     }
 
     private updateButtonsState(): void {
-        this.backButton.setVisible(!this.isFirstStep());
+        this.getButtonRow().toggleClass('first-step', this.isFirstStep());
         this.updateForwardButtonLabel();
         this.updateForwardButtonEnabledState();
     }
@@ -238,6 +260,7 @@ export class MultiStepDialog
             this.appendChildToContentPanel(this.stepsContainer);
             this.backButton.addClass('back');
             this.forwardButton.addClass('forward');
+            this.stepCounter.addClass('step-counter')
 
             return rendered;
         });

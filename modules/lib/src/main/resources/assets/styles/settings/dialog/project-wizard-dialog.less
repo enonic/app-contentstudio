@@ -1,6 +1,14 @@
 .project-wizard-dialog {
   .modal-dialog-header {
     .names-and-icon-view {
+      .@{_COMMON_PREFIX}wrapper {
+        margin-right: 10px;
+
+        .font-icon-default {
+          font-size: 38px;
+        }
+      }
+
       .@{_COMMON_PREFIX}names-view {
         .@{_COMMON_PREFIX}main-name {
           height: 22px;
@@ -68,8 +76,8 @@
           }
 
           .value {
-            padding: 10px 0 0 10px;
-            font-weight: bold;
+            padding: 5px 0 0 10px;
+            font-size: 13px;
           }
 
           &.access-param-container {
@@ -96,6 +104,12 @@
               }
             }
           }
+        }
+      }
+
+      .project-read-access-step {
+        .principal-combobox {
+          margin-top: 15px;
         }
       }
     }
