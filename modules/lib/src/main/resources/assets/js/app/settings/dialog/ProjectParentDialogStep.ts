@@ -52,4 +52,12 @@ export class ProjectParentDialogStep
     setSelectedProject(value: Project): void {
         this.parentProjectDropdown.selectProject(value);
     }
+
+    getName(): string {
+        return 'projectCreate';
+    }
+
+    getDescription(): string {
+        return i18n('dialog.project.wizard.parent.description');
+    }
 }

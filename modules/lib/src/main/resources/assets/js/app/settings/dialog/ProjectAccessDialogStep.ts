@@ -2,7 +2,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
-import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 import {ProjectFormItemBuilder} from '../wizard/panel/form/element/ProjectFormItem';
 import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {PrincipalLoader as BasePrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
@@ -12,7 +11,6 @@ import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import * as Q from 'q';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ProjectAccessData} from './ProjectAccessData';
 import {ProjectReadAccessType} from '../data/project/ProjectReadAccessType';
 
@@ -117,6 +115,10 @@ export class ProjectAccessDialogStep
         return new ProjectAccessData(ProjectReadAccessType.PRIVATE);
     }
 
+    protected getFormClass(): string {
+        return 'project-read-access-step';
+    }
+
     hasData(): boolean {
         return !!this.readAccessRadioGroup.getValue();
     }
@@ -127,5 +129,13 @@ export class ProjectAccessDialogStep
 
     isOptional(): boolean {
         return false;
+    }
+
+    getName(): string {
+        return 'projectAccess';
+    }
+
+    getDescription(): string {
+        return i18n('dialog.project.wizard.access.description');
     }
 }

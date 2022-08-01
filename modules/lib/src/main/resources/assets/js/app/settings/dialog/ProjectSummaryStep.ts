@@ -130,6 +130,14 @@ export class ProjectSummaryStep
             this.permissionsContainer.hide();
         }
     }
+
+    getName(): string {
+        return 'projectSummary';
+    }
+
+    getDescription(): string {
+        return i18n('dialog.project.wizard.summary.description');
+    }
 }
 
 class ProjectParamContainer
