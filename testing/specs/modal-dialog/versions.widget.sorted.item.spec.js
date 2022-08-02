@@ -114,9 +114,12 @@ describe('tests for Sorted versions item', function () {
             //5. Verify that 3 sorted items are displayed:
             let numberOfSortedItems = await browseVersionsWidget.countSortedItems();
             assert.equal(numberOfSortedItems, 3, "Three sorted items should be present in the versions widget");
+            //6. Verify an user in a version item:
+            let byUser = await browseVersionsWidget.getUserNameInItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
+            assert.equal(byUser, "by Super User", "Super User should be displayed in the version item");
         });
 
-    it(`GIVEN existing folder is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN options with 'sorted' icon should be present in the list`,
+    it(`GIVEN existing folder is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN expected options with 'sorted' icon should be present in the list`,
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
@@ -130,10 +133,15 @@ describe('tests for Sorted versions item', function () {
             await compareContentVersionsDialog.waitForDialogOpened();
             //4. Click on the left dropdown handle:
             await compareContentVersionsDialog.clickOnLeftDropdownHandle();
-            await studioUtils.saveScreenshot("compare_versions_dlg_sorted_options");
-            //5. Verify that options with the 'sorted' icon should be present in the dropdown list:
-            let result = await compareContentVersionsDialog.getSortedOptionsInDropdownList();
-            assert.equal(result.length, 4, "4 sorted items should be present in the selector options");
+            await studioUtils.saveScreenshot("compare_versions_left_dropdown_options");
+            //5. Verify that options with the 'sorted' icon should be present in the left dropdown list:
+            let result = await compareContentVersionsDialog.getSortedOptionsInLeftDropdownList();
+            assert.equal(result.length, 3, "3 sorted items should be present in the options selector after the line-divider");
+            //6. Verify that options with the 'sorted' icon should be present in the right dropdown list:
+            await compareContentVersionsDialog.clickOnRightDropdownHandle();
+            await studioUtils.saveScreenshot("compare_versions_right_dropdown_options");
+            result = await compareContentVersionsDialog.getSortedOptionsInRightDropdownList();
+            assert.equal(result.length, 3, "3 sorted items should be present in the options selector after the line-divider");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
