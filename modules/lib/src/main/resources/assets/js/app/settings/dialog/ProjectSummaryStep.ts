@@ -5,10 +5,12 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ProjectData} from './ProjectData';
 import * as Q from 'q';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PrincipalViewer} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
+import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 import {ProjectPermissionsData} from './ProjectPermissionsData';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { LoginResult } from '@enonic/lib-admin-ui/security/auth/LoginResult';
 
 export class ProjectSummaryStep
     extends DialogStep {
@@ -28,6 +30,16 @@ export class ProjectSummaryStep
     private accessContainer: ProjectAccessParamContainer;
 
     private permissionsContainer: ProjectPermissionsParamContainer;
+
+    private currentUser?: Principal;
+
+    constructor() {
+        super();
+
+        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            this.currentUser = loginResult.getUser();
+        }).catch(DefaultErrorHandler.handle);
+    }
 
     getHtmlEl(): Element {
         if (!this.dataContainer) {
@@ -55,11 +67,11 @@ export class ProjectSummaryStep
             new ProjectParamContainer().updateTitle(i18n('dialog.project.wizard.summary.language.title'));
         this.dataContainer.appendChild(this.languageContainer);
 
-        this.accessContainer = new ProjectAccessParamContainer();
+        this.accessContainer = new ProjectAccessParamContainer(this.currentUser);
         this.accessContainer.updateTitle(i18n('dialog.project.wizard.summary.access.title'));
         this.dataContainer.appendChild(this.accessContainer);
 
-        this.permissionsContainer = new ProjectPermissionsParamContainer();
+        this.permissionsContainer = new ProjectPermissionsParamContainer(this.currentUser);
         this.permissionsContainer.updateTitle(i18n('dialog.project.wizard.summary.permissions.title'));
         this.dataContainer.appendChild(this.permissionsContainer);
     }
@@ -174,98 +186,108 @@ class ProjectParamContainer
     }
 }
 
-class ProjectAccessParamContainer extends ProjectParamContainer {
+class ProjectPrincipalsParamContainer extends ProjectParamContainer {
 
-    protected readonly principalsBlock: DivEl;
+    protected readonly principalsContainer: DivEl;
 
-    constructor() {
+    protected currentUser?: Principal;
+
+    constructor(currentUser?: Principal) {
         super();
 
-        this.principalsBlock = new DivEl('principals');
+        this.principalsContainer = new DivEl('principals-container');
+        this.currentUser = currentUser;
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.addClass('access-param-container');
-            this.appendChild(this.principalsBlock);
+            this.addClass('principals-param-container');
+            this.appendChild(this.principalsContainer);
 
             return rendered;
         });
     }
 
-    setPrincipals(principals: Principal[]): ProjectAccessParamContainer {
-        this.principalsBlock.removeChildren();
-        this.principalsBlock.setVisible(principals?.length > 0);
+    protected addItems(name: string, principals: Principal[]): void {
+        const wrapper: DivEl = new DivEl('wrapper');
+        wrapper.appendChild(new DivEl('name').setHtml(name));
+
+        const principalsBlock: DivEl = new DivEl('principals');
 
         principals?.forEach((principal: Principal) => {
-            const viewer: PrincipalViewer = new PrincipalViewer();
+            const viewer: PrincipalViewerCompact = new PrincipalViewerCompact();
             viewer.setObject(principal);
-            this.principalsBlock.appendChild(viewer);
+            viewer.setCurrentUser(this.currentUser);
+            principalsBlock.appendChild(viewer);
         });
+
+        wrapper.appendChild(principalsBlock);
+
+        this.principalsContainer.appendChild(wrapper);
+    }
+}
+
+class ProjectAccessParamContainer extends ProjectPrincipalsParamContainer {
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addClass('access-param-container');
+
+            return rendered;
+        });
+    }
+
+    updateValue(value: string): ProjectParamContainer {
+        this.valueBlock.show();
+        return super.updateValue(value);
+    }
+
+    setPrincipals(principals: Principal[]): ProjectAccessParamContainer {
+        this.principalsContainer.removeChildren();
+
+        if (principals?.length > 0) {
+            this.valueBlock.hide();
+            this.addItems(i18n('settings.items.wizard.readaccess.custom'), principals);
+        }
 
         return this;
     }
 }
 
-class ProjectPermissionsParamContainer extends ProjectParamContainer {
-
-    protected readonly principalsBlock: DivEl;
-
-    constructor() {
-        super();
-
-        this.principalsBlock = new DivEl('principals-roles');
-    }
+class ProjectPermissionsParamContainer extends ProjectPrincipalsParamContainer {
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addClass('permissions-param-container');
             this.valueBlock.hide();
-            this.appendChild(this.principalsBlock);
 
             return rendered;
         });
     }
 
     setPermissions(permissions: ProjectPermissionsData): ProjectPermissionsParamContainer {
-        this.principalsBlock.removeChildren();
+        this.principalsContainer.removeChildren();
 
-        const contributor: string = i18n('settings.projects.access.contributor');
+        if (permissions.getContributors().length > 0) {
+            const contributor: string = i18n('settings.projects.access.contributor');
+            this.addItems(contributor, permissions.getContributors());
+        }
 
-        permissions.getContributors().forEach((p: Principal) => {
-            this.addEntry(p, contributor);
-        });
+        if (permissions.getAuthors().length > 0) {
+            const author: string = i18n('settings.projects.access.author');
+            this.addItems(author, permissions.getAuthors());
+        }
 
-        const author: string = i18n('settings.projects.access.author');
+        if (permissions.getEditors().length > 0) {
+            const editor: string = i18n('settings.projects.access.editor');
+            this.addItems(editor, permissions.getEditors());
+        }
 
-        permissions.getAuthors().forEach((p: Principal) => {
-            this.addEntry(p, author);
-        });
-
-        const editor: string = i18n('settings.projects.access.editor');
-
-        permissions.getEditors().forEach((p: Principal) => {
-            this.addEntry(p, editor);
-        });
-
-        const owner: string = i18n('settings.projects.access.owner');
-
-        permissions.getOwners().forEach((p: Principal) => {
-            this.addEntry(p, owner);
-        });
+        if (permissions.getOwners().length > 0) {
+            const owner: string = i18n('settings.projects.access.owner');
+            this.addItems(owner, permissions.getOwners());
+        }
 
         return this;
-    }
-
-    private addEntry(principal: Principal, role: string): void {
-        const wrapper: DivEl = new DivEl('wrapper');
-        const viewer: PrincipalViewer = new PrincipalViewer();
-        const roleBlock: SpanEl = new SpanEl('role');
-
-        viewer.setObject(principal)
-        roleBlock.setHtml(role);
-        wrapper.appendChildren(viewer, roleBlock);
-
-        this.principalsBlock.appendChild(wrapper);
     }
 }

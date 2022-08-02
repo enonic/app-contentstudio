@@ -80,27 +80,19 @@
             font-size: 13px;
           }
 
-          &.access-param-container {
-            .principals {
-              padding: 10px 0 0 10px;
+          &.principals-param-container {
+            .wrapper {
+              display: flex;
+              padding: 5px 0 0 10px;
+              align-items: center;
+              justify-content: space-between;
 
-              .viewer:not(:first-child) {
-                margin-top: 8px;
+              .name {
+                padding: 0;
               }
-            }
-          }
 
-          &.permissions-param-container {
-            .principals-roles {
-              padding: 10px 0 0 10px;
-
-              .wrapper {
+              .principals {
                 display: flex;
-                justify-content: space-between;
-
-                &:not(:first-child) {
-                  margin-top: 8px;
-                }
               }
             }
           }
