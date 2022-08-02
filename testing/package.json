@@ -36,7 +36,7 @@
     "geckodriver": "^3.0.1",
     "wdio-chromedriver-service": "^7.3.2",
     "wdio-geckodriver-service": "^3.0.2",
-    "@wdio/cli": "^7.20.7",
+    "@wdio/cli": "^7.20.9",
     "@wdio/dot-reporter": "^7.20.7",
     "@wdio/mocha-framework": "^7.20.7",
     "@wdio/selenium-standalone-service": "^7.20.8",
