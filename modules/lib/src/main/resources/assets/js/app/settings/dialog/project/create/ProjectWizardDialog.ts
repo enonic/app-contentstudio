@@ -20,25 +20,25 @@ import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectPermissionsDialogStep} from './step/ProjectPermissionsDialogStep';
 import {ProjectPermissionsData} from './data/ProjectPermissionsData';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
-import {MultiStepDialog} from '@enonic/lib-admin-ui/ui/dialog/multistep/MultiStepDialog';
+import {MultiStepDialog, MultiStepDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/multistep/MultiStepDialog';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+
+export interface ProjectWizardDialogConfig extends MultiStepDialogConfig {
+    preSelectedProject?: Project;
+    redirectAfterCreate?: boolean;
+}
 
 export class ProjectWizardDialog
     extends MultiStepDialog {
 
-    private preSelectedProject?: Project;
+    protected config: ProjectWizardDialogConfig;
 
     private isNameToBeGeneratedFromParent: boolean;
 
     private headerContent: NamesAndIconView;
 
-    constructor(steps: DialogStep[], preselectedProject?: Project) {
-        super({
-            class: 'project-wizard-dialog grey-header',
-            steps: steps,
-            closeOnSubmit: true
-        });
-
-        this.preSelectedProject = preselectedProject;
+    constructor(config: ProjectWizardDialogConfig) {
+        super(config);
     }
 
     protected initElements() {
@@ -64,7 +64,7 @@ export class ProjectWizardDialog
 
         if (this.isNameToBeGeneratedFromParent && this.isProjectIdStep()) {
             this.setProjectNameFromParent();
-        } else if (this.preSelectedProject && this.isProjectParentStep()) {
+        } else if (this.config.preSelectedProject && this.isProjectParentStep()) {
             this.setPreSelectedProject();
         } else if (this.isSummaryStep()) {
             this.setSummaryStepData();
@@ -116,9 +116,9 @@ export class ProjectWizardDialog
     }
 
     private setPreSelectedProject(): void {
-        (<ProjectParentDialogStep>this.currentStep).setSelectedProject(this.preSelectedProject);
+        (<ProjectParentDialogStep>this.currentStep).setSelectedProject(this.config.preSelectedProject);
 
-        this.preSelectedProject = null;
+        this.config.preSelectedProject = null;
     }
 
     private isSummaryStep(): boolean {
@@ -137,11 +137,21 @@ export class ProjectWizardDialog
         this.lock();
 
         this.produceCreateItemRequest().sendAndParse().then((project: Project) => {
-            console.log(project);
+            this.close();
+
+            if (this.config.redirectAfterCreate) {
+                this.redirectAfterCreate();
+            } else {
+                showFeedback(i18n('notify.settings.project.created', project.getName()));
+            }
             return Q.resolve();
         })
             .catch(DefaultErrorHandler.handle)
             .finally(() => this.unlock());
+    }
+
+    private redirectAfterCreate(): void {
+    //
     }
 
     private produceCreateItemRequest(): ProjectCreateRequest {
@@ -198,6 +208,7 @@ export class ProjectWizardDialog
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.appendChildToHeader(this.headerContent);
+            this.addClass('project-wizard-dialog grey-header');
 
             return rendered;
         });
