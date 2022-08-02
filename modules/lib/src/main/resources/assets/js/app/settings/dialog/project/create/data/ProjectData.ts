@@ -1,4 +1,4 @@
-import {Project} from '../data/project/Project';
+import {Project} from '../../../../data/project/Project';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ProjectAccessData} from './ProjectAccessData';
 import {ProjectPermissionsData} from './ProjectPermissionsData';

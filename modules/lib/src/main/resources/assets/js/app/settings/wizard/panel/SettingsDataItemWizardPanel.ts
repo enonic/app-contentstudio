@@ -19,7 +19,7 @@ import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {SettingsDataItemWizardActions} from '../action/SettingsDataItemWizardActions';
 import {SettingsDataViewItem} from '../../view/SettingsDataViewItem';
 import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
-import {SettingsType} from '../../dialog/SettingsType';
+import {SettingsType} from '../../data/type/SettingsType';
 import {AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 

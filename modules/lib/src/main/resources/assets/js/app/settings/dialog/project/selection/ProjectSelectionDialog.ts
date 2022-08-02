@@ -1,14 +1,14 @@
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Project} from '../data/project/Project';
-import {ProjectList} from '../../project/list/ProjectList';
+import {Project} from '../../../data/project/Project';
+import {ProjectList} from '../../../../project/list/ProjectList';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {ProjectListItem} from '../../project/list/ProjectListItem';
-import {ProjectContext} from '../../project/ProjectContext';
+import {ProjectListItem} from '../../../../project/list/ProjectListItem';
+import {ProjectContext} from '../../../../project/ProjectContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import * as Q from 'q';
-import {ProjectListWithMissingRequest} from '../resource/ProjectListWithMissingRequest';
-import {ProjectHelper} from '../data/project/ProjectHelper';
+import {ProjectListWithMissingRequest} from '../../../resource/ProjectListWithMissingRequest';
+import {ProjectHelper} from '../../../data/project/ProjectHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 

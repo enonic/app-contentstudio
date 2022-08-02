@@ -18,9 +18,9 @@ import {SettingsDataViewItem} from './view/SettingsDataViewItem';
 import {ProjectViewItem} from './view/ProjectViewItem';
 import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
-import {ProjectSelectionDialog} from './dialog/ProjectSelectionDialog';
+import {ProjectSelectionDialog} from './dialog/project/selection/ProjectSelectionDialog';
 import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
-import {SettingsTypes} from './dialog/SettingsTypes';
+import {SettingsTypes} from './data/type/SettingsTypes';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {ContentAppBar} from '../bar/ContentAppBar';
 

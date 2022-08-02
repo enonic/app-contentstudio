@@ -2,7 +2,7 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {NewSettingsItemEvent} from './NewSettingsItemEvent';
 import {Project} from '../data/project/Project';
-import {SettingsType} from '../dialog/SettingsType';
+import {SettingsType} from '../data/type/SettingsType';
 
 export class NewProjectEvent
     extends NewSettingsItemEvent {

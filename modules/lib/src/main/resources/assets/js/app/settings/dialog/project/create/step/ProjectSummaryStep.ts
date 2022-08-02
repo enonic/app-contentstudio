@@ -1,19 +1,19 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DialogStep} from './DialogStep';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ProjectData} from './ProjectData';
+import {ProjectData} from '../data/ProjectData';
 import * as Q from 'q';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
-import {ProjectPermissionsData} from './ProjectPermissionsData';
+import {ProjectPermissionsData} from '../data/ProjectPermissionsData';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
-import {LocaleViewer} from '../../locale/LocaleViewer';
+import {LocaleViewer} from '../../../../../locale/LocaleViewer';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
-import {Flag} from '../../locale/Flag';
+import {Flag} from '../../../../../locale/Flag';
+import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 
 export class ProjectSummaryStep
     extends DialogStep {
