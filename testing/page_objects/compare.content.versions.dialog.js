@@ -11,7 +11,8 @@ const XPATH = {
     containerBottom: `//div[@class='container bottom']`,
     revertMenuButton: "//button[contains(@id,'Button') and descendant::li[contains(@id,'MenuItem') and text()='Revert']]",
     revertMenuItem: "//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and text()='Revert']",
-    showEntireContent: "//div[contains(@id,'Checkbox') and child::label[text()='Show entire content']]"
+    showEntireContent: "//div[contains(@id,'Checkbox') and child::label[text()='Show entire content']]",
+    listItemNameAndIconView: "//div[contains(@id,'NamesAndIconView') and not(descendant::h6[contains(.,'version')])]"
 };
 
 class CompareContentVersionsDialog extends Page {
@@ -131,6 +132,36 @@ class CompareContentVersionsDialog extends Page {
 
     async getChangedOptionsInDropdownList() {
         let locator = XPATH.containerLeft + "//div[contains(@id,'NamesAndIconView')]//div[contains(@class, 'icon-checkmark')]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.findElements(locator);
+    }
+
+    async clickOnLeftDropdownHandle() {
+        await this.waitForElementDisplayed(this.leftDropdownHandle, appConst.mediumTimeout);
+        await this.clickOnElement(this.leftDropdownHandle);
+        return await this.pause(300);
+    }
+
+    async clickOnRightDropdownHandle() {
+        await this.waitForElementDisplayed(this.rightDropdownHandle, appConst.mediumTimeout);
+        await this.clickOnElement(this.rightDropdownHandle);
+        return await this.pause(300);
+    }
+
+    async getSortedOptionsInLeftDropdownList() {
+        let locator = XPATH.containerLeft + XPATH.listItemNameAndIconView + "//div[contains(@class,'icon-sort')]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.findElements(locator);
+    }
+
+    async getSortedOptionsInRightDropdownList() {
+        let locator = XPATH.containerRight + XPATH.listItemNameAndIconView + "//div[contains(@class,'icon-sort')]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.findElements(locator);
+    }
+
+    async getChangedOptionsInDropdownList() {
+        let locator = XPATH.containerLeft + XPATH.listItemNameAndIconView + "//div[contains(@class, 'icon-checkmark')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.findElements(locator);
     }

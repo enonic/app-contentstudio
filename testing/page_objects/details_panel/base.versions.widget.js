@@ -186,6 +186,19 @@ class BaseVersionsWidget extends Page {
         }
     }
 
+    async getUserNameInItemByHeader(itemHeader, index) {
+        try {
+            let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
+            let versionItems = await this.findElements(itemLocator);
+            let locator = ".//p[contains(@class,'xp-admin-common-sub-name')]";
+            let elements = await versionItems[index].$$(locator);
+            return await elements[0].getText();
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_expand_version"));
+            throw new Error("Error when expand the version: " + err);
+        }
+    }
+
     // Headers or displayNames :Created, Edited.  Permissions Updated is excluded
     versionItemByDisplayName(displayName) {
         return this.versionsWidget + xpath.versionItem + xpath.itemByDisplayName(displayName);

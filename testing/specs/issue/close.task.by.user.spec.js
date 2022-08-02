@@ -147,9 +147,10 @@ describe('close.task.by.user.spec: create a task for user and close it', functio
             //4. Click on the 'Created' item in versions widget:
             await browseVersionsWidget.clickAndExpandVersionItemByHeader("Created");
             await studioUtils.saveScreenshot("owner_in_versions");
-            //5. Verify the owner name in the version item:
-            let ownerNameInVersions = await browseVersionsWidget.getOwnerName();
-            assert.isTrue(ownerNameInVersions.includes(USER.displayName));
+            //5. Verify 'by user-name' text in the version item:
+            let actualUser = await browseVersionsWidget.getUserNameInItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            assert.isTrue(actualUser.includes(USER.displayName), "Expected user name should be displayed in the version list item");
+
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
