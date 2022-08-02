@@ -1,26 +1,26 @@
 import * as Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {MultiStepDialog} from './MultiStepDialog';
-import {DialogStep} from './DialogStep';
-import {ProjectParentDialogStep} from './ProjectParentDialogStep';
-import {ProjectLocaleDialogStep} from './ProjectLocaleDialogStep';
-import {ProjectIdDialogStep, ProjectIdStepData} from './ProjectIdDialogStep';
+import {ProjectParentDialogStep} from './step/ProjectParentDialogStep';
+import {ProjectLocaleDialogStep} from './step/ProjectLocaleDialogStep';
+import {ProjectIdDialogStep, ProjectIdStepData} from './step/ProjectIdDialogStep';
 import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
-import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
-import {Project} from '../data/project/Project';
-import {ProjectDialogStep} from './ProjectDialogStep';
+import {ProjectIconUrlResolver} from '../../../../project/ProjectIconUrlResolver';
+import {Project} from '../../../data/project/Project';
+import {ProjectDialogStep} from './step/ProjectDialogStep';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
-import {ProjectCreateRequest} from '../resource/ProjectCreateRequest';
+import {ProjectCreateRequest} from '../../../resource/ProjectCreateRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
-import {ProjectAccessDialogStep} from './ProjectAccessDialogStep';
-import {ProjectSummaryStep} from './ProjectSummaryStep';
-import {ProjectData} from './ProjectData';
-import {ProjectAccessData} from './ProjectAccessData';
+import {ProjectReadAccess} from '../../../data/project/ProjectReadAccess';
+import {ProjectAccessDialogStep} from './step/ProjectAccessDialogStep';
+import {ProjectSummaryStep} from './step/ProjectSummaryStep';
+import {ProjectData} from './data/ProjectData';
+import {ProjectAccessData} from './data/ProjectAccessData';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {ProjectPermissionsDialogStep} from './ProjectPermissionsDialogStep';
-import {ProjectPermissionsData} from './ProjectPermissionsData';
+import {ProjectPermissionsDialogStep} from './step/ProjectPermissionsDialogStep';
+import {ProjectPermissionsData} from './data/ProjectPermissionsData';
+import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
+import {MultiStepDialog} from '@enonic/lib-admin-ui/ui/dialog/multistep/MultiStepDialog';
 
 export class ProjectWizardDialog
     extends MultiStepDialog {
@@ -34,7 +34,8 @@ export class ProjectWizardDialog
     constructor(steps: DialogStep[], preselectedProject?: Project) {
         super({
             class: 'project-wizard-dialog grey-header',
-            steps: steps
+            steps: steps,
+            closeOnSubmit: true
         });
 
         this.preSelectedProject = preselectedProject;

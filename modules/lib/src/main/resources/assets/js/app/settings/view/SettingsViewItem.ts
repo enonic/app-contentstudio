@@ -6,7 +6,7 @@ import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 export abstract class SettingsViewItem
     implements ViewItem {
 
-    constructor(builder: SettingsTreeItemBuilder) {
+    protected constructor(builder: SettingsTreeItemBuilder) {
         return;
     }
 

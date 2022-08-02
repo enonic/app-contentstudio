@@ -18,27 +18,17 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {Project} from '../../../data/project/Project';
+import {RolesFormItem} from './element/RolesFormItem';
 
 export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
-    private accessCombobox: ProjectAccessControlComboBox;
-
-    private accessComboBoxFormItem: FormItem;
+    private rolesFormItem: RolesFormItem;
 
     private copyParentRolesButton?: Button;
 
     protected createFormItems(): FormItem[] {
-        this.accessCombobox = new ProjectAccessControlComboBoxBuilder().build();
-
-        const loader: PrincipalLoader = <PrincipalLoader>this.accessCombobox.getLoader();
-        loader.setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
-        loader.skipPrincipal(PrincipalKey.ofAnonymous());
-
-        this.accessComboBoxFormItem = new ProjectFormItemBuilder(this.accessCombobox)
-            .setHelpText(i18n('settings.projects.roles.helptext'))
-            .build();
-
-        return [this.accessComboBoxFormItem];
+        this.rolesFormItem = new RolesFormItem();
+        return [this.rolesFormItem];
     }
 
     setParentProject(project: Project) {
@@ -48,10 +38,10 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
             if (!this.copyParentRolesButton) {
                 this.copyParentRolesButton = this.createCopyParentRolesButton();
             }
-            this.accessComboBoxFormItem.appendChild(this.copyParentRolesButton);
+            this.rolesFormItem.appendChild(this.copyParentRolesButton);
             this.updateCopyParentRolesButtonState();
         } else if (this.copyParentRolesButton) {
-            this.accessComboBoxFormItem.removeChild(this.copyParentRolesButton);
+            this.rolesFormItem.removeChild(this.copyParentRolesButton);
         }
     }
 
@@ -84,12 +74,12 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
     }
 
     protected initListeners() {
-        this.accessCombobox.onValueChanged(() => {
+        this.getAccessComboBox().onValueChanged(() => {
             this.notifyDataChanged();
             this.updateCopyParentRolesButtonState();
         });
 
-        this.accessCombobox.onOptionValueChanged(() => {
+        this.getAccessComboBox().onOptionValueChanged(() => {
             this.notifyDataChanged();
             this.updateCopyParentRolesButtonState();
         });
@@ -105,14 +95,14 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
     private layoutAccessCombobox(permissions: ProjectPermissions, silent: boolean = true): Q.Promise<void> {
         return this.getPrincipalsFromPermissions(permissions).then((principals: Principal[]) => {
-            this.accessCombobox.clearSelection(true, false, false, false);
+            this.getAccessComboBox().clearSelection(true, false, false, false);
 
             const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(permissions, principals);
 
             if (itemsToSelect.length > 0) {
                 itemsToSelect.forEach((selectedItem: ProjectAccessControlEntry) => {
-                    this.accessCombobox.select(selectedItem, false, silent);
-                    this.accessCombobox.resetBaseValues();
+                    this.getAccessComboBox().select(selectedItem, false, silent);
+                    this.getAccessComboBox().resetBaseValues();
                 });
             } else {
                 this.notifyDataChanged();
@@ -169,7 +159,7 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
     }
 
     getPermissions(): ProjectPermissions {
-        const selectedAccessEntries: ProjectAccessControlEntry[] = this.accessCombobox.getSelectedDisplayValues();
+        const selectedAccessEntries: ProjectAccessControlEntry[] = this.getAccessComboBox().getSelectedDisplayValues();
 
         const owners: PrincipalKey[] = selectedAccessEntries
             .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.OWNER)
@@ -194,9 +184,13 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.accessComboBoxFormItem.addClass('project-access-control-form-item');
+            this.rolesFormItem.addClass('project-access-control-form-item');
 
             return rendered;
         });
+    }
+
+    private getAccessComboBox(): ProjectAccessControlComboBox {
+        return this.rolesFormItem.getAccessCombobox();
     }
 }
