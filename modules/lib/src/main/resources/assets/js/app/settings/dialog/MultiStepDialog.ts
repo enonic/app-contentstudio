@@ -13,12 +13,18 @@ export interface MultiStepDialogConfig
     extends ModalDialogConfig {
 
     steps: DialogStep[];
+
+    submitCallback?: { (): void; };
+
+    closeOnSubmit?: boolean;
 }
 
 export class MultiStepDialog
     extends ModalDialog {
 
     protected steps: DialogStep[];
+
+    protected config: MultiStepDialogConfig;
 
     protected currentStep: DialogStep;
 
@@ -94,7 +100,13 @@ export class MultiStepDialog
     }
 
     protected submit(): void {
-        this.close();
+        if (this.config.submitCallback) {
+            this.config.submitCallback
+        }
+
+        if (this.config.closeOnSubmit) {
+            this.close();
+        }
     }
 
     protected handleShown(): void {
