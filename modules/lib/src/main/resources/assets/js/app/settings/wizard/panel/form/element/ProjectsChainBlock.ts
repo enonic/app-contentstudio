@@ -1,15 +1,15 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Project} from '../data/project/Project';
+import {Project} from '../../../../data/project/Project';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {ProjectHelper} from '../data/project/ProjectHelper';
+import {ProjectHelper} from '../../../../data/project/ProjectHelper';
 
 export class ProjectsChainBlock extends H6El {
 
-    private title: SpanEl;
+    private readonly title: SpanEl;
 
-    private chainItems: DivEl;
+    private readonly chainItems: DivEl;
 
     private projectsChain: Project[] = [];
 

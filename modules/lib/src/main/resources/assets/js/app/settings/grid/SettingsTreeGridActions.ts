@@ -9,13 +9,11 @@ import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthe
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {SyncAction} from '../browse/action/SyncAction';
-import {NewSettingsItemAction2} from '../browse/action/NewSettingsItemAction2';
 
 export class SettingsTreeGridActions
     implements TreeGridActions<SettingsViewItem> {
 
     private readonly NEW: Action;
-    private readonly NEW2: Action;
     private readonly EDIT: Action;
     private readonly DELETE: Action;
     private readonly SYNC: SyncAction;
@@ -26,12 +24,11 @@ export class SettingsTreeGridActions
     constructor(grid: SettingsItemsTreeGrid) {
         this.grid = grid;
         this.NEW = new NewSettingsItemAction(grid);
-        this.NEW2 = new NewSettingsItemAction2(grid);
         this.EDIT = new EditSettingsItemAction(grid);
         this.DELETE = new DeleteSettingsItemAction(grid);
         this.SYNC = new SyncAction(grid);
 
-        this.actions.push(this.NEW, this.NEW2, this.EDIT, this.DELETE, this.SYNC);
+        this.actions.push(this.NEW, this.EDIT, this.DELETE, this.SYNC);
     }
 
     getAllActions(): Action[] {

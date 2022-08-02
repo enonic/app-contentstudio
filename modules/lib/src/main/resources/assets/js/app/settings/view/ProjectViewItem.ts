@@ -7,8 +7,8 @@ import {SettingsDataItemBuilder, SettingsDataViewItem} from './SettingsDataViewI
 import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 import {ProjectHelper} from '../data/project/ProjectHelper';
 import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
-import {SettingsType} from '../dialog/SettingsType';
-import {SettingsTypes} from '../dialog/SettingsTypes';
+import {SettingsType} from '../data/type/SettingsType';
+import {SettingsTypes} from '../data/type/SettingsTypes';
 
 export class ProjectViewItem
     extends SettingsDataViewItem<Project> {

@@ -9,11 +9,11 @@ export class ProjectReadAccess
 
     private readonly type: ProjectReadAccessType;
 
-    private readonly principals: PrincipalKey[];
+    private readonly principalsKeys: PrincipalKey[];
 
     constructor(type: ProjectReadAccessType, principals: PrincipalKey[] = []) {
         this.type = type;
-        this.principals = principals;
+        this.principalsKeys = principals;
     }
 
     getType(): ProjectReadAccessType {
@@ -21,7 +21,7 @@ export class ProjectReadAccess
     }
 
     getPrincipalsKeys(): PrincipalKey[] {
-        return this.principals.slice(0);
+        return this.principalsKeys.slice(0);
     }
 
     isPublic(): boolean {
@@ -64,6 +64,6 @@ export class ProjectReadAccess
         const other: ProjectReadAccess = <ProjectReadAccess>o;
 
         return ObjectHelper.objectEquals(this.type, other.type) &&
-               ObjectHelper.arrayEquals(this.principals, other.getPrincipalsKeys());
+               ObjectHelper.arrayEquals(this.principalsKeys, other.getPrincipalsKeys());
     }
 }
