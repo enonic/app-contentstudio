@@ -72,7 +72,7 @@
       .project-summary-step {
         .project-param-container {
           &:not(:first-child) {
-            margin-top: 10px;
+            margin-top: 15px;
           }
 
           .value {
@@ -80,26 +80,48 @@
             font-size: 13px;
           }
 
-          &.access-param-container {
-            .principals {
-              padding: 10px 0 0 10px;
+          &.principals-param-container {
+            .wrapper {
+              display: flex;
+              padding: 5px 0 0 10px;
+              align-items: center;
+              justify-content: space-between;
 
-              .viewer:not(:first-child) {
-                margin-top: 8px;
+              .name {
+                padding: 0;
+              }
+
+              .principals {
+                display: flex;
+                align-items: center;
+
+                .viewer {
+
+
+                  .user-icon {
+                    width: 22px;
+                    height: 22px;
+                    line-height: 22px;
+                    font-size: 11px;
+                  }
+                }
               }
             }
           }
 
-          &.permissions-param-container {
-            .principals-roles {
-              padding: 10px 0 0 10px;
+          &.language-param-container {
+            .viewer {
+              display: flex;
+              align-items: center;
 
-              .wrapper {
-                display: flex;
-                justify-content: space-between;
+              .flag {
+                order: -1;
+                margin-right: 5px;
+                width: 22px;
+                height: 22px;
 
-                &:not(:first-child) {
-                  margin-top: 8px;
+                &.fi-none {
+                  display: none;
                 }
               }
             }
