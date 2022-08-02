@@ -5,7 +5,7 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Project} from '../settings/data/project/Project';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {ProjectContext} from '../project/ProjectContext';
-import {ProjectSelectionDialog} from '../settings/dialog/ProjectSelectionDialog';
+import {ProjectSelectionDialog} from '../settings/dialog/project/selection/ProjectSelectionDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectListWithMissingRequest} from '../settings/resource/ProjectListWithMissingRequest';

@@ -19,7 +19,6 @@ import {UpdateProjectLanguageRequest} from '../../resource/UpdateProjectLanguage
 import {ProjectReadAccess} from '../../data/project/ProjectReadAccess';
 import {UpdateProjectPermissionsRequest} from '../../resource/UpdateProjectPermissionsRequest';
 import {ProjectRolesWizardStepForm} from './form/ProjectRolesWizardStepForm';
-import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {ProjectUpdateIconRequest} from '../../resource/ProjectUpdateIconRequest';
 import {EditProjectAccessDialog} from '../../../wizard/EditProjectAccessDialog';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
@@ -56,19 +55,10 @@ export class ProjectWizardPanel
                 return;
             }
 
-            this.projectWizardStepForm.setProjectName(this.prettifyHeader(header.getDisplayName()));
+            this.projectWizardStepForm.setProjectName(header.getDisplayName());
         });
 
         return header;
-    }
-
-    private prettifyHeader(value: string): string {
-        const prettified: string = NamePrettyfier.prettify(value)
-            .replace(/^[^a-z0-9]+/ig, '')
-            .replace(/[^a-z0-9]+$/ig, '')
-            .replace(/\./g, '');
-
-        return prettified;
     }
 
     protected initConfirmationDialog(): ConfirmValueDialog {

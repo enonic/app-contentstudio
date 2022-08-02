@@ -1,9 +1,9 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {DialogStep} from './DialogStep';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 
 export abstract class ProjectDialogStep
     extends DialogStep {

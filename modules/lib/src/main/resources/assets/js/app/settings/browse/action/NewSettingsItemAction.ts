@@ -1,61 +1,47 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SettingsItemsTreeGrid} from '../../grid/SettingsItemsTreeGrid';
-import {NewSettingsItemDialog} from '../../dialog/NewSettingsItemDialog';
 import {Project} from '../../data/project/Project';
 import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
+import {ProjectWizardDialog} from '../../dialog/project/create/ProjectWizardDialog';
+import {ProjectContext} from '../../../project/ProjectContext';
+import {ProjectParentDialogStep} from '../../dialog/project/create/step/ProjectParentDialogStep';
+import {ProjectLocaleDialogStep} from '../../dialog/project/create/step/ProjectLocaleDialogStep';
+import {ProjectAccessDialogStep} from '../../dialog/project/create/step/ProjectAccessDialogStep';
+import {ProjectPermissionsDialogStep} from '../../dialog/project/create/step/ProjectPermissionsDialogStep';
+import {ProjectIdDialogStep} from '../../dialog/project/create/step/ProjectIdDialogStep';
+import {ProjectSummaryStep} from '../../dialog/project/create/step/ProjectSummaryStep';
+import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
+import {ProjectSteps} from '../../dialog/project/create/ProjectSteps';
 
 export class NewSettingsItemAction
     extends Action {
-
-    private newSettingsItemDialog: NewSettingsItemDialog;
 
     private grid: SettingsItemsTreeGrid;
 
     constructor(grid: SettingsItemsTreeGrid) {
         super(i18n('action.newMore'), 'alt+n');
 
-        this.newSettingsItemDialog = new NewSettingsItemDialog();
         this.grid = grid;
 
         this.onExecuted(() => {
-            this.newSettingsItemDialog.setProjectsChain(this.getProjectsChain());
-            this.newSettingsItemDialog.open();
+            new ProjectWizardDialog(ProjectSteps.create(), this.getSelectedProject()).open();
         });
     }
 
-    private getProjectsChain(): Project[] {
+    private getSelectedProject(): Project {
         const selectedItems: SettingsViewItem[] = this.grid.getSelectedDataList();
 
         if (selectedItems.length === 1) {
             const selectedItem: SettingsViewItem = selectedItems[0];
+
             if (ObjectHelper.iFrameSafeInstanceOf(selectedItem, ProjectViewItem)) {
-               return this.buildProjectsChain((<ProjectViewItem>selectedItem).getData());
+                return (<ProjectViewItem>selectedItem).getData();
             }
         }
 
-        return [];
-    }
-
-    private buildProjectsChain(selectedProject: Project): Project[] {
-        const parentProjects: Project[] = [];
-
-        parentProjects.push(selectedProject);
-
-        let parentProjectName: string = selectedProject.getParent();
-
-        while (parentProjectName) {
-            const parentItem: SettingsViewItem = this.grid.getItemById(parentProjectName);
-
-            if (parentItem && ObjectHelper.iFrameSafeInstanceOf(parentItem, ProjectViewItem)) {
-                const parentProject: Project = (<ProjectViewItem>parentItem).getData();
-                parentProjects.unshift(parentProject);
-                parentProjectName = parentProject.getParent();
-            }
-        }
-
-        return parentProjects;
+        return null;
     }
 }

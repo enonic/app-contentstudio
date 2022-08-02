@@ -7,9 +7,9 @@ import {ProjectHelper} from '../data/project/ProjectHelper';
 
 export class ProjectsChainBlock extends H6El {
 
-    private title: SpanEl;
+    private readonly title: SpanEl;
 
-    private chainItems: DivEl;
+    private readonly chainItems: DivEl;
 
     private projectsChain: Project[] = [];
 

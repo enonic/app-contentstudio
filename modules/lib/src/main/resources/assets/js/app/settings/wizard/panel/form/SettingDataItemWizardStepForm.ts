@@ -6,14 +6,14 @@ import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import * as Q from 'q';
 import {SettingsDataViewItem} from '../../../view/SettingsDataViewItem';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
-import {SettingsType} from '../../../dialog/SettingsType';
+import {SettingsType} from '../../../data/type/SettingsType';
 
 export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataViewItem<any>>
     extends WizardStepForm {
 
     protected item?: ITEM;
 
-    private form: Form;
+    private readonly form: Form;
 
     private formItems:  FormItem[];
 

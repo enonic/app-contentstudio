@@ -1,5 +1,5 @@
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {ProjectReadAccessType} from '../data/project/ProjectReadAccessType';
+import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
 
 export class ProjectAccessData {
 
