@@ -6,14 +6,6 @@ import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ProjectWizardDialog} from '../../dialog/project/create/ProjectWizardDialog';
-import {ProjectContext} from '../../../project/ProjectContext';
-import {ProjectParentDialogStep} from '../../dialog/project/create/step/ProjectParentDialogStep';
-import {ProjectLocaleDialogStep} from '../../dialog/project/create/step/ProjectLocaleDialogStep';
-import {ProjectAccessDialogStep} from '../../dialog/project/create/step/ProjectAccessDialogStep';
-import {ProjectPermissionsDialogStep} from '../../dialog/project/create/step/ProjectPermissionsDialogStep';
-import {ProjectIdDialogStep} from '../../dialog/project/create/step/ProjectIdDialogStep';
-import {ProjectSummaryStep} from '../../dialog/project/create/step/ProjectSummaryStep';
-import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {ProjectSteps} from '../../dialog/project/create/ProjectSteps';
 
 export class NewSettingsItemAction
@@ -27,7 +19,12 @@ export class NewSettingsItemAction
         this.grid = grid;
 
         this.onExecuted(() => {
-            new ProjectWizardDialog(ProjectSteps.create(), this.getSelectedProject()).open();
+            new ProjectWizardDialog({
+                steps: ProjectSteps.create(),
+                closeOnSubmit: true,
+                preSelectedProject: this.getSelectedProject(),
+                redirectAfterCreate: false
+            }).open();
         });
     }
 
