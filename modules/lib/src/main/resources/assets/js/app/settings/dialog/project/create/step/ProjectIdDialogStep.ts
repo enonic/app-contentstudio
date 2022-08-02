@@ -1,18 +1,16 @@
-import {ProjectFormItem, ProjectFormItemBuilder} from '../wizard/panel/form/element/ProjectFormItem';
+import {ProjectFormItem, ProjectFormItemBuilder} from '../../../../wizard/panel/form/element/ProjectFormItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import * as Q from 'q';
-import {ValidationError, ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
+import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ProjectList} from '../../project/list/ProjectList';
-import {ProjectListRequest} from '../resource/ProjectListRequest';
-import {Project} from '../data/project/Project';
-import {ProjectContext} from '../../project/ProjectContext';
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
+import {Project} from '../../../../data/project/Project';
+import {NameFormItem} from '../../../../wizard/panel/form/element/NameFormItem';
 
 export interface ProjectIdStepData {
     name: string;
@@ -23,15 +21,11 @@ export interface ProjectIdStepData {
 export class ProjectIdDialogStep
     extends ProjectDialogStep {
 
-    private static PROJECT_NAME_CHARS: RegExp = /^([a-z0-9-])([a-z0-9_-])*$/;
-
     private displayNameInput: TextInput;
 
     private displayNameFormItem: FormItem;
 
-    private nameInput: TextInput;
-
-    private nameFormItem: FormItem;
+    private nameFormItem: NameFormItem;
 
     private descriptionInput: TextInput;
 
@@ -42,7 +36,7 @@ export class ProjectIdDialogStep
     }
 
     setName(value: string, silent?: boolean): void {
-        this.nameInput.setValue(value, silent);
+        this.nameFormItem.setValue(value, silent);
     }
 
     setDescription(value: string, silent?: boolean): void {
@@ -65,34 +59,8 @@ export class ProjectIdDialogStep
     }
 
     private createProjectNameFormItem(): FormItem {
-        this.nameInput = new TextInput();
-
-        this.nameFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.nameInput)
-            .setHelpText(i18n('settings.projects.name.helptext'))
-            .setValidator(this.validateProjectName.bind(this))
-            .setLabel(i18n('settings.field.project.name'))
-            .build();
-
-        this.nameFormItem.getLabel().addClass('required');
-
+        this.nameFormItem = new NameFormItem();
         return this.nameFormItem;
-    }
-
-    private validateProjectName(): string {
-        if (!this.isProjectNameValid()) {
-            return i18n('field.value.invalid');
-        }
-
-        if (this.nameOccupied) {
-            return i18n('dialog.project.wizard.step.id.exists');
-        }
-
-        return null;
-    }
-
-    private isProjectNameValid(): boolean {
-        const projectNameRegExp: RegExp = ProjectIdDialogStep.PROJECT_NAME_CHARS;
-        return projectNameRegExp.test(this.nameInput.getValue());
     }
 
     private createDescriptionFormItem(): FormItem {
@@ -108,7 +76,7 @@ export class ProjectIdDialogStep
     protected listenItemsEvents(): void {
         super.listenItemsEvents();
 
-        this.nameInput.onValueChanged(() => {
+        this.nameFormItem.getProjectNameInput().onValueChanged(() => {
             this.nameOccupied = false;
             this.nameFormItem.validate(new ValidationResult(), true);
             this.notifyDataChanged();
@@ -116,18 +84,11 @@ export class ProjectIdDialogStep
 
         this.displayNameInput.onValueChanged(() => {
             this.displayNameFormItem.validate(new ValidationResult(), true);
-            this.nameInput.setValue(this.prettify(this.displayNameInput.getValue()));
+            this.nameFormItem.setValue(this.displayNameInput.getValue());
         });
     }
 
-    private prettify(value: string): string {
-        const prettified: string = NamePrettyfier.prettify(value)
-            .replace(/^[^a-z0-9]+/ig, '')
-            .replace(/[^a-z0-9]+$/ig, '')
-            .replace(/\./g, '');
 
-        return prettified;
-    }
 
     protected getFormClass(): string {
         return 'project-id-step';
@@ -135,7 +96,7 @@ export class ProjectIdDialogStep
 
     getData(): ProjectIdStepData {
         return {
-            name: this.nameInput.getValue(),
+            name: this.nameFormItem.getValue(),
             displayName: this.displayNameInput.getValue(),
             description: this.descriptionInput.getValue() || ''
         };
@@ -156,12 +117,12 @@ export class ProjectIdDialogStep
 
     private isNameOccupied(): Q.Promise<boolean> {
         return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-            return projects.some((p: Project) => p.getName() === this.nameInput.getValue().trim());
+            return projects.some((p: Project) => p.getName() === this.nameFormItem.getValue().trim());
         });
     }
 
     private isNameOrDisplayNameMissing(): boolean {
-        return StringHelper.isBlank(this.displayNameInput.getValue()) || StringHelper.isBlank(this.nameInput.getValue());
+        return StringHelper.isBlank(this.displayNameInput.getValue()) || StringHelper.isBlank(this.nameFormItem.getValue());
     }
 
     getName(): string {
