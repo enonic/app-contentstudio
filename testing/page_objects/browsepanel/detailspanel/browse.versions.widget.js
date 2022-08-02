@@ -41,12 +41,6 @@ class BrowseVersionsWidget extends BaseVersionsWidget {
     get changedItems() {
         return this.versionsWidget + XPATH.versionsList + XPATH.versionsChangedListItem;
     }
-
-    async getOwnerName() {
-        let locator = XPATH.widget + XPATH.versionsListItem + lib.P_SUB_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
-    }
 }
 
 module.exports = BrowseVersionsWidget;
