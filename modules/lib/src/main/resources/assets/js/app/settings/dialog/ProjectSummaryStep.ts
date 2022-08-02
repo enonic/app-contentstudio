@@ -10,7 +10,10 @@ import {ProjectPermissionsData} from './ProjectPermissionsData';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import { LoginResult } from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {LocaleViewer} from '../../locale/LocaleViewer';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {Flag} from '../../locale/Flag';
 
 export class ProjectSummaryStep
     extends DialogStep {
@@ -25,7 +28,7 @@ export class ProjectSummaryStep
 
     private parentProjectContainer: ProjectParamContainer;
 
-    private languageContainer: ProjectParamContainer;
+    private languageContainer: ProjectLanguageParamContainer;
 
     private accessContainer: ProjectAccessParamContainer;
 
@@ -63,8 +66,8 @@ export class ProjectSummaryStep
             new ProjectParamContainer().updateTitle(i18n('dialog.project.wizard.summary.parent.title'));
         this.dataContainer.appendChild(this.parentProjectContainer);
 
-        this.languageContainer =
-            new ProjectParamContainer().updateTitle(i18n('dialog.project.wizard.summary.language.title'));
+        this.languageContainer = new ProjectLanguageParamContainer();
+        this.languageContainer.updateTitle(i18n('dialog.project.wizard.summary.language.title'));
         this.dataContainer.appendChild(this.languageContainer);
 
         this.accessContainer = new ProjectAccessParamContainer(this.currentUser);
@@ -122,7 +125,7 @@ export class ProjectSummaryStep
 
     private updateLanguageBlock(): void {
         if (this.data.locale) {
-            this.languageContainer.updateValue(`${this.data.locale.getDisplayName()} (${this.data.locale.getProcessedTag()})`);
+            this.languageContainer.updateLocale(this.data.locale);
             this.languageContainer.show();
         } else {
             this.languageContainer.hide();
@@ -186,7 +189,37 @@ class ProjectParamContainer
     }
 }
 
-class ProjectPrincipalsParamContainer extends ProjectParamContainer {
+class ProjectLanguageParamContainer
+    extends ProjectParamContainer {
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addClass('language-param-container');
+
+            return rendered;
+        });
+    }
+
+    updateValue(value: string): ProjectParamContainer {
+        return this;
+    }
+
+    updateLocale(locale: Locale): ProjectParamContainer {
+        this.valueBlock.removeChildren();
+
+        const viewer: LocaleViewer = new LocaleViewer();
+        const flag: Flag = new Flag(locale.getLanguage());
+
+        viewer.appendChild(flag);
+        viewer.setObject(locale);
+        this.valueBlock.appendChild(viewer);
+
+        return this;
+    }
+}
+
+class ProjectPrincipalsParamContainer
+    extends ProjectParamContainer {
 
     protected readonly principalsContainer: DivEl;
 
@@ -227,7 +260,8 @@ class ProjectPrincipalsParamContainer extends ProjectParamContainer {
     }
 }
 
-class ProjectAccessParamContainer extends ProjectPrincipalsParamContainer {
+class ProjectAccessParamContainer
+    extends ProjectPrincipalsParamContainer {
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
@@ -254,7 +288,8 @@ class ProjectAccessParamContainer extends ProjectPrincipalsParamContainer {
     }
 }
 
-class ProjectPermissionsParamContainer extends ProjectPrincipalsParamContainer {
+class ProjectPermissionsParamContainer
+    extends ProjectPrincipalsParamContainer {
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
