@@ -1,3 +1,5 @@
 export enum ProjectReadAccessType {
-    PRIVATE = 'private', PUBLIC = 'public', CUSTOM = 'custom'
+    PRIVATE = 'private',
+    PUBLIC = 'public',
+    CUSTOM = 'custom'
 }

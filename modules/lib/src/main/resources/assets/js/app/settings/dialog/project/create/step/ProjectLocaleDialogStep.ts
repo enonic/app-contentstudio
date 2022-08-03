@@ -16,8 +16,8 @@ export class ProjectLocaleDialogStep
         return true;
     }
 
-    protected listenItemsEvents(): void {
-        super.listenItemsEvents();
+    protected initEventListeners(): void {
+        super.initEventListeners();
 
         this.getLocaleCombobox().onValueChanged(() => {
             this.notifyDataChanged();

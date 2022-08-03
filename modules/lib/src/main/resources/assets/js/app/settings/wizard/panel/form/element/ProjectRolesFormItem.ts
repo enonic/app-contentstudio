@@ -5,7 +5,7 @@ import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
-export class RolesFormItem
+export class ProjectRolesFormItem
     extends ProjectFormItem {
 
     constructor() {
@@ -18,7 +18,7 @@ export class RolesFormItem
         super(new ProjectFormItemBuilder(accessCombobox)
             .setHelpText(i18n('settings.projects.roles.helptext')));
 
-        this.addClass('roles-form-item');
+        this.addClass('project-roles-form-item');
     }
 
     getAccessCombobox(): ProjectAccessControlComboBox {

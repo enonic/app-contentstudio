@@ -21,9 +21,7 @@ export class NewSettingsItemAction
         this.onExecuted(() => {
             new ProjectWizardDialog({
                 steps: ProjectSteps.create(),
-                closeOnSubmit: true,
-                preSelectedProject: this.getSelectedProject(),
-                redirectAfterCreate: false
+                parentProject: this.getSelectedProject()
             }).open();
         });
     }
