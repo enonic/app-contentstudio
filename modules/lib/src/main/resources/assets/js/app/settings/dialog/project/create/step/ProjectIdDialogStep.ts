@@ -10,13 +10,8 @@ import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
 import {Project} from '../../../../data/project/Project';
-import {NameFormItem} from '../../../../wizard/panel/form/element/NameFormItem';
-
-export interface ProjectIdStepData {
-    name: string;
-    displayName: string;
-    description: string;
-}
+import {ProjectNameFormItem} from '../../../../wizard/panel/form/element/ProjectNameFormItem';
+import {ProjectIdDialogStepData} from '../data/ProjectIdDialogStepData';
 
 export class ProjectIdDialogStep
     extends ProjectDialogStep {
@@ -25,7 +20,7 @@ export class ProjectIdDialogStep
 
     private displayNameFormItem: FormItem;
 
-    private nameFormItem: NameFormItem;
+    private nameFormItem: ProjectNameFormItem;
 
     private descriptionInput: TextInput;
 
@@ -59,7 +54,7 @@ export class ProjectIdDialogStep
     }
 
     private createProjectNameFormItem(): FormItem {
-        this.nameFormItem = new NameFormItem();
+        this.nameFormItem = new ProjectNameFormItem();
         return this.nameFormItem;
     }
 
@@ -73,8 +68,8 @@ export class ProjectIdDialogStep
         return false;
     }
 
-    protected listenItemsEvents(): void {
-        super.listenItemsEvents();
+    protected initEventListeners(): void {
+        super.initEventListeners();
 
         this.nameFormItem.getProjectNameInput().onValueChanged(() => {
             this.nameOccupied = false;
@@ -88,18 +83,15 @@ export class ProjectIdDialogStep
         });
     }
 
-
-
     protected getFormClass(): string {
         return 'project-id-step';
     }
 
-    getData(): ProjectIdStepData {
-        return {
-            name: this.nameFormItem.getValue(),
-            displayName: this.displayNameInput.getValue(),
-            description: this.descriptionInput.getValue() || ''
-        };
+    getData(): ProjectIdDialogStepData {
+        return new ProjectIdDialogStepData()
+            .setName(this.nameFormItem.getValue())
+            .setDisplayName(this.displayNameInput.getValue())
+            .setDescription(this.descriptionInput.getValue());
     }
 
     isValid(): Q.Promise<boolean> {

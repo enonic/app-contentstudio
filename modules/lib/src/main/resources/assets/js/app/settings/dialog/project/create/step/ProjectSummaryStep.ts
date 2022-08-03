@@ -133,7 +133,7 @@ export class ProjectSummaryStep
     }
 
     private updateAccessContainer(): void {
-        this.accessContainer.updateValue(i18n(`settings.items.wizard.readaccess.${this.data.access.getType()}`));
+        this.accessContainer.updateValue(i18n(`settings.items.wizard.readaccess.${this.data.access.getAccess()}`));
         this.accessContainer.setPrincipals(this.data.access.getPrincipals());
     }
 
@@ -198,10 +198,6 @@ class ProjectLanguageParamContainer
 
             return rendered;
         });
-    }
-
-    updateValue(value: string): ProjectParamContainer {
-        return this;
     }
 
     updateLocale(locale: Locale): ProjectParamContainer {

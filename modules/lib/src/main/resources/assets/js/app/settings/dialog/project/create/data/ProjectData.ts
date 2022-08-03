@@ -1,6 +1,6 @@
 import {Project} from '../../../../data/project/Project';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
-import {ProjectAccessData} from './ProjectAccessData';
+import {ProjectAccessDialogStepData} from './ProjectAccessDialogStepData';
 import {ProjectPermissionsData} from './ProjectPermissionsData';
 
 export class ProjectData {
@@ -11,7 +11,7 @@ export class ProjectData {
 
     description?: string;
 
-    access: ProjectAccessData;
+    access: ProjectAccessDialogStepData;
 
     permissions: ProjectPermissionsData;
 

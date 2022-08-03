@@ -13,8 +13,8 @@ export class ProjectParentDialogStep
         return [new ParentProjectFormItem()];
     }
 
-    protected listenItemsEvents(): void {
-        super.listenItemsEvents();
+    protected initEventListeners(): void {
+        super.initEventListeners();
 
         this.getParentProjectComboBox().onValueChanged(() => {
             this.notifyDataChanged();

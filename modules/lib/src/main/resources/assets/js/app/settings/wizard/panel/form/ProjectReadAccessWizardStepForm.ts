@@ -25,12 +25,12 @@ import {PrincipalLoader} from '../../../../security/PrincipalLoader';
 import {PrincipalLoader as BasePrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
 import {ProjectReadAccessType} from '../../../data/project/ProjectReadAccessType';
 import {LocaleFormItem} from './element/LocaleFormItem';
-import {ReadAccessFormItem} from './element/ReadAccessFormItem';
+import {ProjectReadAccessFormItem} from './element/ProjectReadAccessFormItem';
 
 export class ProjectReadAccessWizardStepForm
     extends ProjectWizardStepForm {
 
-    private readAccessFormItem?: ReadAccessFormItem;
+    private readAccessFormItem?: ProjectReadAccessFormItem;
 
     private localeFormItem: LocaleFormItem;
 
@@ -184,7 +184,7 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private createReadAccessRadioGroupFormItem(): FormItem {
-        this.readAccessFormItem = new ReadAccessFormItem();
+        this.readAccessFormItem = new ProjectReadAccessFormItem();
         return this.readAccessFormItem;
     }
 

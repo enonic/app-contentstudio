@@ -18,16 +18,16 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {Project} from '../../../data/project/Project';
-import {RolesFormItem} from './element/RolesFormItem';
+import {ProjectRolesFormItem} from './element/ProjectRolesFormItem';
 
 export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
-    private rolesFormItem: RolesFormItem;
+    private rolesFormItem: ProjectRolesFormItem;
 
     private copyParentRolesButton?: Button;
 
     protected createFormItems(): FormItem[] {
-        this.rolesFormItem = new RolesFormItem();
+        this.rolesFormItem = new ProjectRolesFormItem();
         return [this.rolesFormItem];
     }
 
