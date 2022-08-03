@@ -41,7 +41,6 @@ import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ProjectContext} from 'lib-contentstudio/app/project/ProjectContext';
 import {AggregatedServerEventsListener} from 'lib-contentstudio/app/event/AggregatedServerEventsListener';
 import {Project} from 'lib-contentstudio/app/settings/data/project/Project';
-import {ProjectSelectionDialog} from 'lib-contentstudio/app/settings/dialog/ProjectSelectionDialog';
 import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event/SettingsServerEventsListener';
 import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
@@ -55,6 +54,7 @@ import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {AppContext} from 'lib-contentstudio/app/AppContext';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {ProjectSelectionDialog} from 'lib-contentstudio/app/dialog/ProjectSelectionDialog';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app

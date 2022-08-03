@@ -12,31 +12,36 @@ import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 
-export class ReadAccessFormItem
+export class ProjectReadAccessFormItem
     extends ProjectFormItem {
 
-    private readonly principalsCombobox: PrincipalComboBox;
+    private principalsCombobox: PrincipalComboBox;
 
     constructor() {
-        const readAccessRadioGroup = new RadioGroup('read-access-radio-group');
+        super(<ProjectFormItemBuilder>new ProjectFormItemBuilder(new RadioGroup('read-access-radio-group'))
+            .setHelpText(i18n('settings.projects.access.helptext'))
+            .setLabel(i18n('settings.items.wizard.readaccess.label'))
+            .setValidator(Validators.required));
+
+        this.initElements();
+        this.initListeners();
+        this.addClass('project-read-access-form-item');
+    }
+
+    protected initElements(): void {
+        const readAccessRadioGroup: RadioGroup = this.getRadioGroup();
 
         readAccessRadioGroup.addOption(ProjectReadAccessType.PUBLIC, i18n('settings.items.wizard.readaccess.public.description'));
         readAccessRadioGroup.addOption(ProjectReadAccessType.PRIVATE, i18n('settings.items.wizard.readaccess.private.description'));
         readAccessRadioGroup.addOption(ProjectReadAccessType.CUSTOM, i18n('settings.items.wizard.readaccess.custom.description'));
 
-        super(<ProjectFormItemBuilder>new ProjectFormItemBuilder(readAccessRadioGroup)
-            .setHelpText(i18n('settings.projects.access.helptext'))
-            .setLabel(i18n('settings.items.wizard.readaccess.label'))
-            .setValidator(Validators.required));
-
-
         this.principalsCombobox = this.createPrincipalsCombobox();
         this.principalsCombobox.insertAfterEl(this.getRadioGroup());
         this.principalsCombobox.setEnabled(false);
+    }
 
-        this.addClass('read-access-form-item');
-
-        readAccessRadioGroup.onValueChanged((event: ValueChangedEvent) => {
+    protected initListeners(): void {
+        this.getRadioGroup().onValueChanged((event: ValueChangedEvent) => {
             const newValue: string = event.getNewValue();
             this.principalsCombobox.setEnabled(newValue === ProjectReadAccessType.CUSTOM);
         });

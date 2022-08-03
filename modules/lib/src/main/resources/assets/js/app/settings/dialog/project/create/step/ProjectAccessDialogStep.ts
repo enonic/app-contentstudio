@@ -3,19 +3,19 @@ import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import * as Q from 'q';
-import {ProjectAccessData} from '../data/ProjectAccessData';
+import {ProjectAccessDialogStepData} from '../data/ProjectAccessDialogStepData';
 import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
-import {ReadAccessFormItem} from '../../../../wizard/panel/form/element/ReadAccessFormItem';
+import {ProjectReadAccessFormItem} from '../../../../wizard/panel/form/element/ProjectReadAccessFormItem';
 
 export class ProjectAccessDialogStep
     extends ProjectDialogStep {
 
     protected createFormItems(): FormItem[] {
-        return [new ReadAccessFormItem()];
+        return [new ProjectReadAccessFormItem()];
     }
 
-    protected listenItemsEvents(): void {
-        super.listenItemsEvents();
+    protected initEventListeners(): void {
+        super.initEventListeners();
 
         this.getFormItem().getRadioGroup().onValueChanged(() => {
             this.notifyDataChanged();
@@ -26,22 +26,7 @@ export class ProjectAccessDialogStep
         });
     }
 
-    getData(): Object {
-        const readAccessString: string = this.getFormItem().getRadioGroup().getValue();
-
-        const result: Object = {
-            access: readAccessString
-        }
-
-        if (readAccessString === ProjectReadAccessType.CUSTOM) {
-            result['principals'] =
-                this.getFormItem().getPrincipalComboBox().getSelectedDisplayValues().map((principal: Principal) => principal.getKey());
-        }
-
-        return result;
-    }
-
-    getReadAccess(): ProjectAccessData {
+    getData(): ProjectAccessDialogStepData {
         if (!this.formItems) {
             return null;
         }
@@ -49,7 +34,7 @@ export class ProjectAccessDialogStep
         const readAccessString: string = this.getFormItem().getRadioGroup().getValue();
 
         if (readAccessString === ProjectReadAccessType.PUBLIC) {
-            return new ProjectAccessData(ProjectReadAccessType.PUBLIC);
+            return new ProjectAccessDialogStepData().setAccess(ProjectReadAccessType.PUBLIC);
         }
 
         if (readAccessString === ProjectReadAccessType.CUSTOM) {
@@ -57,13 +42,13 @@ export class ProjectAccessDialogStep
                 this.getFormItem().getPrincipalComboBox().getSelectedDisplayValues();
 
             if (principals.length === 0) {
-                return new ProjectAccessData(ProjectReadAccessType.PRIVATE);
+                return new ProjectAccessDialogStepData().setAccess(ProjectReadAccessType.PRIVATE);
             }
 
-            return new ProjectAccessData(ProjectReadAccessType.CUSTOM, principals);
+            return new ProjectAccessDialogStepData().setAccess(ProjectReadAccessType.CUSTOM).setPrincipals(principals);
         }
 
-        return new ProjectAccessData(ProjectReadAccessType.PRIVATE);
+        return new ProjectAccessDialogStepData().setAccess(ProjectReadAccessType.PRIVATE);
     }
 
     protected getFormClass(): string {
@@ -90,7 +75,7 @@ export class ProjectAccessDialogStep
         return i18n('dialog.project.wizard.access.description');
     }
 
-    private getFormItem(): ReadAccessFormItem {
-        return <ReadAccessFormItem>this.formItems[0];
+    private getFormItem(): ProjectReadAccessFormItem {
+        return <ProjectReadAccessFormItem>this.formItems[0];
     }
 }

@@ -2,7 +2,7 @@ import {Project} from '../../../../data/project/Project';
 import {ProjectViewer} from '../../../viewer/ProjectViewer';
 import * as Q from 'q';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {ProjectsChainBlock} from '../../../../dialog/ProjectsChainBlock';
+import {ProjectsChainBlock} from './ProjectsChainBlock';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectOptionDataHelper} from './ProjectOptionDataHelper';
 import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';

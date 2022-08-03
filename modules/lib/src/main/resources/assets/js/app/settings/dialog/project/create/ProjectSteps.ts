@@ -16,8 +16,13 @@ export class ProjectSteps {
             result.push(new ProjectParentDialogStep());
         }
 
-        result.push(new ProjectLocaleDialogStep(), new ProjectAccessDialogStep(), new ProjectPermissionsDialogStep(),
-            new ProjectIdDialogStep(), new ProjectSummaryStep());
+        result.push(
+            new ProjectLocaleDialogStep(),
+            new ProjectAccessDialogStep(),
+            new ProjectPermissionsDialogStep(),
+            new ProjectIdDialogStep(),
+            new ProjectSummaryStep()
+        );
 
         return result;
     }

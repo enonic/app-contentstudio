@@ -13,12 +13,12 @@ import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {SettingsType} from '../../../data/type/SettingsType';
 import {ParentProjectFormItem} from './element/ParentProjectFormItem';
-import {NameFormItem} from './element/NameFormItem';
+import {ProjectNameFormItem} from './element/ProjectNameFormItem';
 
 export class ProjectItemNameWizardStepForm
     extends ProjectWizardStepForm {
 
-    private nameFormItem: NameFormItem;
+    private nameFormItem: ProjectNameFormItem;
 
     private descriptionInput: TextInput;
 
@@ -144,7 +144,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     protected createFormItems(): FormItem[] {
-        this.nameFormItem = new NameFormItem();
+        this.nameFormItem = new ProjectNameFormItem();
 
         this.descriptionInput = new TextInput();
         const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
