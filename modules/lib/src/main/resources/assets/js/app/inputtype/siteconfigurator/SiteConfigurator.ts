@@ -32,13 +32,10 @@ export class SiteConfigurator
 
     private siteConfigProvider: ApplicationConfigProvider;
 
-    private formContext: ContentFormContext;
-
     private readOnlyPromise: Q.Promise<boolean>;
 
-    constructor(config: ContentInputTypeViewContext) {
-        super('application-configurator');
-        this.formContext = config.formContext;
+    constructor(context: ContentInputTypeViewContext) {
+        super(context, 'application-configurator');
 
         this.readOnlyPromise = this.isReadOnly();
     }
@@ -180,7 +177,7 @@ export class SiteConfigurator
         const value = this.getValueFromPropertyArray(this.getPropertyArray());
         const siteConfigFormsToDisplay = value.split(';');
         const maximum = input.getOccurrences().getMaximum() || 0;
-        const comboBox = new SiteConfiguratorComboBox(maximum, siteConfigProvider, this.formContext, value);
+        const comboBox = new SiteConfiguratorComboBox(maximum, siteConfigProvider, <ContentFormContext>this.context.formContext, value);
 
         const forcedValidate = () => {
             this.ignorePropertyChange(false);
