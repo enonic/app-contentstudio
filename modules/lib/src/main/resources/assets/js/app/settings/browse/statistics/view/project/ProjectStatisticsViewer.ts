@@ -1,7 +1,7 @@
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {ProjectViewItem} from '../../../../view/ProjectViewItem';
 import {ProjectIconUrlResolver} from '../../../../../project/ProjectIconUrlResolver';
-import {ProjectsChainBlock} from '../../../../dialog/ProjectsChainBlock';
+import {ProjectsChainBlock} from '../../../../wizard/panel/form/element/ProjectsChainBlock';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Project} from '../../../../data/project/Project';
 import * as Q from 'q';

@@ -6,13 +6,13 @@ import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControl
 import {ProjectAccess} from '../../../../access/ProjectAccess';
 import {ProjectPermissionsData, ProjectPermissionsDataBuilder} from '../data/ProjectPermissionsData';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {RolesFormItem} from '../../../../wizard/panel/form/element/RolesFormItem';
+import {ProjectRolesFormItem} from '../../../../wizard/panel/form/element/ProjectRolesFormItem';
 
 export class ProjectPermissionsDialogStep
     extends ProjectDialogStep {
 
     protected createFormItems(): FormItem[] {
-        return [new RolesFormItem()];
+        return [new ProjectRolesFormItem()];
     }
 
     protected getFormClass(): string {
@@ -23,8 +23,8 @@ export class ProjectPermissionsDialogStep
         return true;
     }
 
-    protected listenItemsEvents(): void {
-        super.listenItemsEvents();
+    protected initEventListeners(): void {
+        super.initEventListeners();
 
         this.getAccessComboBox().onValueChanged(() => {
             this.notifyDataChanged();
@@ -33,25 +33,18 @@ export class ProjectPermissionsDialogStep
 
     getPermissions(): ProjectPermissionsData {
         const selectedAccessEntries: ProjectAccessControlEntry[] = this.getAccessComboBox().getSelectedDisplayValues();
+        const items: Map<ProjectAccess, Principal[]> = new Map<ProjectAccess, Principal[]>;
 
-        const owners: Principal[] = selectedAccessEntries
-            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.OWNER)
-            .map((ownerEntry: ProjectAccessControlEntry) => ownerEntry.getPrincipal());
-        const editors: Principal[] = selectedAccessEntries
-            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.EDITOR)
-            .map((editorEntry: ProjectAccessControlEntry) => editorEntry.getPrincipal());
-        const contributors: Principal[] = selectedAccessEntries
-            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.CONTRIBUTOR)
-            .map((contributorEntry: ProjectAccessControlEntry) => contributorEntry.getPrincipal());
-        const authors: Principal[] = selectedAccessEntries
-            .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.AUTHOR)
-            .map((contributorEntry: ProjectAccessControlEntry) => contributorEntry.getPrincipal());
+        selectedAccessEntries.forEach((entry: ProjectAccessControlEntry) => {
+            items.has(entry.getAccess()) ? items.get(entry.getAccess()).push(entry.getPrincipal()) : items.set(entry.getAccess(),
+                [entry.getPrincipal()]);
+        });
 
         return new ProjectPermissionsDataBuilder()
-            .setOwners(owners)
-            .setEditors(editors)
-            .setContributors(contributors)
-            .setAuthors(authors)
+            .setOwners(items.get(ProjectAccess.OWNER))
+            .setEditors(items.get(ProjectAccess.EDITOR))
+            .setContributors(items.get(ProjectAccess.CONTRIBUTOR))
+            .setAuthors(items.get(ProjectAccess.AUTHOR))
             .build();
     }
 
@@ -81,6 +74,6 @@ export class ProjectPermissionsDialogStep
     }
 
     private getAccessComboBox(): ProjectAccessControlComboBox {
-        return (<RolesFormItem>this.formItems[0]).getAccessCombobox();
+        return (<ProjectRolesFormItem>this.formItems[0]).getAccessCombobox();
     }
 }

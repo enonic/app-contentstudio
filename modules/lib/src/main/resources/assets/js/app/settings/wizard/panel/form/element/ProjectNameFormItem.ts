@@ -4,7 +4,7 @@ import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
 
-export class NameFormItem
+export class ProjectNameFormItem
     extends ProjectFormItem {
 
     private static PROJECT_NAME_CHARS: RegExp = /^([a-z0-9-])([a-z0-9_-])*$/;
@@ -24,7 +24,7 @@ export class NameFormItem
     }
 
     isProjectNameValid(): boolean {
-        const projectNameRegExp: RegExp = NameFormItem.PROJECT_NAME_CHARS;
+        const projectNameRegExp: RegExp = ProjectNameFormItem.PROJECT_NAME_CHARS;
         return projectNameRegExp.test(this.getProjectNameInput().getValue());
     }
 
