@@ -47,13 +47,13 @@ export class ContentSelector
 
     protected static loadSummaries: () => void = AppHelper.debounce(ContentSelector.doFetchSummaries, 10, false);
 
-    constructor(config?: ContentInputTypeViewContext) {
-        super('content-selector', config);
+    constructor(config: ContentInputTypeViewContext) {
+        super(config, 'content-selector');
         this.initEventsListeners();
     }
 
     private initEventsListeners() {
-        const contentId: string = this.config.content.getId();
+        const contentId: string = this.context.content.getId();
 
         ContentServerEventsHandler.getInstance().onContentRenamed((data: ContentSummaryAndCompareStatus[]) => {
             const isCurrentContentRenamed: boolean = data.some((item: ContentSummaryAndCompareStatus) => item.getId() === contentId);
@@ -81,8 +81,8 @@ export class ContentSelector
         return new ContentTreeSelectorItem(content);
     }
 
-    protected readConfig(): void {
-        const inputConfig: { [element: string]: { [name: string]: string }[]; } = this.config.inputConfig;
+    protected readInputConfig(): void {
+        const inputConfig: { [element: string]: { [name: string]: string }[]; } = this.context.inputConfig;
         const isTreeModeConfig = inputConfig['treeMode'] ? inputConfig['treeMode'][0] : {};
         this.treeMode = !StringHelper.isBlank(isTreeModeConfig['value']) ? isTreeModeConfig['value'].toLowerCase() === 'true' : false;
 
@@ -90,7 +90,7 @@ export class ContentSelector
         this.hideToggleIcon =
             !StringHelper.isBlank(hideToggleIconConfig['value']) ? hideToggleIconConfig['value'].toLowerCase() === 'true' : false;
 
-        super.readConfig();
+        super.readInputConfig();
     }
 
     protected getDefaultAllowPath(): string {
@@ -173,7 +173,7 @@ export class ContentSelector
             .setAllowedContentPaths(this.allowedContentPaths)
             .setContentTypeNames(this.allowedContentTypes)
             .setRelationshipType(this.relationshipType)
-            .setContent(this.config.content);
+            .setContent(this.context.content);
     }
 
     protected doCreateContentComboBoxBuilder(): ContentComboBoxBuilder<ContentTreeSelectorItem> {
@@ -205,7 +205,7 @@ export class ContentSelector
     protected initEvents(contentComboBox: ContentComboBox<ContentTreeSelectorItem>) {
         contentComboBox.getComboBox().onContentMissing((ids: string[]) => {
             ids.forEach(id => this.removePropertyWithId(id));
-            this.validate(false);
+            this.handleValueChanged(false);
         });
 
         contentComboBox.onOptionSelected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
@@ -219,7 +219,7 @@ export class ContentSelector
                 this.updateSelectedOptionIsEditable(event.getSelectedOption());
                 this.getSelectedOptionsView().refreshSortable();
                 this.updateSelectedOptionStyle();
-                this.validate(false);
+                this.handleValueChanged(false);
                 this.contentComboBox.getComboBox().setIgnoreNextFocus(true);
             }
 
@@ -228,7 +228,7 @@ export class ContentSelector
         contentComboBox.onOptionDeselected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
             this.handleDeselected(event.getSelectedOption().getIndex());
             this.updateSelectedOptionStyle();
-            this.validate(false);
+            this.handleValueChanged(false);
         });
 
         contentComboBox.onOptionMoved(this.handleMoved.bind(this));
@@ -384,7 +384,7 @@ export class ContentSelector
 
     protected updateSelectedOptionIsEditable(selectedOption: SelectedOption<ContentTreeSelectorItem>) {
         const selectedContentId: ContentId = selectedOption.getOption().getDisplayValue().getContentId();
-        const refersToItself: boolean = selectedContentId.toString() === this.config.content.getId();
+        const refersToItself: boolean = selectedContentId.toString() === this.context.content.getId();
         selectedOption.getOptionView().toggleClass('non-editable', refersToItself);
     }
 

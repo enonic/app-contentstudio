@@ -38,13 +38,12 @@ export class CustomSelector
     private comboBox: RichComboBox<CustomSelectorItem>;
 
     constructor(context: ContentInputTypeViewContext) {
-        super('custom-selector');
+        super(context, 'custom-selector');
 
         if (CustomSelector.debug) {
             console.debug('CustomSelector: config', context.inputConfig);
         }
 
-        this.readConfig(context);
         this.subscribeToContentUpdates();
     }
 
@@ -64,8 +63,8 @@ export class CustomSelector
         }
     }
 
-    private readConfig(context: ContentInputTypeViewContext): void {
-        const cfg = context.inputConfig;
+    protected readInputConfig(): void {
+        const cfg = this.context.inputConfig;
         const serviceCfg = cfg['service'];
         let serviceUrl;
         if (serviceCfg) {
@@ -78,7 +77,7 @@ export class CustomSelector
             return prev;
         }, {});
 
-        this.content = context.content;
+        this.content = (<ContentInputTypeViewContext>this.context).content;
 
         if (serviceUrl) {
             this.requestPath = CustomSelector.portalUrl + UriHelper.appendUrlParams(serviceUrl, params);
@@ -164,7 +163,7 @@ export class CustomSelector
 
             this.ignorePropertyChange(false);
 
-            this.validate(false);
+            this.handleValueChanged(false);
             this.fireFocusSwitchEvent(event);
         });
 
@@ -175,12 +174,12 @@ export class CustomSelector
 
             this.refreshSortable();
             this.ignorePropertyChange(false);
-            this.validate(false);
+            this.handleValueChanged(false);
         });
 
         comboBox.onOptionMoved((moved: SelectedOption<any>, fromIndex: number) => this.handleMove(moved, fromIndex));
 
-        comboBox.onValueLoaded(() => this.validate(false));
+        comboBox.onValueLoaded(() => this.handleValueChanged(false));
 
         return comboBox;
     }

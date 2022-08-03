@@ -32,8 +32,8 @@ export class ImageSelector
 
     private isPendingPreload: boolean = true;
 
-    constructor(config: ContentInputTypeViewContext) {
-        super(config);
+    constructor(context: ContentInputTypeViewContext) {
+        super(context);
 
         this.addClass('image-selector');
 
@@ -78,7 +78,7 @@ export class ImageSelector
                 }
 
             });
-            this.validate(false);
+            this.handleValueChanged(false);
         });
 
         return selectedOptionsView;
@@ -110,7 +110,7 @@ export class ImageSelector
             });
             this.isPendingPreload = false;
             if (data.length > 0) {
-                this.validate(false);
+                this.handleValueChanged(false);
             }
             loader.unPreloadedData(onPreloadedData);
         };
@@ -123,7 +123,7 @@ export class ImageSelector
             if (option.getOption().getDisplayValue().getContentSummary()) {
                 this.handleDeselected(option.getIndex());
             }
-            this.validate(false);
+            this.handleValueChanged(false);
         });
 
         comboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
@@ -137,12 +137,12 @@ export class ImageSelector
 
                 this.setContentIdProperty(contentId);
             }
-            this.validate(false);
+            this.handleValueChanged(false);
         });
 
         comboBox.onOptionMoved((moved: SelectedOption<MediaTreeSelectorItem>, fromIndex: number) => {
             this.handleMoved(moved, fromIndex);
-            this.validate(false);
+            this.handleValueChanged(false);
         });
     }
 
@@ -221,23 +221,6 @@ export class ImageSelector
             super.validate(silent);
         }
     }
-/*
-    onEditContentRequest(listener: (content: ContentSummary) => void) {
-        this.editContentRequestListeners.push(listener);
-    }
-
-    unEditContentRequest(listener: (content: ContentSummary) => void) {
-        this.editContentRequestListeners = this.editContentRequestListeners
-            .filter(function (curr: (content: ContentSummary) => void) {
-                return curr !== listener;
-            });
-    }
-
-    private notifyEditContentRequested(content: ContentSummary) {
-        this.editContentRequestListeners.forEach((listener) => {
-            listener(content);
-        });
-    }*/
 }
 
 InputTypeManager.register(new Class('ImageSelector', ImageSelector));

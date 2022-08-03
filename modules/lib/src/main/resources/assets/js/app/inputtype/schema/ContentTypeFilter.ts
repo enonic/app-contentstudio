@@ -21,24 +21,23 @@ import {Class} from '@enonic/lib-admin-ui/Class';
 export class ContentTypeFilter
     extends BaseInputTypeManagingAdd {
 
+    protected context: ContentInputTypeViewContext;
+
     private combobox: ContentTypeComboBox;
 
-    private context: ContentInputTypeViewContext;
-
-    private onContentTypesLoadedHandler: (contentTypeArray: ContentTypeSummary[]) => void;
+    private readonly onContentTypesLoadedHandler: (contentTypeArray: ContentTypeSummary[]) => void;
 
     private isContextDependent: boolean;
 
     constructor(context: ContentInputTypeViewContext) {
-        super('content-type-filter');
-        this.context = context;
+        super(context, 'content-type-filter');
         this.onContentTypesLoadedHandler = this.onContentTypesLoaded.bind(this);
-        this.readConfig(context.inputConfig);
     }
 
-    protected readConfig(inputConfig: { [element: string]: { [name: string]: string }[]; }): void {
-        const isContextDependentConfig = inputConfig['context'] ? inputConfig['context'][0] : {};
-        const value = isContextDependentConfig['value'] || '';
+    protected readInputConfig(): void {
+        const contextDependentProp: { [name: string]: string } =
+            this.context.inputConfig['context'] ? this.context.inputConfig['context'][0] : {};
+        const value: string = contextDependentProp['value'] || '';
         this.isContextDependent = value.toLowerCase() === 'true';
     }
 
@@ -105,14 +104,14 @@ export class ContentTypeFilter
             this.getPropertyArray().add(value);
         }
 
-        this.validate(false);
+        this.handleValueChanged(false);
         this.ignorePropertyChange(false);
     }
 
     private onContentTypeDeselected(option: SelectedOption<ContentTypeSummary>): void {
         this.ignorePropertyChange(true);
         this.getPropertyArray().remove(option.getIndex());
-        this.validate(false);
+        this.handleValueChanged(false);
         this.ignorePropertyChange(false);
     }
 

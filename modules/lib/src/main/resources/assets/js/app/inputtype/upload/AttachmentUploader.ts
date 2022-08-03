@@ -30,20 +30,19 @@ import {ValueChangedEvent} from '@enonic/lib-admin-ui/form/inputtype/ValueChange
 export class AttachmentUploader
     extends BaseInputTypeManagingAdd {
 
+    protected context: ContentInputTypeViewContext;
+
     private uploadButton: Button;
 
     private uploaderWrapper: DivEl;
 
     private uploaderEl: AttachmentUploaderEl;
 
-    private config: ContentInputTypeViewContext;
-
     private hasAttachmentErrors: boolean;
 
-    constructor(config: ContentInputTypeViewContext) {
-        super('file-uploader');
+    constructor(context: ContentInputTypeViewContext) {
+        super(context, 'file-uploader');
         this.addClass('attachment-uploader');
-        this.config = config;
     }
 
     getValueType(): ValueType {
@@ -123,13 +122,13 @@ export class AttachmentUploader
     private createUploaderConfig(): AttachmentUploaderElConfig {
         return {
             params: {
-                id: this.config.content.getContentId().toString()
+                id: this.context.content.getContentId().toString()
             },
-            contentId: this.config.content.getContentId().toString(),
-            name: this.config.input.getName(),
+            contentId: this.context.content.getContentId().toString(),
+            name: this.context.input.getName(),
             showCancel: false,
             allowMultiSelection: this.getInput().getOccurrences().getMaximum() !== 1,
-            hideDefaultDropZone: !!(<any>(this.config.inputConfig)).hideDropZone,
+            hideDefaultDropZone: !!(<any>(this.context.inputConfig)).hideDropZone,
             deferred: true,
             attachmentRemoveCallback: this.removeItemCallback.bind(this),
             getTotalAllowedToUpload: this.getTotalAllowedToUpload.bind(this),
@@ -145,7 +144,7 @@ export class AttachmentUploader
             const index: number = values.indexOf(attachmentName);
             this.getPropertyArray().remove(index);
 
-            new ContentRequiresSaveEvent(this.config.content.getContentId()).fire();
+            new ContentRequiresSaveEvent(this.context.content.getContentId()).fire();
         }).catch(DefaultErrorHandler.handle);
     }
 
@@ -170,11 +169,11 @@ export class AttachmentUploader
     }
 
     private isAttachmentReferencedFromPage(attachmentName: string): boolean {
-        if (!this.config.content.isPage()) {
+        if (!this.context.content.isPage()) {
             return false;
         }
 
-        const content: Content = <Content>this.config.content;
+        const content: Content = <Content>this.context.content;
         const page: Page = content.getPage();
 
         if (!page.hasRegions()) {
@@ -188,7 +187,7 @@ export class AttachmentUploader
 
     private deleteAttachment(itemName: string): Q.Promise<Content> {
         return new DeleteAttachmentRequest()
-            .setContentId(this.config.content.getContentId())
+            .setContentId(this.context.content.getContentId())
             .addAttachmentName(itemName)
             .sendAndParse();
     }
@@ -235,7 +234,7 @@ export class AttachmentUploader
                 this.addFileNameToProperty(itemName);
             });
 
-            new ContentRequiresSaveEvent(this.config.content.getContentId()).fire();
+            new ContentRequiresSaveEvent(this.context.content.getContentId()).fire();
         });
 
         this.uploaderEl.onUploadFailed((event: UploadFailedEvent<Attachment>) => {
@@ -281,7 +280,7 @@ export class AttachmentUploader
     }
 
     private getCustomValidationErrors(): ValidationError[] {
-        return this.config.formContext.getPersistedContent().getValidationErrors();
+        return this.context.formContext.getPersistedContent().getValidationErrors();
     }
 
     private getAttachmentNamesFromCustomErrors(): string[] {
