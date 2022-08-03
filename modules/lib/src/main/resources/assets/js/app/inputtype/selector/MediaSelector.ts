@@ -24,16 +24,15 @@ export class MediaSelector
 
     protected uploader: MediaUploaderEl;
 
-    constructor(config?: ContentInputTypeViewContext) {
-        super(config);
+    constructor(context: ContentInputTypeViewContext) {
+        super(context);
         this.addClass('media-selector');
     }
 
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
-
         return super.layout(input, propertyArray).then(() => {
-            if (this.config.content) {
-                return this.createUploader().then((mediaUploader) => {
+            if (this.context.content) {
+                return this.createUploader().then((mediaUploader: MediaUploaderEl) => {
                     this.comboBoxWrapper.appendChild(this.uploader = mediaUploader);
 
                     if (!this.contentComboBox.getComboBox().isVisible()) {
@@ -48,8 +47,8 @@ export class MediaSelector
         return ContentTypeName.getMediaTypes();
     }
 
-    protected readConfig(): void {
-        super.readConfig();
+    protected readInputConfig(): void {
+        super.readInputConfig();
 
         const allowedContentTypes: string[] = this.getDefaultContentTypes().map(type => type.toString());
         let allowedMediaTypes: string[] = this.allowedContentTypes.filter(value => allowedContentTypes.indexOf(value) >= 0);
@@ -86,7 +85,7 @@ export class MediaSelector
 
         return {
             params: {
-                parent: this.config.content.getContentId().toString()
+                parent: this.context.content.getContentId().toString()
             },
             operation: MediaUploaderElOperation.create,
             name: 'media-selector-upload-el',

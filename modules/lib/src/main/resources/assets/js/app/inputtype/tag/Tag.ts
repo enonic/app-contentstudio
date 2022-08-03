@@ -18,8 +18,6 @@ import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/supp
 export class Tag
     extends BaseInputTypeManagingAdd {
 
-    private context: ContentInputTypeViewContext;
-
     private tags: Tags;
 
     private allowedContentPaths: string[];
@@ -27,22 +25,17 @@ export class Tag
     private tagSuggester: ContentTagSuggester;
 
     constructor(context: ContentInputTypeViewContext) {
-        super('tag');
-        this.addClass('input-type-view');
-
-        this.context = context;
-        this.readConfig(this.context.inputConfig);
+        super(context, 'tag');
 
         this.tagSuggester = new ContentTagSuggesterBuilder()
-            .setDataPath(Tag.resolveDataPath(this.context))
-            .setContent(this.context.content)
+            .setDataPath(Tag.resolveDataPath(context))
+            .setContent(context.content)
             .setAllowedContentPaths(this.allowedContentPaths)
             .build();
     }
 
-    protected readConfig(inputConfig: { [element: string]: { [name: string]: string }[]; }): void {
-
-        const allowContentPathConfig = inputConfig['allowPath'] || [];
+    protected readInputConfig(): void {
+        const allowContentPathConfig: { [name: string]: string }[] = this.context.inputConfig['allowPath'] || [];
 
         this.allowedContentPaths =
             allowContentPathConfig.length > 0
@@ -85,14 +78,14 @@ export class Tag
                 } else {
                     this.getPropertyArray().add(value);
                 }
-                this.validate(false);
+                this.handleValueChanged(false);
                 this.ignorePropertyChange(false);
             });
 
             this.tags.onTagRemoved((event: TagRemovedEvent) => {
                 this.ignorePropertyChange(true);
                 this.getPropertyArray().remove(event.getIndex());
-                this.validate(false);
+                this.handleValueChanged(false);
                 this.ignorePropertyChange(false);
             });
 

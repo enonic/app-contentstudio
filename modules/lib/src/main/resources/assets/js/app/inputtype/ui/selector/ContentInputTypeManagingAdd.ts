@@ -17,7 +17,7 @@ import {MovedContentItem} from '../../../browse/MovedContentItem';
 export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {
 
-    protected config: ContentInputTypeViewContext;
+    protected context: ContentInputTypeViewContext;
 
     protected relationshipType: string;
 
@@ -27,12 +27,8 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
 
     protected contentDeletedListener: (paths: ContentServerChangeItem[], pending?: boolean) => void;
 
-    constructor(className?: string, config?: ContentInputTypeViewContext) {
-        super(className);
-        this.addClass('input-type-view');
-        this.config = config;
-
-        this.readConfig();
+    constructor(context: ContentInputTypeViewContext, className?: string) {
+        super(context, className);
 
         this.handleContentDeletedEvent();
         this.handleContentUpdatedEvent();
@@ -71,7 +67,7 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     }
 
     private getAllowedContentTypes(inputConfig: { [element: string]: { [name: string]: string }[]; }): string[] {
-        const applicationKey: ApplicationKey = (<FormItem>this.config.input).getApplicationKey();
+        const applicationKey: ApplicationKey = (<FormItem>this.context.input).getApplicationKey();
         const allowContentTypeConfig = inputConfig['allowContentType'] || [];
         return allowContentTypeConfig
             .map((cfg) => this.prependApplicationName(applicationKey, cfg['value']))
@@ -92,8 +88,8 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         return [];
     }
 
-    protected readConfig(): void {
-        const inputConfig: { [element: string]: { [name: string]: string }[]; } = this.config.inputConfig;
+    protected readInputConfig(): void {
+        const inputConfig: { [element: string]: { [name: string]: string }[]; } = this.context.inputConfig;
 
         this.relationshipType = this.getRelationShipType(inputConfig);
         this.allowedContentTypes = this.getAllowedContentTypes(inputConfig);
