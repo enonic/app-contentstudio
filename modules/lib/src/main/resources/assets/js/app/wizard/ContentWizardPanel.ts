@@ -1368,13 +1368,7 @@ export class ContentWizardPanel
                 return;
             }
 
-            this.setUpdatedContent(updatedContent);
-
-            this.fetchPersistedContent().then((content) => {
-                this.setPersistedItem(content.clone());
-                this.updateEditPermissionsButtonIcon(content);
-                this.setAllowedActionsBasedOnPermissions();
-            });
+            this.handlePersistedContentUpdate(updatedContent);
         };
 
         const sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
