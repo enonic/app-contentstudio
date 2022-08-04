@@ -19,7 +19,7 @@ export class LocaleFormItem
     }
 
     getLocaleCombobox(): LocaleComboBox {
-        return <LocaleComboBox>this.getInput()
+        return <LocaleComboBox>this.getInput();
     }
 }
 

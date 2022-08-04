@@ -4,7 +4,7 @@ import {ProjectAccessControlComboBox} from '../../../../wizard/panel/form/elemen
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
 import {ProjectAccess} from '../../../../access/ProjectAccess';
-import {ProjectPermissionsData, ProjectPermissionsDataBuilder} from '../data/ProjectPermissionsData';
+import {ProjectPermissionsDataBuilder, ProjectPermissionsDialogStepData} from '../data/ProjectPermissionsDialogStepData';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectRolesFormItem} from '../../../../wizard/panel/form/element/ProjectRolesFormItem';
 
@@ -31,7 +31,7 @@ export class ProjectPermissionsDialogStep
         });
     }
 
-    getPermissions(): ProjectPermissionsData {
+    getData(): ProjectPermissionsDialogStepData {
         const selectedAccessEntries: ProjectAccessControlEntry[] = this.getAccessComboBox().getSelectedDisplayValues();
         const items: Map<ProjectAccess, Principal[]> = new Map<ProjectAccess, Principal[]>;
 
@@ -50,19 +50,6 @@ export class ProjectPermissionsDialogStep
 
     hasData(): boolean {
         return !!this.getAccessComboBox().getValue();
-    }
-
-    getData(): Object {
-        const data: ProjectPermissionsData = this.getPermissions();
-
-        return {
-            permissions: {
-                contributor: data.getContributors().map((p: Principal) => p.getKey().toString()),
-                author: data.getAuthors().map((p: Principal) => p.getKey().toString()),
-                owner: data.getOwners().map((p: Principal) => p.getKey().toString()),
-                editor: data.getEditors().map((p: Principal) => p.getKey().toString())
-            }
-        }
     }
 
     getName(): string {
