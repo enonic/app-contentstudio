@@ -5,7 +5,7 @@ import {ProjectData} from '../data/ProjectData';
 import * as Q from 'q';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
-import {ProjectPermissionsData} from '../data/ProjectPermissionsData';
+import {ProjectPermissionsDialogStepData} from '../data/ProjectPermissionsDialogStepData';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -296,7 +296,7 @@ class ProjectPermissionsParamContainer
         });
     }
 
-    setPermissions(permissions: ProjectPermissionsData): ProjectPermissionsParamContainer {
+    setPermissions(permissions: ProjectPermissionsDialogStepData): ProjectPermissionsParamContainer {
         this.principalsContainer.removeChildren();
 
         if (permissions.getContributors().length > 0) {

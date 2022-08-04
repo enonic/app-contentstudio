@@ -18,7 +18,7 @@ import {ProjectData} from './data/ProjectData';
 import {ProjectAccessDialogStepData} from './data/ProjectAccessDialogStepData';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectPermissionsDialogStep} from './step/ProjectPermissionsDialogStep';
-import {ProjectPermissionsData} from './data/ProjectPermissionsData';
+import {ProjectPermissionsDialogStepData} from './data/ProjectPermissionsDialogStepData';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {MultiStepDialog, MultiStepDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/multistep/MultiStepDialog';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
@@ -194,8 +194,8 @@ export class ProjectWizardDialog
         return <ProjectIdDialogStep>this.steps.find((step: DialogStep) => step instanceof ProjectIdDialogStep);
     }
 
-    private getPermissions(): ProjectPermissionsData {
-        return this.getProjectPermissionsStep()?.getPermissions();
+    private getPermissions(): ProjectPermissionsDialogStepData {
+        return this.getProjectPermissionsStep()?.getData();
     }
 
     private getProjectPermissionsStep(): ProjectPermissionsDialogStep {
