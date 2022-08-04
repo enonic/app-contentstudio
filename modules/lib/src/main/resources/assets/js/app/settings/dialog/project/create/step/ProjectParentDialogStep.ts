@@ -5,6 +5,8 @@ import {ProjectDialogStep} from './ProjectDialogStep';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Project} from '../../../../data/project/Project';
 import {ParentProjectFormItem} from '../../../../wizard/panel/form/element/ParentProjectFormItem';
+import {ProjectDialogStepData} from '../data/ProjectDialogStepData';
+import {ProjectParentDialogStepData} from '../data/ProjectParentDialogStepData';
 
 export class ProjectParentDialogStep
     extends ProjectDialogStep {
@@ -25,10 +27,8 @@ export class ProjectParentDialogStep
         return true;
     }
 
-    getData(): Object {
-        return {
-            parentProject: this.getParentProjectComboBox().getValue()
-        }
+    getData(): ProjectParentDialogStepData {
+        return new ProjectParentDialogStepData().setParentProject(this.getParentProjectComboBox().getSelectedDisplayValues()[0]);
     }
 
     hasData(): boolean {

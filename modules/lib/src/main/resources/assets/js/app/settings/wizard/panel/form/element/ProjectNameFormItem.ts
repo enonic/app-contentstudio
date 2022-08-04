@@ -1,5 +1,5 @@
-import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
-import { Validators } from '@enonic/lib-admin-ui/ui/form/Validators';
+import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
+import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
