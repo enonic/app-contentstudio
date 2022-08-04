@@ -1,6 +1,7 @@
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {ProjectDialogStepData} from './ProjectDialogStepData';
 
-export class ProjectPermissionsData {
+export class ProjectPermissionsDialogStepData extends ProjectDialogStepData {
 
     private readonly owners: Principal[];
 
@@ -11,6 +12,7 @@ export class ProjectPermissionsData {
     private readonly authors: Principal[];
 
     constructor(builder: ProjectPermissionsDataBuilder) {
+        super();
         this.owners = builder.owners || [];
         this.contributors = builder.contributors || [];
         this.editors = builder.editors || [];
@@ -68,7 +70,7 @@ export class ProjectPermissionsDataBuilder {
         return this;
     }
 
-    build(): ProjectPermissionsData {
-        return new ProjectPermissionsData(this);
+    build(): ProjectPermissionsDialogStepData {
+        return new ProjectPermissionsDialogStepData(this);
     }
 }
