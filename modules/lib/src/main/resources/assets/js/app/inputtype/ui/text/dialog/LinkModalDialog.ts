@@ -36,6 +36,7 @@ import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
 import eventInfo = CKEDITOR.eventInfo;
+import {LinkUrlValidator} from './LinkUrlValidator';
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -293,7 +294,7 @@ export class LinkModalDialog
     }
 
     private static validationRequiredUrl(input: FormInputEl): string {
-        return Validators.required(input) || Validators.validUrl(input);
+        return Validators.required(input) || LinkUrlValidator.validUrl(input);
     }
 
     private getTarget(isTabSelected: boolean): boolean {
