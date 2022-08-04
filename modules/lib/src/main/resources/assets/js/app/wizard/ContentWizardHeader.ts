@@ -152,6 +152,14 @@ export class ContentWizardHeader
         super.toggleNameInput(enable);
     }
 
+    isDisplayNameInputDirty(): boolean {
+        return this.displayNameEl.isDirty();
+    }
+
+    isNameInputDirty(): boolean {
+        return this.nameEl.isDirty();
+    }
+
     private lock(): void {
         this.loadSpinner.show();
         this.notifyNameCheckIsOn();

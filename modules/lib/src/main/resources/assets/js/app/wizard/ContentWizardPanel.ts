@@ -1368,13 +1368,7 @@ export class ContentWizardPanel
                 return;
             }
 
-            this.setUpdatedContent(updatedContent);
-
-            this.fetchPersistedContent().then((content) => {
-                this.setPersistedItem(content.clone());
-                this.updateEditPermissionsButtonIcon(content);
-                this.setAllowedActionsBasedOnPermissions();
-            });
+            this.handlePersistedContentUpdate(updatedContent);
         };
 
         const sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
@@ -2627,8 +2621,13 @@ export class ContentWizardPanel
     private updateWizardHeader(content: Content) {
         this.updateThumbnailWithContent(content);
 
-        this.getWizardHeader().setDisplayName(content.getDisplayName());
-        this.getWizardHeader().setName(content.getName().toString());
+        if (!this.getWizardHeader().isDisplayNameInputDirty()) {
+            this.getWizardHeader().setDisplayName(content.getDisplayName());
+        }
+
+        if (!this.getWizardHeader().isNameInputDirty()) {
+            this.getWizardHeader().setName(content.getName().toString());
+        }
 
         // case when content was moved
         this.getWizardHeader()
