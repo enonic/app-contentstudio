@@ -2281,6 +2281,10 @@ export class ContentWizardPanel
         return this.getPersistedItem().getDisplayName() !== this.getWizardHeader().getDisplayName();
     }
 
+    private isNameUpdated(): boolean {
+        return this.getPersistedItem().getName().getValue() !== this.getWizardHeader().getName();
+    }
+
     hasUnsavedChanges(): boolean {
         if (!this.isRendered()) {
             return false;
@@ -2618,11 +2622,13 @@ export class ContentWizardPanel
         this.scheduleWizardStepForm.update(content, unchangedOnly);
     }
 
-    private updateWizardHeader(content: Content) {
+    private updateWizardHeader(content: Content, unchangedOnly: boolean = true) {
         this.updateThumbnailWithContent(content);
 
-        this.getWizardHeader().setDisplayName(content.getDisplayName());
-        this.getWizardHeader().setName(content.getName().toString());
+        if (!unchangedOnly) {
+            this.getWizardHeader().setDisplayName(content.getDisplayName());
+            this.getWizardHeader().setName(content.getName().toString());
+        }
 
         // case when content was moved
         this.getWizardHeader()
