@@ -1,5 +1,5 @@
-import {FormInputEl} from "@enonic/lib-admin-ui/dom/FormInputEl";
-import {i18n} from "@enonic/lib-admin-ui/util/Messages";
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class LinkUrlValidator {
 
