@@ -36,6 +36,7 @@ import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
 import {ContentId} from '../../content/ContentId';
 import {WidgetItemView} from './WidgetItemView';
 import {VersionContext} from './widget/version/VersionContext';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class ContextView
     extends DivEl {
@@ -105,8 +106,8 @@ export class ContextView
         this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
 
         VersionContext.onActiveVersionChanged((contentId: string, version: string) => {
-            if (this.item.getId() === contentId && this.isVisible() && this.activeWidget === this.versionsWidgetView) {
-                this.updateActiveWidget();
+            if (this.item?.getId() === contentId && this.isVisible() && this.activeWidget === this.versionsWidgetView) {
+                this.updateActiveWidget().catch(DefaultErrorHandler.handle);
             }
         });
 
@@ -129,7 +130,7 @@ export class ContextView
                 const selectedItemContentId: ContentId = this.item.getContentId();
                 const isSelectedItemPermissionsUpdated: boolean = contentIds.contains(selectedItemContentId);
                 if (isSelectedItemPermissionsUpdated) {
-                    this.updateActiveWidget();
+                    this.updateActiveWidget().catch(DefaultErrorHandler.handle);
                 }
             }
         });
@@ -155,7 +156,7 @@ export class ContextView
 
         ReloadActiveWidgetEvent.on(() => {
             if (this.activeWidget) {
-                this.activeWidget.updateWidgetItemViews();
+                this.activeWidget.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
             }
         });
     }
@@ -309,7 +310,7 @@ export class ContextView
         }
     }
 
-    public setItem(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    public setItem(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         if (ContextView.debug) {
             console.debug('ContextView.setItem: ', item);
         }
@@ -322,7 +323,7 @@ export class ContextView
 
         this.layout(!itemSelected);
         if (activeWidgetVisible && selectionChanged && (this.activeWidget.isExternal() || itemSelected)) {
-            return this.updateActiveWidget();
+            return this.updateActiveWidget().catch(DefaultErrorHandler.handle);
         }
 
         return Q<any>(null);
@@ -336,7 +337,7 @@ export class ContextView
         return ['contentstudio.contextpanel'];
     }
 
-    updateActiveWidget(): Q.Promise<any> {
+    updateActiveWidget(): Q.Promise<void> {
         if (ContextView.debug) {
             console.debug('ContextView.updateWidgetsForItem');
         }
@@ -347,6 +348,7 @@ export class ContextView
 
         return this.activeWidget.updateWidgetItemViews().then(() => {
             this.activeWidget.slideIn();
+            return Q.resolve();
         });
     }
 

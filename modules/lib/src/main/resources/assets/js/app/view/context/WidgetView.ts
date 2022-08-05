@@ -7,6 +7,7 @@ import {WidgetItemView} from './WidgetItemView';
 import {UriHelper} from '../../rendering/UriHelper';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export enum InternalWidgetType {
     INFO,
@@ -69,7 +70,7 @@ export class WidgetView
         this.applyConfig();
 
         this.onActivated(() => {
-            this.updateWidgetItemViews();
+            this.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
         });
     }
 
@@ -90,7 +91,7 @@ export class WidgetView
         let updateWidgetItemViewsHandler = () => {
             let containerWidth = this.contextView.getEl().getWidth();
             if (this.contextView.getItem() && containerWidth !== this.containerWidth) {
-                this.updateWidgetItemViews();
+                this.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
             }
         };
         this.contextView.onPanelSizeChanged(() => {
@@ -110,7 +111,7 @@ export class WidgetView
         return UriHelper.getAdminUri(this.widget.getUrl(), '/');
     }
 
-    private updateCustomWidgetItemViews(): Q.Promise<any>[] {
+    private updateCustomWidgetItemViews(): Q.Promise<void>[] {
         let promises = [];
 
         this.url = this.getWidgetUrl();
@@ -122,7 +123,7 @@ export class WidgetView
         return promises;
     }
 
-    public updateWidgetItemViews(): Q.Promise<any> {
+    public updateWidgetItemViews(): Q.Promise<void[]> {
         const content = this.contextView.getItem();
         let promises = [];
 
@@ -148,7 +149,7 @@ export class WidgetView
     private createDefaultWidgetItemView() {
         this.widgetItemViews.push(new WidgetItemView());
         if (this.contextView.getItem()) {
-            this.updateWidgetItemViews();
+            this.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
         }
     }
 

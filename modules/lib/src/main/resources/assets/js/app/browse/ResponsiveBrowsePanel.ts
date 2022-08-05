@@ -8,6 +8,7 @@ import {BrowseItemPanel} from '@enonic/lib-admin-ui/app/browse/BrowseItemPanel';
 import * as Q from 'q';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
@@ -73,7 +74,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         super.updatePreviewItem();
 
         const item: ViewItem = this.treeGrid.getLastSelectedOrHighlightedItem();
-        this.updateContextView(item);
+        this.updateContextView(item).catch(DefaultErrorHandler.handle);
 
         if (this.treeGrid.hasHighlightedNode()) {
             if (this.contextSplitPanel.isMobileMode()) {
@@ -96,7 +97,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         }
     }
 
-    protected abstract updateContextView(item: ViewItem);
+    protected abstract updateContextView(item: ViewItem): Q.Promise<void>;
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {

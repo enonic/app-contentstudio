@@ -1,3 +1,4 @@
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContextPanel} from './ContextPanel';
 import {ContextView} from './ContextView';
 
@@ -17,7 +18,7 @@ export class SlidablePanel
 
         this.setDoOffset(false);
         this.initSlideFunctions(builder.getSlideFrom());
-        this.onSlidedIn(() => this.getItem() ? void this.contextView.updateActiveWidget() : undefined);
+        this.onSlidedIn(() => this.getItem() ? void this.contextView.updateActiveWidget().catch(DefaultErrorHandler.handle) : undefined);
     }
 
     public isVisibleOrAboutToBeVisible(): boolean {

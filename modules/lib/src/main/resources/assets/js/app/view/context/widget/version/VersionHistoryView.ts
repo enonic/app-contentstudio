@@ -13,6 +13,7 @@ import {ContentId} from '../../../../content/ContentId';
 import {ContentVersionsConverter} from './ContentVersionsConverter';
 import {ContentVersions} from '../../../../ContentVersions';
 import {VersionContext} from './VersionContext';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class VersionHistoryView extends WidgetItemView {
 
@@ -67,7 +68,7 @@ export class VersionHistoryView extends WidgetItemView {
         return content.getStatusText();
     }
 
-    public setContentAndUpdateView(content: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    public setContentAndUpdateView(content: ContentSummaryAndCompareStatus): Q.Promise<void> {
         if (VersionHistoryView.debug) {
             console.debug('VersionsWidgetItemView.setItem: ', content);
         }
@@ -101,7 +102,7 @@ export class VersionHistoryView extends WidgetItemView {
         });
     }
 
-    private reloadActivePanel(): Q.Promise<any> {
+    private reloadActivePanel(): Q.Promise<void> {
         if (VersionHistoryView.debug) {
             console.debug('VersionsWidgetItemView.reloadActivePanel');
         }

@@ -503,7 +503,7 @@ export class ContentBrowsePanel
         //
     }
 
-    protected updateContextView(item: ContentSummaryAndCompareStatus) {
-        this.contextView.setItem(item);
+    protected updateContextView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
+        return this.contextView.setItem(item);
     }
 }
