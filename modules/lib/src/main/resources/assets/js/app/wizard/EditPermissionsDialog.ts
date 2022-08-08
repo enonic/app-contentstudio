@@ -75,6 +75,10 @@ export class EditPermissionsDialog
 
     private subTitle: H6El;
 
+    private changeListener: () => void;
+
+    private comboBoxChangeListener: () => void;
+
     constructor() {
         super(<ModalDialogWithConfirmationConfig>{
             confirmation: {
@@ -117,7 +121,7 @@ export class EditPermissionsDialog
             this.subTitle.hide();
         });
 
-        const comboBoxChangeListener = () => {
+        this.comboBoxChangeListener = () => {
             const currentEntries: AccessControlEntry[] = this.getEntries().sort();
 
             const permissionsModified: boolean = !ObjectHelper.arrayEquals(currentEntries, this.originalValues);
@@ -129,7 +133,7 @@ export class EditPermissionsDialog
             this.notifyResize();
         };
 
-        const changeListener = () => {
+        this.changeListener = () => {
             this.inheritPermissions = this.inheritPermissionsCheck.isChecked();
 
             this.comboBox.toggleClass('disabled', this.inheritPermissions);
@@ -142,43 +146,19 @@ export class EditPermissionsDialog
             this.comboBox.getComboBox().setVisible(!this.inheritPermissions);
             this.comboBox.setEnabled(!this.inheritPermissions);
 
-            comboBoxChangeListener();
+            this.comboBoxChangeListener();
         };
 
-        this.inheritPermissionsCheck.onValueChanged(changeListener);
+        this.inheritPermissionsCheck.onValueChanged(this.changeListener);
 
         this.applyAction.onExecuted(() => {
             this.applyPermissions();
         });
 
-        this.comboBox.onOptionValueChanged(comboBoxChangeListener);
-        this.comboBox.onOptionSelected(comboBoxChangeListener);
-        this.comboBox.onOptionDeselected(comboBoxChangeListener);
-        this.overwriteChildPermissionsCheck.onValueChanged(comboBoxChangeListener);
-
-        OpenEditPermissionsDialogEvent.on((event) => {
-            this.contentId = event.getContentId();
-            this.contentPath = event.getContentPath();
-            this.displayName = event.getDisplayName();
-            this.permissions = event.getPermissions();
-            this.inheritPermissions = event.isInheritPermissions();
-            this.overwritePermissions = event.isOverwritePermissions();
-
-            this.getParentPermissions().then((parentPermissions: AccessControlList) => {
-                this.parentPermissions = parentPermissions.getEntries();
-
-                this.open();
-
-                this.setUpDialog();
-
-                this.overwriteChildPermissionsCheck.setChecked(this.overwritePermissions, true);
-
-                changeListener();
-
-            }).catch(() => {
-                showWarning(i18n('notify.permissions.inheritError', this.displayName));
-            }).done();
-        });
+        this.comboBox.onOptionValueChanged(this.comboBoxChangeListener);
+        this.comboBox.onOptionSelected(this.comboBoxChangeListener);
+        this.comboBox.onOptionDeselected(this.comboBoxChangeListener);
+        this.overwriteChildPermissionsCheck.onValueChanged(this.comboBoxChangeListener);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -300,6 +280,30 @@ export class EditPermissionsDialog
             this.overwriteChildPermissionsCheck.isChecked());
         req.sendAndParse().then((taskId) => {
             this.pollTask(taskId);
+        }).done();
+    }
+
+    setDataAndOpen(event: OpenEditPermissionsDialogEvent): void {
+        this.contentId = event.getContentId();
+        this.contentPath = event.getContentPath();
+        this.displayName = event.getDisplayName();
+        this.permissions = event.getPermissions();
+        this.inheritPermissions = event.isInheritPermissions();
+        this.overwritePermissions = event.isOverwritePermissions();
+
+        this.getParentPermissions().then((parentPermissions: AccessControlList) => {
+            this.parentPermissions = parentPermissions.getEntries();
+
+            this.open();
+
+            this.setUpDialog();
+
+            this.overwriteChildPermissionsCheck.setChecked(this.overwritePermissions, true);
+
+            this.changeListener();
+
+        }).catch(() => {
+            showWarning(i18n('notify.permissions.inheritError', this.displayName));
         }).done();
     }
 }

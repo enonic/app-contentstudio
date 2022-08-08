@@ -55,6 +55,7 @@ import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {AppContext} from 'lib-contentstudio/app/AppContext';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {OpenEditPermissionsDialogEvent} from 'lib-contentstudio/app/event/OpenEditPermissionsDialogEvent';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -276,9 +277,13 @@ async function startApplication() {
     AppHelper.preventDragRedirect();
 
     const ContentDuplicateDialog = (await import('lib-contentstudio/app/duplicate/ContentDuplicateDialog')).ContentDuplicateDialog;
+    let contentDuplicateDialog = null;
 
-    const contentDuplicateDialog = new ContentDuplicateDialog();
     ContentDuplicatePromptEvent.on((event) => {
+        if (!contentDuplicateDialog) {
+            contentDuplicateDialog = new ContentDuplicateDialog();
+        }
+
         contentDuplicateDialog
             .setContentToDuplicate(event.getModels())
             .setYesCallback(event.getYesCallback())
@@ -288,8 +293,13 @@ async function startApplication() {
     });
 
     const ContentDeleteDialog = (await import('lib-contentstudio/app/remove/ContentDeleteDialog')).ContentDeleteDialog;
-    const contentDeleteDialog = new ContentDeleteDialog();
+    let contentDeleteDialog = null;
+
     ContentDeletePromptEvent.on((event) => {
+        if (!contentDeleteDialog) {
+            contentDeleteDialog = new ContentDeleteDialog();
+        }
+
         contentDeleteDialog
             .setContentToDelete(event.getModels())
             .setYesCallback(event.getYesCallback())
@@ -298,8 +308,13 @@ async function startApplication() {
     });
 
     const ContentPublishDialog = (await import('lib-contentstudio/app/publish/ContentPublishDialog')).ContentPublishDialog;
-    const contentPublishDialog = ContentPublishDialog.get();
+    let contentPublishDialog = null;
+
     ContentPublishPromptEvent.on((event) => {
+        if (!contentPublishDialog) {
+            contentPublishDialog = ContentPublishDialog.get();
+        }
+
         contentPublishDialog
             .setContentToPublish(event.getModels())
             .setIncludeChildItems(event.isIncludeChildItems(), event.getExceptedContentIds())
@@ -309,8 +324,13 @@ async function startApplication() {
     });
 
     const ContentUnpublishDialog = (await import('lib-contentstudio/app/publish/ContentUnpublishDialog')).ContentUnpublishDialog;
-    const contentUnpublishDialog = new ContentUnpublishDialog();
+    let contentUnpublishDialog = null;
+
     ContentUnpublishPromptEvent.on((event) => {
+        if (!contentPublishDialog) {
+            contentUnpublishDialog = new ContentUnpublishDialog();
+        }
+
         contentUnpublishDialog
             .setContentToUnpublish(event.getModels())
             .open();
@@ -327,7 +347,15 @@ async function startApplication() {
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
     const EditPermissionsDialog = (await import('lib-contentstudio/app/wizard/EditPermissionsDialog')).EditPermissionsDialog;
-    new EditPermissionsDialog();
+    let editPermissionsDialog = null;
+
+    OpenEditPermissionsDialogEvent.on((event: OpenEditPermissionsDialogEvent) => {
+        if (!editPermissionsDialog) {
+            editPermissionsDialog = new EditPermissionsDialog();
+        }
+
+        editPermissionsDialog.setDataAndOpen(event);
+    });
 
     application.setLoaded(true);
 
