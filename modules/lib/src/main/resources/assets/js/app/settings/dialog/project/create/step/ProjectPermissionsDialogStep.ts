@@ -7,6 +7,7 @@ import {ProjectAccess} from '../../../../access/ProjectAccess';
 import {ProjectPermissionsDataBuilder, ProjectPermissionsDialogStepData} from '../data/ProjectPermissionsDialogStepData';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectRolesFormItem} from '../../../../wizard/panel/form/element/ProjectRolesFormItem';
+import {Project} from '../../../../data/project/Project';
 
 export class ProjectPermissionsDialogStep
     extends ProjectDialogStep {
@@ -21,6 +22,10 @@ export class ProjectPermissionsDialogStep
 
     isOptional(): boolean {
         return true;
+    }
+
+    setParentProject(value: Project) {
+        this.getFormItem().setParentProject(value);
     }
 
     protected initEventListeners(): void {
@@ -61,6 +66,10 @@ export class ProjectPermissionsDialogStep
     }
 
     private getAccessComboBox(): ProjectAccessControlComboBox {
-        return (<ProjectRolesFormItem>this.formItems[0]).getAccessCombobox();
+        return this.getFormItem().getAccessComboBox();
+    }
+
+    private getFormItem(): ProjectRolesFormItem {
+        return <ProjectRolesFormItem>this.formItems[0];
     }
 }
