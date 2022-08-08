@@ -66,6 +66,12 @@ export class ProjectWizardDialog
             this.setNameFromParentProject();
         } else if (this.config.parentProject && this.isParentProjectStep()) {
             this.setParentProject();
+        } else if (this.isLocaleDialogStep()) {
+            (<ProjectLocaleDialogStep>this.currentStep).setParentProject(this.getParentProject())
+        } else if (this.isAccessDialogStep()) {
+            (<ProjectAccessDialogStep>this.currentStep).setParentProject(this.getParentProject())
+        } else if (this.isPermissionsStep()) {
+            (<ProjectPermissionsDialogStep>this.currentStep).setParentProject(this.getParentProject())
         } else if (this.isSummaryStep()) {
             this.setSummaryStepData();
         }
@@ -119,6 +125,18 @@ export class ProjectWizardDialog
         (<ProjectParentDialogStep>this.currentStep).setSelectedProject(this.config.parentProject);
 
         this.config.parentProject = null;
+    }
+
+    private isLocaleDialogStep(): boolean {
+        return this.currentStep instanceof ProjectLocaleDialogStep;
+    }
+
+    private isAccessDialogStep(): boolean {
+        return this.currentStep instanceof ProjectAccessDialogStep;
+    }
+
+    private isPermissionsStep(): boolean {
+        return this.currentStep instanceof ProjectPermissionsDialogStep;
     }
 
     private isSummaryStep(): boolean {

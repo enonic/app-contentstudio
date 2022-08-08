@@ -6,7 +6,6 @@ import {ProjectDialogStep} from './ProjectDialogStep';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import * as Q from 'q';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
-import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
 import {Project} from '../../../../data/project/Project';
