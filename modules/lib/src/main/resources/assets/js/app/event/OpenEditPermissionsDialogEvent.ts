@@ -8,17 +8,17 @@ import {ContentPath} from '../content/ContentPath';
 export class OpenEditPermissionsDialogEvent
     extends Event {
 
-    private contentId: ContentId;
+    private readonly contentId: ContentId;
 
-    private contentPath: ContentPath;
+    private readonly contentPath: ContentPath;
 
-    private displayName: string;
+    private readonly displayName: string;
 
-    private permissions: AccessControlList;
+    private readonly permissions: AccessControlList;
 
-    private inheritPermissions: boolean;
+    private readonly inheritPermissions: boolean;
 
-    private overwritePermissions: boolean;
+    private readonly overwritePermissions: boolean;
 
     constructor(builder: Builder) {
         super();
