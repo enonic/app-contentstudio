@@ -86,10 +86,16 @@ class SingleSelectionOptionSet extends Page {
     }
 
     async expandItemSetMenu(index) {
-        let locator = xpath.itemSetOccurrenceMenuButton;
-        let menuButtons = await this.findElements(locator);
-        await menuButtons[index].click();
-        return await this.pause(400);
+        try {
+            let locator = xpath.itemSetOccurrenceMenuButton;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            let menuButtons = await this.findElements(locator);
+            await menuButtons[index].click();
+            return await this.pause(400);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_single_sel"));
+            throw new Error("Single Selection - expand menu button " + err);
+        }
     }
 
     async isDeleteSetMenuItemDisabled() {
