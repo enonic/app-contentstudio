@@ -2622,11 +2622,14 @@ export class ContentWizardPanel
         this.scheduleWizardStepForm.update(content, unchangedOnly);
     }
 
-    private updateWizardHeader(content: Content, unchangedOnly: boolean = true) {
+    private updateWizardHeader(content: Content) {
         this.updateThumbnailWithContent(content);
 
-        if (!unchangedOnly) {
+        if (!this.getWizardHeader().isDisplayNameInputDirty()) {
             this.getWizardHeader().setDisplayName(content.getDisplayName());
+        }
+
+        if (!this.getWizardHeader().isNameInputDirty()) {
             this.getWizardHeader().setName(content.getName().toString());
         }
 
