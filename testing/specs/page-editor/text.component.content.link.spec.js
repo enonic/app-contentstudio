@@ -66,7 +66,7 @@ describe('Text Component with CKE - insert content-link  specification', functio
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             //2. Verify the link in the page:
             let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
-            studioUtils.saveScreenshot('content_link_present');
+            await studioUtils.saveScreenshot('content_link_present');
             assert.isTrue(isDisplayed, 'download link should be present on the page');
         });
 
