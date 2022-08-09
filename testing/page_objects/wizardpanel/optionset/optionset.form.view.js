@@ -22,7 +22,8 @@ class OptionSetFormView extends Page {
             await this.clickOnElement(this.dropDownHandleInSingleSelection);
             let optionLocator = xpath.singleSelectionView + lib.itemByDisplayName(option);
             await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-            return await this.clickOnElement(optionLocator);
+            await this.clickOnElement(optionLocator);
+            return await this.pause(400);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_optionset"));
             throw new Error(err);

@@ -50,7 +50,7 @@ describe('Shortcut parameters specification', function () {
             //Click on Add Parameter button:
             await shortcutForm.clickOnAddParametersButton();
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot("shortcut_parameter_added_empty");
+            await studioUtils.saveScreenshot("shortcut_parameter_added_empty");
             // "red icon" should appear, because the content gets not valid:
             await contentWizard.waitUntilInvalidIconAppears();
         });
@@ -75,7 +75,7 @@ describe('Shortcut parameters specification', function () {
             //Save this shortcut with the parameter:
             await shortcutForm.typeParameterName(PARAM_NAME);
             await shortcutForm.typeParameterValue(PARAM_VALUE);
-            studioUtils.saveScreenshot("shortcut_parameter_saved");
+            await studioUtils.saveScreenshot("shortcut_parameter_saved");
             await contentWizard.waitAndClickOnSave();
         });
 
@@ -139,7 +139,10 @@ describe('Shortcut parameters specification', function () {
             await studioUtils.saveScreenshot("shortcut_version_selected");
             //Click on 'Revert' button:
             await wizardVersionsWidget.clickOnRevertButton();
-            studioUtils.saveScreenshot("shortcut_parameter_version_rollback");
+            await studioUtils.saveScreenshot("shortcut_parameter_version_reverted_1");
+            //TODO remove the row, when https://github.com/enonic/app-contentstudio/issues/4940 will be fixed
+            await shortcutForm.clickOnParametersForm(0);
+            await studioUtils.saveScreenshot("shortcut_parameter_version_reverted_2");
             let paramName = await shortcutForm.getParameterName();
             assert.equal(paramName, PARAM_NAME, "Expected parameter should appear");
             let value = await shortcutForm.getParameterValue();
