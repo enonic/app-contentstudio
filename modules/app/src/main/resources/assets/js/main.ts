@@ -327,7 +327,7 @@ async function startApplication() {
     let contentUnpublishDialog = null;
 
     ContentUnpublishPromptEvent.on((event) => {
-        if (!contentPublishDialog) {
+        if (!contentUnpublishDialog) {
             contentUnpublishDialog = new ContentUnpublishDialog();
         }
 
