@@ -8,7 +8,6 @@ import {ProjectPermissionsDataBuilder, ProjectPermissionsDialogStepData} from '.
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectRolesFormItem} from '../../../../wizard/panel/form/element/ProjectRolesFormItem';
 import {Project} from '../../../../data/project/Project';
-import {LocaleFormItem} from '../../../../wizard/panel/form/element/LocaleFormItem';
 
 export class ProjectPermissionsDialogStep
     extends ProjectDialogStep {

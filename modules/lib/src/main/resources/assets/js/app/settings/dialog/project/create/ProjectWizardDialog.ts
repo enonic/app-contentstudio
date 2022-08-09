@@ -23,6 +23,9 @@ import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {MultiStepDialog, MultiStepDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/multistep/MultiStepDialog';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {ProjectIdDialogStepData} from './data/ProjectIdDialogStepData';
+import {UpdateProjectLanguageRequest} from '../../../resource/UpdateProjectLanguageRequest';
+import {UpdateProjectPermissionsRequest} from '../../../resource/UpdateProjectPermissionsRequest';
+import {ProjectReadAccessType} from '../../../data/project/ProjectReadAccessType';
 
 export interface ProjectWizardDialogConfig extends MultiStepDialogConfig {
     parentProject?: Project;
@@ -155,16 +158,14 @@ export class ProjectWizardDialog
         this.lock();
 
         this.produceCreateItemRequest().sendAndParse().then((project: Project) => {
-            this.close();
-            showFeedback(i18n('notify.settings.project.created', project.getName()));
-            return Q.resolve();
-        })
-            .catch(DefaultErrorHandler.handle)
-            .finally(() => this.unlock());
-    }
-
-    private redirectAfterCreate(): void {
-    //
+            return this.updateLocale(project.getName()).then(() => {
+                return this.updatePermissions(project.getName()).then(() => {
+                    this.close();
+                    showFeedback(i18n('notify.settings.project.created', project.getName()));
+                    return Q.resolve();
+                });
+            });
+        }).catch(DefaultErrorHandler.handle).finally(() => this.unlock());
     }
 
     private produceCreateItemRequest(): ProjectCreateRequest {
@@ -177,6 +178,41 @@ export class ProjectWizardDialog
             .setDescription(idData.getDescription())
             .setName(idData.getName())
             .setDisplayName(idData.getDisplayName());
+    }
+
+    private updateLocale(projectName: string): Q.Promise<void> {
+        const locale: Locale = this.getSelectedLocale();
+
+        return !!locale ? this.sendUpdateLocaleRequest(projectName, locale.getId()) : Q.resolve();
+    }
+
+    private sendUpdateLocaleRequest(projectName: string, language: string): Q.Promise<void> {
+        return new UpdateProjectLanguageRequest()
+            .setName(projectName)
+            .setLanguage(language)
+            .sendAndParse()
+            .thenResolve(null);
+    }
+
+    private updatePermissions(projectName: string): Q.Promise<void> {
+        const permissions: ProjectPermissionsDialogStepData = this.getPermissions()
+        const readAccess: ProjectAccessDialogStepData = this.getReadAccess();
+
+        if (permissions.isEmpty() && readAccess.getAccess() !== ProjectReadAccessType.CUSTOM) {
+            return Q.resolve();
+        }
+
+        return this.updateProjectPermissions(projectName, permissions, readAccess);
+    }
+
+    private updateProjectPermissions(projectName: string, permissions: ProjectPermissionsDialogStepData,
+                                     readAccess: ProjectAccessDialogStepData): Q.Promise<void> {
+        return new UpdateProjectPermissionsRequest()
+            .setName(projectName)
+            .setPermissions(permissions.toProjectPermissions())
+            .setViewers(readAccess.getPrincipals().map((p: Principal) => p.getKey()))
+            .sendAndParse()
+            .thenResolve(null);
     }
 
     private collectData(): ProjectData {

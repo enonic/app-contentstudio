@@ -1,5 +1,7 @@
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectDialogStepData} from './ProjectDialogStepData';
+import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../../../../data/project/ProjectPermissions';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 
 export class ProjectPermissionsDialogStepData extends ProjectDialogStepData {
 
@@ -37,6 +39,19 @@ export class ProjectPermissionsDialogStepData extends ProjectDialogStepData {
 
     isEmpty(): boolean {
         return (this.owners.length + this.contributors.length + this.editors.length + this.authors.length) === 0;
+    }
+
+    toProjectPermissions(): ProjectPermissions {
+        return new ProjectItemPermissionsBuilder()
+            .setOwners(this.owners.map(this.principalToKey))
+            .setContributors(this.contributors.map(this.principalToKey))
+            .setEditors(this.editors.map(this.principalToKey))
+            .setAuthors(this.authors.map(this.principalToKey))
+            .build();
+    }
+
+    private principalToKey(p: Principal): PrincipalKey {
+        return p.getKey();
     }
 }
 
