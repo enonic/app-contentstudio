@@ -526,7 +526,7 @@ export class ContentWizardPanel
                     // in case of new content will be created in super.loadData()
                     this.formState.setIsNew(false);
                     this.setPersistedItem(loader.content);
-                    this.isMarkedAsReady = loader.content.getWorkflow().getState() === WorkflowState.READY;
+                    this.setIsMarkedAsReady(loader.content.getWorkflow().getState() === WorkflowState.READY);
                 }
                 this.defaultModels = loader.defaultModels;
                 this.site = loader.siteContent;
@@ -733,7 +733,7 @@ export class ContentWizardPanel
 
             this.workflowStateManager.onStatusChanged((status: WorkflowStateStatus) => {
                 this.wizardActions.setContentCanBeMarkedAsReady(status.inProgress).refreshState();
-                this.isMarkedAsReady = status.ready;
+                this.setIsMarkedAsReady(status.ready);
             });
 
             this.getContentWizardToolbarPublishControls().getPublishButton().onPublishRequestActionChanged((added: boolean) => {
