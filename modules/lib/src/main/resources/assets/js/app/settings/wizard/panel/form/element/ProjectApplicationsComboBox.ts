@@ -1,13 +1,14 @@
-import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {ProjectApplicationsLoader} from '../../../../resource/applications/ProjectApplicationsLoader';
 import {ProjectApplicationsSelectedOptionsView} from './ProjectApplicationsSelectedOptionsView';
 import {ProjectApplicationViewer} from './ProjectApplicationViewer';
+import {ProjectApplication} from './ProjectApplication';
 
-export class ProjectApplicationsCombobox extends RichComboBox<Application> {
+export class ProjectApplicationsComboBox
+    extends RichComboBox<ProjectApplication> {
 
     constructor() {
-        const builder: RichComboBoxBuilder<Application> = new RichComboBoxBuilder<Application>();
+        const builder: RichComboBoxBuilder<ProjectApplication> = new RichComboBoxBuilder<ProjectApplication>();
         builder
             .setIdentifierMethod('getApplicationKey')
             .setComboBoxName('projectApplicationsSelector')

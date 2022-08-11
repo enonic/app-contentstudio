@@ -1,9 +1,9 @@
-import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import {ProjectApplicationsRequest} from './ProjectApplicationsRequest';
+import {ProjectApplication} from '../../wizard/panel/form/element/ProjectApplication';
 
 export class ProjectApplicationsLoader
-    extends BaseLoader<Application> {
+    extends BaseLoader<ProjectApplication> {
 
     constructor() {
         super();
