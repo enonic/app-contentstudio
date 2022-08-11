@@ -1,13 +1,10 @@
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import * as Q from 'q';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
-import {ProjectFormItem, ProjectFormItemBuilder} from './element/ProjectFormItem';
-import {ProjectsComboBox} from './element/ProjectsComboBox';
 import {Project} from '../../../data/project/Project';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
