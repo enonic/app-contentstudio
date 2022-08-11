@@ -1,11 +1,9 @@
 import {ProjectsComboBox} from '../../../../wizard/panel/form/element/ProjectsComboBox';
-import {ProjectFormItem, ProjectFormItemBuilder} from '../../../../wizard/panel/form/element/ProjectFormItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Project} from '../../../../data/project/Project';
 import {ParentProjectFormItem} from '../../../../wizard/panel/form/element/ParentProjectFormItem';
-import {ProjectDialogStepData} from '../data/ProjectDialogStepData';
 import {ProjectParentDialogStepData} from '../data/ProjectParentDialogStepData';
 
 export class ProjectParentDialogStep
@@ -33,10 +31,6 @@ export class ProjectParentDialogStep
 
     hasData(): boolean {
         return !!this.getParentProjectComboBox().getValue();
-    }
-
-    getSelectedProject(): Project {
-        return this.getParentProjectComboBox()?.getSelectedDisplayValues()[0];
     }
 
     setSelectedProject(value: Project): void {
