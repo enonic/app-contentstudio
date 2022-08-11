@@ -1,19 +1,17 @@
 import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
-import {SiteConfiguratorComboBox} from '../../../../../inputtype/siteconfigurator/SiteConfiguratorComboBox';
-import {ApplicationConfigProvider} from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
-import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {ContentFormContext} from '../../../../../ContentFormContext';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {ProjectApplicationsCombobox} from './ProjectApplicationsCombobox';
+import {ProjectApplicationsComboBox} from './ProjectApplicationsComboBox';
 
 export class ProjectApplicationsFormItem
     extends ProjectFormItem {
 
     constructor() {
-        super(new ProjectFormItemBuilder(new ProjectApplicationsCombobox()));
+        super(new ProjectFormItemBuilder(new ProjectApplicationsComboBox()));
 
         this.addClass('project-applications-form-item');
     }
 
+    getComboBox(): ProjectApplicationsComboBox {
+        return <ProjectApplicationsComboBox>this.getInput();
+    }
 }
 

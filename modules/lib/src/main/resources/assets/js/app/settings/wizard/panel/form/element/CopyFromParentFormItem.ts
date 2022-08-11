@@ -1,9 +1,10 @@
 import {ProjectFormItem} from './ProjectFormItem';
 import {Project} from '../../../../data/project/Project';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
-export abstract class CopyFromParentFormItem extends ProjectFormItem {
+export abstract class CopyFromParentFormItem
+    extends ProjectFormItem {
 
     protected copyFromParentButton?: Button;
 

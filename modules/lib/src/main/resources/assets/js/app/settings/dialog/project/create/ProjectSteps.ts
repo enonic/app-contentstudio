@@ -6,6 +6,8 @@ import {ProjectAccessDialogStep} from './step/ProjectAccessDialogStep';
 import {ProjectPermissionsDialogStep} from './step/ProjectPermissionsDialogStep';
 import {ProjectIdDialogStep} from './step/ProjectIdDialogStep';
 import {ProjectSummaryStep} from './step/ProjectSummaryStep';
+import {ProjectApplicationsDialogStepData} from './data/ProjectApplicationsDialogStepData';
+import {ProjectApplicationsDialogStep} from './step/ProjectApplicationsDialogStep';
 
 export class ProjectSteps {
 
@@ -20,6 +22,7 @@ export class ProjectSteps {
             new ProjectLocaleDialogStep(),
             new ProjectAccessDialogStep(),
             new ProjectPermissionsDialogStep(),
+            new ProjectApplicationsDialogStep(),
             new ProjectIdDialogStep(),
             new ProjectSummaryStep()
         );

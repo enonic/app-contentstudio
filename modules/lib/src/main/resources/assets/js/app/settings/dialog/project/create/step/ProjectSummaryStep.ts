@@ -14,6 +14,8 @@ import {LocaleViewer} from '../../../../../locale/LocaleViewer';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {Flag} from '../../../../../locale/Flag';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
+import {ProjectApplication} from '../../../../wizard/panel/form/element/ProjectApplication';
+import {ProjectApplicationViewer} from '../../../../wizard/panel/form/element/ProjectApplicationViewer';
 
 export class ProjectSummaryStep
     extends DialogStep {
@@ -33,6 +35,8 @@ export class ProjectSummaryStep
     private accessContainer: ProjectAccessParamContainer;
 
     private permissionsContainer: ProjectPermissionsParamContainer;
+
+    private applicationsContainer: ProjectApplicationsParamContainer;
 
     private currentUser?: Principal;
 
@@ -77,6 +81,10 @@ export class ProjectSummaryStep
         this.permissionsContainer = new ProjectPermissionsParamContainer(this.currentUser);
         this.permissionsContainer.updateTitle(i18n('dialog.project.wizard.summary.permissions.title'));
         this.dataContainer.appendChild(this.permissionsContainer);
+
+        this.applicationsContainer = new ProjectApplicationsParamContainer();
+        this.applicationsContainer.updateTitle(i18n('dialog.project.wizard.summary.applications.title'));
+        this.dataContainer.appendChild(this.applicationsContainer);
     }
 
     isOptional(): boolean {
@@ -99,6 +107,7 @@ export class ProjectSummaryStep
         this.updateLanguageBlock();
         this.updateAccessContainer();
         this.updatePermissionsBlock();
+        this.updateApplicationsBlock();
     }
 
     private updateIdBlock(): void {
@@ -143,6 +152,15 @@ export class ProjectSummaryStep
             this.permissionsContainer.show();
         } else {
             this.permissionsContainer.hide();
+        }
+    }
+
+    private updateApplicationsBlock(): void {
+        if (this.data.applications?.length > 0) {
+            this.applicationsContainer.setApplications(this.data.applications);
+            this.applicationsContainer.show();
+        } else {
+            this.applicationsContainer.hide();
         }
     }
 
@@ -320,5 +338,36 @@ class ProjectPermissionsParamContainer
         }
 
         return this;
+    }
+}
+
+class ProjectApplicationsParamContainer
+    extends ProjectParamContainer {
+
+    protected readonly applicationsContainer: DivEl;
+
+    constructor() {
+        super();
+
+        this.applicationsContainer = new DivEl('applications-container');
+    }
+
+    setApplications(applications: ProjectApplication[]): void {
+        this.applicationsContainer.removeChildren();
+
+        applications.forEach((application: ProjectApplication) => {
+            const viewer: ProjectApplicationViewer = new ProjectApplicationViewer();
+            viewer.setObject(application);
+            this.applicationsContainer.appendChild(viewer);
+        });
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addClass('applications-param-container');
+            this.appendChild(this.applicationsContainer);
+
+            return rendered;
+        });
     }
 }
