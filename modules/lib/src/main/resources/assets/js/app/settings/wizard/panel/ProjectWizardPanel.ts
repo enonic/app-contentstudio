@@ -29,6 +29,7 @@ import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAc
 import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
 import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
+import {ProjectApplicationsWizardStepForm} from './form/ProjectApplicationsWizardStepForm';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -38,6 +39,8 @@ export class ProjectWizardPanel
     private readAccessWizardStepForm: ProjectReadAccessWizardStepForm;
 
     private rolesWizardStepForm?: ProjectRolesWizardStepForm;
+
+    private applicationsWizardStepForm: ProjectApplicationsWizardStepForm;
 
     private editProjectAccessDialog: EditProjectAccessDialog = new EditProjectAccessDialog();
 
@@ -102,7 +105,6 @@ export class ProjectWizardPanel
 
     protected createStepsForms(persistedItem: ProjectViewItem): SettingDataItemWizardStepForm<ProjectViewItem>[] {
         this.projectWizardStepForm = new ProjectItemNameWizardStepForm();
-
         this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm();
 
         const isDefaultProject: boolean = !!persistedItem && persistedItem.isDefaultProject();
@@ -112,8 +114,9 @@ export class ProjectWizardPanel
         }
 
         this.rolesWizardStepForm = new ProjectRolesWizardStepForm();
+        this.applicationsWizardStepForm = new ProjectApplicationsWizardStepForm();
 
-        return [this.projectWizardStepForm, this.readAccessWizardStepForm, this.rolesWizardStepForm];
+        return [this.projectWizardStepForm, this.readAccessWizardStepForm, this.rolesWizardStepForm, this.applicationsWizardStepForm];
     }
 
     protected isNewItemChanged(): boolean {

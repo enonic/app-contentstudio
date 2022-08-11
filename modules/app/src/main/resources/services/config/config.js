@@ -38,7 +38,8 @@ function handleGet() {
                 i18nUrl: portal.serviceUrl({service: 'i18n'}),
                 licenseUrl: portal.serviceUrl({service: 'license'}),
                 stylesUrl: portal.serviceUrl({service: 'styles'}),
-                collaborationUrl: portal.serviceUrl({service: 'collaboration'})
+                collaborationUrl: portal.serviceUrl({service: 'collaboration'}),
+                appServiceUrl: portal.serviceUrl({service: 'applications'})
             },
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */
