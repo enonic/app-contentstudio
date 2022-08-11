@@ -26,6 +26,8 @@ import {ProjectIdDialogStepData} from './data/ProjectIdDialogStepData';
 import {UpdateProjectLanguageRequest} from '../../../resource/UpdateProjectLanguageRequest';
 import {UpdateProjectPermissionsRequest} from '../../../resource/UpdateProjectPermissionsRequest';
 import {ProjectReadAccessType} from '../../../data/project/ProjectReadAccessType';
+import {ProjectApplication} from '../../../wizard/panel/form/element/ProjectApplication';
+import {ProjectApplicationsDialogStep} from './step/ProjectApplicationsDialogStep';
 
 export interface ProjectWizardDialogConfig extends MultiStepDialogConfig {
     parentProject?: Project;
@@ -70,11 +72,11 @@ export class ProjectWizardDialog
         } else if (this.config.parentProject && this.isParentProjectStep()) {
             this.setParentProject();
         } else if (this.isLocaleDialogStep()) {
-            (<ProjectLocaleDialogStep>this.currentStep).setParentProject(this.getParentProject())
+            (<ProjectLocaleDialogStep>this.currentStep).setParentProject(this.getParentProject());
         } else if (this.isAccessDialogStep()) {
-            (<ProjectAccessDialogStep>this.currentStep).setParentProject(this.getParentProject())
+            (<ProjectAccessDialogStep>this.currentStep).setParentProject(this.getParentProject());
         } else if (this.isPermissionsStep()) {
-            (<ProjectPermissionsDialogStep>this.currentStep).setParentProject(this.getParentProject())
+            (<ProjectPermissionsDialogStep>this.currentStep).setParentProject(this.getParentProject());
         } else if (this.isSummaryStep()) {
             this.setSummaryStepData();
         }
@@ -105,7 +107,7 @@ export class ProjectWizardDialog
     }
 
     private getParentProject(): Project {
-        return this.getParentProjectStep()?.getSelectedProject();
+        return this.getParentProjectStep()?.getData().getParentProject();
     }
 
     private getParentProjectStep(): ProjectParentDialogStep {
@@ -113,7 +115,7 @@ export class ProjectWizardDialog
     }
 
     private getSelectedLocale(): Locale {
-        return this.getSelectedLocaleStep()?.getSelectedLocale();
+        return this.getSelectedLocaleStep()?.getData().getLocale();
     }
 
     private getSelectedLocaleStep(): ProjectLocaleDialogStep {
@@ -177,7 +179,8 @@ export class ProjectWizardDialog
             .setReadAccess(new ProjectReadAccess(access.getAccess(), access.getPrincipals().map((p: Principal) => p.getKey())))
             .setDescription(idData.getDescription())
             .setName(idData.getName())
-            .setDisplayName(idData.getDisplayName());
+            .setDisplayName(idData.getDisplayName())
+            .setApplications(this.getProjectApplications()?.map((app: ProjectApplication) => app.getApplicationKey().toString()));
     }
 
     private updateLocale(projectName: string): Q.Promise<void> {
@@ -195,7 +198,7 @@ export class ProjectWizardDialog
     }
 
     private updatePermissions(projectName: string): Q.Promise<void> {
-        const permissions: ProjectPermissionsDialogStepData = this.getPermissions()
+        const permissions: ProjectPermissionsDialogStepData = this.getPermissions();
         const readAccess: ProjectAccessDialogStepData = this.getReadAccess();
 
         if (permissions.isEmpty() && readAccess.getAccess() !== ProjectReadAccessType.CUSTOM) {
@@ -226,7 +229,8 @@ export class ProjectWizardDialog
             locale: this.getSelectedLocale(),
             parent: this.getParentProject(),
             access: this.getReadAccess(),
-            permissions: this.getPermissions()
+            permissions: this.getPermissions(),
+            applications: this.getProjectApplications()
         });
 
         return data;
@@ -254,6 +258,14 @@ export class ProjectWizardDialog
 
     private getProjectPermissionsStep(): ProjectPermissionsDialogStep {
         return <ProjectPermissionsDialogStep>this.steps.find((step: DialogStep) => step instanceof ProjectPermissionsDialogStep);
+    }
+
+    private getProjectApplications(): ProjectApplication[] {
+        return this.getProjectApplicationsStep()?.getData().getApplications();
+    }
+
+    private getProjectApplicationsStep(): ProjectApplicationsDialogStep {
+        return <ProjectApplicationsDialogStep>this.steps.find((step: DialogStep) => step instanceof ProjectApplicationsDialogStep);
     }
 
     doRender(): Q.Promise<boolean> {
