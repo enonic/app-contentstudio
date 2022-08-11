@@ -88,6 +88,15 @@ class TextComponent extends Page {
         return await this.pause(1000);
     }
 
+    async insertTextInCkeEditor(text) {
+        await this.switchToLiveEditFrame();
+        await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
+        let id = await this.getEditorId();
+        await utils.insertTextInCKE(id, text);
+        await this.getBrowser().switchToParentFrame();
+        return await this.pause(1000);
+    }
+
     async isTextAreaFocused() {
         try {
             await this.switchToLiveEditFrame();
