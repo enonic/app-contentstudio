@@ -53,12 +53,11 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             //4. Verify the workflow state get 'Ready for publishing'
             actualWorkflow = await contentWizard.getToolbarWorkflowState();
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
-                "Ready for publishing status should be displaued in the wizard");
+                "Ready for publishing status should be displayed in the wizard");
             //5. Verify that Publish button gets displayed in the wizard-toolbar
             await contentWizard.waitForPublishButtonDisplayed();
             //6. Verify the workflow status in Browse Panel:
             await studioUtils.doSwitchToContentBrowsePanel();
-            await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.MODIFIED);
             actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE.displayName);
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
                 "'Ready for publishing' should be displayed in browse panel");
