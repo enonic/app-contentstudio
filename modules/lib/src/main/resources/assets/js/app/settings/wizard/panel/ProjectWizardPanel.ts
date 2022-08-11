@@ -407,10 +407,4 @@ export class ProjectWizardPanel
             });
         });
     }
-/*
-    setFormIcon(projectType: SettingsType) {
-        const isLayer = projectType.equals(SettingsTypes.LAYER);
-        this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultProjectIcon(), !isLayer);
-        this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultLayerIcon(), isLayer);
-    }*/
 }

@@ -6,6 +6,7 @@ import * as Q from 'q';
 import {ProjectAccessDialogStepData} from '../data/ProjectAccessDialogStepData';
 import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
 import {ProjectReadAccessFormItem} from '../../../../wizard/panel/form/element/ProjectReadAccessFormItem';
+import {Project} from '../../../../data/project/Project';
 
 export class ProjectAccessDialogStep
     extends ProjectDialogStep {
@@ -53,6 +54,10 @@ export class ProjectAccessDialogStep
 
     protected getFormClass(): string {
         return 'project-read-access-step';
+    }
+
+    setParentProject(value: Project) {
+        this.getFormItem().setParentProject(value);
     }
 
     hasData(): boolean {

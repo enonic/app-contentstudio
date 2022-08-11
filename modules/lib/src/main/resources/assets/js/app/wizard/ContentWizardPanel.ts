@@ -2441,7 +2441,6 @@ export class ContentWizardPanel
         return this.splitPanel && this.splitPanel.hasClass('toggle-live');
     }
 
-
     hasContentChanged(): boolean {
         const contentBuilder: ContentBuilder = this.getPersistedItem().newBuilderWithoutProperties();
         const viewedContent = this.assembleViewedContent(contentBuilder).build();
