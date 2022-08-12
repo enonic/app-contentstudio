@@ -235,12 +235,14 @@ export class LiveFormPanel
                             const partView = <PartComponentView>componentView;
                             const partComponent: PartComponent = partView.getComponent();
                             if (partComponent.hasDescriptor()) {
+                                this.contentWizardPanel.setIsMarkedAsReady(false);
                                 this.saveAndReloadOnlyComponent(componentView);
                             }
                         } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
                             const layoutView = <LayoutComponentView>componentView;
                             const layoutComponent: LayoutComponent = layoutView.getComponent();
                             if (layoutComponent.hasDescriptor()) {
+                                this.contentWizardPanel.setIsMarkedAsReady(false);
                                 this.saveAndReloadOnlyComponent(componentView);
                             }
                         }
@@ -252,6 +254,7 @@ export class LiveFormPanel
                 if (event.getPropertyName() === ImageComponent.PROPERTY_IMAGE && !event.getComponent().isEmpty()) {
                     const componentView = this.pageView.getComponentViewByPath(event.getPath());
                     if (componentView) {
+                        this.contentWizardPanel.setIsMarkedAsReady(false);
                         this.saveAndReloadOnlyComponent(componentView);
                     }
                 }
@@ -259,6 +262,7 @@ export class LiveFormPanel
                 if (event.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT && !event.getComponent().isEmpty()) {
                     const componentView = this.pageView.getComponentViewByPath(event.getPath());
                     if (componentView) {
+                        this.contentWizardPanel.setIsMarkedAsReady(false);
                         this.saveAndReloadOnlyComponent(componentView);
                     }
                 }
@@ -383,6 +387,14 @@ export class LiveFormPanel
             if (this.pageView) {
                 const itemView = this.pageView.getSelectedView();
                 if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
+                    const persistedContent = this.contentWizardPanel.getPersistedItem();
+                    const viewedPage: Page = this.getPage().clone();
+                    const savedPage: Page = persistedContent.getPage().clone();
+
+                    if (!viewedPage.equals(savedPage)) {
+                        this.contentWizardPanel.setIsMarkedAsReady(false);
+                    }
+
                     this.saveAndReloadOnlyComponent(<ComponentView<Component>>itemView, true);
                     return;
                 }
@@ -643,7 +655,7 @@ export class LiveFormPanel
         }
     }
 
-    saveAndReloadOnlyComponent(componentView: ComponentView<Component>, avoidInspectComponentRefresh?: boolean) {
+    private saveAndReloadOnlyComponent(componentView: ComponentView<Component>, avoidInspectComponentRefresh?: boolean) {
         assertNotNull(componentView, 'componentView cannot be null');
         this.pageSkipReload = true;
 
@@ -789,7 +801,7 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onComponentDuplicated((event: ComponentDuplicatedEvent) => {
-
+            this.contentWizardPanel.setIsMarkedAsReady(false);
             this.saveAndReloadOnlyComponent(event.getDuplicatedComponentView());
         });
 
@@ -872,9 +884,7 @@ export class LiveFormPanel
     private saveMarkedContentAndReloadOnlyComponent(componentView: ComponentView<Component>) {
         const componentPath = componentView.getComponentPath();
         const canMarkContentAsReady = this.canMarkContentAsReady(componentPath);
-        if (canMarkContentAsReady) {
-            this.contentWizardPanel.setIsMarkedAsReady(true);
-        }
+        this.contentWizardPanel.setIsMarkedAsReady(canMarkContentAsReady);
         this.saveAndReloadOnlyComponent(componentView);
     }
 

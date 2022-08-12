@@ -289,7 +289,7 @@ export class ContentWizardPanel
         super.initElements();
 
         this.isContentFormValid = false;
-        this.isMarkedAsReady = false;
+        this.setIsMarkedAsReady(false);
         this.requireValid = false;
         this.skipValidation = false;
         this.contentNamedListeners = [];
@@ -1972,9 +1972,9 @@ export class ContentWizardPanel
 
                         this.wizardActions.initUnsavedChangesListeners();
 
-                        this.onLiveModelChanged(() => {
-                            setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
-                        });
+                        const debouncedUpdate: () => void = AppHelper.debounce(this.updatePublishStatusOnDataChange.bind(this), 100);
+
+                        this.onLiveModelChanged(debouncedUpdate);
 
                         return Q(null);
                     });
