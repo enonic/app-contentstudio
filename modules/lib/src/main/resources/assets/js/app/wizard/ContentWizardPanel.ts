@@ -2281,10 +2281,6 @@ export class ContentWizardPanel
         return this.getPersistedItem().getDisplayName() !== this.getWizardHeader().getDisplayName();
     }
 
-    private isNameUpdated(): boolean {
-        return this.getPersistedItem().getName().getValue() !== this.getWizardHeader().getName();
-    }
-
     hasUnsavedChanges(): boolean {
         if (!this.isRendered()) {
             return false;
