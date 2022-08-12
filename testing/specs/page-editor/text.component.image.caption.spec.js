@@ -35,7 +35,6 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             let contentWizard = new ContentWizard();
             let textComponent = new TextComponentCke();
             let insertImageDialog = new InsertImageDialog();
-
             let liveFormPanel = new LiveFormPanel();
             //1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
@@ -53,11 +52,13 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
             await contentWizard.waitAndClickOnSave();
-            await studioUtils.saveScreenshot('text_component_image_caption');
             await contentWizard.waitForNotificationMessage();
             await contentWizard.switchToLiveEditFrame();
+            await studioUtils.saveScreenshot('text_component_image_caption');
             //5. Verify that the caption is present in Page Editor:
             await liveFormPanel.waitForCaptionDisplayed(CAPTION);
+            //6. Verify that Saved button gets visible
+            await contentWizard.waitForSavedButtonVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -176,6 +176,33 @@ describe('Generate name for fragments specification', function () {
             assert.equal(number, 3, "Three fragments should be in Live Edit");
         });
 
+    it(`GIVEN an image has been inserted in new text-component WHEN 'Mark as ready' button has been pressed THEN 'Ready for publishing' state should be displayed in the wizard`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let textComponentCke = new TextComponentCke();
+            let pageComponentView = new PageComponentView();
+            let insertImageDialog = new InsertImageDialog();
+            //1. Open existing site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //2. Insert new text-component
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Text"]);
+            await textComponentCke.switchToLiveEditFrame();
+            //3. Open 'Insert Image' dialog and insert an image in the text component:
+            await textComponentCke.clickOnInsertImageButton();
+            await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
+            await insertImageDialog.clickOnInsertButton();
+            //4. Click on Mark as Ready button:
+            await contentWizard.clickOnMarkAsReadyButton();
+            await contentWizard.waitForNotificationMessage();
+            //5. Verify the workflow state:
+            let state = await contentWizard.getToolbarWorkflowState();
+            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "Ready for publishing state should be in the wizard ");
+            //6. Verify that Save button is disabled:
+            await contentWizard.waitForSaveButtonDisabled();
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
