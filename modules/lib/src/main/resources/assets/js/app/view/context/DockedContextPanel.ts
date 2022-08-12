@@ -28,7 +28,7 @@ export class DockedContextPanel
         this.onShown(() => {
             if (this.getItem()) {
                 // small delay so that isVisibleOrAboutToBeVisible() check detects width change
-                setTimeout(() => this.contextView.updateActiveWidget().catch(DefaultErrorHandler.handle), 250);
+                setTimeout(() => this.contextView.updateActiveWidget(), 250);
             }
         });
     }

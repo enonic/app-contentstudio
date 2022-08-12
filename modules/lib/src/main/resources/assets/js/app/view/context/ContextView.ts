@@ -107,7 +107,7 @@ export class ContextView
 
         VersionContext.onActiveVersionChanged((contentId: string, version: string) => {
             if (this.item?.getId() === contentId && this.isVisible() && this.activeWidget === this.versionsWidgetView) {
-                this.updateActiveWidget().catch(DefaultErrorHandler.handle);
+                this.updateActiveWidget();
             }
         });
 
@@ -130,7 +130,7 @@ export class ContextView
                 const selectedItemContentId: ContentId = this.item.getContentId();
                 const isSelectedItemPermissionsUpdated: boolean = contentIds.contains(selectedItemContentId);
                 if (isSelectedItemPermissionsUpdated) {
-                    this.updateActiveWidget().catch(DefaultErrorHandler.handle);
+                    this.updateActiveWidget();
                 }
             }
         });
@@ -323,7 +323,7 @@ export class ContextView
 
         this.layout(!itemSelected);
         if (activeWidgetVisible && selectionChanged && (this.activeWidget.isExternal() || itemSelected)) {
-            return this.updateActiveWidget().catch(DefaultErrorHandler.handle);
+            return this.updateActiveWidget();
         }
 
         return Q<any>(null);
@@ -349,7 +349,7 @@ export class ContextView
         return this.activeWidget.updateWidgetItemViews().then(() => {
             this.activeWidget.slideIn();
             return Q.resolve();
-        });
+        }).catch(DefaultErrorHandler.handle);
     }
 
     public showLoadMask() {
