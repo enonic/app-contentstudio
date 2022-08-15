@@ -54,6 +54,7 @@ class HtmlSourceCodeDialog extends Page {
     typeText(text) {
         return this.typeTextInInput(xpath.textArea, text);
     }
-};
+}
+
 module.exports = HtmlSourceCodeDialog;
 

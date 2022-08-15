@@ -142,10 +142,26 @@ class TextComponent extends Page {
         return result;
     }
 
+    async clickOnMoreButtonInHtmlTableFrame() {
+        try {
+            await this.waitForElementDisplayed("//iframe[contains(@class,'cke_panel_frame')]", appConst.mediumTimeout);
+            await this.switchToFrame("//iframe[contains(@class,'cke_panel_frame')]");
+            let locator = "//a[@title='More...']";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            await this.switchToParentFrame();
+            await this.switchToParentFrame();
+        } catch (err) {
+            await this.switchToParentFrame();
+            await this.switchToParentFrame();
+            throw new Error(err);
+        }
+    }
+
     async clickOnInsertTableButton() {
-        console.log('Insert Table dialog');
         await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
-        return await this.clickOnElement(this.insertTableButton);
+        await this.clickOnElement(this.insertTableButton);
+        return await this.pause(300);
     }
 
     async clickOnInsertLinkButton() {
