@@ -57,6 +57,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await studioUtils.saveScreenshot('text_component_image_caption');
             //5. Verify that the caption is present in Page Editor:
             await liveFormPanel.waitForCaptionDisplayed(CAPTION);
+            await contentWizard.switchToMainFrame();
             //6. Verify that Saved button gets visible
             await contentWizard.waitForSavedButtonVisible();
         });

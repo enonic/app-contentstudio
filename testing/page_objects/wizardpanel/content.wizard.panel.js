@@ -523,7 +523,7 @@ class ContentWizardPanel extends Page {
             return await this.waitForElementDisabled(this.savedButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_saved_button_not_visible');
-            throw new Error("Saved button is not visible or it is not disabled" + err);
+            throw new Error("Saved button is not visible or it is not disabled " + err);
         }
     }
 
