@@ -32,7 +32,7 @@
     "circular-dependency-plugin": "^5.2.2",
     "copy-webpack-plugin": "^11.0.0",
     "cssnano": "^5.1.12",
-    "eslint": "^8.21.0",
+    "eslint": "^8.22.0",
     "mini-css-extract-plugin": "^2.6.1",
     "postcss-loader": "^7.0.1",
     "source-map-loader": "^4.0.0",
