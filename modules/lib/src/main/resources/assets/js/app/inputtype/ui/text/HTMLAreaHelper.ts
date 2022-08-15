@@ -115,4 +115,12 @@ export class HTMLAreaHelper {
             return Q(false);
         });
     }
+
+    /*
+        Backend sanitizers replace &nbsp; with unicode value
+        Doing the same of frontend to make strings equal
+     */
+    public static sanitize(value: string): string {
+        return !!value ? value.replace(/(&nbsp;)+/g, '\u00A0') : value;
+    }
 }

@@ -23,6 +23,7 @@ import {ContentPath} from '../../../content/ContentPath';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
+import {HTMLAreaHelper} from './HTMLAreaHelper';
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -862,7 +863,7 @@ export class HtmlEditor {
     }
 
     public static getData(id: string): string {
-        return CKEDITOR.instances[id].getData();
+        return HTMLAreaHelper.sanitize(CKEDITOR.instances[id].getData());
     }
 
     public static setData(id: string, data: string, callback?: () => void) {
@@ -890,11 +891,11 @@ export class HtmlEditor {
     }
 
     public getRawData(): string {
-        return this.editor.getSnapshot();
+        return HTMLAreaHelper.sanitize(this.editor.getSnapshot());
     }
 
     public getData(): string {
-        return this.editor.getData();
+        return HTMLAreaHelper.sanitize(this.editor.getData());
     }
 
     public resetSelection() {
