@@ -50,6 +50,8 @@ describe('Text Component with CKE - insert html table', function () {
             await htmlTableDialog.typeTextInColumnsInput(3);
             //5. Click on OK button and insert the table:
             await htmlTableDialog.clickOnOkButton();
+            await htmlTableDialog.waitForDialogClosed();
+            await contentWizard.pause(500);
             //6. Save the changes:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
