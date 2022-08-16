@@ -50,9 +50,11 @@ describe('Text Component with CKE - insert html table', function () {
             await htmlTableDialog.typeTextInColumnsInput(3);
             //5. Click on OK button and insert the table:
             await htmlTableDialog.clickOnOkButton();
-            await studioUtils.saveScreenshot("html_table_inserted");
             //6. Save the changes:
             await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.pause(1000);
+            await studioUtils.saveScreenshot("cke_html_table_inserted");
             //7. Verify that Saved button is disabled:
             await contentWizard.waitForSavedButtonVisible();
         });
