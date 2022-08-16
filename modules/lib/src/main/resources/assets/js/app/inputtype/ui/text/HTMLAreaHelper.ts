@@ -9,6 +9,7 @@ import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthe
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
 import {ContentId} from '../../../content/ContentId';
+import {HtmlAreaSanitizer} from './HtmlAreaSanitizer';
 
 export class HTMLAreaHelper {
 
@@ -117,10 +118,11 @@ export class HTMLAreaHelper {
     }
 
     /*
-        Backend sanitizers replace &nbsp; with unicode value
+        Backend sanitizers replace &nbsp; with unicode value and process tables
         Doing the same of frontend to make strings equal
      */
     public static sanitize(value: string): string {
-        return !!value ? value.replace(/(&nbsp;)+/g, '\u00A0') : value;
+        return new HtmlAreaSanitizer().sanitize(value);
     }
+
 }
