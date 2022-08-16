@@ -36,6 +36,7 @@ import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
 import {ContentId} from '../../content/ContentId';
 import {WidgetItemView} from './WidgetItemView';
 import {VersionContext} from './widget/version/VersionContext';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class ContextView
     extends DivEl {
@@ -105,7 +106,7 @@ export class ContextView
         this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
 
         VersionContext.onActiveVersionChanged((contentId: string, version: string) => {
-            if (this.item.getId() === contentId && this.isVisible() && this.activeWidget === this.versionsWidgetView) {
+            if (this.item?.getId() === contentId && this.isVisible() && this.activeWidget === this.versionsWidgetView) {
                 this.updateActiveWidget();
             }
         });
@@ -155,7 +156,7 @@ export class ContextView
 
         ReloadActiveWidgetEvent.on(() => {
             if (this.activeWidget) {
-                this.activeWidget.updateWidgetItemViews();
+                this.activeWidget.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
             }
         });
     }
@@ -309,7 +310,7 @@ export class ContextView
         }
     }
 
-    public setItem(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    public setItem(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         if (ContextView.debug) {
             console.debug('ContextView.setItem: ', item);
         }
@@ -336,7 +337,7 @@ export class ContextView
         return ['contentstudio.contextpanel'];
     }
 
-    updateActiveWidget(): Q.Promise<any> {
+    updateActiveWidget(): Q.Promise<void> {
         if (ContextView.debug) {
             console.debug('ContextView.updateWidgetsForItem');
         }
@@ -347,7 +348,8 @@ export class ContextView
 
         return this.activeWidget.updateWidgetItemViews().then(() => {
             this.activeWidget.slideIn();
-        });
+            return Q.resolve();
+        }).catch(DefaultErrorHandler.handle);
     }
 
     public showLoadMask() {

@@ -1,8 +1,7 @@
 import {ContextPanel} from './ContextPanel';
 import {ContextView} from './ContextView';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContextPanelState} from './ContextPanelState';
-import {ContextPanelStateEvent} from './ContextPanelStateEvent';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class DockedContextPanel
     extends ContextPanel {
