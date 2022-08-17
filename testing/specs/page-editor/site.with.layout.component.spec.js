@@ -11,6 +11,7 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const appConst = require('../../libs/app_const');
+const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
 
 describe('site.with.layout.component.spec - specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -20,7 +21,7 @@ describe('site.with.layout.component.spec - specification', function () {
     let SITE;
     let CONTROLLER_NAME = 'main region';
     const LAYOUT_NAME = "3-col";
-
+    const LAYOUT_2_COL = "25/75";
 
     it(`GIVEN existing site is opened  WHEN 3-column layout has been inserted THEN layout-component with 3 regions should be present in Live Edit`,
         async () => {
@@ -106,6 +107,32 @@ describe('site.with.layout.component.spec - specification', function () {
             await contentWizard.switchToLiveEditFrame();
             let result = await liveFormPanel.getTextInEditableLayoutComponent();
             assert.equal(result[2], "text right", "Expected text should be present in the layout component");
+        });
+
+    it("GIVEN the site has been marked as ready WHEN selected layout has been changed in Inspection Panel THEN workflow status gets 'work in progress'",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let layoutInspectionPanel = new LayoutInspectionPanel();
+            //1. Open existing site with 3-col layout:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            //2. Click on Mark as Ready button:
+            await contentWizard.clickOnMarkAsReadyButton();
+            await contentWizard.waitForNotificationMessage();
+            //3. Click on the component in Page Component View:
+            await contentWizard.clickOnShowComponentViewToggler();
+            await pageComponentView.clickOnComponent(LAYOUT_NAME);
+            await layoutInspectionPanel.waitForOpened();
+            //4. Select another layout in Inspection Panel:
+            await layoutInspectionPanel.clickOnLayoutDropdownHandle();
+            await layoutInspectionPanel.clickOnOptionInLayoutDropdown(LAYOUT_2_COL);
+            await studioUtils.saveScreenshot("site_workflow_layout_updated");
+            //5. Verify that workflow status is updated after changing a layout:
+            let actualWorkflow = await contentWizard.getToolbarWorkflowState();
+            assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
+                "'Work in progress' status should be displayed in the wizard");
+            //6. Verify that 'Mark as ready' button gets displayed in the wizard-toolbar
+            await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

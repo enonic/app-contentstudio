@@ -53,6 +53,7 @@ class PageComponentView extends Page {
         }
     }
 
+
     async openMenu(componentName) {
         try {
             let menuButton = xpath.componentByName(componentName) + "/../..//div[contains(@class,'menu-icon')]";
@@ -77,17 +78,6 @@ class PageComponentView extends Page {
         }
     }
 
-    async clickOnComponent(componentName) {
-        try {
-            let component = xpath.componentByName(componentName);
-            await this.waitForElementDisplayed(component, appConst.shortTimeout);
-            await this.clickOnElement(component);
-            return await this.pause(500);
-        } catch (err) {
-            await this.saveScreenshot('err_component_view');
-            throw new Error('Error when clicking on the `Component`: ' + err);
-        }
-    }
 
     async isComponentSelected(displayName) {
         let rowXpath = lib.slickRowByDisplayName(xpath.container, displayName) + "//div[contains(@class,'slick-cell')]";
