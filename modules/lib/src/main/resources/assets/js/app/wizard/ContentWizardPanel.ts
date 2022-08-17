@@ -289,7 +289,7 @@ export class ContentWizardPanel
         super.initElements();
 
         this.isContentFormValid = false;
-        this.isMarkedAsReady = false;
+        this.setIsMarkedAsReady(false);
         this.requireValid = false;
         this.skipValidation = false;
         this.contentNamedListeners = [];
@@ -526,7 +526,7 @@ export class ContentWizardPanel
                     // in case of new content will be created in super.loadData()
                     this.formState.setIsNew(false);
                     this.setPersistedItem(loader.content);
-                    this.isMarkedAsReady = loader.content.getWorkflow().getState() === WorkflowState.READY;
+                    this.setIsMarkedAsReady(loader.content.getWorkflow().getState() === WorkflowState.READY);
                 }
                 this.defaultModels = loader.defaultModels;
                 this.site = loader.siteContent;
@@ -733,7 +733,7 @@ export class ContentWizardPanel
 
             this.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
                 this.wizardActions.setContentCanBeMarkedAsReady(status.inProgress).refreshState();
-                this.isMarkedAsReady = status.ready;
+                this.setIsMarkedAsReady(status.ready);
             });
 
             this.getContentWizardToolbarPublishControls().getPublishButton().onPublishRequestActionChanged((added: boolean) => {
@@ -1976,9 +1976,9 @@ export class ContentWizardPanel
 
                         this.wizardActions.initUnsavedChangesListeners();
 
-                        this.onLiveModelChanged(() => {
-                            setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
-                        });
+                        const debouncedUpdate: () => void = AppHelper.debounce(this.updatePublishStatusOnDataChange.bind(this), 100);
+
+                        this.onLiveModelChanged(debouncedUpdate);
 
                         return Q(null);
                     });
