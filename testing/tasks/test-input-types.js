@@ -54,7 +54,7 @@ async function uiTests() {
             baseURL: 'https://github.com/SeleniumHQ/selenium/releases/download',
             drivers: {
                 chrome: {
-                    version: 'latest',
+                    version: driverVersion,
                     arch: process.arch,
                     baseURL: 'https://chromedriver.storage.googleapis.com'
                 },
@@ -66,7 +66,7 @@ async function uiTests() {
             seleniumArgs: ['standalone'],
             drivers: {
                 chrome: {
-                    version: 'latest',
+                    version: driverVersion,
                 },
             }
         });

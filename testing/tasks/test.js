@@ -52,7 +52,7 @@ async function uiTests() {
         baseURL: 'https://selenium-release.storage.googleapis.com',
         drivers: {
             chrome: {
-                version: 'latest',
+                version: driverVersion,
                 arch: process.arch,
                 baseURL: 'https://chromedriver.storage.googleapis.com'
             },
@@ -63,7 +63,7 @@ async function uiTests() {
     const seleniumChildProcess = await selenium.start({
         drivers: {
             chrome: {
-                version: 'latest',
+                version: driverVersion,
             },
         }
     });
