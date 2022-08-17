@@ -38,11 +38,6 @@ export class UpdatePersistedContentRoutine
         let promise: Q.Promise<void>;
 
         const isPageChanged: boolean = this.hasPageChanged();
-
-        if (isPageChanged) {
-            this.workflowState = WorkflowState.IN_PROGRESS;
-        }
-
         const isContentChanged: boolean = this.hasContentChanged();
 
         if (isContentChanged || this.hasNamesChanged()) {
