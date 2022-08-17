@@ -23,6 +23,7 @@ import {ContentPath} from '../../../content/ContentPath';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
+import {HTMLAreaHelper} from './HTMLAreaHelper';
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -46,7 +47,6 @@ export class HtmlEditor {
 
         this.createEditor(config);
         this.modifyImagePlugin();
-        this.transformTableAttrs();
         this.listenEditorEvents();
         this.handleFileUpload();
         this.handleNativeNotifications();
@@ -117,45 +117,6 @@ export class HtmlEditor {
 
         e.data.upcast = newUpcastFunction;
         e.data.downcast = newDowncastFunction;
-    }
-
-    private transformTableAttrs() {
-        // updating table elements directly in transformation functions doesn't work as expected, thus updating by refreshFunc
-        const refreshFunc = AppHelper.debounce(() => {
-            if (!this.editor.document) {
-                return; // editor destroyed, but debounced listener is triggered
-            }
-            this.editor.document.getElementsByTag('table').toArray().forEach((table: CKEDITOR.dom.element) => {
-                table.removeAttribute('cellpadding');
-                table.removeAttribute('cellspacing');
-                table.removeAttribute('border');
-                table.removeAttribute('style');
-                table.removeAttribute('align');
-            });
-        }, 200);
-
-        const createTransformationObject: Function = (attrName: string) => {
-            return <CKEDITOR.filter.transformation>{
-                element: 'table',
-                left: function (el: any) { // testing if element is non empty and has attribute
-                    return el.children && el.children.length > 0 && el.attributes[attrName];
-                },
-                // here we supposed to transform table's attributes but changes made here on htmlparser.element only visible after calling
-                // getData() on editor, also border attribute change not appearing in el.attributes, thus using custom refresh function
-                right: function () {
-                    refreshFunc();
-                    return true;
-                }
-            };
-        };
-        this.editor.on('instanceReady', () => {
-            const transformCellSpacing: CKEDITOR.filter.transformation = createTransformationObject('cellspacing');
-            const transformCellPadding: CKEDITOR.filter.transformation = createTransformationObject('cellpadding');
-            const transformBorder: CKEDITOR.filter.transformation = createTransformationObject('border');
-            const transformStyle: CKEDITOR.filter.transformation = createTransformationObject('style');
-
-            this.editor.filter.addTransformations([[transformCellSpacing], [transformCellPadding], [transformBorder], [transformStyle]]);
-        });
     }
 
     private listenEditorEvents() {
@@ -862,7 +823,7 @@ export class HtmlEditor {
     }
 
     public static getData(id: string): string {
-        return CKEDITOR.instances[id].getData();
+        return HTMLAreaHelper.sanitize(CKEDITOR.instances[id].getData());
     }
 
     public static setData(id: string, data: string, callback?: () => void) {
@@ -890,11 +851,11 @@ export class HtmlEditor {
     }
 
     public getRawData(): string {
-        return this.editor.getSnapshot();
+        return HTMLAreaHelper.sanitize(this.editor.getSnapshot());
     }
 
     public getData(): string {
-        return this.editor.getData();
+        return HTMLAreaHelper.sanitize(this.editor.getData());
     }
 
     public resetSelection() {
@@ -1063,7 +1024,7 @@ class HtmlEditorConfigBuilder {
             image2_alignClasses: [StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS, StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS,
                 StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS,
                 StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS],
-            disallowedContent: 'img[width,height]',
+            disallowedContent: 'img[width,height]; table[*]{*}',
             uploadUrl: this.getUploadUrl(),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false
