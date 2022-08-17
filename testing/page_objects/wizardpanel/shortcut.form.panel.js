@@ -17,6 +17,7 @@ const xpath = {
     collapseButtonBottom: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  (text()='Collapse' or text()='Collapse all')]",
     expandButton: "//div[@class='bottom-button-row']//a[contains(@class,'collapse-button') and text()='Expand']",
     parameterOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//button[contains(@id,'MoreButton')]",
+    parametersOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
 };
 
 class ShortcutForm extends Page {
@@ -104,7 +105,7 @@ class ShortcutForm extends Page {
         try {
             return await this.waitForElementDisplayed(xpath.stepForm + xpath.expandButton, appConst.shortTimeout);
         } catch (err) {
-            this.saveScreenshot("err_shortcut_expand_link");
+            await this.saveScreenshot("err_shortcut_expand_link");
             throw new Error("shortcut - Expand link is not visible " + err);
         }
     }
@@ -125,6 +126,14 @@ class ShortcutForm extends Page {
         return this.clickOnElement(xpath.stepForm + xpath.parametersFormOccurrence + lib.REMOVE_BUTTON).catch(err => {
             throw  new Error("Error when click on `Remove` button! " + err);
         })
+    }
+
+    //Click and Expand/Collapse parameters form:
+    async clickOnParametersForm(index) {
+        let locator = xpath.parametersFormOccurrence + xpath.parametersOccurrenceLabel;
+        let result = await this.findElements(locator);
+        await result[index].click();
+        return await this.pause(300);
     }
 
     async expandParameterMenuAndClickOnDelete(index) {
