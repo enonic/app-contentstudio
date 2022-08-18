@@ -646,7 +646,7 @@ export class ContentTreeGrid
                         return false;
                     });
 
-                    if (insertPosition > -1) {
+                    if (insertPosition > -1 && insertPosition <= parentNode.getChildren().length) {
                         this.insertDataToParentNode(item, parentNode, insertPosition);
                     }
                 });
