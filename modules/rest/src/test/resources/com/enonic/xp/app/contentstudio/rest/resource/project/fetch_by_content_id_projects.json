@@ -18,7 +18,8 @@
       "readAccess": {
         "type": "PRIVATE",
         "principals": []
-      }
+      },
+        "siteConfigs" : [ ]
     },
     {
       "description": null,
@@ -38,7 +39,8 @@
       "readAccess": {
         "type": "PRIVATE",
         "principals": []
-      }
+      },
+        "siteConfigs" : [ ]
     }
   ]
 }
