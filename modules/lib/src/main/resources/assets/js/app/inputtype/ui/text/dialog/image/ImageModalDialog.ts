@@ -463,8 +463,6 @@ export class ImageModalDialog
 
         uploader.addDropzone(this.dropzoneContainer.getDropzone().getId());
 
-        uploader.hide();
-
         uploader.onUploadStarted(() => {
             this.hideUploadMasks();
             this.imagePreviewContainer.addClass('upload');
