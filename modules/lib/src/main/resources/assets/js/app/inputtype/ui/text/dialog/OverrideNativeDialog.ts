@@ -1,4 +1,5 @@
 // With this dialog we hide original cke dialog and replicate all actions from our dialog to original one
+import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 
 export abstract class OverrideNativeDialog
@@ -17,6 +18,8 @@ export abstract class OverrideNativeDialog
         super.initElements();
 
         this.ckeOriginalDialog = this.config.dialog;
+
+        WindowDOM.get().onBeforeUnload(() => this.close());
     }
 
     protected postInitElements() {
