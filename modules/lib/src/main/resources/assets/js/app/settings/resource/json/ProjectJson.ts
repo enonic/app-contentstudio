@@ -1,6 +1,7 @@
 import {ProjectPermissionsJson} from './ProjectPermissionsJson';
 import {ProjectReadAccessJson} from './ProjectReadAccessJson';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
+import {ProjectSiteConfigJson} from './ProjectSiteConfigJson';
 
 export interface ProjectJson {
     name: string;
@@ -18,4 +19,6 @@ export interface ProjectJson {
     readAccess: ProjectReadAccessJson;
 
     language: string;
+
+    siteConfigs: ProjectSiteConfigJson[];
 }

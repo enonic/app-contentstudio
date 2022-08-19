@@ -1,12 +1,15 @@
 package com.enonic.xp.app.contentstudio.rest.resource.project.json;
 
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.project.ProjectReadAccessType;
+import com.enonic.xp.data.PropertyTreeJson;
 import com.enonic.xp.project.Project;
 import com.enonic.xp.project.ProjectPermissions;
 
@@ -28,6 +31,8 @@ public final class ProjectJson
 
     private final ProjectReadAccessJson projectReadAccess;
 
+    private final List<SiteConfigJson> siteConfigs;
+
     public ProjectJson( final Project project, final ProjectPermissions projectPermissions, final ProjectReadAccessType readAccessType,
                         final Locale language )
     {
@@ -43,6 +48,10 @@ public final class ProjectJson
         this.permissions = projectPermissions != null ? new ProjectPermissionsJson( projectPermissions ) : null;
         this.projectReadAccess = readAccessType != null ? new ProjectReadAccessJson( readAccessType, ImmutableList.copyOf(
             projectPermissions.getViewer().getSet() ) ) : null;
+        this.siteConfigs = project.getSiteConfigs() != null ? project.getSiteConfigs()
+            .stream()
+            .map( siteConfig -> new SiteConfigJson( siteConfig.getApplicationKey(), PropertyTreeJson.toJson( siteConfig.getConfig() ) ) )
+            .collect( Collectors.toList() ) : null;
     }
 
     public String getName()
@@ -83,5 +92,10 @@ public final class ProjectJson
     public ProjectReadAccessJson getReadAccess()
     {
         return projectReadAccess;
+    }
+
+    public List<SiteConfigJson> getSiteConfigs()
+    {
+        return siteConfigs;
     }
 }

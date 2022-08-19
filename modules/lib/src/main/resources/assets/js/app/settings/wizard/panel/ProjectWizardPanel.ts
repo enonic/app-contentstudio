@@ -30,6 +30,9 @@ import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
 import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {ProjectApplicationsWizardStepForm} from './form/ProjectApplicationsWizardStepForm';
+import {ProjectApplication} from './form/element/ProjectApplication';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -128,7 +131,8 @@ export class ProjectWizardPanel
     }
 
     protected isPersistedItemChanged(): boolean {
-        return this.isProjectMetaChanged() || this.isLanguageChanged() || this.isPermissionsChanged() || this.isReadAccessChanged();
+        return this.isProjectMetaChanged() || this.isLanguageChanged() || this.isPermissionsChanged() || this.isReadAccessChanged() ||
+               this.isApplicationsChanged();
     }
 
     postPersistNewItem(item: ProjectViewItem): Q.Promise<ProjectViewItem> {
@@ -280,10 +284,15 @@ export class ProjectWizardPanel
     private getNewProjectInstance(projectPrototype: Project, language: string): Project {
         const permissions: ProjectPermissions = this.rolesWizardStepForm?.getPermissions();
         const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
+        const configs: ApplicationConfig[] = this.applicationsWizardStepForm.getApplications().map(
+            (app: ProjectApplication) => ApplicationConfig.create().setApplicationKey(app.getApplicationKey()).setConfig(
+                new PropertySet()).build());
+
         return new ProjectBuilder(projectPrototype)
             .setLanguage(language)
             .setPermissions(permissions)
             .setReadAccess(readAccess)
+            .setSiteConfigs(configs)
             .build();
     }
 
@@ -299,7 +308,7 @@ export class ProjectWizardPanel
         return this.updatePermissionsIfNeeded(project).then(() => {
             const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
             const readAccessPromise: Q.Promise<TaskId> = this.isReadAccessChanged() ?
-                this.updateProjectReadAccess(project.getName(), readAccess) : Q(null);
+                                                         this.updateProjectReadAccess(project.getName(), readAccess) : Q(null);
 
             return readAccessPromise.then((taskId: TaskId) => {
                 const result = Q.defer<Project>();
@@ -343,7 +352,7 @@ export class ProjectWizardPanel
     private updateLanguageAndPermissionsIfNeeded(project: Project, isCreation: boolean): Q.Promise<Project> {
         const languagePromise: Q.Promise<string> =
             this.isLanguageChanged() ?
-                this.updateProjectLanguage(project.getName(), this.readAccessWizardStepForm.getLanguage()) : Q(project.getLanguage());
+            this.updateProjectLanguage(project.getName(), this.readAccessWizardStepForm.getLanguage()) : Q(project.getLanguage());
 
         return languagePromise.then((language: string) => {
             if (isCreation) {
@@ -355,7 +364,7 @@ export class ProjectWizardPanel
     }
 
     private doUpdatePersistedItem(): Q.Promise<Project> {
-        const projectPromise: Q.Promise<Project> = this.isProjectMetaChanged() ?
+        const projectPromise: Q.Promise<Project> = (this.isProjectMetaChanged() || this.isApplicationsChanged()) ?
                                                    this.produceUpdateItemRequest().sendAndParse() : Q(this.getPersistedItem().getData());
 
         return projectPromise.then((project: Project) => {
@@ -380,7 +389,9 @@ export class ProjectWizardPanel
         return new ProjectUpdateRequest()
             .setDescription(this.projectWizardStepForm.getDescription())
             .setName(this.projectWizardStepForm.getProjectName())
-            .setDisplayName(displayName);
+            .setDisplayName(displayName)
+            .setApplications(
+                this.applicationsWizardStepForm.getApplications()?.map((app: ProjectApplication) => app.getApplicationKey().toString()));
     }
 
     doRender(): Q.Promise<boolean> {
@@ -409,5 +420,19 @@ export class ProjectWizardPanel
                 this.rolesWizardStepForm.setParentProject(_project);
             });
         });
+    }
+
+    private isApplicationsChanged(): boolean {
+        if (!this.isItemPersisted()) {
+            return true;
+        }
+
+        const selectedApps: ProjectApplication[] = this.applicationsWizardStepForm.getApplications();
+        const appsAsConfigs: ApplicationConfig[] = selectedApps.map(
+            (app: ProjectApplication) => ApplicationConfig.create().setApplicationKey(app.getApplicationKey()).setConfig(
+                new PropertySet()).build());
+        const persistedSiteConfigs: ApplicationConfig[] = this.getPersistedItem().getSiteConfigs() || [];
+
+        return !ObjectHelper.arrayEquals(persistedSiteConfigs, appsAsConfigs);
     }
 }
