@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.ProjectsSyncTask;
@@ -44,6 +45,7 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.SyncContentService;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
+import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.project.CreateProjectParams;
 import com.enonic.xp.project.ModifyProjectIconParams;
@@ -59,6 +61,7 @@ import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.security.acl.Permission;
+import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskResultJson;
 import com.enonic.xp.task.TaskService;
@@ -124,9 +127,7 @@ public final class ProjectResource
     @Path("modifyLanguage")
     public String modifyLanguage( final ModifyLanguageParamsJson params )
     {
-        return doApplyLanguage( params.getName(), params.getLanguage() ).
-            map( Locale::toLanguageTag ).
-            orElse( null );
+        return doApplyLanguage( params.getName(), params.getLanguage() ).map( Locale::toLanguageTag ).orElse( null );
     }
 
     @POST
@@ -149,11 +150,11 @@ public final class ProjectResource
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public void modifyIcon( final MultipartForm form )
     {
-        final ModifyProjectIconParams params = ModifyProjectIconParams.create().
-            name( ProjectName.from( form.getAsString( "name" ) ) ).
-            scaleWidth( Integer.parseInt( form.getAsString( "scaleWidth" ) ) ).
-            icon( createIcon( form ) ).
-            build();
+        final ModifyProjectIconParams params = ModifyProjectIconParams.create()
+            .name( ProjectName.from( form.getAsString( "name" ) ) )
+            .scaleWidth( Integer.parseInt( form.getAsString( "scaleWidth" ) ) )
+            .icon( createIcon( form ) )
+            .build();
 
         this.projectService.modifyIcon( params );
     }
@@ -174,9 +175,7 @@ public final class ProjectResource
     @Path("list")
     public ProjectsJson list()
     {
-        final List<ProjectJson> projects = this.projectService.list().stream().
-            map( this::doCreateJson ).
-            collect( Collectors.toList() );
+        final List<ProjectJson> projects = this.projectService.list().stream().map( this::doCreateJson ).collect( Collectors.toList() );
 
         return new ProjectsJson( projects );
     }
@@ -187,14 +186,15 @@ public final class ProjectResource
     {
         final ContentId contentId = ContentId.from( contentIdString );
 
-        final List<ProjectJson> projects = this.projectService.list().stream().
-            filter( project -> ContextBuilder.from( ContextAccessor.current() ).
-                repositoryId( project.getName().getRepoId() ).
-                branch( ContentConstants.BRANCH_DRAFT ).
-                build().
-                callWith( () -> contentService.contentExists( contentId ) ) ).
-            map( this::doCreateJson ).
-            collect( Collectors.toList() );
+        final List<ProjectJson> projects = this.projectService.list()
+            .stream()
+            .filter( project -> ContextBuilder.from( ContextAccessor.current() )
+                .repositoryId( project.getName().getRepoId() )
+                .branch( ContentConstants.BRANCH_DRAFT )
+                .build()
+                .callWith( () -> contentService.contentExists( contentId ) ) )
+            .map( this::doCreateJson )
+            .collect( Collectors.toList() );
 
         return new ProjectsJson( projects );
     }
@@ -219,22 +219,26 @@ public final class ProjectResource
     @Path("syncAll")
     public TaskResultJson syncAll()
     {
-        final TaskId taskId = taskService.submitTask( ProjectsSyncTask.create().
-            projectService( projectService ).
-            syncContentService( syncContentService ).
-            build(), "Sync all projects" );
+        final TaskId taskId = taskService.submitTask(
+            ProjectsSyncTask.create().projectService( projectService ).syncContentService( syncContentService ).build(),
+            "Sync all projects" );
 
         return new TaskResultJson( taskId );
     }
 
     private CreateProjectParams createParams( final CreateProjectParamsJson json )
     {
-        final CreateProjectParams.Builder paramsBuilder = CreateProjectParams.create().
-            name( json.getName() ).
-            displayName( json.getDisplayName() ).
-            description( json.getDescription() ).
-            parent( json.getParent() ).
-            forceInitialization( true );
+        final CreateProjectParams.Builder paramsBuilder = CreateProjectParams.create()
+            .name( json.getName() )
+            .displayName( json.getDisplayName() )
+            .description( json.getDescription() )
+            .parent( json.getParent() )
+            .forceInitialization( true );
+
+        if ( json.getApplicationKeys() != null )
+        {
+            json.getApplicationKeys().stream().forEach( key -> paramsBuilder.addSiteConfig( appKeyToSiteConfig( key ) ) );
+        }
 
         if ( json.getReadAccess() != null && ProjectReadAccessType.PUBLIC.equals( json.getReadAccess().getType() ) )
         {
@@ -248,13 +252,25 @@ public final class ProjectResource
         return paramsBuilder.build();
     }
 
+    private SiteConfig appKeyToSiteConfig( final ApplicationKey key )
+    {
+        return SiteConfig.create().application( key ).config( new PropertyTree() ).build();
+    }
+
     private ModifyProjectParams createParams( final ModifyProjectParamsJson json )
     {
-        return ModifyProjectParams.create().
-            name( json.getName() ).
-            displayName( json.getDisplayName() ).
-            description( json.getDescription() ).
-            build();
+        final ModifyProjectParams.Builder paramsBuilder = ModifyProjectParams.create()
+            .name( json.getName() )
+            .displayName( json.getDisplayName() )
+            .description( json.getDescription() );
+
+
+        if ( json.getApplicationKeys() != null )
+        {
+            json.getApplicationKeys().stream().forEach( key -> paramsBuilder.addSiteConfig( appKeyToSiteConfig( key ) ) );
+        }
+
+        return paramsBuilder.build();
     }
 
     private CreateAttachment createIcon( final MultipartForm form )
@@ -313,21 +329,17 @@ public final class ProjectResource
 
     private ProjectReadAccess doFetchReadAccess( final ProjectName projectName, final PrincipalKeys viewerRoleMembers )
     {
-        return GetProjectReadAccessCommand.create().
-            viewerRoleMembers( viewerRoleMembers ).
-            projectName( projectName ).
-            contentService( contentService ).
-            build().
-            execute();
+        return GetProjectReadAccessCommand.create()
+            .viewerRoleMembers( viewerRoleMembers )
+            .projectName( projectName )
+            .contentService( contentService )
+            .build()
+            .execute();
     }
 
     private Locale doFetchLanguage( final ProjectName projectName )
     {
-        return GetProjectLanguageCommand.create().
-            projectName( projectName ).
-            contentService( contentService ).
-            build().
-            execute();
+        return GetProjectLanguageCommand.create().projectName( projectName ).contentService( contentService ).build().execute();
     }
 
     private ProjectPermissions doApplyPermissions( final ProjectName projectName, final ProjectPermissions projectPermissions )
@@ -337,25 +349,25 @@ public final class ProjectResource
 
     private Optional<Locale> doApplyLanguage( final ProjectName projectName, final Locale language )
     {
-        final Locale result = ApplyProjectLanguageCommand.create().
-            projectName( projectName ).
-            language( language ).
-            contentService( contentService ).
-            build().
-            execute();
+        final Locale result = ApplyProjectLanguageCommand.create()
+            .projectName( projectName )
+            .language( language )
+            .contentService( contentService )
+            .build()
+            .execute();
 
         return Optional.ofNullable( result );
     }
 
     private TaskResultJson doApplyReadAccess( final ProjectName projectName, final ProjectReadAccess readAccess )
     {
-        return ApplyProjectReadAccessPermissionsCommand.create().
-            projectName( projectName ).
-            readAccess( readAccess ).
-            taskService( taskService ).
-            contentService( contentService ).
-            build().
-            execute();
+        return ApplyProjectReadAccessPermissionsCommand.create()
+            .projectName( projectName )
+            .readAccess( readAccess )
+            .taskService( taskService )
+            .contentService( contentService )
+            .build()
+            .execute();
     }
 
     @Reference

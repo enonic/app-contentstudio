@@ -29,5 +29,6 @@
         "principals": [
             "user:system:custom"
         ]
-    }
+    },
+    "siteConfigs" : [ ]
 }
