@@ -16,8 +16,6 @@ const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentI
 
 describe('Text Component with CKE - insert link and table specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
