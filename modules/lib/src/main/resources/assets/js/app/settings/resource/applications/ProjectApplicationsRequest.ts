@@ -1,18 +1,19 @@
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
-import {ProjectApplication} from '../../wizard/panel/form/element/ProjectApplication';
-import {ProjectApplicationJson} from '../json/applications/ProjectApplicationJson';
 
-export class ProjectApplicationsRequest
-    extends ResourceRequest<ProjectApplication[]> {
+export abstract class ProjectApplicationsRequest<RESPONSE_TYPE>
+    extends ResourceRequest<RESPONSE_TYPE> {
+
+    abstract getOperationType(): string;
+
+    getParams(): Object {
+        return {
+            type: this.getOperationType()
+        };
+    }
 
     getRequestPath(): Path {
         return Path.fromString(CONFIG.getString('services.appServiceUrl'));
-    }
-
-    protected parseResponse(response: JsonResponse<ProjectApplicationJson[]>): ProjectApplication[] {
-        return ProjectApplication.fromJsonArray(response.getResult());
     }
 }

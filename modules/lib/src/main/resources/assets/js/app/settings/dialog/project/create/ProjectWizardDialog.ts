@@ -179,7 +179,8 @@ export class ProjectWizardDialog
             .setReadAccess(new ProjectReadAccess(access.getAccess(), access.getPrincipals().map((p: Principal) => p.getKey())))
             .setDescription(idData.getDescription())
             .setName(idData.getName())
-            .setDisplayName(idData.getDisplayName());
+            .setDisplayName(idData.getDisplayName())
+            .setApplications(this.getProjectApplications()?.map((app: ProjectApplication) => app.getApplicationKey().toString()));
     }
 
     private updateLocale(projectName: string): Q.Promise<void> {

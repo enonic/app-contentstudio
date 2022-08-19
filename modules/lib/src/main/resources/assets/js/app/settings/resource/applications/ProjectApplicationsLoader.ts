@@ -1,6 +1,7 @@
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import {ProjectApplicationsRequest} from './ProjectApplicationsRequest';
 import {ProjectApplication} from '../../wizard/panel/form/element/ProjectApplication';
+import {ProjectApplicationsListRequest} from './ProjectApplicationsListRequest';
 
 export class ProjectApplicationsLoader
     extends BaseLoader<ProjectApplication> {
@@ -9,7 +10,7 @@ export class ProjectApplicationsLoader
         super();
     }
 
-    protected createRequest(): ProjectApplicationsRequest {
-        return new ProjectApplicationsRequest();
+    protected createRequest(): ProjectApplicationsListRequest {
+        return new ProjectApplicationsListRequest();
     }
 }

@@ -9,6 +9,7 @@ import {ProjectHelper} from '../data/project/ProjectHelper';
 import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 import {SettingsType} from '../data/type/SettingsType';
 import {SettingsTypes} from '../data/type/SettingsTypes';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 
 export class ProjectViewItem
     extends SettingsDataViewItem<Project> {
@@ -66,6 +67,10 @@ export class ProjectViewItem
 
     isDefaultProject(): boolean {
         return ProjectHelper.isDefault(this.data);
+    }
+
+    getSiteConfigs(): ApplicationConfig[] {
+        return this.data.getSiteConfigs();
     }
 
     isEditAllowed(loginResult: LoginResult): boolean {
