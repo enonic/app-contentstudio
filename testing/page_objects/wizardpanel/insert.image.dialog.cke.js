@@ -5,6 +5,7 @@ const ComboBox = require('../components/loader.combobox');
 
 const XPATH = {
     container: `//div[contains(@id,'ImageModalDialog')]`,
+    uploadButton: "//div[contains(@id,'ImageUploaderEl')]//button[contains(@id,'upload-button')]",
     insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
     updateButton: `//button[contains(@id,'DialogButton') and child::span[text()='Update']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
@@ -52,6 +53,10 @@ class InsertImageDialog extends Page {
         return XPATH.container + XPATH.cancelButton;
     }
 
+    get uploadButton() {
+        return XPATH.container + XPATH.uploadButton;
+    }
+
     get cancelButtonTop() {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
@@ -93,10 +98,21 @@ class InsertImageDialog extends Page {
         return this.waitForElementDisabled(this.customWidthCheckbox + lib.CHECKBOX_INPUT, appConst.shortTimeout);
     }
 
+    async waitForUploadButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.uploadButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshotName = appConst.generateRandomName("err_upload_btn");
+            await this.saveScreenshot(screenshotName);
+            throw new Error("Insert Image Dialog, upload button is not visible, screenshot: " + screenshotName + "  " + err);
+        }
+    }
+
     waitForCustomWidthCheckBoxEnabled() {
         return this.waitForElementEnabled(this.customWidthCheckbox + lib.CHECKBOX_INPUT, appConst.shortTimeout);
     }
 
+    //Click on dropdown handle in Image style selector:
     clickOnStyleSelectorDropDownHandle() {
         return this.clickOnElement(this.styleSelectorDropDownHandle).catch(err => {
             this.saveScreenshot("err_style_selector_drop_down_handle");
@@ -104,6 +120,7 @@ class InsertImageDialog extends Page {
         })
     }
 
+    //Image style selector:
     async doFilterStyleAndClickOnOption(styleOption) {
         let optionSelector = lib.slickRowByDisplayName(XPATH.container, styleOption);
         try {
@@ -111,9 +128,9 @@ class InsertImageDialog extends Page {
             await this.typeTextInInput(this.styleOptionsFilterInput, styleOption);
             await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
             await this.clickOnElement(optionSelector);
-            return this.pause(400);
+            return await this.pause(400);
         } catch (err) {
-            this.saveScreenshot('err_select_option');
+            await this.saveScreenshot('err_select_option');
             throw new Error('Insert Image Dialog, Style selector ' + styleOption + ' ' + err);
         }
     }

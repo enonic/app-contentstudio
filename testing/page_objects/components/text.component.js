@@ -200,7 +200,9 @@ class TextComponent extends Page {
         try {
             let insertImageDialog = new InsertImageDialog();
             await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
-            await this.clickOnElement(this.insertImageButton);
+            let res = await this.getDisplayedElements(this.insertImageButton);
+            await res[0].click();
+            //await this.clickOnElement(this.insertImageButton);
             await this.pause(500);
             await this.switchToParentFrame();
             return await insertImageDialog.waitForDialogVisible();

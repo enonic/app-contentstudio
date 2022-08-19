@@ -16,7 +16,10 @@ const MoveContentDialog = require('../../page_objects/browsepanel/move.content.d
 
 describe('Text Component with CKE - insert download-link specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let TEST_CONTENT_DISPLAY_NAME = 'server';

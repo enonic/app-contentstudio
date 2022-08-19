@@ -294,6 +294,7 @@ module.exports = Object.freeze({
         CUSTOM_RELATIONSHIP: 'custom-relationship2_4',
         OPTION_SET_HELP_TEXT: 'optionset_help',
         PERSON: "Person",
+        LOCALE_CODE: "Locale Code",
     },
     permissions: {
         FULL_ACCESS: `Full Access`,
