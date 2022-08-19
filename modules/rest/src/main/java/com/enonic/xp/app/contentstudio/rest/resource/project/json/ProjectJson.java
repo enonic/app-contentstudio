@@ -2,7 +2,6 @@ package com.enonic.xp.app.contentstudio.rest.resource.project.json;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
@@ -10,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.project.ProjectReadAccessType;
-import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
 import com.enonic.xp.project.Project;
 import com.enonic.xp.project.ProjectPermissions;
