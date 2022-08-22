@@ -23,10 +23,13 @@ export class ProjectReadAccessFormItem
     private principalsCombobox: PrincipalComboBox;
 
     constructor() {
-        super(<ProjectFormItemBuilder>new ProjectFormItemBuilder(new RadioGroup('read-access-radio-group'))
-            .setHelpText(i18n('settings.projects.access.helptext'))
-            .setLabel(i18n('settings.items.wizard.readaccess.label'))
-            .setValidator(Validators.required));
+        super(
+            <ProjectFormItemBuilder>new ProjectFormItemBuilder(
+                new RadioGroup('read-access-radio-group'))
+                .setHelpText(i18n('settings.projects.access.helptext'))
+                .setLabel(i18n('settings.items.wizard.readaccess.label'))
+                .setValidator(Validators.required)
+        );
 
         this.initElements();
         this.initListeners();
