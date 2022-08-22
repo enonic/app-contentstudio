@@ -21,6 +21,10 @@ export class ProjectParentDialogStep
         });
     }
 
+    protected getFormClass(): string {
+        return 'project-parent-step';
+    }
+
     isOptional(): boolean {
         return true;
     }

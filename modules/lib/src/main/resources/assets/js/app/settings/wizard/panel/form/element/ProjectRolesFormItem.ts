@@ -25,8 +25,11 @@ export class ProjectRolesFormItem
         loader.setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
         loader.skipPrincipal(PrincipalKey.ofAnonymous());
 
-        super(new ProjectFormItemBuilder(accessCombobox)
-            .setHelpText(i18n('settings.projects.roles.helptext')));
+        super(
+            <ProjectFormItemBuilder>new ProjectFormItemBuilder(accessCombobox)
+            .setHelpText(i18n('settings.projects.roles.helptext'))
+            .setLabel(i18n('settings.items.wizard.step.roles'))
+        );
 
         this.addClass('project-roles-form-item');
 

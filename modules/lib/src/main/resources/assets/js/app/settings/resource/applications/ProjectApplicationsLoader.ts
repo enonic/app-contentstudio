@@ -5,10 +5,6 @@ import {ProjectApplicationsListRequest} from './ProjectApplicationsListRequest';
 export class ProjectApplicationsLoader
     extends BaseLoader<ProjectApplication> {
 
-    constructor() {
-        super();
-    }
-
     protected createRequest(): ProjectApplicationsListRequest {
         return new ProjectApplicationsListRequest();
     }
