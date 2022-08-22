@@ -4,4 +4,6 @@ export interface ProjectApplicationJson
     extends ApplicationJson {
 
     icon?: string;
+
+    started?: boolean;
 }

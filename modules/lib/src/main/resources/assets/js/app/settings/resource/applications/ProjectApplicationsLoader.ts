@@ -1,5 +1,4 @@
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
-import {ProjectApplicationsRequest} from './ProjectApplicationsRequest';
 import {ProjectApplication} from '../../wizard/panel/form/element/ProjectApplication';
 import {ProjectApplicationsListRequest} from './ProjectApplicationsListRequest';
 
@@ -12,5 +11,13 @@ export class ProjectApplicationsLoader
 
     protected createRequest(): ProjectApplicationsListRequest {
         return new ProjectApplicationsListRequest();
+    }
+
+    filterFn(item: ProjectApplication): boolean {
+        const searchString: string = this.getSearchString().toLowerCase();
+
+        return item.getDisplayName()?.indexOf(searchString) > -1 ||
+               item.getDescription()?.toLowerCase().indexOf(searchString) > -1 ||
+               item.getName()?.toLowerCase().indexOf(searchString) > -1;
     }
 }
