@@ -13,10 +13,16 @@ export class LocaleFormItem
     extends CopyFromParentFormItem {
 
     constructor() {
-        super(<ProjectFormItemBuilder>new ProjectFormItemBuilder(
-            LocaleComboBox.create().setSelectedOptionsView(new LocaleWithFlagSelectedOptionsView()).setMaximumOccurrences(1).build())
+        super(
+            <ProjectFormItemBuilder>new ProjectFormItemBuilder(
+                LocaleComboBox.create()
+                    .setSelectedOptionsView(new LocaleWithFlagSelectedOptionsView())
+                    .setMaximumOccurrences(1)
+                    .build()
+            )
             .setHelpText(i18n('settings.projects.language.helptext'))
-            .setLabel(i18n('field.lang')));
+            .setLabel(i18n('field.lang'))
+        );
 
         this.addClass('locale-form-item');
 
