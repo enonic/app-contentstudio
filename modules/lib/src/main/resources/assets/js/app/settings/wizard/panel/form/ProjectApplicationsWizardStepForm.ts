@@ -5,7 +5,7 @@ import * as Q from 'q';
 import {SettingsType} from '../../../data/type/SettingsType';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectApplicationsFormItem} from './element/ProjectApplicationsFormItem';
-import {ProjectApplication} from './element/ProjectApplication';
+import {ProjectApplication, ProjectApplicationBuilder} from './element/ProjectApplication';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ProjectApplicationsGetByKeysRequest} from '../../../resource/applications/ProjectApplicationsGetByKeysRequest';
@@ -44,7 +44,9 @@ export class ProjectApplicationsWizardStepForm
 
         if (appKeys?.length > 0) {
             return this.fetchApps(appKeys).then((apps: ProjectApplication[]) => {
-                apps.forEach((app: ProjectApplication) => {
+                appKeys.forEach((appKey: ApplicationKey) => {
+                    const app: ProjectApplication =
+                        apps.find((app: ProjectApplication) => app.getName() === appKey.getName()) || this.generateNotAvailableApp(appKey);
                     this.applicationsFormItem.getComboBox().select(app, false, true);
                 });
             }).catch(DefaultErrorHandler.handle);
@@ -55,6 +57,15 @@ export class ProjectApplicationsWizardStepForm
 
     private fetchApps(keys: ApplicationKey[]): Q.Promise<ProjectApplication[]> {
         return new ProjectApplicationsGetByKeysRequest(keys).sendAndParse();
+    }
+
+    private generateNotAvailableApp(key: ApplicationKey): ProjectApplication {
+        const builder: ProjectApplicationBuilder = ProjectApplication.create();
+
+        builder.applicationKey = key;
+        builder.displayName = key.toString();
+
+        return builder.build();
     }
 
     getApplications(): ProjectApplication[] {

@@ -1,4 +1,5 @@
 import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectApplicationJson} from '../../../../resource/json/applications/ProjectApplicationJson';
 
 export class ProjectApplication
@@ -27,9 +28,14 @@ export class ProjectApplication
         });
         return array;
     }
+
+    static create(): ProjectApplicationBuilder {
+        return new ProjectApplicationBuilder();
+    }
 }
 
-export class ProjectApplicationBuilder extends ApplicationBuilder {
+export class ProjectApplicationBuilder
+    extends ApplicationBuilder {
 
     icon: string;
 
@@ -40,7 +46,10 @@ export class ProjectApplicationBuilder extends ApplicationBuilder {
 
     fromJson(json: ProjectApplicationJson): ProjectApplicationBuilder {
         super.fromJson(json);
+
         this.icon = json.icon;
+        this.state = ObjectHelper.isDefined(json.started) ? (json.started ? Application.STATE_STARTED : Application.STATE_STOPPED) : null;
+
         return this;
     }
 
