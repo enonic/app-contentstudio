@@ -1,8 +1,6 @@
 /**
  * Created on 11.01.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -52,7 +50,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             studioUtils.saveScreenshot("insert_image_cancel_test1");
             await insertImageDialog.waitForDialogVisible();
             await insertImageDialog.clickOnCancelButton();
-            studioUtils.saveScreenshot("insert_image_cancel_test2");
+            await studioUtils.saveScreenshot("insert_image_cancel_test2");
             await insertImageDialog.waitForDialogClosed();
         });
 

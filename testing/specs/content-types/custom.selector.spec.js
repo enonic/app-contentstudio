@@ -85,7 +85,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             let isDisplayed = await customSelectorForm.isOptionFilterDisplayed();
             assert.isFalse(isDisplayed, "Option filter input gets not visible, because 2 options are selected");
             let selectedOptions = await customSelectorForm.getSelectedOptions();
-            studioUtils.saveScreenshot("custom_selector_2_options");
+            await studioUtils.saveScreenshot("custom_selector_2_options");
             assert.equal(selectedOptions[0], OPTION_1, "expected option should be selected");
             assert.equal(selectedOptions[1], OPTION_2, "expected option should be selected");
         });
@@ -98,7 +98,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             //Open the content and swap options:
             await customSelectorForm.swapOptions(OPTION_2, OPTION_1);
             let options = await customSelectorForm.getSelectedOptions();
-            studioUtils.saveScreenshot("custom_selector_swapped_options");
+            await studioUtils.saveScreenshot("custom_selector_swapped_options");
             assert.equal(options[0], OPTION_2, "Order of selected Options should be changed");
             assert.equal(options[1], OPTION_1, "Order of selected Options should be changed");
         });
@@ -131,10 +131,9 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             let isDisplayed = await customSelectorForm.isOptionFilterDisplayed();
             assert.isTrue(isDisplayed, "Option filter input gets visible");
             let selectedOptions = await customSelectorForm.getSelectedOptions();
-            studioUtils.saveScreenshot("custom_selector_option_removed");
+            await studioUtils.saveScreenshot("custom_selector_option_removed");
             assert.equal(selectedOptions[0], OPTION_1, "expected option should be selected");
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

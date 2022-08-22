@@ -19,7 +19,6 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
     const ATTACHMENT_NAME = contentBuilder.generateRandomName('attachments');
     const ATTACHMENT_NAME2 = contentBuilder.generateRandomName('attachments');
 
-
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
