@@ -1,4 +1,5 @@
 const appLib = require('/lib/xp/app');
+const schemaLib = require('/lib/xp/schema');
 const iconResolver = __.newBean('com.enonic.xp.app.contentstudio.IconResolver');
 
 exports.get = function (req) {
@@ -29,12 +30,29 @@ exports.get = function (req) {
 
 const listApps = function () {
     const apps = appLib.list();
-    fetchAppsIcons(apps);
+    const filteredApps = [];
+
+    apps.forEach(function (app) {
+        try {
+            const site = schemaLib.getSite({
+                application: app.key.toString()
+            });
+
+            if (!!site) {
+                filteredApps.push(app);
+            }
+        } catch (e) {
+            log.error(e);
+        }
+
+    });
+
+    fetchAppsIcons(filteredApps);
 
     return {
         status: 200,
         contentType: 'application/json',
-        body: apps
+        body: filteredApps
     }
 }
 
@@ -68,11 +86,16 @@ const doGetApps = function (keys) {
     const apps = [];
 
     keys.forEach(function (key) {
-        const app = appLib.get({
-            key: key,
-        });
+        try {
+            const app = appLib.get({
+                key: key
+            });
 
-        apps.push(app);
+            apps.push(app);
+        } catch (e) {
+            log.error(e);
+        }
+
     });
 
     fetchAppsIcons(apps);
