@@ -14,9 +14,9 @@ import {ProjectOptionDataLoader} from './ProjectOptionDataLoader';
 
 export class ProjectsComboBox extends RichComboBox<Project> {
 
-    private projectsChainBlock: ProjectsChainBlock;
+    private readonly projectsChainBlock: ProjectsChainBlock;
 
-    private helper: ProjectOptionDataHelper;
+    private readonly helper: ProjectOptionDataHelper;
 
     constructor(builder: ProjectsDropdownBuilder = new ProjectsDropdownBuilder()) {
         super(builder);
@@ -35,13 +35,14 @@ export class ProjectsComboBox extends RichComboBox<Project> {
             this.helper.isExpandable(project)).setSelectable(this.helper.isSelectable(project)).build();
     }
 
-    protected createOptions(items: any[]): Q.Promise<Option<Project>[]> {
+    protected createOptions(items: Project[]): Q.Promise<Option<Project>[]> {
+        this.helper.setProjects(items);
         return super.createOptions(items.filter((item: Project) => !item.getParent()));
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.addClass('parent-selector');
+            this.addClass('parent-project-selector');
 
             return rendered;
         });
