@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -20,12 +21,12 @@ describe("delete.project.in.filtered.grid.spec - Delete projects in filtered gri
     let PROJECT_DISPLAY_NAME_2 = studioUtils.generateRandomName("project");
     let DESCRIPTION = "Test description";
 
-    it(`Preconditions: 2 projects should be added`,
+    it(`Preconditions: two projects should be added`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Save 2 projects:
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, DESCRIPTION);
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME_2, DESCRIPTION);
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, DESCRIPTION);
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME_2, DESCRIPTION);
             //2 .Click on Content app-mode button
             await studioUtils.switchToContentMode();
             //3. Expand the project selector and verify that 2 new items appeared:
@@ -56,21 +57,21 @@ describe("delete.project.in.filtered.grid.spec - Delete projects in filtered gri
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             //2. Click on 'Show Selection' button:
             await settingsBrowsePanel.clickOnSelectionToggler();
-            //3. Click on Delete button:
+            //3. Click on 'Delete' button:
             await settingsBrowsePanel.clickOnDeleteButton();
             //4. Verify that Confirmation Dialog is loaded:
             await confirmValueDialog.waitForDialogOpened();
             await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME_1);
-            //5. Click on Yes button and delete folders:
+            //5. Click on 'Yes' button and delete folders:
             await confirmValueDialog.clickOnConfirmButton();
             await settingsBrowsePanel.pause(300);
             //6. Verify that Selection Controller is not visible:
             await settingsBrowsePanel.waitForSelectionTogglerNotVisible();
             //7. Verify that selection controller checkbox is not selected :
             let result = await settingsBrowsePanel.isSelectionControllerSelected();
-            assert.isFalse(result, "Selection Controller checkBox gets unselected");
+            assert.isFalse(result, "'Selection Controller' checkBox gets unselected");
             result = await settingsBrowsePanel.isSelectionControllerPartial();
-            assert.isFalse(result, "Selection Controller checkBox gets unselected");
+            assert.isFalse(result, "'Selection Controller' checkbox is not Partial");
         });
 
     beforeEach(async () => {

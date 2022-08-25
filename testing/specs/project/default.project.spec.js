@@ -17,7 +17,7 @@ describe('default.project.spec - ui-tests for Default project', function () {
 
     let DEFAULT_DESCRIPTION = "Test description";
 
-    it("GIVEN SU is logged in WHEN description has been updated in Default project and Save button pressed THEN expected notification should appear",
+    it("GIVEN SU is logged in WHEN description has been updated in 'Default' project and 'Save' button pressed THEN expected notification should appear",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -29,7 +29,7 @@ describe('default.project.spec - ui-tests for Default project', function () {
             //3. Verify that 'Save' button gets enabled, then click on it
             await projectWizard.waitAndClickOnSave();
             let actualMessage = await projectWizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot("default_project_updated_1");
+            await studioUtils.saveScreenshot("default_project_updated_1");
             assert.equal(actualMessage, 'Project "default" is modified.', "Expected message should appear");
         });
 
@@ -45,7 +45,7 @@ describe('default.project.spec - ui-tests for Default project', function () {
             //2. Verify that 'Save' button gets enabled, then click on it
             await projectWizard.waitAndClickOnSave();
             let actualMessage = await projectWizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot("default_project_updated_2");
+            await studioUtils.saveScreenshot("default_project_updated_2");
             assert.equal(actualMessage, 'Project "default" is modified.', "Expected message should appear");
         });
 

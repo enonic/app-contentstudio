@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const LayerWizardPanel = require('../../page_objects/project/layer.wizard.panel');
@@ -18,33 +19,33 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
     }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
 
-    it("GIVEN new layer(in Default) with roles is saved WHEN 'Copy roles from parent' has been clicked THEN 'Save' button gets enabled",
+    it("GIVEN layer(in Default) with roles has been saved and reopened WHEN 'Copy roles from parent' has been clicked THEN 'Save' button gets enabled",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1.Select 'Default' project and open wizard for new layer:
-            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard("Default");
-            await layerWizard.clickOnAccessModeRadio("Public");
-            await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
-            await layerWizard.selectProjectAccessRoles(appConst.systemUsersDisplayName.SUPER_USER);
-            await layerWizard.selectLanguage(appConst.LANGUAGES.EN);
-            //2. Save the layer:
-            await layerWizard.waitAndClickOnSave();
-            await layerWizard.waitForNotificationMessage();
-            await layerWizard.waitForSaveButtonDisabled();
-            //3. Click on 'Copy roles from parent':
+            let layerWizard = new LayerWizardPanel();
+            //1. Open Project Wizard Dialog:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let layer = projectUtils.buildProject("Default", appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PUBLIC,"Super User",null, LAYER_DISPLAY_NAME)
+            //2. Fill in forms in the wizard then click on Create button:
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+            await settingsBrowsePanel.waitForNotificationMessage();
+            //3.Open just created layer:
+            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await layerWizard.waitForLoaded();
+            //4. Click on 'Copy roles from parent':
             await layerWizard.clickOnCopyRolesFromParent();
+            //5. Verify that notification message appears:
             await layerWizard.waitForNotificationMessage();
-            //4. Verify that 'Save' button gets enabled after removing the selected item in the Roles form:
+            //6. Verify that 'Save' button gets enabled:
             await layerWizard.waitForSaveButtonEnabled();
-            //Verify the issue#3703: Update of a project/layer is not reflected in the UI #3703
-            //5. Click on 'Home' (SETTINGS) button and go to the grid:
+            //7. Click on 'Home' (SETTINGS) button and go to the grid:
             await settingsBrowsePanel.clickOnHomeButton();
-            //6. Verify that the layer is displayed with the language icon:
+            //8. Verify that the layer is displayed with the language icon, because Save button is not pressed yet:
             let flagCode = await settingsBrowsePanel.waitForLanguageIconDisplayed(LAYER_DISPLAY_NAME);
             assert.equal(flagCode, "gb", "Expected language icon should be displayed in the grid");
-            //7. Verify the language in the Statistics Panel:
+            //9. Verify the language in the Statistics Panel:
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
-            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await studioUtils.saveScreenshot("layer_created_with_language");
             let actualLanguage = await settingsItemStatisticsPanel.getLanguage();
             assert.equal(actualLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed in Statistics panel.");
@@ -64,7 +65,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             await layerWizard.waitForNotificationMessage();
             //4. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(LAYER_DISPLAY_NAME);
-            studioUtils.saveScreenshot("layer_wizard_unsaved_changes_1");
+            await studioUtils.saveScreenshot("layer_wizard_unsaved_changes_1");
             await confirmationDialog.waitForDialogOpened();
             let actualMessage = await confirmationDialog.getWarningMessage();
             assert.equal(actualMessage, appConst.PROJECT_UNSAVED_CHANGES_MESSAGE);
@@ -85,7 +86,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             await layerWizard.waitForNotificationMessage();
             //3. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(LAYER_DISPLAY_NAME);
-            studioUtils.saveScreenshot("layer_wizard_unsaved_changes_2");
+            await studioUtils.saveScreenshot("layer_wizard_unsaved_changes_2");
             await confirmationDialog.waitForDialogOpened();
             let actualMessage = await confirmationDialog.getWarningMessage();
             assert.equal(actualMessage, appConst.PROJECT_UNSAVED_CHANGES_MESSAGE);
@@ -114,7 +115,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
     it("WHEN existing layer selected and has been deleted THEN expected notification message should appear",
         async () => {
             //1.Select and delete the layer:
-            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const contentBuilder = require("../../libs/content.builder");
@@ -28,17 +29,15 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1.Select 'Default' project and open wizard for new layer:
-            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard("Default");
-            await layerWizard.clickOnAccessModeRadio("Public");
-            await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
-            //2. Save the layer:
-            await layerWizard.waitAndClickOnSave();
-            await layerWizard.waitForNotificationMessage();
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let layer = projectUtils.buildProject("Default", null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
+                null, LAYER_DISPLAY_NAME);
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+            await settingsBrowsePanel.waitForNotificationMessage();
         });
 
     it("Precondition 2 - new site should be added in 'Default'(parent) context",
         async () => {
-            //await projectSelectionDialog.selectContext("Default");
             let site = contentBuilder.buildSite(SITE_NAME);
             await studioUtils.doAddSite(site, true);
         });
@@ -48,7 +47,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Select the layer's context:
             await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
-            studioUtils.saveScreenshot("site_is_inherited");
+            await studioUtils.saveScreenshot("site_is_inherited");
             //2. Verify that inherited site should be present in the layer:
             let result = await contentBrowsePanel.isContentInherited(SITE_NAME);
             assert.isTrue(result, "site from parent project should be displayed with gray mask");
@@ -124,10 +123,10 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await browseLayersWidget.waitForEditButtonEnabled(LAYER_DISPLAY_NAME);
         });
 
-    it("Postconditions - the layer should be deleted",
+    it("Post conditions - the layer should be deleted",
         async () => {
             await studioUtils.openSettingsPanel();
-            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

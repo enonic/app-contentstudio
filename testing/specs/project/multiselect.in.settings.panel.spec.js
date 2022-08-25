@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -25,8 +26,8 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Save 2 projects:
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, DESCRIPTION);
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME_2, DESCRIPTION);
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, DESCRIPTION);
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME_2, DESCRIPTION);
             //2 .Click on Content app-mode button
             await studioUtils.switchToContentMode();
             //3. Expand the project selector and verify that 2 new items appeared:

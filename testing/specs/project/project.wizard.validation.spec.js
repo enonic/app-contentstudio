@@ -17,7 +17,7 @@ describe('project.wizard.validation.spec - validation specification', function (
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
 
-    it(`GIVEN new project wizard is opened WHEN just display name have been typed THEN 'Save' should be disabled(Access mode is not selected)`,
+    it.skip(`GIVEN new project wizard is opened WHEN just display name have been typed THEN 'Save' should be disabled(Access mode is not selected)`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -29,7 +29,7 @@ describe('project.wizard.validation.spec - validation specification', function (
             studioUtils.saveScreenshot("project_validation_0");
         });
 
-    it(`GIVEN display name and 'Public' in access mode are filled WHEN the identifier contains a white space THEN 'Save' should be disabled and error message gets visible`,
+    it.skip(`GIVEN display name and 'Public' in access mode are filled WHEN the identifier contains a white space THEN 'Save' should be disabled and error message gets visible`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -46,7 +46,7 @@ describe('project.wizard.validation.spec - validation specification', function (
             assert.equal(errorMessage, "Invalid value entered", "Expected validation message gets visible");
         });
 
-    it(`GIVEN identifier contains a white space WHEN the identifier has been corrected THEN 'Save' gets enabled AND error message gets not visible`,
+    it.skip(`GIVEN identifier contains a white space WHEN the identifier has been corrected THEN 'Save' gets enabled AND error message gets not visible`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -62,7 +62,7 @@ describe('project.wizard.validation.spec - validation specification', function (
             await projectWizard.typeInProjectIdentifier("my_project");
             studioUtils.saveScreenshot("project_validation_1");
             //5. Verify that validation message gets not visible and Save gets enabled:
-            await projectWizard.getProjectIdentifierValidationMessageNotVisible();
+            await projectWizard.waitForProjectIdentifierValidationMessageNotVisible();
             await projectWizard.waitForSaveButtonEnabled();
         });
 

@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const UserBrowsePanel = require("../../page_objects/users/userbrowse.panel");
 const RoleWizard = require("../../page_objects/users/role.wizard");
 const appConst = require('../../libs/app_const');
@@ -23,7 +24,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             //1. Save new project:
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, "test description");
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, "test description");
 
             //2. Go to Users app:
             await studioUtils.showLauncherPanel();
@@ -75,7 +76,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             await studioUtils.navigateToContentStudioApp();
             await studioUtils.openSettingsPanel();
             //1. click on the project and delete it:
-            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+            await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
             //2. Go to Users app:
             await studioUtils.showLauncherPanel();
             await studioUtils.navigateToUsersApp();

@@ -229,7 +229,6 @@ class Page {
     }
 
     async waitForElementDisplayed(selector, ms) {
-        let elements = await this.findElements(selector);
         let element = await this.findElement(selector);
         return await element.waitForDisplayed({timeout: ms});
     }

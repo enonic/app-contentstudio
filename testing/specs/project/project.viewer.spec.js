@@ -42,8 +42,8 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             //1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //2.Open new project wizard:
-            await settingsBrowsePanel.openProjectWizard();
+            //2.Open new project wizard dialog and :
+            await settingsBrowsePanel.openProjectWizardDialog();
             await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
             await projectWizard.clickOnAccessModeRadio("Custom");
             //3. Select the user in Custom Read access :(users can read content)

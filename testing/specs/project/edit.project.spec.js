@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
@@ -22,22 +23,19 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     const TEST_DESCRIPTION = "my description";
     const NEW_DESCRIPTION = "new description";
 
-    //Verifies  Project identifier field is editable issue#2923
-    it(`GIVEN a display name, description and access mode has been filled in WHEN 'Save' button has been pressed THEN all data should be saved`,
+    //Verifies:  Project identifier field is editable issue#2923
+    it(`WHEN existing project is opened THEN expected identifier, description and language should be displayed`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1. Open new project wizard:
-            await settingsBrowsePanel.openProjectWizard();
-            //2. Type a display name and description then click on 'Save' button:
-            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
-            await projectWizard.typeDescription(TEST_DESCRIPTION);
-            await projectWizard.clickOnAccessModeRadio("Private");
-            await projectWizard.selectLanguage(appConst.LANGUAGES.EN);
-            await projectWizard.waitForProjectIdentifierInputEnabled();
-            await projectWizard.waitAndClickOnSave();
-            await projectWizard.waitForSpinnerNotVisible(appConst.longTimeout);
-            //3. Verify that Identifier Input gets disabled after saving the project
+            //1. Open project wizard dialog and create new project:
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.EN, null,
+                appConst.PROJECT_ACCESS_MODE.PRIVATE);
+            //2. Select the project and click on 'Edit' button
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
+            //3. Verify that Identifier Input is disabled
             await projectWizard.waitForProjectIdentifierInputDisabled();
             //4. verify the saved data:
             let actualDescription = await projectWizard.getDescription();
@@ -50,7 +48,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.waitForDeleteButtonEnabled();
         });
 
-    it(`GIVEN existing project is opened WHEN description has been updated THEN new description should be displayed in browse panel`,
+    it(`GIVEN existing project is opened WHEN the description has been updated THEN new description should be displayed in browse panel`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -128,24 +126,9 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.waitForSaveButtonEnabled();
         });
 
-    //Verifies: Confirmation dialog doesn't appear when switching access mode for a newly created project #2098
-    it("GIVEN name and private access mode is saved in new project wizard WHEN 'Public' radio has been clicked THEN confirmation Dialog should be loaded",
+    it("Precondition: new project should be saved",
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            let confirmationDialog = new ConfirmationDialog();
-            //1. Open new project wizard:
-            await settingsBrowsePanel.openProjectWizard();
-            //2. Type a display name and select Private access:
-            await projectWizard.typeDisplayName(PROJECT2_DISPLAY_NAME);
-            await projectWizard.clickOnAccessModeRadio("Private");
-            //3. Save the project
-            await projectWizard.waitAndClickOnSave();
-            await projectWizard.waitForNotificationMessage();
-            //4. Do not close the wizard and update the access mode:
-            await projectWizard.clickOnAccessModeRadio("Public");
-            //5. Verify that Confirmation Dialog is loaded:
-            await confirmationDialog.waitForDialogOpened();
+            await projectUtils.saveTestProject(PROJECT2_DISPLAY_NAME, null, null, null, appConst.PROJECT_ACCESS_MODE.PRIVATE);
         });
 
     //Verifies - Access mode should not be changed after canceling changes in Confirmation modal dialog #2295
@@ -160,13 +143,14 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.waitForLoaded();
             //2. Update the access mode:
             await projectWizard.clickOnAccessModeRadio("Public");
+            //3. Verify that confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
-            //3.Click on 'Cancel top' button:
+            //4.Click on 'Cancel top' button:
             await confirmationDialog.clickOnCancelTopButton();
             let isSelected = await projectWizard.isAccessModeRadioSelected("Private");
-            //4. Verify that access mode returns to the initial state:
+            //5. Verify that access mode returns to the initial state:
             assert.isTrue(isSelected, "Private mode should be reverted in the Access Mode form");
-            //5. Verify that 'Save' button is disabled
+            //6. Verify that 'Save' button is disabled
             await projectWizard.waitForSaveButtonDisabled();
         });
 
@@ -179,26 +163,23 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT2_DISPLAY_NAME);
             //2. Click on 'Show Selection' icon(filter the grid):
             await settingsBrowsePanel.clickOnSelectionToggler();
-            //3. Open new layer wizard, type a data and save it:
-            let layerWizard = await settingsBrowsePanel.openLayerWizard();
-            await layerWizard.typeDisplayName(LAYER_NAME);
-            await layerWizard.clickOnAccessModeRadio("Public");
-            await layerWizard.waitAndClickOnSave();
-            await layerWizard.waitForNotificationMessage();
-            //4. Close the wizard:
-            await settingsBrowsePanel.clickOnCloseIcon(LAYER_NAME);
-            //5. Click on 'Selection Controller' checkbox and clear the filtering:
+            //3. Open project wizard dialog, and save new layer:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let layer = projectUtils.buildProject(PROJECT2_DISPLAY_NAME,null,appConst.PROJECT_ACCESS_MODE.PRIVATE,null,null,LAYER_NAME,null,null);
+            await projectUtils.fillFormsWizardAndClickOnCreateButton( layer);
+            let message = await settingsBrowsePanel.waitForNotificationMessage();
+            //4. uncheck the 'Selection Controller' checkbox and clear the filtering:
             await settingsBrowsePanel.clickOnSelectionControllerCheckbox();
-            //6. Verify that new layer is present in grid:
+            //6. Verify that new layer is displayed in grid:
             await settingsBrowsePanel.waitForItemDisplayed(LAYER_NAME);
         });
 
     it("Layer and its parent project are successively deleted",
         async () => {
             //1.Select the layer and delete it:
-            await studioUtils.selectAndDeleteProject(LAYER_NAME);
+            await projectUtils.selectAndDeleteProject(LAYER_NAME);
             //2. Select The parent project and delete it:
-            await studioUtils.selectAndDeleteProject(PROJECT2_DISPLAY_NAME);
+            await projectUtils.selectAndDeleteProject(PROJECT2_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

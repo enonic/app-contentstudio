@@ -5,11 +5,13 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const LayerWizard = require('../../page_objects/project/layer.wizard.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const appConst = require('../../libs/app_const');
+const LayerWizardPanel = require('../../page_objects/project/layer.wizard.panel');
 
 describe('layer.in.public.project.spec - ui-tests for layer in existing project', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -23,34 +25,23 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
 
     it(`Preconditions: new project(with Norsk (no) language) and 'Private' access mode should be added`,
         async () => {
-            //1. Save new project (mode access is Public):
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.NORSK_NO, null, "Public");
-        });
-
-    it("GIVEN existing project is selected AND wizard for new layer is opened WHEN 'Private' radio has been clicked and name input filled in THEN 'Copy Access mode' button gets enabled",
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1.Select 'public' project and open wizard for new layer:
-            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
-            await layerWizard.typeDisplayName("test layer1");
-            //2. Click on 'Private' radio button:
-            await layerWizard.clickOnAccessModeRadio("Private");
-            //3. Verify that 'Copy Access mode from parent' button gets enabled:
-            await layerWizard.waitForCopyAccessModeFromParentEnabled();
-            //4. Verify that 'Copy language from parent' button is enabled:
-            await layerWizard.waitForCopyLanguageFromParentEnabled();
-            //And 'Copy roles from parent' is disabled
-            await layerWizard.waitForCopyRolesFromParentDisabled();
+            //1. Save new project (Public access mode):
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.NORSK_NO, null, "Public");
         });
 
     it("GIVEN Buttons: 'Copy language from parent' has been clicked and 'Save' pressed WHEN layer's context has been switched THEN expected language should be displayed in the project context",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1.Select 'public' project and open wizard for new layer:
-            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
-            await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
-            //2. Click on 'Private' radio button:
-            await layerWizard.clickOnAccessModeRadio("Private");
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let layerWizard = new LayerWizardPanel();
+            //1. Create new layer (private access mode):
+            let layer = projectUtils.buildProject(PROJECT_DISPLAY_NAME,null,appConst.PROJECT_ACCESS_MODE.PRIVATE,null,null,LAYER_DISPLAY_NAME,null,null);
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+            await settingsBrowsePanel.waitForNotificationMessage();
+            //2.Click on the layer and press 'Edit' button:
+            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await layerWizard.waitForLoaded();
             //3. Click on 'Copy language from parent' button:
             await layerWizard.clickOnCopyLanguageFromParent();
             await layerWizard.waitForNotificationMessage();
@@ -193,60 +184,9 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             assert.equal(actualContextName2, PROJECT_DISPLAY_NAME, "Parent context should be loaded after deleting its layer");
         });
 
-    it("GIVEN new layer is created WHEN the layer has been deleted in the wizard THEN layer should not be present in the grid",
+    it("Post conditions: the project should be deleted",
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmValueDialog = new ConfirmValueDialog();
-            //1.Select 'public' project and open wizard for new layer:
-            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
-            //2. Save new layer:
-            await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
-            await layerWizard.clickOnAccessModeRadio("Private");
-            await layerWizard.waitAndClickOnSave();
-            await layerWizard.waitForNotificationMessage();
-            await layerWizard.pause(500);
-            //3. Click on 'Delete' button and confirm the deleting:
-            await layerWizard.clickOnDeleteButton();
-            await confirmValueDialog.waitForDialogOpened();
-            await confirmValueDialog.typeNumberOrName(LAYER_DISPLAY_NAME);
-            await confirmValueDialog.clickOnConfirmButton();
-            await confirmValueDialog.waitForDialogClosed();
-            await settingsBrowsePanel.waitForGridLoaded(appConst.shortTimeout);
-            //4. Verify that the layer is deleted in Browse Panel:
-            await settingsBrowsePanel.waitForProjectNotDisplayed(LAYER_DISPLAY_NAME);
-            //5. Verify that expander-icon gets not visible in the parent project
-            let result = await settingsBrowsePanel.isExpanderIconPresent(PROJECT_DISPLAY_NAME);
-            assert.isFalse(result, "Expander icon gets not displayed in the parent project");
-        });
-
-    //Verifies https://github.com/enonic/app-contentstudio/issues/2105
-    //Do not allow deletion of a project if it has child layer.
-    it("GIVEN layer was deleted WHEN the parent project is opened THEN 'Delete' button gets enabled in the wizard-toolbar",
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            //1.Open the parent project:
-            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnEditButton();
-            await projectWizard.waitForLoaded();
-            //2. Verify that Delete button is enabled now:
-            await projectWizard.waitForDeleteButtonEnabled();
-        });
-
-    //Verifies https://github.com/enonic/app-contentstudio/issues/2105
-    //Do not allow deletion of a project if it has child layer.
-    it("GIVEN layer was deleted WHEN the parent project has been selected THEN 'Delete' button gets enabled now",
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1.Select the parent project:
-            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //2. Verify that 'Delete' button is enabled after deleting the layer
-            await settingsBrowsePanel.waitForDeleteButtonEnabled();
-        });
-
-    it("Postconditions: the project should be deleted",
-        async () => {
-            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+            await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

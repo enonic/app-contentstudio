@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -24,7 +25,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
     it("Preconditions: new project with folder should be added",
         async () => {
             //1. Navigate to Settings Panel and save new project:
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, "description");
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, "description", null, null);
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.switchToContentMode();
             await contentBrowsePanel.selectContext(PROJECT_DISPLAY_NAME);
@@ -36,26 +37,24 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.Select 'Default' project and open wizard for new layer:
-            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
-            await layerWizard.clickOnAccessModeRadio("Public");
-            await layerWizard.typeDisplayName(LAYER1_DISPLAY_NAME);
-            await layerWizard.selectLanguage(appConst.LANGUAGES.EN);
-            //2. Save the layer:
-            await layerWizard.waitAndClickOnSave();
-            await layerWizard.waitForNotificationMessage();
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let layer = projectUtils.buildProject(PROJECT_DISPLAY_NAME, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
+                null, LAYER1_DISPLAY_NAME);
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+            await settingsBrowsePanel.waitForNotificationMessage();
         });
 
     it("Precondition 2 - the second layer(Norsk no) should be added in Default project",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1.Select 'Default' project and open wizard for new layer:
-            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(LAYER1_DISPLAY_NAME);
-            await layerWizard.clickOnAccessModeRadio("Public");
-            await layerWizard.typeDisplayName(LAYER2_DISPLAY_NAME);
-            await layerWizard.selectLanguage(appConst.LANGUAGES.NORSK_NO);
-            //2. Save the layer:
-            await layerWizard.waitAndClickOnSave();
-            await layerWizard.waitForNotificationMessage();
+            //1.Select the just created layer and create one more layer:
+            //let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(LAYER1_DISPLAY_NAME);
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let layer = projectUtils.buildProject(LAYER1_DISPLAY_NAME, appConst.LANGUAGES.NORSK_NO, appConst.PROJECT_ACCESS_MODE.PUBLIC,
+                null, null, LAYER2_DISPLAY_NAME);
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+
+            await settingsBrowsePanel.waitForNotificationMessage();
         });
 
     it.skip(

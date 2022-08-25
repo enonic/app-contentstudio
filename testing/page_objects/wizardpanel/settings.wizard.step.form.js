@@ -62,9 +62,14 @@ class SettingsStepForm extends Page {
     }
 
     async getSelectedLanguage() {
-        let selector = xpath.container + xpath.selectedLocale + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-        return await this.getText(selector);
+        try {
+            let selector = xpath.container + xpath.selectedLocale + lib.H6_DISPLAY_NAME;
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            return await this.getText(selector);
+        }catch(err){
+            await this.saveScreenshot(appConst.generateRandomName("err_pr_wizard_language"));
+            throw new Error("Project wizard, error when get selected language. " + err);
+        }
     }
 
     waitForSelectedLanguageNotDisplayed() {

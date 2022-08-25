@@ -10,6 +10,7 @@ const SettingsItemStatisticsPanel = require('../../page_objects/project/settings
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const appConst = require('../../libs/app_const');
+const projectUtils = require('../../libs/project.utils');
 
 describe('settings.item.statistics.panel.spec - verify an info in item statistics panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -42,7 +43,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
             //1. Save new project:
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, DESCRIPTION, appConst.LANGUAGES.EN, null, "Private");
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, DESCRIPTION, appConst.LANGUAGES.EN, null, "Private");
             //2.Click on the row with the project. This row should be highlighted:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Wait for expected description block appears in statistics panel:

@@ -51,8 +51,8 @@ class LayersContentTreeDialog extends Page {
         }
     }
 
-    getTitle() {
-        return this.getText(XPATH.container + XPATH.title);
+    async getTitle() {
+        return await this.getText(XPATH.container + XPATH.title);
     }
 
     async getLayersName() {

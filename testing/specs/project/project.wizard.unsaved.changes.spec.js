@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
@@ -16,58 +17,66 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
         webDriverHelper.setupBrowser();
     }
 
-    it(`GIVEN new project wizard - display name has been typed WHEN 'close' icon has been clicked THEN Confirmation Dialog should appear`,
+    let PROJECT_NAME = studioUtils.generateRandomName("project");
+    let PROJECT_NAME_2 = studioUtils.generateRandomName("project");
+
+    it(`GIVEN existing project is opened WHEN name has been updated AND 'close' icon has been clicked THEN Confirmation Dialog should appear`,
         async () => {
-            let projectDisplayName = studioUtils.generateRandomName("project");
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             let confirmationDialog = new ConfirmationDialog();
-            //1.'New...' button has been clicked and Project item has been clicked:
-            await settingsBrowsePanel.openProjectWizard();
+            //1.'New...' button has been clicked and new Project has been created:
+            await projectUtils.saveTestProject(PROJECT_NAME);
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
             //2. Type the display name:
-            await projectWizard.typeDisplayName(projectDisplayName);
+            await projectWizard.typeDisplayName(PROJECT_NAME_2);
             //3. Click on 'close' icon:
-            await settingsBrowsePanel.clickOnCloseIcon(projectDisplayName);
-            studioUtils.saveScreenshot("project_wizard_unsaved_changes_1");
+            await settingsBrowsePanel.clickOnCloseIcon(PROJECT_NAME_2);
+            await studioUtils.saveScreenshot("project_wizard_unsaved_changes_1");
             await confirmationDialog.waitForDialogOpened();
             let actualMessage = await confirmationDialog.getWarningMessage();
             assert.equal(actualMessage, appConst.PROJECT_UNSAVED_CHANGES_MESSAGE);
         });
 
-    it(`GIVEN display name has been typed WHEN 'No' button in Confirmation dialog has been pressed THEN new project should not be created`,
+    it(`GIVEN display name has been updated WHEN 'No' button in Confirmation dialog has been pressed THEN new project should not be created`,
         async () => {
-            let projectDisplayName = studioUtils.generateRandomName("project");
+
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             let confirmationDialog = new ConfirmationDialog();
-            //1.'New...' button has been clicked and Project item has been clicked:
-            await settingsBrowsePanel.openProjectWizard();
+            //1.open existing project:
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
             //2. Type the display name:
-            await projectWizard.typeDisplayName(projectDisplayName);
+            await projectWizard.typeDisplayName(PROJECT_NAME_2);
             //3. Click on 'close' icon:
-            await settingsBrowsePanel.clickOnCloseIcon(projectDisplayName);
-            studioUtils.saveScreenshot("project_wizard_unsaved_changes_1");
+            await settingsBrowsePanel.clickOnCloseIcon(PROJECT_NAME_2);
+            await studioUtils.saveScreenshot("project_wizard_unsaved_changes_1");
             await confirmationDialog.waitForDialogOpened();
             //4. Click on No button:
             await confirmationDialog.clickOnNoButton();
+            await projectWizard.waitForWizardClosed();
             await settingsBrowsePanel.pause(500);
             //5. Verify that new project is not created:
-            await settingsBrowsePanel.waitForProjectNotDisplayed(projectDisplayName);
+            await settingsBrowsePanel.waitForProjectNotDisplayed(PROJECT_NAME_2);
         });
 
-    it(`GIVEN display name has been typed WHEN 'Yes' button in Confirmation dialog has been pressed THEN new project should be created`,
+    it(`GIVEN display name has been typed WHEN 'Yes' button in Confirmation dialog has been pressed THEN project with new name should be present in grid`,
         async () => {
-            let projectDisplayName = studioUtils.generateRandomName("project");
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             let confirmationDialog = new ConfirmationDialog();
-            //1.'New...' button has been clicked and Project item has been clicked:
-            await settingsBrowsePanel.openProjectWizard();
+            //1.open existing project:
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
             //2. Type the display name:
-            await projectWizard.typeDisplayName(projectDisplayName);
-            await projectWizard.clickOnAccessModeRadio("Private");
+            await projectWizard.typeDisplayName(PROJECT_NAME_2);
             //3. Click on 'close' icon:
-            await settingsBrowsePanel.clickOnCloseIcon(projectDisplayName);
+            await settingsBrowsePanel.clickOnCloseIcon(PROJECT_NAME_2);
             studioUtils.saveScreenshot("project_wizard_unsaved_changes_1");
             await confirmationDialog.waitForDialogOpened();
             //4. Click on 'Yes' button:
@@ -75,38 +84,28 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             await projectWizard.waitForWizardClosed();
             await settingsBrowsePanel.pause(200);
             //5. Verify that new project is not created:
-            await settingsBrowsePanel.waitForItemByDisplayNameDisplayed(projectDisplayName);
-        });
-
-    it(`GIVEN new project wizard - description has been typed WHEN 'close' icon has been clicked THEN Confirmation Dialog should appear`,
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            let confirmationDialog = new ConfirmationDialog();
-            //1.'New...' button has been clicked and Project item has been clicked:
-            await settingsBrowsePanel.openProjectWizard();
-            //2. Type the description:
-            await projectWizard.typeDescription("test");
-            //3. Click on 'close' icon:
-            await settingsBrowsePanel.clickOnCloseIcon("<Unnamed Project>");
-            studioUtils.saveScreenshot("project_wizard_unsaved_description_1");
-            //3. Verify tgat the modal dialog is loaded:
-            await confirmationDialog.waitForDialogOpened();
-            let actualMessage = await confirmationDialog.getWarningMessage();
-            assert.equal(actualMessage, appConst.PROJECT_UNSAVED_CHANGES_MESSAGE);
+            await settingsBrowsePanel.waitForItemByDisplayNameDisplayed(PROJECT_NAME_2);
         });
 
     it(`GIVEN no changes in new project wizard WHEN 'close' icon has been clicked THEN Confirmation Dialog should not appear`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.'New...' button has been clicked and Project item has been clicked:
-            await settingsBrowsePanel.openProjectWizard();
+            //1. Open existing project:
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_NAME_2);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
             //2. Click on close-icon
-            await settingsBrowsePanel.clickOnCloseIcon("<Unnamed Project>");
+            await settingsBrowsePanel.clickOnCloseIcon(PROJECT_NAME_2);
             //3. Verify that the wizard is closed:
             await projectWizard.waitForWizardClosed();
-            studioUtils.saveScreenshot("project_wizard_no_unsaved_changes");
+            await studioUtils.saveScreenshot("project_wizard_no_unsaved_changes");
+        });
+
+    it("Post condition: the project should be deleted",
+        async () => {
+            //1.Select the layer and delete it:
+            await projectUtils.selectAndDeleteProject(PROJECT_NAME_2,PROJECT_NAME);
         });
 
     beforeEach(async () => {

@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const appConst = require('../../libs/app_const');
@@ -24,7 +25,7 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
             //1. Navigate to Settings Panel:
             await studioUtils.closeProjectSelectionDialog();
             //2. Save new project:
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, null, PRINCIPALS);
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, null, PRINCIPALS);
         });
 
     it(`WHEN existing project(with project access entry) is opened THEN default(Contributor) role should be displayed in the selected option`,
