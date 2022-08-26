@@ -60,6 +60,27 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await liveFormPanel.waitForCaptionDisplayed(CAPTION);
         });
 
+    //Verifies: Browser hangs after a page with an open modal dialogs is refreshed #5003
+    //          Insert Image dialog - upload button is not displayed in the dialog #5002
+    it(`GIVEN text component is inserted WHEN insert image dialog has been opened THEN Upload button should be present in the modal dialog`,
+        async () => {
+            let pageComponentView = new PageComponentView();
+            let contentWizard = new ContentWizard();
+            let textComponent = new TextComponentCke();
+            let insertImageDialog = new InsertImageDialog();
+            //1. Open existing site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //2. Insert new text component:
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Text"]);
+            await contentWizard.switchToLiveEditFrame();
+            //3. Open Insert Image modal dialog:
+            await textComponent.clickOnInsertImageButton();
+            //4. Verify that 'Upload' button is present in the dialog:
+            await insertImageDialog.waitForUploadButtonDisplayed();
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
