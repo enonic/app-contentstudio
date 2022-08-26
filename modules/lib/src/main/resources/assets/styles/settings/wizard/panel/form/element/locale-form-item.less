@@ -1,4 +1,9 @@
-.locale-form-item {
+.locale-form-item,
+.language-param-container {
+  .locale-selected-option-view {
+    z-index: 0;
+  }
+
   .viewer {
     .flag {
       margin-right: 5px;
@@ -7,6 +12,11 @@
 
       &.fi-none {
         display: none;
+      }
+
+      &::before {
+        line-height: 18px;
+        left: 2px;
       }
     }
   }
