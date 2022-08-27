@@ -14,11 +14,13 @@ import {PartComponentView} from '../../page-editor/part/PartComponentView';
 import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
 import {PageView} from '../../page-editor/PageView';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
+import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
+import {Descriptor} from '../page/Descriptor';
 
 export class PageComponentsItemViewer
-    extends NamesAndIconViewer<ItemView> {
+    extends NamesAndIconViewer<ItemViewTreeGridWrapper> {
 
-    private content: Content;
+    private readonly content: Content;
 
     constructor(content: Content) {
         super('page-components-item-viewer');
@@ -26,7 +28,9 @@ export class PageComponentsItemViewer
         this.content = content;
     }
 
-    resolveDisplayName(object: ItemView): string {
+    resolveDisplayName(item: ItemViewTreeGridWrapper): string {
+        const object: ItemView = item.getItemView();
+
         if (ObjectHelper.iFrameSafeInstanceOf(object.getType(), TextItemType)) {
             let textView = <TextComponentView>object;
             let textComponent = textView.getComponent();
@@ -39,13 +43,15 @@ export class PageComponentsItemViewer
             }
         }
 
-        return object.getName();
+        return item.getDisplayName() || object.getName();
     }
 
-    resolveSubName(object: ItemView, relativePath: boolean = false): string {
+    resolveSubName(item: ItemViewTreeGridWrapper, relativePath: boolean = false): string {
+        const object: ItemView = item.getItemView();
+
         if (ObjectHelper.iFrameSafeInstanceOf(object.getType(), FragmentItemType)) {
-            let fragmentView = <FragmentComponentView> object;
-            let fragmentComponent = fragmentView.getFragmentRootComponent();
+            const fragmentComponent = (<FragmentComponentView>object).getFragmentRootComponent();
+
             if (fragmentComponent) {
                 return fragmentComponent.getType().getShortName();
             }
@@ -61,19 +67,17 @@ export class PageComponentsItemViewer
         return object.getType() ? object.getType().getShortName() : '';
     }
 
-    resolveComponentDescription(object: ItemView): string {
+    private resolveComponentDescription(object: ItemView): string {
         if (PartItemType.get().equals(object.getType())) {
-            const partComponent = (<PartComponentView>object).getComponent();
-            return partComponent.getDescription();
+            return (<PartComponentView>object).getComponent().getDescription();
         }
 
         if (LayoutItemType.get().equals(object.getType())) {
-            const layoutComponent = (<LayoutComponentView>object).getComponent();
-            return layoutComponent.getDescription();
+            return (<LayoutComponentView>object).getComponent().getDescription();
         }
 
         if (PageItemType.get().equals(object.getType())) {
-            const pageController = (<PageView>object).getModel().getController();
+            const pageController: Descriptor = (<PageView>object).getModel().getController();
             if (pageController) {
                 return pageController.getDescription();
             }
@@ -81,16 +85,19 @@ export class PageComponentsItemViewer
         return null;
     }
 
-    resolveIconUrl(object: ItemView): string {
+    resolveIconUrl(item: ItemViewTreeGridWrapper): string {
+        const object: ItemView = item.getItemView();
+
         if (PageItemType.get().equals(object.getType())) {
             return object.getIconUrl(this.content);
         } else if (PartItemType.get().equals(object.getType())) {
             return (<PartComponentView>object).getComponent().getIcon();
         }
+
         return null;
     }
 
-    resolveIconClass(object: ItemView): string {
-        return object.getIconClass();
+    resolveIconClass(object: ItemViewTreeGridWrapper): string {
+        return object.getItemView().getIconClass();
     }
 }

@@ -70,8 +70,9 @@ export class PageComponentsTreeGridHelper {
                                  node: TreeNode<ItemViewTreeGridWrapper>) {
         const viewer: PageComponentsItemViewer = <PageComponentsItemViewer>node.getViewer('name') || new PageComponentsItemViewer(content);
         node.setViewer('name', viewer);
-        const data: ItemView = node.getData().getItemView();
-        viewer.setObject(data);
+        const itemWrapper: ItemViewTreeGridWrapper = node.getData();
+        const data: ItemView = itemWrapper.getItemView();
+        viewer.setObject(itemWrapper);
 
         if (!(ObjectHelper.iFrameSafeInstanceOf(data, RegionView) || ObjectHelper.iFrameSafeInstanceOf(data, PageView))) {
             viewer.addClass('draggable');
