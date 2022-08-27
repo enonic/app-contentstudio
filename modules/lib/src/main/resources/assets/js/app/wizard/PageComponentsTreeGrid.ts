@@ -22,13 +22,13 @@ import {Component} from '../page/region/Component';
 import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
 import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorRequest';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
-import {PartComponentType} from '../page/region/PartComponentType';
 import {Descriptor} from '../page/Descriptor';
 import {TextItemType} from '../../page-editor/text/TextItemType';
 import {TextComponentView} from '../../page-editor/text/TextComponentView';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {PageComponentsTreeGridHelper} from './PageComponentsTreeGridHelper';
-import {ComponentName} from '../page/region/ComponentName';
+import {ComponentType} from '../page/region/ComponentType';
+import {PageComponentType} from '../page/region/PageComponentType';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemViewTreeGridWrapper> {
@@ -129,49 +129,45 @@ export class PageComponentsTreeGrid
 
     fetchRoot(): Q.Promise<ItemViewTreeGridWrapper[]> {
         if (this.pageView.getFragmentView()) {
-            return this.fetchDescriptions([this.pageView.getFragmentView()]).then(items => {
-                return items.map((item: ItemView) => new ItemViewTreeGridWrapper(item));
-            });
+            const itemWrapper: ItemViewTreeGridWrapper = new ItemViewTreeGridWrapper(this.pageView.getFragmentView());
+            return this.fetchDescriptions([itemWrapper]);
         } else {
             return Q([new ItemViewTreeGridWrapper(this.pageView)]);
         }
     }
 
     fetchChildren(parentNode: TreeNode<ItemViewTreeGridWrapper>): Q.Promise<ItemViewTreeGridWrapper[]> {
-        return this.fetchDescriptions(this.getDataChildren(parentNode.getData().getItemView())).then((allItems: ItemView[]) => {
-            return allItems.map((item: ItemView) => new ItemViewTreeGridWrapper(item));
-        });
+        const itemWrappers: ItemViewTreeGridWrapper[] =
+            this.getDataChildren(parentNode.getData().getItemView()).map((item: ItemView) => new ItemViewTreeGridWrapper(item));
+
+        return this.fetchDescriptions(itemWrappers);
     }
 
-    private fetchDescriptions(itemViews: ItemView[]): Q.Promise<ItemView[]> {
-        const requests = itemViews.map(this.fetchDescription);
-
-        return Q.all(requests);
+    private fetchDescriptions(itemWrappers: ItemViewTreeGridWrapper[]): Q.Promise<ItemViewTreeGridWrapper[]> {
+        return Q.all(itemWrappers.map((itemWrapper: ItemViewTreeGridWrapper) => this.fetchDescription(itemWrapper)));
     }
 
-    private fetchDescription(itemView: ItemView): Q.Promise<ItemView> {
+    private fetchDescription(itemViewWrapper: ItemViewTreeGridWrapper): Q.Promise<ItemViewTreeGridWrapper> {
+        const itemView: ItemView = itemViewWrapper.getItemView();
+
         if (!itemView.isPart() && !itemView.isLayout()) {
-            return Q.resolve(itemView);
+            return Q.resolve(itemViewWrapper);
         }
 
         const component: DescriptorBasedComponent = (<ComponentView<any>>itemView).getComponent();
         if (!component || !component.hasDescriptor()) {
-            return Q.resolve(itemView);
+            return Q.resolve(itemViewWrapper);
         }
 
-        const descriptorKey = component.getDescriptorKey().toString();
-        let request;
-        if (itemView.isLayout()) {
-            request = new GetComponentDescriptorRequest(descriptorKey, LayoutComponentType.get()).sendAndParse();
-        } else if (itemView.isPart()) {
-            request = new GetComponentDescriptorRequest(descriptorKey, PartComponentType.get()).sendAndParse();
-        }
+        const descriptorKey: string = component.getDescriptorKey().toString();
+        const type: ComponentType = itemView.isLayout() ? LayoutComponentType.get() : PageComponentType.get();
+        const request: GetComponentDescriptorRequest = new GetComponentDescriptorRequest(descriptorKey, type);
 
-        return request.then((descriptor: Descriptor) => {
-            component.setName(new ComponentName(descriptor.getDisplayName()));
+        return request.sendAndParse().then((descriptor: Descriptor) => {
+            itemViewWrapper.setDisplayName(descriptor.getDisplayName());
             component.setDescription(descriptor.getDescription());
             component.setIcon(descriptor.getIcon());
-            return itemView;
+            return itemViewWrapper;
         });
     }
 
@@ -208,8 +204,9 @@ export class PageComponentsTreeGrid
             return;
         }
 
-        this.insertDataToParentNode(new ItemViewTreeGridWrapper(component), parentNode, index);
-        this.fetchDescription(component);
+        const wrapper: ItemViewTreeGridWrapper = new ItemViewTreeGridWrapper(component);
+        this.insertDataToParentNode(wrapper, parentNode, index);
+        this.fetchDescription(wrapper);
     }
 
     refreshComponentNode(componentView: ComponentView<Component>, oldComponentView: ComponentView<Component>, clean?: boolean) {
