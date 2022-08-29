@@ -28,7 +28,7 @@ import {TextComponentView} from '../../page-editor/text/TextComponentView';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {PageComponentsTreeGridHelper} from './PageComponentsTreeGridHelper';
 import {ComponentType} from '../page/region/ComponentType';
-import {PageComponentType} from '../page/region/PageComponentType';
+import {PartComponentType} from '../page/region/PartComponentType';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemViewTreeGridWrapper> {
@@ -160,7 +160,7 @@ export class PageComponentsTreeGrid
         }
 
         const descriptorKey: string = component.getDescriptorKey().toString();
-        const type: ComponentType = itemView.isLayout() ? LayoutComponentType.get() : PageComponentType.get();
+        const type: ComponentType = itemView.isLayout() ? LayoutComponentType.get() : PartComponentType.get();
         const request: GetComponentDescriptorRequest = new GetComponentDescriptorRequest(descriptorKey, type);
 
         return request.sendAndParse().then((descriptor: Descriptor) => {
