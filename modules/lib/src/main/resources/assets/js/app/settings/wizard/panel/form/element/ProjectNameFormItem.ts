@@ -9,7 +9,7 @@ import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
 export class ProjectNameFormItem
     extends ProjectFormItem {
 
-    private static PROJECT_NAME_CHARS: RegExp = /^([a-z0-9])([a-z0-9_-])*([a-z0-9])$/;
+    private static PROJECT_NAME_CHARS: RegExp = /^([a-z0-9])([a-z0-9-])*$/;
 
     private isNameOccupied: boolean;
 
@@ -40,8 +40,9 @@ export class ProjectNameFormItem
     }
 
     isProjectNameValid(): boolean {
+        const value: string = this.getValue();
         const projectNameRegExp: RegExp = ProjectNameFormItem.PROJECT_NAME_CHARS;
-        return projectNameRegExp.test(this.getValue());
+        return projectNameRegExp.test(value) && !value.endsWith('-');
     }
 
     getProjectNameInput(): NameTextInput {

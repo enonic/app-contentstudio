@@ -18,9 +18,9 @@ export class ProjectApplicationsLoader
     }
 
     filterFn(item: ProjectApplication): boolean {
-        const searchString: string = this.getSearchString().toLowerCase();
+        const searchString: string = this.getSearchString().toLowerCase().trim();
 
-        return item.getDisplayName()?.indexOf(searchString) > -1 ||
+        return item.getDisplayName()?.toLowerCase().indexOf(searchString) > -1 ||
                item.getDescription()?.toLowerCase().indexOf(searchString) > -1 ||
                item.getName()?.toLowerCase().indexOf(searchString) > -1;
     }
