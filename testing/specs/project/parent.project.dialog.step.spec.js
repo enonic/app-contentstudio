@@ -14,7 +14,7 @@ describe('parent.project.dialog.step.spec - ui-tests for Parent Project step in 
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
-    const DESCRIPTION = "To set up a synchronization of a content with another project, select it here (optional)";
+    const DESCRIPTION = "To set up synchronization of a content with another project, select it here (optional)";
 
     it(`WHEN 'New...' button has been pressed THEN 'Parent Project' step should be loaded in Project Wizard dialog`,
         async () => {

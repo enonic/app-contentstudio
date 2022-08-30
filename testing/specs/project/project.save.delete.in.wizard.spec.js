@@ -10,7 +10,6 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils');
-const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const ProjectWizardDialogNameAndIdStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
@@ -36,7 +35,6 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
     it(`GIVEN new project wizard dialog is opened WHEN fill in the Identifier input with a name that is already being used by existing project THEN Next button gets disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
             let languageStep = new ProjectWizardDialogLanguageStep();
             let applicationsStep = new ProjectWizardDialogApplicationsStep();
             let nameAndIdStep= new ProjectWizardDialogNameAndIdStep();
@@ -57,8 +55,8 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             //6. Insert the existing identifier:
             await nameAndIdStep.waitForLoaded();
             await nameAndIdStep.typeDisplayName(PROJECT_DISPLAY_NAME)
-            //2. Verify that Next button gets disabled:
-            await nameAndIdStep.waitForNextButtonEnabled();
+            //2. Verify that 'Next' button gets disabled:
+            await nameAndIdStep.waitForNextButtonDisabled();
         });
 
     it("GIVEN a project is selected and 'Delete' button pressed AND Confirm Value dialog is opened WHEN incorrect identifier has been typed THEN 'Confirm' button should be disabled",
