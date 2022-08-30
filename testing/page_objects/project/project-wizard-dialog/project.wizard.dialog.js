@@ -13,12 +13,17 @@ const XPATH = {
     nextButton: "//button[contains(@id,'DialogButton') and child::span[text()='Next']]",
     previousButton: "//button[contains(@id,'DialogButton') and child::span[text()='Previous']]",
     skipButton: "//button[contains(@id,'DialogButton') and child::span[text()='Skip']]",
+    copyFromParentButton: "//button[contains(@id,'DialogButton') and child::span[text()='Copy from parent']]",
 };
 
 class ProjectWizardDialog extends Page {
 
     get cancelButtonTop() {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    }
+
+    get copyFromParentButton() {
+        return XPATH.container + XPATH.copyFromParentButton;
     }
 
     get nextButton() {
@@ -39,6 +44,26 @@ class ProjectWizardDialog extends Page {
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_skip_button"));
             throw new Error("Skip button is not displayed: " + err);
+        }
+    }
+
+    async waitForCopyFromParentButtonDisplayed() {
+        try {
+            return await this.waitUntilDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Copy from parent button is not displayed, screenshot: " + screensot + "  " + err);
+        }
+    }
+
+    async waitForCopyFromParentButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Copy from parent button is not displayed: screenshot " + screenshot + "  " + err);
         }
     }
 

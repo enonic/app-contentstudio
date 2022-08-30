@@ -7,7 +7,6 @@ const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ProjectWizardDialogParentProjectStep = require('./project-wizard-dialog/project.wizard.parent.project.step');
 
-
 const XPATH = {
     container: "//div[contains(@id,'SettingsBrowsePanel')]",
     settingsAppContainer: "//div[contains(@id,'ContentAppBar')]",
@@ -246,6 +245,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         await this.clickOnNewButton();
         //2. 'Project Wizard Dialog' should be loaded:
         await parentProjectStep.waitForLoaded();
+        return parentProjectStep;
     }
 
     async selectParentAndOpenProjectWizardDialog(parentName) {

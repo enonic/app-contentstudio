@@ -69,7 +69,7 @@ export class ProjectApplicationsWizardStepForm
     }
 
     getApplications(): ProjectApplication[] {
-        return this.applicationsFormItem?.getComboBox().getSelectedDisplayValues();
+        return this.applicationsFormItem?.getComboBox().getSelectedDisplayValues() || [];
     }
 
 }

@@ -43,7 +43,7 @@ export class ProjectWizardPanel
 
     private rolesWizardStepForm?: ProjectRolesWizardStepForm;
 
-    private applicationsWizardStepForm: ProjectApplicationsWizardStepForm;
+    private applicationsWizardStepForm?: ProjectApplicationsWizardStepForm;
 
     private editProjectAccessDialog: EditProjectAccessDialog = new EditProjectAccessDialog();
 
@@ -169,6 +169,8 @@ export class ProjectWizardPanel
     updatePersistedItem(): Q.Promise<ProjectViewItem> {
         return this.doUpdatePersistedItem().then((project: Project) => {
             const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
+            this.wizardHeader.setDisplayName(project.getDisplayName());
+            this.projectWizardStepForm.setDescription(project.getDescription(), true);
             showFeedback(this.getSuccessfulUpdateMessage(item.getName()));
             return item;
         });
@@ -284,7 +286,7 @@ export class ProjectWizardPanel
     private getNewProjectInstance(projectPrototype: Project, language: string): Project {
         const permissions: ProjectPermissions = this.rolesWizardStepForm?.getPermissions();
         const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
-        const configs: ApplicationConfig[] = this.applicationsWizardStepForm.getApplications().map(
+        const configs: ApplicationConfig[] = this.applicationsWizardStepForm?.getApplications().map(
             (app: ProjectApplication) => ApplicationConfig.create().setApplicationKey(app.getApplicationKey()).setConfig(
                 new PropertySet()).build());
 
@@ -373,25 +375,25 @@ export class ProjectWizardPanel
     }
 
     private produceCreateItemRequest(): ProjectCreateRequest {
-        const displayName: string = this.wizardHeader.getDisplayName();
-
         return <ProjectCreateRequest>new ProjectCreateRequest()
             .setParent(this.projectWizardStepForm.getParentProject())
             .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
             .setDescription(this.projectWizardStepForm.getDescription())
             .setName(this.projectWizardStepForm.getProjectName())
-            .setDisplayName(displayName);
+            .setDisplayName(this.getDisplayName());
+    }
+
+    private getDisplayName(): string {
+        return this.wizardHeader.getDisplayName().trim();
     }
 
     private produceUpdateItemRequest(): ProjectUpdateRequest {
-        const displayName: string = this.wizardHeader.getDisplayName();
-
         return new ProjectUpdateRequest()
-            .setDescription(this.projectWizardStepForm.getDescription())
+            .setDescription(this.projectWizardStepForm.getDescription().trim())
             .setName(this.projectWizardStepForm.getProjectName())
-            .setDisplayName(displayName)
+            .setDisplayName(this.getDisplayName())
             .setApplications(
-                this.applicationsWizardStepForm.getApplications()?.map((app: ProjectApplication) => app.getApplicationKey().toString()));
+                this.applicationsWizardStepForm?.getApplications().map((app: ProjectApplication) => app.getApplicationKey().toString()));
     }
 
     doRender(): Q.Promise<boolean> {
@@ -427,12 +429,16 @@ export class ProjectWizardPanel
             return true;
         }
 
-        const selectedApps: ProjectApplication[] = this.applicationsWizardStepForm.getApplications();
+        const selectedApps: ProjectApplication[] = this.applicationsWizardStepForm?.getApplications() || [];
         const appsAsConfigs: ApplicationConfig[] = selectedApps.map(
             (app: ProjectApplication) => ApplicationConfig.create().setApplicationKey(app.getApplicationKey()).setConfig(
                 new PropertySet()).build());
         const persistedSiteConfigs: ApplicationConfig[] = this.getPersistedItem().getSiteConfigs() || [];
 
         return !ObjectHelper.arrayEquals(persistedSiteConfigs, appsAsConfigs);
+    }
+
+    isValid(): boolean {
+        return super.isValid() && !StringHelper.isBlank(this.getDisplayName());
     }
 }
