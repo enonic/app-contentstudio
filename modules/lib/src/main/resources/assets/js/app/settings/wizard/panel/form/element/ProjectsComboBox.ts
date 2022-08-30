@@ -34,14 +34,19 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         return Option.create<Project>()
             .setValue(project.getName())
             .setDisplayValue(project)
-            .setExpandable(!this.getLoader().getSearchString() && this.helper.isExpandable(project))
+            .setExpandable(!this.isSearchStringSet() && this.helper.isExpandable(project))
             .setSelectable(this.helper.isSelectable(project))
             .build();
     }
 
+    private isSearchStringSet(): boolean {
+        return !!this.getLoader().getSearchString();
+    }
+
     protected createOptions(items: Project[]): Q.Promise<Option<Project>[]> {
         this.helper.setProjects(items);
-        return super.createOptions(items);
+        const result: Project[] = this.isSearchStringSet() ? items : items.filter((item: Project) => !item.getParent());
+        return super.createOptions(result);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -65,9 +70,9 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         }
 
         this.getSelectedOptions().forEach((selectedOption: SelectedOption<Project>) => {
-           if (selectedOption.getOption().getValue() === project.getName()) {
-               selectedOption.getOptionView().setOption(newOption);
-           }
+            if (selectedOption.getOption().getValue() === project.getName()) {
+                selectedOption.getOptionView().setOption(newOption);
+            }
         });
 
         this.selectOption(newOption);
