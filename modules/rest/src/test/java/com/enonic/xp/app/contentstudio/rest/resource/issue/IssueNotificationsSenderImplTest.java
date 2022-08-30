@@ -247,7 +247,7 @@ public class IssueNotificationsSenderImplTest
     private void verifyIssueLink( final MimeMessage msg )
         throws Exception
     {
-        assertTrue( msg.getContent().toString().contains( "url#/default/issue" ) );
+        assertTrue( msg.getContent().toString().contains( "url/main#/default/issue" ) );
     }
 
     private void verifyIssueLink( final MimeMessage msg, final String link )
@@ -299,7 +299,7 @@ public class IssueNotificationsSenderImplTest
 
         final MimeMessage msg = getMessageSent();
         verifyRecipients( msg, Set.of( approver.getEmail(), creator.getEmail() ) );
-        verifyIssueLink( msg, "url#/repoid/issue" );
+        verifyIssueLink( msg, "url/main#/repoid/issue" );
         verify( mailService, times( 1 ) ).send( any() );
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
@@ -649,7 +649,7 @@ public class IssueNotificationsSenderImplTest
 
         final MimeMessage msg = getMessageSent();
         verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), creator.getEmail() ) );
-        verifyIssueLink( msg, "url#/testrepo/issue" );
+        verifyIssueLink( msg, "url/main#/testrepo/issue" );
         verify( mailService, times( 1 ) ).send( any() );
         verify( securityService, times( 3 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
