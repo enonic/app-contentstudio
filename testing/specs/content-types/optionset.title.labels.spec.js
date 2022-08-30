@@ -15,6 +15,7 @@ const LongForm = require('../../page_objects/wizardpanel/long.form.panel');
 const NotificationDialog = require('../../page_objects/notification.dialog');
 const OptionSetForm2View = require('../../page_objects/wizardpanel/optionset/optionset.form2.view');
 const appConst = require('../../libs/app_const');
+const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
 
 describe("optionset.title.labels.spec: checks option set's title and labels", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -245,6 +246,27 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             //4. Verify that the title is dynamically updated:
             let subtitle = await multiSelectionOptionSet.getMultiSelectionSubtitle();
             assert.equal(subtitle, "Hello World!", "Expected subtitle should be displayed");
+        });
+
+    //Verifies: OptionSet wizard - Save button gets enabled after updating permissions #4915
+    it(`GIVEN existing option set is opened WHEN permissions have been updated THEN Save button remains visible and disabled`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let editPermissionsDialog = new EditPermissionsDialog();
+            //1. Open existing 'Option Set' content:
+            await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME);
+            await contentWizard.clickOnEditPermissionsButton();
+            await editPermissionsDialog.waitForDialogLoaded();
+            await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
+            //2.  Add default permissions for 'Anonymous user' and click on Apply button:
+            await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
+            await editPermissionsDialog.clickOnApplyButton();
+            await editPermissionsDialog.waitForDialogClosed();
+            await studioUtils.saveScreenshot("option_set_permissions_updated");
+            let expectedMessage = appConst.permissionsAppliedNotificationMessage(OPTION_SET_NAME);
+            await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
+            //3. Verify that 'Save' button remains visible and disabled after applying permissions:
+            await contentWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
