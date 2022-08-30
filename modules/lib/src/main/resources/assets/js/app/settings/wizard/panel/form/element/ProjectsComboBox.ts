@@ -31,13 +31,17 @@ export class ProjectsComboBox extends RichComboBox<Project> {
     }
 
     protected createOption(project: Project): Option<Project> {
-        return Option.create<Project>().setValue(project.getName()).setDisplayValue(project).setExpandable(
-            this.helper.isExpandable(project)).setSelectable(this.helper.isSelectable(project)).build();
+        return Option.create<Project>()
+            .setValue(project.getName())
+            .setDisplayValue(project)
+            .setExpandable(!this.getLoader().getSearchString() && this.helper.isExpandable(project))
+            .setSelectable(this.helper.isSelectable(project))
+            .build();
     }
 
     protected createOptions(items: Project[]): Q.Promise<Option<Project>[]> {
         this.helper.setProjects(items);
-        return super.createOptions(items.filter((item: Project) => !item.getParent()));
+        return super.createOptions(items);
     }
 
     doRender(): Q.Promise<boolean> {

@@ -8,7 +8,6 @@ import {ProjectReadAccess} from '../../../data/project/ProjectReadAccess';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {Project} from '../../../data/project/Project';
 import {LocaleLoader} from '../../../../locale/LocaleLoader';
@@ -22,8 +21,6 @@ export class ProjectReadAccessWizardStepForm
     private readAccessFormItem?: ProjectReadAccessFormItem;
 
     private localeFormItem: LocaleFormItem;
-
-    private copyParentAccessClicked: boolean = false;
 
     layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
@@ -150,14 +147,12 @@ export class ProjectReadAccessWizardStepForm
             .setYesCallback(() => {
                 confirmed = true;
                 this.handleAccessValueChanged(newValue);
-                this.copyParentAccessClicked = false;
             });
 
         confirmationDialog.onClosed(() => {
             setTimeout(() => {
                 if (!confirmed) {
                     this.readAccessFormItem.getRadioGroup().setValue(resetValue, true);
-                    this.copyParentAccessClicked = false;
                 }
             }, 200);
         });
@@ -181,7 +176,6 @@ export class ProjectReadAccessWizardStepForm
                 this.showConfirmationDialog(newValue, oldValue);
             } else {
                 this.handleAccessValueChanged(newValue);
-                this.copyParentAccessClicked = false;
             }
         });
 
@@ -205,14 +199,7 @@ export class ProjectReadAccessWizardStepForm
     private handleAccessValueChanged(newValue: string) {
         this.readAccessFormItem.setPrincipalComboboxEnabled(newValue === ProjectReadAccessType.CUSTOM);
         this.readAccessFormItem.validate(new ValidationResult(), true);
-
         this.notifyDataChanged();
-
-        if (this.copyParentAccessClicked) {
-            NotifyManager.get().showSuccess(
-                i18n('settings.wizard.project.copy.success', i18n('settings.items.wizard.readaccess.label'),
-                    this.parentProject.getDisplayName()));
-        }
     }
 
     isEmpty(): boolean {

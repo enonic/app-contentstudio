@@ -72,6 +72,7 @@ export class ProjectIdDialogStep
 
         this.nameFormItem.getProjectNameInput().onValueChanged(() => {
             this.nameOccupied = false;
+            this.nameFormItem.setNameIsOccupied(false);
             this.nameFormItem.validate(new ValidationResult(), true);
             this.notifyDataChanged();
         });
@@ -89,8 +90,8 @@ export class ProjectIdDialogStep
     getData(): ProjectIdDialogStepData {
         return new ProjectIdDialogStepData()
             .setName(this.nameFormItem.getValue())
-            .setDisplayName(this.displayNameInput.getValue())
-            .setDescription(this.descriptionInput.getValue());
+            .setDisplayName(this.displayNameInput.getValue().trim())
+            .setDescription(this.descriptionInput.getValue().trim());
     }
 
     isValid(): Q.Promise<boolean> {
@@ -100,6 +101,7 @@ export class ProjectIdDialogStep
 
         return this.isNameOccupied().then((isOccupied: boolean) => {
             this.nameOccupied = isOccupied;
+            this.nameFormItem.setNameIsOccupied(isOccupied);
             this.nameFormItem.validate(new ValidationResult(), true);
 
             return !isOccupied;

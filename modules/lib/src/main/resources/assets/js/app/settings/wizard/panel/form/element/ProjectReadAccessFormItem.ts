@@ -16,6 +16,8 @@ import {ProjectPermissions} from '../../../../data/project/ProjectPermissions';
 import * as Q from 'q';
 import {GetPrincipalsByKeysRequest} from '../../../../../security/GetPrincipalsByKeysRequest';
 import {CopyFromParentFormItem} from './CopyFromParentFormItem';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectReadAccessFormItem
     extends CopyFromParentFormItem {
@@ -74,7 +76,7 @@ export class ProjectReadAccessFormItem
             });
 
             return Q(null);
-        });
+        }).catch(DefaultErrorHandler.handle);
     }
 
     private updateFilteredPrincipalsByPermissions(permissions: ProjectPermissions) {
@@ -139,11 +141,35 @@ export class ProjectReadAccessFormItem
     }
 
     protected doCopyFromParent(): void {
-        this.layoutReadAccess(this.parentProject.getReadAccess(), this.parentProject.getPermissions(), false);
+        this.layoutReadAccess(this.parentProject.getReadAccess(), this.parentProject.getPermissions(), false).then(() => {
+            this.notifyAccessCopiedFromParent();
+            return Q.resolve();
+        });
+    }
+
+    private notifyAccessCopiedFromParent(): void {
+        NotifyManager.get().showSuccess(
+            i18n('settings.wizard.project.copy.success', i18n('settings.items.wizard.readaccess.label'),
+                this.parentProject.getDisplayName()));
     }
 
     updateCopyButtonState(): void {
-        this.copyFromParentButton?.setEnabled(
-            ProjectHelper.isAvailable(this.parentProject) && !this.parentProject.getReadAccess().equals(this.getReadAccess()));
+        this.copyFromParentButton?.setEnabled(this.isCopyButtonToBeEnabled());
+    }
+
+    private isCopyButtonToBeEnabled(): boolean {
+         if (!ProjectHelper.isAvailable(this.parentProject)) {
+             return false;
+         }
+
+         if (!this.getRadioGroup().getValue()) {
+             return true;
+         }
+
+         if (!this.parentProject.getReadAccess().equals(this.getReadAccess())) {
+             return true;
+         }
+
+        return false;
     }
 }

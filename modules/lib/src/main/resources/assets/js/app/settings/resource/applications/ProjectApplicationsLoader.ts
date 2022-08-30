@@ -1,12 +1,20 @@
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import {ProjectApplication} from '../../wizard/panel/form/element/ProjectApplication';
 import {ProjectApplicationsListRequest} from './ProjectApplicationsListRequest';
+import Q from 'q';
 
 export class ProjectApplicationsLoader
     extends BaseLoader<ProjectApplication> {
 
     protected createRequest(): ProjectApplicationsListRequest {
         return new ProjectApplicationsListRequest();
+    }
+
+    search(searchString: string): Q.Promise<ProjectApplication[]> {
+        return super.search(searchString).then((result: ProjectApplication[]) => {
+            this.notifyLoadedData(result);
+            return result;
+        });
     }
 
     filterFn(item: ProjectApplication): boolean {

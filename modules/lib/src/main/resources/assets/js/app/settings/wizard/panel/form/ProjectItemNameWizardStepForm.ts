@@ -29,12 +29,16 @@ export class ProjectItemNameWizardStepForm
         this.nameFormItem.setValue(value);
     }
 
+    setDescription(value: string, silent?: boolean): void {
+        this.descriptionInput.setValue(value, silent);
+    }
+
     disableProjectNameInput() {
         this.getProjectNameInput().whenRendered(() => this.getProjectNameInput().setEnabled(false));
     }
 
     getDescription(): string {
-        return this.descriptionInput.getValue();
+        return this.descriptionInput.getValue().trim();
     }
 
     disableProjectNameHelpText() {
