@@ -154,7 +154,20 @@ public abstract class IssueMailMessageGenerator<P extends IssueNotificationParam
     {
         final ProjectName projectName = ProjectName.from( ContextAccessor.current().getRepositoryId() );
 
-        return params.getUrl() + "#/" + projectName + "/issue/" + issueId;
+        return this.processUrl() + "#/" + projectName + "/issue/" + issueId;
+    }
+
+    private String processUrl()
+    {
+        final String mainApp = "/main";
+        final String url = params.getUrl();
+
+        if ( url.endsWith( mainApp ) )
+        {
+            return url;
+        }
+
+        return url.split( mainApp )[0] + mainApp;
     }
 
     private String load( final String name )
