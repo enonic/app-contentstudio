@@ -27,7 +27,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.'Open new wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let project = projectUtils.buildProject(null, null, appConst.PROJECT_ACCESS_MODE.PRIVATE,null,null, PROJECT_DISPLAY_NAME)
+            let project = projectUtils.buildProject(null, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, null, null, PROJECT_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(project);
             await settingsBrowsePanel.waitForNotificationMessage();
         });
@@ -37,7 +37,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let languageStep = new ProjectWizardDialogLanguageStep();
             let applicationsStep = new ProjectWizardDialogApplicationsStep();
-            let nameAndIdStep= new ProjectWizardDialogNameAndIdStep();
+            let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
             //1.'Open new wizard dialog:
             let parentProjectStep = await settingsBrowsePanel.openProjectWizardDialog();
             //2. skip the first step:
@@ -49,14 +49,24 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             //5. Slip the permissions step
             await permissionsStep.waitForLoaded();
             await permissionsStep.clickOnSkipButton();
-            if(await applicationsStep.isLoaded()){
+            if (await applicationsStep.isLoaded()) {
                 await applicationsStep.clickOnSkipButton();
             }
             //6. Insert the existing identifier:
             await nameAndIdStep.waitForLoaded();
-            await nameAndIdStep.typeDisplayName(PROJECT_DISPLAY_NAME)
-            //2. Verify that 'Next' button gets disabled:
+            await nameAndIdStep.typeDisplayName(PROJECT_DISPLAY_NAME);
+            await studioUtils.saveScreenshot("project_name_validation_1");
+            //7. Verify that 'Next' button gets disabled:
             await nameAndIdStep.waitForNextButtonDisabled();
+            //8. Verify the validation message for Identifier input: "Project name is occupied"
+            let actualMessage = await nameAndIdStep.getProjectIdentifierValidationMessage();
+            assert.equal(actualMessage, appConst.VALIDATION_MESSAGE.PROJECT_IS_OCCUPIED, "Expected this message should appear");
+            //9. Add "1" at the end of identifier:
+            await nameAndIdStep.addTextInProjectIdentifierInput("1");
+            await studioUtils.saveScreenshot("project_name_validation_1");
+            //10. Verify that Next button gets enabled:
+            await nameAndIdStep.waitForNextButtonEnabled();
+            await nameAndIdStep.waitForProjectIdentifierValidationMessageNotVisible();
         });
 
     it("GIVEN a project is selected and 'Delete' button pressed AND Confirm Value dialog is opened WHEN incorrect identifier has been typed THEN 'Confirm' button should be disabled",

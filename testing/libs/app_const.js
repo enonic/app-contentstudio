@@ -118,6 +118,7 @@ module.exports = Object.freeze({
         THIS_FIELD_IS_REQUIRED: 'This field is required',
         SINGLE_SELECTION_OPTION_SET: "At least one option must be selected",
         LINK_PARAMETERS: "All parameters must have a name",
+        PROJECT_IS_OCCUPIED: "Project name is occupied",
     },
     ISSUES: {
         TASK_CLOSED: "Task is closed",

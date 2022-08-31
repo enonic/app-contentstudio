@@ -44,7 +44,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //2. Save new project (mode access is Private):
-            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME);
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, null, null, null, null, appConst.APP_CONTENT_TYPES);
         });
 
     it("Precondition 3: new site should be created in the parent project",
@@ -65,8 +65,9 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             await settingsBrowsePanel.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
-            let layer = projectUtils.buildProject(PROJECT_DISPLAY_NAME,null,appConst.PROJECT_ACCESS_MODE.PRIVATE,USER.displayName,null,LAYER_DISPLAY_NAME,null,null);
-            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer );
+            let layer = projectUtils.buildProject(PROJECT_DISPLAY_NAME, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName, null,
+                LAYER_DISPLAY_NAME, null, null);
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();
             //Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();

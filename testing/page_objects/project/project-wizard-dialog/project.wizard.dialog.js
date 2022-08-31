@@ -67,6 +67,26 @@ class ProjectWizardDialog extends Page {
         }
     }
 
+    async waitForCopyFromParentButtonDisplayed() {
+        try {
+            return await this.waitUntilDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Copy from parent button is not displayed, screenshot: " + screensot + "  " + err);
+        }
+    }
+
+    async waitForCopyFromParentButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Copy from parent button is not displayed: screenshot " + screenshot + "  " + err);
+        }
+    }
+
     async waitForSkipButtonEnabled() {
         try {
             return await this.waitForElementEnabled(this.skipButton, appConst.mediumTimeout);
