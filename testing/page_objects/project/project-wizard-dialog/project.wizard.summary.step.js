@@ -10,10 +10,31 @@ const ProjectWizardDialog = require('./project.wizard.dialog');
 const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
     createProjectButton: "//button[contains(@id,'DialogButton') and child::span[text()='Create Project']]",
+    projectNameXpath: "//div[contains(@id,'ProjectParamContainer') and child::h6[text()='Project name/id']]/h6[contains(@class,'value')]",
+    accessModeValueXpath: "//div[contains(@id,'ProjectAccessParamContainer') and child::h6[text()='Access mode']]/h6[contains(@class,'value')]",
+    parentProjectNameXpath: "//div[contains(@id,'ProjectParamContainer') and child::h6[text()='Parent Project']]/h6[contains(@class,'value')]",
+    defaultLanguageXpath: "//div[contains(@id,'ProjectLanguageParamContainer') and child::h6[text()='Default language']]/h6[contains(@class,'value')]",
 };
 const DESCRIPTION = "View summary of a new project";
 
+
 class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
+
+    get accessMode() {
+        return XPATH.container + XPATH.accessModeValueXpath;
+    }
+
+    get defaultLanguage() {
+        return XPATH.container + XPATH.defaultLanguageXpath;
+    }
+
+    get projectName() {
+        return XPATH.container + XPATH.projectNameXpath;
+    }
+
+    get parentProjectName() {
+        return XPATH.container + XPATH.parentProjectNameXpath;
+    }
 
     get createProjectButton() {
         return XPATH.container + XPATH.createProjectButton;
@@ -24,12 +45,50 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
         await this.clickOnElement(this.createProjectButton);
     }
 
-    async getPermissions() {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(language, XPATH.projectReadAccessWizardStepForm + XPATH.localeComboBoxDiv);
-        console.log("Project Wizard, language is selected: " + language);
-        return await this.pause(300);
+    async getAccessMode() {
+        try {
+            await this.waitForElementDisplayed(this.accessMode, appConst.mediumTimeout);
+            return await this.getText(this.accessMode);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_summary_step");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Summary step, access mode, screenshot:" + screenshot + "  " + err);
+        }
     }
+
+    async getParentProjectName() {
+        try {
+            await this.waitForElementDisplayed(this.parentProjectName, appConst.mediumTimeout);
+            return await this.getText(this.parentProjectName);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_summary_step");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Summary step, parent project name, screenshot:" + screenshot + "  " + err);
+        }
+    }
+
+    async getDefaultLanguage() {
+        try {
+            await this.waitForElementDisplayed(this.defaultLanguage, appConst.mediumTimeout);
+            return await this.getText(this.defaultLanguage);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_summary_step");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Summary step, parent project name, screenshot:" + screenshot + "  " + err);
+        }
+    }
+
+    async getProjectName() {
+        try {
+            await this.waitForElementDisplayed(this.projectName, appConst.mediumTimeout);
+            return await this.getText(this.projectName);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_summary_step");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Summary step, project name, screenshot:" + screenshot + "  " + err);
+        }
+    }
+
     async waitForLoaded() {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();
@@ -39,4 +98,3 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
 }
 
 module.exports = ProjectWizardDialogSummaryStep;
-

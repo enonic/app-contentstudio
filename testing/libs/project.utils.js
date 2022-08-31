@@ -13,13 +13,13 @@ const ProjectWizardDialogSummaryStep = require('../page_objects/project/project-
 
 module.exports = {
 
-    async saveTestProject(name, description, language, permissions, accessMode) {
+    async saveTestProject(name, description, language, permissions, accessMode, applications) {
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
         let summaryStep = new ProjectWizardDialogSummaryStep();
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.clickOnNewButton();
         await parentProjectStep.waitForLoaded();
-        let project = this.buildProject(null, language, accessMode, permissions, null, name, null, description);
+        let project = this.buildProject(null, language, accessMode, permissions, applications, name, null, description);
         await this.fillFormsWizard(project);
         await summaryStep.waitForLoaded();
         await summaryStep.clickOnCreateProjectButton();
@@ -74,8 +74,13 @@ module.exports = {
     },
     async fillApplicationStep(applications) {
         let applicationsStep = new ProjectWizardDialogApplicationsStep();
+
         if (applications) {
-            await applicationsStep.selectApplication(applications);
+            if (Array.isArray(applications)) {
+                await applicationsStep.addApplications(applications);
+            } else {
+                await applicationsStep.expandDropdownListAndSelectApplication(applications);
+            }
             await applicationsStep.clickOnNextButton();
         } else {
             await applicationsStep.clickOnSkipButton();

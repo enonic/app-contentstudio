@@ -20,7 +20,7 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
     }
 
     get projectIdentifierValidationMessage() {
-        return XPATH.container + +XPATH.projectIdStepForm + lib.formItemByLabel("Identifier") +
+        return XPATH.container + XPATH.projectIdStepForm + lib.formItemByLabel("Identifier") +
                "//div[contains(@id,'ValidationRecordingViewer')]//li";
     }
 
@@ -37,6 +37,11 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
         return await this.typeTextInInput(this.displayNameInput, name);
     }
 
+    async waitForIdentifierInputEnabled() {
+        await this.waitForElementDisplayed(this.projectIdentifierInput, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.projectIdentifierInput, appConst.mediumTimeout);
+    }
+
     typeDescription(description) {
         return this.typeTextInInput(this.descriptionInput, description);
     }
@@ -47,6 +52,11 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
 
     getProjectIdentifier() {
         return this.getTextInInput(this.projectIdentifierInput);
+    }
+
+    async addTextInProjectIdentifierInput(text) {
+        await this.waitForIdentifierInputEnabled();
+        return this.addTextInInput(this.projectIdentifierInput, text);
     }
 
 
@@ -68,4 +78,3 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
 }
 
 module.exports = ProjectWizardDialogNameAndIdStep;
-

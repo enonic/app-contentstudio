@@ -15,9 +15,24 @@ const DESCRIPTION = "Select applications for the project content";
 
 class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
 
+    get appSelectorDropDownHandler() {
+        return XPATH.container + XPATH.projectApplicationsComboBox + lib.DROP_DOWN_HANDLE;
+    }
+
+    //types an application name and click on the filtered option
     async selectApplication(appName) {
         let comboBox = new ComboBox();
         await comboBox.typeTextAndSelectOption(appName, XPATH.container + XPATH.projectApplicationsComboBox);
+        return await this.pause(500);
+    }
+
+    //expand the dropdown and click on an option
+    async expandDropdownListAndSelectApplication(appName) {
+        await this.waitForElementDisplayed(this.appSelectorDropDownHandler, appConst.shortTimeout);
+        await this.clickOnElement(this.appSelectorDropDownHandler);
+        let optionXpath = lib.slickRowByDisplayName(XPATH.container, appName);
+        await this.waitForElementDisplayed(optionXpath, appConst.shortTimeout);
+        await this.clickOnElement(optionXpath);
         return await this.pause(500);
     }
 
@@ -31,6 +46,16 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
     async isLoaded() {
         let locator = `//p[@class='xp-admin-common-sub-name' and text()='${DESCRIPTION}']`;
         return await this.isElementDisplayed(locator);
+    }
+
+    addApplications(appDisplayNames) {
+        let result = Promise.resolve();
+        appDisplayNames.forEach((displayName) => {
+            result = result.then(() => {
+                return this.selectApplication(displayName)
+            });
+        });
+        return result;
     }
 }
 
