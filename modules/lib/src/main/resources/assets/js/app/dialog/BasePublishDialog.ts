@@ -27,6 +27,7 @@ import {MenuItem} from '@enonic/lib-admin-ui/ui/menu/MenuItem';
 import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -45,10 +46,10 @@ export abstract class BasePublishDialog
 
     protected scheduleFormToggle: ButtonEl;
 
-    constructor(config: DependantItemsWithProgressDialogConfig) {
+    protected constructor(config: DependantItemsWithProgressDialogConfig) {
         super(config);
 
-        this.loadCurrentUser();
+        this.loadCurrentUser().catch(DefaultErrorHandler.handle);
     }
 
     protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
@@ -139,18 +140,18 @@ export abstract class BasePublishDialog
             this.setDependantListVisible(true);
         }
 
-        this.hideLoadMask();
-
         const itemsToPublish: number = this.countTotal();
         this.updateSubTitle(itemsToPublish);
         this.updateButtonCount(null, itemsToPublish);
+        this.unlockControls();
         this.updateControls(itemsToPublish);
+        this.hideLoadMask();
     }
 
     private handleLoadFailed() {
         this.publishIssuesStateBar.showLoadFailed();
         this.publishIssuesStateBar.addClass('has-issues');
-        this.toggleAction(false);
+        this.scheduleFormToggle.setEnabled(false);
         this.hideLoadMask();
     }
 
@@ -182,7 +183,7 @@ export abstract class BasePublishDialog
             this.publishIssuesStateBar.reset();
         } else {
             this.publishIssuesStateBar.addClass('has-issues');
-            this.publishIssuesStateBar.setContainsInProgress(this.publishProcessor.getInProgressIdsWithoutInvalid().length > 0);
+            this.publishIssuesStateBar.setContainsInProgress(this.getTotalInProgressWithoutInvalid() > 0);
             this.publishIssuesStateBar.setTotalInProgress(this.publishProcessor.getTotalExcludableInProgress());
             this.publishIssuesStateBar.setTotalInvalid(this.publishProcessor.getTotalExcludableInvalid());
             this.publishIssuesStateBar.setContainsInvalid(!allValid);
@@ -197,7 +198,11 @@ export abstract class BasePublishDialog
         const canPublish: boolean = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
         this.scheduleFormToggle.getEl().setDisabled(this.publishProcessor.isAllPendingDelete() || !canPublish);
 
-        this.getButtonRow().setTotalInProgress(this.publishProcessor.getInProgressIdsWithoutInvalid().length);
+        this.getButtonRow().setTotalInProgress(this.getTotalInProgressWithoutInvalid());
+    }
+
+    private getTotalInProgressWithoutInvalid(): number {
+        return this.publishProcessor.getInProgressIdsWithoutInvalid().length;
     }
 
     protected isScheduleFormValid(): boolean {
@@ -217,13 +222,8 @@ export abstract class BasePublishDialog
         this.markAllAsReadyAction = new Action(i18n('action.markAsReady')).onExecuted(this.markAllAsReady.bind(this)).setEnabled(allow);
     }
 
-    protected toggleAction(enable: boolean) {
-        this.toggleControls(enable);
-        this.toggleClass('no-action', !enable);
-    }
-
-    private loadCurrentUser() {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
+    private loadCurrentUser(): Q.Promise<void> {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             this.currentUser = loginResult.getUser();
         });
     }
@@ -322,10 +322,26 @@ export abstract class BasePublishDialog
 
     private markAllAsReady() {
         const ids: ContentId[] = this.publishProcessor.getContentIsProgressIds();
+        this.lockControls();
+        this.showLoadMask();
 
         new MarkAsReadyRequest(ids).sendAndParse()
             .then(() => showFeedback(i18n('notify.item.markedAsReady.multiple', ids.length)))
-            .catch(DefaultErrorHandler.handle);
+            .catch(DefaultErrorHandler.handle)
+            .finally(() => {
+                this.hideLoadMask();
+                this.unlockControls();
+            });
+    }
+
+    protected lockControls() {
+        super.lockControls();
+        this.getButtonRow().getActionMenu().setDropdownHandleEnabled(false);
+    }
+
+    protected unlockControls() {
+        super.unlockControls();
+        this.getButtonRow().getActionMenu().setDropdownHandleEnabled(this.getTotalInProgressWithoutInvalid() > 0);
     }
 }
 
