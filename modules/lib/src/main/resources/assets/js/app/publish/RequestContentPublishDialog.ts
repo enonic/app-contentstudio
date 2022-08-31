@@ -91,8 +91,6 @@ export class RequestContentPublishDialog
 
         this.requestDetailsPropertySet = new PropertySet();
 
-        this.publishScheduleForm.layout(false);
-
         const detailsForm = this.createDetailsForm();
 
         this.publishItemsStep = new DivEl('publish-items-step');
@@ -257,14 +255,14 @@ export class RequestContentPublishDialog
         super.updateSubTitle(itemsToPublish);
     }
 
-    protected updateControls(itemsToPublish: number = this.countTotal()) {
+    protected updateControls(itemsToPublish: number = this.countTotal()): void {
         super.updateControls(itemsToPublish);
 
-        const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
-        const scheduleValid = this.isScheduleFormValid();
-        const detailsValid = this.detailsFormView.validate().isValid();
+        const canPublish: boolean = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
+        const scheduleValid: boolean = this.isScheduleFormValid();
+        const detailsValid: boolean = this.detailsFormView.validate().isValid();
 
-        this.toggleAction(canPublish && scheduleValid && detailsValid);
+        this.requestPublishAction.setEnabled(canPublish && scheduleValid && detailsValid);
         this.nextAction.setEnabled(canPublish);
     }
 

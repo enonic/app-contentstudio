@@ -84,8 +84,6 @@ export class ContentPublishDialog
 
         this.addAction(this.scheduleAction);
 
-        this.publishScheduleForm.layout(false);
-
         this.publishScheduleForm.onFormVisibilityChanged((visible) => {
             this.publishAction.setVisible(!visible);
             this.scheduleAction.setVisible(visible);
@@ -229,11 +227,11 @@ export class ContentPublishDialog
 
 
     protected updateControls(itemsToPublish: number = this.countTotal()) {
-        const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
-        const scheduleValid = this.isScheduleFormValid();
+        const canPublish: boolean = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
+        const scheduleValid: boolean = this.isScheduleFormValid();
 
-        this.toggleAction(canPublish && scheduleValid);
-
+        this.publishAction.setEnabled(canPublish);
+        this.scheduleAction.setEnabled(canPublish && scheduleValid);
         this.publishSubTitle.setVisible(!this.isAllPendingDelete());
 
         super.updateControls(itemsToPublish);
