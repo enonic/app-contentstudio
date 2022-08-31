@@ -1023,9 +1023,7 @@ export class LinkModalDialog
     }
 
     private generateUrlParams(): ContentLinkParams {
-        const contentSelectorSelectedContent: ContentSummary = this.getContentIdFormItemEl().getSelectedContent();
-
-        if (contentSelectorSelectedContent?.getType().isDescendantOfMedia()) {
+        if (this.mediaOptionRadioFormItem.isVisible()) {
             return this.generateUrlParamsForMedia();
         }
 
