@@ -66,7 +66,7 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         const existingOption: Option<Project> = this.getOptionByValue(project.getName());
 
         if (existingOption) {
-            this.updateOption(existingOption, newOption);
+            this.updateOption(existingOption, project);
         }
 
         this.getSelectedOptions().forEach((selectedOption: SelectedOption<Project>) => {
