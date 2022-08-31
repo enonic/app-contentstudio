@@ -49,7 +49,11 @@
     &.has-items-in-progress {
       .dropdown-dialog-menu {
         .@{_COMMON_PREFIX}dropdown-handle {
-          display: inline-block;
+          display: inline-block !important;
+
+          &:disabled {
+            pointer-events: none;
+          }
         }
       }
     }
