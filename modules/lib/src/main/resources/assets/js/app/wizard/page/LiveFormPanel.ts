@@ -767,7 +767,8 @@ export class LiveFormPanel
 
             itemView.scrollComponentIntoView();
             if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                this.inspectComponent(<ComponentView<Component>>itemView, newSelection, newSelection && defaultClicked);
+                this.inspectComponent(<ComponentView<Component>>itemView, newSelection,
+                    newSelection && defaultClicked && !this.pageView.isTextEditMode());
 
                 if (textEditorCursorPos && this.pageView.isTextEditMode() &&
                     ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentView)) {
