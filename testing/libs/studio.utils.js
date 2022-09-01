@@ -625,6 +625,7 @@ module.exports = {
         let projectSelectionDialog = new ProjectSelectionDialog();
         let isLoaded = await projectSelectionDialog.isDialogLoaded();
         if (isLoaded) {
+            await projectSelectionDialog.pause(200);
             await projectSelectionDialog.clickOnCancelButtonTop();
             await projectSelectionDialog.waitForDialogClosed();
             return await this.getBrowser().pause(200);

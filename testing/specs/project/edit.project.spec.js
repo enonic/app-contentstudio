@@ -19,7 +19,6 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    const LAYER_NAME = studioUtils.generateRandomName("layer");
     const TEST_DESCRIPTION = "my description";
     const NEW_DESCRIPTION = "new description";
 
@@ -154,31 +153,8 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.waitForSaveButtonDisabled();
         });
 
-    //Verifies bug - https://github.com/enonic/lib-admin-ui/issues/1475
-    // Browse Panel - grid is not refreshed after adding items in the filtered grid
-    it("GIVEN existing project is checked and filtered WHEN child layer has been added AND Selection Controller has been unchecked THEN new created layer should be present in grid",
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1.Check the existing project:
-            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT2_DISPLAY_NAME);
-            //2. Click on 'Show Selection' icon(filter the grid):
-            await settingsBrowsePanel.clickOnSelectionToggler();
-            //3. Open project wizard dialog, and save new layer:
-            await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildProject(PROJECT2_DISPLAY_NAME,null,appConst.PROJECT_ACCESS_MODE.PRIVATE,null,null,LAYER_NAME,null,null);
-            await projectUtils.fillFormsWizardAndClickOnCreateButton( layer);
-            let message = await settingsBrowsePanel.waitForNotificationMessage();
-            //4. uncheck the 'Selection Controller' checkbox and clear the filtering:
-            await settingsBrowsePanel.clickOnSelectionControllerCheckbox();
-            //6. Verify that new layer is displayed in grid:
-            await settingsBrowsePanel.waitForItemDisplayed(LAYER_NAME);
-        });
-
     it("Layer and its parent project are successively deleted",
         async () => {
-            //1.Select the layer and delete it:
-            await projectUtils.selectAndDeleteProject(LAYER_NAME);
-            //2. Select The parent project and delete it:
             await projectUtils.selectAndDeleteProject(PROJECT2_DISPLAY_NAME);
         });
 

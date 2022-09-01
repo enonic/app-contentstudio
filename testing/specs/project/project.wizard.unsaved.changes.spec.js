@@ -42,7 +42,6 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
 
     it(`GIVEN display name has been updated WHEN 'No' button in Confirmation dialog has been pressed THEN new project should not be created`,
         async () => {
-
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             let confirmationDialog = new ConfirmationDialog();

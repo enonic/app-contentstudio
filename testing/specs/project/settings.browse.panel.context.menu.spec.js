@@ -19,7 +19,7 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
 
     let PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName("project");
 
-    it(`Preconditions: 2 projects should be added`,
+    it(`Preconditions: new project should be added`,
         async () => {
             //1. Save new project:
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, "description");
