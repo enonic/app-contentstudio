@@ -66,7 +66,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                suite: [ testContentStudioProjects, testPageEditor, testInputTypes, testInputTypes_2, testWizardsGrid, testPublishIssues, testModalDialog, testCollaboration ]
+                suite: [ testCollaboration ]
 
         runs-on: ubuntu-latest
 
@@ -81,22 +81,24 @@ jobs:
                     java-version: 11
                     distribution: 'temurin'
 
-            -   uses: actions/cache@v3
-                with:
-                    path: |
-                        ~/.gradle/caches
-                        ~/.gradle/wrapper
-                    key: ${{ runner.os }}-gradle-2-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-                    restore-keys: |
-                        ${{ runner.os }}-gradle-2-
+            - uses: actions/cache@v3
+              with:
+                  path: |
+                      ~/.gradle/caches
+                      ~/.gradle/wrapper
+                  key: ${{ runner.os }}-gradle-2-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+                  restore-keys: |
+                      ${{ runner.os }}-gradle-2-
+            - uses: browser-actions/setup-chrome@latest
+                  run: chrome --version
 
-            -   uses: actions/download-artifact@v3
-                with:
-                    name: contentstudio
-                    path: modules/app/build/libs
+            - uses: actions/download-artifact@v3
+              with:
+                  name: contentstudio
+                  path: modules/app/build/libs
 
-            -   name: Run Selenium Tests
-                run: ./gradlew :testing:${{ matrix.suite }}
+            - name: Run Selenium Tests
+              run: ./gradlew :testing:${{ matrix.suite }}
 
             - name: Slack Notification
               uses: rtCamp/action-slack-notify@v2

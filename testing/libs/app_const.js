@@ -15,6 +15,7 @@ module.exports = Object.freeze({
     itemSavedNotificationMessage: function (name) {
         return `Item \"${name}\" is saved.`
     },
+    languageCopiedNotification: parent => `Language successfully copied from \"${parent}\"`,
     itemPublishedNotificationMessage: function (name) {
         return `Item \"${name}\" is published.`
     },
@@ -88,7 +89,7 @@ module.exports = Object.freeze({
         MARKED_AS_READY: "Marked as Ready",
         SORTED: "Sorted",
         PUBLISHED: "Published",
-        CHANGED:"Changed"
+        CHANGED: "Changed"
     },
 
     ACCESS_WIDGET_HEADER: {
