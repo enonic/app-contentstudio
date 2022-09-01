@@ -81,22 +81,27 @@ jobs:
                     java-version: 11
                     distribution: 'temurin'
 
-            -   uses: actions/cache@v3
-                with:
-                    path: |
-                        ~/.gradle/caches
-                        ~/.gradle/wrapper
-                    key: ${{ runner.os }}-gradle-2-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-                    restore-keys: |
-                        ${{ runner.os }}-gradle-2-
+            - uses: actions/cache@v3
+              with:
+                  path: |
+                      ~/.gradle/caches
+                      ~/.gradle/wrapper
+                  key: ${{ runner.os }}-gradle-2-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+                  restore-keys: |
+                      ${{ runner.os }}-gradle-2-
+            - run: |
+                  set -ex
+                  wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+                  sudo apt install ./google-chrome-stable_current_amd64.deb
 
-            -   uses: actions/download-artifact@v3
-                with:
-                    name: contentstudio
-                    path: modules/app/build/libs
 
-            -   name: Run Selenium Tests
-                run: ./gradlew :testing:${{ matrix.suite }}
+            - uses: actions/download-artifact@v3
+              with:
+                  name: contentstudio
+                  path: modules/app/build/libs
+
+            - name: Run Selenium Tests
+              run: ./gradlew :testing:${{ matrix.suite }}
 
             - name: Slack Notification
               uses: rtCamp/action-slack-notify@v2

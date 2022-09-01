@@ -15,55 +15,55 @@ const ProjectWizardDialogParentProjectStep = require('../../page_objects/project
 const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
 const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
 
-describe('project.wizard.dialog.summary.step.spec - ui-tests for Summary wizard step', function () {
+describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizard step', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
 
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-
-    it(`WHEN Summary step wizard is loaded THEN expected parameters should be displayed`,
+    it(`GIVEN Default project is selected AND wizard dialog is opened WHEN a language has been selected in the wizard step THEN 'Copy from parent' button gets enabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let languageStep = new ProjectWizardDialogLanguageStep();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-            let applicationsStep = new ProjectWizardDialogApplicationsStep();
-            let accessModeStep = new ProjectWizardDialogAccessModeStep();
-            let permissionsStep = new ProjectWizardDialogPermissionsStep();
-            let projectWizard = new ProjectWizard();
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Select Default project:
             await parentProjectStep.selectParentProject("Default");
             await parentProjectStep.clickOnNextButton();
-            //3. Select the language:
+            //3. Verify that 'Copy from parent' button is disabled:
+            await languageStep.waitForCopyFromParentButtonDisabled();
+            //4. Select the language:
             await languageStep.selectLanguage(appConst.LANGUAGES.EN);
-            await languageStep.clickOnNextButton();
-            //4. Select Private access mode:
-            await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PRIVATE);
-            await accessModeStep.clickOnNextButton();
-            //6. Add contributor:
-            await permissionsStep.selectProjectAccessRole(appConst.systemUsersDisplayName.SUPER_USER);
-            await permissionsStep.clickOnNextButton();
-            if (await applicationsStep.isLoaded()) {
-                await applicationsStep.clickOnSkipButton();
-            }
-            let summaryStep = await projectUtils.fillNameAndDescriptionStep(PROJECT_DISPLAY_NAME);
-            await summaryStep.waitForLoaded();
-            await studioUtils.saveScreenshot("summary_step");
-            //7. Verify all parameters in the step:
-            let actualAccessMode = await summaryStep.getAccessMode();
-            assert.equal(actualAccessMode, "Private", "Private access mode should be displayed");
-            let actualProjectName = await summaryStep.getProjectName();
-            assert.isTrue(actualProjectName.includes(PROJECT_DISPLAY_NAME), "Expected project name should be displayed in the Step");
-            let actualParentProject = await summaryStep.getParentProjectName();
-            assert.equal(actualParentProject, "Default (default)");
+            //5. Verify that 'Next' button gets visible now:
+            await languageStep.waitForNextButtonDisplayed();
+            //6. Verify that 'Copy from parent' gets enabled, Click on the button:
+            await languageStep.clickOnCopyFromParentButton();
+            let message = await languageStep.waitForNotificationMessage();
+            assert.equal(message, appConst.languageCopiedNotification("Default"), "Expected notification message");
+            //7. Verify that 'Skip' button gets visible again
+            await languageStep.waitForSkipButtonDisplayed();
+        });
 
-            let actualDefaultLanguage = await summaryStep.getDefaultLanguage();
-            assert.equal(actualDefaultLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed");
-            //Verify that Previous button is displayed
-            await summaryStep.waitForPreviousButtonDisplayed();
+    it(`GIVEN a language has been selected in the wizard step WHEN selected language option has been removed THEN 'Copy from parent' button gets enabled`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            //1.Open new project wizard:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            //2. Select Default project:
+            await parentProjectStep.selectParentProject("Default");
+            await parentProjectStep.clickOnNextButton();
+            //3. Select a language:
+            await languageStep.selectLanguage(appConst.LANGUAGES.EN);
+            await languageStep.waitForNextButtonDisplayed();
+            //4. Click on 'remove' icon and remove the selected language:
+            await languageStep.clickOnRemoveSelectedLanguageIcon();
+            //5. Verify that 'Skip' button gets visible again
+            await languageStep.waitForSkipButtonDisplayed();
+            //6. 'Copy from parent' button gets disabled again:
+            await languageStep.waitForCopyFromParentButtonDisabled();
         });
 
 

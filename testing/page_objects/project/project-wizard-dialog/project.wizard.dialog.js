@@ -13,7 +13,7 @@ const XPATH = {
     nextButton: "//button[contains(@id,'DialogButton') and child::span[text()='Next']]",
     previousButton: "//button[contains(@id,'DialogButton') and child::span[text()='Previous']]",
     skipButton: "//button[contains(@id,'DialogButton') and child::span[text()='Skip']]",
-    copyFromParentButton: "//button[contains(@id,'DialogButton') and child::span[text()='Copy from parent']]",
+    copyFromParentButton: "//button[contains(@id,'Button') and child::span[text()='Copy from parent']]",
 };
 
 class ProjectWizardDialog extends Page {
@@ -47,23 +47,13 @@ class ProjectWizardDialog extends Page {
         }
     }
 
-    async waitForCopyFromParentButtonDisplayed() {
-        try {
-            return await this.waitUntilDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
-            await this.saveScreenshot(screenshot);
-            throw new Error("Copy from parent button is not displayed, screenshot: " + screensot + "  " + err);
-        }
-    }
-
     async waitForCopyFromParentButtonNotDisplayed() {
         try {
             return await this.waitForElementNotDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
             await this.saveScreenshot(screenshot);
-            throw new Error("Copy from parent button is not displayed: screenshot " + screenshot + "  " + err);
+            throw new Error("Copy from parent button is displayed: screenshot " + screenshot + "  " + err);
         }
     }
 
@@ -73,17 +63,29 @@ class ProjectWizardDialog extends Page {
         } catch (err) {
             let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
             await this.saveScreenshot(screenshot);
-            throw new Error("Copy from parent button is not displayed, screenshot: " + screensot + "  " + err);
+            throw new Error("Copy from parent button is not displayed, screenshot: " + screenshot + "  " + err);
         }
     }
 
-    async waitForCopyFromParentButtonNotDisplayed() {
+    async waitForCopyFromParentButtonDisabled() {
         try {
-            return await this.waitForElementNotDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
+            await this.waitUntilDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.copyFromParentButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
             await this.saveScreenshot(screenshot);
-            throw new Error("Copy from parent button is not displayed: screenshot " + screenshot + "  " + err);
+            throw new Error("Copy from parent button is not disabled, screenshot: " + screenshot + "  " + err);
+        }
+    }
+
+    async clickOnCopyFromParentButton() {
+        try {
+            await this.waitForCopyFromParentButtonDisplayed();
+            return await this.clickOnElement(this.copyFromParentButton);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Click on 'Copy from parent' button, screenshot: " + screenshot + "  " + err);
         }
     }
 
