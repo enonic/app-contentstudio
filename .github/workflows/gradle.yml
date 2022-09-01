@@ -89,7 +89,7 @@ jobs:
                   key: ${{ runner.os }}-gradle-2-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
                   restore-keys: |
                       ${{ runner.os }}-gradle-2-
-            - uses: browser-actions/setup-chrome@105.0.5195.54
+            - uses: browser-actions/setup-chrome@105.0.5195.52
             - run: chrome --version
 
             - uses: actions/download-artifact@v3
