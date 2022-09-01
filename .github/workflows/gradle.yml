@@ -89,7 +89,11 @@ jobs:
                   key: ${{ runner.os }}-gradle-2-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
                   restore-keys: |
                       ${{ runner.os }}-gradle-2-
-            - uses: browser-actions/setup-chrome@google-chrome-stable_105.0.5195.52-1_amd64.deb
+            - run: |
+                  set -ex
+                  wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_105.0.5195.52-1_amd64.deb
+                  sudo apt install ./google-chrome-stable_105.0.5195.52-1_amd64.deb
+
             - run: chrome --version
 
             - uses: actions/download-artifact@v3
