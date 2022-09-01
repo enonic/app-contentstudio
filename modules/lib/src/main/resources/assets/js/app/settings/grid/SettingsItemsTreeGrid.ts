@@ -37,6 +37,7 @@ export class SettingsItemsTreeGrid
 
         this.setContextMenu(new TreeGridContextMenu(this.treeGridActions));
         this.getContextMenu().removeAction(this.treeGridActions.getSyncAction());
+        this.getToolbar().getSelectionPanelToggler().hide();
 
         this.projects = [];
 

@@ -25,9 +25,14 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         this.helper = builder.optionDataHelper;
 
         this.getLoader().onLoadedData(() => {
-            this.helper.setProjects(this.getLoader().getResults());
+            this.helper.setProjects(this.getLoadedResults());
+            this.toggleClass('flat', this.isFlatList());
             return Q(null);
         });
+    }
+
+    private isFlatList(): boolean {
+        return this.isSearchStringSet() || !this.getLoadedResults().some((p: Project) => this.helper.isExpandable(p));
     }
 
     protected createOption(project: Project): Option<Project> {
@@ -97,10 +102,14 @@ export class ProjectsComboBox extends RichComboBox<Project> {
 
     private getAllProjects(): Q.Promise<Project[]> {
         if (this.getLoader().isLoaded()) {
-            return Q(this.getLoader().getResults());
+            return Q(this.getLoadedResults());
         }
 
         return this.getLoader().load();
+    }
+
+    private getLoadedResults(): Project[] {
+        return this.getLoader().getResults();
     }
 
     protected createComboboxConfig(builder: RichComboBoxBuilder<Project>): ComboBoxConfig<Project> {
