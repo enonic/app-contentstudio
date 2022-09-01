@@ -4,27 +4,32 @@ import {ProjectJson} from '../../resource/json/ProjectJson';
 import {ProjectPermissions} from './ProjectPermissions';
 import {ProjectReadAccess} from './ProjectReadAccess';
 import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {ProjectSiteConfigJson} from '../../resource/json/ProjectSiteConfigJson';
+import {ApplicationConfigHelper} from './ApplicationConfigHelper';
 
 export class Project
     implements Equitable {
 
     public static DEFAULT_PROJECT_NAME: string = 'default';
 
-    private name: string;
+    private readonly name: string;
 
-    private displayName: string;
+    private readonly displayName: string;
 
-    private description: string;
+    private readonly description: string;
 
-    private parent: string;
+    private readonly parent: string;
 
-    private icon: Attachment;
+    private readonly icon: Attachment;
 
-    private permissions: ProjectPermissions;
+    private readonly permissions: ProjectPermissions;
 
-    private readAccess: ProjectReadAccess;
+    private readonly readAccess: ProjectReadAccess;
 
-    private language: string;
+    private readonly language: string;
+
+    private readonly siteConfigs: ApplicationConfig[];
 
     constructor(builder: ProjectBuilder) {
         this.name = builder.name;
@@ -35,6 +40,7 @@ export class Project
         this.permissions = builder.permissions;
         this.readAccess = builder.readAccess;
         this.language = builder.language;
+        this.siteConfigs = builder.siteConfigs;
     }
 
     static fromJson(json: ProjectJson): Project {
@@ -77,6 +83,10 @@ export class Project
         return this.parent;
     }
 
+    getSiteConfigs(): ApplicationConfig[] {
+        return this.siteConfigs;
+    }
+
     equals(o: Equitable): boolean {
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Project)) {
             return false;
@@ -85,12 +95,13 @@ export class Project
         const other: Project = <Project>o;
 
         return ObjectHelper.objectEquals(this.name, other.name) &&
-            ObjectHelper.objectEquals(this.displayName, other.displayName) &&
-            ObjectHelper.objectEquals(this.description, other.description) &&
-            ObjectHelper.objectEquals(this.icon, other.icon) &&
-            ObjectHelper.objectEquals(this.language, other.language) &&
-            ObjectHelper.equals(this.permissions, other.permissions) &&
-            ObjectHelper.equals(this.readAccess, other.readAccess);
+               ObjectHelper.objectEquals(this.displayName, other.displayName) &&
+               ObjectHelper.objectEquals(this.description, other.description) &&
+               ObjectHelper.objectEquals(this.icon, other.icon) &&
+               ObjectHelper.objectEquals(this.language, other.language) &&
+               ObjectHelper.equals(this.permissions, other.permissions) &&
+               ObjectHelper.equals(this.readAccess, other.readAccess) &&
+               ObjectHelper.arrayEquals(this.siteConfigs, other.siteConfigs);
     }
 
 }
@@ -113,6 +124,8 @@ export class ProjectBuilder {
 
     language: string;
 
+    siteConfigs: ApplicationConfig[];
+
     constructor(source?: Project) {
         if (source) {
             this.name = source.getName();
@@ -123,6 +136,7 @@ export class ProjectBuilder {
             this.permissions = source.getPermissions();
             this.readAccess = source.getReadAccess();
             this.language = source.getLanguage();
+            this.siteConfigs = source.getSiteConfigs() || [];
         }
     }
 
@@ -166,6 +180,11 @@ export class ProjectBuilder {
         return this;
     }
 
+    setSiteConfigs(value: ApplicationConfig[]): ProjectBuilder {
+        this.siteConfigs = value;
+        return this;
+    }
+
     fromJson(json: ProjectJson): ProjectBuilder {
         this.name = json.name;
         this.displayName = json.displayName;
@@ -175,6 +194,8 @@ export class ProjectBuilder {
         this.permissions = ProjectPermissions.fromJson(json.permissions);
         this.readAccess = ProjectReadAccess.fromJson(json.readAccess);
         this.language = json.language;
+        this.siteConfigs =
+            json.siteConfigs?.map((configJson: ProjectSiteConfigJson) => ApplicationConfigHelper.siteConfigJsonToAppConfig(configJson));
 
         return this;
     }

@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -25,8 +26,8 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Save 2 projects:
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, DESCRIPTION);
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME_2, DESCRIPTION);
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, DESCRIPTION);
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME_2, DESCRIPTION);
             //2 .Click on Content app-mode button
             await studioUtils.switchToContentMode();
             //3. Expand the project selector and verify that 2 new items appeared:
@@ -34,6 +35,17 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             let result = await projectSelectionDialog.getProjectsDisplayName();
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_1), "Display name of the first project should be present in options");
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_2), "Display name of the second project should be present in options");
+        });
+
+    //Verifies https://github.com/enonic/app-contentstudio/issues/2708
+    it(`WHEN two projects have been checked THEN 'Delete' button gets disabled`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            //1. Click on both project's checkboxes:
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
+            //2. Verify that 'Delete' button is disabled in settings toolbar:
+            await settingsBrowsePanel.waitForDeleteButtonDisabled();
         });
 
     //Verifies: Settings Panel - Error after trying to close several opened wizards #1632
@@ -104,50 +116,6 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Edit');
             //Verify that Delete menu item is disabled:
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
-        });
-
-    it(`GIVEN Projects folder is expanded AND two projects are checked WHEN 'Selection Toggler' has been clicked THEN two projects should remain in grid`,
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            await settingsBrowsePanel.pause(1000);
-            let actualResultBefore = await settingsBrowsePanel.getDisplayNames();
-            //1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
-            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
-            //2. Click on the circle(Selection Toggle):
-            await settingsBrowsePanel.clickOnSelectionToggler();
-            //3. get display names in the filtered grid:
-            let actualResult = await settingsBrowsePanel.getDisplayNames();
-            //4. Verify that number of items should be 2
-            assert.equal(actualResult.length, 2, "Two project should remain in grid");
-            //5. Verify display names in the filtered grid:
-            assert.isTrue(actualResult.includes(PROJECT_DISPLAY_NAME_1), "Expected project should remains in grid");
-            assert.isTrue(actualResult.includes(PROJECT_DISPLAY_NAME_2), "Expected project should remains in grid");
-            assert.isAbove(actualResultBefore.length, actualResult.length, "Number of projects should be reduced");
-        });
-
-    //Verifies: https://github.com/enonic/app-contentstudio/issues/1701
-    // Settings browse panel - errors after opening several filtered projects #1701
-    it(`GIVEN 'Selection Toggler'(circle) has been clicked AND 2 projects are opened WHEN close-icon in opened tabs has been closed THEN two tabs should be closed`,
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
-            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
-            //2. Click on the circle(Selection Toggle):
-            await settingsBrowsePanel.clickOnSelectionToggler();
-            //3. Click on 'Edit' button and open 2 checked projects:
-            await settingsBrowsePanel.clickOnEditButton();
-            //4. Verify the number of opened tabs:
-            let result = await settingsBrowsePanel.getNumberOpenedTabItems();
-            assert.equal(result, 2, "Two tabs should be present in the tab bar");
-            //4. Close the second tab:
-            await settingsBrowsePanel.clickOnCloseIcon(PROJECT_DISPLAY_NAME_2);
-            //5. Close the first tab:
-            await settingsBrowsePanel.clickOnCloseIcon(PROJECT_DISPLAY_NAME_1);
-            //6. Verify that all tabs are closed:
-            result = await settingsBrowsePanel.getNumberOpenedTabItems();
-            assert.equal(result, 0, "There should not be a single item in the Tab Bar");
         });
 
     //Verifies: https://github.com/enonic/app-contentstudio/issues/1466  Name of deleted project remains in Project Selector

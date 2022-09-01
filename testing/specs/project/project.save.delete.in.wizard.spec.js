@@ -9,6 +9,10 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const appConst = require('../../libs/app_const');
+const projectUtils = require('../../libs/project.utils');
+const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
+const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
+const ProjectWizardDialogNameAndIdStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
 
 describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deleting a project', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -21,33 +25,48 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
     it(`GIVEN required inputs in project wizard are filled WHEN 'Save' button has been pressed THEN expected notification should appear`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
             //1.'Open new wizard:
-            await settingsBrowsePanel.openProjectWizard();
-            //2. Type a display name and select the access mode:
-            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
-            await projectWizard.clickOnAccessModeRadio("Private");
-            //3. Verify that 'Save' button gets enabled, then click on it
-            await projectWizard.waitAndClickOnSave();
-            let actualMessage = await projectWizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot("project_saved_1");
-            assert.equal(actualMessage, appConst.projectCreatedMessage(PROJECT_DISPLAY_NAME))
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let project = projectUtils.buildProject(null, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, null, null, PROJECT_DISPLAY_NAME);
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(project);
+            await settingsBrowsePanel.waitForNotificationMessage();
         });
 
-    it(`GIVEN new project wizard is opened WHEN try to save an name that is already being used by existing project THEN expected notification should appear`,
+    it(`GIVEN new project wizard dialog is opened WHEN fill in the Identifier input with a name that is already being used by existing project THEN Next button gets disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            //1.'Open new wizard:
-            await settingsBrowsePanel.openProjectWizard();
-            //2. Type a display name that is already being used by existing project:
-            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
-            await projectWizard.clickOnAccessModeRadio("Private");
-            //3. Verify that `Save` button gets enabled, then click on it
-            await projectWizard.waitAndClickOnSave();
-            let actualMessage = await projectWizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot("project_name_already_used");
-            assert.equal(actualMessage, appConst.projectNameAlreadyExistsMessage(PROJECT_DISPLAY_NAME))
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
+            //1.'Open new wizard dialog:
+            let parentProjectStep = await settingsBrowsePanel.openProjectWizardDialog();
+            //2. skip the first step:
+            await parentProjectStep.clickOnSkipButton();
+            //3. Skip the language step:
+            await languageStep.clickOnSkipButton();
+            //4. Select Private access mode:
+            let permissionsStep = await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PRIVATE);
+            //5. Slip the permissions step
+            await permissionsStep.waitForLoaded();
+            await permissionsStep.clickOnSkipButton();
+            if (await applicationsStep.isLoaded()) {
+                await applicationsStep.clickOnSkipButton();
+            }
+            //6. Insert the existing identifier:
+            await nameAndIdStep.waitForLoaded();
+            await nameAndIdStep.typeDisplayName(PROJECT_DISPLAY_NAME);
+            await studioUtils.saveScreenshot("project_name_validation_1");
+            //7. Verify that 'Next' button gets disabled:
+            await nameAndIdStep.waitForNextButtonDisabled();
+            //8. Verify the validation message for Identifier input: "Project name is occupied"
+            let actualMessage = await nameAndIdStep.getProjectIdentifierValidationMessage();
+            assert.equal(actualMessage, appConst.VALIDATION_MESSAGE.PROJECT_IS_OCCUPIED, "Expected this message should appear");
+            //9. Add "1" at the end of identifier:
+            await nameAndIdStep.addTextInProjectIdentifierInput("1");
+            await studioUtils.saveScreenshot("project_name_validation_1");
+            //10. Verify that Next button gets enabled:
+            await nameAndIdStep.waitForNextButtonEnabled();
+            await nameAndIdStep.waitForProjectIdentifierValidationMessageNotVisible();
         });
 
     it("GIVEN a project is selected and 'Delete' button pressed AND Confirm Value dialog is opened WHEN incorrect identifier has been typed THEN 'Confirm' button should be disabled",

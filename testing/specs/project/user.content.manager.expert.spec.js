@@ -19,7 +19,7 @@ describe('user.content.manager.expert.spec - ui-tests for content manager expert
     let USER;
     const PASSWORD = appConst.PASSWORD.MEDIUM;
 
-    it(`Precondition 1: new system user should be added`,
+    it(`Precondition 1: new system user should be added, the user doesn't have any available projects`,
         async () => {
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();

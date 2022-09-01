@@ -1,17 +1,20 @@
 /**
  * Created on 19.06.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const contentBuilder = require("../../libs/content.builder");
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const appConst = require('../../libs/app_const');
+const projectUtils = require('../../libs/project.utils');
+const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
+const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
+const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
+const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
+const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
 
 describe('project.viewer.spec - ui-tests for user with Viewer role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -38,22 +41,38 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
     it("GIVEN SU is logged in AND new project wizard is opened WHEN existing user has been added as Viewer THEN expected user should be selected in Custom Access form",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
             //1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //2.Open new project wizard:
-            await settingsBrowsePanel.openProjectWizard();
-            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
-            await projectWizard.clickOnAccessModeRadio("Custom");
-            //3. Select the user in Custom Read access :(users can read content)
-            await projectWizard.selectUserInCustomReadAccess(USER.displayName);
-            await projectWizard.waitAndClickOnSave();
-            await projectWizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot("project_viewer_1");
-            //4. Verify that expected user is present in selected options:
-            let customReadAccessItems = await projectWizard.getSelectedCustomReadAccessOptions();
-            assert.equal(customReadAccessItems[0], USER.displayName, "expected user should be selected in Custom Read access form");
+            //2.Open new project wizard dialog and :
+            await settingsBrowsePanel.openProjectWizardDialog();
+            //3. skip the first step:
+            await parentProjectStep.clickOnSkipButton();
+            //4. Skip the language step:
+            await languageStep.clickOnSkipButton();
+            //5. Select Custom access mode:
+            await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.CUSTOM);
+            //6. Select just created user in the dropdown selector:
+            await accessModeStep.selectUserInCustomReadAccessSelector(USER.displayName);
+            await studioUtils.saveScreenshot("custom_read_access_user");
+            await accessModeStep.clickOnNextButton();
+            //7. Skip permissions step:
+            await permissionsStep.clickOnSkipButton();
+            if (await applicationsStep.isLoaded()) {
+                await applicationsStep.clickOnSkipButton();
+            }
+            let summaryStep =  await projectUtils.fillNameAndDescriptionStep(PROJECT_DISPLAY_NAME);
+            await summaryStep.waitForLoaded();
+            await studioUtils.saveScreenshot("project_viewer_1");
+            //7. Click on  Create button
+            await summaryStep.clickOnCreateProjectButton();
+            await summaryStep.waitForDialogClosed();
+            await settingsBrowsePanel.waitForNotificationMessage();
         });
 
     it("Precondition 2: ready for publishing folder should be created in the just created project",
@@ -78,7 +97,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that all button are disabled in the project-toolbar:
-            studioUtils.saveScreenshot("project_viewer_1");
+            await studioUtils.saveScreenshot("project_viewer_1");
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();

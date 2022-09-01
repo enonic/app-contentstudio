@@ -1,0 +1,66 @@
+/**
+ * Created on 05.08.2022
+ */
+const lib = require('../../../libs/elements');
+const appConst = require('../../../libs/app_const');
+const ComboBox = require('../../components/loader.combobox');
+const ProjectWizardDialog = require('./project.wizard.dialog');
+
+const XPATH = {
+    container: "//div[contains(@id,'ProjectWizardDialog')]",
+    projectSelectedOptionView: "//div[contains(@id,'ProjectSelectedOptionView')]",
+    parentProjectComboboxDiv: "//div[contains(@id,'ProjectsComboBox')]",
+};
+const DESCRIPTION = "To set up synchronization of a content with another project, select it here (optional)";
+
+class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
+
+    get projectOptionsFilterInput() {
+        return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+    waitForProjectOptionsFilterInputDisplayed(){
+        return this.waitForElementDisplayed(this.projectOptionsFilterInput,appConst.mediumTimeout);
+    }
+    async selectParentProject(projectDisplayName) {
+        let comboBox = new ComboBox();
+        await comboBox.typeTextAndSelectOption(projectDisplayName, XPATH.container + XPATH.parentProjectComboboxDiv);
+        console.log("Project Wizard, parent project is selected: " + projectDisplayName);
+        return await this.pause(400);
+    }
+
+    async typeTextInOptionFilterInputAndSelectOption(text, projectDisplayName) {
+        let comboBox = new ComboBox();
+        await this.typeTextInInput(this.projectOptionsFilterInput,text);
+        await comboBox.selectOption(projectDisplayName, XPATH.container + XPATH.parentProjectComboboxDiv);
+        console.log("Project Wizard, parent project is selected: " + projectDisplayName);
+        return await this.pause(400);
+    }
+
+    async clickOnRemoveSelectedProjectIcon() {
+        let locator = XPATH.container + XPATH.projectSelectedOptionView + lib.REMOVE_ICON;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+    }
+
+    async selectLanguage(language) {
+        let comboBox = new ComboBox();
+        await comboBox.typeTextAndSelectOption(language, XPATH.projectReadAccessWizardStepForm + XPATH.localeComboBoxDiv);
+        console.log("Project Wizard, language is selected: " + language);
+        return await this.pause(300);
+    }
+
+    async waitForLoaded() {
+        await this.getBrowser().waitUntil(async () => {
+            let actualDescription = await this.getStepDescription();
+            return actualDescription === DESCRIPTION;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 1 is not loaded"});
+    }
+
+    async isSelectedParentProjectDisplayed() {
+        return this.isElementDisplayed(XPATH.container + XPATH.projectSelectedOptionView);
+    }
+}
+
+module.exports = ProjectWizardDialogParentProjectStep;
+

@@ -20,6 +20,10 @@ const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog'
 const IssueDetailsDialogAssigneesTab = require('../../page_objects/issue/issue.details.dialog.assignees.tab');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const appConst = require('../../libs/app_const');
+const projectUtils = require('../../libs/project.utils');
+const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
+const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
+const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 
 describe('project.owner.spec - ui-tests for user with Owner role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -50,27 +54,49 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
             //1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-
             //2.Open new project wizard:
-            await settingsBrowsePanel.openProjectWizard();
-            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
-            await projectWizard.clickOnAccessModeRadio("Private");
-            //3. Select the user in roles, assign Owner role him:
-            await projectWizard.selectProjectAccessRoles(USER.displayName);
-            await projectWizard.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.OWNER);
-            await studioUtils.saveScreenshot("project_owner_0");
-            await projectWizard.waitAndClickOnSave();
-            await projectWizard.waitForNotificationMessage();
+            await settingsBrowsePanel.openProjectWizardDialog();
+            //3. skip the first step:
+            await parentProjectStep.clickOnSkipButton();
+            //4. Skip the language step:
+            await languageStep.clickOnSkipButton();
+            //5. Select 'Private' access mode in the fours step:
+            let permissionsStep = await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PRIVATE);
+            await permissionsStep.waitForLoaded();
+            //6. Select the user with default role:
+            await permissionsStep.selectProjectAccessRole(USER.displayName);
+            //7. Update the default role to "Owner"
+            await permissionsStep.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.OWNER);
+            //8. Click on Next button in permissions step:
+            await permissionsStep.clickOnNextButton();
+            if(await applicationsStep.isLoaded()){
+                await applicationsStep.clickOnSkipButton();
+            }
+            //9. Fil in the name input:
+            let summaryStep = await projectUtils.fillNameAndDescriptionStep(PROJECT_DISPLAY_NAME);
+            await summaryStep.waitForLoaded();
+            //10. click On Create button:
+            await summaryStep.clickOnCreateProjectButton();
+            await summaryStep.waitForDialogClosed();
+            await settingsBrowsePanel.waitForNotificationMessage();
+
+            //11. Open the project
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
             await studioUtils.saveScreenshot("project_owner_1");
-            //4. Verify that expected user is present in selected options:
+            //12. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
             //5. Verify that expected role is assigned to the user
             let role = await projectWizard.getSelectedProjectAccessRole(USER.displayName);
-            assert.equal(role[0], appConst.PROJECT_ROLES.OWNER, "expected role should be assigned to the user");
+            assert.equal(role[0], appConst.PROJECT_ROLES.OWNER, "Owner role should be assigned to the user");
         });
 
     //Verifies https://github.com/enonic/xp/issues/8139  Users with Owner or Editor roles can not be assigned to issues

@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
@@ -25,8 +26,9 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         async () => {
             //1. Navigate to Settings Panel:
             await studioUtils.openSettingsPanel();
+            let project = projectUtils.buildProject()
             //1. Save new project (mode access is Private):
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, "test description", null, null, "Private");
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, "test description", null, null, "Private");
         });
 
     it("Precondition: new folder should be added in existing project(Private mode access)",
@@ -56,12 +58,13 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             //3. Save the changes:
             await projectWizard.waitAndClickOnSave();
             let actualMessages = await projectWizard.waitForNotificationMessages();
-            //4. Verify the notification message:
-            studioUtils.saveScreenshot("project_access_mode_updated");
+            //4. Verify that 2  notification messages appear: 'Project is modified' and 'Permissions are applied'
+            await studioUtils.saveScreenshot("project_access_mode_updated");
             assert.equal(actualMessages[1], appConst.projectModifiedMessage(PROJECT_DISPLAY_NAME));
             assert.isTrue(actualMessages[0].includes("Permissions"), "Permissions are applied - the second expected notification message");
             assert.isTrue(actualMessages[0].includes("are applied"), "Permissions are applied - the second expected notification message");
         });
+
     //Verifies https://github.com/enonic/app-contentstudio/issues/1889
     //Project Wizard - access mode is not updated after the mode change has been confirmed
     it("GIVEN existing project was switched to 'Public' mode WHEN the project has been reopened THEN 'Public' Access Mode (radio button) should be selected",

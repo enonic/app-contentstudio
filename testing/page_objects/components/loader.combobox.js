@@ -37,7 +37,7 @@ class LoaderComboBox extends Page {
 
     async typeTextAndSelectOption(optionDisplayName, xpath) {
         try {
-            let optionSelector = lib.slickRowByDisplayName(XPATH.container, optionDisplayName);
+            let optionLocator = lib.slickRowByDisplayName(XPATH.container, optionDisplayName);
             if (xpath === undefined) {
                 xpath = '';
             }
@@ -46,11 +46,13 @@ class LoaderComboBox extends Page {
                 await this.waitForElementDisplayed(xpath + this.optionsFilterInput, appConst.mediumTimeout);
                 elems = await this.getDisplayedElements(xpath + this.optionsFilterInput);
             }
-            //await this.getBrowser().elementSendKeys(elems[0].elementId, [optionDisplayName]);
+            //Set text in the options filter input:
             await elems[0].setValue(optionDisplayName);
-            await this.waitForElementDisplayed(optionSelector, appConst.longTimeout);
+            //wait for required options is filtered and displayed:
+            await this.waitForElementDisplayed(optionLocator, appConst.longTimeout);
             await this.pause(300);
-            await this.clickOnElement(optionSelector);
+            //click on the option in the dropdown list
+            await this.clickOnElement(optionLocator);
             return await this.pause(800);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_combobox"));

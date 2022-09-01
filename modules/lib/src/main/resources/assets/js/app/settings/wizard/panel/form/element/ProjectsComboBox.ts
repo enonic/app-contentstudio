@@ -2,7 +2,7 @@ import {Project} from '../../../../data/project/Project';
 import {ProjectViewer} from '../../../viewer/ProjectViewer';
 import * as Q from 'q';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {ProjectsChainBlock} from '../../../../dialog/ProjectsChainBlock';
+import {ProjectsChainBlock} from './ProjectsChainBlock';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectOptionDataHelper} from './ProjectOptionDataHelper';
 import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
@@ -14,9 +14,9 @@ import {ProjectOptionDataLoader} from './ProjectOptionDataLoader';
 
 export class ProjectsComboBox extends RichComboBox<Project> {
 
-    private projectsChainBlock: ProjectsChainBlock;
+    private readonly projectsChainBlock: ProjectsChainBlock;
 
-    private helper: ProjectOptionDataHelper;
+    private readonly helper: ProjectOptionDataHelper;
 
     constructor(builder: ProjectsDropdownBuilder = new ProjectsDropdownBuilder()) {
         super(builder);
@@ -25,23 +25,38 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         this.helper = builder.optionDataHelper;
 
         this.getLoader().onLoadedData(() => {
-            this.helper.setProjects(this.getLoader().getResults());
+            this.helper.setProjects(this.getLoadedResults());
+            this.toggleClass('flat', this.isFlatList());
             return Q(null);
         });
     }
 
-    protected createOption(project: Project): Option<Project> {
-        return Option.create<Project>().setValue(project.getName()).setDisplayValue(project).setExpandable(
-            this.helper.isExpandable(project)).setSelectable(this.helper.isSelectable(project)).build();
+    private isFlatList(): boolean {
+        return this.isSearchStringSet() || !this.getLoadedResults().some((p: Project) => this.helper.isExpandable(p));
     }
 
-    protected createOptions(items: any[]): Q.Promise<Option<Project>[]> {
-        return super.createOptions(items.filter((item: Project) => !item.getParent()));
+    protected createOption(project: Project): Option<Project> {
+        return Option.create<Project>()
+            .setValue(project.getName())
+            .setDisplayValue(project)
+            .setExpandable(!this.isSearchStringSet() && this.helper.isExpandable(project))
+            .setSelectable(this.helper.isSelectable(project))
+            .build();
+    }
+
+    private isSearchStringSet(): boolean {
+        return !!this.getLoader().getSearchString();
+    }
+
+    protected createOptions(items: Project[]): Q.Promise<Option<Project>[]> {
+        this.helper.setProjects(items);
+        const result: Project[] = this.isSearchStringSet() ? items : items.filter((item: Project) => !item.getParent());
+        return super.createOptions(result);
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.addClass('parent-selector');
+            this.addClass('parent-project-selector');
 
             return rendered;
         });
@@ -56,13 +71,13 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         const existingOption: Option<Project> = this.getOptionByValue(project.getName());
 
         if (existingOption) {
-            this.updateOption(existingOption, newOption);
+            this.updateOption(existingOption, project);
         }
 
         this.getSelectedOptions().forEach((selectedOption: SelectedOption<Project>) => {
-           if (selectedOption.getOption().getValue() === project.getName()) {
-               selectedOption.getOptionView().setOption(newOption);
-           }
+            if (selectedOption.getOption().getValue() === project.getName()) {
+                selectedOption.getOptionView().setOption(newOption);
+            }
         });
 
         this.selectOption(newOption);
@@ -87,10 +102,14 @@ export class ProjectsComboBox extends RichComboBox<Project> {
 
     private getAllProjects(): Q.Promise<Project[]> {
         if (this.getLoader().isLoaded()) {
-            return Q(this.getLoader().getResults());
+            return Q(this.getLoadedResults());
         }
 
         return this.getLoader().load();
+    }
+
+    private getLoadedResults(): Project[] {
+        return this.getLoader().getResults();
     }
 
     protected createComboboxConfig(builder: RichComboBoxBuilder<Project>): ComboBoxConfig<Project> {

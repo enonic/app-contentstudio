@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const contentBuilder = require("../../libs/content.builder");
@@ -30,13 +31,11 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1.'Default' project should be loaded after closing the 'Select project' dialog, then open wizard for new layer:
-            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard("Default");
-            await layerWizard.clickOnAccessModeRadio("Public");
-            await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
-            await layerWizard.selectLanguage(appConst.LANGUAGES.NORSK_NO);
-            //2. Save the layer:
-            await layerWizard.waitAndClickOnSave();
-            await layerWizard.waitForNotificationMessage();
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let layer = projectUtils.buildProject("Default", appConst.LANGUAGES.NORSK_NO, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
+                null, LAYER_DISPLAY_NAME);
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+            await settingsBrowsePanel.waitForNotificationMessage();
         });
 
     it("Precondition 2 - two new folders should be added in 'Default' context",
@@ -73,7 +72,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             //3. Open Layers widget:
             let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
-            studioUtils.saveScreenshot("localize_button_widget_enabled");
+            await studioUtils.saveScreenshot("localize_button_widget_enabled");
             //4. Verify that two items should be displayed in the widget:
             let layersName = await browseLayersWidget.getLayersName();
             assert.equal(layersName.length, 2, "Two layers should be present in the widget");
@@ -247,7 +246,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
     it("Postconditions: the layer should be deleted",
         async () => {
             await studioUtils.openSettingsPanel();
-            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

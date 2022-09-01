@@ -15,7 +15,7 @@ export abstract class SettingsDataItemWizardActions<ITEM extends SettingsDataVie
 
     protected delete: DeleteSettingsItemWizardAction;
 
-    constructor(wizardPanel: SettingsDataItemWizardPanel<ITEM>) {
+    protected constructor(wizardPanel: SettingsDataItemWizardPanel<ITEM>) {
         super();
 
         this.save = new SaveSettingsItemWizardAction();

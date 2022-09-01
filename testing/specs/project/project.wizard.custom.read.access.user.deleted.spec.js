@@ -9,6 +9,13 @@ const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const appConst = require('../../libs/app_const');
+const projectUtils = require('../../libs/project.utils');
+const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
+const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
+const ProjectWizardDialogNameAndIdStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
+const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
+const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
+const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
 
 describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Access in project', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -29,20 +36,43 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
             await studioUtils.addSystemUser(USER);
         });
 
-    it(`GIVEN new project wizard is opened WHEN Custom Read access radio has been clicked THEN just created user should be present in the selector options`,
+    it(`GIVEN access mode step is opened WHEN Custom Read access radio has been clicked THEN just created user should be present in the selector options`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
             let projectWizard = new ProjectWizard();
             //1.Open new project wizard:
-            await settingsBrowsePanel.openProjectWizard();
-            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
-            //2. click on 'Custom' radio:
-            await projectWizard.clickOnAccessModeRadio("Custom");
-            //3. Select the just created user in the selector's options:
-            await projectWizard.selectUserInCustomReadAccess(USER.displayName);
-            await projectWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot("custom_read_access_1");
-            //4. Verify that the user is added in 'Custom Read Access'
+            await settingsBrowsePanel.openProjectWizardDialog();
+            //2. skip the first step:
+            await parentProjectStep.clickOnSkipButton();
+            //3. Skip the language step:
+            await languageStep.clickOnSkipButton();
+            //4. Select Custom access mode:
+            await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.CUSTOM);
+            //5. Select just created user in the dropdown selector:
+            await accessModeStep.selectUserInCustomReadAccessSelector(USER.displayName);
+            await studioUtils.saveScreenshot("custom_read_access_1");
+            await accessModeStep.clickOnNextButton();
+            //6. Skip permissions step:
+            await permissionsStep.clickOnSkipButton();
+            if (await applicationsStep.isLoaded()) {
+                await applicationsStep.clickOnSkipButton();
+            }
+            let summaryStep =  await projectUtils.fillNameAndDescriptionStep(PROJECT_DISPLAY_NAME);
+            await summaryStep.waitForLoaded();
+            //7. Click on  Create button
+            await summaryStep.clickOnCreateProjectButton();
+            await summaryStep.waitForDialogClosed();
+            await settingsBrowsePanel.waitForNotificationMessage();
+            //8. Open the project:
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
+            //9. Verify that the user is present in 'Custom Read Access'
             let result = await projectWizard.getSelectedCustomReadAccessOptions();
             assert.equal(result.length, 1, "One option should be selected in Custom Read Access");
             assert.equal(result[0], USER.displayName, "expected user should be in 'Custom Read Access'");
@@ -63,7 +93,7 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            studioUtils.saveScreenshot("custom_read_access_2");
+            await studioUtils.saveScreenshot("custom_read_access_2");
             //2. Verify that 'Private' radio button is selected.
             let isSelected = await projectWizard.isAccessModeRadioSelected("Custom");
             assert.isFalse(isSelected, "'Custom' radio button should not be selected");

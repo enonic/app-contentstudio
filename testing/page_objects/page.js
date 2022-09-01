@@ -108,12 +108,7 @@ class Page {
     async addTextInInput(selector, text) {
         let inputElement = await this.findElement(selector);
         //await inputElement.clearValue();
-        await inputElement.setValue(text);
-        let value = await inputElement.getValue();
-        //workaround for issue in WebdriverIO
-        if (value == "") {
-            await inputElement.addValue(text);
-        }
+        await inputElement.addValue(text);
         await this.pause(300);
     }
 
@@ -229,7 +224,6 @@ class Page {
     }
 
     async waitForElementDisplayed(selector, ms) {
-        let elements = await this.findElements(selector);
         let element = await this.findElement(selector);
         return await element.waitForDisplayed({timeout: ms});
     }

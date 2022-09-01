@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -26,12 +27,9 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1.Select 'Default' project and open wizard for new layer:
-            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard("Default");
-            await layerWizard.clickOnAccessModeRadio("Public");
-            await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
-            //2. Save the layer:
-            await layerWizard.waitAndClickOnSave();
-            await layerWizard.waitForNotificationMessage();
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let layer = projectUtils.buildProject("Default", null, appConst.PROJECT_ACCESS_MODE.PUBLIC,null,null, LAYER_DISPLAY_NAME)
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
         });
 
     it("Precondition 2 - new site should be added by SU in 'Default'(parent) context",
@@ -53,7 +51,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await contentDuplicateDialog.waitForDialogClosed();
             //3. Verify that the copy of the site should not be displayed as 'inherited':
             await studioUtils.findAndSelectItem(SITE_NAME + "-copy");
-            studioUtils.saveScreenshot("inherited_site_copy");
+            await studioUtils.saveScreenshot("inherited_site_copy");
             let isInherited = await contentBrowsePanel.isContentInherited(SITE_NAME + "-copy");
             assert.isFalse(isInherited, "Copy of inherited site should not be with gray mask");
         });
@@ -86,6 +84,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             assert.equal(actualOrder, EXPECTED_ORDER, "'Modified date' order should be selected in the modal dialog");
         });
 
+    //Layers widget in CS+ only
     it.skip(
         "GIVEN the local copy of inherited site is selected WHEN Layers widget has been opened THEN only one item with button 'Edit' should be present in the widget",
         async () => {
@@ -101,10 +100,10 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await browseLayersWidget.waitForEditButtonEnabled(LAYER_DISPLAY_NAME);
         });
 
-    it("Postconditions: the layer should be deleted",
+    it("Post conditions: the layer should be deleted",
         async () => {
             await studioUtils.openSettingsPanel();
-            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

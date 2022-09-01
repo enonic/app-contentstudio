@@ -14,13 +14,15 @@ export class ProjectOptionDataLoader
     }
 
     filterFn(project: Project): boolean {
-        const searchString: string = this.getSearchString();
+        const searchString: string = this.getSearchString().toLowerCase();
 
         if (StringHelper.isBlank(searchString)) {
             return true;
         }
 
-        return project.getDisplayName().toLowerCase().indexOf(searchString.toLowerCase()) !== -1;
+        return project.getDisplayName()?.toLowerCase().indexOf(searchString) > -1 ||
+               project.getDescription()?.toLowerCase().indexOf(searchString) > -1 ||
+               project.getName()?.toLowerCase().indexOf(searchString) > -1;
     }
 
     checkReadonly(options: Project[]): Q.Promise<string[]> {

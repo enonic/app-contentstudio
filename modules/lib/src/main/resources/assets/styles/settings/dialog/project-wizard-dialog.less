@@ -1,0 +1,147 @@
+.project-wizard-dialog {
+  .modal-dialog-header {
+    .names-and-icon-view {
+      .@{_COMMON_PREFIX}wrapper {
+        margin-right: 10px;
+
+        .font-icon-default {
+          font-size: 38px;
+        }
+      }
+
+      .@{_COMMON_PREFIX}names-view {
+        .@{_COMMON_PREFIX}main-name {
+          height: 22px;
+          font-size: 20px;
+        }
+
+        .@{_COMMON_PREFIX}sub-name {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .modal-dialog-body {
+    .steps-container {
+      .form-view {
+        padding-top: 0 !important;
+      }
+      .project-dialog-step {
+        &:not(.project-parent-step) {
+          .help-text {
+            display: none;
+          }
+        }
+        .copy-parent-button {
+          margin-top: 10px;
+        }
+      }
+
+      .project-id-step {
+        .form-input {
+          width: 100%;
+        }
+      }
+
+      .project-summary-step {
+        .project-param-container {
+          &:not(:first-child) {
+            margin-top: 15px;
+          }
+
+          .value {
+            padding: 5px 0 0 10px;
+            font-size: 13px;
+          }
+
+          &.principals-param-container {
+            .wrapper {
+              display: flex;
+              padding: 5px 0 0 10px;
+              align-items: center;
+              justify-content: space-between;
+
+              .name {
+                padding: 0;
+              }
+
+              .principals {
+                display: flex;
+                align-items: center;
+
+                .viewer {
+                  .user-icon {
+                    width: 22px;
+                    height: 22px;
+                    line-height: 22px;
+                    font-size: 11px;
+                  }
+                }
+              }
+            }
+          }
+
+          &.language-param-container {
+            .viewer {
+              display: flex;
+              align-items: center;
+
+              .flag {
+                order: -1;
+                margin-right: 5px;
+                width: 22px;
+                height: 22px;
+
+                &.fi-none {
+                  display: none;
+                }
+              }
+            }
+          }
+
+          &.applications-param-container {
+            .applications-container {
+              padding-left: 10px;
+              .project-application-viewer {
+                .names-and-icon-view {
+                  height: 22px;
+
+                  .@{_COMMON_PREFIX}wrapper {
+                    height: 16px;
+                    width: 16px;
+                    margin-right: 8px;
+
+                    .font-icon-default {
+                      font-size: 18px;
+
+                      img {
+                        max-width: 100%;
+                        max-height: 100%;
+                        width: 100%;
+                      }
+                    }
+                  }
+
+                  .@{_COMMON_PREFIX}names-view {
+                    .@{_COMMON_PREFIX}main-name {
+                      font-size: 13px;
+                    }
+
+                    .@{_COMMON_PREFIX}sub-name {
+                      display: none;
+                    }
+                  }
+                }
+
+                &:not(:first-child) {
+                  margin-top: 5px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

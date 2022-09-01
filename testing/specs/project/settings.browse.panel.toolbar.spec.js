@@ -2,7 +2,6 @@
  * Created on 09.03.2020.
  */
 const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
@@ -25,7 +24,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
             await settingsBrowsePanel.waitForEditButtonDisabled();
         });
 
-    it(`GIVEN setting browse panel is opened WHEN 'Projects' folder has been selected THEN 'New...' button should be enabled AND 'Edit', 'Delete' are disabled`,
+    it(`WHEN 'Projects' folder has been selected THEN 'New...' button should be enabled AND 'Edit', 'Delete' are disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Select 'Projects' folder
@@ -39,7 +38,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
             await settingsBrowsePanel.waitForEditButtonDisabled();
         });
 
-    it(`GIVEN setting browse panel is opened WHEN 'Default' item has been selected THEN 'New...' and 'Edit' buttons should be enabled AND 'Delete' should be disabled`,
+    it(`WHEN 'Default' project has been selected THEN 'New...' and 'Edit' buttons should be enabled AND 'Delete' should be disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Select 'Default' folder:

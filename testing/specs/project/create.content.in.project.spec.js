@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
@@ -30,7 +31,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             //1. Navigate to Settings Panel:
             await studioUtils.openSettingsPanel();
             //1. Save new project (mode access is Private):
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.NORSK_NO);
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.NORSK_NO);
         });
 
     it(`WHEN existing project has been clicked in 'Select Context' dialog THEN empty grid should be loaded`,
@@ -58,7 +59,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             //2. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            studioUtils.saveScreenshot("project_default_language");
+            await studioUtils.saveScreenshot("project_default_language");
             //3. Verify the language in the wizard:
             let actualLanguage = await settingsStepForm.getSelectedLanguage();
             assert.equal(actualLanguage, appConst.LANGUAGES.NORSK_NO, "Expected language should be selected in the wizard step form");
@@ -130,11 +131,11 @@ describe('create.content.in.project.spec - create new content in the selected co
             assert.equal(result.length, 0, "Filtered grid should be empty");
         });
 
-    it("Postconditions: the project should be deleted",
+    it("Post conditions: the project should be deleted",
         async () => {
             await studioUtils.openSettingsPanel();
             //1.Select and delete the layer:
-            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+            await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

@@ -4,11 +4,11 @@ const ProjectWizardPanel = require('./project.wizard.panel');
 
 const XPATH = {
     container: `//div[contains(@id,'ProjectWizardPanel')]`,
-    languageProjectFormItem: "//div[contains(@id,'ProjectFormItem') and descendant::label[text()='Language']]",
-    accessModeProjectFormItem: "//div[contains(@id,'ProjectFormItem') and descendant::label[text()='Access mode']]",
+    languageProjectFormItem: "//div[contains(@id,'LocaleFormItem') and descendant::label[text()='Language']]",
+    accessModeProjectFormItem: "//div[contains(@id,'ProjectReadAccessFormItem') and descendant::label[text()='Access mode']]",
     projectRolesWizardStepFormDiv: "//div[contains(@id,'ProjectRolesWizardStepForm')]",
     copyButton: "//button[child::span[text()='Copy from parent']]",
-    projectSelectedOptionView: "//div[contains(@id,'ProjectSelectedOptionView')]",
+    projectSelectedOptionView: "//div[contains(@id,'ParentProjectFormItem')]",
 };
 
 class LayerWizardPanel extends ProjectWizardPanel {
@@ -68,9 +68,15 @@ class LayerWizardPanel extends ProjectWizardPanel {
         return await this.waitForElementDisabled(this.copyRolesFromParentButton, appConst.mediumTimeout);
     }
 
-    getParentProjectName() {
-        let locator = XPATH.projectSelectedOptionView + lib.H6_DISPLAY_NAME + "//span";
-        return this.getText(locator);
+    async getParentProjectName() {
+        try {
+            let locator = XPATH.projectSelectedOptionView + "//h6[contains(@id,'ProjectsChainBlock')]//span[@class='item']";
+            await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_layer_parent"));
+            throw new Error("Layer wizard, parent project name: " + err);
+        }
     }
 }
 

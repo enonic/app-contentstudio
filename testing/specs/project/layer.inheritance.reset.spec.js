@@ -5,10 +5,9 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const contentBuilder = require("../../libs/content.builder");
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const appConst = require('../../libs/app_const');
@@ -25,12 +24,11 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;
 
-
     it(`Precondition 1 - parent project with private access mode should be created`,
         async () => {
             await studioUtils.openSettingsPanel();
             //1. Save new project (mode access is Private):
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME);
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME);
         });
 
     it("Precondition 2: new site should be created in existing parent project",
@@ -46,13 +44,12 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
         async () => {
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
-            await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
-            await layerWizard.selectLanguage(appConst.LANGUAGES.EN);
-            //2. Click on 'Private' radio button:
-            await layerWizard.clickOnAccessModeRadio("Private");
-            await layerWizard.waitAndClickOnSave();
-            await layerWizard.waitForNotificationMessage();
+            //1.Create new layer in the Default project:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let layer = projectUtils.buildProject(PROJECT_DISPLAY_NAME, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PRIVATE, null,
+                null, LAYER_DISPLAY_NAME);
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+            await settingsBrowsePanel.waitForNotificationMessage();
         });
 
     it("GIVEN site is selected AND 'Localize' button has been pressed WHEN 'Save' button has been pressed THEN 'Reset' button should appear in the wizard toolbar",
@@ -79,7 +76,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             //4. Click on No button in confirmation dialog:
             await confirmationDialog.clickOnNoButton();
             let language = await settingsStepForm.getSelectedLanguage();
-            studioUtils.saveScreenshot("reset_not_confirmed");
+            await studioUtils.saveScreenshot("reset_not_confirmed");
             //5. Verify that site is not reverted to initial inherited state:
             assert.equal(language, appConst.LANGUAGES.EN, "layer's data should not be reset");
             //6. Verify that Reset button still displayed in the wizard toolbar:
@@ -98,7 +95,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             //3. Click on 'Yes' button in confirmation dialog:
             await confirmationDialog.clickOnYesButton();
             let language = await settingsStepForm.getSelectedLanguage();
-            studioUtils.saveScreenshot("reset_confirmed");
+            await studioUtils.saveScreenshot("reset_confirmed");
             //4. Verify that content is reverted to initial inherited state:
             assert.equal(language, appConst.LANGUAGES.EN, "layer's language should be reset");
             //5. Verify that 'Reset' button is not displayed in the wizard toolbar:
@@ -122,7 +119,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             //4. Click on 'Yes' button in confirmation dialog:
             await confirmationDialog.clickOnYesButton();
             await contentWizard.pause(1500);
-            studioUtils.saveScreenshot("reset_confirmed_w_status");
+            await studioUtils.saveScreenshot("reset_confirmed_w_status");
             let actualStatus = await contentWizard.getIconWorkflowState();
             //5. Verify that workflow status is 'work in progress' ( initial inherited state):
             assert.equal(actualStatus, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
@@ -151,11 +148,11 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             //await contentWizard.waitForShowComponentVewTogglerNotVisible();
         });
 
-    it("Postconditions: the project should be deleted",
+    it("Post conditions: the project should be deleted",
         async () => {
             await studioUtils.openSettingsPanel();
-            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
-            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+            await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
         });
 
 

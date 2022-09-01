@@ -575,9 +575,9 @@ module.exports = {
             await this.clickOnContentStudioLink(userName, password);
             return await this.doSwitchToContentBrowsePanel();
         } catch (err) {
-            console.log('tried to navigate to Content Studio app, but: ' + err);
-            this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
-            throw new Error('error when navigate to Content Studio app ' + err);
+            let screenshot = appConst.generateRandomName("err_navigate_cs")
+            this.saveScreenshot(screenshot);
+            throw new Error('error when navigate to Content Studio app. Screenshot:  ' + screenshot + "  " + err);
         }
     },
     async navigateToContentStudioAppMobile(userName, password) {
@@ -613,11 +613,11 @@ module.exports = {
         try {
             await this.clickOnContentStudioLink(userName, password);
             await this.getBrowser().switchWindow("Content Studio - Enonic XP Admin");
-            await this.getBrowser().pause(700);
             await this.closeProjectSelectionDialog();
         } catch (err) {
-            this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
-            throw new Error('error when navigate to Content Studio app ' + err);
+            let screenshot = appConst.generateRandomName("err_navigate_to_studio")
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error when navigate to Content Studio app. Screenshot: ' + screenshot + "  " + err);
         }
     },
     //Clicks on Cancel button and switches to Default project
@@ -625,6 +625,7 @@ module.exports = {
         let projectSelectionDialog = new ProjectSelectionDialog();
         let isLoaded = await projectSelectionDialog.isDialogLoaded();
         if (isLoaded) {
+            await projectSelectionDialog.pause(200);
             await projectSelectionDialog.clickOnCancelButtonTop();
             await projectSelectionDialog.waitForDialogClosed();
             return await this.getBrowser().pause(200);
@@ -639,7 +640,6 @@ module.exports = {
     },
     async doSwitchToContentBrowsePanel() {
         try {
-            console.log('testUtils:switching to Content Browse panel...');
             let browsePanel = new BrowsePanel();
             await this.getBrowser().switchWindow("Content Studio - Enonic XP Admin");
             console.log("switched to content browse panel...");
@@ -649,14 +649,12 @@ module.exports = {
             throw new Error("Error when switching to Content Studio App " + err);
         }
     },
-    doSwitchToHome: function () {
+    async doSwitchToHome() {
         console.log('testUtils:switching to Home page...');
-        return this.getBrowser().switchWindow("Enonic XP Home").then(() => {
-            console.log("switched to Home...");
-        }).then(() => {
-            let homePage = new HomePage();
-            return homePage.waitForLoaded(appConst.mediumTimeout);
-        });
+        let homePage = new HomePage();
+        await this.getBrowser().switchWindow("Enonic XP Home");
+        return await homePage.waitForLoaded(appConst.mediumTimeout);
+
     },
     async doCloseWindowTabAndSwitchToBrowsePanel() {
         await this.getBrowser().closeWindow();
@@ -841,32 +839,6 @@ module.exports = {
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
     },
-    async saveTestProject(name, description, language, principalsToAccess, accessMode) {
-        let projectWizard = new ProjectWizard();
-        let settingsBrowsePanel = new SettingsBrowsePanel();
-        await settingsBrowsePanel.openProjectWizard();
-        await projectWizard.typeDisplayName(name);
-        await projectWizard.typeDescription(description);
-        if (language) {
-            await projectWizard.selectLanguage(language);
-        }
-        if (principalsToAccess) {
-            await projectWizard.addPrincipalsInRolesForm(principalsToAccess);
-        }
-        if (accessMode) {
-            await projectWizard.clickOnAccessModeRadio(accessMode);
-        } else {
-            await projectWizard.clickOnAccessModeRadio("Private");
-        }
-        await projectWizard.pause(400);
-        await projectWizard.waitAndClickOnSave();
-        await projectWizard.waitForNotificationMessage();
-        await projectWizard.waitForSpinnerNotVisible();
-        await projectWizard.pause(700);
-        await settingsBrowsePanel.clickOnCloseIcon(name);
-        await projectWizard.waitForWizardClosed();
-        return await settingsBrowsePanel.pause(500);
-    },
     async navigateToUsersApp(userName, password) {
         try {
             let launcherPanel = new LauncherPanel();
@@ -1007,19 +979,6 @@ module.exports = {
                 return result.length > 0;
             })
         }, {timeout: ms, timeoutMsg: "Timeout exception. Element " + selector + " still not visible in: " + ms});
-    },
-    async selectAndDeleteProject(projectName) {
-        let confirmValueDialog = new ConfirmValueDialog();
-        let settingsBrowsePanel = new SettingsBrowsePanel();
-        //1.Select the layer:
-        await settingsBrowsePanel.clickOnRowByDisplayName(projectName);
-        await settingsBrowsePanel.clickOnDeleteButton();
-        //2. Confirm the deleting:
-        await confirmValueDialog.waitForDialogOpened();
-        await confirmValueDialog.typeNumberOrName(projectName);
-        await confirmValueDialog.clickOnConfirmButton();
-        await confirmValueDialog.waitForDialogClosed();
-        return await settingsBrowsePanel.waitForNotificationMessage();
     },
     async scheduleContent(contentName, date) {
         let contentBrowsePanel = new ContentBrowsePanel();

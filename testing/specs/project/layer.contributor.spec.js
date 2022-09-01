@@ -5,6 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const projectUtils = require('../../libs/project.utils.js');
 const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -43,7 +44,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //2. Save new project (mode access is Private):
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME);
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, null, null, null, null, appConst.APP_CONTENT_TYPES);
         });
 
     it("Precondition 3: new site should be created in the parent project",
@@ -63,14 +64,11 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             //1. Do Log in with 'SU':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
-            await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
-            //2. Click on 'Private' radio button:
-            await layerWizard.clickOnAccessModeRadio("Private");
-            //3. Select the users in Project Access selector:
-            await layerWizard.selectProjectAccessRoles(USER.displayName);
-            await layerWizard.waitAndClickOnSave();
-            await layerWizard.waitForNotificationMessage();
+            await settingsBrowsePanel.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
+            let layer = projectUtils.buildProject(PROJECT_DISPLAY_NAME, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName, null,
+                LAYER_DISPLAY_NAME, null, null);
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
+            await settingsBrowsePanel.waitForNotificationMessage();
             //Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
@@ -126,12 +124,12 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             await studioUtils.doLogout();
         });
 
-    it("Postconditions: the layer should be deleted",
+    it("Post conditions: the layer should be deleted",
         async () => {
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog("su", "password");
             await studioUtils.openSettingsPanel();
             //1.Select and delete the layer:
-            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME)
+            await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME)
         });
 
     afterEach(async () => {

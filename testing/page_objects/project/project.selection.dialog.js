@@ -38,7 +38,7 @@ class ProjectSelectionDialog extends Page {
 
     async isDialogLoaded() {
         try {
-            return await this.waitForElementDisplayed(XPATH.container, appConst.shortTimeout);
+            return await this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_1);
         } catch (err) {
             return false;
         }

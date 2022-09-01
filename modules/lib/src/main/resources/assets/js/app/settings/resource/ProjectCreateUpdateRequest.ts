@@ -13,7 +13,9 @@ export abstract class ProjectCreateUpdateRequest
 
     protected description: string;
 
-    constructor() {
+    protected applications: string[];
+
+    protected constructor() {
         super();
         this.setMethod(HttpMethod.POST);
     }
@@ -33,11 +35,17 @@ export abstract class ProjectCreateUpdateRequest
         return this;
     }
 
+    setApplications(value: string[]): ProjectCreateUpdateRequest {
+        this.applications = value || [];
+        return this;
+    }
+
     getParams(): Object {
         return {
             name: this.name,
             displayName: this.displayName,
-            description: this.description
+            description: this.description,
+            applications: this.applications
         };
     }
 

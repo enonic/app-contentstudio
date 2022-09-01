@@ -1,5 +1,7 @@
 /**
  * Created on 10.05.2018.
+ * Verifies:
+ * https://github.com/enonic/lib-admin-ui/issues/485   impossible to insert a table into Text Editor(CKE)
  */
 const chai = require('chai');
 const assert = chai.assert;

@@ -16,7 +16,7 @@ const XPATH = {
     selectedReadAccessOption: "//div[contains(@id,'PrincipalSelectedOptionView')]",
     projectAccessControlComboBox: "//div[contains(@id,'ProjectAccessControlComboBox')]",
     projectReadAccessWizardStepForm: "//div[contains(@id,'ProjectReadAccessWizardStepForm')]",
-    accessFormItem: "//div[contains(@id,'ProjectFormItem') and contains(@class,'access')]",
+    accessFormItem: "//div[contains(@id,'ProjectReadAccessFormItem')]",
     localeComboBoxDiv: "//div[contains(@id,'LocaleComboBox')]",
     languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
     projectAccessSelectorTabMenu: "//div[contains(@id,'ProjectAccessSelector') and contains(@class,'tab-menu access-selector')]",
@@ -102,7 +102,7 @@ class ProjectWizardPanel extends Page {
         return await this.getText(this.projectIdentifierValidationMessage);
     }
 
-    async getProjectIdentifierValidationMessageNotVisible() {
+    async waitForProjectIdentifierValidationMessageNotVisible() {
         return await this.waitForElementNotDisplayed(this.projectIdentifierValidationMessage, appConst.shortTimeout);
     }
 
@@ -222,7 +222,7 @@ class ProjectWizardPanel extends Page {
         return this.waitForElementDisplayed(this.rolesComboBox);
     }
 
-    //Adds an user with the default role (Contributor) in Roles step form:
+    //Adds a user with the default role (Contributor) in Roles step form:
     async selectProjectAccessRoles(principalDisplayName) {
         let comboBox = new ComboBox();
         await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
@@ -288,7 +288,7 @@ class ProjectWizardPanel extends Page {
 
     async selectUserInCustomReadAccess(principalDisplayName) {
         let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.projectReadAccessWizardStepForm + XPATH.accessFormItem);
+        await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.projectReadAccessWizardStepForm );
         console.log("Project Wizard, principal is selected: " + principalDisplayName);
         return await this.pause(300);
     }
@@ -394,7 +394,7 @@ class ProjectWizardPanel extends Page {
             await this.clickOnElement(this.removeLanguageButton);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot("err_click_on_remove_language_icon");
+            await this.saveScreenshot("err_click_on_remove_language_icon");
             throw new Error('Error when removing the language! ' + err);
         }
     }

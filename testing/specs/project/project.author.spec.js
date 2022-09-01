@@ -17,6 +17,10 @@ const CreateRequestPublishDialog = require('../../page_objects/issue/create.requ
 const contentBuilder = require("../../libs/content.builder");
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const appConst = require('../../libs/app_const');
+const projectUtils = require('../../libs/project.utils');
+const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
+const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
+const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 
 describe('project.author.spec - ui-tests for user with Author role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -47,23 +51,43 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
             //1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-
-            //2.Open new project wizard:
-            await settingsBrowsePanel.openProjectWizard();
-            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
-            await projectWizard.clickOnAccessModeRadio("Private");
-            let result = await projectWizard.isDescriptionInputClickable();
-            //3. Select the user in roles, assign Author role him:
-            await projectWizard.selectProjectAccessRoles(USER.displayName);
-            await projectWizard.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.AUTHOR);
-            await projectWizard.waitAndClickOnSave();
-            await projectWizard.waitForNotificationMessage();
-            await projectWizard.waitForSpinnerNotVisible();
-            studioUtils.saveScreenshot("project_author_1");
-            //4. Verify that expected user is present in selected options:
+            //2.Open new project wizard dialog:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            //3. skip the first step:
+            await parentProjectStep.clickOnSkipButton();
+            //4. Skip the language step:
+            await languageStep.clickOnSkipButton();
+            //5. Select 'Private' access mode in the fours step:
+            let permissionsStep = await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PRIVATE);
+            await permissionsStep.waitForLoaded();
+            //6. Select the user with default role:
+            await permissionsStep.selectProjectAccessRole(USER.displayName);
+            //7. Update the default role to "Author"
+            await permissionsStep.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.AUTHOR);
+            //8. Click on Next button in permissions step:
+            await permissionsStep.clickOnNextButton();
+            if(await applicationsStep.isLoaded()){
+                await applicationsStep.clickOnSkipButton();
+            }
+            //9. Fil in the name input:
+            let summaryStep = await projectUtils.fillNameAndDescriptionStep(PROJECT_DISPLAY_NAME);
+            await summaryStep.waitForLoaded();
+            //10. click On Create button:
+            await summaryStep.clickOnCreateProjectButton();
+            await summaryStep.waitForDialogClosed();
+            await settingsBrowsePanel.waitForNotificationMessage();
+            //11. Open the project
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
+            await studioUtils.saveScreenshot("project_author_1");
+            //12. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
             //Do log out:

@@ -19,6 +19,7 @@ const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detail
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
+const projectUtils = require('../../libs/project.utils');
 
 describe('project.contributor.spec - ui-tests for user with Contributor role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -47,7 +48,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("GIVEN new project wizard is opened WHEN existing user has been added as contributor THEN expected user should be selected in Project Roles form",
+    it("GIVEN new project wizard dialog is opened WHEN existing user has been added as contributor THEN expected user should be selected in Project Roles form",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -56,15 +57,17 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.openSettingsPanel();
 
             //2.Open new project wizard:
-            await settingsBrowsePanel.openProjectWizard();
-            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
-            await projectWizard.clickOnAccessModeRadio("Private");
-            let result = await projectWizard.isDescriptionInputClickable();
-            //3. Select the user in roles, assign Contributor role him:
-            await projectWizard.selectProjectAccessRoles(USER.displayName);
-            await projectWizard.waitAndClickOnSave();
-            await projectWizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot("project_contributor_created_1");
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let project = projectUtils.buildProject(null, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName,
+                null, PROJECT_DISPLAY_NAME);
+            await projectUtils.fillFormsWizardAndClickOnCreateButton(project);
+            await projectWizard.waitForNotificationMessage(PROJECT_DISPLAY_NAME);
+
+            await studioUtils.saveScreenshot("project_contributor_created_1");
+            //3. Select the project and click on Edit button:
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
             //4. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
