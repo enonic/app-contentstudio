@@ -90,7 +90,7 @@ jobs:
                   restore-keys: |
                       ${{ runner.os }}-gradle-2-
             - uses: browser-actions/setup-chrome@latest
-                        - run: chrome --version
+
 
             - uses: actions/download-artifact@v3
               with:
