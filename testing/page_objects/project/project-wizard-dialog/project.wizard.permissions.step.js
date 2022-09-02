@@ -11,6 +11,8 @@ const XPATH = {
     projectAccessControlComboBox: "//div[contains(@id,'ProjectAccessControlComboBox')]",
     accessItemByName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
+    accessItemByDisplayName:
+        name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`,
 };
 const DESCRIPTION = "Give access to manage the project and its content";
 
@@ -22,6 +24,7 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
         await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
         return await this.pause(500);
     }
+
     addPrincipalsInRolesForm(memberDisplayNames) {
         let result = Promise.resolve();
         memberDisplayNames.forEach(displayName => {
@@ -29,6 +32,7 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
         });
         return result;
     }
+
     async waitForLoaded() {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();
@@ -61,6 +65,20 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
         await this.clickOnElement(menuItem);
         return await this.pause(500);
     }
+
+    //clicks on remove icon and  remove a user from Roles form:
+    async removeProjectAccessItem(principalName) {
+        try {
+            let selector = XPATH.container + XPATH.accessItemByDisplayName(principalName) + lib.REMOVE_ICON;
+            await this.clickOnElement(selector);
+            return await this.pause(300);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_remove_principal");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error when trying to remove project Access Item, screenshot: " + screenshot + "  " + err);
+        }
+    }
+
 }
 
 module.exports = ProjectWizardDialogPermissionsStep;

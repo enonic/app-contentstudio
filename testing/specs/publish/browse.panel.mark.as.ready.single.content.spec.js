@@ -15,8 +15,8 @@ describe('browse.panel.mark.as.ready.single.content.spec - tests for Request Pub
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
+        let TEST_FOLDER;
     }
-    let TEST_FOLDER;
 
     it("WHEN 'Work in progress' folder is selected AND 'Publish...' menu item has been clicked THEN publishing wizard should be opened AND the folder is Work in progress",
         async () => {
