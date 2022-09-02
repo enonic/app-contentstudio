@@ -70,7 +70,22 @@ class ProjectWizardDialog extends Page {
     async waitForCopyFromParentButtonDisabled() {
         try {
             await this.waitUntilDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
-            return await this.waitForElementDisabled(this.copyFromParentButton, appConst.mediumTimeout);
+            let elements = await this.getDisplayedElements(this.copyFromParentButton);
+            await elements[0].waitForEnabled(
+                {timeout: appConst.mediumTimeout, reverse: true, timeoutMsg: "Copy button should be disabled!"});
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Copy from parent button is not disabled, screenshot: " + screenshot + "  " + err);
+        }
+    }
+
+    async waitForCopyFromParentButtonEnabled() {
+        try {
+            await this.waitUntilDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
+            let elements = await this.getDisplayedElements(this.copyFromParentButton);
+            await elements[0].waitForEnabled(
+                {timeout: appConst.mediumTimeout, timeoutMsg: "Copy button should be enabled!"});
         } catch (err) {
             let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
             await this.saveScreenshot(screenshot);
@@ -81,7 +96,8 @@ class ProjectWizardDialog extends Page {
     async clickOnCopyFromParentButton() {
         try {
             await this.waitForCopyFromParentButtonDisplayed();
-            return await this.clickOnElement(this.copyFromParentButton);
+            let elements = await this.getDisplayedElements(this.copyFromParentButton);
+            return await elements[0].click();
         } catch (err) {
             let screenshot = appConst.generateRandomName("err_copy_from_parent_button");
             await this.saveScreenshot(screenshot);
@@ -186,4 +202,3 @@ class ProjectWizardDialog extends Page {
 }
 
 module.exports = ProjectWizardDialog;
-

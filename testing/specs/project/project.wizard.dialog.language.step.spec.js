@@ -10,10 +10,7 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
-const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
-const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
-const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
 
 describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizard step', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
