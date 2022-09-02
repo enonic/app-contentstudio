@@ -142,12 +142,12 @@
 
 .dropdown-toggler(@color) {
   .xp-admin-common-dropdown-handle {
-    &::after {
-      border-top-color: @color;
+    &::before {
+      color: @color;
     }
 
-    &:not([disabled]):hover::after {
-      border-top-color: darken(@color, 10%);
+    &:not([disabled]):hover::before {
+      color: darken(@color, 10%);
     }
 
     @media screen and (max-width: 720px) {
