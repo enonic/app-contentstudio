@@ -55,8 +55,6 @@ export class ContextSplitPanel
         InspectEvent.on((event: InspectEvent) => {
             if (event.isShowPanel() && this.isRendered() && !this.isExpanded()) {
                 this.showContextPanel();
-            } else if (!event.isShowPanel()) {
-                this.hideContextPanel();
             }
         });
 
