@@ -19,9 +19,10 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
-    waitForProjectOptionsFilterInputDisplayed(){
-        return this.waitForElementDisplayed(this.projectOptionsFilterInput,appConst.mediumTimeout);
+    waitForProjectOptionsFilterInputDisplayed() {
+        return this.waitForElementDisplayed(this.projectOptionsFilterInput, appConst.mediumTimeout);
     }
+
     async selectParentProject(projectDisplayName) {
         let comboBox = new ComboBox();
         await comboBox.typeTextAndSelectOption(projectDisplayName, XPATH.container + XPATH.parentProjectComboboxDiv);
@@ -31,7 +32,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
     async typeTextInOptionFilterInputAndSelectOption(text, projectDisplayName) {
         let comboBox = new ComboBox();
-        await this.typeTextInInput(this.projectOptionsFilterInput,text);
+        await this.typeTextInInput(this.projectOptionsFilterInput, text);
         await comboBox.selectOption(projectDisplayName, XPATH.container + XPATH.parentProjectComboboxDiv);
         console.log("Project Wizard, parent project is selected: " + projectDisplayName);
         return await this.pause(400);
@@ -43,11 +44,10 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         await this.clickOnElement(locator);
     }
 
-    async selectLanguage(language) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(language, XPATH.projectReadAccessWizardStepForm + XPATH.localeComboBoxDiv);
-        console.log("Project Wizard, language is selected: " + language);
-        return await this.pause(300);
+    async getSelectedProject() {
+        let locator = XPATH.container + XPATH.projectSelectedOptionView + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 
     async waitForLoaded() {

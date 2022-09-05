@@ -6,9 +6,7 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const appConst = require('../../libs/app_const');
-const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 
@@ -38,8 +36,10 @@ describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizar
             await languageStep.clickOnCopyFromParentButton();
             let message = await languageStep.waitForNotificationMessage();
             assert.equal(message, appConst.languageCopiedNotification("Default"), "Expected notification message");
-            //7. Verify that 'Skip' button gets visible again
+            //7. Verify that 'Skip' button gets visible again:
             await languageStep.waitForSkipButtonDisplayed();
+            //8. Verify that Language options filter input gets visible:
+            await languageStep.waitForLanguageFilterInputDisplayed();
         });
 
     it(`GIVEN a language has been selected in the wizard step WHEN selected language option has been removed THEN 'Copy from parent' button gets enabled`,
@@ -62,7 +62,6 @@ describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizar
             //6. 'Copy from parent' button gets disabled again:
             await languageStep.waitForCopyFromParentButtonDisabled();
         });
-
 
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
