@@ -22,10 +22,12 @@ class OptionSetFormView extends Page {
             await this.clickOnElement(this.dropDownHandleInSingleSelection);
             let optionLocator = xpath.singleSelectionView + lib.itemByDisplayName(option);
             await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-            return await this.clickOnElement(optionLocator);
+            await this.clickOnElement(optionLocator);
+            return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_optionset"));
-            throw new Error(err);
+            let screenshot = appConst.generateRandomName("err_optionset");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error,after selecting the option in single selection, screenshot:" + screenshot + "  " + err);
         }
     }
 
@@ -35,8 +37,9 @@ class OptionSetFormView extends Page {
             let elements = await this.findElements(locator).click();
             return await elements[0].click();
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_optionset_expand"));
-            throw new Error(err);
+            let screenshot = appConst.generateRandomName("err_optionset");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error after expanding the forms, screenshot:" + screenshot + "  " + err);
         }
     }
 }
