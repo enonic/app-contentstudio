@@ -79,18 +79,30 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             let message = await contentWizard.waitForNotificationMessage();
             let actualPath = await contentWizard.getPath();
             assert.equal(actualPath, NEW_NAME, "Path in wizard page should be updated");
-            //3. Verify that 'modify path' icon gets not visible in wizard page after updating the path:
-            await contentWizard.waitForModifyPathButtonNotDisplayed();
+            //3. Verify that 'modify path' icon remains visible in wizard page after updating the path:
+            await contentWizard.waitForModifyPathButtonDisplayed();
             //4. Verify that content's status gets 'Moved'
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MOVED);
             //5. Verify that expected notification message:
             assert.equal(message, appConst.CONTENT_RENAMED, "Content has been renamed - message should be displayed");
         });
 
+    it("GIVEN modified content has been opened WHEN the content has been unpublished THEN 'modify path' icon should not be visible in the wizard-page",
+        async () => {
+            let contentWizard = new ContentWizard();
+            //1. open existing Modified folder:
+            await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME, TEST_FOLDER.displayName);
+            //2. Do unpublish the folder:
+            await studioUtils.doUnPublishInWizard();
+            await studioUtils.saveScreenshot("unpublished_content_modify_path_icon");
+            //3. Verify that 'modify path' icon is not visible in unpublished content:
+            await contentWizard.waitForModifyPathButtonNotDisplayed();
+        });
+
     it("GIVEN 'Rename published content' dialog is opened WHEN the path of existing content has been typed THEN 'Not available' message should appear in the dialog",
         async () => {
             let contentWizard = new ContentWizard();
-            await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME,TEST_FOLDER.displayName);
+            await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME, TEST_FOLDER.displayName);
             //Publish the 'Moved' folder again:
             await contentWizard.openPublishMenuAndPublish();
             await contentWizard.pause(1000);
@@ -106,19 +118,21 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
         });
 
     //Verifies -  Rename published content dialog - incorrect behaviour of validation in new name input #2472
-    it("GIVEN path is cleared in 'Rename published content' dialog WHEN the path of existing content has been typed THEN 'Not available' message should appear in the dialog",
+    it("GIVEN 'Rename published content' is dialog WHEN not available path has been typed THEN 'Rename' button should be disabled in the dialog",
         async () => {
             let contentWizard = new ContentWizard();
-            await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME,TEST_FOLDER.displayName);
+            await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME, TEST_FOLDER.displayName);
             //1. Click on 'Modify path icon' and open the modal dialog:
             let renamePublishedContentDialog = await contentWizard.clickOnModifyPathButton();
             //2. Type available path:
             await renamePublishedContentDialog.typeInNewNameInput("test12345678");
             //3. Type not available path:
             await renamePublishedContentDialog.typeInNewNameInput(NEW_NAME);
+            await studioUtils.saveScreenshot("rename-dialog_path_not_available");
             //3. Verify that 'Rename' button gets disabled:
             await renamePublishedContentDialog.waitForRenameButtonDisabled();
         });
+
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
