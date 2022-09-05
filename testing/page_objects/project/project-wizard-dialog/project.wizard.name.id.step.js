@@ -4,7 +4,6 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const ComboBox = require('../../components/loader.combobox');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 
 const XPATH = {
@@ -56,9 +55,13 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
 
     async addTextInProjectIdentifierInput(text) {
         await this.waitForIdentifierInputEnabled();
-        return this.addTextInInput(this.projectIdentifierInput, text);
+        return await this.addTextInInput(this.projectIdentifierInput, text);
     }
 
+    async typeTextInProjectIdentifierInput(text) {
+        await this.waitForIdentifierInputEnabled();
+        return await this.typeTextInInput(this.projectIdentifierInput, text);
+    }
 
     async getProjectIdentifierValidationMessage() {
         await this.waitForElementDisplayed(this.projectIdentifierValidationMessage, appConst.shortTimeout);

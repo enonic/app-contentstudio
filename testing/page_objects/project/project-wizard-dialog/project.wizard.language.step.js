@@ -9,7 +9,7 @@ const ProjectWizardDialog = require('./project.wizard.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
-    localeStep:"//form[contains(@class,'project-language-step')]",
+    localeStep: "//form[contains(@class,'project-language-step')]",
     projectSelectedOptionView: "//div[contains(@id,'ProjectSelectedOptionView')]",
     localeComboBoxDiv: "//div[contains(@id,'LocaleComboBox')]",
     languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
@@ -20,6 +20,19 @@ class ProjectWizardDialogLanguageStep extends ProjectWizardDialog {
 
     get removeLanguageButton() {
         return XPATH.container + XPATH.languageSelectedOption + lib.REMOVE_ICON;
+    }
+
+    get languageOptionsFilterInput() {
+        return XPATH.container + XPATH.localeComboBoxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+    waitForLanguageFilterInputDisplayed() {
+        try {
+            return this.waitForElementDisplayed(this.languageOptionsFilterInput, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_proj_wizard_language");
+            throw new Error("Language filter input should be visible, screenshot:" + screenshot + "  " + err);
+        }
     }
 
     async clickOnRemoveSelectedLanguageIcon() {
@@ -33,6 +46,7 @@ class ProjectWizardDialogLanguageStep extends ProjectWizardDialog {
         console.log("Project Wizard, language is selected: " + language);
         return await this.pause(300);
     }
+
     async waitForLoaded() {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();

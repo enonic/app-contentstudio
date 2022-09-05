@@ -78,7 +78,6 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
             throw new Error("Error when trying to remove project Access Item, screenshot: " + screenshot + "  " + err);
         }
     }
-
 }
 
 module.exports = ProjectWizardDialogPermissionsStep;

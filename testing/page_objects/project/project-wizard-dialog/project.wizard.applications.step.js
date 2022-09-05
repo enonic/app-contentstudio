@@ -10,6 +10,7 @@ const ProjectWizardDialog = require('./project.wizard.dialog');
 const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
     projectApplicationsComboBox: "//div[contains(@id,'ProjectApplicationsComboBox')]",
+    selectedProjectView: "//div[contains(@id,'ProjectApplicationSelectedOptionView')]",
 };
 const DESCRIPTION = "Select applications for the project content";
 
@@ -56,6 +57,12 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
             });
         });
         return result;
+    }
+
+    async removeApplication(appName) {
+        let locator = XPATH.container + XPATH.selectedProjectView + lib.REMOVE_ICON;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.clickOnElement(locator);
     }
 }
 

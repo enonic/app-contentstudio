@@ -93,8 +93,9 @@ class SingleSelectionOptionSet extends Page {
             await menuButtons[index].click();
             return await this.pause(400);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_single_sel"));
-            throw new Error("Single Selection - expand menu button " + err);
+            let screenshot = appConst.generateRandomName("err_opt_set");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Option Set , error after expand option menu, screenshot:" + screenshot + " " + err);
         }
     }
 
