@@ -2834,7 +2834,7 @@ export class ContentWizardPanel
     private setPersistedContent(content: ContentSummaryAndCompareStatus) {
         this.persistedContent = content;
 
-        this.wizardHeader?.setOnline(this.persistedContent.isOnline());
+        this.wizardHeader?.setOnline(!this.persistedContent.isNew());
         this.contextView?.setItem(content);
     }
 
