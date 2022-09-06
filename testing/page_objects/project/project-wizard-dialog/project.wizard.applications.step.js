@@ -10,7 +10,7 @@ const ProjectWizardDialog = require('./project.wizard.dialog');
 const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
     projectApplicationsComboBox: "//div[contains(@id,'ProjectApplicationsComboBox')]",
-    selectedProjectView: "//div[contains(@id,'ProjectApplicationSelectedOptionView')]",
+    selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
 };
 const DESCRIPTION = "Select applications for the project content";
 
@@ -60,9 +60,15 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
     }
 
     async removeApplication(appName) {
-        let locator = XPATH.container + XPATH.selectedProjectView + lib.REMOVE_ICON;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.clickOnElement(locator);
+        try {
+            let locator = XPATH.container + XPATH.selectedProjectView(appName) + lib.REMOVE_ICON;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.clickOnElement(locator);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_remove_app");
+            await this.saveScreenshot(screenshot);
+            throw new Error("error after pressing the remove button, screenshot: " + screenshot + "  " + err);
+        }
     }
 }
 

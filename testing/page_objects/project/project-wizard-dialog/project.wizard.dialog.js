@@ -107,6 +107,7 @@ class ProjectWizardDialog extends Page {
 
     async waitForSkipButtonEnabled() {
         try {
+            await this.waitForSkipButtonDisplayed();
             return await this.waitForElementEnabled(this.skipButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_skip_button"));
