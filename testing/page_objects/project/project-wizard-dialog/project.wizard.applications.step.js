@@ -11,6 +11,7 @@ const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
     projectApplicationsComboBox: "//div[contains(@id,'ProjectApplicationsComboBox')]",
     selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
+    selectedApplications: "//div[contains(@id,'ProjectApplicationSelectedOptionView') ]",
 };
 const DESCRIPTION = "Select applications for the project content";
 
@@ -69,6 +70,12 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
             await this.saveScreenshot(screenshot);
             throw new Error("error after pressing the remove button, screenshot: " + screenshot + "  " + err);
         }
+    }
+
+    async getSelectedApplications() {
+        let locator = XPATH.container + XPATH.selectedApplications + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
     }
 }
 

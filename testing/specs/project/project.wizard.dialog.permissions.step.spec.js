@@ -33,7 +33,6 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             await languageStep.clickOnSkipButton();
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();
-
             //3. Verify that 'Skip' button is enabled in Permissions step:
             await permissionsStep.waitForSkipButtonEnabled();
             //4. Verify that 'Copy from parent' button is disabled:
@@ -49,7 +48,7 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             let actualMessage = await accessModeStep.waitForNotificationMessage();
             assert.equal(actualMessage, 'Roles successfully copied from "Default"');
             await studioUtils.saveScreenshot("roles_copied_from_default");
-            //6. Verify that 'Skip' button gets visible:
+            //6. Verify that 'Skip' button gets visible and enabled:
             await accessModeStep.waitForSkipButtonEnabled();
             //7. Verify that 'Copy from parent' button gets disabled now:
             await accessModeStep.waitForCopyFromParentButtonDisabled();
@@ -70,7 +69,6 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             await languageStep.clickOnSkipButton();
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();
-
             //3. Verify that 'Skip' button is enabled in Permissions step:
             await permissionsStep.waitForSkipButtonEnabled();
             //4. Verify that 'Copy from parent' button is disabled:
@@ -80,10 +78,37 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             //6. Click on remove and clear roles:
             await permissionsStep.removeProjectAccessItem(appConst.systemUsersDisplayName.SUPER_USER);
             await studioUtils.saveScreenshot("roles_cleared");
-            //4. Verify that 'Copy from parent' and 'Skip' buttons get disabled:
+            //7. Verify that 'Copy from parent' is disabled
             await permissionsStep.waitForCopyFromParentButtonDisabled();
+            //8. and 'Skip' buttons gets visible again and enabled:
             await permissionsStep.waitForSkipButtonEnabled();
+        });
 
+    it(`GIVEN Permissions step is loaded and SU has been added  WHEN navigate to the previos wizard step then go back to permissions step again THEN expected permissions entry should be displayed`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
+            //1.Open new project wizard and go to Access Mode step:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            await parentProjectStep.clickOnSkipButton();
+            await languageStep.clickOnSkipButton();
+            await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
+            await accessModeStep.clickOnNextButton();
+            //2. Select a user in principal-selector:
+            await permissionsStep.selectProjectAccessRole(appConst.systemUsersDisplayName.SUPER_USER);
+            //3. Click on Previous button:
+            await permissionsStep.clickOnPreviousButton();
+            await accessModeStep.waitForLoaded();
+            //4. Go back to the permissions step:
+            await accessModeStep.clickOnNextButton();
+            //5. Verify the selected option is present in the step:
+            let actualResult = await permissionsStep.getSelectedPrincipals();
+            assert.equal(actualResult[0], appConst.systemUsersDisplayName.SUPER_USER,
+                "Expected user should be present in the permissions step");
+            await permissionsStep.waitForNextButtonEnabled();
         });
 
     beforeEach(async () => {

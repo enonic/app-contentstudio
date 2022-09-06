@@ -78,6 +78,13 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
             throw new Error("Error when trying to remove project Access Item, screenshot: " + screenshot + "  " + err);
         }
     }
+
+    //gets selected options - return names of selected principals:
+    async getSelectedPrincipals() {
+        let locator = XPATH.container + "//div[contains(@id,'PrincipalContainerSelectedOptionView')]//h6[contains(@class,'main-name')]"
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
 }
 
 module.exports = ProjectWizardDialogPermissionsStep;
