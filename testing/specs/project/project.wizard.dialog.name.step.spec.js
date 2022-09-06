@@ -14,6 +14,7 @@ const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/p
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const ProjectWizardDialogNameAndIdStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
 const ProjectWizardDialogSummaryStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.summary.step');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 
 describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard step', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -25,8 +26,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
     const ID_WITH_WHITE_SPACE = "test" + " " + appConst.generateRandomName("id");
     const TEST_DESCRIPTION = "Test description";
 
-    it.skip(
-        `GIVEN navigated to Name/Id wizard step WHEN identifier with white spaces has been typed THEN spaces should be trimmed AND 'Next' button should be enabled`,
+    it(`GIVEN navigated to Name/Id wizard step WHEN identifier with white spaces has been typed THEN spaces should be trimmed AND 'Next' button should be enabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let languageStep = new ProjectWizardDialogLanguageStep();
@@ -57,8 +57,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             assert.isFalse(whitespace, "White spaces should be trimmed in the input");
         });
 
-    it.skip(
-        `GIVEN navigated to Name/Id wizard step WHEN identifier input has been cleared THEN 'This field is required' should be displayed`,
+    it(`GIVEN navigated to Name/Id wizard step WHEN identifier input has been cleared THEN 'This field is required' should be displayed`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let languageStep = new ProjectWizardDialogLanguageStep();
@@ -137,6 +136,26 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(TEST_DESCRIPTION, NAME);
             let actualName = await parentProjectStep.getSelectedProject();
             assert.equal(actualName, NAME, "Expected parent project should be present in the selected option");
+        });
+
+    it(`GIVEN project is selected AND 'Delete' button has been pressed WHEN required Identifier has been typed in Confirmation dialog THEN Confirm button gets enabled`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let confirmValueDialog = new ConfirmValueDialog();
+            //1. Select an application by its name:
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(NAME);
+            //2. Click on Delete button:
+            await settingsBrowsePanel.clickOnDeleteButton();
+            await confirmValueDialog.waitForDialogOpened();
+            //3. Type the required Identifier in the input
+            await confirmValueDialog.typeNumberOrName(ID);
+            //4. Confirm button gets enabled now:
+            await confirmValueDialog.clickOnConfirmButton();
+            await confirmValueDialog.waitForDialogClosed();
+            //5. Verify the notification message: Project "id906756" is deleted.
+            let actualMessage = await settingsBrowsePanel.waitForNotificationMessage();
+            let expectedMessage = appConst.projectDeletedMessage(ID);
+            assert.equal(actualMessage, expectedMessage, "Project is deleted - message should appear");
         });
 
     beforeEach(async () => {

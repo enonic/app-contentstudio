@@ -200,6 +200,18 @@ class ProjectWizardDialog extends Page {
         return await this.getText(XPATH.container + XPATH.stepDescription);
     }
 
+    async clickOnPreviousButton() {
+        try {
+            await this.waitForPreviousButtonDisplayed();
+            await this.waitForElementEnabled(this.previousButton, appConst.mediumTimeout);
+            return await this.clickOnElement(this.previousButton);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_previous_button");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error after clicking on Previous button, Screenshot: " + screenshot + "  " + err);
+        }
+    }
+
 }
 
 module.exports = ProjectWizardDialog;
