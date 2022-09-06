@@ -2,7 +2,6 @@
  * Created on 03.09.2022
  */
 const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
@@ -44,7 +43,7 @@ describe('project.wizard.dialog.applications.step.spec - ui-tests for Applicatio
             //5. Verify that 'Next' button gets visible:
             await applicationsStep.waitForNextButtonEnabled();
             //6. Click on remove icon:
-            await applicationsStep.removeApplication(appConst.PROJECT_ACCESS_MODE.PUBLIC);
+            await applicationsStep.removeApplication(appConst.APP_CONTENT_TYPES);
             //7. Verify that 'Skip' button appears again:
             await applicationsStep.waitForSkipButtonEnabled();
         });
