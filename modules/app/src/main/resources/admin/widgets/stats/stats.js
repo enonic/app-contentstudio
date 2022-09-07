@@ -1,0 +1,51 @@
+const projectLib = require('/lib/xp/project');
+const mustache = require('/lib/mustache');
+const contextLib = require('/lib/xp/context');
+const contentLib = require('/lib/xp/content');
+
+function handleGet() {
+    const view = resolve('./stats.html');
+    const projects = projectLib.list();
+    const totalItems = '' + countItemsInRepos(projects);
+
+    const params = {
+        totalItems: totalItems,
+        totalProjects: projects.length
+    };
+
+    return {
+        contentType: 'text/html',
+        body: mustache.render(view, params),
+    };
+}
+
+const countItemsInRepos = function (projects) {
+    let total = 0;
+
+    projects.forEach(function (project) {
+        total += countItemsInRepo('com.enonic.cms.' + project.id);
+    });
+
+    return total;
+}
+
+const countItemsInRepo = function (repositoryId) {
+        return contextLib.run(
+            {
+                repository: repositoryId,
+                branch: 'draft'
+            },
+            function () {
+                return doCountItemsInRepo();
+            }
+        );
+
+}
+
+const doCountItemsInRepo = function () {
+    return contentLib.query({
+        start: 0,
+        count: 0
+    }).total;
+}
+exports.get = handleGet;
