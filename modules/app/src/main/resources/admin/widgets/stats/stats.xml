@@ -5,6 +5,6 @@
     <interface>home.dashboard</interface>
   </interfaces>
   <config>
-    <width>small</width>
+    <property name="width" value="small"/>
   </config>
 </widget>
