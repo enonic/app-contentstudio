@@ -1,0 +1,10 @@
+<widget xmlns="urn:enonic:xp:model:1.0">
+  <display-name>Recent</display-name>
+  <description>Recently modified items</description>
+  <interfaces>
+    <interface>home.dashboard</interface>
+  </interfaces>
+  <config>
+    <property name="width" value="medium"/>
+  </config>
+</widget>
