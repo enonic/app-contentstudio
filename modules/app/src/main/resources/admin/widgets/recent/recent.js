@@ -134,6 +134,11 @@ const zeroPad = (n, width) => {
 
 const getItemIcon = (item) => {
     const contentType = getContentTypeWithIcon(item);
+
+    if (!contentType) {
+        return null;
+    }
+
     const iconBase64 = contentType.icon ? encodingLib.base64Encode(contentType.icon.data) : null;
     const iconMimeType = contentType.icon ? contentType.icon.mimeType : '';
 
