@@ -67,6 +67,9 @@ const createContentItem = (item, project) => {
     const formattedDateTime = formatDateTime(dateTime);
     const editUrl = generateEditUrl(item, project.id);
     const icon = getItemIcon(item);
+    if (!project.description) {
+        project.description = project.displayName;
+    }
 
     return {
         item: item,
