@@ -1,0 +1,21 @@
+<widget id="widget-recent">
+    <link rel="stylesheet" href="{{stylesUri}}" type="text/css" media="all"/>
+    <div class="recent-container">
+        {{#items}}
+        <div class="grid-item content">
+            <a class="content__link" href="{{editUrl}}" target="_blank">
+                {{#icon}}<img class="content__icon" src="data:{{icon.iconMimeType}};base64, {{icon.iconBase64}}">{{/icon}}
+                <div class="content__namepath">
+                    <span class="content__name">{{displayName}}</span>
+                    <span class="content__path">{{item._path}}</span>
+                </div>
+            </a>
+        </div>
+        <div class="grid-item modified"><span class="date" title="{{formattedDateTime}}">{{formattedDateTime}}</span></div>
+        <div class="grid-item project"><span title="{{project.description}}" class="project__name">{{project.displayName}}</span></div>
+        {{/items}}
+        {{^items}}
+        <div class="no-items-block">No items to display</div>
+        {{/items}}
+    </div>
+</widget>
