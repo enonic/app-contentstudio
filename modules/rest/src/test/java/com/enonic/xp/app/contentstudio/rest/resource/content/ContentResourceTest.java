@@ -1548,12 +1548,12 @@ public class ContentResourceTest
             .focalX( 2.0 )
             .focalY( 1.0 );
 
-        Mockito.when( this.contentService.update( params ) ).thenReturn( content );
+        Mockito.when( this.contentService.update( any( UpdateMediaParams.class ) ) ).thenReturn( content );
 
         contentResource.updateMedia( multipartForm );
 
-        Mockito.verify( this.contentService, Mockito.times( 1 ) ).update( params );
-
+        Mockito.verify( this.contentService, Mockito.times( 1 ) ).update( argThat(
+            (ArgumentMatcher<UpdateMediaParams>) argument -> params.getContent().equals( argument.getContent() ) ) );
     }
 
     @Test
