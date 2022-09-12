@@ -1,0 +1,78 @@
+.widget-contents {
+  display: grid;
+  grid-template-columns: 60% 20% 20%;
+  row-gap: 5px;
+  column-gap: 5px;
+}
+
+.grid-item {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  padding-bottom: 1px;
+}
+
+.grid-item.content .content__link {
+  text-decoration: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.grid-item.content .content__link .content__icon {
+  margin-right: 10px;
+  height: 22px;
+}
+
+.grid-item.content .content__link .content__namepath {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  justify-content: center;
+}
+
+.grid-item.content .content__link .content__namepath .content__name {
+  font-size: 12px;
+  overflow: hidden;
+  white-space: pre;
+  text-overflow: ellipsis;
+}
+
+.grid-item.content .content__link .content__namepath .content__path {
+  font-size: 10px;
+  color: #777;
+  overflow: hidden;
+  white-space: pre;
+  text-overflow: ellipsis;
+}
+
+.grid-item.modified {
+  font-size: 10px;
+  justify-content: center;
+  width: 100%;
+}
+
+.grid-item.modified .date {
+  overflow: hidden;
+  white-space: pre;
+  text-overflow: ellipsis;
+}
+
+.grid-item.project {
+  place-self: center;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.project__name {
+  min-width: 70px;
+  height: 16px;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
