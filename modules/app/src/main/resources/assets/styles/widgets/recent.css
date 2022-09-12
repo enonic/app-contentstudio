@@ -1,4 +1,4 @@
-.recent-container {
+.widget-contents {
   display: grid;
   grid-template-columns: 60% 20% 20%;
   row-gap: 5px;
@@ -48,7 +48,7 @@
 
 .grid-item.modified {
   font-size: 10px;
-  place-self: center;
+  justify-content: center;
   width: 100%;
 }
 

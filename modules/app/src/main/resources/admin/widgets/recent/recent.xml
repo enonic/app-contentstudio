@@ -1,6 +1,5 @@
 <widget xmlns="urn:enonic:xp:model:1.0">
-  <display-name>Recent</display-name>
-  <description>Recently modified items</description>
+  <display-name>Recently modified</display-name>
   <interfaces>
     <interface>home.dashboard</interface>
   </interfaces>
