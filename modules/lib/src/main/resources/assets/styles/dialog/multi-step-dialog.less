@@ -1,4 +1,16 @@
 .multi-step-dialog {
+  .modal-dialog-header {
+    .title {
+      display: none;
+    }
+
+    .names-and-icon-view.no-icon {
+      .@{_COMMON_PREFIX}wrapper {
+        display: none;
+      }
+    }
+  }
+
   .dialog-buttons {
     .button-container {
       justify-content: space-between;
@@ -10,11 +22,6 @@
 
       button:first-child {
         background-color: @form-button-bg;
-      }
-
-      .step-counter {
-        display: flex;
-        align-items: center;
       }
     }
 

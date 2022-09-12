@@ -1,44 +1,52 @@
-import {ProjectsComboBox} from '../../../../wizard/panel/form/element/ProjectsComboBox';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Project} from '../../../../data/project/Project';
-import {ParentProjectFormItem} from '../../../../wizard/panel/form/element/ParentProjectFormItem';
 import {ProjectParentDialogStepData} from '../data/ProjectParentDialogStepData';
+import {ProjectTypeFormItem} from '../../../../wizard/panel/form/element/ProjectTypeFormItem';
+import * as Q from 'q';
 
-export class ProjectParentDialogStep
+export class ProjectTypeDialogStep
     extends ProjectDialogStep {
 
     protected createFormItems(): FormItem[] {
-        return [new ParentProjectFormItem()];
+        return [new ProjectTypeFormItem()];
     }
 
     protected initEventListeners(): void {
         super.initEventListeners();
 
-        this.getParentProjectComboBox().onValueChanged(() => {
+        this.getFormItem().onRadioValueChanged(() => {
+            this.notifyDataChanged();
+        });
+
+        this.getFormItem().onProjectValueChanged(() => {
             this.notifyDataChanged();
         });
     }
 
     protected getFormClass(): string {
-        return 'project-parent-step';
+        return 'project-type-step';
     }
 
     isOptional(): boolean {
-        return true;
+        return false;
     }
 
     getData(): ProjectParentDialogStepData {
-        return new ProjectParentDialogStepData().setParentProject(this.getParentProjectComboBox().getSelectedDisplayValues()[0]);
+        return new ProjectParentDialogStepData().setParentProject(this.getFormItem().getSelectedProject());
     }
 
     hasData(): boolean {
-        return !!this.getParentProjectComboBox().getValue();
+        return this.getFormItem().hasData();
+    }
+
+    isValid(): Q.Promise<boolean> {
+        return Q.resolve(this.hasData());
     }
 
     setSelectedProject(value: Project): void {
-        this.getParentProjectComboBox().selectProject(value);
+        this.getFormItem().setSelectedProject(value);
     }
 
     getName(): string {
@@ -49,7 +57,7 @@ export class ProjectParentDialogStep
         return i18n('dialog.project.wizard.parent.description');
     }
 
-    private getParentProjectComboBox(): ProjectsComboBox {
-        return (<ParentProjectFormItem>this.formItems[0]).getProjectsComboBox();
+    private getFormItem(): ProjectTypeFormItem {
+        return <ProjectTypeFormItem>this.formItems[0];
     }
 }

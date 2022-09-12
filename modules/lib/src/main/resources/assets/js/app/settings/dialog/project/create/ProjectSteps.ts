@@ -1,12 +1,11 @@
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {ProjectContext} from '../../../../project/ProjectContext';
-import {ProjectParentDialogStep} from './step/ProjectParentDialogStep';
+import {ProjectTypeDialogStep} from './step/ProjectTypeDialogStep';
 import {ProjectLocaleDialogStep} from './step/ProjectLocaleDialogStep';
 import {ProjectAccessDialogStep} from './step/ProjectAccessDialogStep';
 import {ProjectPermissionsDialogStep} from './step/ProjectPermissionsDialogStep';
 import {ProjectIdDialogStep} from './step/ProjectIdDialogStep';
-import {ProjectSummaryStep} from './step/ProjectSummaryStep';
-import {ProjectApplicationsDialogStepData} from './data/ProjectApplicationsDialogStepData';
+import {ProjectSummaryStep} from './step/summary/ProjectSummaryStep';
 import {ProjectApplicationsDialogStep} from './step/ProjectApplicationsDialogStep';
 
 export class ProjectSteps {
@@ -15,7 +14,7 @@ export class ProjectSteps {
         const result: DialogStep[] = [];
 
         if (ProjectContext.get().isInitialized()) {
-            result.push(new ProjectParentDialogStep());
+            result.push(new ProjectTypeDialogStep());
         }
 
         result.push(

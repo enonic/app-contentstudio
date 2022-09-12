@@ -21,7 +21,7 @@ export class LocaleFormItem
                     .build()
             )
             .setHelpText(i18n('settings.projects.language.helptext'))
-            .setLabel(i18n('field.lang'))
+            .setLabel(i18n('settings.projects.language.label'))
         );
 
         this.addClass('locale-form-item');

@@ -21,7 +21,8 @@ export class NewSettingsItemAction
         this.onExecuted(() => {
             new ProjectWizardDialog({
                 steps: ProjectSteps.create(),
-                parentProject: this.getSelectedProject()
+                parentProject: this.getSelectedProject(),
+                title: i18n('dialog.project.wizard.title')
             }).open();
         });
     }

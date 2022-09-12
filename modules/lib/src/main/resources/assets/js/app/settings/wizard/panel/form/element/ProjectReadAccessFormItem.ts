@@ -1,4 +1,4 @@
-import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {PrincipalComboBox, PrincipalComboBoxBuilder} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {ProjectFormItemBuilder} from './ProjectFormItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
@@ -22,7 +22,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 export class ProjectReadAccessFormItem
     extends CopyFromParentFormItem {
 
-    private principalsCombobox: PrincipalComboBox;
+    private principalsCombobox: ExtendedPrincipalComboBox;
 
     constructor() {
         super(
@@ -45,7 +45,7 @@ export class ProjectReadAccessFormItem
         readAccessRadioGroup.addOption(ProjectReadAccessType.PRIVATE, i18n('settings.items.wizard.readaccess.private.description'));
         readAccessRadioGroup.addOption(ProjectReadAccessType.CUSTOM, i18n('settings.items.wizard.readaccess.custom.description'));
 
-        this.principalsCombobox = this.createPrincipalsCombobox();
+        this.principalsCombobox = new ExtendedPrincipalComboBox();
         this.principalsCombobox.insertAfterEl(this.getRadioGroup());
         this.principalsCombobox.setEnabled(false);
 
@@ -106,14 +106,6 @@ export class ProjectReadAccessFormItem
         return this.principalsCombobox;
     }
 
-    private createPrincipalsCombobox(): PrincipalComboBox {
-        const loader: BasePrincipalLoader = new PrincipalLoader()
-            .setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
-        const principalsCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).build();
-
-        return principalsCombobox;
-    }
-
     getReadAccess(): ProjectReadAccess {
         const readAccessString: string = this.getRadioGroup().getValue();
 
@@ -133,6 +125,20 @@ export class ProjectReadAccessFormItem
         }
 
         return new ProjectReadAccess(ProjectReadAccessType.PRIVATE);
+    }
+
+    getReadAccessType(): ProjectReadAccessType {
+        const readAccessString: string = this.getRadioGroup().getValue();
+
+        if (readAccessString === ProjectReadAccessType.PUBLIC) {
+            return ProjectReadAccessType.PUBLIC;
+        }
+
+        if (readAccessString === ProjectReadAccessType.CUSTOM) {
+            return ProjectReadAccessType.CUSTOM;
+        }
+
+        return ProjectReadAccessType.PRIVATE;
     }
 
 
@@ -158,18 +164,38 @@ export class ProjectReadAccessFormItem
     }
 
     private isCopyButtonToBeEnabled(): boolean {
-         if (!ProjectHelper.isAvailable(this.parentProject)) {
-             return false;
-         }
+        if (!ProjectHelper.isAvailable(this.parentProject)) {
+            return false;
+        }
 
-         if (!this.getRadioGroup().getValue()) {
-             return true;
-         }
+        if (!this.getRadioGroup().getValue()) {
+            return true;
+        }
 
-         if (!this.parentProject.getReadAccess().equals(this.getReadAccess())) {
-             return true;
-         }
+        if (!this.parentProject.getReadAccess().equals(this.getReadAccess())) {
+            return true;
+        }
 
         return false;
+    }
+}
+
+class ExtendedPrincipalComboBox
+    extends PrincipalComboBox {
+
+    constructor() {
+        const loader: BasePrincipalLoader = new PrincipalLoader()
+            .setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
+        super(<PrincipalComboBoxBuilder>PrincipalComboBox.create().setLoader(loader));
+    }
+
+    setEnabled(enable: boolean) {
+        super.setEnabled(enable);
+
+        if (enable) {
+            this.show();
+        } else if (this.countSelected() === 0) {
+            this.hide();
+        }
     }
 }
