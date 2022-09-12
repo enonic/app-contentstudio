@@ -29,6 +29,9 @@ import com.enonic.xp.page.DescriptorKey;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
 import com.enonic.xp.page.PageDescriptors;
+import com.enonic.xp.project.Project;
+import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.LayoutDescriptorService;
 import com.enonic.xp.region.LayoutDescriptors;
@@ -71,6 +74,9 @@ class FilterByContentResolverTest
     @Mock
     PageDescriptorService pageDescriptorService;
 
+    @Mock
+    ProjectService projectService;
+
     FilterByContentResolver filterByContentResolver;
 
     Set<ContentType> knownContentTypes;
@@ -84,6 +90,7 @@ class FilterByContentResolverTest
         filterByContentResolver.setLayoutDescriptorService( layoutDescriptorService );
         filterByContentResolver.setPageDescriptorService( pageDescriptorService );
         filterByContentResolver.setPartDescriptorService( partDescriptorService );
+        filterByContentResolver.setProjectService( projectService );
 
         knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll() );
 
@@ -259,6 +266,49 @@ class FilterByContentResolverTest
                                                                                                                  "base:shortcut",
                                                                                                                  "application:test-type" );
     }
+
+    @Test
+    void contentTypes_from_project()
+    {
+        final ContentType content1 = ContentType.create()
+            .superType( ContentTypeName.structured() )
+            .allowChildContent( true )
+            .displayName( "My type" )
+            .name( "application1:test-type" )
+            .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
+            .build();
+
+        final ContentType content2 = ContentType.create()
+            .superType( ContentTypeName.structured() )
+            .allowChildContent( true )
+            .displayName( "My type" )
+            .name( "application2:test-type" )
+            .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
+            .build();
+
+        knownContentTypes.add( content1 );
+        knownContentTypes.add( content2 );
+
+        when( contentService.getById( ContentId.from( "test" ) ) ).thenReturn(
+            someContent( ContentTypeName.from( "application1:test-type" ) ) );
+
+        when( contentTypeService.getByApplication( ApplicationKey.from( "application2" ) ) ).thenReturn(
+            ContentTypes.from( content2 ) );
+
+        final Project.Builder builder = Project.create();
+        builder.name( ProjectName.from( "default" ) );
+        builder.displayName( "Default" );
+        builder.addSiteConfig( SiteConfig.create().application( ApplicationKey.from( "application2" ) ).config( new PropertyTree() ).build() );
+
+        when( projectService.get( ProjectName.from( "default" ) ) ).thenReturn( builder.build() );
+
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ) );
+        assertThat( contentTypes.map( ContentType::getName ).map( ContentTypeName::toString ) ).containsExactly( "base:folder",
+                                                                                                                 "portal:site",
+                                                                                                                 "base:shortcut",
+                                                                                                                 "application2:test-type" );
+    }
+
 
     @Test
     void layouts()
