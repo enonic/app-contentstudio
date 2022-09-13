@@ -4,6 +4,7 @@ const portalLib = require('/lib/xp/portal');
 const projectLib = require('/lib/xp/project');
 const contextLib = require('/lib/xp/context');
 const encodingLib = require('/lib/text-encoding');
+const adminLib = require('/lib/xp/admin');
 
 const handleGet = (req) => {
     const showLast = req.params.showLast || 5;
@@ -29,12 +30,13 @@ const handleGet = (req) => {
 const getLastModifiedContentInAllRepos = (showLast) => {
     const result = [];
     const projects = projectLib.list();
+    const baseToolUri = adminLib.getToolUrl(app.name, 'main');
 
     projects.forEach((project) => {
         const projectItems = getLastModifiedItemsInRepo('com.enonic.cms.' + project.id, showLast);
 
         projectItems.forEach((item) => {
-            result.push(createContentItem(item, project));
+            result.push(createContentItem(item, project, baseToolUri));
         });
     });
 
@@ -61,11 +63,11 @@ const getLastModifiedItems = (count) => {
     }).hits;
 }
 
-const createContentItem = (item, project) => {
+const createContentItem = (item, project, baseToolUri) => {
     const displayName = item.displayName || '<unnamed>';
     const dateTime = parseDateTime(item.modifiedTime);
     const formattedDateTime = formatDateTime(dateTime);
-    const editUrl = generateEditUrl(item, project.id);
+    const editUrl = generateEditUrl(item, project.id, baseToolUri);
     const icon = getItemIcon(item);
     if (!project.description) {
         project.description = project.displayName;
@@ -165,8 +167,8 @@ const getContentTypeWithIcon = (item) => {
     return contentType;
 }
 
-const generateEditUrl = (item, project) => {
-    return `/admin/tool/com.enonic.app.contentstudio/main/${project}/edit/${item._id}`;
+const generateEditUrl = (item, project, baseToolUri) => {
+    return `${baseToolUri}/${project}/edit/${item._id}`;
 }
 
 const filterSameItemsInOtherRepos = (items) => {
