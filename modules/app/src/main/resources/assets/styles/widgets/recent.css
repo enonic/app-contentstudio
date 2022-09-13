@@ -76,9 +76,11 @@
   .recent-container {
     grid-template-columns: 60% 20% 20%;
   }
+
   .grid-item.modified .date {
     white-space: pre;
   }
+
   .grid-item.project {
     display: flex;
   }
