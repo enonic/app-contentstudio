@@ -1,6 +1,6 @@
-.widget-contents {
+.recent-container {
   display: grid;
-  grid-template-columns: 60% 20% 20%;
+  grid-template-columns: 80% 20%;
   row-gap: 5px;
   column-gap: 5px;
 }
@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   font-size: 10px;
-  padding-bottom: 1px;
+  height: 31px;
 }
 
 .grid-item.content .content__link {
@@ -34,7 +34,7 @@
 .grid-item.content .content__link .content__namepath .content__name {
   font-size: 12px;
   overflow: hidden;
-  white-space: pre;
+  white-space: normal;
   text-overflow: ellipsis;
 }
 
@@ -48,31 +48,40 @@
 
 .grid-item.modified {
   font-size: 10px;
-  justify-content: center;
   width: 100%;
+  justify-content: center;
 }
 
 .grid-item.modified .date {
   overflow: hidden;
-  white-space: pre;
+  white-space: normal;
   text-overflow: ellipsis;
+  text-align: center;
 }
 
 .grid-item.project {
   place-self: center;
   text-align: center;
   width: 100%;
-  display: flex;
+  display: none;
   justify-content: center;
 }
 
 .project__name {
   min-width: 70px;
-  height: 16px;
   font-size: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  white-space: nowrap;
-  box-sizing: border-box;
+}
+
+@media screen and (min-width: 769px) {
+  .recent-container {
+    grid-template-columns: 60% 20% 20%;
+  }
+
+  .grid-item.modified .date {
+    white-space: pre;
+  }
+
+  .grid-item.project {
+    display: flex;
+  }
 }
