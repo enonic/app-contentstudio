@@ -67,7 +67,7 @@
   justify-content: center;
 }
 
-.project__name {
+.grid-item.project .project__name {
   min-width: 70px;
   font-size: 12px;
 }
