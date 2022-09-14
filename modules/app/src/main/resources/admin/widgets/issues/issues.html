@@ -1,0 +1,27 @@
+<widget id="widget-issues">
+    <link rel="stylesheet" href="{{stylesUri}}" type="text/css" media="all"/>
+    <div class="issues-container">
+        {{#issues}}
+        <div class="issue">
+            <a class="issue__link" href="{{editUrl}}" target="_blank">
+                <div class="issue__view">
+                    <div class="issue__iconblock">
+                        <img class="issue__img" src="{{imgUrl}}">
+                    </div>
+                    <div class="issue__data">
+                        <div class="issue__name">{{name}}</div>
+                        <div class="issue__modified">{{modifiedText}}</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="project__name">{{projectDisplayName}}</div>
+        {{/issues}}
+        {{^issues}}
+        <div class="no-items">
+            You don't have any open issues
+        </div>
+        {{/issues}}
+
+    </div>
+</widget>
