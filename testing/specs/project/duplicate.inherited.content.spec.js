@@ -43,7 +43,8 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
 
     //Verifies: New Content dialog doesn't show content types from project apps #5104
     //https://github.com/enonic/app-contentstudio/issues/5104
-    it("GIVEN layer's context with an application is selected AND no selections in the grid WHEN New content dialog is opened THEN all content types from project's application should be available in the dialog",
+    it.skip(
+        "GIVEN layer's context with an application is selected AND no selections in the grid WHEN New content dialog is opened THEN all content types from project's application should be available in the dialog",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
