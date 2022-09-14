@@ -36,7 +36,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             let contentWizard = new ContentWizard();
             let xDataImageSelector = new XDataImageSelector();
             //1. Open the wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double1_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_1_1_X_DATA);
             await contentWizard.typeDisplayName(CONTENT_WITH_XDATA);
             //2. Enable the x-data and select an image::
             await contentWizard.clickOnXdataToggler();

@@ -352,8 +352,15 @@ class ContentWizardPanel extends Page {
     }
 
     async clickOnXdataTogglerByName(name) {
-        await this.clickOnElement(XPATH.xDataTogglerByName(name));
-        return await this.pause(400);
+        try {
+            await this.waitForElementDisplayed(XPATH.xDataTogglerByName(name), appConst.mediumTimeout);
+            await this.clickOnElement(XPATH.xDataTogglerByName(name));
+            return await this.pause(400);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_x_data");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error, clicking on X-data toggler, screenshot: " + screenshot + "  " + err);
+        }
     }
 
     //Gets titles of all x-data forms

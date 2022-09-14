@@ -4,6 +4,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+const HtmlAreaForm = require('../htmlarea.form.panel');
 const xpath = {
     container: "//div[contains(@id,'FormView')]//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='Multi selection']]",
     validationMessage: "//div[contains(@class,'selection-message')]",
@@ -14,6 +15,7 @@ const xpath = {
     optionCheckboxLocator:
         option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::label[text()='${option}']]//input[@type='checkbox']`
 };
+
 //Page Object for Custom option set
 class MultiSelectionOptionSet extends Page {
 
@@ -40,7 +42,7 @@ class MultiSelectionOptionSet extends Page {
             return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_multi_select_option"));
-            throw new Error("Option Set multi selection: "+ err);
+            throw new Error("Option Set multi selection: " + err);
         }
     }
 
@@ -51,7 +53,7 @@ class MultiSelectionOptionSet extends Page {
             return await this.waitForElementDisabled(locator, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_multi_select_enabled"));
-            throw new Error("Option Set multi selection: "+ err);
+            throw new Error("Option Set multi selection: " + err);
         }
     }
 
@@ -98,6 +100,11 @@ class MultiSelectionOptionSet extends Page {
     waitForValidationRecordingNotDisplayed() {
         let locator = xpath.container + xpath.multiOptionsView + "//div[@class='selection-message']";
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    async typeTextInHtmlAreaInOption3(index, text) {
+        let htmlAreaForm = new HtmlAreaForm();
+        return await htmlAreaForm.insertTextInHtmlArea(index, text)
     }
 }
 

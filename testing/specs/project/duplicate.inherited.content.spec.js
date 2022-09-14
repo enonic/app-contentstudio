@@ -11,6 +11,8 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 const appConst = require('../../libs/app_const');
+const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
+const XDataImageSelector = require('../../page_objects/wizardpanel/xdata.image.selector.wizard.step.form');
 
 describe('duplicate.inherited.content.spec - tests for duplicating of inherited content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -20,6 +22,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const SITE_NAME = studioUtils.generateRandomName('site');
     const EXPECTED_ORDER = `Sorted by "Modified date" in descending order`;
+    const IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.GEEK;
 
     it("Precondition 1 - new layer in Default project should be added by SU",
         async () => {
@@ -28,7 +31,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.openSettingsPanel();
             //1.Select 'Default' project and open wizard for new layer:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildLayer("Default", null, appConst.PROJECT_ACCESS_MODE.PUBLIC,null,null, LAYER_DISPLAY_NAME)
+            let layer = projectUtils.buildLayer("Default", null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null, null, LAYER_DISPLAY_NAME)
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
         });
 
@@ -38,6 +41,48 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.doAddSite(site, true);
         });
 
+    //Verifies: New Content dialog doesn't show content types from project apps #5104
+    //https://github.com/enonic/app-contentstudio/issues/5104
+    it.skip(
+        "GIVEN layer's context with an application is selected AND no selections in the grid WHEN New content dialog is opened THEN all content types from project's application should be available in the dialog",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let newContentDialog = new NewContentDialog();
+            //1. Select the layer's context:
+            await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
+            //2. Click on 'New' button
+            await contentBrowsePanel.clickOnNewButton();
+            await newContentDialog.waitForOpened();
+            await newContentDialog.pause(500);
+            await studioUtils.saveScreenshot("root_new_content_with_apps");
+            //3. Verify that all input types are available for adding new content in root directory:
+            let contentTypeItems = await newContentDialog.getItems();
+            assert.isTrue(contentTypeItems.includes("all-inputs"), "Expected input type is displayed in the modal dialog");
+            assert.isTrue(contentTypeItems.includes("attachment0_0"), "Expected input type is displayed in the modal dialog");
+            assert.isAbove(contentTypeItems.length, 50, "All types from the application are present in the modal dialog");
+        });
+
+    it.skip("WHEN wizard for new content in root with x-data THEN x-data should be present in the wizard page",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let newContentDialog = new NewContentDialog();
+            let xDataImageSelector = new XDataImageSelector();
+            //1. Select the layer's context:
+            await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
+            //2. Click on 'New' button
+            await contentBrowsePanel.clickOnNewButton();
+            await newContentDialog.waitForOpened();
+            //3. Select the item with x-data:
+            let contentWizard = await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.DOUBLE_1_1_X_DATA);
+            //4. Click on x-data toggler:
+            await contentWizard.clickOnXdataToggler();
+            //5. Select an image in x-data
+            await xDataImageSelector.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME);
+            await contentWizard.waitAndClickOnSave();
+            await studioUtils.saveScreenshot('xdata_image_selector_saved_2');
+            //6. Verify that the image appears in the form:
+            await xDataImageSelector.waitForImageSelected();
+        });
     //Verifies Copy of inherited content should not be created as 'inherited' #8269
     //https://github.com/enonic/xp/issues/8269
     it("GIVEN layer's context is selected WHEN inherited site has been duplicated THEN the local copy of the site should not be created as 'inherited'",
@@ -63,7 +108,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
             //2. Open the site
             let contentWizard = await studioUtils.openContentAndSwitchToTabByDisplayName(SITE_NAME + "-copy", SITE_NAME);
-            studioUtils.saveScreenshot("inherited_site_copy_wizard");
+            await studioUtils.saveScreenshot("inherited_site_copy_wizard");
             //3. Verify that 'Reset' button is not displayed:
             await contentWizard.waitForResetButtonNotDisplayed();
         });
