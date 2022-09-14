@@ -52,6 +52,8 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             //2. Click on 'New' button
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
+            await newContentDialog.pause(500);
+            await studioUtils.saveScreenshot("root_new_content_with_apps");
             //3. Verify that all input types are available for adding new content in root directory:
             let contentTypeItems = await newContentDialog.getItems();
             assert.isTrue(contentTypeItems.includes("all-inputs"), "Expected input type is displayed in the modal dialog");
