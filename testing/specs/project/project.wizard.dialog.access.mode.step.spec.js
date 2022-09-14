@@ -26,6 +26,7 @@ describe('project.wizard.dialog.access.mode.step.spec - ui-tests for Access mode
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Select Default project and go to 'Access mode' step
+            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject("Default");
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
@@ -51,6 +52,7 @@ describe('project.wizard.dialog.access.mode.step.spec - ui-tests for Access mode
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Select Default project and go to Access mode step
+            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject("Default");
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();

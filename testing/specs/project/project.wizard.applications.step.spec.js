@@ -31,6 +31,7 @@ describe('project.wizard.dialog.applications.step.spec - ui-tests for Applicatio
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Select 'Default' project and go to 'Applications' step
+            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject("Default");
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
@@ -62,6 +63,7 @@ describe('project.wizard.dialog.applications.step.spec - ui-tests for Applicatio
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Select 'Default' project and go to 'Applications' step
+            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject("Default");
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
@@ -76,7 +78,7 @@ describe('project.wizard.dialog.applications.step.spec - ui-tests for Applicatio
             await applicationsStep.clickOnNextButton();
             await nameIdStep.waitForLoaded();
             //6. Go back to the previous step:
-            await nameIdStep.clickOnPreviousButton();
+            await nameIdStep.clickOnBackButton();
             await studioUtils.saveScreenshot("proj_wizard_app_previous_step");
             //7. Verify that application is displayed after returning to this step:
             let applications = await applicationsStep.getSelectedApplications();

@@ -35,7 +35,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await settingsBrowsePanel.openProjectWizardDialog();
             let layerWizard = new LayerWizardPanel();
             //1. Create new layer (private access mode):
-            let layer = projectUtils.buildProject(PROJECT_DISPLAY_NAME,null,appConst.PROJECT_ACCESS_MODE.PRIVATE,null,null,LAYER_DISPLAY_NAME,null,null);
+            let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME,null,appConst.PROJECT_ACCESS_MODE.PRIVATE,null,null,LAYER_DISPLAY_NAME,null,null);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();
             //2.Click on the layer and press 'Edit' button:

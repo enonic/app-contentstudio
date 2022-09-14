@@ -59,8 +59,9 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.openSettingsPanel();
             //2.Open new project wizard dialog:
             await settingsBrowsePanel.openProjectWizardDialog();
-            //3. skip the first step:
-            await parentProjectStep.clickOnSkipButton();
+            //3. Click on Project radio:
+            await parentProjectStep.clickOnProjectRadioButton();
+            await parentProjectStep.clickOnNextButton();
             //4. Skip the language step:
             await languageStep.clickOnSkipButton();
             //5. Select 'Private' access mode in the fours step:

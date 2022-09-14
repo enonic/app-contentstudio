@@ -162,7 +162,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.clickOnElement(nameXpath);
-            return await this.pause(400);
+            return await this.pause(500);
         } catch (err) {
             let screenshot = appConst.generateRandomName("err_find_project");
             await this.saveScreenshot(screenshot);

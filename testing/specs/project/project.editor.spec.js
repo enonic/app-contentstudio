@@ -24,7 +24,6 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
         webDriverHelper.setupBrowser();
     }
     let FOLDER_NAME = studioUtils.generateRandomName("folder");
-
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let USER;
     let PASSWORD = appConst.PASSWORD.MEDIUM;
@@ -50,11 +49,11 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             //1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-
             //2.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            //3. skip the first step:
-            await parentProjectStep.clickOnSkipButton();
+            //3. Select Project-radio then click on Next button:
+            await parentProjectStep.clickOnProjectRadioButton();
+            await parentProjectStep.clickOnNextButton();
             //4. Skip the language step:
             await languageStep.clickOnSkipButton();
             //5. Select 'Private' access mode in the fours step:
@@ -76,8 +75,6 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await summaryStep.clickOnCreateProjectButton();
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
-
-
             //11. Open the project
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();

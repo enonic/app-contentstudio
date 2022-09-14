@@ -14,7 +14,7 @@ const XPATH = {
     localeComboBoxDiv: "//div[contains(@id,'LocaleComboBox')]",
     languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
 };
-const DESCRIPTION = "Select default language for a new content in the project";
+const DESCRIPTION = "2 of 7 - Select default language for a new content in the project";
 
 class ProjectWizardDialogLanguageStep extends ProjectWizardDialog {
 

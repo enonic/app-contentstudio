@@ -12,7 +12,7 @@ const XPATH = {
     radioButtonByDescription: description => XPATH.projectReadAccessWizardStepForm +
                                        `//span[contains(@id,'RadioButton') and descendant::label[contains(.,'${description}')]]`,
 };
-const DESCRIPTION = "Select default read permissions for a new content in the project";
+const DESCRIPTION = "3 of 7 - Select default read permissions for a new content in the project";
 
 class ProjectWizardDialogAccessModeStep extends ProjectWizardDialog {
 

@@ -11,7 +11,7 @@ const XPATH = {
     stepDescription: "//p[@class='xp-admin-common-sub-name']",
     buttonRow: "//div[contains(@class,'button-container')]",
     nextButton: "//button[contains(@id,'DialogButton') and child::span[text()='Next']]",
-    previousButton: "//button[contains(@id,'DialogButton') and child::span[text()='Previous']]",
+    backButton: "//button[contains(@id,'DialogButton') and child::span[text()='Back']]",
     skipButton: "//button[contains(@id,'DialogButton') and child::span[text()='Skip']]",
     copyFromParentButton: "//button[contains(@id,'Button') and child::span[text()='Copy from parent']]",
 };
@@ -30,8 +30,8 @@ class ProjectWizardDialog extends Page {
         return XPATH.container + XPATH.nextButton;
     }
 
-    get previousButton() {
-        return XPATH.container + XPATH.previousButton;
+    get backButton() {
+        return XPATH.container + XPATH.backButton;
     }
 
     get skipButton() {
@@ -157,12 +157,12 @@ class ProjectWizardDialog extends Page {
         return await this.pause(300);
     }
 
-    async waitForPreviousButtonDisplayed() {
+    async waitForBackButtonDisplayed() {
         try {
-            return await this.waitUntilDisplayed(this.previousButton, appConst.mediumTimeout);
+            return await this.waitUntilDisplayed(this.backButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_prev_button"));
-            throw new Error("Previous button is not displayed: " + err);
+            await this.saveScreenshot(appConst.generateRandomName("err_back_button"));
+            throw new Error("Back button is not displayed: " + err);
         }
     }
 
@@ -200,15 +200,15 @@ class ProjectWizardDialog extends Page {
         return await this.getText(XPATH.container + XPATH.stepDescription);
     }
 
-    async clickOnPreviousButton() {
+    async clickOnBackButton() {
         try {
-            await this.waitForPreviousButtonDisplayed();
-            await this.waitForElementEnabled(this.previousButton, appConst.mediumTimeout);
-            return await this.clickOnElement(this.previousButton);
+            await this.waitForBackButtonDisplayed();
+            await this.waitForElementEnabled(this.backButton, appConst.mediumTimeout);
+            return await this.clickOnElement(this.backButton);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_previous_button");
+            let screenshot = appConst.generateRandomName("err_back_button");
             await this.saveScreenshot(screenshot);
-            throw new Error("Error after clicking on Previous button, Screenshot: " + screenshot + "  " + err);
+            throw new Error("Error after clicking on Back button, Screenshot: " + screenshot + "  " + err);
         }
     }
 

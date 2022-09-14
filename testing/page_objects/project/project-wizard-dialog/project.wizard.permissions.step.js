@@ -14,7 +14,7 @@ const XPATH = {
     accessItemByDisplayName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`,
 };
-const DESCRIPTION = "Give access to manage the project and its content";
+const DESCRIPTION = "4 of 7 - Give access to manage the project and its content";
 
 class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
 

@@ -46,7 +46,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.Create new layer in the Default project:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildProject(PROJECT_DISPLAY_NAME, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PRIVATE, null,
+            let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PRIVATE, null,
                 null, LAYER_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();

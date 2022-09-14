@@ -12,7 +12,6 @@ const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
-const ProjectWizardDialogNameAndIdStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
 const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
@@ -47,8 +46,9 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
             let projectWizard = new ProjectWizard();
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            //2. skip the first step:
-            await parentProjectStep.clickOnSkipButton();
+            //2. Select Project-radio then click on Next button:
+            await parentProjectStep.clickOnProjectRadioButton();
+            await parentProjectStep.clickOnNextButton();
             //3. Skip the language step:
             await languageStep.clickOnSkipButton();
             //4. Select Custom access mode:

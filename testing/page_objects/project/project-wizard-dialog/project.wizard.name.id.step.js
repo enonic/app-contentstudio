@@ -10,7 +10,7 @@ const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
     projectIdStepForm: `//form[contains(@class,'project-id-step')]`,
 };
-const DESCRIPTION = "Give the new project a name and a unique identifier";
+const DESCRIPTION = "6 of 7 - Give the new project a name and a unique identifier";
 
 class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
 

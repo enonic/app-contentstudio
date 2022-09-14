@@ -65,7 +65,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             await settingsBrowsePanel.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
-            let layer = projectUtils.buildProject(PROJECT_DISPLAY_NAME, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName, null,
+            let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName, null,
                 LAYER_DISPLAY_NAME, null, null);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();

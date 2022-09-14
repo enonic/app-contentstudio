@@ -25,7 +25,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             let layerWizard = new LayerWizardPanel();
             //1. Open Project Wizard Dialog:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildProject("Default", appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PUBLIC,"Super User",null, LAYER_DISPLAY_NAME)
+            let layer = projectUtils.buildLayer("Default", appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PUBLIC,"Super User",null, LAYER_DISPLAY_NAME)
             //2. Fill in forms in the wizard then click on Create button:
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();

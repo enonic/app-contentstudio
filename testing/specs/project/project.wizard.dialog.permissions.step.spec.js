@@ -28,6 +28,7 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Select 'Default' project and go to 'Permissions' step
+            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject("Default");
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
@@ -64,6 +65,7 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Select 'Default' project and go to 'Permissions' step
+            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject("Default");
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
@@ -93,14 +95,16 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             let permissionsStep = new ProjectWizardDialogPermissionsStep();
             //1.Open new project wizard and go to Access Mode step:
             await settingsBrowsePanel.openProjectWizardDialog();
-            await parentProjectStep.clickOnSkipButton();
+            //Select Project-radio then click on Next button:
+            await parentProjectStep.clickOnProjectRadioButton();
+            await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();
             //2. Select a user in principal-selector:
             await permissionsStep.selectProjectAccessRole(appConst.systemUsersDisplayName.SUPER_USER);
             //3. Click on Previous button:
-            await permissionsStep.clickOnPreviousButton();
+            await permissionsStep.clickOnBackButton();
             await accessModeStep.waitForLoaded();
             //4. Go back to the permissions step:
             await accessModeStep.clickOnNextButton();
