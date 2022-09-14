@@ -18,9 +18,12 @@ import com.enonic.xp.app.ApplicationWildcardMatcher;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
+import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.inputtype.InputTypeProperty;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
+import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.region.ComponentDescriptor;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.LayoutDescriptorService;
@@ -32,6 +35,7 @@ import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
 import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.site.Site;
+import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
 
 @Component(service = FilterByContentResolver.class)
@@ -53,6 +57,9 @@ public class FilterByContentResolver
 
     private PageDescriptorService pageDescriptorService;
 
+    private ProjectService projectService;
+
+
     public Stream<ContentType> contentTypes( final ContentId contentId )
     {
         final Content content;
@@ -62,7 +69,7 @@ public class FilterByContentResolver
         }
         else
         {
-            return mapToContentTypes( DEFAULT_CONTENT_TYPE_NAMES );
+            return Stream.concat( mapToContentTypes( DEFAULT_CONTENT_TYPE_NAMES ), getProjectContentTypes() );
         }
 
         if ( content.getType().isTemplateFolder() )
@@ -80,22 +87,46 @@ public class FilterByContentResolver
             final Stream<ContentType> defaultContentTypes =
                 mapToContentTypes( content.getType().isSite() ? DEFAULT_SITE_CONTENT_TYPE_NAMES : DEFAULT_CONTENT_TYPE_NAMES );
 
-            final ApplicationKeys siteApps = getNearestSiteApps( contentId );
+            final Stream<ContentType> siteContentTypes = getSiteContentTypes( contentId );
 
-            final Stream<ContentType> siteContentTypes = siteApps.stream()
-                .map( contentTypeService::getByApplication )
-                .flatMap( ContentTypes::stream )
-                .filter( Predicate.not( ContentType::isAbstract ) )
-                .filter( type -> type.getSchemaConfig().getValue( "allowNewContent", Boolean.class, Boolean.TRUE ) );
+            final Stream<ContentType> projectContentTypes =
+                contentService.getNearestSite( contentId ) == null ? getProjectContentTypes() : Stream.of();
 
-            final List<String> allowChildContentType = contentType.getAllowChildContentType();
+            final List<String> allowChildContentTypes = contentType.getAllowChildContentType();
 
             final Predicate<ContentTypeName> allowChildContentTypePredicate =
-                allowContentTypeFilter( contentType.getName().getApplicationKey(), allowChildContentType );
+                allowContentTypeFilter( contentType.getName().getApplicationKey(), allowChildContentTypes );
 
-            return Stream.concat( defaultContentTypes, siteContentTypes )
+            return Stream.of( defaultContentTypes, siteContentTypes, projectContentTypes )
+                .flatMap( s -> s )
                 .filter( type -> allowChildContentTypePredicate.test( type.getName() ) );
         }
+    }
+
+    private Stream<ContentType> getProjectContentTypes()
+    {
+        return Optional.ofNullable( ProjectName.from( ContextAccessor.current().getRepositoryId() ) )
+            .map( projectName -> projectService.get( projectName ) )
+            .map( project -> project.getSiteConfigs()
+                .stream()
+                .map( SiteConfig::getApplicationKey )
+                .map( this.contentTypeService::getByApplication )
+                .flatMap( ContentTypes::stream )
+                .filter( Predicate.not( ContentType::isAbstract ) )
+                .filter( type -> type.getSchemaConfig().getValue( "allowNewContent", Boolean.class, Boolean.TRUE ) )
+                 )
+            .orElseGet( Stream::of );
+    }
+
+    private Stream<ContentType> getSiteContentTypes( final ContentId contentId )
+    {
+        final ApplicationKeys siteApplications = getNearestSiteApps( contentId );
+
+        return siteApplications.stream()
+            .map( contentTypeService::getByApplication )
+            .flatMap( ContentTypes::stream )
+            .filter( Predicate.not( ContentType::isAbstract ) )
+            .filter( type -> type.getSchemaConfig().getValue( "allowNewContent", Boolean.class, Boolean.TRUE ) );
     }
 
     public Stream<LayoutDescriptor> layouts( final ContentId contentId )
@@ -187,5 +218,11 @@ public class FilterByContentResolver
     public void setPageDescriptorService( final PageDescriptorService pageDescriptorService )
     {
         this.pageDescriptorService = pageDescriptorService;
+    }
+
+    @Reference
+    public void setProjectService( final ProjectService projectService )
+    {
+        this.projectService = projectService;
     }
 }

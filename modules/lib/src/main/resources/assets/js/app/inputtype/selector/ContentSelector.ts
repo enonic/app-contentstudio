@@ -94,7 +94,7 @@ export class ContentSelector
     }
 
     protected getDefaultAllowPath(): string {
-        return '${site}';
+        return this.context.content.getPath().hasParentContent() ? '${site}' : '';
     }
 
     public getContentComboBox(): ContentComboBox<ContentTreeSelectorItem> {
