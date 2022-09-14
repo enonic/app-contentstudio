@@ -74,7 +74,7 @@ export class ProjectTypeFormItem
     }
 
     getSelectedProject(): Project {
-        return this.projectsCombobox.getSelectedDisplayValues()[0];
+        return this.getRadioGroup().getValue() === PARENT_TYPE.LAYER ? this.projectsCombobox.getSelectedDisplayValues()[0] : null;
     }
 
     onRadioValueChanged(listener: () => void): void {
