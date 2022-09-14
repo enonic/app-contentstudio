@@ -9,7 +9,7 @@ const adminLib = require('/lib/xp/admin');
 const handleGet = (req) => {
     const showLast = req.params.showLast || 5;
     const lastModifiedItems = getLastModifiedContentInAllRepos(showLast);
-    const filteredItems =   filterSameItemsInOtherRepos(lastModifiedItems);
+    const filteredItems = filterSameItemsInOtherRepos(lastModifiedItems);
     const sortedByDateItems = sortItemsByDate(filteredItems);
 
     const params = {
@@ -33,7 +33,7 @@ const getLastModifiedContentInAllRepos = (showLast) => {
     const baseToolUri = adminLib.getToolUrl(app.name, 'main');
 
     projects.forEach((project) => {
-        const projectItems = getLastModifiedItemsInRepo('com.enonic.cms.' + project.id, showLast);
+        const projectItems = getLastModifiedItemsInRepo(`com.enonic.cms.${project.id}`, showLast);
 
         projectItems.forEach((item) => {
             result.push(createContentItem(item, project, baseToolUri));
@@ -69,6 +69,7 @@ const createContentItem = (item, project, baseToolUri) => {
     const formattedDateTime = formatDateTime(dateTime);
     const editUrl = generateEditUrl(item, project.id, baseToolUri);
     const icon = getItemIcon(item);
+
     if (!project.description) {
         project.description = project.displayName;
     }
