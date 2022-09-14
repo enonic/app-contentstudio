@@ -10,7 +10,7 @@ const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.di
 const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils');
 
-describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a project', function () {
+describe('project.delete.in.grid.panel.spec - ui-tests for saving/deleting a project', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
@@ -22,7 +22,7 @@ describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a p
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await settingsBrowsePanel.openProjectWizardDialog();
-            let project = projectUtils.buildProject(null, null, appConst.PROJECT_ACCESS_MODE.PRIVATE,null,null, PROJECT_DISPLAY_NAME)
+            let project = projectUtils.buildProject( null, appConst.PROJECT_ACCESS_MODE.PRIVATE,null,null, PROJECT_DISPLAY_NAME)
             await projectUtils.fillFormsWizardAndClickOnCreateButton(project);
             await settingsBrowsePanel.waitForNotificationMessage();
         });

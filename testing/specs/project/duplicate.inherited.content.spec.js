@@ -28,7 +28,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.openSettingsPanel();
             //1.Select 'Default' project and open wizard for new layer:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildProject("Default", null, appConst.PROJECT_ACCESS_MODE.PUBLIC,null,null, LAYER_DISPLAY_NAME)
+            let layer = projectUtils.buildLayer("Default", null, appConst.PROJECT_ACCESS_MODE.PUBLIC,null,null, LAYER_DISPLAY_NAME)
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
         });
 

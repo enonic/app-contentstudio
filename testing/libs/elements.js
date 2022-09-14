@@ -65,6 +65,9 @@ module.exports = Object.freeze({
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
     },
     EMPTY_OPTIONS_DIV: "//div[contains(@class,'empty-options') and text()='No matching items']",
+    radioButtonByLabel: label => {
+        return `//span[contains(@class,'radio-button') and child::label[text()='${label}']]//input`
+    },
     tabMenuItem: menuName => `//li[contains(@id,'TabMenuItem') and child::a[text()='${menuName}']]`,
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,

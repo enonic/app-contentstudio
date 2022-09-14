@@ -10,12 +10,12 @@ const ProjectWizardDialog = require('./project.wizard.dialog');
 const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
     createProjectButton: "//button[contains(@id,'DialogButton') and child::span[text()='Create Project']]",
-    projectNameXpath: "//div[contains(@id,'ProjectParamContainer') and child::h6[text()='Project name/id']]/h6[contains(@class,'value')]",
-    accessModeValueXpath: "//div[contains(@id,'ProjectAccessParamContainer') and child::h6[text()='Access mode']]/h6[contains(@class,'value')]",
-    parentProjectNameXpath: "//div[contains(@id,'ProjectParamContainer') and child::h6[text()='Parent Project']]/h6[contains(@class,'value')]",
-    defaultLanguageXpath: "//div[contains(@id,'ProjectLanguageParamContainer') and child::h6[text()='Default language']]/h6[contains(@class,'value')]",
+    projectNameXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Project name/id']]/following-sibling::div[contains(@id,'SummaryValueContainer')]/h6",
+    accessModeValueXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Access mode']]/following-sibling::div[contains(@id,'AccessValueContainer')]/h6",
+    parentProjectNameXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Parent Project']]/following-sibling::div[contains(@id,'SummaryValueContainer')]/h6",
+    defaultLanguageXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Default language']]/following-sibling::div[contains(@id,'LanguageValueContainer')]//h6[contains(@class,'main-name')]",
 };
-const DESCRIPTION = "View summary of a new project";
+const DESCRIPTION = "7 of 7 - View summary of a new project";
 
 
 class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {

@@ -13,7 +13,7 @@ const XPATH = {
     selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
     selectedApplications: "//div[contains(@id,'ProjectApplicationSelectedOptionView') ]",
 };
-const DESCRIPTION = "Select applications for the project content";
+const DESCRIPTION = "5 of 7 - Select applications for the project content";
 
 class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
 

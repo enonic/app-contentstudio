@@ -51,8 +51,9 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await studioUtils.openSettingsPanel();
             //2.Open new project wizard dialog and :
             await settingsBrowsePanel.openProjectWizardDialog();
-            //3. skip the first step:
-            await parentProjectStep.clickOnSkipButton();
+            //3. Select Project-radio then click on Next button:
+            await parentProjectStep.clickOnProjectRadioButton();
+            await parentProjectStep.clickOnNextButton();
             //4. Skip the language step:
             await languageStep.clickOnSkipButton();
             //5. Select Custom access mode:

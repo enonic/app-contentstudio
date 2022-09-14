@@ -26,7 +26,6 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         async () => {
             //1. Navigate to Settings Panel:
             await studioUtils.openSettingsPanel();
-            let project = projectUtils.buildProject()
             //1. Save new project (mode access is Private):
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, "test description", null, null, "Private");
         });

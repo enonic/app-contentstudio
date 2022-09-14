@@ -19,7 +19,7 @@ module.exports = {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.clickOnNewButton();
         await parentProjectStep.waitForLoaded();
-        let project = this.buildProject(null, language, accessMode, permissions, applications, name, null, description);
+        let project = this.buildProject( language, accessMode, permissions, applications, name, null, description);
         await this.fillFormsWizard(project);
         await summaryStep.waitForLoaded();
         await summaryStep.clickOnCreateProjectButton();
@@ -28,13 +28,18 @@ module.exports = {
     },
     async fillParentNameStep(parentName) {
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+        //check if parent project was selected in Grid:
         if (await parentProjectStep.isSelectedParentProjectDisplayed()) {
             await parentProjectStep.clickOnNextButton();
         } else if (parentName) {
+            //click on 'Layer' radio, select a parent project then click on Next button:
+            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject(parentName);
             await parentProjectStep.clickOnNextButton();
         } else {
-            await parentProjectStep.clickOnSkipButton();
+            //click on 'Project' radio, select a parent project then click on Next button:
+            await parentProjectStep.clickOnProjectRadioButton();
+            await parentProjectStep.clickOnNextButton();
         }
         return new ProjectWizardDialogLanguageStep();
     },
@@ -147,7 +152,18 @@ module.exports = {
         await confirmValueDialog.waitForDialogClosed();
         return await settingsBrowsePanel.waitForNotificationMessage();
     },
-    buildProject(parentName, language, accessMode, principalsToAccess, applications, name, identifier, description) {
+    buildProject(language, accessMode, principalsToAccess, applications, name, identifier, description) {
+        return {
+            language: language,
+            accessMode: accessMode,
+            applications: applications,
+            name: name,
+            identifier: identifier,
+            description: description,
+            principalsToAccess: principalsToAccess
+        };
+    },
+    buildLayer(parentName, language, accessMode, principalsToAccess, applications, name, identifier, description) {
         return {
             language: language,
             parentName: parentName,

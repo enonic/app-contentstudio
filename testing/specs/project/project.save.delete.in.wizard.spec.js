@@ -27,7 +27,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.'Open new wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let project = projectUtils.buildProject(null, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, null, null, PROJECT_DISPLAY_NAME);
+            let project = projectUtils.buildProject( null, appConst.PROJECT_ACCESS_MODE.PRIVATE, null, null, PROJECT_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(project);
             await settingsBrowsePanel.waitForNotificationMessage();
         });
@@ -40,8 +40,9 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
             //1.'Open new wizard dialog:
             let parentProjectStep = await settingsBrowsePanel.openProjectWizardDialog();
-            //2. skip the first step:
-            await parentProjectStep.clickOnSkipButton();
+            //2. Select Project-radio then click on Next button:
+            await parentProjectStep.clickOnProjectRadioButton();
+            await parentProjectStep.clickOnNextButton();
             //3. Skip the language step:
             await languageStep.clickOnSkipButton();
             //4. Select Private access mode:

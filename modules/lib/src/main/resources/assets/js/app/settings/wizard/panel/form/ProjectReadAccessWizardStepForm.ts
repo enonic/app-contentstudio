@@ -153,6 +153,8 @@ export class ProjectReadAccessWizardStepForm
             setTimeout(() => {
                 if (!confirmed) {
                     this.readAccessFormItem.getRadioGroup().setValue(resetValue, true);
+                    this.readAccessFormItem.setPrincipalComboboxEnabled(
+                        this.readAccessFormItem.getReadAccessType() === ProjectReadAccessType.CUSTOM);
                 }
             }, 200);
         });

@@ -58,7 +58,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
 
             //2.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let project = projectUtils.buildProject(null, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName,
+            let project = projectUtils.buildProject( null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName,
                 null, PROJECT_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(project);
             await projectWizard.waitForNotificationMessage(PROJECT_DISPLAY_NAME);

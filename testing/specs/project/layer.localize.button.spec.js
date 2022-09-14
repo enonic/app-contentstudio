@@ -32,7 +32,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             await studioUtils.openSettingsPanel();
             //1.'Default' project should be loaded after closing the 'Select project' dialog, then open wizard for new layer:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildProject("Default", appConst.LANGUAGES.NORSK_NO, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
+            let layer = projectUtils.buildLayer("Default", appConst.LANGUAGES.NORSK_NO, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
                 null, LAYER_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();

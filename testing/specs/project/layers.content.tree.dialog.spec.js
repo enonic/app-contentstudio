@@ -38,7 +38,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.Select 'Default' project and open wizard for new layer:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildProject(PROJECT_DISPLAY_NAME, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
+            let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
                 null, LAYER1_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();
@@ -50,7 +50,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
             //1.Select the just created layer and create one more layer:
             //let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(LAYER1_DISPLAY_NAME);
             await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildProject(LAYER1_DISPLAY_NAME, appConst.LANGUAGES.NORSK_NO, appConst.PROJECT_ACCESS_MODE.PUBLIC,
+            let layer = projectUtils.buildLayer(LAYER1_DISPLAY_NAME, appConst.LANGUAGES.NORSK_NO, appConst.PROJECT_ACCESS_MODE.PUBLIC,
                 null, null, LAYER2_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
 
