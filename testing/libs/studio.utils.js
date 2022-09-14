@@ -486,16 +486,21 @@ module.exports = {
     async selectSiteAndOpenNewWizard(siteName, contentType) {
         let browsePanel = new BrowsePanel();
         let newContentDialog = new NewContentDialog();
-        let contentWizardPanel = new ContentWizardPanel();
         await this.findAndSelectItem(siteName);
         await browsePanel.waitForNewButtonEnabled();
         await browsePanel.clickOnNewButton();
         await newContentDialog.waitForOpened();
+        return await this.clickOnItemInNewContentDialog(contentType);
+    },
+    async clickOnItemInNewContentDialog(contentType) {
+        let newContentDialog = new NewContentDialog();
+        let contentWizard = new ContentWizardPanel();
         await newContentDialog.typeSearchText(contentType);
         await newContentDialog.clickOnContentType(contentType);
         await this.doSwitchToNewWizard();
-        await contentWizardPanel.waitForOpened();
-        return await contentWizardPanel.waitForDisplayNameInputFocused();
+        await contentWizard.waitForOpened();
+        await contentWizard.waitForDisplayNameInputFocused();
+        return contentWizard;
     },
     //Open delete dialog, click on 'Delete' button then type a number to delete
     async doDeleteNowAndConfirm(numberOfContents) {

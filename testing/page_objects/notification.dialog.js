@@ -4,6 +4,7 @@ const lib = require('../libs/elements');
 const XPATH = {
     container: "//div[contains(@id,'NotificationDialog')]",
     okButton: "//button/span[contains(.,'OK')]",
+    dialogText: "//h6[contains(@class,'notification-dialog-text')]"
 };
 
 // it appears when click on Reset menu item in Option Set.
@@ -34,6 +35,12 @@ class NotificationDialog extends Page {
 
     clickOnOkButton() {
         return this.clickOnElement(this.okButton);
+    }
+
+    async getDialogText() {
+        let locator = XPATH.container + XPATH.dialogText;
+        await this.waitForElementDisplayed(locator);
+        return await this.getText(locator);
     }
 }
 
