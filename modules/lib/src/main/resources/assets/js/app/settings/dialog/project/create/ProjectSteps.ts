@@ -7,8 +7,11 @@ import {ProjectPermissionsDialogStep} from './step/ProjectPermissionsDialogStep'
 import {ProjectIdDialogStep} from './step/ProjectIdDialogStep';
 import {ProjectSummaryStep} from './step/summary/ProjectSummaryStep';
 import {ProjectApplicationsDialogStep} from './step/ProjectApplicationsDialogStep';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class ProjectSteps {
+
+    public static PROJECT_APPS_ENABLED_PROP = 'projectAppsEnabled';
 
     static create(): DialogStep[] {
         const result: DialogStep[] = [];
@@ -20,8 +23,14 @@ export class ProjectSteps {
         result.push(
             new ProjectLocaleDialogStep(),
             new ProjectAccessDialogStep(),
-            new ProjectPermissionsDialogStep(),
-            new ProjectApplicationsDialogStep(),
+            new ProjectPermissionsDialogStep()
+        );
+
+        if (CONFIG.isTrue(ProjectSteps.PROJECT_APPS_ENABLED_PROP)) {
+            result.push(new ProjectApplicationsDialogStep());
+        }
+
+        result.push(
             new ProjectIdDialogStep(),
             new ProjectSummaryStep()
         );

@@ -11,6 +11,7 @@ function handleGet() {
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] === 'true' || false;
     const hideDefaultProject = app.config['settings.hideDefaultProject'] === 'true' || false;
+    const projectAppsEnabled = app.config['projectApps.enabled'] === 'true' || false;
 
     return {
         status: 200,
@@ -31,6 +32,7 @@ function handleGet() {
             branch,
             hideDefaultProject,
             enableCollaboration,
+            projectAppsEnabled,
             locale: admin.getLocale(),
             services: {
                 adminToolsUrl: portal.serviceUrl({service: 'admintools'}),
