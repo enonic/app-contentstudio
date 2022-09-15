@@ -25,12 +25,19 @@ class BaseSelectorForm extends Page {
             return elements.length === 0;
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Selector Validation recording should not be displayed"});
     }
+
     //Selects an option by the display name
     async selectOption(optionDisplayName) {
-        let loaderComboBox = new LoaderComboBox();
-        await this.typeTextInInput(this.optionsFilterInput, optionDisplayName);
-        await loaderComboBox.selectOption(optionDisplayName);
-        return await loaderComboBox.pause(300);
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            await this.typeTextInInput(this.optionsFilterInput, optionDisplayName);
+            await loaderComboBox.selectOption(optionDisplayName);
+            return await loaderComboBox.pause(300);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_combobox");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error in loader combobox, screenshot:" + screenshot + " " + err)
+        }
     }
 
     async typeTextInOptionsFilterInput(text) {

@@ -13,6 +13,8 @@ const SortContentDialog = require('../../page_objects/browsepanel/sort.content.d
 const appConst = require('../../libs/app_const');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const XDataImageSelector = require('../../page_objects/wizardpanel/xdata.image.selector.wizard.step.form');
+const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
+const CustomRelationshipForm = require('../../page_objects/wizardpanel/custom.relationship.form.panel');
 
 describe('duplicate.inherited.content.spec - tests for duplicating of inherited content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -31,7 +33,8 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.openSettingsPanel();
             //1.Select 'Default' project and open wizard for new layer:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildLayer("Default", null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null, null, LAYER_DISPLAY_NAME)
+            let layer = projectUtils.buildLayer("Default", null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null, appConst.APP_CONTENT_TYPES,
+                LAYER_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
         });
 
@@ -41,10 +44,33 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.doAddSite(site, true);
         });
 
+    //Verify issue https://github.com/enonic/app-contentstudio/issues/5118
+    //500 error in Project Wizard for a content with relationship-type #5118
+    it(`GIVEN new article has been saved in root WHEN wizard with Custom relationship selector is opened THEN the article should be available in the selector`,
+        async () => {
+            //1. Select the layer's context:
+            await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
+            let displayName = contentBuilder.generateRandomName('article');
+            let articleContent = contentBuilder.buildArticleContent(displayName, 'title', 'body', appConst.contentTypes.ARTICLE);
+            //2. Add Article content in root directory:
+            await doAddArticleContent(articleContent);
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let newContentDialog = new NewContentDialog();
+            let customRelationshipForm = new CustomRelationshipForm();
+            //3. Open new wizard with Custom relationship
+            await contentBrowsePanel.clickOnNewButton();
+            await newContentDialog.waitForOpened();
+            await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.CUSTOM_RELATIONSHIP);
+            //4. Verify that just created article content is available in the selector
+            await customRelationshipForm.selectOption(articleContent.displayName);
+            await studioUtils.saveScreenshot("custom_rel_root_dir");
+            let result = await customRelationshipForm.getSelectedOptions();
+            assert.isTrue(result[0].includes(articleContent.displayName), "Expected option should be selected");
+        });
+
     //Verifies: New Content dialog doesn't show content types from project apps #5104
     //https://github.com/enonic/app-contentstudio/issues/5104
-    it.skip(
-        "GIVEN layer's context with an application is selected AND no selections in the grid WHEN New content dialog is opened THEN all content types from project's application should be available in the dialog",
+    it("GIVEN layer's context with an application is selected AND no selections in the grid WHEN New content dialog is opened THEN all content types from project's application should be available in the dialog",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
@@ -123,7 +149,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.findAndSelectItem(SITE_NAME + "-copy");
             await contentBrowsePanel.clickOnSortButton();
             await sortContentDialog.waitForDialogVisible();
-            studioUtils.saveScreenshot("inherited_site_order");
+            await studioUtils.saveScreenshot("inherited_site_order");
             //3. Verify that 'Default' order is selected :
             let actualOrder = await sortContentDialog.getSelectedOrder();
             assert.equal(actualOrder, EXPECTED_ORDER, "'Modified date' order should be selected in the modal dialog");
@@ -138,7 +164,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             //2. Select the local copy of inherited site and open Layers widget:
             await studioUtils.findAndSelectItem(SITE_NAME + "-copy");
             let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
-            studioUtils.saveScreenshot("layers_widget_local_copy_of_site");
+            await studioUtils.saveScreenshot("layers_widget_local_copy_of_site");
             //3.Verify that only one item with button 'Open' should be present in the widget:
             let layers = await browseLayersWidget.getLayersName();
             assert.equal(layers.length, 1, "Only one item should be present in the widget");
@@ -161,4 +187,22 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
         }
         return console.log('specification starting: ' + this.title);
     });
+
 });
+
+async function doAddArticleContent(article) {
+    let contentWizardPanel = new ContentWizardPanel();
+    let contentBrowsePanel = new ContentBrowsePanel();
+    let newContentDialog = new NewContentDialog();
+    await contentBrowsePanel.clickOnNewButton();
+    await newContentDialog.waitForOpened();
+    //2. Open article-wizard:
+    await studioUtils.clickOnItemInNewContentDialog(article.contentType);
+    //3.Type the data and save all
+    await contentWizardPanel.typeData(article);
+    await contentWizardPanel.waitAndClickOnSave();
+    await studioUtils.doCloseCurrentBrowserTab();
+    await studioUtils.doSwitchToContentBrowsePanel();
+    return await contentBrowsePanel.pause(1000);
+}
+
