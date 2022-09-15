@@ -3,7 +3,7 @@
     <div class="issues-container">
         {{#issues}}
         <div class="issue">
-            <a class="issue__link" href="{{editUrl}}" target="_blank">
+            <a class="issue__link" href="{{issueUrl}}" target="_blank">
                 <div class="issue__view">
                     <div class="issue__iconblock">
                         <img class="issue__img" src="{{imgUrl}}">
@@ -15,7 +15,11 @@
                 </div>
             </a>
         </div>
-        <div class="project__name">{{projectDisplayName}}</div>
+        <div class="project__name">
+            <a class="issue__link" href="{{projectUrl}}" target="_blank">
+                {{projectDisplayName}}
+            </a>
+        </div>
         {{/issues}}
         {{^issues}}
         <div class="no-items">
