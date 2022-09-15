@@ -12,7 +12,11 @@
             </a>
         </div>
         <div class="grid-item modified"><span class="date" title="{{formattedDateTime}}">{{formattedDateTime}}</span></div>
-        <div class="grid-item project"><span title="{{project.description}}" class="project__name">{{project.displayName}}</span></div>
+        <div class="grid-item project">
+            <a class="content__link" href="{{projectUrl}}" target="_blank">
+                <span title="{{project.description}}" class="project__name">{{project.displayName}}</span>
+            </a>
+        </div>
         {{/items}}
         {{^items}}
         <div class="no-items-block">No items to display</div>
