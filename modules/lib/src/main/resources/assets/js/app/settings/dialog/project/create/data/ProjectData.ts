@@ -14,11 +14,11 @@ export class ProjectData {
 
     access: ProjectAccessDialogStepData;
 
-    permissions: ProjectPermissionsDialogStepData;
+    permissions?: ProjectPermissionsDialogStepData;
 
     name: string;
 
     displayName: string;
 
-    applications: ProjectApplication[];
+    applications?: ProjectApplication[];
 }

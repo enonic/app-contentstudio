@@ -33,6 +33,8 @@ import {ProjectApplicationsWizardStepForm} from './form/ProjectApplicationsWizar
 import {ProjectApplication} from './form/element/ProjectApplication';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {ProjectSteps} from '../../dialog/project/create/ProjectSteps';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -107,19 +109,23 @@ export class ProjectWizardPanel
     }
 
     protected createStepsForms(persistedItem: ProjectViewItem): SettingDataItemWizardStepForm<ProjectViewItem>[] {
+        const stepForms: SettingDataItemWizardStepForm<ProjectViewItem>[] = [];
         this.projectWizardStepForm = new ProjectItemNameWizardStepForm();
         this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm();
 
+        stepForms.push(this.projectWizardStepForm, this.readAccessWizardStepForm);
+
         const isDefaultProject: boolean = !!persistedItem && persistedItem.isDefaultProject();
 
-        if (isDefaultProject) {
-            return [this.projectWizardStepForm, this.readAccessWizardStepForm];
+        if (!isDefaultProject) {
+            stepForms.push(this.rolesWizardStepForm = new ProjectRolesWizardStepForm());
+
+            if (CONFIG.isTrue(ProjectSteps.PROJECT_APPS_ENABLED_PROP)) {
+                stepForms.push(this.applicationsWizardStepForm = new ProjectApplicationsWizardStepForm());
+            }
         }
 
-        this.rolesWizardStepForm = new ProjectRolesWizardStepForm();
-        this.applicationsWizardStepForm = new ProjectApplicationsWizardStepForm();
-
-        return [this.projectWizardStepForm, this.readAccessWizardStepForm, this.rolesWizardStepForm, this.applicationsWizardStepForm];
+        return stepForms;
     }
 
     protected isNewItemChanged(): boolean {
@@ -425,6 +431,10 @@ export class ProjectWizardPanel
     }
 
     private isApplicationsChanged(): boolean {
+        if (!CONFIG.isTrue(ProjectSteps.PROJECT_APPS_ENABLED_PROP)) {
+            return false;
+        }
+
         if (!this.isItemPersisted()) {
             return true;
         }
