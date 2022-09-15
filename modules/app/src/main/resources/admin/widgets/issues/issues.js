@@ -55,19 +55,21 @@ const getLastModifiedIssuesInRepo = (repositoryId, count) => {
 const createIssueItem = (issue, project, baseToolUri) => {
     const modifiedDateTime = parseDateTime(issue.modifiedTime.toString());
     const modifiedText = generateModifiedText(issue, modifiedDateTime);
-    const editUrl = generateEditUrl(issue.id, project.id, baseToolUri);
+    const issueUrl = generateIssueUrl(issue.id, project.id, baseToolUri);
+    const projectUrl = generateProjectUrl(project.id, baseToolUri);
     const name = generateNameWithId(issue);
     const imgUrl = generateImgUrl(issue);
     const projectDisplayName = project.displayName;
 
     return {
-        issue: issue,
-        name: name,
+        issue,
+        name,
         dateTime: modifiedDateTime,
-        modifiedText: modifiedText,
-        editUrl: editUrl,
-        imgUrl: imgUrl,
-        projectDisplayName: projectDisplayName
+        modifiedText,
+        issueUrl,
+        projectUrl,
+        imgUrl,
+        projectDisplayName
     }
 }
 
@@ -91,8 +93,12 @@ const makeDateFromUTCString = (value) => {
     return new Date(Date.UTC(parsedYear, parsedMonth - 1, parsedDayOfMonth, parsedHours, parsedMinutes, parsedSeconds));
 }
 
-const generateEditUrl = (id, project, baseToolUri) => {
+const generateIssueUrl = (id, project, baseToolUri) => {
     return `${baseToolUri}#/${project}/issue/${id}`;
+}
+
+const generateProjectUrl = (id, project, baseToolUri) => {
+    return `${baseToolUri}#/${project}/browse`;
 }
 
 const generateModifiedText = (issue, modifiedDate) => {
