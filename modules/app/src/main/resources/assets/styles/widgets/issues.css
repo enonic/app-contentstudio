@@ -1,7 +1,7 @@
 .issues-container {
   display: grid;
   grid-template-columns: auto 20%;
-  row-gap: 5px;
+  row-gap: 10px;
   column-gap: 5px;
 }
 
