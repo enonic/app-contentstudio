@@ -68,6 +68,7 @@ const createContentItem = (item, project, baseToolUri) => {
     const dateTime = parseDateTime(item.modifiedTime);
     const formattedDateTime = formatDateTime(dateTime);
     const editUrl = generateEditUrl(item, project.id, baseToolUri);
+    const projectUrl = generateProjectUrl(project.id, baseToolUri);
     const icon = getItemIcon(item);
 
     if (!project.description) {
@@ -75,13 +76,14 @@ const createContentItem = (item, project, baseToolUri) => {
     }
 
     return {
-        item: item,
-        displayName: displayName,
-        dateTime: dateTime,
-        formattedDateTime: formattedDateTime,
-        project: project,
-        icon: icon,
-        editUrl: editUrl
+        item,
+        displayName,
+        dateTime,
+        formattedDateTime,
+        project,
+        icon,
+        editUrl,
+        projectUrl
     };
 }
 
@@ -170,6 +172,10 @@ const getContentTypeWithIcon = (item) => {
 
 const generateEditUrl = (item, project, baseToolUri) => {
     return `${baseToolUri}/${project}/edit/${item._id}`;
+}
+
+const generateProjectUrl = (project, baseToolUri) => {
+    return `${baseToolUri}#/${project}/browse`;
 }
 
 const filterSameItemsInOtherRepos = (items) => {
