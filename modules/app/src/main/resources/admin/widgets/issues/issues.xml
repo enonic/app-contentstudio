@@ -1,5 +1,5 @@
 <widget xmlns="urn:enonic:xp:model:1.0">
-  <display-name>Issues</display-name>
+  <display-name>My Issues</display-name>
   <interfaces>
     <interface>home.dashboard</interface>
   </interfaces>
