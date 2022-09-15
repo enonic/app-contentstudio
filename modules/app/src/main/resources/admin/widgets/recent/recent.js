@@ -5,6 +5,10 @@ const projectLib = require('/lib/xp/project');
 const contextLib = require('/lib/xp/context');
 const encodingLib = require('/lib/text-encoding');
 const adminLib = require('/lib/xp/admin');
+const authLib = require('/lib/xp/auth');
+
+const baseToolUri = adminLib.getToolUrl(app.name, 'main');
+const currentUser = authLib.getUser();
 
 const handleGet = (req) => {
     const showLast = req.params.showLast || 5;
@@ -30,13 +34,13 @@ const handleGet = (req) => {
 const getLastModifiedContentInAllRepos = (showLast) => {
     const result = [];
     const projects = projectLib.list();
-    const baseToolUri = adminLib.getToolUrl(app.name, 'main');
+
 
     projects.forEach((project) => {
         const projectItems = getLastModifiedItemsInRepo(`com.enonic.cms.${project.id}`, showLast);
 
         projectItems.forEach((item) => {
-            result.push(createContentItem(item, project, baseToolUri));
+            result.push(createContentItem(item, project));
         });
     });
 
@@ -59,16 +63,17 @@ const getLastModifiedItems = (count) => {
     return contentLib.query({
         start: 0,
         count: count,
-        sort: 'modifiedTime DESC'
+        sort: 'modifiedTime DESC',
+        query: `modifier = "${currentUser.key}"`
     }).hits;
 }
 
-const createContentItem = (item, project, baseToolUri) => {
+const createContentItem = (item, project) => {
     const displayName = item.displayName || '<unnamed>';
     const dateTime = parseDateTime(item.modifiedTime);
     const formattedDateTime = formatDateTime(dateTime);
-    const editUrl = generateEditUrl(item, project.id, baseToolUri);
-    const projectUrl = generateProjectUrl(project.id, baseToolUri);
+    const editUrl = generateEditUrl(item, project.id);
+    const projectUrl = generateProjectUrl(project.id);
     const icon = getItemIcon(item);
 
     if (!project.description) {
@@ -170,11 +175,11 @@ const getContentTypeWithIcon = (item) => {
     return contentType;
 }
 
-const generateEditUrl = (item, project, baseToolUri) => {
+const generateEditUrl = (item, project) => {
     return `${baseToolUri}/${project}/edit/${item._id}`;
 }
 
-const generateProjectUrl = (project, baseToolUri) => {
+const generateProjectUrl = (project) => {
     return `${baseToolUri}#/${project}/browse`;
 }
 
