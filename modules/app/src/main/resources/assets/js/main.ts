@@ -56,6 +56,12 @@ import {AppContext} from 'lib-contentstudio/app/AppContext';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {ProjectSelectionDialog} from 'lib-contentstudio/app/dialog/ProjectSelectionDialog';
 import {OpenEditPermissionsDialogEvent} from 'lib-contentstudio/app/event/OpenEditPermissionsDialogEvent';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
+import {ProjectNotAvailableDialog} from 'lib-contentstudio/app/settings/dialog/project/create/ProjectNotAvailableDialog';
+import {ProjectSteps} from 'lib-contentstudio/app/settings/dialog/project/create/ProjectSteps';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -532,6 +538,18 @@ function initProjectContext(application: Application): Q.Promise<void> {
 
         if (projects.length === 0) {
             ProjectContext.get().setNotAvailable();
+
+            return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+                const principalKeys: PrincipalKey[] = loginResult.getPrincipals();
+
+                if (principalKeys.some((p: PrincipalKey) => RoleKeys.isContentAdmin(p))) {
+                    new ProjectNotAvailableDialog().open();
+                } else {
+                    ProjectSelectionDialog.get().open();
+                }
+
+                return Q.resolve();
+            });
         }
 
         ProjectSelectionDialog.get().open();

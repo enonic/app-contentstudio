@@ -27,8 +27,10 @@ import {UpdateProjectPermissionsRequest} from '../../../resource/UpdateProjectPe
 import {ProjectReadAccessType} from '../../../data/project/ProjectReadAccessType';
 import {ProjectApplication} from '../../../wizard/panel/form/element/ProjectApplication';
 import {ProjectApplicationsDialogStep} from './step/ProjectApplicationsDialogStep';
+import {ProjectContext} from '../../../../project/ProjectContext';
 
-export interface ProjectWizardDialogConfig extends MultiStepDialogConfig {
+export interface ProjectWizardDialogConfig
+    extends MultiStepDialogConfig {
     parentProject?: Project;
 }
 
@@ -153,7 +155,12 @@ export class ProjectWizardDialog
         this.produceCreateItemRequest().sendAndParse().then((project: Project) => {
             return this.updateLocale(project.getName()).then(() => {
                 return this.updatePermissions(project.getName()).then(() => {
+                    if (!ProjectContext.get().isInitialized()) {
+                        ProjectContext.get().setProject(project);
+                    }
+
                     this.close();
+
                     showFeedback(i18n('notify.settings.project.created', project.getName()));
                     return Q.resolve();
                 });
