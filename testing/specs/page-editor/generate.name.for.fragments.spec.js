@@ -198,7 +198,7 @@ describe('Generate name for fragments specification', function () {
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForNotificationMessage();
             //5. Verify the workflow state:
-            let state = await contentWizard.getToolbarWorkflowState();
+            let state = await contentWizard.getIconWorkflowState();
             assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "Ready for publishing state should be in the wizard ");
             //6. Verify that Save button is disabled:
             await contentWizard.waitForSaveButtonDisabled();

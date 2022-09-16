@@ -162,7 +162,7 @@ task testModalDialog( type: NpmTask, dependsOn: [npmInstall, startServer, copyAp
     finalizedBy stopServer
 }
 
-task testCollaboration( type: NpmTask, dependsOn: [npmInstall, startServer, copyCollaborationConfig] ) {
+task testCollaboration( type: NpmTask, dependsOn: [npmInstall, startServer] ) {
     args = ['run-script', 'test_collaboration']
     finalizedBy stopServer
 }
@@ -172,14 +172,6 @@ task testPublishIssuesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     finalizedBy stopServer
 }
 
-task baseContentStudioTests( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
-    args = ['run-script', 'base_tests']
-    finalizedBy stopServer
-}
-
-task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall] ) {
-    args = ['test']
-}
 
 /////////////////////////////Firefox geckodriver:
 task testWizardsGridFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
@@ -239,5 +231,3 @@ task testPublishIssuesFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 task testModalDialogFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_modal_dialog:firefox']
 }
-
-
