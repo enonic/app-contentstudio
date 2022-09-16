@@ -118,7 +118,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             await textComponentCke.typeTextInCkeEditor("test text");
             await contentWizard.waitAndClickOnSave();
             //3. Verify the workflow state in the wizard and in the grid
-            let workflowInWizard = await contentWizard.getToolbarWorkflowState();
+            let workflowInWizard = await contentWizard.getIconWorkflowState();
             assert.equal(workflowInWizard, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
             await studioUtils.doSwitchToContentBrowsePanel();
             await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.MODIFIED);
