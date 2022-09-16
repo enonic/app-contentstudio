@@ -118,6 +118,10 @@ implements Cloneable {
         return this.getPublishedFrom() > this.getTimestamp() && this.getPublishedFrom() > new Date(Date.now());
     }
 
+    isCustom(): boolean {
+        return this.getType() === COMMIT_TYPE[COMMIT_TYPE.CUSTOM].toString();
+    }
+
     isEmpty(): boolean {
         return !this.contentPublishInfo;
     }
