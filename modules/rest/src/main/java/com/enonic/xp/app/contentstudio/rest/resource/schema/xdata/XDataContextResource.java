@@ -1,9 +1,11 @@
 package com.enonic.xp.app.contentstudio.rest.resource.schema.xdata;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
@@ -22,7 +24,6 @@ import com.enonic.xp.app.ApplicationWildcardMatcher;
 import com.enonic.xp.app.contentstudio.json.schema.xdata.XDataJson;
 import com.enonic.xp.app.contentstudio.json.schema.xdata.XDataListJson;
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
-import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.MixinIconResolver;
@@ -30,8 +31,11 @@ import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.MixinIconUrlRe
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
+import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.jaxrs.JaxRsComponent;
+import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
@@ -43,7 +47,6 @@ import com.enonic.xp.schema.xdata.XDatas;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
-import com.enonic.xp.site.SiteDescriptor;
 import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMappings;
 
@@ -71,6 +74,8 @@ public final class XDataContextResource
 
     private MixinService mixinService;
 
+    private ProjectService projectService;
+
     private MixinIconUrlResolver mixinIconUrlResolver;
 
     private ApplicationWildcardMatcher.Mode contentTypeParseMode;
@@ -96,6 +101,8 @@ public final class XDataContextResource
         getContentTypeXData( content ).forEach( xData -> resultXData.putIfAbsent( xData, false ) );
 
         getSiteXData( content ).forEach( resultXData::putIfAbsent );
+
+        getProjectXData( content ).forEach( resultXData::putIfAbsent );
 
         result.addXDatas( createXDataListJson( resultXData ) );
 
@@ -128,16 +135,29 @@ public final class XDataContextResource
             final List<ApplicationKey> applicationKeys =
                 nearestSite.getSiteConfigs().stream().map( SiteConfig::getApplicationKey ).collect( toList() );
 
-            final List<SiteDescriptor> siteDescriptors = applicationKeys.stream()
-                .map( applicationKey -> siteService.getDescriptor( applicationKey ) )
-                .filter( Objects::nonNull )
-                .collect( toList() );
-
-            siteDescriptors.forEach(
-                siteDescriptor -> result.putAll( this.getXDatasByContentType( siteDescriptor.getXDataMappings(), content.getType() ) ) );
+            return getXDataByApps( applicationKeys, content.getType() );
 
         }
         return result;
+    }
+
+    private Map<XData, Boolean> getProjectXData( final Content content )
+    {
+        return contentService.getNearestSite( content.getId() ) == null ? Optional.ofNullable(
+                ProjectName.from( ContextAccessor.current().getRepositoryId() ) )
+            .map( projectService::get )
+            .map( project -> getXDataByApps( project.getSiteConfigs().getApplicationKeys(), content.getType() ) )
+            .orElseGet( Map::of ) : Map.of();
+    }
+
+    private Map<XData, Boolean> getXDataByApps( final Collection<ApplicationKey> applicationKeys, final ContentTypeName contentType )
+    {
+
+        return applicationKeys.stream()
+            .map( applicationKey -> siteService.getDescriptor( applicationKey ) )
+            .map( siteDescriptor -> this.getXDatasByContentType( siteDescriptor.getXDataMappings(), contentType ) )
+            .flatMap( xDataBooleanMap -> xDataBooleanMap.entrySet().stream() )
+            .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue ) );
     }
 
     private Map<XData, Boolean> getXDatasByContentType( final XDataMappings xDataMappings, final ContentTypeName contentTypeName )
@@ -206,6 +226,12 @@ public final class XDataContextResource
     {
         this.mixinService = mixinService;
         this.mixinIconUrlResolver = new MixinIconUrlResolver( new MixinIconResolver( mixinService ) );
+    }
+
+    @Reference
+    public void setProjectService( final ProjectService projectService )
+    {
+        this.projectService = projectService;
     }
 }
 
