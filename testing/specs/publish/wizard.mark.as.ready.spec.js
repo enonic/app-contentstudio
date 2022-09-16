@@ -29,11 +29,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             //2. Click on 'MARK AS READY' button
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.pause(1000);
-            //3. Get 'workflow state' in toolbar in the wizard-page:
-            let toolbarState = await contentWizard.getToolbarWorkflowState();
-            studioUtils.saveScreenshot("wizard_workflow_state_1");
-            assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content should be 'Ready for publishing'");
-            //4. Check the icon:
+            //3. Get 'workflow state' in content-icon in the wizard-page:
             let iconState = await contentWizard.getIconWorkflowState();
             assert.equal(iconState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content should be 'Ready for publishing'");
             await contentWizard.waitForPublishButtonDisplayed();
@@ -52,12 +48,8 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             //2. Click on 'Mark as ready' button:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.pause(1500);
-
-            //3. Workflow should be updated (ready for publishing now)
-            let toolbarState = await contentWizard.getToolbarWorkflowState();
-            studioUtils.saveScreenshot("wizard_workflow_state_2");
-            assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
-
+            //3. Verify that
+            await studioUtils.saveScreenshot("wizard_workflow_state_2");
             let iconState = await contentWizard.getIconWorkflowState();
             assert.equal(iconState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
             //Drop Down handle should be visible after closing the dialog!
@@ -79,13 +71,10 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             await contentWizard.openPublishMenuAndCreateRequestPublish("my changes");
             //3. Verify that 'Open Request' -  action gets default in the wizard's toolbar.
             await contentWizard.waitForOpenRequestButtonVisible();
-            let toolbarState = await contentWizard.getToolbarWorkflowState();
             studioUtils.saveScreenshot("wizard_workflow_state_3");
-            assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
-
             let iconState = await contentWizard.getIconWorkflowState();
             assert.equal(iconState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
-            //Drop Down handle should be visible after closing the dialog!
+            //Drop-Down handle should be visible after closing the dialog!
             await contentWizard.waitForShowPublishMenuButtonVisible();
         });
 
