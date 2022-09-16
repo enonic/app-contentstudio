@@ -88,6 +88,8 @@ export class VersionHistoryItem implements Cloneable {
             builder.setIconCls('icon-archive').setStatus(VersionItemStatus.ARCHIVED);
         } else if (publishInfo.isRestored()) {
             builder.setIconCls('icon-restore').setStatus(VersionItemStatus.RESTORED);
+        } else if (publishInfo.isCustom()) {
+            builder.setIconCls('icon-version-modified').setStatus(VersionItemStatus.EDITED);
         }
 
         builder.setMessage(publishInfo.getMessage());
