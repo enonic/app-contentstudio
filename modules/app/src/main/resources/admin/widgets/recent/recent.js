@@ -1,11 +1,11 @@
 const mustache = require('/lib/mustache');
 const contentLib = require('/lib/xp/content');
 const portalLib = require('/lib/xp/portal');
-const projectLib = require('/lib/xp/project');
 const contextLib = require('/lib/xp/context');
 const encodingLib = require('/lib/text-encoding');
 const adminLib = require('/lib/xp/admin');
 const authLib = require('/lib/xp/auth');
+const helper = require('/helpers/dashboard-helper');
 
 const baseToolUri = adminLib.getToolUrl(app.name, 'main');
 const currentUser = authLib.getUser();
@@ -33,8 +33,7 @@ const handleGet = (req) => {
 
 const getLastModifiedContentInAllRepos = (showLast) => {
     const result = [];
-    const projects = projectLib.list();
-
+    const projects = helper.getProjects();
 
     projects.forEach((project) => {
         const projectItems = getLastModifiedItemsInRepo(`com.enonic.cms.${project.id}`, showLast);
@@ -70,8 +69,8 @@ const getLastModifiedItems = (count) => {
 
 const createContentItem = (item, project) => {
     const displayName = item.displayName || '<unnamed>';
-    const dateTime = parseDateTime(item.modifiedTime);
-    const formattedDateTime = formatDateTime(dateTime);
+    const dateTime = helper.parseDateTime(item.modifiedTime);
+    const formattedDateTime = helper.formatDateTime(dateTime);
     const editUrl = generateEditUrl(item, project.id);
     const projectUrl = generateProjectUrl(project.id);
     const icon = getItemIcon(item);
@@ -90,59 +89,6 @@ const createContentItem = (item, project) => {
         editUrl,
         projectUrl
     };
-}
-
-const parseDateTime = (value) => {
-    if (!value) {
-        return '';
-    }
-
-    return makeDateFromUTCString(value);
-}
-
-const formatDateTime = (date) => {
-    if (!date) {
-        return '';
-    }
-
-    return zeroPad(date.getFullYear(), 4) +
-           '-' +
-           zeroPad(date.getMonth() + 1, 2) +
-           '-' +
-           zeroPad(date.getDate(), 2) +
-           ' ' +
-           zeroPad(date.getHours(), 2) +
-           ':' +
-           zeroPad(date.getMinutes(), 2) +
-           ':' +
-           zeroPad(date.getSeconds(), 2);
-}
-
-// Copied from DateHelper.ts
-const makeDateFromUTCString = (value) => {
-    const parsedYear = Number(value.substring(0, 4));
-    const parsedMonth = Number(value.substring(5, 7));
-    const parsedDayOfMonth = Number(value.substring(8, 10));
-    const parsedHours = Number(value.substring(11, 13));
-    const parsedMinutes = Number(value.substring(14, 16));
-    const parsedSeconds = Number(value.substring(17, 19));
-
-    return new Date(Date.UTC(parsedYear, parsedMonth - 1, parsedDayOfMonth, parsedHours, parsedMinutes, parsedSeconds));
-}
-
-// Copied from DateTimeFormatter.ts
-const zeroPad = (n, width) => {
-    let nWidth = n.toString().length;
-    if (nWidth >= width) {
-        return '' + n;
-    }
-    let neededZeroes = width - nWidth;
-    let s = '';
-    for (let i = 0; i < neededZeroes; i++) {
-        s += '0';
-    }
-
-    return s + n;
 }
 
 const getItemIcon = (item) => {
