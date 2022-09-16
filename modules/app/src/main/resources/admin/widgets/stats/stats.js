@@ -1,11 +1,11 @@
-const projectLib = require('/lib/xp/project');
 const mustache = require('/lib/mustache');
 const contextLib = require('/lib/xp/context');
 const contentLib = require('/lib/xp/content');
+const helper = require('/helpers/dashboard-helper');
 
 function handleGet() {
     const view = resolve('./stats.html');
-    const projects = projectLib.list();
+    const projects = helper.getProjects();
     const totalItems = '' + countItemsInRepos(projects);
 
     const params = {
