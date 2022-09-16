@@ -1,8 +1,8 @@
-const projectLib = require('/lib/xp/project');
 const mustache = require('/lib/mustache');
 const contextLib = require('/lib/xp/context');
 const portalLib = require('/lib/xp/portal');
 const adminLib = require('/lib/xp/admin');
+const helper = require('/helpers/dashboard-helper');
 const issueFetcher = __.newBean('com.enonic.xp.app.contentstudio.widget.issues.IssueFetcher');
 
 const handleGet = (req) => {
@@ -26,7 +26,7 @@ const handleGet = (req) => {
 
 const getLastModifiedIssues = (showLast) => {
     const result = [];
-    const projects = projectLib.list();
+    const projects = helper.getProjects();
     const baseToolUri = adminLib.getToolUrl(app.name, 'main');
 
     projects.forEach((project) => {
@@ -53,7 +53,7 @@ const getLastModifiedIssuesInRepo = (repositoryId, count) => {
 }
 
 const createIssueItem = (issue, project, baseToolUri) => {
-    const modifiedDateTime = parseDateTime(issue.modifiedTime.toString());
+    const modifiedDateTime = helper.parseDateTime(issue.modifiedTime.toString());
     const modifiedText = generateModifiedText(issue, modifiedDateTime);
     const issueUrl = generateIssueUrl(issue.id, project.id, baseToolUri);
     const projectUrl = generateProjectUrl(project.id, baseToolUri);
@@ -71,26 +71,6 @@ const createIssueItem = (issue, project, baseToolUri) => {
         imgUrl,
         projectDisplayName
     }
-}
-
-const parseDateTime = (value) => {
-    if (!value) {
-        return '';
-    }
-
-    return makeDateFromUTCString(value);
-}
-
-// Copied from DateHelper.ts
-const makeDateFromUTCString = (value) => {
-    const parsedYear = Number(value.substring(0, 4));
-    const parsedMonth = Number(value.substring(5, 7));
-    const parsedDayOfMonth = Number(value.substring(8, 10));
-    const parsedHours = Number(value.substring(11, 13));
-    const parsedMinutes = Number(value.substring(14, 16));
-    const parsedSeconds = Number(value.substring(17, 19));
-
-    return new Date(Date.UTC(parsedYear, parsedMonth - 1, parsedDayOfMonth, parsedHours, parsedMinutes, parsedSeconds));
 }
 
 const generateIssueUrl = (id, project, baseToolUri) => {
