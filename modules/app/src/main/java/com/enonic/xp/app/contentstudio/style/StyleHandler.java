@@ -11,6 +11,8 @@ import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.i18n.LocaleService;
+import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
 import com.enonic.xp.site.Site;
@@ -28,6 +30,8 @@ public final class StyleHandler
 
     private ContentService contentService;
 
+    private ProjectService projectService;
+
     private LocaleService localeService;
 
     private String contentId;
@@ -36,10 +40,7 @@ public final class StyleHandler
 
     public StyleDescriptorMapper getStyles()
     {
-        final Context context = ContextBuilder.
-            from( ContextAccessor.current() ).
-            repositoryId( PROJECT_REPO_ID_PREFIX + project ).
-            build();
+        final Context context = ContextBuilder.from( ContextAccessor.current() ).repositoryId( PROJECT_REPO_ID_PREFIX + project ).build();
         ContextAccessor.INSTANCE.set( context );
 
         final ContentId contentId = ContentId.from( this.contentId );
@@ -56,13 +57,13 @@ public final class StyleHandler
         final Set<ApplicationKey> keys = new LinkedHashSet<>();
         keys.add( SYSTEM_APPLICATION_KEY );
 
-        final Site site = this.contentService.getNearestSite( contentId );
+        final Site nearestSite = this.contentService.getNearestSite( contentId );
 
-        if ( site != null )
-        {
-            site.getSiteConfigs().stream().filter( siteConfig -> !isSystemApp( siteConfig.getApplicationKey() ) ).forEach(
-                siteConfig -> keys.add( siteConfig.getApplicationKey() ) );
-        }
+        final Set<ApplicationKey> contentApps = nearestSite != null
+            ? nearestSite.getSiteConfigs().getApplicationKeys()
+            : projectService.get( ProjectName.from( ContextAccessor.current().getRepositoryId() ) ).getSiteConfigs().getApplicationKeys();
+
+        contentApps.stream().filter( applicationKey -> !isSystemApp( applicationKey ) ).forEach( keys::add );
 
         return ApplicationKeys.from( keys );
     }
@@ -87,6 +88,7 @@ public final class StyleHandler
     {
         styleDescriptorService = context.getService( StyleDescriptorService.class ).get();
         contentService = context.getService( ContentService.class ).get();
+        projectService = context.getService( ProjectService.class ).get();
         localeService = context.getService( LocaleService.class ).get();
     }
 
