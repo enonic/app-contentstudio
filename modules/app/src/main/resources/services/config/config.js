@@ -35,7 +35,6 @@ function handleGet() {
             projectAppsEnabled,
             locale: admin.getLocale(),
             services: {
-                adminToolsUrl: portal.serviceUrl({service: 'admintools'}),
                 contentUrl: portal.serviceUrl({service: 'content'}),
                 i18nUrl: portal.serviceUrl({service: 'i18n'}),
                 licenseUrl: portal.serviceUrl({service: 'license'}),

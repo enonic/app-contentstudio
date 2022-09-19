@@ -89,7 +89,7 @@ export class AppWrapper
         const studioWidgetBuilder: WidgetBuilder = Widget.create();
 
         studioWidgetBuilder.widgetDescriptorKey = WidgetDescriptorKey.fromString(`${CONFIG.get('appId')}:main`);
-        studioWidgetBuilder.displayName = i18n('app.name');
+        studioWidgetBuilder.displayName = i18n('app.admin.widget.main');
         studioWidgetBuilder.url = UrlAction.BROWSE;
         studioWidgetBuilder.config = {
             context: 'project'
