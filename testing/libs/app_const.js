@@ -80,7 +80,7 @@ module.exports = Object.freeze({
     LOCALIZED_MESSAGE_2: "Inherited content was localized",
     CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
-    TAB_TITLE_PART: "/ Content Studio",
+    TAB_TITLE_PART: "/ Content",
     CONTENT_STUDIO_TITLE: "Content Studio",
     VERSIONS_ITEM_HEADER: {
         PERMISSIONS_UPDATED: 'Permissions updated',
