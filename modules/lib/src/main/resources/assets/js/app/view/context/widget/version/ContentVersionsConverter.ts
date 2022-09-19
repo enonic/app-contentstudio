@@ -3,6 +3,7 @@ import {ContentVersion} from '../../../../ContentVersion';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {CreateParams, VersionHistoryItem} from './VersionHistoryItem';
 import {ContentVersions} from '../../../../ContentVersions';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentVersionsConverter {
 
@@ -100,20 +101,31 @@ export class ContentVersionsConverter {
     private createHistoryItemsParams(version: ContentVersion, index: number): CreateParams {
         const isFirstVersion: boolean = index === this.getLastItemIndex();
         const timestamp: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getTimestamp();
+        const previousVersion: ContentVersion = this.contentVersions.get()[index + 1];
 
         const isNonDataChange: boolean = !isFirstVersion &&
             !ContentVersion.equalDates(version.getTimestamp(), version.getModified(), 200);
-        const isNonTrackableChange: boolean =
-            isNonDataChange && version.getChildOrder()?.equals(this.contentVersions.get()[index + 1]?.getChildOrder());
-        const isSort: boolean = isNonDataChange && !isNonTrackableChange;
+        const isMove: boolean = isNonDataChange && !ObjectHelper.stringEquals(version.getPath(), previousVersion?.getPath());
+        const isSort: boolean = !ObjectHelper.equals(version.getChildOrder(), previousVersion?.getChildOrder());
+        const isPermissionsChange: boolean = isNonDataChange && this.isPermissionChange(version, previousVersion);
 
         const createParams: CreateParams = {
             createdDate: isFirstVersion ? timestamp : null,
             isSort: isSort,
-            isNonTrackableChange: isNonTrackableChange
+            isMove: isMove,
+            isPermissionsChange: isPermissionsChange
         };
 
         return createParams;
+    }
+
+    private isPermissionChange(version: ContentVersion, previousVersion: ContentVersion): boolean {
+        if (!previousVersion) {
+            return false;
+        }
+
+        return previousVersion.isInheritPermissions() !== version.isInheritPermissions() ||
+               !previousVersion.getPermissions().equals(version.getPermissions());
     }
 
     static create(): Builder {

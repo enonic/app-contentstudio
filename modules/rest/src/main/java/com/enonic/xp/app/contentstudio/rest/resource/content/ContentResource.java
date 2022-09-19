@@ -1588,6 +1588,8 @@ public final class ContentResource
             edit.owner = versionedContent.getOwner();
             edit.thumbnail = versionedContent.getThumbnail();
             edit.workflowInfo = WorkflowInfo.inProgress();
+            edit.permissions = versionedContent.getPermissions();
+            edit.inheritPermissions = versionedContent.inheritsPermissions();
         } );
 
         updateAttachments( versionedContent, contentVersionId, updateParams );
