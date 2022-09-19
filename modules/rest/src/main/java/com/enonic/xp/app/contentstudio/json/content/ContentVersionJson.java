@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
+import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.security.Principal;
 
@@ -29,24 +30,33 @@ public class ContentVersionJson
 
     private final ContentWorkflowInfoJson workflow;
 
+    private final RootPermissionsJson permissions;
+
+    private final ContentPath contentPath;
+
+    private final boolean inheritPermissions;
+
     public ContentVersionJson( final ContentVersion contentVersion, final ContentPrincipalsResolver principalsResolver )
     {
         this.modified = contentVersion.getModified();
         this.timestamp = contentVersion.getTimestamp();
         this.displayName = contentVersion.getDisplayName();
         this.comment = contentVersion.getComment();
+        this.contentPath = contentVersion.getPath();
 
         final Principal modifier = principalsResolver.findPrincipal( contentVersion.getModifier() );
 
         this.modifierDisplayName = modifier != null ? modifier.getDisplayName() : "";
         this.modifier = contentVersion.getModifier().toString();
         this.id = contentVersion.getId().toString();
-        this.childOrder = contentVersion.getChildOrder() != null ? new ChildOrderJson(contentVersion.getChildOrder()) : null;
+        this.childOrder = contentVersion.getChildOrder() != null ? new ChildOrderJson( contentVersion.getChildOrder() ) : null;
         this.publishInfo = contentVersion.getPublishInfo() != null ? new ContentVersionPublishInfoJson( contentVersion.getPublishInfo(),
                                                                                                         principalsResolver ) : null;
 
         this.workflow = contentVersion.getWorkflowInfo() != null ? new ContentWorkflowInfoJson( contentVersion.getWorkflowInfo() ) : null;
-
+        this.permissions =
+            contentVersion.getPermissions() != null ? new RootPermissionsJson( contentVersion.getPermissions(), principalsResolver ) : null;
+        this.inheritPermissions = contentVersion.isInheritPermissions();
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -106,5 +116,21 @@ public class ContentVersionJson
     public ContentWorkflowInfoJson getWorkflow()
     {
         return workflow;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public RootPermissionsJson getPermissions()
+    {
+        return permissions;
+    }
+
+    public String getPath()
+    {
+        return contentPath.toString();
+    }
+
+    public boolean isInheritPermissions()
+    {
+        return inheritPermissions;
     }
 }

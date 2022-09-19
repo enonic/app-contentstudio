@@ -25,6 +25,8 @@ import {ContentVersions} from '../ContentVersions';
 import {ContentVersionsConverter} from '../view/context/widget/version/ContentVersionsConverter';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {VersionHistoryHelper} from '../view/context/widget/version/VersionHistoryHelper';
+import {ContentVersion} from '../ContentVersion';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -34,6 +36,8 @@ export class CompareContentVersionsDialog
     private leftVersionId: string;
 
     private rightVersionId: string;
+
+    private versions: ContentVersions;
 
     private content: ContentSummaryAndCompareStatus;
 
@@ -315,6 +319,7 @@ export class CompareContentVersionsDialog
         }
 
         return this.versionsLoader.load(this.content).then((versions: ContentVersions) => {
+                this.versions = versions;
                 VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersion());
 
                 const items: VersionHistoryItem[] = ContentVersionsConverter.create()
@@ -653,7 +658,7 @@ export class CompareContentVersionsDialog
         return new GetContentVersionRequest(this.content.getContentId())
             .setVersion(versionId)
             .sendRequest().then(content => {
-                const processedContent = this.processContent(content);
+                const processedContent = this.processContent(content, versionId);
                 this.contentCache[versionId] = processedContent;
                 return processedContent;
             });
@@ -696,17 +701,27 @@ export class CompareContentVersionsDialog
     }
 
     private isVersionRevertable(version: VersionHistoryItem): boolean {
-        return !this.readOnly && !this.isVersionActive(version) && VersionHistoryHelper.isInteractableItem(version);
+        return !this.readOnly && !this.isVersionActive(version) && VersionHistoryHelper.isRevertableItem(version);
     }
 
     private isVersionActive(version: VersionHistoryItem): boolean {
         return VersionContext.isActiveVersion(this.content.getId(), version.getId());
     }
 
-    private processContent(contentJson: any): Object {
+    private processContent(contentJson: any, versionId: string): Object {
         [
             '_id', 'creator', 'createdTime', 'hasChildren'
         ].forEach(e => delete contentJson[e]);
+
+        const version: ContentVersion = this.versions.getVersionById(versionId);
+
+        if (ObjectHelper.isDefined(version?.getPermissions())) {
+            contentJson['permissions'] = version.getPermissions().toJson();
+        }
+
+        if (ObjectHelper.isDefined(version?.isInheritPermissions())) {
+            contentJson['inheritPermissions'] = version.isInheritPermissions();
+        }
 
         return contentJson;
     }

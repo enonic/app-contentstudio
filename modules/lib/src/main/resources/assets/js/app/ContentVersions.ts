@@ -21,6 +21,10 @@ export class ContentVersions {
         return this.activeVersionId;
     }
 
+    getVersionById(value: string): ContentVersion {
+        return this.contentVersions.find((version: ContentVersion) => version.getId() === value);
+    }
+
     static fromJson(contentVersionForViewJson: GetContentVersionsForViewResultsJson): ContentVersions {
         const contentVersions: ContentVersion[] = contentVersionForViewJson.contentVersions.map(
             (contentVersionViewJson: ContentVersionViewJson) => {

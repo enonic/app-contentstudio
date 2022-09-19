@@ -1,6 +1,7 @@
 import {ContentVersionPublishInfoJson} from './ContentVersionPublishInfoJson';
 import {WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
 import {ChildOrderJson} from './ChildOrderJson';
+import {PermissionsJson} from '../../access/PermissionsJson';
 
 export interface ContentVersionJson {
 
@@ -23,4 +24,10 @@ export interface ContentVersionJson {
     publishInfo: ContentVersionPublishInfoJson;
 
     workflow: WorkflowJson;
+
+    permissions: PermissionsJson;
+
+    path: string;
+
+    inheritPermissions
 }
