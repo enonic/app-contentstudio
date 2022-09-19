@@ -9,7 +9,7 @@ function handleGet() {
     const branch = context.branch;
     const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
-    const enableCollaboration = app.config['contentWizard.enableCollaboration'] === 'true' || false;
+    const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const hideDefaultProject = app.config['settings.hideDefaultProject'] === 'true' || false;
     const projectAppsEnabled = app.config['projectApps.enabled'] === 'true' || false;
 
