@@ -40,7 +40,7 @@
     "@wdio/dot-reporter": "^7.24.0",
     "@wdio/mocha-framework": "^7.24.0",
     "@wdio/selenium-standalone-service": "^7.24.0",
-    "wdio-html-nice-reporter": "^8.0.2"
+    "wdio-html-nice-reporter": "^8.0.4"
   },
   "engines": {
     "node": ">= 16.16.0",
