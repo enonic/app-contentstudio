@@ -4,6 +4,7 @@ import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {Workflow} from './content/Workflow';
 import {WorkflowState} from './content/WorkflowState';
 import {ChildOrder} from './resource/order/ChildOrder';
+import {AccessControlList} from './access/AccessControlList';
 
 export class ContentVersion
     implements Cloneable {
@@ -30,6 +31,8 @@ export class ContentVersion
 
     private readonly workflowInfo: Workflow;
 
+    private readonly permissions: AccessControlList;
+
     constructor(builder: ContentVersionBuilder) {
         this.modifier = builder.modifier;
         this.displayName = builder.displayName;
@@ -42,6 +45,7 @@ export class ContentVersion
         this.workspaces = builder.workspaces || [];
         this.publishInfo = builder.publishInfo;
         this.workflowInfo = builder.workflowInfo;
+        this.permissions = builder.permissions;
 
         if (this.publishInfo && this.publishInfo.getPublishedFrom()) {
             if (ContentVersion.equalDates(this.publishInfo.getPublishedFrom(), this.publishInfo.getTimestamp(), 500)) {
@@ -146,6 +150,10 @@ export class ContentVersion
         return this.workflowInfo && this.workflowInfo.getState() === WorkflowState.READY;
     }
 
+    getPermissions(): AccessControlList {
+        return this.permissions;
+    }
+
     newBuilder(): ContentVersionBuilder {
         return new ContentVersionBuilder(this);
     }
@@ -178,6 +186,8 @@ export class ContentVersionBuilder {
 
     workflowInfo: Workflow;
 
+    permissions: AccessControlList;
+
     constructor(source?: ContentVersion) {
         if (source) {
             this.modifier = source.getModifier();
@@ -191,6 +201,7 @@ export class ContentVersionBuilder {
             this.workspaces = source.getWorkspaces().slice();
             this.publishInfo = source.getPublishInfo();
             this.workflowInfo = source.getWorkflowInfo();
+            this.permissions = source.getPermissions();
         }
     }
 
@@ -206,6 +217,7 @@ export class ContentVersionBuilder {
         this.workspaces = workspaces || [];
         this.publishInfo = ContentVersionPublishInfo.fromJson(contentVersionJson.publishInfo);
         this.workflowInfo = Workflow.fromJson(contentVersionJson.workflow);
+        this.permissions = !!contentVersionJson.permissions ? AccessControlList.fromJson(contentVersionJson.permissions) : null;
 
         return this;
     }

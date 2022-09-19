@@ -3,6 +3,7 @@ import {ContentVersion} from '../../../../ContentVersion';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {CreateParams, VersionHistoryItem} from './VersionHistoryItem';
 import {ContentVersions} from '../../../../ContentVersions';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentVersionsConverter {
 
@@ -100,17 +101,20 @@ export class ContentVersionsConverter {
     private createHistoryItemsParams(version: ContentVersion, index: number): CreateParams {
         const isFirstVersion: boolean = index === this.getLastItemIndex();
         const timestamp: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getTimestamp();
+        const previousVersion: ContentVersion = this.contentVersions.get()[index + 1];
 
         const isNonDataChange: boolean = !isFirstVersion &&
             !ContentVersion.equalDates(version.getTimestamp(), version.getModified(), 200);
-        const isNonTrackableChange: boolean =
-            isNonDataChange && version.getChildOrder()?.equals(this.contentVersions.get()[index + 1]?.getChildOrder());
-        const isSort: boolean = isNonDataChange && !isNonTrackableChange;
+        const isPermissionsChange: boolean =
+            isNonDataChange && !ObjectHelper.equals(version.getPermissions(), previousVersion?.getPermissions());
+        const isSort: boolean = !ObjectHelper.equals(version.getChildOrder(), previousVersion?.getChildOrder());
+        const isMove: boolean = isNonDataChange && !isPermissionsChange && !isSort;
 
         const createParams: CreateParams = {
             createdDate: isFirstVersion ? timestamp : null,
             isSort: isSort,
-            isNonTrackableChange: isNonTrackableChange
+            isMove: isMove,
+            isPermissionsChange: isPermissionsChange
         };
 
         return createParams;

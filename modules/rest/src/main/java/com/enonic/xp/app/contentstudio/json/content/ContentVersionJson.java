@@ -6,6 +6,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsRe
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
 import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.security.Principal;
+import com.enonic.xp.security.acl.AccessControlList;
 
 public class ContentVersionJson
 {
@@ -28,6 +29,7 @@ public class ContentVersionJson
     private final ContentVersionPublishInfoJson publishInfo;
 
     private final ContentWorkflowInfoJson workflow;
+    private final RootPermissionsJson permissions;
 
     public ContentVersionJson( final ContentVersion contentVersion, final ContentPrincipalsResolver principalsResolver )
     {
@@ -41,12 +43,13 @@ public class ContentVersionJson
         this.modifierDisplayName = modifier != null ? modifier.getDisplayName() : "";
         this.modifier = contentVersion.getModifier().toString();
         this.id = contentVersion.getId().toString();
-        this.childOrder = contentVersion.getChildOrder() != null ? new ChildOrderJson(contentVersion.getChildOrder()) : null;
+        this.childOrder = contentVersion.getChildOrder() != null ? new ChildOrderJson( contentVersion.getChildOrder() ) : null;
         this.publishInfo = contentVersion.getPublishInfo() != null ? new ContentVersionPublishInfoJson( contentVersion.getPublishInfo(),
                                                                                                         principalsResolver ) : null;
 
         this.workflow = contentVersion.getWorkflowInfo() != null ? new ContentWorkflowInfoJson( contentVersion.getWorkflowInfo() ) : null;
-
+        this.permissions =
+            contentVersion.getPermissions() != null ? new RootPermissionsJson( contentVersion.getPermissions(), principalsResolver ) : null;
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -107,4 +110,11 @@ public class ContentVersionJson
     {
         return workflow;
     }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public RootPermissionsJson getPermissions()
+    {
+        return permissions;
+    }
+
 }
