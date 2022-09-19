@@ -979,22 +979,6 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async getToolbarWorkflowState() {
-        let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
-        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-        let result = await this.getAttribute(selector, 'class');
-        if (result.includes('in-progress')) {
-            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
-        } else if (result.includes('ready')) {
-            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
-        } else if (result === 'toolbar-state-icon pull-right') {
-            return appConst.WORKFLOW_STATE.PUBLISHED;
-
-        } else {
-            throw new Error("Error when getting content's state, class is:" + result);
-        }
-    }
-
     //wait for Workflow icon is not displayed in the toolbar
     async waitForStateIconNotDisplayed() {
         try {
