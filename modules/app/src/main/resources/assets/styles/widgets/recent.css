@@ -1,6 +1,6 @@
 .recent-container {
   display: grid;
-  grid-template-columns: 60% 1fr;
+  grid-template-columns: 60%  minmax(50px, 1fr);
   row-gap: 5px;
   column-gap: 15px;
 }
@@ -48,35 +48,21 @@
 
 .grid-item.modified {
   font-size: 10px;
-  width: 100%;
-  justify-content: center;
   text-align: center;
-}
-
-.grid-item.modified .date {
-  white-space: normal;
+  color: #777;
 }
 
 .grid-item.project {
-  place-self: center;
-  text-align: center;
-  width: 100%;
   display: none;
-  justify-content: center;
 }
 
 .grid-item.project .project__name {
-  min-width: 70px;
   font-size: 12px;
 }
 
 @media screen and (min-width: 769px) {
   .recent-container {
-    grid-template-columns: 60% 1fr 1fr;
-  }
-
-  .grid-item.modified .date {
-    white-space: pre;
+    grid-template-columns: 60% minmax(50px, 1fr) minmax(70px, 1fr);
   }
 
   .grid-item.project {
