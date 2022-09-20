@@ -58,4 +58,5 @@
 
 .issues-container .no-items {
   display: flex;
+  color: #777;
 }
