@@ -10,6 +10,7 @@ const contentBuilder = require("../libs/content.builder");
 const SettingsStepForm = require('../page_objects/wizardpanel/settings.wizard.step.form');
 const FilterPanel = require('../page_objects/browsepanel/content.filter.panel');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
 
 describe('filter.by.owner.selector.spec: tests for filtering by', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -26,6 +27,22 @@ describe('filter.by.owner.selector.spec: tests for filtering by', function () {
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_ADMIN];
             USER = contentBuilder.buildUser(userName, appConst.PASSWORD.MEDIUM, contentBuilder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doLogout();
+        });
+
+    it("GIVEN just created user is logged in WHEN wizard for new folder has been opened THEN expected compact collaboration-name should be displayed in the wizard toolbar",
+        async () => {
+            let contentWizard = new ContentWizardPanel();
+            //1. user is logged in:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, USER.password);
+            //2. Open new folder wizard:
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await studioUtils.saveScreenshot("collaboration_wizard_user");
+            //2. Verify that collaboration icon is displayed:
+            let compactNames = await contentWizard.getCollaborationUserCompactName();
+            assert.equal(compactNames[0], "US", "US - this compact name should be displayed in the toolbar");
+            assert.equal(compactNames.length, 1, "One compact name should be displayed");
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
@@ -79,11 +96,10 @@ describe('filter.by.owner.selector.spec: tests for filtering by', function () {
             await filterPanel.expandOwnerOptionsAndSelectItem(USER.displayName);
             await filterPanel.pause(2000);
             await studioUtils.saveScreenshot("owner_selected_in_selector");
-
-            //4. Verify that only content created by the user are displayed in Grid
+            //4. Verify that only content that were created by the user are displayed in Grid
             let contentNames = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.isTrue(contentNames.includes(FOLDER.displayName));
-            assert.equal(contentNames.length, 2, "Only two items should be present in the grid ");
+            assert.equal(contentNames.length, 3, "Only three items should be present in the grid");
         });
     before(async () => {
         if (typeof browser !== "undefined") {
