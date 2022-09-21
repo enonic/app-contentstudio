@@ -19,18 +19,30 @@ describe('project.wizard.dialog.applications.step.spec - ui-tests for Applicatio
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
+    const DESCRIPTION_7_STEPS = "1 of 7 - To set up synchronization of a content with another project, select it here (optional)";
 
-    it(`GIVEN wizard dialog is opened WHEN navigated to Applications wizard step THEN 'Skip' button should be enabled`, async () => {
+    it(`WHEN project wizard dialog is opened THEN '1 of 7'  should be displayed in the step's description`, async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
-        let languageStep = new ProjectWizardDialogLanguageStep();
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-        let accessModeStep = new ProjectWizardDialogAccessModeStep();
-        let permissionsStep = new ProjectWizardDialogPermissionsStep();
-        let applicationsStep = new ProjectWizardDialogApplicationsStep();
         //1.Open new project wizard:
         await settingsBrowsePanel.openProjectWizardDialog();
-        //2. Select 'Default' project and go to 'Applications' step
-        await parentProjectStep.clickOnLayerRadioButton();
+        //2. Verify that 7 steps are displayed in the description:
+        let actualDescription = await parentProjectStep.getStepDescription();
+        assert.equal(actualDescription, DESCRIPTION_7_STEPS, "Description should contain 7 steps");
+    });
+
+    it(`GIVEN project wizard dialog is opened WHEN navigated to Applications wizard step THEN 'Skip' button should be enabled`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            //1.Open new project wizard:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            //2. Select 'Default' project and go to 'Applications' step
+            await parentProjectStep.clickOnLayerRadioButton();
         await parentProjectStep.selectParentProject("Default");
         await parentProjectStep.clickOnNextButton();
         await languageStep.clickOnSkipButton();

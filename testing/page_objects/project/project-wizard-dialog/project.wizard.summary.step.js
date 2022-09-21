@@ -15,7 +15,7 @@ const XPATH = {
     parentProjectNameXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Parent Project']]/following-sibling::div[contains(@id,'SummaryValueContainer')]/h6",
     defaultLanguageXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Default language']]/following-sibling::div[contains(@id,'LanguageValueContainer')]//h6[contains(@class,'main-name')]",
 };
-const DESCRIPTION = "7 of 7 - View summary of a new project";
+const DESCRIPTION = "View summary of a new project";
 
 
 class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
@@ -92,7 +92,7 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
     async waitForLoaded() {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();
-            return actualDescription === DESCRIPTION;
+            return actualDescription.includes(DESCRIPTION);
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 6 is not loaded"});
     }
 }

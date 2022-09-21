@@ -14,7 +14,7 @@ const XPATH = {
     accessItemByDisplayName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`,
 };
-const DESCRIPTION = "4 of 7 - Give access to manage the project and its content";
+const DESCRIPTION = "Give access to manage the project and its content";
 
 class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
 
@@ -36,7 +36,7 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
     async waitForLoaded() {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();
-            return actualDescription === DESCRIPTION;
+            return actualDescription.includes(DESCRIPTION);
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 4 is not loaded"});
     }
 
