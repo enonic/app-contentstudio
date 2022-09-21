@@ -16,18 +16,8 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
-    const DESCRIPTION_6_STEPS = "1 of 6 - To set up synchronization of a content with another project, select it here (optional)";
-    let PROJECT_DISPLAY_NAME = appConst.generateRandomName("Project1");
 
-    it(`WHEN project wizard dialog is opened THEN '1 of 6'  should be displayed in the step's description`, async () => {
-        let settingsBrowsePanel = new SettingsBrowsePanel();
-        let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-        //1.Open new project wizard:
-        await settingsBrowsePanel.openProjectWizardDialog();
-        //2. Verify that 6 steps are displayed in the description:
-        let actualDescription = await parentProjectStep.getStepDescription();
-        assert.equal(actualDescription, DESCRIPTION_6_STEPS, "Description should contain 6 steps");
-    });
+    let PROJECT_DISPLAY_NAME = appConst.generateRandomName("Project1");
 
     it(`WHEN new project wizard is opened THEN required elements should be present in the wizard page`,
         async () => {
