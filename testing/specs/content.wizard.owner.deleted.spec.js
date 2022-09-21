@@ -77,6 +77,7 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
     it(`GIVEN collaboration is enabled in cfg file WHEN folder wizard has been opened by Super User THEN expected collaboration icon should be displayed`,
         async () => {
             let contentWizard = new ContentWizardPanel();
+            await studioUtils.navigateToContentStudioApp();
             //1. Open wizard for new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await studioUtils.saveScreenshot("collaboration_wizard");

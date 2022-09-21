@@ -12,7 +12,7 @@ const XPATH = {
     projectSelectedOptionView: "//div[contains(@id,'ProjectSelectedOptionView')]",
     parentProjectComboboxDiv: "//div[contains(@id,'ProjectsComboBox')]",
 };
-const DESCRIPTION = "1 of 7 - To set up synchronization of a content with another project, select it here (optional)";
+const DESCRIPTION = "To set up synchronization of a content with another project, select it here (optional)";
 
 class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
@@ -95,7 +95,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     async waitForLoaded() {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();
-            return actualDescription === DESCRIPTION;
+            return actualDescription.includes(DESCRIPTION);
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 1 is not loaded"});
     }
 

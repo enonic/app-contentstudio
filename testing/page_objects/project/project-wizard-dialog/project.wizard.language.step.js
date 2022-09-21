@@ -14,7 +14,7 @@ const XPATH = {
     localeComboBoxDiv: "//div[contains(@id,'LocaleComboBox')]",
     languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
 };
-const DESCRIPTION = "2 of 7 - Select default language for a new content in the project";
+const DESCRIPTION = "Select default language for a new content in the project";
 
 class ProjectWizardDialogLanguageStep extends ProjectWizardDialog {
 
@@ -50,7 +50,7 @@ class ProjectWizardDialogLanguageStep extends ProjectWizardDialog {
     async waitForLoaded() {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();
-            return actualDescription === DESCRIPTION;
+            return actualDescription.includes(DESCRIPTION);
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 2 is not loaded"});
     }
 }
