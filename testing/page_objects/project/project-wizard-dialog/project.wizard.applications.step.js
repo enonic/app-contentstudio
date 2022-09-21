@@ -46,7 +46,7 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
     }
 
     async isLoaded() {
-        let locator = `//p[@class='xp-admin-common-sub-name' and text()='${DESCRIPTION}']`;
+        let locator = `//p[@class='xp-admin-common-sub-name' and contains(.,'${DESCRIPTION}')]`;
         return await this.isElementDisplayed(locator);
     }
 

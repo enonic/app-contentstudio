@@ -22,7 +22,7 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
     async selectProjectAccessRole(principalDisplayName) {
         let comboBox = new ComboBox();
         await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
-        return await this.pause(500);
+        return await this.pause(300);
     }
 
     addPrincipalsInRolesForm(memberDisplayNames) {
