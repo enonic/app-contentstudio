@@ -14,7 +14,7 @@ const SettingsStepForm = require('../page_objects/wizardpanel/settings.wizard.st
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../libs/app_const');
 
-describe('Wizard toolbar - shortcut spec`', function () {
+describe('Wizard toolbar - shortcut spec', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
@@ -60,7 +60,7 @@ describe('Wizard toolbar - shortcut spec`', function () {
             await contentPublishDialog.waitForDialogOpened();
         });
 
-    it(`GIVEN folder-wizard is opened WHEN 'Alt+w' have been pressed THEN wizard should be closed and grid is loaded`,
+    it.skip(`GIVEN folder-wizard is opened WHEN 'Alt+w' have been pressed THEN wizard should be closed and grid is loaded`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
