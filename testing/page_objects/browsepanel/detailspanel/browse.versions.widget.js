@@ -8,11 +8,15 @@ const appConst = require('../../../libs/app_const');
 const XPATH = {
     widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'VersionHistoryView')]",
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
-    versionsListItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
-    publishActionListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@id,'VersionHistoryItemViewer') and contains(@class,'publish-action')]]",
-    versionsSortedListItem: "//li[contains(@class,'version-list-item')and descendant::h6[contains(.,'Sorted')]]",
-    versionsPermissionsUpdatedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Permissions updated')]]",
-    versionsChangedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Changed')]]",
+    versionsListItem: "//li[contains(@class,'version-list-item')]",
+    editedListItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action'))] and descendant::h6[contains(.,'Edited')]]",
+    createdListItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action'))] and descendant::h6[contains(.,'Created')]]",
+    unpublishedListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@class,'publish-action')] and descendant::h6[contains(.,'Unpublished')]]",
+    publishedListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@class,'publish-action')] and descendant::h6[contains(.,'Published')]]",
+    sortedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Sorted')]]",
+    permissionsUpdatedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Permissions updated')]]",
+    markedAsReadyListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Marked as Ready')]]",
+    movedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Moved')]]",
 };
 
 class BrowseVersionsWidget extends BaseVersionsWidget {
@@ -25,21 +29,33 @@ class BrowseVersionsWidget extends BaseVersionsWidget {
         return this.versionsWidget + XPATH.versionsList + XPATH.versionsListItem;
     }
 
-    get publishActionItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.publishActionListItem;
+    get publishedItems() {
+        return this.versionsWidget + XPATH.versionsList + XPATH.publishedListItem;
+    }
+
+    get unpublishedItems() {
+        return this.versionsWidget + XPATH.versionsList + XPATH.unpublishedListItem;
     }
 
     //Gets items with headers - Sorted
     get sortedItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.versionsSortedListItem;
+        return this.versionsWidget + XPATH.versionsList + XPATH.sortedListItem;
+    }
+
+    get editedItems() {
+        return this.versionsWidget + XPATH.versionsList + XPATH.editedListItem;
+    }
+
+    get createdItems() {
+        return this.versionsWidget + XPATH.versionsList + XPATH.createdListItem;
     }
 
     get permissionsUpdatedItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.versionsPermissionsUpdatedListItem;
+        return this.versionsWidget + XPATH.versionsList + XPATH.permissionsUpdatedListItem;
     }
 
-    get changedItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.versionsChangedListItem;
+    get movedItems() {
+        return this.versionsWidget + XPATH.versionsList + XPATH.movedListItem;
     }
 }
 

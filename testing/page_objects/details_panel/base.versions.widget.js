@@ -42,9 +42,27 @@ class BaseVersionsWidget extends Page {
         return items.length;
     }
 
-    async countChangedItems() {
-        await this.waitForElementDisplayed(this.changedItems, appConst.mediumTimeout)
-        let items = await this.findElements(this.changedItems);
+    async countPublishedItems() {
+        await this.waitForElementDisplayed(this.publishedItems, appConst.mediumTimeout)
+        let items = await this.findElements(this.publishedItems);
+        return items.length;
+    }
+
+    async countMovedItems() {
+        await this.waitForElementDisplayed(this.movedItems, appConst.mediumTimeout)
+        let items = await this.findElements(this.movedItems);
+        return items.length;
+    }
+
+    async countEditedItems() {
+        await this.waitForElementDisplayed(this.editedItems, appConst.mediumTimeout)
+        let items = await this.findElements(this.editedItems);
+        return items.length;
+    }
+
+    async countCreatedItems() {
+        await this.waitForElementDisplayed(this.createdItems, appConst.mediumTimeout)
+        let items = await this.findElements(this.createdItems);
         return items.length;
     }
 
@@ -150,8 +168,8 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    async waitForPublishedWidgetItemVisible() {
-        return await this.waitForElementDisplayed(this.publishActionItems, appConst.mediumTimeout);
+    async waitForPublishedVersionItemVisible() {
+        return await this.waitForElementDisplayed(this.publishedItems, appConst.mediumTimeout);
     }
 
     async getContentStatus() {

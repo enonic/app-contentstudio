@@ -6,11 +6,15 @@ const BaseVersionsWidget = require('../../details_panel/base.versions.widget');
 const xpath = {
     widget: "//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'VersionHistoryView')]",
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
-    versionsListItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')]) and not(descendant::h6[contains(.,'Changed')])]",
-    publishActionListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@id,'VersionHistoryItemViewer') and contains(@class,'publish-action')]]",
-    versionsSortedListItem: "//li[contains(@class,'version-list-item')and descendant::h6[contains(.,'Sorted')]]",
-    versionsPermissionsUpdatedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Permissions updated')]]",
-    versionsChangedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Changed')]]",
+    versionsListItem: "//li[contains(@class,'version-list-item')]",
+    editedListItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action'))] and descendant::h6[contains(.,'Edited')]]",
+    createdListItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action'))] and descendant::h6[contains(.,'Created')]]",
+    unpublishedListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@class,'publish-action')] and descendant::h6[contains(.,'Unpublished')]]",
+    publishedListItem: "//li[contains(@class,'version-list-item') and child::div[contains(@class,'publish-action')] and descendant::h6[contains(.,'Published')]]",
+    sortedListItem: "//li[contains(@class,'version-list-item')and descendant::h6[contains(.,'Sorted')]]",
+    permissionsUpdatedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Permissions updated')]]",
+    markedAsReadyListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Marked as Ready')]]",
+    movedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Moved')]]",
 };
 
 class WizardVersionsWidget extends BaseVersionsWidget {
@@ -19,27 +23,42 @@ class WizardVersionsWidget extends BaseVersionsWidget {
         return xpath.widget;
     }
 
-    //Gets items with headers - Edited, Sorted, Marked as Ready,Created
+    //Gets items with all headers - Edited, Sorted, Marked as Ready,Created...
     get versionItems() {
         return this.versionsWidget + xpath.versionsList + xpath.versionsListItem;
     }
 
-    //Gets items with headers - Published, Unpublished
-    get publishActionItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.publishActionListItem;
+    get publishedItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.publishedListItem;
+    }
+
+    get markedAsReadyItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.markedAsReadyListItem;
+    }
+
+    get unpublishedItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.unpublishedListItem;
     }
 
     //Gets items with headers - Sorted
     get sortedItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.versionsSortedListItem;
+        return this.versionsWidget + xpath.versionsList + xpath.sortedListItem;
+    }
+
+    get editedItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.editedListItem;
+    }
+
+    get createdItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.createdListItem;
     }
 
     get permissionsUpdatedItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.versionsPermissionsUpdatedListItem;
+        return this.versionsWidget + xpath.versionsList + xpath.permissionsUpdatedListItem;
     }
 
-    get changedItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.versionsChangedListItem;
+    get movedItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.movedListItem;
     }
 }
 

@@ -14,58 +14,18 @@ const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detail
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 
-describe('folder.content.revert.spec: tests for reverting of folder content', function () {
+describe('folder.content.revert.permissions.spec: tests for reverting of permissions in folder content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
 
-    const FOLDER_NAME_1 = contentBuilder.generateRandomName('folder');
-    const FOLDER_NAME_2 = contentBuilder.generateRandomName('folder');
+    const FOLDER_NAME = contentBuilder.generateRandomName('folder');
 
-    it(`GIVEN wizard for new folder is opened WHEN name has been saved THEN 2 version-items should be present in Versions Widget`,
+    it(`Preconditions: test folder should be added`,
         async () => {
-            let wizardVersionsWidget = new WizardVersionsWidget();
-            let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
-            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.typeDisplayName(FOLDER_NAME_1);
-
-            await contentWizard.openVersionsHistoryPanel();
-            let result = await wizardVersionsWidget.countVersionItems();
-            assert.equal(result, 1, "One version item should be present in the widget");
-            //2. Save the folder and verify that the number of version items increased:
-            await contentWizard.waitAndClickOnSave();
-            result = await wizardVersionsWidget.countVersionItems();
-            await studioUtils.saveScreenshot("number_versions_should_be_2");
-            assert.equal(result, 2, "Two version items should be present in the widget");
-        });
-
-    it(`GIVEN display name has been updated and saved WHEN the previous version has been reverted THEN the display name should be updated, but the path(name) remains the same`,
-        async () => {
-            let wizardVersionsWidget = new WizardVersionsWidget();
-            let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
-            await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME_1);
-            await contentWizard.typeDisplayName(FOLDER_NAME_2);
-            //2. Save the content:
-            await contentWizard.waitAndClickOnSave();
-            let actualPath1 = await contentWizard.getPath();
-            //3. Revert the previous version
-            await contentWizard.openVersionsHistoryPanel();
-            await wizardVersionsWidget.clickAndExpandVersion(1);
-            await wizardVersionsWidget.clickOnRevertButton();
-            await contentWizard.waitForNotificationMessage();
-            let actualDisplayName = await contentWizard.getDisplayName();
-            //4. Verify that 'displayName' is reverted
-            assert.equal(actualDisplayName, FOLDER_NAME_1, "The previous display name should be reverted");
-            //5. Verify that the path(name) is not updated
-            let actualPath2 = await contentWizard.getPath();
-            assert.equal(actualPath1, actualPath2, "Path remains the same after reverting the previous display name");
-            //6. Verify that the number of versions is updated after the reverting
-            let numberVersions = await wizardVersionsWidget.countVersionItems();
-            await studioUtils.saveScreenshot("number_versions_should_be_increased");
-            assert.equal(numberVersions, 4, "The number of version items should be increased after the reverting");
+            let testFolder = contentBuilder.buildFolder(FOLDER_NAME);
+            await studioUtils.doAddFolder(testFolder);
         });
 
     it(`WHEN new acl-entry has been added in wizard THEN 'Permissions updated' item should appear in the widget`,
@@ -74,7 +34,7 @@ describe('folder.content.revert.spec: tests for reverting of folder content', fu
             let contentWizard = new ContentWizard();
             let editPermissionsDialog = new EditPermissionsDialog();
             //1. open the existing folder:
-            await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME_1);
+            await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME);
             //2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
             //3. Open Edit Permissions dialog,  click on 'Access' button in WizardStepNavigatorAndToolbar
@@ -85,17 +45,17 @@ describe('folder.content.revert.spec: tests for reverting of folder content', fu
             //5. Update the permissions and click on Apply:
             await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
             await editPermissionsDialog.clickOnApplyButton();
-            let expectedMessage = appConst.permissionsAppliedNotificationMessage(FOLDER_NAME_2);
+            let expectedMessage = appConst.permissionsAppliedNotificationMessage(FOLDER_NAME);
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.equal(actualMessage, expectedMessage, "Permissions for 'contentName' are applied -  Message should appear");
             //6. Verify that the number of version-items with (Revert button) is not changed:
             let result = await wizardVersionsWidget.countVersionItems();
             await studioUtils.saveScreenshot("number_versions_items_permissions_updated");
-            assert.equal(result, 4, "the number of versions should not be changed");
+            assert.equal(result, 3, "the number of versions items should be increased by 1");
 
-            //7. Verify that 'Permissions updated' (Changed) item gets visible in the widget
-            let numberItems = await wizardVersionsWidget.countChangedItems();
-            assert.equal(numberItems, 1, "One 'Changed'  item should be present in the widget");
+            //7. Verify that 'Permissions updated' item gets visible in the widget
+            let numberItems = await wizardVersionsWidget.countPermissionsUpdatedItems();
+            assert.equal(numberItems, 1, "One 'Permissions updated'  item should be present in the widget");
 
             //8. Verify 'Compare with current version' in all version items:
             let isDisplayed = await wizardVersionsWidget.isCompareWithCurrentVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.CREATED,
@@ -103,97 +63,98 @@ describe('folder.content.revert.spec: tests for reverting of folder content', fu
             assert.isTrue(isDisplayed, "'Compare with current version' button should be displayed in Created-item");
 
             isDisplayed =
-                await wizardVersionsWidget.isCompareWithCurrentVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.CHANGED, 0);
-            assert.isFalse(isDisplayed, "'Compare with current version' button should not be displayed in the changed-item");
+                await wizardVersionsWidget.isCompareWithCurrentVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
+            assert.isFalse(isDisplayed,
+                "'Compare with current version' button should not be displayed in the first Permissions updated-item");
 
-            isDisplayed = await wizardVersionsWidget.isCompareWithCurrentVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            isDisplayed = await wizardVersionsWidget.isCompareWithCurrentVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             assert.isTrue(isDisplayed, "'Compare with current version' button should be displayed in Edit-item");
         });
 
-    it(`WHEN 'Permissions updated' item has been clicked THEN the item remains collapsed AND 'Revert' button is not visible`,
+    it(`WHEN 'Permissions updated' item has been clicked THEN the item gets expanded AND 'Active version' button is visible`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
             //1. open the existing folder:
-            await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME_1);
+            await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME);
             //2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
             //3. Click on 'Permissions updated' item:
-            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.CHANGED);
+            await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
             await wizardVersionsWidget.pause(500);
-            //4. Verify that the item is not expanded and 'Revert' button is not displayed:
-            await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
-            // 'Active version' button should be displayed in the 'Changed' item
+            //4 'Active version' button should be displayed in the 'Permission updated' item
             await wizardVersionsWidget.waitForActiveVersionButtonDisplayed();
             //5. Click on the first Edited item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await studioUtils.saveScreenshot("versions_widget_edited_item_expanded");
-            //6. Verify that the item is expanded and Revert button gets visible:
+            //6. Verify that Edited-item is expanded and Revert button gets visible:
             await wizardVersionsWidget.waitForRevertButtonDisplayed();
-            //7. Click on the first Edited  item and collapse this one:
+            //7. Click on the expanded Edited item and collapse this one:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await studioUtils.saveScreenshot("versions_widget_edited_item_collapsed");
             //8. Verify that Revert button is not visible now:
             await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
         });
 
-    it(`GIVEN existing folder is opened WHEN the previous version has been reverted THEN acl entries should not be updated`,
+    it(`GIVEN existing folder with updated permissions WHEN the previous version has been reverted THEN acl entries should be updated`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
             let editPermissionsDialog = new EditPermissionsDialog();
             //1. open the existing folder:
-            await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME_1);
+            await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME);
             //2. open Versions Widget and revert the previous version:
             await contentWizard.openVersionsHistoryPanel();
-            await wizardVersionsWidget.clickAndExpandVersion(1);
+            await wizardVersionsWidget.clickOnVersionItemByHeader("Edited", 0);
             await wizardVersionsWidget.clickOnRevertButton();
             await contentWizard.waitForNotificationMessage();
             //2. Open 'Edit Permissions' dialog
             await contentWizard.clickOnEditPermissionsButton();
             await studioUtils.saveScreenshot("acl_entries_after_reverting");
-            //3. 'Inherit Permissions' checkbox remains unselected:
+            //3. 'Inherit Permissions' checkbox gets selected:
             let isSelected = await editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
-            assert.isFalse(isSelected, "The checkbox remains unselected after the reverting");
+            assert.isTrue(isSelected, "The checkbox gets selected again after the reverting");
             //3. Verify that Anonymous user is present after reverting the previous version:
             let principals = await editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
-            assert.isTrue(principals.includes(appConst.systemUsersDisplayName.ANONYMOUS_USER),
+            //4. Verify that 'Anonymous User' principal is not present in the permissions dialog:
+            assert.isFalse(principals.includes(appConst.systemUsersDisplayName.ANONYMOUS_USER),
                 "Permissions should not be updated after the reverting");
         });
 
-    it(`GIVEN existing folder is opened WHEN one more acl-entry has been added THEN the number of 'Changed' items should be increased to 2`,
+    it(`GIVEN existing folder is opened WHEN one more acl-entry has been added THEN the number of 'Permissions updated' items should be increased to 2`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
             let editPermissionsDialog = new EditPermissionsDialog();
             //1. open the existing folder:
-            await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME_2);
+            await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME);
             //2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
-            let result1 = await wizardVersionsWidget.countVersionItems();
+            let number1 = await wizardVersionsWidget.countVersionItems();
             //3. Open Edit Permissions dialog,  click on 'Access' button in WizardStepNavigatorAndToolbar
             await contentWizard.clickOnEditPermissionsButton();
             await editPermissionsDialog.waitForDialogLoaded();
             //4. Update the permissions and click on Apply:
+            await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.SUPER_USER);
             await editPermissionsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
-            //5. Verify that the number of version-items(with Revert button) is not changed:
-            let result2 = await wizardVersionsWidget.countVersionItems();
+            //5. Verify that the number of version-items is increased by 1:
+            let number2 = await wizardVersionsWidget.countVersionItems();
             await studioUtils.saveScreenshot("number_versions_permissions_updated_2");
-            assert.equal(result1, result2, "the number of versions should not be changed");
-            //7. Verify 2 items with 'Changed' header are displayed in the widget:
-            let numberItems = await wizardVersionsWidget.countChangedItems();
-            assert.equal(numberItems, 2, "Two 'Changed'  items should be present in the widget");
+            assert.isAbove(number2, number1, "the number of versions should be increased by 1");
+            //7. Verify 2 items with 'Permissions updated' header are displayed in the widget:
+            let numberItems = await wizardVersionsWidget.countPermissionsUpdatedItems();
+            assert.equal(numberItems, 2, "Two 'Permissions updated'  items should be present in the widget");
         });
 
-    it(`GIVEN existing folder with updated permissions is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN options with 'changed' icon should be present in the list`,
+    it(`GIVEN existing folder with updated permissions is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN options with 'Permissions updated' icon should be present in the list`,
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
             //1. Select the existing folder with updated permissions
-            await studioUtils.findAndSelectItem(FOLDER_NAME_2);
+            await studioUtils.findAndSelectItem(FOLDER_NAME);
             //2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
             //3. Click on 'Compare with current versions' button  in the previous edit-item:
@@ -203,7 +164,7 @@ describe('folder.content.revert.spec: tests for reverting of folder content', fu
             await compareContentVersionsDialog.clickOnLeftDropdownHandle();
             await studioUtils.saveScreenshot("compare_versions_dlg_changed_options");
             //5. Verify that options with 'Changed' icon should be present in the dropdown list:
-            let result = await compareContentVersionsDialog.getChangedOptionsInDropdownList();
+            let result = await compareContentVersionsDialog.getPermissionsUpdatedOptionsInDropdownList();
             assert.equal(result.length, 2, "2 changed items should be present in the selector options");
         });
 

@@ -44,7 +44,8 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
             //5. Verify that 'Published' list-item appears in the widget:
-            await browseVersionsWidget.waitForPublishedWidgetItemVisible();
+            let result = await browseVersionsWidget.countPublishedItems();
+            assert.equal(result, 1, "Published version item should appear in the widget")
             let status = await browseVersionsWidget.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "'Published' status should be in the top version item");
         });
