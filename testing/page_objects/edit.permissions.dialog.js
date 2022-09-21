@@ -81,9 +81,15 @@ class EditPermissionsDialog extends Page {
 
     //filters and select a principal
     async filterAndSelectPrincipal(principalDisplayName) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(principalDisplayName, xpath.container);
-        console.log("Edit Permissions Dialog, principal is selected: " + principalDisplayName);
+        try {
+            let comboBox = new ComboBox();
+            await comboBox.typeTextAndSelectOption(principalDisplayName, xpath.container);
+            console.log("Edit Permissions Dialog, principal is selected: " + principalDisplayName);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_perm_dlg");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error during updating permissions, screenshot:" + screenshot + "  " + err);
+        }
     }
 
     //finds an entry, clicks on 'tab-menu-button' (Can Write or Can Read or Custom...)  and selects new required 'operation'

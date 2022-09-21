@@ -130,8 +130,8 @@ class CompareContentVersionsDialog extends Page {
         return await this.findElements(locator);
     }
 
-    async getChangedOptionsInDropdownList() {
-        let locator = XPATH.containerLeft + "//div[contains(@id,'NamesAndIconView')]//div[contains(@class, 'icon-checkmark')]";
+    async getPermissionsUpdatedOptionsInDropdownList() {
+        let locator = XPATH.containerLeft + "//div[contains(@id,'NamesAndIconView')]//div[contains(@class, 'icon-masks')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.findElements(locator);
     }
