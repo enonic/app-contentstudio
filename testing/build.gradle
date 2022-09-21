@@ -45,9 +45,9 @@ task copyConfig( type: Copy ) {
     mustRunAfter unpackDistro
 }
 
-task copyCollaborationConfig( type: Copy ) {
-    println "$appDir${File.separator}collaboration-config"
-    from "$appDir${File.separator}collaboration-config"
+task copyProjectAppsConfig( type: Copy ) {
+    println "$appDir${File.separator}project-apps-config"
+    from "$appDir${File.separator}project-apps-config"
     include '**.*.cfg'
     include '*.properties'
     into file( configDir )
@@ -162,8 +162,8 @@ task testModalDialog( type: NpmTask, dependsOn: [npmInstall, startServer, copyAp
     finalizedBy stopServer
 }
 
-task testCollaboration( type: NpmTask, dependsOn: [npmInstall, startServer] ) {
-    args = ['run-script', 'test_collaboration']
+task testProjectApps( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, copyProjectAppsConfig] ) {
+    args = ['run-script', 'test_project_apps']
     finalizedBy stopServer
 }
 
@@ -171,7 +171,6 @@ task testPublishIssuesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_publish_issues']
     finalizedBy stopServer
 }
-
 
 /////////////////////////////Firefox geckodriver:
 task testWizardsGridFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
