@@ -45,8 +45,9 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();
             await permissionsStep.clickOnSkipButton();
-            await applicationsStep.waitForSkipButtonEnabled();
-            await applicationsStep.clickOnSkipButton();
+            if (await applicationsStep.isLoaded()) {
+                await applicationsStep.clickOnSkipButton();
+            }
             //2. Fill in the name input:
             await nameIdStep.typeDisplayName(NAME);
             //3. Insert an id with whitespace:
@@ -76,8 +77,9 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();
             await permissionsStep.clickOnSkipButton();
-            await applicationsStep.waitForSkipButtonEnabled();
-            await applicationsStep.clickOnSkipButton();
+            if (await applicationsStep.isLoaded()) {
+                await applicationsStep.clickOnSkipButton();
+            }
             //3. Fill in the name input:
             await nameIdStep.typeDisplayName(NAME);
             //4. Fill in the identifier input:
@@ -108,8 +110,9 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();
             await permissionsStep.clickOnSkipButton();
-            await applicationsStep.waitForSkipButtonEnabled();
-            await applicationsStep.clickOnSkipButton();
+            if (await applicationsStep.isLoaded()) {
+                await applicationsStep.clickOnSkipButton();
+            }
             //3. Fill in the name input:
             await nameIdStep.typeDisplayName(NAME);
             //4. Fill in the identifier input:

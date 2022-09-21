@@ -11,10 +11,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 const appConst = require('../../libs/app_const');
-const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
-const XDataImageSelector = require('../../page_objects/wizardpanel/xdata.image.selector.wizard.step.form');
-const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
-const CustomRelationshipForm = require('../../page_objects/wizardpanel/custom.relationship.form.panel');
+
 
 describe('duplicate.inherited.content.spec - tests for duplicating of inherited content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -44,71 +41,6 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.doAddSite(site, true);
         });
 
-    //Verify issue https://github.com/enonic/app-contentstudio/issues/5118
-    //500 error in Project Wizard for a content with relationship-type #5118
-    it(`GIVEN new article has been saved in root WHEN wizard with Custom relationship selector is opened THEN the article should be available in the selector`,
-        async () => {
-            //1. Select the layer's context:
-            await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
-            let displayName = contentBuilder.generateRandomName('article');
-            let articleContent = contentBuilder.buildArticleContent(displayName, 'title', 'body', appConst.contentTypes.ARTICLE);
-            //2. Add Article content in root directory:
-            await doAddArticleContent(articleContent);
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let newContentDialog = new NewContentDialog();
-            let customRelationshipForm = new CustomRelationshipForm();
-            //3. Open new wizard with Custom relationship
-            await contentBrowsePanel.clickOnNewButton();
-            await newContentDialog.waitForOpened();
-            await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.CUSTOM_RELATIONSHIP);
-            //4. Verify that just created article content is available in the selector
-            await customRelationshipForm.selectOption(articleContent.displayName);
-            await studioUtils.saveScreenshot("custom_rel_root_dir");
-            let result = await customRelationshipForm.getSelectedOptions();
-            assert.isTrue(result[0].includes(articleContent.displayName), "Expected option should be selected");
-        });
-
-    //Verifies: New Content dialog doesn't show content types from project apps #5104
-    //https://github.com/enonic/app-contentstudio/issues/5104
-    it("GIVEN layer's context with an application is selected AND no selections in the grid WHEN New content dialog is opened THEN all content types from project's application should be available in the dialog",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let newContentDialog = new NewContentDialog();
-            //1. Select the layer's context:
-            await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
-            //2. Click on 'New' button
-            await contentBrowsePanel.clickOnNewButton();
-            await newContentDialog.waitForOpened();
-            await newContentDialog.pause(500);
-            await studioUtils.saveScreenshot("root_new_content_with_apps");
-            //3. Verify that all input types are available for adding new content in root directory:
-            let contentTypeItems = await newContentDialog.getItems();
-            assert.isTrue(contentTypeItems.includes("all-inputs"), "Expected input type is displayed in the modal dialog");
-            assert.isTrue(contentTypeItems.includes("attachment0_0"), "Expected input type is displayed in the modal dialog");
-            assert.isAbove(contentTypeItems.length, 50, "All types from the application are present in the modal dialog");
-        });
-
-    it.skip("WHEN wizard for new content in root with x-data THEN x-data should be present in the wizard page",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let newContentDialog = new NewContentDialog();
-            let xDataImageSelector = new XDataImageSelector();
-            //1. Select the layer's context:
-            await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
-            //2. Click on 'New' button
-            await contentBrowsePanel.clickOnNewButton();
-            await newContentDialog.waitForOpened();
-            //3. Select the item with x-data:
-            let contentWizard = await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.DOUBLE_1_1_X_DATA);
-            //4. Click on x-data toggler:
-            await contentWizard.clickOnXdataToggler();
-            //5. Select an image in x-data
-            await xDataImageSelector.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME);
-            await contentWizard.waitAndClickOnSave();
-            await studioUtils.saveScreenshot('xdata_image_selector_saved_2');
-            //6. Verify that the image appears in the form:
-            await xDataImageSelector.waitForImageSelected();
-        });
     //Verifies Copy of inherited content should not be created as 'inherited' #8269
     //https://github.com/enonic/xp/issues/8269
     it("GIVEN layer's context is selected WHEN inherited site has been duplicated THEN the local copy of the site should not be created as 'inherited'",
@@ -189,20 +121,4 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
     });
 
 });
-
-async function doAddArticleContent(article) {
-    let contentWizardPanel = new ContentWizardPanel();
-    let contentBrowsePanel = new ContentBrowsePanel();
-    let newContentDialog = new NewContentDialog();
-    await contentBrowsePanel.clickOnNewButton();
-    await newContentDialog.waitForOpened();
-    //2. Open article-wizard:
-    await studioUtils.clickOnItemInNewContentDialog(article.contentType);
-    //3.Type the data and save all
-    await contentWizardPanel.typeData(article);
-    await contentWizardPanel.waitAndClickOnSave();
-    await studioUtils.doCloseCurrentBrowserTab();
-    await studioUtils.doSwitchToContentBrowsePanel();
-    return await contentBrowsePanel.pause(1000);
-}
 
