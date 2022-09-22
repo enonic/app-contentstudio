@@ -18,6 +18,7 @@ import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEven
 import {ComponentType} from '../../../../../page/region/ComponentType';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {DescriptorViewer} from '../DescriptorViewer';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {
@@ -33,6 +34,8 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     private form: DescriptorBasedDropdownForm;
 
     private selector: ComponentDescriptorsDropdown;
+
+    private loadMask: LoadMask;
 
     private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
 
@@ -207,27 +210,46 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         if (!this.component || !descriptor) {
             return;
         }
-
+        this.mask();
         const form: Form = descriptor.getConfig();
         const config: PropertyTree = this.component.getConfig();
         this.formView = new FormView(this.formContext, form, config.getRoot());
         this.formView.setLazyRender(false);
         this.appendChild(this.formView);
         this.component.setDisableEventForwarding(true);
-        this.formView.layout().catch((reason: any) => {
-            DefaultErrorHandler.handle(reason);
-        }).finally(() => {
-            this.component.setDisableEventForwarding(false);
-        }).done();
+
+        setTimeout(() =>
+            this.formView.layout(false)
+                .catch((reason: any) => DefaultErrorHandler.handle(reason))
+                .finally(() => {
+                    this.unmask();
+                    this.component.setDisableEventForwarding(false);
+                })
+                .done(),
+            100);
+
     }
 
     private cleanFormView() {
         if (this.formView) {
+            this.formView.reset();
             if (this.hasChild(this.formView)) {
                 this.removeChild(this.formView);
             }
             this.formView = null;
         }
+    }
+
+    mask() {
+        if (!this.loadMask) {
+            this.loadMask = new LoadMask(this);
+        }
+
+        this.loadMask.show();
+    }
+
+    unmask() {
+        this.loadMask?.hide();
     }
 
     cleanUp() {

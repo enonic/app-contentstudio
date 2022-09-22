@@ -27,6 +27,23 @@ export interface ContextWindowConfig {
     insertablesPanel: InsertablesPanel;
 }
 
+export type InspectParameters = {
+    panel: BaseInspectionPanel;
+    showWidget: boolean;
+    showPanel: boolean;
+    keepPanelSelection?: boolean;
+    silent?: boolean;
+};
+
+const DefaultInspectParameters = {
+    keepPanelSelection: false,
+    silent: false
+};
+
+export const getInspectParameters = function (params: InspectParameters): InspectParameters {
+    return <InspectParameters>Object.assign({}, DefaultInspectParameters, params);
+};
+
 export class ContextWindow
     extends DockedPanel {
 
@@ -73,20 +90,21 @@ export class ContextWindow
         return !ObjectHelper.iFrameSafeInstanceOf(panel, PageInspectionPanel) || this.liveFormPanel.getPageMode() !== PageMode.FRAGMENT;
     }
 
-    public showInspectionPanel(panel: BaseInspectionPanel, showWidget: boolean, showPanel: boolean, keepPanelSelection: boolean = false) {
-        const canSelectPanel = this.isPanelSelectable(panel);
+    public showInspectionPanel(params: InspectParameters) {
+        const canSelectPanel = this.isPanelSelectable(params.panel);
         this.toggleClass('no-inspection', !canSelectPanel);
         if (canSelectPanel) {
-            new InspectEvent(showWidget, showPanel).fire();
-            setTimeout(() => {
-                this.inspectionsPanel.showInspectionPanel(panel);
-                if (this.inspectTab) {
-                    this.inspectTab.setLabel(panel.getName());
-                }
-                if (!keepPanelSelection) {
-                    this.selectPanel(this.inspectionsPanel);
-                }
-            });
+            if (!params.silent) {
+                new InspectEvent(params.showWidget, params.showPanel).fire();
+            }
+
+            this.inspectionsPanel.showInspectionPanel(params.panel);
+            if (this.inspectTab) {
+                this.inspectTab.setLabel(params.panel.getName());
+            }
+            if (!params.keepPanelSelection) {
+                this.selectPanel(this.inspectionsPanel);
+            }
         }
     }
 

@@ -25,7 +25,7 @@ export class ContextSplitPanel
     public static CONTEXT_MIN_WIDTH: number = 280;
 
     private contextPanelMode: ContextPanelMode;
-    private contextPanelState: ContextPanelState = ContextPanelState.COLLAPSED;
+    private static contextPanelState: ContextPanelState = ContextPanelState.COLLAPSED;
     private debouncedResizeHandler: () => void = AppHelper.debounce(this.doHandleResizeEvent, 650, false);
     private mobileMode: boolean;
     private contextView: ContextView;
@@ -39,7 +39,7 @@ export class ContextSplitPanel
     constructor(splitPanelBuilder: ContextSplitPanelBuilder) {
         super(splitPanelBuilder);
 
-        this.addClass(`context-split-panel ${this.contextPanelState}`);
+        this.addClass(`context-split-panel ${ContextSplitPanel.contextPanelState}`);
 
         this.contextView = splitPanelBuilder.contextView;
         this.dockedContextPanel = splitPanelBuilder.getSecondPanel();
@@ -53,13 +53,13 @@ export class ContextSplitPanel
         this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
 
         InspectEvent.on((event: InspectEvent) => {
-            if (event.isShowPanel() && this.isRendered() && !this.isExpanded()) {
+            if (event.isShowPanel() && this.isRendered() && !ContextSplitPanel.isExpanded()) {
                 this.showContextPanel();
             }
         });
 
         ToggleContextPanelEvent.on(() => {
-            if (this.isExpanded()) {
+            if (ContextSplitPanel.isExpanded()) {
                 this.hideContextPanel();
             } else {
                 this.showContextPanel();
@@ -127,7 +127,7 @@ export class ContextSplitPanel
     }
 
     private doHandleResizeEvent(): void {
-        if (this.isCollapsed()) {
+        if (ContextSplitPanel.isCollapsed()) {
             return;
         }
 
@@ -202,22 +202,21 @@ export class ContextSplitPanel
     }
 
     setState(state: ContextPanelState): void {
-        if (state !== this.contextPanelState) {
-            this.removeClass(this.contextPanelState);
-            this.contextPanelState = state;
+        if (state !== ContextSplitPanel.contextPanelState) {
+            this.removeClass(ContextSplitPanel.contextPanelState);
+            ContextSplitPanel.contextPanelState = state;
             this.addClass(state);
-
             new ContextPanelStateEvent(state).fire();
             this.notifyStateChanged();
         }
     }
 
-    isExpanded(): boolean {
-        return !this.isCollapsed();
+    static isExpanded(): boolean {
+        return !ContextSplitPanel.isCollapsed();
     }
 
-    isCollapsed(): boolean {
-        return this.contextPanelState === ContextPanelState.COLLAPSED;
+    static isCollapsed(): boolean {
+        return ContextSplitPanel.contextPanelState === ContextPanelState.COLLAPSED;
     }
 
     onMobileModeChanged(listener: (isMobile: boolean) => void): void {
@@ -257,7 +256,7 @@ export class ContextSplitPanel
     }
 
     private notifyStateChanged(): void {
-        this.stateChangedListeners.forEach((curr: { (state: ContextPanelState): void }) => curr(this.contextPanelState));
+        this.stateChangedListeners.forEach((curr: { (state: ContextPanelState): void }) => curr(ContextSplitPanel.contextPanelState));
     }
 
     static create(firstPanel: Panel, secondPanel: DockedContextPanel): ContextSplitPanelBuilder {
