@@ -22,7 +22,7 @@ import {PageInspectionPanel} from './contextwindow/inspect/page/PageInspectionPa
 import {InspectionsPanel, InspectionsPanelConfig} from './contextwindow/inspect/InspectionsPanel';
 import {InsertablesPanel} from './contextwindow/insert/InsertablesPanel';
 import {ContextWindowController} from './contextwindow/ContextWindowController';
-import {ContextWindow, ContextWindowConfig} from './contextwindow/ContextWindow';
+import {ContextWindow, ContextWindowConfig, getInspectParameters, InspectParameters} from './contextwindow/ContextWindow';
 import {ShowContentFormEvent} from '../ShowContentFormEvent';
 import {SaveAsTemplateAction} from '../action/SaveAsTemplateAction';
 import {ShowLiveEditEvent} from '../ShowLiveEditEvent';
@@ -91,6 +91,9 @@ import {ContentId} from '../../content/ContentId';
 import {ItemView} from '../../../page-editor/ItemView';
 import {HtmlEditorCursorPosition} from '../../inputtype/ui/text/HtmlEditor';
 import * as $ from 'jquery';
+import {InspectEvent} from '../../event/InspectEvent';
+import {ContextSplitPanel} from '../../view/context/ContextSplitPanel';
+import {ContextPanelStateEvent} from '../../view/context/ContextPanelStateEvent';
 
 export interface LiveFormPanelConfig {
 
@@ -931,7 +934,14 @@ export class LiveFormPanel
         const unlocked = this.pageView ? !this.pageView.isLocked() : true;
         const canShowWidget = unlocked && showWidget;
         const canShowPanel = unlocked && showPanel;
-        this.contextWindow.showInspectionPanel(this.pageInspectionPanel, canShowWidget, canShowPanel, keepPanelSelection);
+        this.contextWindow.showInspectionPanel(
+            getInspectParameters({
+                panel: this.pageInspectionPanel,
+                showWidget: canShowWidget,
+                showPanel: canShowPanel,
+                keepPanelSelection
+            })
+        );
     }
 
     private clearSelection(showInsertables: boolean = true): boolean {
@@ -967,35 +977,80 @@ export class LiveFormPanel
         let region = regionView.getRegion();
 
         this.regionInspectionPanel.setRegion(region);
-        this.contextWindow.showInspectionPanel(this.regionInspectionPanel, true, showPanel);
+        this.contextWindow.showInspectionPanel(
+            getInspectParameters({
+                panel: this.regionInspectionPanel,
+                showWidget: true,
+                showPanel
+            })
+        );
+    }
+
+    private doInspectComponent(componentView: ComponentView<Component>, showWidget: boolean, showPanel: boolean) {
+        const showInspectionPanel = (panel: BaseInspectionPanel) =>
+            this.contextWindow.showInspectionPanel(
+                getInspectParameters({
+                    panel,
+                    showWidget,
+                    showPanel,
+                    keepPanelSelection: false,
+                    silent: true
+                })
+            );
+        if (ObjectHelper.iFrameSafeInstanceOf(componentView, ImageComponentView)) {
+            showInspectionPanel(this.imageInspectionPanel);
+            this.imageInspectionPanel.setImageComponentView(<ImageComponentView>componentView);
+            this.imageInspectionPanel.setImageComponent(<ImageComponent>componentView.getComponent());
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
+            showInspectionPanel(this.partInspectionPanel);
+            this.partInspectionPanel.setDescriptorBasedComponent(<PartComponent>componentView.getComponent());
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
+            showInspectionPanel(this.layoutInspectionPanel);
+            this.layoutInspectionPanel.setDescriptorBasedComponent(<LayoutComponent>componentView.getComponent());
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentView)) {
+            showInspectionPanel(this.textInspectionPanel);
+            this.textInspectionPanel.setTextComponent(<TextComponentView>componentView);
+            this.inspectionsPanel.setButtonContainerVisible(this.pageView?.getPageViewController().isTextEditMode());
+        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, FragmentComponentView)) {
+            showInspectionPanel(this.fragmentInspectionPanel);
+            this.fragmentInspectionPanel.setFragmentComponentView(<FragmentComponentView>componentView);
+            this.fragmentInspectionPanel.setFragmentComponent(<FragmentComponent>componentView.getComponent());
+        } else {
+            throw new Error('ComponentView cannot be selected: ' + ClassHelper.getClassName(componentView));
+        }
     }
 
     private inspectComponent(componentView: ComponentView<Component>, showWidget: boolean = true, showPanel: boolean = true) {
         assertNotNull(componentView, 'componentView cannot be null');
 
-        const showInspectionPanel = (panel: BaseInspectionPanel) => this.contextWindow.showInspectionPanel(panel, showWidget, showPanel);
+        const waitForContextPanel = showPanel && ContextSplitPanel.isCollapsed();
 
-        if (ObjectHelper.iFrameSafeInstanceOf(componentView, ImageComponentView)) {
-            this.imageInspectionPanel.setImageComponentView(<ImageComponentView>componentView);
-            this.imageInspectionPanel.setImageComponent(<ImageComponent>componentView.getComponent());
-            showInspectionPanel(this.imageInspectionPanel);
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
-            this.partInspectionPanel.setDescriptorBasedComponent(<PartComponent>componentView.getComponent());
-            showInspectionPanel(this.partInspectionPanel);
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
-            this.layoutInspectionPanel.setDescriptorBasedComponent(<LayoutComponent>componentView.getComponent());
-            showInspectionPanel(this.layoutInspectionPanel);
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentView)) {
-            this.textInspectionPanel.setTextComponent(<TextComponentView>componentView);
-            this.inspectionsPanel.setButtonContainerVisible(this.pageView?.getPageViewController().isTextEditMode());
-            showInspectionPanel(this.textInspectionPanel);
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, FragmentComponentView)) {
-            this.fragmentInspectionPanel.setFragmentComponentView(<FragmentComponentView>componentView);
-            this.fragmentInspectionPanel.setFragmentComponent(<FragmentComponent>componentView.getComponent());
-            showInspectionPanel(this.fragmentInspectionPanel);
-        } else {
-            throw new Error('ComponentView cannot be selected: ' + ClassHelper.getClassName(componentView));
+        if (waitForContextPanel) {
+            // Wait until ContextPanel is expanded before activating the InspectPanel inside
+            const stateChangeHandler = (event: ContextPanelStateEvent) => {
+                if (ContextSplitPanel.isExpanded()) {
+                    setTimeout(() => {
+                        this.doInspectComponent(componentView, showWidget, showPanel);
+                    }, 500);
+                }
+                ContextPanelStateEvent.un(stateChangeHandler);
+            };
+            ContextPanelStateEvent.on(stateChangeHandler);
         }
+
+        if (this.isPanelSelectable(componentView)) {
+            new InspectEvent(showWidget, showPanel).fire();
+        }
+
+        if (waitForContextPanel) {
+            return;
+        }
+
+        this.doInspectComponent(componentView, showWidget, showPanel);
+    }
+
+    private isPanelSelectable(componentView: ComponentView<Component>): boolean {
+        return !ObjectHelper.iFrameSafeInstanceOf(componentView, PageView) || this.getPageMode() !== PageMode.FRAGMENT;
     }
 
     isShown(): boolean {
