@@ -1,0 +1,30 @@
+.stats-container {
+  display: flex;
+  justify-content: center
+}
+
+.stats-container .total-items-container {
+  padding: 10px;
+  text-align: center;
+}
+
+.stats-container .total-items-container .counter {
+  color: #333;
+}
+
+.stats-container .total-items-container .label {
+  color: #777;
+}
+
+.stats-container .total-projects-container {
+  padding: 10px;
+  text-align: center
+}
+
+.stats-container .total-projects-container .counter {
+  color: #333;
+}
+
+.stats-container .total-projects-container .label {
+  color: #777;
+}

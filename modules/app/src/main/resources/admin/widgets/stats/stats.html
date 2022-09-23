@@ -1,40 +1,24 @@
 <widget id="widget-stats">
-    <div style="display: flex; justify-content: center">
-        <div style="padding: 10px; text-align: center">
-            <h1 style="color: #333;">
+    <link rel="stylesheet" href="{{stylesUri}}" type="text/css" media="all"/>
+
+    <div class="stats-container">
+        <div class="total-items-container">
+            <h1 class="counter">
                 {{totalItems}}
             </h1>
-            <div style="color: #777;">
+            <div class="label">
                 Total items
             </div>
         </div>
-        <div style="padding: 10px; text-align: center">
-            <h1 style="color: #333;">
+        <div class="total-projects-container">
+            <h1 class="counter">
                 {{totalProjects}}
             </h1>
-            <div style="color: #777;">
+            <div class="label">
                 Projects
             </div>
         </div>
     </div>
+
 </widget>
-<div id="widget-stats2">
-    <div style="display: flex; justify-content: center">
-        <div style="padding: 10px; text-align: center">
-            <h1 style="color: #333;">
-                {{totalItems}}
-            </h1>
-            <div style="color: #777;">
-                Total items
-            </div>
-        </div>
-        <div style="padding: 10px; text-align: center">
-            <h1 style="color: #333;">
-                {{totalProjects}}
-            </h1>
-            <div style="color: #777;">
-                Projects
-            </div>
-        </div>
-    </div>
-</div>
+
