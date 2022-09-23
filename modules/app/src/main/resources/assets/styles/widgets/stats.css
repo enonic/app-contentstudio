@@ -1,6 +1,6 @@
 .stats-container {
   display: flex;
-  justify-content: center
+  justify-content: center;
 }
 
 .stats-container .total-items-container {
@@ -18,7 +18,7 @@
 
 .stats-container .total-projects-container {
   padding: 10px;
-  text-align: center
+  text-align: center;
 }
 
 .stats-container .total-projects-container .counter {
