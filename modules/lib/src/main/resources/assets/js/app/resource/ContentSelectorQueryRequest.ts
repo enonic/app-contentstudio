@@ -6,6 +6,7 @@ import {ContentJson} from '../content/ContentJson';
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {ResultMetadata} from './ResultMetadata';
 
 export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends ContentSelectorRequest<CONTENT> {
@@ -13,6 +14,8 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
     private loadingFrom: number;
 
     protected size: number = 15;
+
+    private metadata: ResultMetadata;
 
     constructor() {
         super();
@@ -52,8 +55,14 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         return this.from === this.loadingFrom;
     }
 
+    getMetadata(): ResultMetadata {
+        return this.metadata;
+    }
+
     protected parseResponse(response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>): CONTENT[] {
         const responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
+
+        this.metadata = ResultMetadata.fromJson(response.getResult().metadata);
 
         const contentsAsJson: ContentSummaryJson[] = responseResult.contents;
 
