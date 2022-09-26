@@ -1,0 +1,17 @@
+.widget-stats-container {
+  display: flex;
+  justify-content: center;
+}
+
+.widget-stats-container .widget-stats-container-section {
+  padding: 10px;
+  text-align: center;
+}
+
+.widget-stats-container .widget-stats-container-items-counter {
+  color: #333;
+}
+
+.widget-stats-container .widget-stats-container-items-label {
+  color: #777;
+}
