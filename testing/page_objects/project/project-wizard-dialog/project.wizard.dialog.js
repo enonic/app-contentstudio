@@ -118,7 +118,8 @@ class ProjectWizardDialog extends Page {
     async clickOnSkipButton() {
         await this.waitForSkipButtonDisplayed();
         await this.waitForSkipButtonEnabled();
-        return await this.clickOnElement(this.skipButton);
+        await this.clickOnElement(this.skipButton);
+        return await this.pause(300);
     }
 
     async waitForNextButtonDisplayed() {

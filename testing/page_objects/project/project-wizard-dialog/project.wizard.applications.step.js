@@ -13,7 +13,7 @@ const XPATH = {
     selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
     selectedApplications: "//div[contains(@id,'ProjectApplicationSelectedOptionView') ]",
 };
-const DESCRIPTION = "5 of 7 - Select applications for the project content";
+const DESCRIPTION = "Select applications for the project content";
 
 class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
 
@@ -41,12 +41,12 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
     async waitForLoaded() {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();
-            return actualDescription === DESCRIPTION;
+            return actualDescription.includes(DESCRIPTION);
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 5 is not loaded"});
     }
 
     async isLoaded() {
-        let locator = `//p[@class='xp-admin-common-sub-name' and text()='${DESCRIPTION}']`;
+        let locator = `//p[@class='xp-admin-common-sub-name' and contains(.,'${DESCRIPTION}')]`;
         return await this.isElementDisplayed(locator);
     }
 

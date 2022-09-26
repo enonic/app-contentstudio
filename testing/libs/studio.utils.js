@@ -562,7 +562,9 @@ module.exports = {
             let browsePanel = new BrowsePanel();
             return await browsePanel.selectContext(context);
         } catch (err) {
-            throw new Error("Error when opening Filter Panel! " + err);
+            let screenshot = appConst.generateRandomName("err_select_context");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error during selecting a context, screenshot: " + screenshot + "  " + err);
         }
     },
 

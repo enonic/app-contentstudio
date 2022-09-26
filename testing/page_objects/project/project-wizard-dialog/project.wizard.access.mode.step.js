@@ -10,9 +10,9 @@ const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
     projectReadAccessWizardStepForm: "//div[contains(@id,'ProjectReadAccessFormItem')]",
     radioButtonByDescription: description => XPATH.projectReadAccessWizardStepForm +
-                                       `//span[contains(@id,'RadioButton') and descendant::label[contains(.,'${description}')]]`,
+                                             `//span[contains(@id,'RadioButton') and descendant::label[contains(.,'${description}')]]`,
 };
-const DESCRIPTION = "3 of 7 - Select default read permissions for a new content in the project";
+const DESCRIPTION = "Select default read permissions for a new content in the project";
 
 class ProjectWizardDialogAccessModeStep extends ProjectWizardDialog {
 
@@ -25,7 +25,7 @@ class ProjectWizardDialogAccessModeStep extends ProjectWizardDialog {
     async waitForLoaded() {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();
-            return actualDescription === DESCRIPTION;
+            return actualDescription.includes(DESCRIPTION);
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 3 is not loaded"});
     }
     async selectUserInCustomReadAccessSelector(principalDisplayName) {

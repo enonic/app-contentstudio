@@ -9,6 +9,7 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils.js');
+const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 
 describe('project.wizard.panel.spec - ui-tests for project wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

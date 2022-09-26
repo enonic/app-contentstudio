@@ -10,7 +10,7 @@ const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
     projectIdStepForm: `//form[contains(@class,'project-id-step')]`,
 };
-const DESCRIPTION = "6 of 7 - Give the new project a name and a unique identifier";
+const DESCRIPTION = "Give the new project a name and a unique identifier";
 
 class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
 
@@ -75,7 +75,7 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
     async waitForLoaded() {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();
-            return actualDescription === DESCRIPTION;
+            return actualDescription.includes(DESCRIPTION);
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step with project name is not loaded"});
     }
 }
