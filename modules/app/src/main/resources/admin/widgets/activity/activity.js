@@ -5,9 +5,6 @@ function handleGet() {
     const view = resolve('./activity.html');
 
     const params = {
-        stylesUri: portal.assetUrl({
-            path: 'styles/widgets/activity.css'
-        }),
         jsUri: portal.assetUrl({
             path: 'js/widgets/activity.js'
         }),

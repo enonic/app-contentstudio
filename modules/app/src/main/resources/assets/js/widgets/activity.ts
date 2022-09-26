@@ -1,6 +1,6 @@
 import Chart from 'chart.js/auto';
 
-const drawGraph = (activityDataObj) => {
+const drawGraph = (activityDataObj: Object) => {
     const activity = formatData(activityDataObj);
 // set the dimensions and margins of the graph
     new Chart('activity-chart', {
@@ -36,9 +36,9 @@ const drawGraph = (activityDataObj) => {
             maintainAspectRatio: false
         }
     });
-}
+};
 
-const formatData = (activityData) => {
+const formatData = (activityData: Object) => {
     const labels = [];
     const data = [];
 
@@ -51,8 +51,8 @@ const formatData = (activityData) => {
     return {
         data,
         labels
-    }
-}
+    };
+};
 
 (() => {
     if (!document.currentScript) {
@@ -67,7 +67,7 @@ const formatData = (activityData) => {
 
     fetch(chartDataServiceUrl)
         .then((response) => response.json())
-        .then((activityDataObj) => drawGraph(activityDataObj))
+        .then((activityDataObj: Object) => drawGraph(activityDataObj))
         .catch((e) => {
             console.error(e);
         });
