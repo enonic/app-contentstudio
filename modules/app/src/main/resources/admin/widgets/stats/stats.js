@@ -1,6 +1,7 @@
 const mustache = require('/lib/mustache');
 const contextLib = require('/lib/xp/context');
 const contentLib = require('/lib/xp/content');
+const portal = require('/lib/xp/portal');
 const helper = require('/helpers/dashboard-helper');
 
 function handleGet() {
@@ -10,12 +11,15 @@ function handleGet() {
 
     const params = {
         totalItems: totalItems,
-        totalProjects: projects.length
+        totalProjects: projects.length,
+        stylesUri: portal.assetUrl({
+            path: 'styles/widgets/stats.css'
+        })
     };
 
     return {
         contentType: 'text/html',
-        body: mustache.render(view, params),
+        body: mustache.render(view, params)
     };
 }
 
@@ -39,7 +43,6 @@ const countItemsInRepo = function (repositoryId) {
                 return doCountItemsInRepo();
             }
         );
-
 }
 
 const doCountItemsInRepo = function () {
