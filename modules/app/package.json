@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
+    "chart.js": "^3.9.1",
     "enonic-admin-artifacts": "^1.8.3",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.13.2",
