@@ -1,29 +1,28 @@
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ContentTreeSelectorListJson} from './ContentTreeSelectorListResult';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ResultMetadata} from './ResultMetadata';
 import {ContentSelectorRequest} from './ContentSelectorRequest';
 import {ContentSummary} from '../content/ContentSummary';
 import {ChildOrder} from './order/ChildOrder';
-import {ContentPath} from '../content/ContentPath';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
+import {ListContentResult} from './ListContentResult';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
 
-export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorItem>
+
+export class ListByIdSelectorRequest<DATA extends ContentTreeSelectorItem>
     extends ContentSelectorRequest<DATA> {
 
     protected size: number = 10;
 
     private metadata: ResultMetadata;
 
-    private parentPath: ContentPath;
-
     private childOrder: ChildOrder;
 
     constructor() {
         super();
 
-        this.setMethod(HttpMethod.POST);
-        this.addRequestPathElements('treeSelectorQuery');
+        this.setMethod(HttpMethod.GET);
+        this.addRequestPathElements('list');
     }
 
     setContent(content: ContentSummary) {
@@ -31,11 +30,6 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
         this.setSearchString();
 
         this.childOrder = content ? content.getChildOrder() : null;
-        this.parentPath = content ? content.getPath().getParentPath() : null;
-    }
-
-    setParentPath(parentPath: ContentPath) {
-        this.parentPath = parentPath;
     }
 
     setChildOrder(childOrder: ChildOrder) {
@@ -43,21 +37,23 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
     }
 
     getParams(): Object {
-        let params = super.getParams();
-        return Object.assign(params, {
-            parentPath: this.parentPath ? this.parentPath.toString() : null,
+        return {
+            from: this.getFrom(),
+            size: this.getSize(),
+            expand: this.expandAsString(),
+            parentId: this.content ? this.content.getId().toString() : null,
             childOrder: this.childOrder ? this.childOrder.toString() : ''
-        });
+        };
     }
 
     getMetadata(): ResultMetadata {
         return this.metadata;
     }
 
-    protected parseResponse(response: JsonResponse<ContentTreeSelectorListJson>): DATA[] {
-        if (response.getResult() && response.getResult().items.length > 0) {
+    protected parseResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): DATA[] {
+        if (response.getResult() && response.getResult().contents.length > 0) {
             this.metadata = ResultMetadata.fromJson(response.getResult().metadata);
-            return response.getResult().items.map(json => <any>ContentTreeSelectorItem.fromJson(json));
+            return response.getResult().contents.map(json => <any>ContentTreeSelectorItem.from(ContentSummary.fromJson(json), true, true));
         }
 
         this.metadata = new ResultMetadata(0, 0);

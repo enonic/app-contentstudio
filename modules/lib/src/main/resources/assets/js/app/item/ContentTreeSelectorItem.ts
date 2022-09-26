@@ -37,6 +37,10 @@ export class ContentTreeSelectorItem
         return new ContentTreeSelectorItem(ContentSummary.fromJson(json.content), json.selectable, json.expandable);
     }
 
+    public static from(content: ContentSummary, selectable: boolean, expandable: boolean) {
+        return new ContentTreeSelectorItem(content, selectable, expandable);
+    }
+
     getContent(): ContentSummary {
         return this.content;
     }
@@ -117,11 +121,7 @@ export class ContentTreeSelectorItem
             return false;
         }
 
-        if (this.expandable !== other.expandable) {
-            return false;
-        }
-
-        return true;
+        return this.expandable === other.expandable;
     }
 
 }
