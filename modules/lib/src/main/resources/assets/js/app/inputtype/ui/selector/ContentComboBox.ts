@@ -33,6 +33,8 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {Grid} from '@enonic/lib-admin-ui/ui/grid/Grid';
 import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentId} from '../../../content/ContentId';
+import {OptionDataLoader} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
+
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     extends RichComboBox<ContentTreeSelectorItem> {
@@ -430,7 +432,7 @@ export class ContentComboBoxBuilder<ITEM_TYPE extends ContentTreeSelectorItem>
         return this;
     }
 
-    setLoader(loader: ContentSummaryOptionDataLoader<ITEM_TYPE>): ContentComboBoxBuilder<ITEM_TYPE> {
+    setLoader(loader: OptionDataLoader<ITEM_TYPE>): ContentComboBoxBuilder<ITEM_TYPE> {
         super.setLoader(loader);
         return this;
     }

@@ -20,7 +20,7 @@ export class ContentMoveComboBox
         contentComboBoxBuilder
             .setMaximumOccurrences(1)
             .setComboBoxName('contentSelector')
-            .setLoader(new ContentSummaryOptionDataLoader())
+            .setLoader(ContentSummaryOptionDataLoader.create().setSmartTreeMode(false).build())
             .setSelectedOptionsView(<SelectedOptionsView<ContentTreeSelectorItem>>new ContentSelectedOptionsView())
             .setOptionDisplayValueViewer(new ContentSummaryViewer())
             .setDelayedInputValueChangedHandling(500)

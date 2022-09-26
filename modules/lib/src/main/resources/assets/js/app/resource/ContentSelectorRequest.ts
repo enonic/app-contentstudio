@@ -10,8 +10,9 @@ import {PathMatchExpressionBuilder} from '@enonic/lib-admin-ui/query/PathMatchEx
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {ResultMetadata} from './ResultMetadata';
 
-export class ContentSelectorRequest<CONTENT>
+export abstract class ContentSelectorRequest<CONTENT>
     extends CmsContentResourceRequest<CONTENT[]> {
 
     public static MODIFIED_TIME_DESC: FieldOrderExpr = new FieldOrderExpr(new FieldExpr('modifiedTime'), OrderDirection.DESC);
@@ -28,7 +29,7 @@ export class ContentSelectorRequest<CONTENT>
 
     private expand: Expand = Expand.SUMMARY;
 
-    private content: ContentSummary;
+    protected content: ContentSummary;
 
     private inputName: string;
 
@@ -158,7 +159,9 @@ export class ContentSelectorRequest<CONTENT>
         };
     }
 
-    private expandAsString(): string {
+    abstract getMetadata(): ResultMetadata;
+
+    protected expandAsString(): string {
         switch (this.expand) {
         case Expand.FULL:
             return 'full';
