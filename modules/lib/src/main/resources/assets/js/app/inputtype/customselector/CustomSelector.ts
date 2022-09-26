@@ -29,13 +29,13 @@ export class CustomSelector
 
     public static debug: boolean = false;
 
-    private static portalUrl: string = UriHelper.addSitePrefix(`/${UrlAction.EDIT}/{0}/${Branch.DRAFT}{1}/_/service/`);
-
     private requestPath: string;
 
     private content: ContentSummary;
 
     private comboBox: RichComboBox<CustomSelectorItem>;
+
+    private static serviceUrlPrefix: string;
 
     constructor(context: ContentInputTypeViewContext) {
         super(context, 'custom-selector');
@@ -80,7 +80,7 @@ export class CustomSelector
         this.content = (<ContentInputTypeViewContext>this.context).content;
 
         if (serviceUrl) {
-            this.requestPath = CustomSelector.portalUrl + UriHelper.appendUrlParams(serviceUrl, params);
+            this.requestPath = `${CustomSelector.getServiceUrlPrefix()}/${UriHelper.appendUrlParams(serviceUrl, params)}`;
         }
     }
 
@@ -236,6 +236,14 @@ export class CustomSelector
         } else {
             this.addClass('single-occurrence').removeClass('multiple-occurrence');
         }
+    }
+
+    static getServiceUrlPrefix(): string {
+        if (!CustomSelector.serviceUrlPrefix) {
+            CustomSelector.serviceUrlPrefix = UriHelper.addSitePrefix(`/${UrlAction.EDIT}/{0}/${Branch.DRAFT}{1}/_/service`);
+        }
+
+        return CustomSelector.serviceUrlPrefix;
     }
 }
 
