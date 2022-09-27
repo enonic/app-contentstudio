@@ -53,10 +53,18 @@ class MoveContentDialog extends Page {
     }
 
     async clickOnDropdownHandle() {
-        await this.clickOnElement(this.dropDownHandle);
-        await this.pause(300);
-        await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
-        return await this.pause(1000);
+        try {
+            await this.clickOnElement(this.dropDownHandle);
+            await this.pause(300);
+            await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
+            await this.pause(500);
+            let screenshot = appConst.generateRandomName("move_dialog");
+            await this.saveScreenshot(screenshot);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_move_dialog");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Move Dialog - Error after clicking on Dropdown handle, screenshot: " + screenshot + "  " + err);
+        }
     }
 
     waitForOpened() {
@@ -87,7 +95,9 @@ class MoveContentDialog extends Page {
             let loaderComboBox = new LoaderComboBox();
             return await loaderComboBox.typeTextAndSelectOption(displayName, XPATH.container);
         } catch (err) {
-            throw new Error("Move Content Dialog  " + err);
+            let screenshot = appConst.generateRandomName("err_move_dialog");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Move Dialog - Error during selecting an option, screenshot: " + screenshot + "  " + err);
         }
     }
 
