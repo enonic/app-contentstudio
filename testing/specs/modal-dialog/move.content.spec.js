@@ -85,10 +85,12 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             await moveContentDialog.waitForOpened();
             //3. Click on dropdown handle button:
             await moveContentDialog.clickOnDropdownHandle();
-            await moveContentDialog.pause(500);
-            await studioUtils.saveScreenshot("move_dropdown_handle");
+            await moveContentDialog.pause(1000);
+            await studioUtils.saveScreenshot("move_dropdown_handle_1");
             let options = await moveContentDialog.getOptionsName();
-            assert.isAbove(options.length, 0, "Droppdown should be expanded");
+            await studioUtils.saveScreenshot("move_dropdown_handle_2");
+            assert.isTrue(options.length > 1,  "Droppdown should be expanded");
+            assert.isTrue(options.includes("All Content types images"),"Expected option should be displayed");
             //4. Click on Cancel top button
             await moveContentDialog.clickOnCancelTopButton();
             //5. Verify that the modal dialog is closed

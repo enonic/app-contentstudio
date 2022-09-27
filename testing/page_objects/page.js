@@ -235,10 +235,12 @@ class Page {
     }
 
     waitForSpinnerNotVisible(ms) {
+        console.time("Execution time took");
         let timeout;
         timeout = ms === undefined ? appConst.longTimeout : ms;
         let message = "Spinner still displayed! timeout is " + timeout;
         return this.browser.waitUntil(() => {
+            console.timeEnd("Execution time took");
             return this.isElementNotDisplayed("//div[@class='spinner']");
         }, {timeout: timeout, timeoutMsg: message});
     }
