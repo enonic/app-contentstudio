@@ -6,9 +6,6 @@ import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanel
 import {ContentEventsListener} from './ContentEventsListener';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
-import {ProjectDeletedEvent} from './settings/event/ProjectDeletedEvent';
-import {Project} from './settings/data/project/Project';
-import {ProjectListRequest} from './settings/resource/ProjectListRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentId} from './content/ContentId';
@@ -29,7 +26,6 @@ import {Store} from '@enonic/lib-admin-ui/store/Store';
 export class ContentAppContainer
     extends AppContainer {
 
-    protected appBar: ContentAppBar;
     private resolveDependenciesRequest: ResolveDependenciesRequest;
     private issueRequest: GetIssueRequest;
 
@@ -48,8 +44,8 @@ export class ContentAppContainer
 
         this.initSearchPanelListener(<ContentAppPanel>this.appPanel);
 
-        ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
-            this.handleProjectDeletedEvent(event.getProjectName());
+        ProjectContext.get().onNoProjectsAvailable(() => {
+           this.handleNoProjectsAvailable();
         });
 
         this.onShown(() => {
@@ -57,38 +53,8 @@ export class ContentAppContainer
         });
     }
 
-    private handleProjectDeletedEvent(projectName: string) {
-        const currentProject: Project = ProjectContext.get().getProject();
-        const isCurrentProjectDeleted: boolean = projectName === currentProject.getName();
-
-        if (isCurrentProjectDeleted) {
-            this.handleCurrentProjectDeleted();
-        }
-    }
-
-    private handleCurrentProjectDeleted() {
-        const currentProject: Project = ProjectContext.get().getProject();
-
-        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-            if (projects.length > 0) {
-                const parentProject: Project = projects.find((project: Project) => project.getName() === currentProject.getParent());
-                if (parentProject) {
-                    ProjectContext.get().setProject(parentProject);
-                } else {
-                    const defaultProject: Project = projects.find((project: Project) => project.getName() === Project.DEFAULT_PROJECT_NAME);
-                    const projectToSet: Project = !!defaultProject ? defaultProject : projects[0];
-                    ProjectContext.get().setProject(projectToSet);
-                }
-            } else {
-                this.handleNoProjectsAvailable();
-            }
-        }).catch(DefaultErrorHandler.handle);
-    }
-
     private handleNoProjectsAvailable() {
-        this.appBar.disable();
-
-        ProjectContext.get().setNotAvailable();
+        ContentAppBar.getInstance().disable();
     }
 
     private initSearchPanelListener(panel: ContentAppPanel) {

@@ -226,7 +226,6 @@ export class ContentBrowsePanel
         ProjectContext.get().onNoProjectsAvailable(() => {
             this.handleProjectNotSet();
             this.treeGrid.clean();
-            NotifyManager.get().showWarning(i18n('notify.settings.project.notInitialized'));
         });
     }
 

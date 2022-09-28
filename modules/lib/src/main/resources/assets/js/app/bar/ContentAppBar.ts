@@ -13,6 +13,7 @@ import {AccessibilityHelper} from '../util/AccessibilityHelper';
 import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {AppBarActions} from '@enonic/lib-admin-ui/app/bar/AppBarActions';
+import * as Q from 'q';
 
 export class ContentAppBar
     extends TabbedAppBar {
@@ -55,7 +56,11 @@ export class ContentAppBar
         ProjectUpdatedEvent.on(handler);
     }
 
-    private handleProjectUpdate() {
+    private handleProjectUpdate(): void {
+        if (!ProjectContext.get().isInitialized()) {
+            return;
+        }
+
         const currentProjectName: string = ProjectContext.get().getProject().getName();
 
         new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
@@ -63,6 +68,8 @@ export class ContentAppBar
             const project: Project = projects.find((p: Project) => p.getName() === currentProjectName);
             this.selectedProjectViewer.setObject(project);
             this.selectedProjectViewer.toggleClass('multi-projects', projects.length > 1);
+
+            return Q.resolve();
         }).catch(DefaultErrorHandler.handle);
     }
 

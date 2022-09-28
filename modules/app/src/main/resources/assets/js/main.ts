@@ -61,7 +61,7 @@ import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {ProjectNotAvailableDialog} from 'lib-contentstudio/app/settings/dialog/project/create/ProjectNotAvailableDialog';
-import {ProjectSteps} from 'lib-contentstudio/app/settings/dialog/project/create/ProjectSteps';
+import {ProjectDeletedEvent} from 'lib-contentstudio/app/settings/event/ProjectDeletedEvent';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -257,15 +257,90 @@ function startServerEventListeners(application: Application) {
     new SettingsServerEventsListener([application]);
 }
 
+const handleProjectDeletedEvent = (projectName: string) => {
+    const currentProject: Project = ProjectContext.get().getProject();
+    const isCurrentProjectDeleted: boolean = projectName === currentProject.getName();
+
+    if (isCurrentProjectDeleted) {
+        handleCurrentProjectDeleted();
+    }
+};
+
+const handleCurrentProjectDeleted = () => {
+    new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
+        const projectToSet: Project = getProjectToSet(projects);
+
+        if (projectToSet) {
+            ProjectContext.get().setProject(projectToSet);
+        } else {
+            ProjectContext.get().setNotAvailable();
+        }
+
+        return Q.resolve();
+    }).catch(DefaultErrorHandler.handle);
+};
+
+const getProjectToSet = (projects: Project[]): Project => {
+    if (projects.length === 0) {
+        return null;
+    }
+
+    return getParentProject(ProjectContext.get().getProject(), projects) || getFirstAvailableProject(projects);
+};
+
+const getParentProject = (project: Project, projects: Project[]): Project => {
+    const parentProject: Project = projects.find((p: Project) => p.getName() === project.getParent());
+
+    if (parentProject) {
+        return ProjectHelper.isAvailable(parentProject) ? parentProject : getParentProject(parentProject, projects);
+    }
+
+    return null;
+};
+
+const getFirstAvailableProject = (projects: Project[]): Project => {
+    const defaultProject: Project = projects.find((project: Project) => project.getName() === Project.DEFAULT_PROJECT_NAME);
+
+    if (defaultProject) {
+        return defaultProject;
+    }
+
+    return projects.find((p: Project) => ProjectHelper.isAvailable(p));
+};
+
+const handleNoProjectsAvailable = () => {
+    new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+        const principalKeys: PrincipalKey[] = loginResult.getPrincipals();
+
+        if (principalKeys.some((p: PrincipalKey) => RoleKeys.isContentAdmin(p))) {
+            new ProjectNotAvailableDialog().open();
+        } else {
+            ProjectSelectionDialog.get().setUpdateOnOpen(true);
+            ProjectSelectionDialog.get().open();
+        }
+
+        return Q.resolve();
+    }).catch(DefaultErrorHandler.handle);
+};
+
 async function startApplication() {
     const application: Application = getApplication();
     const connectionDetector = startLostConnectionDetector();
     Store.instance().set('application', application);
 
     startServerEventListeners(application);
-
     initApplicationEventListener();
+
+    ProjectContext.get().onNoProjectsAvailable(() => {
+        handleNoProjectsAvailable();
+    });
+
     initProjectContext(application)
+        .then(() => {
+            ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
+                handleProjectDeletedEvent(event.getProjectName());
+            });
+        })
         .catch((reason: any) => {
             DefaultErrorHandler.handle(reason);
             NotifyManager.get().showWarning(i18n('notify.settings.project.initFailed'));
@@ -538,18 +613,7 @@ function initProjectContext(application: Application): Q.Promise<void> {
 
         if (projects.length === 0) {
             ProjectContext.get().setNotAvailable();
-
-            return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                const principalKeys: PrincipalKey[] = loginResult.getPrincipals();
-
-                if (principalKeys.some((p: PrincipalKey) => RoleKeys.isContentAdmin(p))) {
-                    new ProjectNotAvailableDialog().open();
-                } else {
-                    ProjectSelectionDialog.get().open();
-                }
-
-                return Q.resolve();
-            });
+            return Q.resolve();
         }
 
         ProjectSelectionDialog.get().open();
