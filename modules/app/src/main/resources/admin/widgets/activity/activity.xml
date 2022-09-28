@@ -1,9 +1,0 @@
-<widget xmlns="urn:enonic:xp:model:1.0">
-  <display-name>Content activity</display-name>
-  <interfaces>
-    <interface>home.dashboard</interface>
-  </interfaces>
-  <config>
-    <property name="width" value="medium"/>
-  </config>
-</widget>
