@@ -33,6 +33,12 @@ const drawGraph = (activityDataObj: Object) => {
                     tension: 0.4
                 }
             },
+            scales: {
+                y: {
+                    min: 0,
+                    suggestedMax: 10
+                }
+            },
             maintainAspectRatio: false,
             responsive: true
         }
