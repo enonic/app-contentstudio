@@ -5,7 +5,7 @@ const portal = require('/lib/xp/portal');
 const helper = require('/helpers/dashboard-helper');
 
 function handleGet() {
-    const view = resolve('./stats.html');
+    const view = resolve('./content.html');
     const projects = helper.getProjects();
     const totalItems = '' + countItemsInRepos(projects);
 
@@ -13,8 +13,12 @@ function handleGet() {
         totalItems: totalItems,
         totalProjects: projects.length,
         stylesUri: portal.assetUrl({
-            path: 'styles/widgets/stats.css'
-        })
+            path: 'styles/widgets/content.css'
+        }),
+        jsUri: portal.assetUrl({
+            path: 'js/widgets/content.js'
+        }),
+        chartDataServiceUrl: portal.serviceUrl({service: 'chartdata'})
     };
 
     return {
