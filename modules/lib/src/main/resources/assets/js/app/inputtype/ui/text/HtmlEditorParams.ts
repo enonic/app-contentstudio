@@ -4,30 +4,37 @@ import {CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
 import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentPath} from '../../../content/ContentPath';
 
+export enum ContentsLangDirection {
+    AUTO = '',
+    LTR = 'ltr',
+    RTL = 'rtl'
+}
+
 export class HtmlEditorParams {
 
-    private content: ContentSummary; // used for image dialog
-    private contentPath: ContentPath; // used for macro dialog
-    private applicationKeys: ApplicationKey[]; // used for macro dialog
+    private readonly content: ContentSummary; // used for image dialog
+    private readonly contentPath: ContentPath; // used for macro dialog
+    private readonly applicationKeys: ApplicationKey[]; // used for macro dialog
 
-    private assetsUri: string;
-    private editorContainerId: string;
-    private focusHandler: (e: FocusEvent) => void;
-    private blurHandler: (e: FocusEvent) => void;
-    private mouseLeaveHandler: (e: MouseEvent, mousePressed?: boolean) => void;
-    private keydownHandler: (e: KeyboardEvent) => void;
-    private nodeChangeHandler: (e: any) => void;
-    private editorLoadedHandler: () => void;
-    private editorReadyHandler: () => void;
-    private createDialogHandler: { (event: CreateHtmlAreaDialogEvent): void };
-    private inline: boolean = false;
-    private fullscreenMode: boolean = false;
-    private fixedToolbarContainer: string;
-    private editableSourceCode: boolean;
-    private customStylesToBeUsed: boolean = false;
-    private enabledTools: string[];
-    private disabledTools: string[];
-    private allowedHeadings: string;
+    private readonly assetsUri: string;
+    private readonly editorContainerId: string;
+    private readonly focusHandler: (e: FocusEvent) => void;
+    private readonly blurHandler: (e: FocusEvent) => void;
+    private readonly mouseLeaveHandler: (e: MouseEvent, mousePressed?: boolean) => void;
+    private readonly keydownHandler: (e: KeyboardEvent) => void;
+    private readonly nodeChangeHandler: (e: any) => void;
+    private readonly editorLoadedHandler: () => void;
+    private readonly editorReadyHandler: () => void;
+    private readonly createDialogHandler: { (event: CreateHtmlAreaDialogEvent): void };
+    private readonly inline: boolean = false;
+    private readonly fullscreenMode: boolean = false;
+    private readonly fixedToolbarContainer: string;
+    private readonly editableSourceCode: boolean;
+    private readonly customStylesToBeUsed: boolean = false;
+    private readonly enabledTools: string[];
+    private readonly disabledTools: string[];
+    private readonly allowedHeadings: string;
+    private readonly contentsLangDirection: ContentsLangDirection;
 
     constructor(builder: HtmlEditorParamsBuilder) {
         if (!builder.assetsUri || !builder.editorContainerId || !builder.content) {
@@ -55,6 +62,7 @@ export class HtmlEditorParams {
         this.enabledTools = builder.enabledTools;
         this.disabledTools = builder.disabledTools;
         this.allowedHeadings = builder.allowedHeadings;
+        this.contentsLangDirection = builder.contentsLangDirection;
     }
 
     private checkRequiredFieldsAreSet(htmlEditorParams: HtmlEditorParams) {
@@ -179,6 +187,10 @@ export class HtmlEditorParams {
         return this.allowedHeadings;
     }
 
+    getContentsLangDirection(): ContentsLangDirection {
+        return this.contentsLangDirection;
+    }
+
     public static create(): HtmlEditorParamsBuilder {
         return new HtmlEditorParamsBuilder();
     }
@@ -227,6 +239,8 @@ export class HtmlEditorParamsBuilder {
     disabledTools: string[];
 
     allowedHeadings: string;
+
+    contentsLangDirection: ContentsLangDirection = ContentsLangDirection.AUTO;
 
     setEditableSourceCode(value: boolean): HtmlEditorParamsBuilder {
         this.editableSourceCode = value;
@@ -333,6 +347,11 @@ export class HtmlEditorParamsBuilder {
 
     setAllowedHeadings(allowedHeadings: string): HtmlEditorParamsBuilder {
         this.allowedHeadings = allowedHeadings;
+        return this;
+    }
+
+    setContentsLangDirection(value: ContentsLangDirection): HtmlEditorParamsBuilder {
+        this.contentsLangDirection = value;
         return this;
     }
 
