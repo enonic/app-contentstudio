@@ -94,6 +94,18 @@ const fetchByDayStats = () => {
                 'gt': dateFilterValue
             }
         },
+        filters: {
+            'boolean': {
+                'mustNot': {
+                    'hasValue': {
+                        'field': 'modifier',
+                        'values': [
+                            'user:system:anonymous'
+                        ]
+                    }
+                }
+            }
+        },
         aggregations: {
             by_day: {
                 dateHistogram: {
