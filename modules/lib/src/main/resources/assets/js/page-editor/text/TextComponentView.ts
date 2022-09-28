@@ -15,7 +15,7 @@ import {DragAndDrop} from '../DragAndDrop';
 import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
 import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
 import {TextComponent} from '../../app/page/region/TextComponent';
-import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
+import {ContentsLangDirection, HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
 import {HtmlEditor, HtmlEditorCursorPosition} from '../../app/inputtype/ui/text/HtmlEditor';
 import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
@@ -30,6 +30,7 @@ import {ItemViewSelectedEvent} from '../ItemViewSelectedEvent';
 import {SelectedHighlighter} from '../SelectedHighlighter';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder<TextComponent> {
@@ -456,6 +457,7 @@ export class TextComponentView
             .setEditableSourceCode(this.editableSourceCode)
             .setContentPath(this.getContentPath())
             .setApplicationKeys(this.getApplicationKeys())
+            .setContentsLangDirection(this.getContentsLangDirection())
             .build();
 
         HtmlEditor.create(htmlEditorParams).then((htmlEditor: HtmlEditor) => {
@@ -608,5 +610,15 @@ export class TextComponentView
         this.editorReadyListeners.forEach((listener: () => void) => {
             listener.call(this);
         });
+    }
+
+    private getContentsLangDirection(): ContentsLangDirection {
+        const lang: string = this.getContent().getLanguage();
+
+        if (lang && Locale.isRtlCode(lang)) {
+            return ContentsLangDirection.RTL;
+        }
+
+        return ContentsLangDirection.AUTO;
     }
 }

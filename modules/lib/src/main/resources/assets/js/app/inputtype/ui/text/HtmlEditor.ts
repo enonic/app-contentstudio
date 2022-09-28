@@ -1027,7 +1027,8 @@ class HtmlEditorConfigBuilder {
             disallowedContent: 'img[width,height]; table[*]{*}',
             uploadUrl: this.getUploadUrl(),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
-            disableNativeSpellChecker: false
+            disableNativeSpellChecker: false,
+            contentsLangDirection: this.editorParams.getContentsLangDirection()
         };
 
         config['qtRows'] = 10; // Count of rows

@@ -20,7 +20,7 @@ import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
 import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {HtmlEditor} from '../ui/text/HtmlEditor';
-import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
+import {ContentsLangDirection, HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
 import {BaseInputTypeNotManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeNotManagingAdd';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
@@ -33,6 +33,7 @@ import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentPath} from '../../content/ContentPath';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
@@ -279,6 +280,7 @@ export class HtmlArea
             .setAllowedHeadings(this.allowHeadingsConfig)
             .setEditableSourceCode(this.editableSourceCode)
             .setCustomStylesToBeUsed(true)
+            .setContentsLangDirection(this.getContentsLangDirection())
             .build();
 
         return HtmlEditor.create(htmlEditorParams);
@@ -299,7 +301,7 @@ export class HtmlArea
 
     private getAllowedHeadingsConfig(): string {
         const allowHeadingsConfig = this.getContext().inputConfig['allowHeadings'];
-        if (!allowHeadingsConfig || !(allowHeadingsConfig  instanceof Array)) {
+        if (!allowHeadingsConfig || !(allowHeadingsConfig instanceof Array)) {
             return null;
         }
 
@@ -421,7 +423,7 @@ export class HtmlArea
     private setEditorContent(textArea: TextArea, property: Property): void {
         const editorId: string = textArea.getId();
         const content: string = property.hasNonNullValue() ?
-                                    HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId()) : '';
+                                HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId()) : '';
 
         if (HtmlEditor.exists(editorId)) {
             const currentData: string = HtmlEditor.getData(editorId);
@@ -539,6 +541,16 @@ export class HtmlArea
         return ArrayHelper.findElementByFieldValue(this.editors, 'id', id);
     }
 
+    private getContentsLangDirection(): ContentsLangDirection {
+        const lang: string = this.getContext().formContext?.getLanguage();
+
+        if (lang && Locale.isRtlCode(lang)) {
+            return ContentsLangDirection.RTL;
+        }
+
+        return ContentsLangDirection.AUTO;
+    }
+
 }
 
 export interface HtmlAreaOccurrenceInfo {
@@ -549,7 +561,8 @@ export interface HtmlAreaOccurrenceInfo {
     hasStickyToolbar: boolean;
 }
 
-class TextAreaWrapper extends DivEl {
+class TextAreaWrapper
+    extends DivEl {
 
 
 }
