@@ -229,10 +229,6 @@ export class SettingsAppPanel
         return <ProjectWizardPanel[]>this.getPanels().filter(this.isProjectWizardPanel);
     }
 
-    private isSettingsItemWizardPanel(panel: Panel): boolean {
-        return ObjectHelper.iFrameSafeInstanceOf(panel, SettingsDataItemWizardPanel);
-    }
-
     private isProjectWizardPanel(panel: Panel): boolean {
         return ObjectHelper.iFrameSafeInstanceOf(panel, ProjectWizardPanel);
     }
