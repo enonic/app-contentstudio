@@ -404,6 +404,8 @@ class ContentWizardPanel extends Page {
             console.log("switched to content browse panel...");
             return await browsePanel.waitForGridLoaded(appConst.longTimeout);
         } catch (err) {
+            let screenshot = appConst.generateRandomName("err_switch");
+            await this.saveScreenshot(screenshot);
             throw new Error("Error when switching to Content Studio App " + err);
         }
     }
