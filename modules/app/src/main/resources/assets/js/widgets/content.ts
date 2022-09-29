@@ -36,7 +36,16 @@ const drawGraph = (activityDataObj: Object) => {
             scales: {
                 y: {
                     min: 0,
-                    suggestedMax: 10
+                    suggestedMax: 10,
+                    display: true,
+                    grid: {
+                        display: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
                 }
             },
             maintainAspectRatio: false,
