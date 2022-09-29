@@ -544,7 +544,7 @@ export class HtmlArea
     private getContentsLangDirection(): ContentsLangDirection {
         const lang: string = this.getContext().formContext?.getLanguage();
 
-        if (lang && Locale.isRtlCode(lang)) {
+        if (Locale.supportsRtl(lang)) {
             return ContentsLangDirection.RTL;
         }
 

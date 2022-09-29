@@ -110,9 +110,18 @@ export class TextComponentView
             }
         };
 
+        this.setTextDir();
         this.bindWindowFocusEvents();
 
         LiveEditPageDialogCreatedEvent.on(handleDialogCreated.bind(this));
+    }
+
+    private setTextDir(): void {
+        const contentsLangDirection: ContentsLangDirection = this.getContentsLangDirection();
+
+        if (contentsLangDirection === ContentsLangDirection.RTL) {
+            this.setDir(ContentsLangDirection.RTL);
+        }
     }
 
     private selectWhileEditing(): void {
@@ -432,8 +441,7 @@ export class TextComponentView
         this.addClass(id);
 
         if (!this.editorContainer) {
-            this.editorContainer = new DivEl('');
-            this.editorContainer.setContentEditable(true).getEl().setAttribute('id', this.getId() + '_editor');
+            this.editorContainer = this.createEditorContainer();
             this.appendChild(this.editorContainer);
         }
 
@@ -467,6 +475,13 @@ export class TextComponentView
                 this.selectWhileEditing();
             });
         });
+    }
+
+    private createEditorContainer(): Element {
+        const editorContainer: Element = new DivEl('').setContentEditable(true);
+        editorContainer.getEl().setAttribute('id', this.getId() + '_editor');
+
+        return editorContainer;
     }
 
     private handleEditorCreated() {
@@ -615,7 +630,7 @@ export class TextComponentView
     private getContentsLangDirection(): ContentsLangDirection {
         const lang: string = this.getContent().getLanguage();
 
-        if (lang && Locale.isRtlCode(lang)) {
+        if (Locale.supportsRtl(lang)) {
             return ContentsLangDirection.RTL;
         }
 
