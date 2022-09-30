@@ -16,7 +16,6 @@ import {FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityCh
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {FormState} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {GetApplicationRequest} from '../../resource/GetApplicationRequest';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class SiteConfiguratorSelectedOptionView
     extends BaseSelectedOptionView<Application> {
@@ -46,7 +45,6 @@ export class SiteConfiguratorSelectedOptionView
         this.application = option.getDisplayValue();
         this.siteConfig = siteConfig;
         this.formContext = formContext;
-        this.formContext.setFormState(new FormState(ObjectHelper.objectEquals(this.siteConfig.getConfig().toJson(), [])));
 
         this.setEditable(this.application.getForm()?.getFormItems().length > 0);
     }
@@ -145,7 +143,6 @@ export class SiteConfiguratorSelectedOptionView
 
         const okCallback = () => {
             if (!tempSiteConfig.equals(this.siteConfig)) {
-                this.formContext.setFormState(new FormState(false));
                 this.applyTemporaryConfig(tempSiteConfig);
                 new ContentRequiresSaveEvent(this.formContext.getPersistedContent().getContentId()).fire();
             }
@@ -201,7 +198,8 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     private createFormView(siteConfig: ApplicationConfig): FormView {
-        const formView: FormView = new FormView(this.formContext, this.application.getForm(), siteConfig.getConfig());
+        const context: ContentFormContext = <ContentFormContext>this.formContext.cloneBuilder().setFormState(new FormState(false)).build();
+        const formView: FormView = new FormView(context, this.application.getForm(), siteConfig.getConfig());
         formView.addClass('site-form');
 
         formView.onLayoutFinished(() => {
