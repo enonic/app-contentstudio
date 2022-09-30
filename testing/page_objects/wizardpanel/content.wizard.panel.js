@@ -374,8 +374,12 @@ class ContentWizardPanel extends Page {
     async hotKeyCloseWizard() {
         try {
             await this.pause(1000);
-            return await this.getBrowser().keys(['Alt', 'w']);
+            await this.getBrowser().keys(['Alt', 'w']);
+            await this.doSwitchToContentBrowsePanel();
         } catch (err) {
+            let screenshot = appConst.generateRandomName("err_hot_key");
+            await this.saveScreenshot(screenshot);
+            console.log("Alt+w hot key error:  " + err);
             return await this.doSwitchToContentBrowsePanel();
         }
     }
@@ -392,16 +396,18 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    doSwitchToContentBrowsePanel() {
-        console.log('testUtils:switching to Content Browse panel...');
-        let browsePanel = new BrowsePanel();
-        return this.getBrowser().switchWindow("Content Studio - Enonic XP Admin").then(() => {
+    async doSwitchToContentBrowsePanel() {
+        try {
+            console.log('testUtils:switching to Content Browse panel...');
+            let browsePanel = new BrowsePanel();
+            await this.getBrowser().switchWindow("Content Studio - Enonic XP Admin");
             console.log("switched to content browse panel...");
-        }).then(() => {
-            return browsePanel.waitForGridLoaded(appConst.longTimeout);
-        }).catch(err => {
+            return await browsePanel.waitForGridLoaded(appConst.longTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_switch");
+            await this.saveScreenshot(screenshot);
             throw new Error("Error when switching to Content Studio App " + err);
-        })
+        }
     }
 
     async waitForShowContextPanelButtonDisplayed() {
