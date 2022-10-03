@@ -48,15 +48,6 @@ import static org.mockito.Mockito.when;
 public class XDataContextResourceTest
     extends AdminResourceTestSupport
 {
-
-    private static final XDataName MY_XDATA_QUALIFIED_NAME_1 = XDataName.from( "myapplication:input_text_1" );
-
-    private static final String MY_MIXIN_INPUT_NAME_1 = "input_text_1";
-
-    private static final XDataName MY_XDATA_QUALIFIED_NAME_2 = XDataName.from( "myapplication:text_area_2" );
-
-    private static final String MY_MIXIN_INPUT_NAME_2 = "text_area_2";
-
     private MixinService mixinService;
 
     private XDataService xDataService;
@@ -105,33 +96,10 @@ public class XDataContextResourceTest
     public void getContentXDataMultipleConfig()
         throws Exception
     {
-        final XData xdata1 = XData.create()
-            .createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).toInstant( ZoneOffset.UTC ) )
-            .name( MY_XDATA_QUALIFIED_NAME_1 )
-            .addFormItem( Input.create()
-                              .name( MY_MIXIN_INPUT_NAME_1 )
-                              .inputType( InputTypeName.TEXT_LINE )
-                              .label( "Line Text 1" )
-                              .required( true )
-                              .helpText( "Help text line 1" )
-                              .required( true )
-                              .build() )
-            .build();
-
-        final ContentType contentType =
-            ContentType.create().name( "app:testContentType" ).superType( ContentTypeName.folder() ).xData( XDataNames.empty() ).build();
-
-        Mockito.when( contentTypeService.getByName( GetContentTypeParams.from( contentType.getName() ) ) ).thenReturn( contentType );
-        Mockito.when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( contentType ) );
-
-        final Content content = Mockito.mock( Content.class );
-        Mockito.when( content.getType() ).thenReturn( contentType.getName() );
-        Mockito.when( content.getId() ).thenReturn( ContentId.from( "contentId" ) );
-
-        final SiteConfig siteConfig =
-            SiteConfig.create().config( new PropertyTree() ).application( contentType.getName().getApplicationKey() ).build();
-
-        final Site site = Site.create().name( "site" ).parentPath( ContentPath.ROOT ).addSiteConfig( siteConfig ).build();
+        final XData xdata1 = generateXData1();
+        final ContentType contentType = mockContentType( XDataNames.empty() );
+        final Content content = mockContent( contentType.getName() );
+        final Site site = createSite( contentType.getName().getApplicationKey() );
 
         final SiteDescriptor siteDescriptor = SiteDescriptor.create()
             .xDataMappings( XDataMappings.from(
@@ -159,48 +127,11 @@ public class XDataContextResourceTest
     public void getContentXData()
         throws Exception
     {
-        final XData xdata1 = XData.create()
-            .createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).toInstant( ZoneOffset.UTC ) )
-            .name( MY_XDATA_QUALIFIED_NAME_1 )
-            .addFormItem( Input.create()
-                              .name( MY_MIXIN_INPUT_NAME_1 )
-                              .inputType( InputTypeName.TEXT_LINE )
-                              .label( "Line Text 1" )
-                              .required( true )
-                              .helpText( "Help text line 1" )
-                              .required( true )
-                              .build() )
-            .build();
-
-        final XData xdata2 = XData.create()
-            .createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).toInstant( ZoneOffset.UTC ) )
-            .name( MY_XDATA_QUALIFIED_NAME_2 )
-            .addFormItem( Input.create()
-                              .name( MY_MIXIN_INPUT_NAME_2 )
-                              .inputType( InputTypeName.TEXT_AREA )
-                              .label( "Text Area" )
-                              .required( true )
-                              .helpText( "Help text area" )
-                              .required( true )
-                              .build() )
-            .build();
-
-        final ContentType contentType = ContentType.create()
-            .name( "app:testContentType" )
-            .superType( ContentTypeName.folder() )
-            .xData( XDataNames.from( xdata1.getName().toString() ) )
-            .build();
-        Mockito.when( contentTypeService.getByName( GetContentTypeParams.from( contentType.getName() ) ) ).thenReturn( contentType );
-        Mockito.when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( contentType ) );
-
-        final Content content = Mockito.mock( Content.class );
-        Mockito.when( content.getType() ).thenReturn( contentType.getName() );
-        Mockito.when( content.getId() ).thenReturn( ContentId.from( "contentId" ) );
-
-        final SiteConfig siteConfig =
-            SiteConfig.create().config( new PropertyTree() ).application( contentType.getName().getApplicationKey() ).build();
-
-        final Site site = Site.create().name( "site" ).parentPath( ContentPath.ROOT ).addSiteConfig( siteConfig ).build();
+        final XData xdata1 = generateXData1();
+        final XData xdata2 = generateXData2();
+        final ContentType contentType = mockContentType( XDataNames.from( xdata1.getName().toString() ) );
+        final Content content = mockContent( contentType.getName() );
+        final Site site = createSite( contentType.getName().getApplicationKey() );
 
         final SiteDescriptor siteDescriptor = SiteDescriptor.create()
             .xDataMappings( XDataMappings.from(
@@ -226,46 +157,37 @@ public class XDataContextResourceTest
     }
 
     @Test
+    public void getContentXDataNoSiteDescriptor()
+        throws Exception
+    {
+        final XData xdata1 = generateXData1();
+        final ContentType contentType = mockContentType( XDataNames.from( xdata1.getName().toString() ) );
+        final Content content = mockContent( contentType.getName() );
+        final Site site = createSite( contentType.getName().getApplicationKey() );
+
+        Mockito.when( siteService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( null );
+
+        Mockito.when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
+        Mockito.when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
+
+        Mockito.when( mixinService.getByNames( Mockito.any() ) ).thenReturn( Mixins.empty() );
+        Mockito.when( xDataService.getByNames( XDataNames.from( xdata1.getName() ) ) ).thenReturn( XDatas.from( xdata1 ) );
+
+        String result =
+            request().path( "cms/default/content/schema/xdata/getContentXData" ).queryParam( "contentId", "contentId" ).get().getAsString();
+
+        assertJson( "get_content_x_data_no_site_descriptor.json", result );
+    }
+
+    @Test
     public void getProjectXData()
         throws Exception
     {
-        final XData xdata1 = XData.create()
-            .createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).toInstant( ZoneOffset.UTC ) )
-            .name( MY_XDATA_QUALIFIED_NAME_1 )
-            .addFormItem( Input.create()
-                              .name( MY_MIXIN_INPUT_NAME_1 )
-                              .inputType( InputTypeName.TEXT_LINE )
-                              .label( "Line Text 1" )
-                              .required( true )
-                              .helpText( "Help text line 1" )
-                              .required( true )
-                              .build() )
-            .build();
+        final XData xdata1 = generateXData1();
+        final XData xdata2 = generateXData2();
 
-        final XData xdata2 = XData.create()
-            .createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).toInstant( ZoneOffset.UTC ) )
-            .name( MY_XDATA_QUALIFIED_NAME_2 )
-            .addFormItem( Input.create()
-                              .name( MY_MIXIN_INPUT_NAME_2 )
-                              .inputType( InputTypeName.TEXT_AREA )
-                              .label( "Text Area" )
-                              .required( true )
-                              .helpText( "Help text area" )
-                              .required( true )
-                              .build() )
-            .build();
-
-        final ContentType contentType = ContentType.create()
-            .name( "app:testContentType" )
-            .superType( ContentTypeName.folder() )
-            .xData( XDataNames.from( xdata1.getName().toString() ) )
-            .build();
-        Mockito.when( contentTypeService.getByName( GetContentTypeParams.from( contentType.getName() ) ) ).thenReturn( contentType );
-        Mockito.when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( contentType ) );
-
-        final Content content = Mockito.mock( Content.class );
-        Mockito.when( content.getType() ).thenReturn( contentType.getName() );
-        Mockito.when( content.getId() ).thenReturn( ContentId.from( "contentId" ) );
+        final ContentType contentType = mockContentType( XDataNames.from( xdata1.getName().toString() ) );
+        final Content content = mockContent( contentType.getName() );
 
         final SiteDescriptor siteDescriptor = SiteDescriptor.create()
             .xDataMappings( XDataMappings.from(
@@ -297,4 +219,64 @@ public class XDataContextResourceTest
         assertJson( "get_content_x_data.json", result );
     }
 
+    private XData generateXData1()
+    {
+        return XData.create()
+            .createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).toInstant( ZoneOffset.UTC ) )
+            .name( XDataName.from( "myapplication:input_text_1" ) )
+            .addFormItem( Input.create()
+                              .name( "input_text_1" )
+                              .inputType( InputTypeName.TEXT_LINE )
+                              .label( "Line Text 1" )
+                              .required( true )
+                              .helpText( "Help text line 1" )
+                              .required( true )
+                              .build() )
+            .build();
+    }
+
+    private XData generateXData2()
+    {
+        return XData.create()
+            .createdTime( LocalDateTime.of( 2013, 1, 1, 12, 0, 0 ).toInstant( ZoneOffset.UTC ) )
+            .name( XDataName.from( "myapplication:text_area_2" ) )
+            .addFormItem( Input.create()
+                              .name( "text_area_2" )
+                              .inputType( InputTypeName.TEXT_AREA )
+                              .label( "Text Area" )
+                              .required( true )
+                              .helpText( "Help text area" )
+                              .required( true )
+                              .build() )
+            .build();
+    }
+
+    private Content mockContent( final ContentTypeName contentTypeName )
+    {
+        final Content content = Mockito.mock( Content.class );
+        Mockito.when( content.getType() ).thenReturn(contentTypeName );
+        Mockito.when( content.getId() ).thenReturn( ContentId.from( "contentId" ) );
+        return content;
+    }
+
+    private ContentType mockContentType( final XDataNames xDataNames )
+    {
+        final ContentType contentType = ContentType.create()
+            .name( "app:testContentType" )
+            .superType( ContentTypeName.folder() )
+            .xData( xDataNames )
+            .build();
+        Mockito.when( contentTypeService.getByName( GetContentTypeParams.from( contentType.getName() ) ) ).thenReturn( contentType );
+        Mockito.when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( contentType ) );
+
+        return contentType;
+    }
+
+    private Site createSite( final ApplicationKey applicationKey )
+    {
+        final SiteConfig siteConfig =
+            SiteConfig.create().config( new PropertyTree() ).application( applicationKey ).build();
+
+        return Site.create().name( "site" ).parentPath( ContentPath.ROOT ).addSiteConfig( siteConfig ).build();
+    }
 }
