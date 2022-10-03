@@ -244,6 +244,7 @@ export class MoveContentDialog
     open(reset: boolean = true) {
         if (reset && !this.progressManager.isEnabled()) {
             this.destinationSearchInput.clearCombobox();
+            this.destinationSearchInput.getLoader().resetParams();
         }
         super.open();
     }
