@@ -59,4 +59,10 @@ export class ListByIdSelectorRequest<DATA extends ContentTreeSelectorItem>
         this.metadata = new ResultMetadata(0, 0);
         return [];
     }
+
+    resetParams() {
+        super.resetParams();
+        this.content = null;
+        this.childOrder = null;
+    }
 }
