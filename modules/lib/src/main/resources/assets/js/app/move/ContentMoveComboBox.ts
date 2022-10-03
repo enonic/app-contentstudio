@@ -4,7 +4,7 @@ import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
 import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentSummaryViewer} from '../content/ContentSummaryViewer';
+import {ContentTreeSelectorItemViewer} from '../item/ContentTreeSelectorItemViewer';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentPath} from '../content/ContentPath';
 
@@ -22,7 +22,7 @@ export class ContentMoveComboBox
             .setComboBoxName('contentSelector')
             .setLoader(ContentSummaryOptionDataLoader.create().setSmartTreeMode(false).build())
             .setSelectedOptionsView(<SelectedOptionsView<ContentTreeSelectorItem>>new ContentSelectedOptionsView())
-            .setOptionDisplayValueViewer(new ContentSummaryViewer())
+            .setOptionDisplayValueViewer(new ContentTreeSelectorItemViewer())
             .setDelayedInputValueChangedHandling(500)
             .setSkipAutoDropShowOnValueChange(true)
             .setTreegridDropdownEnabled(true)
