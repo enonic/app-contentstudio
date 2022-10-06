@@ -322,17 +322,16 @@ export class ContentWizardPanel
                 this.handleAppChange();
                 return;
             }
+
             (force ? Q.resolve(true) : this.checkIfAppsHaveDescriptors(applicationKeys))
                 .then((appsHaveDescriptors: boolean) => appsHaveDescriptors ? this.saveChanges() : Q.resolve())
                 .then(this.handleAppChange)
                 .finally(() => applicationKeys = []);
         };
-        const debouncedSaveOnAppChange = AppHelper.debounce(saveOnAppChange, 300);
 
         this.applicationAddedListener = (event: ApplicationAddedEvent) => {
             this.addXDataStepForms(event.getApplicationKey());
             applicationKeys.push(event.getApplicationKey());
-            debouncedSaveOnAppChange();
         };
 
         this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {

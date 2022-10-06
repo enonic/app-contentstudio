@@ -12,11 +12,11 @@ import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationCon
 export class SiteConfiguratorSelectedOptionsView
     extends BaseSelectedOptionsView<Application> {
 
-    private siteConfigProvider: ApplicationConfigProvider;
+    private readonly siteConfigProvider: ApplicationConfigProvider;
 
     private siteConfigFormDisplayedListeners: { (applicationKey: ApplicationKey, formView: FormView): void }[] = [];
 
-    private formContext: ContentFormContext;
+    private readonly formContext: ContentFormContext;
 
     private items: SiteConfiguratorSelectedOptionView[] = [];
 
@@ -54,8 +54,15 @@ export class SiteConfiguratorSelectedOptionsView
     }
 
     createSelectedOption(option: Option<Application>): SelectedOption<Application> {
-        const siteConfig: ApplicationConfig = this.siteConfigProvider.getConfig(option.getDisplayValue().getApplicationKey());
-        const optionView: SiteConfiguratorSelectedOptionView = new SiteConfiguratorSelectedOptionView(option, siteConfig, this.formContext);
+        const key: ApplicationKey = option.getDisplayValue().getApplicationKey();
+        const existingConfig: ApplicationConfig = this.siteConfigProvider.getConfig(key, false);
+        const siteConfig: ApplicationConfig = existingConfig || this.siteConfigProvider.getConfig(key, true);
+        const optionView: SiteConfiguratorSelectedOptionView = new SiteConfiguratorSelectedOptionView({
+            option: option,
+            siteConfig: siteConfig,
+            formContext: this.formContext,
+            saveOnLayout: !existingConfig
+        });
 
         optionView.setReadonly(this.readonly);
 
