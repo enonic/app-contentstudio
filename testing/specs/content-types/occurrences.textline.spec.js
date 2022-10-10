@@ -74,7 +74,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             let textLine = new TextLine();
             let wizardVersionsWidget = new WizardVersionsWidget();
             let wizardDetailsPanel = new WizardDetailsPanel();
-            //1. Open existing textline:
+            //1. Open existing text-line content:
             await studioUtils.selectAndOpenContentInWizard(TEXTLINE_0_1);
             //2. Verify the text in the input:
             let result1 = await textLine.getTexLineValues();

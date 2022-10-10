@@ -30,10 +30,26 @@ class BaseVersionsWidget extends Page {
         return items.length;
     }
 
+    async waitForPermissionsUpdatedItemDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.permissionsUpdatedItems, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_perm_updated");
+            await this.saveScreenshot(screenshot);
+            throw new Error("'Permissions updated' items are not displayed in the widget, screenshot: " + screenshot + " " + err);
+        }
+    }
+
     async countPermissionsUpdatedItems() {
-        await this.waitForElementDisplayed(this.permissionsUpdatedItems, appConst.mediumTimeout)
-        let items = await this.findElements(this.permissionsUpdatedItems);
-        return items.length;
+        try {
+            await this.waitForPermissionsUpdatedItemDisplayed();
+            let items = await this.findElements(this.permissionsUpdatedItems);
+            return items.length;
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_perm_updated");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error when counting 'Permissions updated' items, screenshot: " + screenshot + " " + err);
+        }
     }
 
     async countSortedItems() {
@@ -45,6 +61,12 @@ class BaseVersionsWidget extends Page {
     async countPublishedItems() {
         await this.waitForElementDisplayed(this.publishedItems, appConst.mediumTimeout)
         let items = await this.findElements(this.publishedItems);
+        return items.length;
+    }
+
+    async countMarkedAsReadyItems() {
+        await this.waitForElementDisplayed(this.markedAsReadyItems, appConst.mediumTimeout)
+        let items = await this.findElements(this.markedAsReadyItems);
         return items.length;
     }
 
@@ -154,7 +176,8 @@ class BaseVersionsWidget extends Page {
             await this.clickOnElement(this.revertButton);
             return await this.pause(2000);
         } catch (err) {
-            throw new Error("Version Widget - error when clicking on 'Revert' button " + err);
+            let screenshot = appConst.generateRandomName("err_revert_btn");
+            throw new Error("Version Widget - error when clicking on 'Revert' button, screenshot: " + screenshot + " " + err);
         }
     }
 
