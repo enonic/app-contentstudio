@@ -280,8 +280,8 @@ export class CompareContentVersionsDialog
         return this;
     }
 
-    setLeftVersion(versionId: string): CompareContentVersionsDialog {
-        this.leftVersionId = versionId;
+    setLeftVersion(version: VersionHistoryItem): CompareContentVersionsDialog {
+        this.leftVersionId = `${version.getId()}:${version.getStatus()}`;
         return this;
     }
 
@@ -342,10 +342,10 @@ export class CompareContentVersionsDialog
                 // init latest versions by default if nothing is set
                 const newestVersionOption: Option<VersionHistoryItem> = this.getNewestVersionOption(options);
                 if (!this.leftVersionId) {
-                    this.leftVersionId = newestVersionOption.getDisplayValue().getId();
+                    this.leftVersionId = newestVersionOption.getValue();
                 }
                 if (!this.rightVersionId) {
-                    this.rightVersionId = newestVersionOption.getDisplayValue().getId();
+                    this.rightVersionId = newestVersionOption.getValue();
                 }
 
                 const leftAliases: Option<VersionHistoryItem>[] =
@@ -406,9 +406,9 @@ export class CompareContentVersionsDialog
                 dropdown.selectOption(alias, true);
                 // update version with new alias id
                 if (isLeft) {
-                    this.leftVersionId = alias.getDisplayValue().getId();
+                    this.leftVersionId = alias.getValue();
                 } else {
-                    this.rightVersionId = alias.getDisplayValue().getId();
+                    this.rightVersionId = alias.getValue();
                 }
             }
         });
@@ -515,7 +515,7 @@ export class CompareContentVersionsDialog
     private createAliasOption(version: VersionHistoryItem, alias: string, type: AliasType): Option<VersionHistoryItem> {
         const versionId: string = version.getId();
         let counter: number = this.versionIdCounters[versionId] || 0;
-        const aliasId: string = `alias|${versionId}|${++counter}`;
+        const aliasId: string = `${versionId}:alias|${++counter}`;
         this.versionIdCounters[versionId] = counter;
 
         const aliasVersionItem: VersionHistoryItem = version.createAlias(alias, type);
@@ -524,7 +524,7 @@ export class CompareContentVersionsDialog
     }
 
     private createOption(version: VersionHistoryItem): Option<VersionHistoryItem> {
-        return this.doCreateOption(version.getId(), version);
+        return this.doCreateOption(`${version.getId()}:${version.getStatus()}`, version);
     }
 
     private doCreateOption(value: string, version: VersionHistoryItem): Option<VersionHistoryItem> {
@@ -569,15 +569,16 @@ export class CompareContentVersionsDialog
     }
 
     private leftVersionRequiresForcedSelection() {
-        const leftTime = this.leftDropdown.getSelectedOption().getDisplayValue().getContentVersion().getTimestamp();
-        const rightTime = this.rightDropdown.getSelectedOption().getDisplayValue().getContentVersion().getTimestamp();
+        const leftTime: Date = this.leftDropdown.getSelectedOption().getDisplayValue().getContentVersion().getTimestamp();
+        const rightTime: Date = this.rightDropdown.getSelectedOption().getDisplayValue().getContentVersion().getTimestamp();
 
         return leftTime.getTime() > rightTime.getTime();
     }
 
     private forceSelectVersion(dropdown: Dropdown<VersionHistoryItem>, versionId: string, silent?: boolean) {
-        const newOption = dropdown.getOptionByValue(versionId);
-        const selectedValue = dropdown.getValue();
+        const newOption: Option<VersionHistoryItem> = dropdown.getOptionByValue(versionId);
+        const selectedValue: string = dropdown.getValue();
+
         if (!!newOption && versionId !== selectedValue) {
             dropdown.selectOption(newOption, silent);
         }
@@ -665,8 +666,8 @@ export class CompareContentVersionsDialog
     }
 
     private displayDiff(): Q.Promise<void> {
-        const leftVersionId = this.leftVersionId;
-        const rightVersionId = this.rightVersionId;
+        const leftVersionId: string = this.leftVersionId.split(':')[0];
+        const rightVersionId: string = this.rightVersionId.split(':')[0];
 
         const promises = [
             this.fetchVersionPromise(leftVersionId)

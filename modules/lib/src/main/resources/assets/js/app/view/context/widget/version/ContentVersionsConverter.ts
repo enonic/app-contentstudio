@@ -1,5 +1,5 @@
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {ContentVersion} from '../../../../ContentVersion';
+import {ContentVersion, ContentVersionBuilder} from '../../../../ContentVersion';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {CreateParams, VersionHistoryItem} from './VersionHistoryItem';
 import {ContentVersions} from '../../../../ContentVersions';
@@ -7,31 +7,67 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentVersionsConverter {
 
+    private static FILTER_STEP_MS: number = 500;
+
     private readonly content: ContentSummaryAndCompareStatus;
 
-    private readonly contentVersions: ContentVersions;
+    private readonly allContentVersions: ContentVersions;
+
+    private readonly filteredVersions: ContentVersion[];
 
     private lastDate: string;
 
     constructor(builder: Builder) {
         this.content = builder.content;
-        this.contentVersions = builder.contentVersions;
+        this.allContentVersions = builder.contentVersions;
+        this.allContentVersions.get().sort(this.sortByDate);
+        this.filteredVersions = this.filterSameVersions();
+    }
+
+    private sortByDate(v1: ContentVersion, v2: ContentVersion): number {
+        return Number(v2.getDisplayDate()) - Number(v1.getDisplayDate());
     }
 
     toVersionHistoryItems(): VersionHistoryItem[] {
-        this.sortByDate();
-        return this.convert();
-    }
+        const result: VersionHistoryItem[] = [];
 
-    private sortByDate(): void {
-        this.contentVersions.get().sort((v1: ContentVersion, v2: ContentVersion) => {
-            return Number(v2.getDisplayDate()) - Number(v1.getDisplayDate());
+        this.filteredVersions.forEach((version: ContentVersion, index: number) => {
+            const item: VersionHistoryItem = this.versionToHistoryItem(version, index);
+            result.push(item);
+
+            if (this.isSameVersionForDraftAndMaster(version)) {
+                result.push(this.createHistoryItemFromVersion(version));
+            }
         });
+
+        return result;
     }
 
-    private convert(): VersionHistoryItem[] {
-        return this.contentVersions.get().map(
-            (version: ContentVersion, index: number) => this.versionToHistoryItem(version, index));
+    private filterSameVersions(): ContentVersion[] {
+        const filteredVersions: ContentVersion[] = [];
+        let previousVersion: ContentVersion = null;
+
+        this.allContentVersions.get().forEach((version: ContentVersion) => {
+            if (!previousVersion || !!version.getPublishInfo() || this.isSeparateVersion(version, previousVersion)) {
+                previousVersion = version;
+                filteredVersions.push(version);
+            }
+        });
+
+        return filteredVersions;
+    }
+
+    private isSeparateVersion(v1: ContentVersion, v2: ContentVersion): boolean {
+        return Math.abs(v1.getTimestamp().getTime() - v2.getTimestamp().getTime()) > ContentVersionsConverter.FILTER_STEP_MS;
+    }
+
+    private isSameVersionForDraftAndMaster(publishedVersion: ContentVersion): boolean {
+        if (!publishedVersion.getPublishInfo()) {
+            return false;
+        }
+
+        return this.getPreviousVersion(publishedVersion)?.hasPublishInfo() || publishedVersion.getTimestamp().getTime() -
+               publishedVersion.getModified().getTime() < ContentVersionsConverter.FILTER_STEP_MS;
     }
 
     private versionToHistoryItem(version: ContentVersion, index: number): VersionHistoryItem {
@@ -39,7 +75,7 @@ export class ContentVersionsConverter {
             return this.createHistoryItemFromPublishInfo(version, index);
         }
 
-        return this.createHistoryItemFromVersion(version, index);
+        return this.createHistoryItemFromVersion(version);
     }
 
     private createHistoryItemFromPublishInfo(version: ContentVersion, index: number): VersionHistoryItem {
@@ -64,7 +100,7 @@ export class ContentVersionsConverter {
 
         const publishedFrom: string = DateHelper.formatDateTime(version.getPublishInfo().getPublishedFrom());
 
-        return this.contentVersions.get().some((v: ContentVersion, i: number) => {
+        return this.filteredVersions.some((v: ContentVersion, i: number) => {
             if (i <= index || !v.isPublished()) {
                 return false;
             }
@@ -74,11 +110,11 @@ export class ContentVersionsConverter {
         });
     }
 
-    private createHistoryItemFromVersion(version: ContentVersion, index: number): VersionHistoryItem {
-        const timestampAsString: string = this.getVersionTimestampAsString(version, index);
+    private createHistoryItemFromVersion(version: ContentVersion): VersionHistoryItem {
+        const timestampAsString: string = this.getVersionTimestampAsString(version);
 
         const item: VersionHistoryItem = VersionHistoryItem
-            .fromContentVersion(version, this.createHistoryItemsParams(version, index))
+            .fromContentVersion(version, this.createHistoryItemsParams(version))
             .setSkipDate(timestampAsString === this.lastDate)
             .setContentId(this.content.getContentId())
             .build();
@@ -88,24 +124,25 @@ export class ContentVersionsConverter {
         return item;
     }
 
-    private getVersionTimestampAsString(version: ContentVersion, index: number): string {
-        const isFirstVersion: boolean = index === this.getLastItemIndex();
+    private getVersionTimestampAsString(version: ContentVersion): string {
+        const isFirstVersion: boolean = version === this.getFirstVersion();
         const timestamp: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getTimestamp();
         return DateHelper.formatDate(timestamp);
     }
 
-    private getLastItemIndex(): number {
-        return this.contentVersions.get().length - 1;
+    private getFirstVersion(): ContentVersion {
+        return this.filteredVersions.slice().pop();
     }
 
-    private createHistoryItemsParams(version: ContentVersion, index: number): CreateParams {
-        const isFirstVersion: boolean = index === this.getLastItemIndex();
+    private createHistoryItemsParams(version: ContentVersion): CreateParams {
+        const isFirstVersion: boolean = version === this.getFirstVersion();
         const timestamp: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getTimestamp();
-        const previousVersion: ContentVersion = this.contentVersions.get()[index + 1];
+        const previousVersion: ContentVersion = this.getPreviousVersion(version);
 
         const isNonDataChange: boolean = !isFirstVersion &&
-            !ContentVersion.equalDates(version.getTimestamp(), version.getModified(), 200);
-        const isMove: boolean = isNonDataChange && !ObjectHelper.stringEquals(version.getPath(), previousVersion?.getPath());
+                                         !ContentVersion.equalDates(version.getTimestamp(), version.getModified(), 200);
+        const isMove: boolean = !ObjectHelper.stringEquals(version.getPath(), previousVersion?.getPath()) &&
+                                (isNonDataChange || previousVersion?.hasPublishInfo());
         const isSort: boolean = !ObjectHelper.equals(version.getChildOrder(), previousVersion?.getChildOrder());
         const isPermissionsChange: boolean = isNonDataChange && this.isPermissionChange(version, previousVersion);
 
@@ -117,6 +154,21 @@ export class ContentVersionsConverter {
         };
 
         return createParams;
+    }
+
+    private getPreviousVersion(version: ContentVersion): ContentVersion {
+        let previousVersion: ContentVersion = null;
+
+        this.filteredVersions.some((v: ContentVersion, index: number) => {
+            if (version === v) {
+                previousVersion = this.filteredVersions[index + 1];
+                return true;
+            }
+
+            return false;
+        });
+
+        return previousVersion;
     }
 
     private isPermissionChange(version: ContentVersion, previousVersion: ContentVersion): boolean {
