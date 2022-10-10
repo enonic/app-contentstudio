@@ -138,7 +138,7 @@ export class VersionHistoryListItem
         CompareContentVersionsDialog.get()
             .setContent(this.content)
             .setReadOnly(this.content.isReadOnly())
-            .setLeftVersion(this.version.getId())
+            .setLeftVersion(this.version)
             .resetRightVersion()
             .setRevertVersionCallback(this.revert.bind(this))
             .open();
