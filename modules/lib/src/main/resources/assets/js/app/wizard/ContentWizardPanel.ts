@@ -143,6 +143,7 @@ import {Workflow} from '../content/Workflow';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {ContentTabBarItem} from './ContentTabBarItem';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -223,7 +224,7 @@ export class ContentWizardPanel
 
     private dataChangedListeners: { (): void } [];
 
-    private applicationAddedListener: (event: ApplicationAddedEvent) => void;
+    private applicationAddedListener: (applicationConfig: ApplicationConfig) => void;
 
     private applicationRemovedListener: (event: ApplicationRemovedEvent) => void;
 
@@ -329,10 +330,16 @@ export class ContentWizardPanel
                 .finally(() => applicationKeys = []);
         };
 
-        this.applicationAddedListener = (event: ApplicationAddedEvent) => {
-            this.addXDataStepForms(event.getApplicationKey());
-            applicationKeys.push(event.getApplicationKey());
+        const debouncedSaveOnAppChange = AppHelper.debounce(saveOnAppChange, 300);
+
+        this.applicationAddedListener = (applicationConfig: ApplicationConfig) => {
+            this.addXDataStepForms(applicationConfig.getApplicationKey());
+            applicationKeys.push(applicationConfig.getApplicationKey());
         };
+
+        ApplicationAddedEvent.on(() => {
+            debouncedSaveOnAppChange();
+        });
 
         this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
             this.removeXDataStepForms(event.getApplicationKey())

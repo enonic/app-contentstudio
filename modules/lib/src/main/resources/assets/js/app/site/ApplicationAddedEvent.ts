@@ -1,11 +1,15 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 
-export class ApplicationAddedEvent {
+export class ApplicationAddedEvent
+    extends Event {
 
-    private applicationConfig: ApplicationConfig;
+    private readonly applicationConfig: ApplicationConfig;
 
     constructor(applicationConfig: ApplicationConfig) {
+        super();
         this.applicationConfig = applicationConfig;
     }
 
@@ -15,5 +19,13 @@ export class ApplicationAddedEvent {
 
     getApplicationConfig(): ApplicationConfig {
         return this.applicationConfig;
+    }
+
+    static on(handler: (event: ApplicationAddedEvent) => void) {
+        Event.bind(ClassHelper.getFullName(this), handler);
+    }
+
+    static un(handler?: (event: ApplicationAddedEvent) => void) {
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

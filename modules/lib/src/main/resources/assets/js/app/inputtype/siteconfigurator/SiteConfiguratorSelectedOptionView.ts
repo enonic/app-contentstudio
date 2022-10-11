@@ -10,13 +10,14 @@ import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationCon
 import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
 import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 import {ContentFormContext} from '../../ContentFormContext';
-import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {FormState} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {GetApplicationRequest} from '../../resource/GetApplicationRequest';
-import {ContentId} from '../../content/ContentId';
+import {ApplicationAddedEvent} from '../../site/ApplicationAddedEvent';
+import {Property} from '@enonic/lib-admin-ui/data/Property';
+import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 
 export interface SiteConfiguratorSelectedOptionViewParams {
     option: Option<Application>,
@@ -129,7 +130,6 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     showConfigureDialog() {
-
         if (this.formView) {
             this.formViewStateOnDialogOpen = this.formView;
             this.unbindValidationEvent(this.formViewStateOnDialogOpen);
@@ -182,13 +182,11 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     private save(): void {
-        const contentId: ContentId = this.formContext.getPersistedContent().getContentId();
-
         if (this.isConfigChanged()) {
             this.applyTemporaryConfig(this.tempSiteConfig);
-            new ContentRequiresSaveEvent(contentId).fire();
+            new ApplicationAddedEvent(this.siteConfig).fire();
         } else if (!this.configureDialog) {
-            new ContentRequiresSaveEvent(contentId).fire();
+            new ApplicationAddedEvent(this.siteConfig).fire();
         }
     }
 
@@ -209,11 +207,13 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     private applyTemporaryConfig(tempSiteConfig: ApplicationConfig) {
-        tempSiteConfig.getConfig().forEach((property) => {
+        tempSiteConfig.getConfig().forEach((property: Property) => {
             this.siteConfig.getConfig().setProperty(property.getName(), property.getIndex(), property.getValue());
         });
-        this.siteConfig.getConfig().forEach((property) => {
-            let prop = tempSiteConfig.getConfig().getProperty(property.getName(), property.getIndex());
+
+        this.siteConfig.getConfig().forEach((property: Property) => {
+            const prop: Property = tempSiteConfig.getConfig().getProperty(property.getName(), property.getIndex());
+
             if (!prop) {
                 this.siteConfig.getConfig().removeProperty(property.getName(), property.getIndex());
             }
@@ -221,7 +221,7 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     private makeTemporarySiteConfig(): ApplicationConfig {
-        let propSet = (new PropertyTree(this.siteConfig.getConfig())).getRoot();
+        const propSet: PropertySet = (new PropertyTree(this.siteConfig.getConfig())).getRoot();
         return ApplicationConfig.create().setConfig(propSet).setApplicationKey(this.siteConfig.getApplicationKey()).build();
     }
 

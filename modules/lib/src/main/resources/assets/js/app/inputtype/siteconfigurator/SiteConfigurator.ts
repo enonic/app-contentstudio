@@ -101,7 +101,7 @@ export class SiteConfigurator
                 <SiteConfiguratorSelectedOptionView>this.selectOptionFromProperty(property)?.getOptionView());
 
             const updatePromises = selectedOptionViews.filter(view => !!view).map((view, index) => {
-                const configSet = propertyArray.get(index).getPropertySet().getProperty('config').getPropertySet();
+                const configSet = propertyArray.get(index).getPropertySet().getProperty(ApplicationConfig.PROPERTY_CONFIG).getPropertySet();
                 return view.getFormView().update(configSet, unchangedOnly);
             });
 
@@ -128,9 +128,8 @@ export class SiteConfigurator
 
         this.comboBox.getSelectedOptionViews().forEach(oldView => {
             const haveToDeselect = !newPropertyArray.some(property => {
-                const key = property.getPropertySet().getProperty('applicationKey').getValue().getString();
+                const key = property.getPropertySet().getProperty(ApplicationConfig.PROPERTY_KEY).getValue().getString();
                 return SiteConfigurator.optionViewToKey(oldView) === key;
-
             });
 
             if (haveToDeselect) {
@@ -140,7 +139,7 @@ export class SiteConfigurator
     }
 
     private selectOptionFromProperty(property: Property): SelectedOption<Application> {
-        const key = property.getPropertySet().getProperty('applicationKey').getValue().getString();
+        const key = property.getPropertySet().getProperty(ApplicationConfig.PROPERTY_KEY).getValue().getString();
         const selectedOptions: SiteConfiguratorSelectedOptionView[] = this.comboBox.getSelectedOptionViews();
         const alreadySelected = selectedOptions.some(option => SiteConfigurator.optionViewToKey(option) === key);
         if (!alreadySelected) {
@@ -159,8 +158,8 @@ export class SiteConfigurator
         let config = siteConfig.getConfig();
         let appKey = siteConfig.getApplicationKey();
 
-        propertySet.setStringByPath('applicationKey', appKey.toString());
-        propertySet.setPropertySetByPath('config', config);
+        propertySet.setStringByPath(ApplicationConfig.PROPERTY_KEY, appKey.toString());
+        propertySet.setPropertySetByPath(ApplicationConfig.PROPERTY_CONFIG, config);
     }
 
     protected getValueFromPropertyArray(propertyArray: PropertyArray): string {
@@ -205,8 +204,8 @@ export class SiteConfigurator
             const view: SiteConfiguratorSelectedOptionView = <SiteConfiguratorSelectedOptionView>selectedOption.getOptionView();
 
             const propertyArray: PropertyArray = this.getPropertyArray();
-            const configSet: PropertySet =
-                propertyArray.get(selectedOption.getIndex()).getPropertySet().getProperty('config').getPropertySet();
+            const configSet: PropertySet = propertyArray.get(selectedOption.getIndex()).getPropertySet().getProperty(
+                ApplicationConfig.PROPERTY_CONFIG).getPropertySet();
 
             view.whenRendered(() => {
                 view.getFormView().update(configSet, false);
