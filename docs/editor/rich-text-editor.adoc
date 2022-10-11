@@ -53,7 +53,7 @@ A caption and alt text can be entered at the bottom of the modal dialog. A doubl
 
 === Insert macro
 
-This button opens the Insert Macro dialog, which contains a selector for choosing a macro. Macros allow all sorts of things to be inserted into the input, such as iframes, YouTube videos, Twitter Tweets, etc. There two built-in macros and others can be added with applications. Once a macro is selected, a form appears with inputs for the macro’s configuration settings. A double click on a macro inside the Editor will open the modal dialog for editing properties of the macro.
+This button opens the Insert Macro dialog, which contains a selector for choosing a macro. Macros allow all sorts of things to be inserted into the input, such as iframes, YouTube videos, Twitter Tweets, etc. There are two built-in macros and others can be added with applications. Once a macro is selected, a form appears with inputs for the macro’s configuration settings. A double click on a macro inside the Editor will open the modal dialog for editing properties of the macro.
 
 === Insert/Edit Link
 
