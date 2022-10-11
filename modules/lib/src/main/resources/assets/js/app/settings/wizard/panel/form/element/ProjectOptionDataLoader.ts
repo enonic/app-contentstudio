@@ -9,6 +9,8 @@ import {ProjectListWithMissingRequest} from '../../../../resource/ProjectListWit
 export class ProjectOptionDataLoader
     extends OptionDataLoader<Project> {
 
+    private modeChangeListener: (isTreeMode: boolean) => void;
+
     protected createRequest(): ProjectListWithMissingRequest {
         return new ProjectListWithMissingRequest();
     }
@@ -59,7 +61,15 @@ export class ProjectOptionDataLoader
     }
 
     onLoadModeChanged(listener: (isTreeMode: boolean) => void) {
-        listener(true);
+        if (!this.modeChangeListener) {
+            this.modeChangeListener = listener;
+        }
+
+        this.modeChangeListener(true);
+    }
+
+    notifyModeChange(isTreeMode: boolean): void {
+        this.modeChangeListener(isTreeMode);
     }
 
     unLoadModeChanged(listener: (isTreeMode: boolean) => void): any {

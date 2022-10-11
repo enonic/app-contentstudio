@@ -24,10 +24,19 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         this.projectsChainBlock = new ProjectsChainBlock();
         this.helper = builder.optionDataHelper;
 
-        this.getLoader().onLoadedData(() => {
+        this.initListeners();
+    }
+
+    private initListeners(): void {
+        const loader: ProjectOptionDataLoader = <ProjectOptionDataLoader>this.getLoader();
+
+        loader.onLoadedData(() => {
+            const isFlatList: boolean = this.isFlatList();
             this.helper.setProjects(this.getLoadedResults());
-            this.toggleClass('flat', this.isFlatList());
-            return Q(null);
+            this.toggleClass('flat', isFlatList);
+            loader.notifyModeChange(!isFlatList);
+
+            return Q.resolve();
         });
     }
 
