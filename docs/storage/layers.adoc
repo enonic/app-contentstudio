@@ -2,8 +2,6 @@
 :toc: right
 :imagesdir: layers/images
 
-NOTE: Content Localisation has been introduced in Content Studio 3.2 and require XP 7.6.0 or higher
-
 Localisation in Content Studio is done by utilising advanced concept of Content Layers. A layer is a special
 type of content project that always has a parent project (or another layer) where it inherits its content from. This inherited content can then be localised
 to the language of the layer, restructured, renamed or differently sorted. Content in a layer can be created, modified and published as usual.
