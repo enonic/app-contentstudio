@@ -45,19 +45,23 @@ Anchors enable pointing to a specfic position on a page via context link. If a l
 
 === Insert/Edit image
 
-This button opens the Insert Image dialog. An existing image content can be selected from the “Image” selector, or a new image can be uploaded by clicking the upload button.
-Once an image is selected, additional formatting options appear. The image can be floated to the left or right so that text wraps around it.
+This button opens the Insert Image dialog. An existing image content can be selected from the “Image” selector, or a new image can be uploaded using the upload button.
+Once an image is selected, additional formatting options will appear. The image can be floated to the left or right so that text wraps around it.
 The image can also be centered or set to full width. By checking off “Custom width” you will have an option to set relative width of the image.
-Additionally, there's an option to apply defined image styles to the image. Read how to define custom Image Styles below
-A caption and alt text can be entered at the bottom of the modal dialog.
+Additionally, there's an option to apply <<editor/rich-text-editor#custom_image_styles,custom image styles>>.
+A caption and alt text can be entered at the bottom of the modal dialog. A double click on an image inside the Editor will open the modal dialog for editing properties of the image.
 
 === Insert macro
 
-This button opens the Insert Macro dialog, which contains a selector for choosing a macro. Macros allow all sorts of things to be inserted into the input, such as iframes, YouTube videos, Twitter Tweets, etc. There two built-in macros and others can be added with applications. Once a macro is selected, a form appears with inputs for the macro’s configuration settings.
+This button opens the Insert Macro dialog, which contains a selector for choosing a macro. Macros allow all sorts of things to be inserted into the input, such as iframes, YouTube videos, Twitter Tweets, etc. There are two built-in macros and others can be added with applications. Once a macro is selected, a form appears with inputs for the macro’s configuration settings. A double click on a macro inside the Editor will open the modal dialog for editing properties of the macro.
 
 === Insert/Edit Link
 
-This button opens the Insert Link dialog. You can select existing text in the HTML Area before opening the dialog or write it directly inside the dialog. You can link to a content item, external URL, trigger download or a new email.
+This button opens the Insert Link dialog. You can select existing text in the HTML Area before opening the dialog or write it directly inside the dialog. You can link to a content item, external URL, relative URL on the same site, trigger media download or create a mailto link. A double click on a link inside the Editor will open the modal dialog for editing properties of the link.
+
+image::rich-text-editor-link-dialog-1.png[470, Insert Link dialog]
+image::rich-text-editor-link-dialog-2.png[470, Insert Link dialog]
+image::rich-text-editor-link-dialog-3.png[470, Insert Link dialog]
 
 === Unlink
 
