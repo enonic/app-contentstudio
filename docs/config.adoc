@@ -93,3 +93,16 @@ Below is the header to be used for CSP if you want the Google Analytics widget n
 ----
 contentSecurityPolicy.header=default-src 'self'; connect-src 'self' ws: wss: https://*.gstatic.com https://*.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.googleapis.com https://*.gstatic.com; object-src 'none'; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data:; frame-src 'self' https://*.googleapis.com
 ----
+
+=== Disable Default Project
+
+Disable the <<storage/projects#default_project,Default Project>> by setting `settings.hideDefaultProject` property to `true`.
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+settings.hideDefaultProject=true
+----
+
+IMPORTANT: If the Default project is hidden and a logged-in user doesn't have access to any projects and has necessary permissions,
+he/she will be asked to create a new Content Project using <<storage/projects#new_project_wizard,multistep wizard>>.
