@@ -3,6 +3,31 @@
 
 TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.com/docs/content-studio/3.x/release[here]
 
+== Content Studio 4 Update 3
+
+IMPORTANT: Content Studio 4.3.x requires XP 7.11.0 or higher.
+
+New features in Content Studio 4.3.0 include major improvements of the Insert Link dialog and Version History widget,
+wizard for creating a New content project, RTL support in inputs and text areas and ability to see all current editors on the Content Editor page.
+
+=== Insert Link dialog improvements
+
+The <<editor/rich-text-editor#insertedit_link,Insert Link dialog>> in the HTML editor has been completely revamped to support relative URLs, parameters/anchor for internal URLs and advanced handling of media links.
+
+:imagesdir: editor/images
+
+Here's what's new:
+
+* "Content" tab for adding an internal link has been made default
+* Added support for relative links
+* Added support for anchor and parameters in internal links
+* "Download" tab has been removed. Instead, upon selection of a media content, user can now select how the media link should be handled:
+open the media in a new tab, download or treat it as regular content.
+
+image::rich-text-editor-link-dialog-1.png[470, Insert Link dialog]
+image::rich-text-editor-link-dialog-2.png[470, Insert Link dialog]
+image::rich-text-editor-link-dialog-3.png[470, Insert Link dialog]
+
 == Content Studio 4 Update 2
 
 Content Studio 4.2.0 comes with several major improvements in the Filter panel.
