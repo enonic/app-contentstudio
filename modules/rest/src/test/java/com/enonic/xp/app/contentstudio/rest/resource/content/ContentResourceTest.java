@@ -80,7 +80,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildre
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolveContentForDeleteResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.json.SetActiveVersionJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
@@ -149,7 +148,6 @@ import com.enonic.xp.content.ReorderChildParams;
 import com.enonic.xp.content.ResetContentInheritParams;
 import com.enonic.xp.content.ResolvePublishDependenciesParams;
 import com.enonic.xp.content.ResolveRequiredDependenciesParams;
-import com.enonic.xp.content.SetActiveContentVersionResult;
 import com.enonic.xp.content.SetContentChildOrderParams;
 import com.enonic.xp.content.SyncContentService;
 import com.enonic.xp.content.UndoPendingDeleteContentParams;
@@ -2335,24 +2333,6 @@ public class ContentResourceTest
         List<AttachmentJson> result = contentResource.getAttachments( content.getId().toString() );
 
         assertEquals( new AttachmentJson( attachment ), result.get( 0 ) );
-
-
-    }
-
-    @Test
-    public void setActiveVersion()
-    {
-        ContentResource contentResource = getResourceInstance();
-
-        ContentId contentId = ContentId.from( "content-id" );
-        ContentVersionId contentVersionId = ContentVersionId.from( "version-1.0" );
-
-        Mockito.when( this.contentService.setActiveContentVersion( contentId, contentVersionId ) )
-            .thenReturn( new SetActiveContentVersionResult( contentId, contentVersionId ) );
-
-        ContentIdJson result = contentResource.setActiveVersion( new SetActiveVersionJson( contentId, contentVersionId ) );
-
-        assertEquals( contentId.toString(), result.getId() );
     }
 
     @Test
