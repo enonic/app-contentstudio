@@ -2,18 +2,20 @@
   .grid .slick-row {
     .slick-cell {
       &.status {
+        justify-content: center;
         text-align: center;
         font-style: normal;
         font-size: 11px;
-        margin-right: 5px;
+        flex-basis: 70px;
 
-        div:not(.online) {
-          line-height: 18px;
+        span {
+          .ellipsis();
         }
+      }
 
-        .pending_delete {
-          font-size: 0.8em;
-        }
+      &-checkboxsel {
+        flex-basis: 30px;
+        justify-content: end;
       }
     }
 
