@@ -8,7 +8,7 @@ TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.
 IMPORTANT: Content Studio 4.3.x requires XP 7.11.0 or higher.
 
 New features in Content Studio 4.3.0 include major improvements of the Insert Link dialog and Version History widget,
-wizard for creating a New content project, RTL support in inputs and text areas and ability to see all current editors on the Content Editor page.
+wizard for creating a New content project, RTL support in text inputs and ability to see all current editors on the Content Editor page.
 
 === Insert Link dialog improvements
 
@@ -21,12 +21,29 @@ Here's what's new:
 * "Content" tab for adding an internal link has been made default
 * Added support for relative links
 * Added support for anchor and parameters in internal links
-* "Download" tab has been removed. Instead, upon selection of a media content, user can now select how the media link should be handled:
-open the media in a new tab, download or treat it as regular content.
+* "Download" tab has been removed. Instead, upon selection of a media content, user can now select how the media link should be handled: open the media in a new tab, download or treat it as regular content.
 
+image::rich-text-editor-link-dialog-3.png[470, Insert Link dialog]
 image::rich-text-editor-link-dialog-1.png[470, Insert Link dialog]
 image::rich-text-editor-link-dialog-2.png[470, Insert Link dialog]
-image::rich-text-editor-link-dialog-3.png[470, Insert Link dialog]
+
+
+=== Collaboration
+
+This experimental feature that has been introduced in Content Studio 4.1 has now been thoroughly tested in cluster environment and turned on by default.
+
+In <<editor#collaboration, collaboration mode>> Content Wizard's header will display avatar icons of all users simultaneously editing the content or simply having it opened.
+
+:imagesdir: editor/images
+image::content-wizard-collaboration.png[Collaboration, 665]
+
+=== New Project wizard
+
+Creation of a new content project is now done by completing the <<storage/projects#new_project_wizard, multistep wizard>>. This dialog will now automatically pop up for a user that doesn't have access to any existing projects upon logging into Content Studio.
+
+:imagesdir: storage/projects/images
+
+image::new-project-dialog-7.png[New Project summary, 470]
 
 == Content Studio 4 Update 2
 
@@ -73,10 +90,7 @@ image::widgets-menu-item.png[Top menu widgets,600]
 
 In <<editor#collaboration, collaboration mode>> Content Wizard's header will display avatar icons of all users simultaneously editing the content or simply having it opened.
 
-:imagesdir: editor/images
-image::content-wizard-collaboration.png[Collaboration, 665]
-
-NOTE: This feature is experimental and has to be turned on via <<config#collaboration_mode, config file>>.
+NOTE: This feature is experimental and has to be turned on in the config file.
 
 :imagesdir: release/images
 
