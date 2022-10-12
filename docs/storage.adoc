@@ -6,7 +6,7 @@ Content in XP is stored in <<storage/projects#,Content Projects>>, each having i
 there's only one project (called "Default") which cannot be deleted but <<config#disable_default_project,can be disabled>> using the
 configuration file.
 
-Users with privileged permissions can create their own Content Projects and localise content in these projects using <<storage/layers#,Content Layers>>, which essentially a special type of project inheriting content from an upstream project while enabling localisation into a specific language.
+Users with privileged permissions can create their own Content Projects and localise content in these projects using <<storage/layers#,Content Layers>>, which essentially is a special type of project inheriting content from an upstream project while enabling localisation into a specific language.
 
 Each project/layer (except for the default one) can be set up with independent access level and a set of default permissions for new content.
 
