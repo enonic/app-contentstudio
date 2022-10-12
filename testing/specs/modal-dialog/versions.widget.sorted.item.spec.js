@@ -12,6 +12,10 @@ const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detail
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 const contentBuilder = require("../../libs/content.builder");
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const PublishContentDialog = require('../../page_objects/content.publish.dialog');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('tests for Sorted versions item', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -66,11 +70,12 @@ describe('tests for Sorted versions item', function () {
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             //2. open Versions Panel:
             await contentBrowseDetailsPanel.openVersionHistory();
-            //3. Click on 'Compare with current version' in the previous edited-item:
-            await browseVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            //3. Click on 'Compare with current version' in Sorted-item:
+            await browseVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
             //4.Verify that the modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot("compare_versions_dlg_sorted_1");
+            //5. Verify that 'childOrder' property is displayed in the modal dialog:
             let result = await compareContentVersionsDialog.getChildOrderProperty();
             assert.isTrue(result.includes("\"displayname ASC\""),
                 "Expected current order should be displayed in the dialog -  'displayname ASC'");
@@ -142,6 +147,31 @@ describe('tests for Sorted versions item', function () {
             await studioUtils.saveScreenshot("compare_versions_right_dropdown_options");
             result = await compareContentVersionsDialog.getSortedOptionsInRightDropdownList();
             assert.equal(result.length, 3, "3 sorted items should be present in the options selector after the line-divider");
+        });
+
+    it("GIVEN existing folder with 'Sorted' version items is opened WHEN the folder has been published THEN 'Sorted' items remain visible in Versions Widget",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let publishContentDialog = new PublishContentDialog();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            //1. Open the existing folder with sorted version items:
+            await studioUtils.selectAndOpenContentInWizard(PARENT_FOLDER.displayName);
+            await wizardDetailsPanel.openVersionHistory();
+            //2. Publish this folder:
+            await contentWizard.clickOnMarkAsReadyButton();
+            await contentWizard.clickOnPublishButton();
+            await publishContentDialog.waitForDialogOpened();
+            await publishContentDialog.clickOnPublishNowButton();
+            await publishContentDialog.waitForDialogClosed();
+            //3. Verify that Published version item gets visible now:
+            await wizardVersionsWidget.waitForPublishedItemDisplayed();
+            await studioUtils.saveScreenshot("sorted_versions_after_publishing");
+            let publishedItems = await wizardVersionsWidget.countPublishedItems();
+            assert.equal(publishedItems, 1, "One Published items should be displayed");
+            //4. Verify that Sorted version items remain visible:
+            let sortedItems = await wizardVersionsWidget.countSortedItems();
+            assert.equal(sortedItems, 3, "3 Sorted items remain visible");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -1110,8 +1110,14 @@ class ContentWizardPanel extends Page {
         return wizardLayersWidget;
     }
 
-    waitForResetButtonDisplayed() {
-        return this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
+    async waitForResetButtonDisplayed() {
+        try {
+            return this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_reset_button");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Reset button is not displayed in the content wizard, screenshot:" + screenshot + " " + err);
+        }
     }
 
     waitForResetButtonNotDisplayed() {

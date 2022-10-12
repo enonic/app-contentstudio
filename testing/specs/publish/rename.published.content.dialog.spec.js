@@ -8,6 +8,8 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('rename.published.content.dialog.spec - tests for Rename published content modal dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -32,7 +34,7 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            //Click on 'Modify path icon' and open the modal dialog:
+            //Click on 'Modify the path icon' and open the modal dialog:
             let renamePublishedContentDialog = await contentWizard.clickOnModifyPathButton();
             let title = await renamePublishedContentDialog.getDialogTitle();
             assert.equal(title, "Rename published content", "Expected title should be in the dialog");
@@ -68,6 +70,7 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             await contentWizard.waitForModifyPathButtonDisplayed();
         });
 
+    //Verifies: Path field gets unlocked after a published content is modified #5073
     it("GIVEN new path has been typed in the modal dialog WHEN 'Rename' button has been clicked THEN path should be updated in wizard page",
         async () => {
             let contentWizard = new ContentWizard();
@@ -89,7 +92,7 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             assert.equal(message, appConst.CONTENT_RENAMED, "Content has been renamed - message should be displayed");
         });
 
-    it("GIVEN modified content has been opened WHEN the content has been unpublished THEN 'modify path' icon should not be visible in the wizard-page",
+    it("GIVEN modified content has been opened WHEN the content has been unpublished THEN 'modify the path' icon should not be visible in the wizard-page",
         async () => {
             let contentWizard = new ContentWizard();
             //1. open existing Modified folder:
@@ -120,7 +123,7 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
         });
 
     //Verifies -  Rename published content dialog - incorrect behaviour of validation in new name input #2472
-    it("GIVEN 'Rename published content' is dialog WHEN not available path has been typed THEN 'Rename' button should be disabled in the dialog",
+    it("GIVEN 'Rename published content' dialog is opened WHEN content name updated twice in the modal dialog THEN 'Rename' button should be disabled in the dialog",
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME, TEST_FOLDER.displayName);
@@ -128,13 +131,34 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             let renamePublishedContentDialog = await contentWizard.clickOnModifyPathButton();
             //2. Type available path:
             await renamePublishedContentDialog.typeInNewNameInput("test12345678");
-            //3. Type not available path:
+            //3. Type a name of the existing content :
             await renamePublishedContentDialog.typeInNewNameInput(NEW_NAME);
             await studioUtils.saveScreenshot("rename-dialog_path_not_available");
-            //3. Verify that 'Rename' button gets disabled:
+            //3. Verify that 'Rename' button gets disabled now:
             await renamePublishedContentDialog.waitForRenameButtonDisabled();
         });
 
+    it("GIVEN Moved folder has been opened THEN 'Moved' version item should be visible in the published content",
+        async () => {
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            //1. Open the folder with moved version items:
+            await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME, TEST_FOLDER.displayName);
+            //2. Open Versions widget:
+            await wizardDetailsPanel.openVersionHistory();
+            //3. Verify that Moved version item is visible in the published content:
+            await wizardVersionsWidget.waitForMovedItemDisplayed();
+            await studioUtils.saveScreenshot("moved_versions_after_publishing");
+            //4. Verify that 2 Published version items are visible in the content:
+            let publishedItems = await wizardVersionsWidget.countPublishedItems();
+            assert.equal(publishedItems, 2, "Two Published items should be displayed");
+            //5. Verify that one Unpublished version item is visible in the content:
+            let unpublishedItems = await wizardVersionsWidget.countUnpublishedItems();
+            assert.equal(unpublishedItems, 1, "One Unpublished item should be displayed");
+            //6. Verify that Moved version item remains visible:
+            let movedItems = await wizardVersionsWidget.countMovedItems();
+            assert.equal(movedItems, 1, "1 Moved item remains visible");
+        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

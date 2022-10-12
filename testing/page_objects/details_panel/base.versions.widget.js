@@ -58,9 +58,35 @@ class BaseVersionsWidget extends Page {
         return items.length;
     }
 
+    async waitForPublishedItemDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.publishedItems, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_published_item");
+            await this.saveScreenshot(screenshot);
+            throw new Error("'Published' items are not displayed in the widget, screenshot: " + screenshot + " " + err);
+        }
+    }
+
     async countPublishedItems() {
-        await this.waitForElementDisplayed(this.publishedItems, appConst.mediumTimeout)
+        await this.waitForPublishedItemDisplayed();
         let items = await this.findElements(this.publishedItems);
+        return items.length;
+    }
+
+    async waitForUnpublishedItemDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.unpublishedItems, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_unpublished_item");
+            await this.saveScreenshot(screenshot);
+            throw new Error("'Unpublished' items are not displayed in the widget, screenshot: " + screenshot + " " + err);
+        }
+    }
+
+    async countUnpublishedItems() {
+        await this.waitForUnpublishedItemDisplayed();
+        let items = await this.findElements(this.unpublishedItems);
         return items.length;
     }
 
@@ -191,8 +217,14 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    async waitForPublishedVersionItemVisible() {
-        return await this.waitForElementDisplayed(this.publishedItems, appConst.mediumTimeout);
+    async waitForMovedItemDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.movedItems, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_moved_item");
+            await this.saveScreenshot(screenshot);
+            throw new Error("'Moved' items are not displayed in the widget, screenshot: " + screenshot + " " + err);
+        }
     }
 
     async getContentStatus() {

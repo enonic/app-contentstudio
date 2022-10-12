@@ -20,7 +20,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const TEST_DESCRIPTION = "my description";
-    const NEW_DESCRIPTION = "new description";
+    const PROJ_IDENTIFIER = studioUtils.generateRandomName("id");
 
     //Verifies:  Project identifier field is editable issue#2923
     it(`WHEN existing project is opened THEN expected identifier, description and language should be displayed`,
@@ -29,7 +29,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             let projectWizard = new ProjectWizard();
             //1. Open project wizard dialog and create new project:
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.EN, null,
-                appConst.PROJECT_ACCESS_MODE.PRIVATE);
+                appConst.PROJECT_ACCESS_MODE.PRIVATE, null,PROJ_IDENTIFIER);
             //2. Select the project and click on 'Edit' button
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
@@ -40,37 +40,24 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             let actualDescription = await projectWizard.getDescription();
             assert.equal(actualDescription, TEST_DESCRIPTION, "Expected description should be displayed");
             let actualProjectIdentifier = await projectWizard.getProjectIdentifier();
-            assert.equal(actualProjectIdentifier, PROJECT_DISPLAY_NAME, "Expected identifier should be displayed");
+            assert.equal(actualProjectIdentifier, PROJ_IDENTIFIER, "Expected identifier should be displayed");
             let actualLanguage = await projectWizard.getSelectedLanguage();
             assert.equal(actualLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed");
             //5. Verify that 'Delete' button gets enabled, because new project is created now:
             await projectWizard.waitForDeleteButtonEnabled();
         });
 
-    it(`GIVEN existing project is opened WHEN the description has been updated THEN new description should be displayed in browse panel`,
+    it(`WHEN existing project is selected THEN expected identifier should be displayed in the settings browse panel`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Click on the project and press 'Edit' button:
+            //1.Click on the project select it:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnEditButton();
-            await projectWizard.waitForLoaded();
-            //2. Verify that identifier input is disabled:
-            await projectWizard.waitForProjectIdentifierInputDisabled();
-            //3. Update the description:
-            await projectWizard.typeDescription(NEW_DESCRIPTION);
-            await projectWizard.waitAndClickOnSave();
-            let actualMessage = await projectWizard.waitForNotificationMessage();
-            //4. Verify the notification message:
-            assert.equal(actualMessage, appConst.projectModifiedMessage(PROJECT_DISPLAY_NAME));
-            //5. Click on 'close-icon' button and close the wizard:
-            await settingsBrowsePanel.clickOnCloseIcon(PROJECT_DISPLAY_NAME);
-            await projectWizard.waitForWizardClosed();
-            await settingsBrowsePanel.pause(1000);
-            //6. Verify that the description is updated in Browse Panel:
-            studioUtils.saveScreenshot("project_description_updated");
-            let actualDescription = await settingsBrowsePanel.getProjectDescription(PROJECT_DISPLAY_NAME);
-            assert.equal(actualDescription, NEW_DESCRIPTION, "Description should be updated in grid");
+            await settingsBrowsePanel.pause(500);
+            //2. Verify that the expected identifier is displayed in Settings Browse Panel:
+            await studioUtils.saveScreenshot("project_identifier");
+            let actualIdentifier = await settingsBrowsePanel.getProjectIdentifier(PROJECT_DISPLAY_NAME);
+            assert.equal(actualIdentifier, PROJ_IDENTIFIER, "Expected Identifier should be displayed in the grid");
         });
 
     it(`GIVEN existing project is opened WHEN 'SU' has been added in 'custom read access' THEN 'SU' should appear in the selected options`,

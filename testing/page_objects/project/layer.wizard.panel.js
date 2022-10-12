@@ -70,12 +70,14 @@ class LayerWizardPanel extends ProjectWizardPanel {
 
     async getParentProjectName() {
         try {
-            let locator = XPATH.projectSelectedOptionView + "//h6[contains(@id,'ProjectsChainBlock')]//span[@class='item']";
+            let locator = XPATH.projectSelectedOptionView +
+                          "//div[contains(@id,'ProjectSelectedOptionView')]//h6[contains(@class,'main-name')]//span[contains(@class,'display-name')]";
             await this.waitForElementDisplayed(locator, appConst.shortTimeout);
             return await this.getText(locator);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_layer_parent"));
-            throw new Error("Layer wizard, parent project name: " + err);
+            let screenshot = appConst.generateRandomName("err_layer_parent")
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error, Layer wizard, parent project name: screenshot " + screenshot + "  " + err);
         }
     }
 }

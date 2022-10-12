@@ -98,9 +98,9 @@ describe('content.selector.spec: content-selector specification', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
             //1. Click on mode toggler button:
             await contentSelector.clickOnModeTogglerButton();
-            //2. Verify new mode:
+            //2. Verify that tree mode is switched on:
             let actualMode = await contentSelector.getMode();
-            studioUtils.saveScreenshot('content_selector_tree_mode');
+            await studioUtils.saveScreenshot('content_selector_tree_mode');
             assert.equal(actualMode, 'tree', "'Tree' mode should be in the selector");
         });
 
@@ -109,12 +109,13 @@ describe('content.selector.spec: content-selector specification', function () {
             let contentSelector = new ContentSelector();
             //1. Custom relationship has been opened:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
-            //2. Mode toggler has been clicked(switch to tree mode):
+            //2. Mode toggler has been clicked(switches to tree mode):
             await contentSelector.clickOnModeTogglerButton();
             let options = await contentSelector.getTreeModeOptionDisplayNames();
-            //3. Parent site should be present in the options
-            studioUtils.saveScreenshot('content_sel_tree_mode_option');
+            //3. Only the parent site should be present in the options
+            await studioUtils.saveScreenshot('content_sel_tree_mode_option');
             assert.strictEqual(options[0], SITE.displayName);
+            assert.strictEqual(options.length, 1, "One site should be displayed in the tree mode");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

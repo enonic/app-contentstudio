@@ -65,23 +65,27 @@ class CompareContentVersionsDialog extends Page {
     }
 
     async waitForRightRevertMenuButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(this.rightRevertMenuButton, appConst.mediumTimeout);
     }
 
     async waitForRightRevertMenuButtonDisabled() {
         return await this.waitForElementDisabled(this.rightRevertMenuButton, appConst.mediumTimeout);
     }
 
+    async waitForRightRevertMenuButtonEnabled() {
+        return await this.waitForElementEnabled(this.rightRevertMenuButton, appConst.mediumTimeout);
+    }
+
     async waitForLeftRevertMenuButtonEnabled() {
         return await this.waitForElementEnabled(this.leftRevertMenuButton, appConst.mediumTimeout);
     }
 
-    async clickOnRightRevertButton() {
-        await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.mediumTimeout);
-        return await this.clickOnElement(this.leftRevertMenuButton);
+    async waitForLeftRevertMenuButtonDisabled() {
+        return await this.waitForElementDisabled(this.leftRevertMenuButton, appConst.mediumTimeout);
     }
 
-    async clickOnCancelTopButton() {
+    async clickOnRightRevertButton() {
+        await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.mediumTimeout);
         return await this.clickOnElement(this.leftRevertMenuButton);
     }
 
@@ -131,7 +135,8 @@ class CompareContentVersionsDialog extends Page {
     }
 
     async getPermissionsUpdatedOptionsInDropdownList() {
-        let locator = XPATH.containerLeft + "//div[contains(@id,'NamesAndIconView')]//div[contains(@class, 'icon-masks')]";
+        let locator = XPATH.containerLeft +
+                      "//div[contains(@class,'slick-cell')]//div[contains(@id,'NamesAndIconView')]//div[contains(@class, 'icon-masks')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.findElements(locator);
     }
