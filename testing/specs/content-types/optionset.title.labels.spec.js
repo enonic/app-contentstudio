@@ -90,7 +90,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             //1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
             await contentWizard.typeDisplayName(OPTION_SET_NAME1);
-            //2. Verify tah 'Option 2' is selected bu default:
+            //2. Verify tah 'Option 2' is selected by default:
             let isSelected = await multiSelectionOptionSet.isCheckboxSelected("Option 2");
             assert.isTrue(isSelected, "Option 2 should be selected by default");
             //3. Unselect the default 'option 2:
@@ -105,11 +105,12 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             assert.isFalse(isSelected, "'Option 2' should not be selected after the saving");
         });
 
-    it("GIVEN radio buttons were unselected WHEN the content is opened THEN all radio buttons should be unselected",
+    it("GIVEN radio buttons were unselected in the previous test WHEN the content has been re-opened THEN all radio buttons should be unselected",
         async () => {
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
             //1. Open an existing option set content:
-            let contentWizard = await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME1);
+            await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME1);
+            await studioUtils.saveScreenshot("optionset_all_radio_unselected");
             //2. Verify that all radio buttons are unselected:
             let isSelected = await multiSelectionOptionSet.isCheckboxSelected("Option 1");
             assert.isFalse(isSelected, "'Option 1' should not be selected");
@@ -191,9 +192,10 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             assert.equal(title, "Option 2", "Expected title should be in 'multi selection' form");
             //3. Click on the second option:
             await multiSelectionOptionSet.clickOnOption("Option 1");
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
             //4. Verify that title is updated dynamically in the multi selection form:
             title = await multiSelectionOptionSet.getMultiSelectionTitle();
-            await contentWizard.waitAndClickOnSave();
             assert.equal(title, MULTI_SELECTION_TITLE2, "'Option 1 Option 2' should be displayed in multi selection subtitle");
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isFalse(isInvalid, "Option Set content should be valid because required input are filled");
