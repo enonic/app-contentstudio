@@ -59,18 +59,6 @@ Turn off automatic transliteration of content path when generating it based on a
 contentWizard.allowPathTransliteration=false
 ----
 
-=== Collaboration mode
-
-image:cs-410.svg[CS 4.1.0,opts=inline]
-
-Turn on Collaboration mode in the Content Wizard which will display avatar icons of users who currently have the same content opened.
-
-.com.enonic.app.contentstudio.cfg
-[source,properties]
-----
-contentWizard.enableCollaboration=true
-----
-
 === Content Security Policy
 
 image:cs-410.svg[CS 4.1.0,opts=inline]
@@ -95,6 +83,8 @@ contentSecurityPolicy.header=default-src 'self'; connect-src 'self' ws: wss: htt
 ----
 
 === Disable Default Project
+
+image:cs-430.svg[CS 4.3.0,opts=inline]
 
 Disable the <<storage/projects#default_project,Default Project>> by setting `settings.hideDefaultProject` property to `true`.
 
