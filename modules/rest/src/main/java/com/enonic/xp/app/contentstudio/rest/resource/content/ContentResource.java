@@ -97,7 +97,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolveContent
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolvePublishContentResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolvePublishDependenciesJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.json.SetActiveVersionJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.SetChildOrderJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentResultJson;
@@ -161,7 +160,6 @@ import com.enonic.xp.content.ReorderChildContentsResult;
 import com.enonic.xp.content.ReorderChildParams;
 import com.enonic.xp.content.ResolvePublishDependenciesParams;
 import com.enonic.xp.content.ResolveRequiredDependenciesParams;
-import com.enonic.xp.content.SetActiveContentVersionResult;
 import com.enonic.xp.content.SetContentChildOrderParams;
 import com.enonic.xp.content.SyncContentService;
 import com.enonic.xp.content.UndoPendingDeleteContentParams;
@@ -1401,16 +1399,6 @@ public final class ContentResource
         final Content content = contentService.getById( id );
 
         return AttachmentListJson.toJson( content.getAttachments() );
-    }
-
-    @POST
-    @Path("setActiveVersion")
-    public ContentIdJson setActiveVersion( final SetActiveVersionJson params )
-    {
-        final SetActiveContentVersionResult setActiveContentVersionResult =
-            this.contentService.setActiveContentVersion( params.getContentId(), params.getVersionId() );
-
-        return new ContentIdJson( setActiveContentVersionResult.getContentId() );
     }
 
     @GET
