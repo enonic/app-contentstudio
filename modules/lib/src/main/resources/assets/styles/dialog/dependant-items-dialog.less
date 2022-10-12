@@ -33,7 +33,7 @@
   }
 
   .browse-selection-item {
-    padding: 0px;
+    padding: 0 5px;
     margin: 0;
     display: flex;
     line-height: 26px;
@@ -62,14 +62,6 @@
       order: 1;
       margin: 0;
       margin-left: 20px;
-    }
-  }
-
-  .item-list {
-    .browse-selection-item {
-      &:not(:last-child) {
-        margin-bottom: 4px;
-      }
     }
   }
 
@@ -110,7 +102,6 @@
     }
 
     .browse-selection-item {
-      padding: 2px 0 6px 5px;
 
       .remove {
         height: 16px;
@@ -125,7 +116,6 @@
       }
 
       .status {
-        text-align: center;
         line-height: 16px;
       }
 
@@ -176,7 +166,6 @@
         }
 
         .browse-selection-item {
-          padding: 0;
 
           .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}main-name, .status {
             font-size: 12px;
