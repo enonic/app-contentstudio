@@ -12,11 +12,11 @@ import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationCon
 export class SiteConfiguratorSelectedOptionsView
     extends BaseSelectedOptionsView<Application> {
 
-    private siteConfigProvider: ApplicationConfigProvider;
+    private readonly siteConfigProvider: ApplicationConfigProvider;
 
     private siteConfigFormDisplayedListeners: { (applicationKey: ApplicationKey, formView: FormView): void }[] = [];
 
-    private formContext: ContentFormContext;
+    private readonly formContext: ContentFormContext;
 
     private items: SiteConfiguratorSelectedOptionView[] = [];
 
@@ -25,19 +25,20 @@ export class SiteConfiguratorSelectedOptionsView
         this.siteConfigProvider = siteConfigProvider;
         this.formContext = formContext;
 
-        this.siteConfigProvider.onPropertyChanged(() => {
+        this.initListeners();
+        this.setOccurrencesSortable(true);
+    }
 
+    protected initListeners(): void {
+        this.siteConfigProvider.onPropertyChanged(() => {
             this.items.forEach((optionView: SiteConfiguratorSelectedOptionView) => {
-                const newConfig: ApplicationConfig =
-                    this.siteConfigProvider.getConfig(optionView.getSiteConfig().getApplicationKey(), false);
+                const newConfig: ApplicationConfig = this.siteConfigProvider.getConfig(optionView.getSiteConfig().getApplicationKey());
+
                 if (newConfig) {
                     optionView.setSiteConfig(newConfig);
                 }
             });
-
         });
-
-        this.setOccurrencesSortable(true);
     }
 
     makeEmptyOption(id: string): Option<Application> {
@@ -54,8 +55,15 @@ export class SiteConfiguratorSelectedOptionsView
     }
 
     createSelectedOption(option: Option<Application>): SelectedOption<Application> {
-        const siteConfig: ApplicationConfig = this.siteConfigProvider.getConfig(option.getDisplayValue().getApplicationKey());
-        const optionView: SiteConfiguratorSelectedOptionView = new SiteConfiguratorSelectedOptionView(option, siteConfig, this.formContext);
+        const key: ApplicationKey = option.getDisplayValue().getApplicationKey();
+        const existingConfig: ApplicationConfig = this.siteConfigProvider.getConfig(key);
+        const siteConfig: ApplicationConfig = existingConfig || this.siteConfigProvider.addConfig(key);
+        const optionView: SiteConfiguratorSelectedOptionView = new SiteConfiguratorSelectedOptionView({
+            option: option,
+            siteConfig: siteConfig,
+            formContext: this.formContext,
+            isNew: !existingConfig
+        });
 
         optionView.setReadonly(this.readonly);
 
