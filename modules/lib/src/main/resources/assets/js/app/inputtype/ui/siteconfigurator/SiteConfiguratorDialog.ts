@@ -1,7 +1,23 @@
 import * as Q from 'q';
-import {ApplicationConfiguratorDialog} from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfiguratorDialog';
+import {
+    ApplicationConfiguratorDialog,
+    ApplicationConfiguratorDialogParams
+} from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfiguratorDialog';
+
+export interface SiteConfiguratorDialogParams extends ApplicationConfiguratorDialogParams {
+    isDirtyCallback?: () => boolean;
+}
+
 export class SiteConfiguratorDialog
     extends ApplicationConfiguratorDialog {
+
+    private readonly isDirtyCallback?: () => boolean;
+
+    constructor(params: SiteConfiguratorDialogParams) {
+        super(params);
+
+        this.isDirtyCallback = params.isDirtyCallback;
+    }
 
     close() {
         this.destroyCkeInstancesInDialog();
@@ -31,5 +47,9 @@ export class SiteConfiguratorDialog
                 }
             }
         }
+    }
+
+    isDirty(): boolean {
+        return this.isDirtyCallback ? this.isDirtyCallback() : super.isDirty();
     }
 }

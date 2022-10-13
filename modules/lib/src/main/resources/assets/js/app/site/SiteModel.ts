@@ -17,7 +17,7 @@ export class SiteModel {
 
     private siteConfigs: ApplicationConfig[];
 
-    private applicationAddedListeners: { (event: ApplicationAddedEvent): void }[] = [];
+    private applicationAddedListeners: { (applicationConfig: ApplicationConfig): void }[] = [];
 
     private applicationRemovedListeners: { (event: ApplicationRemovedEvent): void }[] = [];
 
@@ -44,40 +44,44 @@ export class SiteModel {
 
     private initApplicationPropertyListeners() {
         this.applicationPropertyAddedListener = (event: PropertyAddedEvent) => {
-            let property: Property = event.getProperty();
+            const property: Property = event.getProperty();
 
-            if (property.getPath().toString().indexOf('.siteConfig') === 0 && property.getName() === 'config') {
-                let siteConfig: ApplicationConfig = ApplicationConfig.create().fromData(property.getParent()).build();
+            if (property.getPath().toString().indexOf('.siteConfig') === 0 &&
+                property.getName() === ApplicationConfig.PROPERTY_CONFIG) {
+                const siteConfig: ApplicationConfig = ApplicationConfig.create().fromData(property.getParent()).build();
+
                 if (!this.siteConfigs) {
                     this.siteConfigs = [];
                 }
+
                 this.siteConfigs.push(siteConfig);
                 this.notifyApplicationAdded(siteConfig);
             }
         };
 
         this.applicationPropertyRemovedListener = (event: PropertyRemovedEvent) => {
-            let property: Property = event.getProperty();
+            const property: Property = event.getProperty();
+
             if (property.getName() === 'siteConfig') {
-                let applicationKey = ApplicationKey.fromString(property.getPropertySet().getString('applicationKey'));
-                this.siteConfigs = this.siteConfigs.filter((siteConfig: ApplicationConfig) =>
-                    !siteConfig.getApplicationKey().equals(applicationKey)
-                );
+                const applicationKey: ApplicationKey =
+                    ApplicationKey.fromString(property.getPropertySet().getString(ApplicationConfig.PROPERTY_KEY));
+                this.siteConfigs =
+                    this.siteConfigs.filter((siteConfig: ApplicationConfig) => !siteConfig.getApplicationKey().equals(applicationKey));
                 this.notifyApplicationRemoved(applicationKey);
             }
         };
 
         this.applicationGlobalEventsListener = (event: ApplicationEvent) => {
             switch (event.getEventType()) {
-                case ApplicationEventType.STOPPED:
-                    this.notifyApplicationStopped(event);
-                    break;
-                case ApplicationEventType.STARTED:
-                    this.notifyApplicationStarted(event);
-                    break;
-                case ApplicationEventType.UNINSTALLED:
-                    this.notifyApplicationUninstalled(event);
-                    break;
+            case ApplicationEventType.STOPPED:
+                this.notifyApplicationStopped(event);
+                break;
+            case ApplicationEventType.STARTED:
+                this.notifyApplicationStarted(event);
+                break;
+            case ApplicationEventType.UNINSTALLED:
+                this.notifyApplicationUninstalled(event);
+                break;
             }
         };
     }
@@ -131,19 +135,18 @@ export class SiteModel {
             this.propertyChangedListeners.filter((curr: (event: PropertyChangedEvent) => void) => listener !== curr);
     }
 
-    onApplicationAdded(listener: (event: ApplicationAddedEvent) => void) {
+    onApplicationAdded(listener: (applicationConfig: ApplicationConfig) => void) {
         this.applicationAddedListeners.push(listener);
     }
 
-    unApplicationAdded(listener: (event: ApplicationAddedEvent) => void) {
+    unApplicationAdded(listener: (applicationConfig: ApplicationConfig) => void) {
         this.applicationAddedListeners =
-            this.applicationAddedListeners.filter((curr: (event: ApplicationAddedEvent) => void) => listener !== curr);
+            this.applicationAddedListeners.filter((curr: (config: ApplicationConfig) => void) => listener !== curr);
     }
 
-    private notifyApplicationAdded(siteConfig: ApplicationConfig) {
-        let event = new ApplicationAddedEvent(siteConfig);
-        this.applicationAddedListeners.forEach((listener: (event: ApplicationAddedEvent) => void) => {
-            listener(event);
+    private notifyApplicationAdded(applicationConfig: ApplicationConfig) {
+        this.applicationAddedListeners.forEach((listener: (applicationConfig) => void) => {
+            listener(applicationConfig);
         });
     }
 
