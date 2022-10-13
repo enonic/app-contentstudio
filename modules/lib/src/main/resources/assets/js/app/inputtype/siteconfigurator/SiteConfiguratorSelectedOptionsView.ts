@@ -62,7 +62,7 @@ export class SiteConfiguratorSelectedOptionsView
             option: option,
             siteConfig: siteConfig,
             formContext: this.formContext,
-            saveOnLayout: !existingConfig
+            isNew: !existingConfig
         });
 
         optionView.setReadonly(this.readonly);

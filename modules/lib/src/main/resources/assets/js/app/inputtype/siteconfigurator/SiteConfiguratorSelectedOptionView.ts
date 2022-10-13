@@ -23,7 +23,7 @@ export interface SiteConfiguratorSelectedOptionViewParams {
     option: Option<Application>,
     siteConfig: ApplicationConfig,
     formContext: ContentFormContext,
-    saveOnLayout?: boolean
+    isNew?: boolean
 }
 
 export class SiteConfiguratorSelectedOptionView
@@ -41,6 +41,8 @@ export class SiteConfiguratorSelectedOptionView
 
     private formContext: ContentFormContext;
 
+    private isNew: boolean;
+
     private formValidityChangedHandler: { (event: FormValidityChangedEvent): void };
 
     private configureDialog: SiteConfiguratorDialog;
@@ -56,10 +58,11 @@ export class SiteConfiguratorSelectedOptionView
         this.application = params.option.getDisplayValue();
         this.siteConfig = params.siteConfig;
         this.formContext = params.formContext;
+        this.isNew = params.isNew;
 
         this.setEditable(this.application.getForm()?.getFormItems().length > 0);
 
-        if (params.saveOnLayout) {
+        if (params.isNew) {
             this.onRendered(() => {
                 this.save();
             });
@@ -226,15 +229,17 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     private createFormView(siteConfig: ApplicationConfig): FormView {
-        const context: ContentFormContext = <ContentFormContext>this.formContext.cloneBuilder().setFormState(new FormState(false)).build();
-        const formView: FormView = new FormView(context, this.application.getForm(), siteConfig.getConfig());
-        formView.addClass('site-form');
+        const context: ContentFormContext =
+            <ContentFormContext>this.formContext.cloneBuilder().setFormState(new FormState(this.isNew)).build();
+        const formView: FormView =
+            <FormView>new FormView(context, this.application.getForm(), siteConfig.getConfig()).addClass('site-form');
 
         formView.onLayoutFinished(() => {
             formView.displayValidationErrors(true);
             formView.validate(false, true);
             this.toggleClass('invalid', !formView.isValid());
             this.notifySiteConfigFormDisplayed(this.application.getApplicationKey());
+            this.isNew = false;
         });
 
         return formView;
