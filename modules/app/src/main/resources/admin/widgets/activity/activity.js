@@ -8,6 +8,9 @@ function handleGet() {
         jsUri: portal.assetUrl({
             path: 'js/widgets/activity.js'
         }),
+        stylesUri: portal.assetUrl({
+            path: 'styles/widgets/activity.css'
+        }),
         chartDataServiceUrl: portal.serviceUrl({service: 'chartdata'})
     };
 
