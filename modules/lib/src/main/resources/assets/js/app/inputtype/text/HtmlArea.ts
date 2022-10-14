@@ -1,7 +1,7 @@
 import * as $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
 import * as Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
@@ -20,7 +20,7 @@ import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
 import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {HtmlEditor} from '../ui/text/HtmlEditor';
-import {ContentsLangDirection, HtmlEditorParams} from '../ui/text/HtmlEditorParams';
+import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
 import {BaseInputTypeNotManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeNotManagingAdd';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
@@ -280,7 +280,7 @@ export class HtmlArea
             .setAllowedHeadings(this.allowHeadingsConfig)
             .setEditableSourceCode(this.editableSourceCode)
             .setCustomStylesToBeUsed(true)
-            .setContentsLangDirection(this.getContentsLangDirection())
+            .setLangDirection(this.getLangDirection())
             .build();
 
         return HtmlEditor.create(htmlEditorParams);
@@ -541,14 +541,14 @@ export class HtmlArea
         return ArrayHelper.findElementByFieldValue(this.editors, 'id', id);
     }
 
-    private getContentsLangDirection(): ContentsLangDirection {
+    private getLangDirection(): LangDirection {
         const lang: string = this.getContext().formContext?.getLanguage();
 
         if (Locale.supportsRtl(lang)) {
-            return ContentsLangDirection.RTL;
+            return LangDirection.RTL;
         }
 
-        return ContentsLangDirection.AUTO;
+        return LangDirection.AUTO;
     }
 
 }

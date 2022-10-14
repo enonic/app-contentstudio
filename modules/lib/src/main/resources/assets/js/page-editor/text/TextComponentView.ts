@@ -1,6 +1,6 @@
 import * as $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
@@ -15,7 +15,7 @@ import {DragAndDrop} from '../DragAndDrop';
 import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
 import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
 import {TextComponent} from '../../app/page/region/TextComponent';
-import {ContentsLangDirection, HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
+import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
 import {HtmlEditor, HtmlEditorCursorPosition} from '../../app/inputtype/ui/text/HtmlEditor';
 import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
@@ -117,10 +117,10 @@ export class TextComponentView
     }
 
     private setTextDir(): void {
-        const contentsLangDirection: ContentsLangDirection = this.getContentsLangDirection();
+        const contentsLangDirection: LangDirection = this.getLangDirection();
 
-        if (contentsLangDirection === ContentsLangDirection.RTL) {
-            this.setDir(ContentsLangDirection.RTL);
+        if (contentsLangDirection === LangDirection.RTL) {
+            this.setDir(LangDirection.RTL);
         }
     }
 
@@ -465,7 +465,7 @@ export class TextComponentView
             .setEditableSourceCode(this.editableSourceCode)
             .setContentPath(this.getContentPath())
             .setApplicationKeys(this.getApplicationKeys())
-            .setContentsLangDirection(this.getContentsLangDirection())
+            .setLangDirection(this.getLangDirection())
             .build();
 
         HtmlEditor.create(htmlEditorParams).then((htmlEditor: HtmlEditor) => {
@@ -627,13 +627,13 @@ export class TextComponentView
         });
     }
 
-    private getContentsLangDirection(): ContentsLangDirection {
+    private getLangDirection(): LangDirection {
         const lang: string = this.getContent().getLanguage();
 
         if (Locale.supportsRtl(lang)) {
-            return ContentsLangDirection.RTL;
+            return LangDirection.RTL;
         }
 
-        return ContentsLangDirection.AUTO;
+        return LangDirection.AUTO;
     }
 }

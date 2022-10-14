@@ -3,12 +3,7 @@ import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
 import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentPath} from '../../../content/ContentPath';
-
-export enum ContentsLangDirection {
-    AUTO = '',
-    LTR = 'ltr',
-    RTL = 'rtl'
-}
+import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 
 export class HtmlEditorParams {
 
@@ -34,7 +29,7 @@ export class HtmlEditorParams {
     private readonly enabledTools: string[];
     private readonly disabledTools: string[];
     private readonly allowedHeadings: string;
-    private readonly contentsLangDirection: ContentsLangDirection;
+    private readonly langDirection: LangDirection;
 
     constructor(builder: HtmlEditorParamsBuilder) {
         if (!builder.assetsUri || !builder.editorContainerId || !builder.content) {
@@ -62,7 +57,7 @@ export class HtmlEditorParams {
         this.enabledTools = builder.enabledTools;
         this.disabledTools = builder.disabledTools;
         this.allowedHeadings = builder.allowedHeadings;
-        this.contentsLangDirection = builder.contentsLangDirection;
+        this.langDirection = builder.langDirection;
     }
 
     private checkRequiredFieldsAreSet(htmlEditorParams: HtmlEditorParams) {
@@ -187,8 +182,8 @@ export class HtmlEditorParams {
         return this.allowedHeadings;
     }
 
-    getContentsLangDirection(): ContentsLangDirection {
-        return this.contentsLangDirection;
+    getLangDirection(): LangDirection {
+        return this.langDirection;
     }
 
     public static create(): HtmlEditorParamsBuilder {
@@ -240,7 +235,7 @@ export class HtmlEditorParamsBuilder {
 
     allowedHeadings: string;
 
-    contentsLangDirection: ContentsLangDirection = ContentsLangDirection.AUTO;
+    langDirection: LangDirection = LangDirection.AUTO;
 
     setEditableSourceCode(value: boolean): HtmlEditorParamsBuilder {
         this.editableSourceCode = value;
@@ -350,8 +345,8 @@ export class HtmlEditorParamsBuilder {
         return this;
     }
 
-    setContentsLangDirection(value: ContentsLangDirection): HtmlEditorParamsBuilder {
-        this.contentsLangDirection = value;
+    setLangDirection(value: LangDirection): HtmlEditorParamsBuilder {
+        this.langDirection = value;
         return this;
     }
 
