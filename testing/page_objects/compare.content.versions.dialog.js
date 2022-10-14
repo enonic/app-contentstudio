@@ -72,6 +72,10 @@ class CompareContentVersionsDialog extends Page {
         return await this.waitForElementDisabled(this.rightRevertMenuButton, appConst.mediumTimeout);
     }
 
+    async waitForRightRevertMenuButtonEnabled() {
+        return await this.waitForElementEnabled(this.rightRevertMenuButton, appConst.mediumTimeout);
+    }
+
     async waitForLeftRevertMenuButtonEnabled() {
         return await this.waitForElementEnabled(this.leftRevertMenuButton, appConst.mediumTimeout);
     }
@@ -131,7 +135,8 @@ class CompareContentVersionsDialog extends Page {
     }
 
     async getPermissionsUpdatedOptionsInDropdownList() {
-        let locator = XPATH.containerLeft + "//div[contains(@id,'NamesAndIconView')]//div[contains(@class, 'icon-masks')]";
+        let locator = XPATH.containerLeft +
+                      "//div[contains(@class,'slick-cell')]//div[contains(@id,'NamesAndIconView')]//div[contains(@class, 'icon-masks')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.findElements(locator);
     }

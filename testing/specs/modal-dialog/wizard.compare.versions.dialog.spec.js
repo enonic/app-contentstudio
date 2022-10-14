@@ -61,7 +61,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             assert.equal(type, `"base:folder"`, "Expected type property gets visible");
         });
 
-    it(`GIVEN existing folder is opened WHEN compare icon in the previous version has been clicked THEN Comparing Versions Dialog should be loaded`,
+    it(`GIVEN existing folder is opened WHEN compare icon in the active version item has been clicked THEN then right Revert button should be disabled in the compare versions dialog`,
         async () => {
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
@@ -73,12 +73,34 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             //2. Open Version History panel:
             await wizardDetailsPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            //3. Click on 'compare' icon in the previous version:
-            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButton(1);
+            //3. Click on 'compare' icon in the Active version(the first item):
+            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             //4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             //5. Right 'Revert' menu-button should be disabled:
             await compareContentVersionsDialog.waitForRightRevertMenuButtonDisabled();
+            //6. Left 'Revert' menu-button should be enabled:
+            await compareContentVersionsDialog.waitForLeftRevertMenuButtonEnabled();
+        });
+
+    it(`GIVEN existing folder is opened WHEN compare icon in the second Edited version item has been clicked THEN then both Revert buttons should be enabled in the compare versions dialog`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let compareContentVersionsDialog = new CompareContentVersionsDialog();
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            //1. Open existing folder:
+            await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openDetailsPanel();
+            //2. Open Version History panel:
+            await wizardDetailsPanel.openVersionHistory();
+            await wizardVersionsWidget.waitForVersionsLoaded();
+            //3. Click on 'compare' icon in the Active version(the first item):
+            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            //4. Verify that modal dialog is loaded:
+            await compareContentVersionsDialog.waitForDialogOpened();
+            //5. Right 'Revert' menu-button should be enabled:
+            await compareContentVersionsDialog.waitForRightRevertMenuButtonEnabled();
             //6. Left 'Revert' menu-button should be enabled:
             await compareContentVersionsDialog.waitForLeftRevertMenuButtonEnabled();
         });
