@@ -145,8 +145,8 @@ export class CompareContentVersionsDialog
         return dropdown;
     }
 
-    private getSelectedVersionId(isLeft: boolean) {
-        return (isLeft ? this.leftDropdown : this.rightDropdown).getSelectedOption().getDisplayValue().getId();
+    private getSelectedVersionId(isLeft: boolean): string {
+        return (isLeft ? this.leftDropdown : this.rightDropdown).getSelectedOption().getValue();
     }
 
     private handleVersionChanged(isLeft: boolean) {
@@ -280,13 +280,13 @@ export class CompareContentVersionsDialog
         return this;
     }
 
-    setLeftVersion(version: VersionHistoryItem): CompareContentVersionsDialog {
-        this.leftVersionId = `${version.getId()}:${version.getStatus()}`;
+    setRightVersion(version: VersionHistoryItem): CompareContentVersionsDialog {
+        this.rightVersionId = `${version.getId()}:${version.getStatus()}`;
         return this;
     }
 
-    resetRightVersion(): CompareContentVersionsDialog {
-        this.rightVersionId = null;
+    resetLeftVersion(): CompareContentVersionsDialog {
+        this.leftVersionId = null;
         return this;
     }
 
@@ -319,62 +319,64 @@ export class CompareContentVersionsDialog
         }
 
         return this.versionsLoader.load(this.content).then((versions: ContentVersions) => {
-                this.versions = versions;
-                VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersion());
+            this.resetVersions(versions);
 
-                const items: VersionHistoryItem[] = ContentVersionsConverter.create()
-                .setContent(this.content)
-                .setContentVersions(versions)
-                .build()
-                .toVersionHistoryItems();
+            const items: VersionHistoryItem[] = this.convertVersionsToHistoryItems();
+            const options: Option<VersionHistoryItem>[] = items.map((item: VersionHistoryItem) => this.createOption(item));
 
-                this.versionIdCounters = {};
+            this.updateLeftDropdown(options);
+            this.updateRightDropdown(options);
 
-                if (this.leftDropdown) {
-                    this.leftDropdown.removeAllOptions();
-                }
-                if (this.rightDropdown) {
-                    this.rightDropdown.removeAllOptions();
-                }
+            this.updateButtonsState();
+            this.displayDiff();
+        });
+    }
 
-                const options: Option<VersionHistoryItem>[] = items.map((item: VersionHistoryItem) => this.createOption(item));
+    private resetVersions(versions: ContentVersions): void {
+        this.versions = versions;
+        VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersion());
+        this.versionIdCounters = {};
+    }
 
-                // init latest versions by default if nothing is set
-                const newestVersionOption: Option<VersionHistoryItem> = this.getNewestVersionOption(options);
-                if (!this.leftVersionId) {
-                    this.leftVersionId = newestVersionOption.getValue();
-                }
-                if (!this.rightVersionId) {
-                    this.rightVersionId = newestVersionOption.getValue();
-                }
+    private updateLeftDropdown(options: Option<VersionHistoryItem>[]): void {
+        this.leftDropdown?.removeAllOptions();
+        const newestVersionOption: Option<VersionHistoryItem> = this.getNewestVersionOption(options);
+        const leftAliases: Option<VersionHistoryItem>[] =
+            this.createLeftAliases(options, newestVersionOption.getDisplayValue().getContentVersion().getTimestamp().getTime());
+        this.leftDropdown.setOptions(leftAliases.concat(options).sort(this.optionSorter.bind(this)));
 
-                const leftAliases: Option<VersionHistoryItem>[] =
-                    this.createAliases(options, newestVersionOption.getDisplayValue().getContentVersion().getTimestamp().getTime());
-                const rightAliases: Option<VersionHistoryItem>[] = this.createAliases(options);
+        if (!this.leftVersionId) {
+            const prev: Option<VersionHistoryItem> =
+                leftAliases.find((opt: Option<VersionHistoryItem>) => opt.getDisplayValue().getAliasType() === AliasType.PREV);
+            this.leftVersionId = prev.getValue() || newestVersionOption.getValue();
+        }
 
-                this.leftDropdown.setOptions(leftAliases.concat(options).sort(this.optionSorter.bind(this)));
-                this.rightDropdown.setOptions(rightAliases.concat(options).sort(this.optionSorter.bind(this)));
+        const leftOptionToSelect: Option<VersionHistoryItem> = this.getNewOptionToSelect(this.leftDropdown, this.leftVersionId);
 
-                const leftOptionToSelect: Option<VersionHistoryItem> = this.getNewOptionToSelect(this.leftDropdown, this.leftVersionId);
+        if (leftOptionToSelect) {
+            this.leftDropdown.selectOption(leftOptionToSelect, true);
+        }
+    }
 
-                if (leftOptionToSelect) {
-                    this.leftDropdown.selectOption(leftOptionToSelect, true);
-                }
+    private updateRightDropdown(options: Option<VersionHistoryItem>[]): void {
+        this.rightDropdown?.removeAllOptions();
+        const rightAliases: Option<VersionHistoryItem>[] = this.createRightAliases(options);
+        this.rightDropdown.setOptions(rightAliases.concat(options).sort(this.optionSorter.bind(this)));
 
-                // now after aliases are added we can select newest alias for the right dropdown
-                const latestAlias: Option<VersionHistoryItem> = this.getNewestVersionOption(this.rightDropdown.getOptions());
-                const rightOptionToSelect: Option<VersionHistoryItem> =
-                    this.getNewOptionToSelect(this.rightDropdown, latestAlias.getValue());
+        const rightOptionToSelect: Option<VersionHistoryItem> =
+            this.getNewOptionToSelect(this.rightDropdown, this.rightVersionId);
 
-                if (rightOptionToSelect) {
-                    this.rightDropdown.selectOption(rightOptionToSelect, true);
-                }
+        if (rightOptionToSelect) {
+            this.rightDropdown.selectOption(rightOptionToSelect, true);
+        }
+    }
 
-                if (leftOptionToSelect || rightOptionToSelect) {
-                    this.updateButtonsState();
-                    this.displayDiff();
-                }
-            });
+    private convertVersionsToHistoryItems(): VersionHistoryItem[] {
+        return ContentVersionsConverter.create()
+            .setContent(this.content)
+            .setContentVersions(this.versions)
+            .build()
+            .toVersionHistoryItems();
     }
 
     private getNewOptionToSelect(dropdown: Dropdown<VersionHistoryItem>, versionId: string): Option<VersionHistoryItem> {
@@ -384,9 +386,9 @@ export class CompareContentVersionsDialog
     }
 
     private updateAliases(isLeft: boolean): boolean {
-        const dropdown = isLeft ? this.leftDropdown : this.rightDropdown;
+        const dropdown: Dropdown<VersionHistoryItem> = isLeft ? this.leftDropdown : this.rightDropdown;
         let selectedAliasType: AliasType;
-        const selectedOption = dropdown.getSelectedOption();
+        const selectedOption: Option<VersionHistoryItem> = dropdown.getSelectedOption();
         if (selectedOption) {
             selectedAliasType = selectedOption.getDisplayValue().getAliasType();
         }
@@ -397,9 +399,11 @@ export class CompareContentVersionsDialog
             nextOption = dropdown.getOptionByRow(0);
         }
 
-        let aliasFound;
-        this.createAliases(dropdown.getOptions(),
-            isLeft ? selectedOption.getDisplayValue().getContentVersion().getTimestamp().getTime() : null).forEach(alias => {
+        let aliasFound: boolean;
+        const aliases: Option<VersionHistoryItem>[] = isLeft ? this.createLeftAliases(dropdown.getOptions(),
+            selectedOption.getDisplayValue().getContentVersion().getTimestamp().getTime()) : this.createRightAliases(dropdown.getOptions());
+
+        aliases.forEach((alias: Option<VersionHistoryItem>) => {
             dropdown.addOption(alias);
             if (alias.getDisplayValue().getAliasType() === selectedAliasType) {
                 aliasFound = true;
@@ -454,10 +458,10 @@ export class CompareContentVersionsDialog
     }
 
     private getVersionIndexInOptions(options: Option<VersionHistoryItem>[], versionId: string) {
-        return options.findIndex((option: Option<VersionHistoryItem>) => option.getDisplayValue().getId() === versionId);
+        return options.findIndex((option: Option<VersionHistoryItem>) => option.getValue() === versionId);
     }
 
-    private getPreviousVersion(options: Option<VersionHistoryItem>[]): VersionHistoryItem {
+    private getPreviousVersionItem(options: Option<VersionHistoryItem>[]): VersionHistoryItem {
         const versionIndex: number = this.getVersionIndexInOptions(options, this.rightVersionId);
 
         if (versionIndex === -1 || versionIndex === options.length - 1) {
@@ -477,12 +481,11 @@ export class CompareContentVersionsDialog
         return options[versionIndex - 1].getDisplayValue();
     }
 
-    private createAliases(options: Option<VersionHistoryItem>[], maxDateTime?: number): Option<VersionHistoryItem>[] {
+    private createLeftAliases(options: Option<VersionHistoryItem>[], maxDateTime: number): Option<VersionHistoryItem>[] {
         const aliases: Option<VersionHistoryItem>[] = [];
-        const isLeft = !!maxDateTime;
 
         const newestPublishedVersion: VersionHistoryItem =
-            this.getNewestPublishedVersion(options, maxDateTime || Date.now());
+            this.getNewestPublishedVersion(options, maxDateTime);
 
         if (newestPublishedVersion) {
             aliases.push(
@@ -490,23 +493,36 @@ export class CompareContentVersionsDialog
             );
         }
 
-        if (isLeft) {
-            const prevVersion: VersionHistoryItem = this.getPreviousVersion(options);
-            if (prevVersion) {
-                aliases.push(this.createAliasOption(prevVersion, i18n('dialog.compareVersions.previousVersion'), AliasType.PREV));
-            }
-        } else {
-            const nextVersion: VersionHistoryItem = this.getNextVersion(options);
+        const prevVersion: VersionHistoryItem = this.getPreviousVersionItem(options);
+        if (prevVersion) {
+            aliases.push(this.createAliasOption(prevVersion, i18n('dialog.compareVersions.previousVersion'), AliasType.PREV));
+        }
 
-            if (nextVersion) {
-                aliases.push(this.createAliasOption(nextVersion, i18n('dialog.compareVersions.nextVersion'), AliasType.NEXT));
-            }
+        return aliases;
+    }
 
-            const newestVersion: VersionHistoryItem = this.getNewestVersion(options);
+    private createRightAliases(options: Option<VersionHistoryItem>[]): Option<VersionHistoryItem>[] {
+        const aliases: Option<VersionHistoryItem>[] = [];
 
-            if (newestVersion) {
-                aliases.push(this.createAliasOption(newestVersion, i18n('dialog.compareVersions.newestVersion'), AliasType.NEWEST));
-            }
+        const newestPublishedVersion: VersionHistoryItem =
+            this.getNewestPublishedVersion(options, Date.now());
+
+        if (newestPublishedVersion) {
+            aliases.push(
+                this.createAliasOption(newestPublishedVersion, i18n('dialog.compareVersions.publishedVersion'), AliasType.PUBLISHED)
+            );
+        }
+
+        const nextVersion: VersionHistoryItem = this.getNextVersion(options);
+
+        if (nextVersion) {
+            aliases.push(this.createAliasOption(nextVersion, i18n('dialog.compareVersions.nextVersion'), AliasType.NEXT));
+        }
+
+        const newestVersion: VersionHistoryItem = this.getNewestVersion(options);
+
+        if (newestVersion) {
+            aliases.push(this.createAliasOption(newestVersion, i18n('dialog.compareVersions.newestVersion'), AliasType.NEWEST));
         }
 
         return aliases;
@@ -666,8 +682,8 @@ export class CompareContentVersionsDialog
     }
 
     private displayDiff(): Q.Promise<void> {
-        const leftVersionId: string = this.leftVersionId.split(':')[0];
-        const rightVersionId: string = this.rightVersionId.split(':')[0];
+        const leftVersionId: string = this.extractId(this.leftVersionId);
+        const rightVersionId: string = this.extractId(this.rightVersionId);
 
         const promises = [
             this.fetchVersionPromise(leftVersionId)
@@ -691,6 +707,10 @@ export class CompareContentVersionsDialog
             this.comparisonContainer.removeClass('loading');
             this.comparisonContainer.setHtml(text, false).toggleClass('empty', isEmpty);
         });
+    }
+
+    private extractId(versionId: string): string {
+        return versionId.split(':')[0];
     }
 
     private updateButtonsState() {

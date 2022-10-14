@@ -12,7 +12,7 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
-import {VersionHistoryItem} from './VersionHistoryItem';
+import {VersionHistoryItem, VersionItemStatus} from './VersionHistoryItem';
 import {VersionContext} from './VersionContext';
 import * as Q from 'q';
 import {VersionHistoryHelper} from './VersionHistoryHelper';
@@ -59,15 +59,15 @@ export class VersionHistoryListItem
     }
 
     private isCompareButtonRequired(): boolean {
-        return !this.isActive() && this.isRevertableItem();
+        return this.isComparableItem() && this.version.getStatus() !== VersionItemStatus.CREATED;
     }
 
     private isInteractableItem(): boolean {
         return VersionHistoryHelper.isInteractableItem(this.version);
     }
 
-    private isRevertableItem(): boolean {
-        return VersionHistoryHelper.isRevertableItem(this.version);
+    private isComparableItem(): boolean {
+        return VersionHistoryHelper.isComparableItem(this.version);
     }
 
     private createTooltip() {
@@ -138,8 +138,8 @@ export class VersionHistoryListItem
         CompareContentVersionsDialog.get()
             .setContent(this.content)
             .setReadOnly(this.content.isReadOnly())
-            .setLeftVersion(this.version)
-            .resetRightVersion()
+            .setRightVersion(this.version)
+            .resetLeftVersion()
             .setRevertVersionCallback(this.revert.bind(this))
             .open();
     }
