@@ -21,23 +21,8 @@ export class NewSettingsItemAction
         this.onExecuted(() => {
             new ProjectWizardDialog({
                 steps: ProjectSteps.create(),
-                parentProject: this.getSelectedProject(),
                 title: i18n('dialog.project.wizard.title')
             }).open();
         });
-    }
-
-    private getSelectedProject(): Project {
-        const selectedItems: SettingsViewItem[] = this.grid.getSelectedDataList();
-
-        if (selectedItems.length === 1) {
-            const selectedItem: SettingsViewItem = selectedItems[0];
-
-            if (ObjectHelper.iFrameSafeInstanceOf(selectedItem, ProjectViewItem)) {
-                return (<ProjectViewItem>selectedItem).getData();
-            }
-        }
-
-        return null;
     }
 }
