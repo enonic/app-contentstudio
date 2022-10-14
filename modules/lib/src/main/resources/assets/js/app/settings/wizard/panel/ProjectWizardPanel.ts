@@ -35,6 +35,8 @@ import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationCon
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {ProjectSteps} from '../../dialog/project/create/ProjectSteps';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -448,7 +450,23 @@ export class ProjectWizardPanel
         return !ObjectHelper.arrayEquals(persistedSiteConfigs, appsAsConfigs);
     }
 
+    protected initElements() {
+        super.initElements();
+
+        this.updateHeaderDir();
+    }
+
     isValid(): boolean {
         return super.isValid() && !StringHelper.isBlank(this.getDisplayName());
+    }
+
+    protected setPersistedItem(newPersistedItem: ProjectViewItem) {
+        super.setPersistedItem(newPersistedItem);
+
+        this.updateHeaderDir();
+    }
+
+    private updateHeaderDir(): void {
+        this.wizardHeader?.setDir(Locale.supportsRtl(this.getPersistedItem()?.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
     }
 }

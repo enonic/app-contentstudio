@@ -133,6 +133,10 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
         return this.contentSummary ? this.contentSummary.getDisplayName() : null;
     }
 
+    getLanguage(): string {
+        return this.contentSummary?.getLanguage();
+    }
+
     getIconUrl(): string {
         return this.contentSummary ? new ContentIconUrlResolver().setContent(this.contentSummary).resolve() : null;
     }
