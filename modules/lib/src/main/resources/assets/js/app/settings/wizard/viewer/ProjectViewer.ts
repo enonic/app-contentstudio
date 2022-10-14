@@ -31,8 +31,7 @@ export class ProjectViewer
     }
 
     resolveSubName(project: Project): string {
-        return project.getDisplayName() ? (project.getDescription() || `<${i18n('text.noDescription')}>`) :
-               `<${i18n('settings.project.notAvailable')}>`;
+        return project.getDisplayName() ? project.getName() : `<${i18n('settings.project.notAvailable')}>`;
     }
 
     resolveIconClass(project: Project): string {
