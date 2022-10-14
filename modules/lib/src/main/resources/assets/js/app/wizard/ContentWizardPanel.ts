@@ -103,7 +103,7 @@ import {ContentIds} from '../content/ContentIds';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ProjectContext} from '../project/ProjectContext';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
 import {UrlAction} from '../UrlAction';
@@ -143,6 +143,7 @@ import {Workflow} from '../content/Workflow';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {ContentTabBarItem} from './ContentTabBarItem';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 
 export class ContentWizardPanel
@@ -2843,6 +2844,7 @@ export class ContentWizardPanel
         this.persistedContent = content;
 
         this.wizardHeader?.setOnline(!this.persistedContent.isNew());
+        this.wizardHeader.setDir(Locale.supportsRtl(this.persistedContent.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
         this.contextView?.setItem(content);
     }
 
