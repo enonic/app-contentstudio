@@ -81,7 +81,6 @@ export class ProjectStatisticsViewer
     private updateProjectsChain(project: Project) {
         this.getNamesAndIconView().setSubNameElements([this.projectsChainBlock]);
         this.projectsChainBlock.setProjectsChain(ProjectsChainBlock.buildProjectsChain(project.getName(), this.allProjects));
-        this.projectsChainBlock.setVisible(!!project.getParent());
     }
 
     private loadAllProjects(): Q.Promise<void> {
