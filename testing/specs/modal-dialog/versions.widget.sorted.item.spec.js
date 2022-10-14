@@ -70,11 +70,12 @@ describe('tests for Sorted versions item', function () {
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             //2. open Versions Panel:
             await contentBrowseDetailsPanel.openVersionHistory();
-            //3. Click on 'Compare with current version' in the previous edited-item:
-            await browseVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            //3. Click on 'Compare with current version' in Sorted-item:
+            await browseVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
             //4.Verify that the modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot("compare_versions_dlg_sorted_1");
+            //5. Verify that 'childOrder' property is displayed in the modal dialog:
             let result = await compareContentVersionsDialog.getChildOrderProperty();
             assert.isTrue(result.includes("\"displayname ASC\""),
                 "Expected current order should be displayed in the dialog -  'displayname ASC'");
