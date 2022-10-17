@@ -3,7 +3,7 @@ import Chart from 'chart.js/auto';
 const drawGraph = (activityDataObj: Object) => {
     const activity = formatData(activityDataObj);
 // set the dimensions and margins of the graph
-    new Chart('widget-content-activity-chart', {
+    new Chart('widget-activity-chart', {
         type: 'line',
         data: {
             labels: activity.labels,
