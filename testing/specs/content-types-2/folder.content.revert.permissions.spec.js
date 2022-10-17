@@ -71,7 +71,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             assert.isTrue(isDisplayed, "'Compare with current version' button should be displayed in Edit-item");
         });
 
-    it(`WHEN 'Permissions updated' item has been clicked THEN the item gets expanded AND 'Active version' button is visible`,
+    it(`WHEN 'Permissions updated' item has been clicked THEN 'Revert' button should not be visible in the item`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();

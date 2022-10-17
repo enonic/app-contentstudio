@@ -123,7 +123,7 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
         });
 
     //Verifies -  Rename published content dialog - incorrect behaviour of validation in new name input #2472
-    it("GIVEN 'Rename published content' is dialog WHEN not available path has been typed THEN 'Rename' button should be disabled in the dialog",
+    it("GIVEN 'Rename published content' dialog is opened WHEN content name updated twice in the modal dialog THEN 'Rename' button should be disabled in the dialog",
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME, TEST_FOLDER.displayName);
@@ -131,10 +131,10 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             let renamePublishedContentDialog = await contentWizard.clickOnModifyPathButton();
             //2. Type available path:
             await renamePublishedContentDialog.typeInNewNameInput("test12345678");
-            //3. Type not available path:
+            //3. Type a name of the existing content :
             await renamePublishedContentDialog.typeInNewNameInput(NEW_NAME);
             await studioUtils.saveScreenshot("rename-dialog_path_not_available");
-            //3. Verify that 'Rename' button gets disabled:
+            //3. Verify that 'Rename' button gets disabled now:
             await renamePublishedContentDialog.waitForRenameButtonDisabled();
         });
 

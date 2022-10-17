@@ -65,7 +65,7 @@ class CompareContentVersionsDialog extends Page {
     }
 
     async waitForRightRevertMenuButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(this.rightRevertMenuButton, appConst.mediumTimeout);
     }
 
     async waitForRightRevertMenuButtonDisabled() {
@@ -80,12 +80,12 @@ class CompareContentVersionsDialog extends Page {
         return await this.waitForElementEnabled(this.leftRevertMenuButton, appConst.mediumTimeout);
     }
 
-    async clickOnRightRevertButton() {
-        await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.mediumTimeout);
-        return await this.clickOnElement(this.leftRevertMenuButton);
+    async waitForLeftRevertMenuButtonDisabled() {
+        return await this.waitForElementDisabled(this.leftRevertMenuButton, appConst.mediumTimeout);
     }
 
-    async clickOnCancelTopButton() {
+    async clickOnRightRevertButton() {
+        await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.mediumTimeout);
         return await this.clickOnElement(this.leftRevertMenuButton);
     }
 
