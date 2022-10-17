@@ -1,6 +1,6 @@
 .widget-stats-container {
   display: grid;
-  grid-template-columns: 120px 120px;
+  grid-template-columns: 50% 50%;
   grid-column-gap: 20px;
 }
 
@@ -25,4 +25,10 @@
 .widget-stats-container .widget-stats-label {
   color: #eee;
   font-size: 14px;
+}
+
+@media screen and (min-width: 769px) {
+  .widget-stats-container {
+    grid-template-columns: 120px 120px;
+  }
 }
