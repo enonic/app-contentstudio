@@ -1,9 +1,8 @@
 const mustache = require('/lib/mustache');
-const contextLib = require('/lib/xp/context');
 const portalLib = require('/lib/xp/portal');
 const adminLib = require('/lib/xp/admin');
+const authLib = require('/lib/xp/auth');
 const helper = require('/helpers/dashboard-helper');
-const issueFetcher = __.newBean('com.enonic.xp.app.contentstudio.widget.issues.IssueFetcher');
 
 const handleGet = (req) => {
     const showLast = req.params.showLast || 5;
@@ -30,7 +29,7 @@ const getLastModifiedIssues = (showLast) => {
     const baseToolUri = adminLib.getToolUrl(app.name, 'main');
 
     projects.forEach((project) => {
-        const findIssuesResult = getLastModifiedIssuesInRepo(`com.enonic.cms.${project.id}`, showLast);
+        const findIssuesResult = helper.getIssuesInRepo(`com.enonic.cms.${project.id}`, showLast, authLib.getUser()['key']);
 
         findIssuesResult.getIssues().forEach((issue) => {
             result.push(createIssueItem(issue, project, baseToolUri));
@@ -38,18 +37,6 @@ const getLastModifiedIssues = (showLast) => {
     });
 
     return result;
-}
-
-const getLastModifiedIssuesInRepo = (repositoryId, count) => {
-    return contextLib.run(
-        {
-            repository: repositoryId,
-            branch: 'draft'
-        },
-        () => {
-            return issueFetcher.list(count);
-        }
-    );
 }
 
 const createIssueItem = (issue, project, baseToolUri) => {

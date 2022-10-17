@@ -15,22 +15,23 @@ public final class IssueFetcher
     private static Integer DEFAULT_FETCH_SIZE = 10;
 
     private IssueService issueService;
-
-    public FindIssuesResult list( final Integer size )
+    public FindIssuesResult list( final Integer size, String principalKey)
     {
-        final IssueQuery issueQuery = IssueQuery.create()
-            .approvers( PrincipalKeys.from( ContextAccessor.current().getAuthInfo().getUser().getKey() ) )
+        final IssueQuery.Builder issueQuery = IssueQuery.create()
             .status( IssueStatus.OPEN )
             .from( 0 )
-            .size( size )
-            .build();
+            .size( size );
 
-        return issueService.findIssues( issueQuery );
+        if (principalKey != null) {
+            issueQuery.approvers( PrincipalKeys.from( principalKey ) );
+        }
+
+        return issueService.findIssues( issueQuery.build() );
     }
 
     public FindIssuesResult list()
     {
-        return list( DEFAULT_FETCH_SIZE );
+        return list( DEFAULT_FETCH_SIZE, ContextAccessor.current().getAuthInfo().getUser().getKey().toString() );
     }
 
     @Override

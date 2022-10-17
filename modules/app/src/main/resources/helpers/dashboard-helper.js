@@ -1,4 +1,16 @@
 const projectLib = require('/lib/xp/project');
+const issueFetcher = __.newBean('com.enonic.xp.app.contentstudio.widget.issues.IssueFetcher');
+const contextLib = require('/lib/xp/context');
+
+const getIssuesInRepo = (repositoryId, count, principalKey) => {
+    return contextLib.run(
+        {
+            repository: repositoryId,
+            branch: 'draft'
+        },
+        () => issueFetcher.list(count || -1, principalKey || null)
+    );
+}
 
 const getProjects = () => {
     const projects = projectLib.list();
@@ -67,3 +79,4 @@ const zeroPad = (n, width) => {
 exports.getProjects = getProjects;
 exports.parseDateTime = parseDateTime;
 exports.formatDateTime = formatDateTime;
+exports.getIssuesInRepo = getIssuesInRepo;
