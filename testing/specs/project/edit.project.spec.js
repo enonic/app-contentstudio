@@ -47,7 +47,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.waitForDeleteButtonEnabled();
         });
 
-    it(`GIVEN existing project is selected WHEN the description has been updated THEN new description should be displayed in browse panel`,
+    it(`WHEN existing project is selected THEN expected identifier should be displayed in the settings browse panel`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
