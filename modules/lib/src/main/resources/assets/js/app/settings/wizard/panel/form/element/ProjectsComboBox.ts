@@ -11,17 +11,15 @@ import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/Selected
 import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
 import {ComboBoxConfig} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
 import {ProjectOptionDataLoader} from './ProjectOptionDataLoader';
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 export class ProjectsComboBox extends RichComboBox<Project> {
-
-    private readonly projectsChainBlock: ProjectsChainBlock;
 
     private readonly helper: ProjectOptionDataHelper;
 
     constructor(builder: ProjectsDropdownBuilder = new ProjectsDropdownBuilder()) {
         super(builder);
 
-        this.projectsChainBlock = new ProjectsChainBlock();
         this.helper = builder.optionDataHelper;
 
         this.initListeners();
@@ -37,6 +35,16 @@ export class ProjectsComboBox extends RichComboBox<Project> {
             loader.notifyModeChange(!isFlatList);
 
             return Q.resolve();
+        });
+
+        this.onOptionSelected((option: SelectedOptionEvent<Project>) => {
+            this.getAllProjects().then((projects: Project[]) => {
+                const view: ProjectSelectedOptionView = <ProjectSelectedOptionView>option.getSelectedOption()?.getOptionView();
+                const project: Project = option.getSelectedOption().getOption().getDisplayValue();
+                const subName: string =
+                    ProjectsChainBlock.buildProjectsChain(project.getName(), projects).map((p: Project) => p.getName()).join(' / ');
+                view.getNamesAndIconView().setSubName(subName);
+            }).catch(DefaultErrorHandler.handle);
         });
     }
 
@@ -90,23 +98,6 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         });
 
         this.selectOption(newOption);
-    }
-
-    showProjectsChain(parentName?: string) {
-        if (!parentName) {
-            this.doShowProjectsChain([]);
-            return;
-        }
-
-        this.getAllProjects().then((projects: Project[]) => {
-            const projectsChain: Project[] = ProjectsChainBlock.buildProjectsChain(parentName, projects);
-            this.doShowProjectsChain(projectsChain);
-        }).catch(DefaultErrorHandler.handle);
-    }
-
-    private doShowProjectsChain(projects: Project[]) {
-        this.projectsChainBlock.setProjectsChain(projects);
-        this.prependChild(this.projectsChainBlock);
     }
 
     private getAllProjects(): Q.Promise<Project[]> {
