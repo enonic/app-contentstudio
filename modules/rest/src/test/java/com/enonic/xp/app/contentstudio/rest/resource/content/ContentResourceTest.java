@@ -2102,21 +2102,21 @@ public class ContentResourceTest
 
         Mockito.when( this.binaryExtractor.extract( Mockito.any() ) ).thenReturn( extractedData );
 
-        final UpdateContentParams params = new UpdateContentParams().contentId( ContentId.from( multipartForm.getAsString( "id" ) ) )
-            .createAttachments( CreateAttachments.from( CreateAttachment.create()
-                                                            .mimeType( "image/jpeg" )
-                                                            .name( "_thumbnail" )
-                                                            .byteSource( byteSource )
-                                                            .text( "myTextValue" )
-                                                            .build() ) );
+        ArgumentCaptor<UpdateContentParams> argumentCaptor = ArgumentCaptor.forClass( UpdateContentParams.class );
 
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
 
-        Mockito.when( this.contentService.update( params ) ).thenReturn( content );
+        Mockito.when( this.contentService.update( Mockito.any( UpdateContentParams.class ) ) ).thenReturn( content );
 
         contentResource.updateThumbnail( multipartForm );
 
-        Mockito.verify( this.contentService, Mockito.times( 1 ) ).update( params );
+        Mockito.verify( this.contentService, Mockito.times( 1 ) ).update( argumentCaptor.capture() );
+
+        assertTrue( argumentCaptor.getValue().getContentId().toString().equals( "id" ) );
+        final CreateAttachment createAttachment = argumentCaptor.getValue().getCreateAttachments().stream().findFirst().get();
+        assertEquals( "_thumbnail", createAttachment.getName());
+        assertEquals( com.google.common.net.MediaType.JPEG.toString(), createAttachment.getMimeType());
+        assertTrue( createAttachment.getByteSource().contentEquals( byteSource ));
     }
 
 
@@ -2144,24 +2144,22 @@ public class ContentResourceTest
 
         Mockito.when( this.binaryExtractor.extract( Mockito.any() ) ).thenReturn( extractedData );
 
-        final UpdateContentParams params = new UpdateContentParams().contentId( ContentId.from( multipartForm.getAsString( "id" ) ) )
-            .createAttachments( CreateAttachments.from( CreateAttachment.create()
-                                                            .mimeType( "image/jpeg" )
-                                                            .name( "name" )
-                                                            .byteSource( byteSource )
-                                                            .text( "myTextValue" )
-                                                            .build() ) );
-
         Content content = Mockito.mock( Content.class );
+        ArgumentCaptor<UpdateContentParams> argumentCaptor = ArgumentCaptor.forClass( UpdateContentParams.class );
         Attachment attachment = Attachment.create().name( "name" ).mimeType( "image/jpeg" ).size( 666 ).build();
 
         Mockito.when( content.getAttachments() ).thenReturn( Attachments.create().add( attachment ).build() );
 
-        Mockito.when( this.contentService.update( params ) ).thenReturn( content );
+        Mockito.when( this.contentService.update( Mockito.any(UpdateContentParams.class) ) ).thenReturn( content );
 
         contentResource.createAttachment( multipartForm );
 
-        Mockito.verify( this.contentService, Mockito.times( 1 ) ).update( params );
+        Mockito.verify( this.contentService, Mockito.times( 1 ) ).update( argumentCaptor.capture() );
+        assertTrue( argumentCaptor.getValue().getContentId().toString().equals( "id" ) );
+        final CreateAttachment createAttachment = argumentCaptor.getValue().getCreateAttachments().stream().findFirst().get();
+        assertEquals( "name", createAttachment.getName());
+        assertEquals( "image/jpeg", createAttachment.getMimeType());
+        assertTrue( createAttachment.getByteSource().contentEquals( byteSource ));
     }
 
     @Test
