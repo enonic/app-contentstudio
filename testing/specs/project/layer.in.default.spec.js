@@ -38,7 +38,7 @@ describe('layer.in.default.spec - ui-tests for creating a layer in Default proje
             await layerWizard.waitForCopyLanguageFromParentDisabled();
             await layerWizard.waitForCopyAccessModeFromParentDisabled();
             await layerWizard.waitForCopyRolesFromParentDisabled();
-            //3. Verify that 'Default' is parent project:
+            //3. Verify that 'Default' is parent project in the layer:
             let actualParent = await layerWizard.getParentProjectName();
             assert.equal(actualParent, "Default", "Default project should be parent");
         });
