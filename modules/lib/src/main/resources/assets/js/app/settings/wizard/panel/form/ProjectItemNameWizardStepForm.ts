@@ -53,13 +53,6 @@ export class ProjectItemNameWizardStepForm
         this.getProjectComboBox().setEnabled(false);
     }
 
-    showProjectsChain(parentName?: string) {
-        if (!this.getProjectComboBox()) {
-            return;
-        }
-        this.getProjectComboBox().showProjectsChain(parentName);
-    }
-
     getParentProject(): string {
         return this.parentProjectFormItem ? this.getProjectComboBox().getValue() : undefined;
     }
@@ -114,7 +107,6 @@ export class ProjectItemNameWizardStepForm
     }
 
     disableParentProjectElements(parentProject: string) {
-        this.showProjectsChain(parentProject);
         this.disableParentProjectHelpText();
         this.disableParentProjectInput();
     }
