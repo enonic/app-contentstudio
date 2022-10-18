@@ -148,7 +148,6 @@ export class ProjectWizardPanel
             this.projectWizardStepForm.disableProjectNameHelpText();
             const parentProject = item.getData().getParent();
             if (parentProject) {
-                this.projectWizardStepForm.showProjectsChain(parentProject);
                 this.projectWizardStepForm.disableParentProjectHelpText();
                 this.projectWizardStepForm.disableParentProjectInput();
             }
