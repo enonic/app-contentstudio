@@ -306,7 +306,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         return this.getText(selector)
     }
 
-    getProjectDescription(name) {
+    getProjectIdentifier(name) {
         let selector = XPATH.projectItemByName(name) + "//p[contains(@class,'sub-name')]";
         return this.getText(selector)
     }

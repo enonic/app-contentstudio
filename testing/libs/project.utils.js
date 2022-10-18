@@ -13,13 +13,13 @@ const ProjectWizardDialogSummaryStep = require('../page_objects/project/project-
 
 module.exports = {
 
-    async saveTestProject(name, description, language, permissions, accessMode, applications) {
+    async saveTestProject(name, description, language, permissions, accessMode, applications, identifier) {
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
         let summaryStep = new ProjectWizardDialogSummaryStep();
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.clickOnNewButton();
         await parentProjectStep.waitForLoaded();
-        let project = this.buildProject( language, accessMode, permissions, applications, name, null, description);
+        let project = this.buildProject( language, accessMode, permissions, applications, name, identifier, description);
         await this.fillFormsWizard(project);
         await summaryStep.waitForLoaded();
         await summaryStep.clickOnCreateProjectButton();
@@ -100,6 +100,9 @@ module.exports = {
         if (description) {
             await nameAndIdStep.typeDescription(description);
         }
+        if (identifier) {
+            await nameAndIdStep.typeTextInProjectIdentifierInput(identifier);
+        }
         await nameAndIdStep.clickOnNextButton();
         return new ProjectWizardDialogSummaryStep();
     },
@@ -122,7 +125,7 @@ module.exports = {
         }
         let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
         await nameAndIdStep.waitForLoaded();
-        let projectWizardDialogSummaryStep = await this.fillNameAndDescriptionStep(project.name, null, project.description);
+        let projectWizardDialogSummaryStep = await this.fillNameAndDescriptionStep(project.name, project.identifier, project.description);
         await projectWizardDialogSummaryStep.waitForLoaded();
     },
     async fillFormsWizardAndClickOnCreateButton(project) {
