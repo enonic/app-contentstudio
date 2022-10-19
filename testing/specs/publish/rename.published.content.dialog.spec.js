@@ -155,9 +155,9 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             //5. Verify that one Unpublished version item is visible in the content:
             let unpublishedItems = await wizardVersionsWidget.countUnpublishedItems();
             assert.equal(unpublishedItems, 1, "One Unpublished item should be displayed");
-            //6. Verify that Moved version item remains visible:
-            let movedItems = await wizardVersionsWidget.countMovedItems();
-            assert.equal(movedItems, 1, "1 Moved item remains visible");
+            //6. Verify that Renamed version item remains visible:
+            let renamedItems = await wizardVersionsWidget.countRenamedItems();
+            assert.equal(renamedItems, 1, "1 Renamed item remains visible");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

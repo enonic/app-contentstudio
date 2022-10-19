@@ -101,7 +101,11 @@ class BaseVersionsWidget extends Page {
         let items = await this.findElements(this.movedItems);
         return items.length;
     }
-
+    async countRenamedItems() {
+        await this.waitForElementDisplayed(this.renamedItems, appConst.mediumTimeout)
+        let items = await this.findElements(this.renamedItems);
+        return items.length;
+    }
     async countEditedItems() {
         await this.waitForElementDisplayed(this.editedItems, appConst.mediumTimeout)
         let items = await this.findElements(this.editedItems);
