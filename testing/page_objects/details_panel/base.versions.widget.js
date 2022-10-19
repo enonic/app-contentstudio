@@ -11,7 +11,7 @@ const xpath = {
     versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
     itemByDisplayName: displayName => `${lib.itemByDisplayName(displayName)}`,
     anyItemByHeader: header => `//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'${header}')]]`,
-    compareWithCurrentVersionButtonLocator: ".//button[@title='Compare with current version']",
+    compareWithCurrentVersionButtonLocator: ".//button[@title='Show changes']",
 };
 
 class BaseVersionsWidget extends Page {
