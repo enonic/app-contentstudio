@@ -73,7 +73,6 @@ module.exports = Object.freeze({
     MY_FIRST_APP: "My First App",
     FIRST_SELENIUM_APP: "First Selenium App",
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
-    APP_WITH_METADATA_MIXIN: 'Third Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
     YOUR_COMMENT_ADDED: 'Your comment is added to the task.',
     LOCALIZED_MESSAGE_1: "Language was copied from current project.",
@@ -82,6 +81,12 @@ module.exports = Object.freeze({
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     TAB_TITLE_PART: "/ Content",
     CONTENT_STUDIO_TITLE: "Content Studio",
+    TEST_APPS_NAME: {
+        SIMPLE_SITE_APP: 'Simple Site App',
+        APP_WITH_CONFIG_OPTION_SET: "Simple Test Selenium App",
+        APP_WITH_METADATA_MIXIN: 'Third Selenium App',
+    },
+
     VERSIONS_ITEM_HEADER: {
         PERMISSIONS_UPDATED: 'Permissions updated',
         CREATED: "Created",

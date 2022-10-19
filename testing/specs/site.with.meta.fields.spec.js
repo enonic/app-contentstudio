@@ -1,7 +1,5 @@
 /**
  * Created on 01.02.2018.
- * Verifies the https://github.com/enonic/xp-apps/issues/533
- * Impossible to save application metadata in the site wizard when the site is opened for the first time #533
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -25,14 +23,14 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site-meta');
-            SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConst.APP_WITH_METADATA_MIXIN]);
+            SITE = contentBuilder.buildSite(displayName, 'test for metadata', [appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
             //1. New site is added:
             await studioUtils.doAddSite(SITE);
             //2. Type the name in the filter-panel:
             await studioUtils.typeNameInFilterPanel(displayName);
             await contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
             studioUtils.saveScreenshot('site_metadata1');
-            //3. red icon should be displayed because required input(meta-data) was not filled:
+            //3. red icon should be displayed because the required input(meta-data) was not filled:
             let result = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
             assert.isTrue(result, "'Red icon' should be displayed near the content, because the required input for metadata is empty");
         });
@@ -74,12 +72,12 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site-meta');
-            let testSite = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConst.APP_WITH_METADATA_MIXIN]);
+            let testSite = contentBuilder.buildSite(displayName, 'test for metadata', [appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
             //1. New site-wizard is opened:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(testSite.displayName);
             //2. Application with controllers has been selected:
-            await siteFormPanel.addApplications([appConst.APP_WITH_METADATA_MIXIN]);
+            await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
             //the site automatically saved:
             //3. Description has been typed:
             await metadataStepForm.typeDescription('test description');
