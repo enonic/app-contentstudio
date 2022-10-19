@@ -1,4 +1,3 @@
-import {ContentVersionPublishInfo} from '../../../../ContentVersionPublishInfo';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
@@ -16,14 +15,8 @@ export enum VersionItemStatus {
     EDITED = 'edited',
     SORTED = 'sorted',
     PERMISSIONS = 'permissions',
-    MOVED = 'moved'
-}
-
-export interface CreateParams {
-    createdDate?: Date;
-    isSort?: boolean;
-    isPermissionsChange?: boolean;
-    isMove?: boolean;
+    MOVED = 'moved',
+    RENAMED = 'renamed'
 }
 
 export class VersionHistoryItem implements Cloneable {
@@ -52,6 +45,8 @@ export class VersionHistoryItem implements Cloneable {
 
     private readonly alias: VersionHistoryItemAlias;
 
+    private static statusClassMap: Map<VersionItemStatus, string> = VersionHistoryItem.initStatusClassMap();
+
     constructor(builder: VersionHistoryItemBuilder) {
         this.contentId = builder.contentId;
         this.user = builder.user;
@@ -59,7 +54,7 @@ export class VersionHistoryItem implements Cloneable {
         this.activeFrom = builder.activeFrom;
         this.activeTo = builder.activeTo;
         this.status = builder.status;
-        this.iconCls = builder.iconCls;
+        this.iconCls = builder.iconCls || VersionHistoryItem.statusClassMap.get(builder.status);
         this.message = builder.message;
         this.skipDate = builder.skipDate;
         this.republished = builder.republished;
@@ -67,60 +62,23 @@ export class VersionHistoryItem implements Cloneable {
         this.alias = builder.alias;
     }
 
-    static fromPublishInfo(contentVersion: ContentVersion): VersionHistoryItemBuilder {
-        const builder: VersionHistoryItemBuilder = new VersionHistoryItemBuilder();
-        const publishInfo: ContentVersionPublishInfo = contentVersion.getPublishInfo();
+    private static initStatusClassMap(): Map<VersionItemStatus, string> {
+        const map: Map<VersionItemStatus, string> = new Map<VersionItemStatus, string>;
 
-        builder.setVersion(contentVersion)
-            .setDateTime(publishInfo.getTimestamp())
-            .setUser(publishInfo.getPublisherDisplayName() || publishInfo.getPublisher());
+        map.set(VersionItemStatus.CREATED, 'icon-wand');
+        map.set(VersionItemStatus.SORTED, 'icon-sort-amount-asc');
+        map.set(VersionItemStatus.MOVED, 'icon-tab');
+        map.set(VersionItemStatus.PERMISSIONS, 'icon-masks');
+        map.set(VersionItemStatus.MARKED_AS_READY, 'icon-state-ready');
+        map.set(VersionItemStatus.EDITED, 'icon-version-modified');
+        map.set(VersionItemStatus.SCHEDULED, 'icon-clock');
+        map.set(VersionItemStatus.PUBLISHED, 'icon-version-published');
+        map.set(VersionItemStatus.UNPUBLISHED, 'icon-version-unpublished');
+        map.set(VersionItemStatus.ARCHIVED, 'icon-archive');
+        map.set(VersionItemStatus.RESTORED, 'icon-restore');
+        map.set(VersionItemStatus.RENAMED, 'icon-version-modified');
 
-        if (publishInfo.isPublished()) {
-            if (publishInfo.isScheduled()) {
-                builder.setStatus(VersionItemStatus.SCHEDULED).setIconCls('icon-clock');
-            } else {
-                builder.setStatus(VersionItemStatus.PUBLISHED)
-                    .setIconCls('icon-version-published')
-                    .setActiveFrom(publishInfo.getPublishedFrom());
-            }
-            builder.setActiveTo(publishInfo.getPublishedTo());
-        } else if (publishInfo.isUnpublished()) {
-            builder.setIconCls('icon-version-unpublished').setStatus(VersionItemStatus.UNPUBLISHED);
-        } else if (publishInfo.isArchived()) {
-            builder.setIconCls('icon-archive').setStatus(VersionItemStatus.ARCHIVED);
-        } else if (publishInfo.isRestored()) {
-            builder.setIconCls('icon-restore').setStatus(VersionItemStatus.RESTORED);
-        } else if (publishInfo.isCustom()) {
-            builder.setIconCls('icon-version-modified').setStatus(VersionItemStatus.EDITED);
-        }
-
-        builder.setMessage(publishInfo.getMessage());
-
-        return builder;
-    }
-
-    static fromContentVersion(contentVersion: ContentVersion, createParams: CreateParams): VersionHistoryItemBuilder {
-        const builder: VersionHistoryItemBuilder = new VersionHistoryItemBuilder();
-
-        builder.setVersion(contentVersion)
-            .setDateTime(createParams.createdDate || contentVersion.getTimestamp())
-            .setUser(contentVersion.getModifierDisplayName() || contentVersion.getModifier());
-
-        if (createParams.createdDate) {
-            builder.setIconCls('icon-wand').setStatus(VersionItemStatus.CREATED);
-        } else if (createParams.isSort) {
-            builder.setIconCls('icon-sort-amount-asc').setStatus(VersionItemStatus.SORTED);
-        } else if (createParams.isMove) {
-            builder.setIconCls('icon-tab').setStatus(VersionItemStatus.MOVED);
-        } else if (createParams.isPermissionsChange) {
-            builder.setIconCls('icon-masks').setStatus(VersionItemStatus.PERMISSIONS);
-        } else if (contentVersion.isInReadyState()) {
-            builder.setIconCls('icon-state-ready').setStatus(VersionItemStatus.MARKED_AS_READY);
-        } else {
-            builder.setIconCls('icon-version-modified').setStatus(VersionItemStatus.EDITED);
-        }
-
-        return builder;
+        return map;
     }
 
     getContentId(): ContentId {
