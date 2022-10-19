@@ -226,7 +226,15 @@ class BaseVersionsWidget extends Page {
             throw new Error("'Moved' items are not displayed in the widget, screenshot: " + screenshot + " " + err);
         }
     }
-
+    async waitForRenamedItemDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.renamedItems, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_renamed_item");
+            await this.saveScreenshot(screenshot);
+            throw new Error("'Renamed' items are not displayed in the widget, screenshot: " + screenshot + " " + err);
+        }
+    }
     async getContentStatus() {
         let locator = this.versionsWidget + "/div[contains(@class,'status')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);

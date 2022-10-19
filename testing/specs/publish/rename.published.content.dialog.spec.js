@@ -138,7 +138,7 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             await renamePublishedContentDialog.waitForRenameButtonDisabled();
         });
 
-    it("GIVEN Moved folder has been opened THEN 'Moved' version item should be visible in the published content",
+    it("GIVEN renamed folder has been opened THEN 'Renamed' version item should be visible in the published content",
         async () => {
             let wizardDetailsPanel = new WizardDetailsPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
@@ -146,8 +146,8 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME, TEST_FOLDER.displayName);
             //2. Open Versions widget:
             await wizardDetailsPanel.openVersionHistory();
-            //3. Verify that Moved version item is visible in the published content:
-            await wizardVersionsWidget.waitForMovedItemDisplayed();
+            //3. Verify that Renamed version item is visible in the published content:
+            await wizardVersionsWidget.waitForRenamedItemDisplayed();
             await studioUtils.saveScreenshot("moved_versions_after_publishing");
             //4. Verify that 2 Published version items are visible in the content:
             let publishedItems = await wizardVersionsWidget.countPublishedItems();

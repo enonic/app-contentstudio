@@ -17,6 +17,7 @@ const XPATH = {
     permissionsUpdatedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Permissions updated')]]",
     markedAsReadyListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Marked as Ready')]]",
     movedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Moved')]]",
+    renamedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Renamed')]]",
 };
 
 class BrowseVersionsWidget extends BaseVersionsWidget {
@@ -56,6 +57,9 @@ class BrowseVersionsWidget extends BaseVersionsWidget {
 
     get movedItems() {
         return this.versionsWidget + XPATH.versionsList + XPATH.movedListItem;
+    }
+    get renamedItems() {
+        return this.versionsWidget + XPATH.versionsList + XPATH.renamedListItem;
     }
 }
 
