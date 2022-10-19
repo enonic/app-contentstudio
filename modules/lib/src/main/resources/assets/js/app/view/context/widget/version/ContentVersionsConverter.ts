@@ -1,9 +1,11 @@
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {ContentVersion, ContentVersionBuilder} from '../../../../ContentVersion';
+import {ContentVersion} from '../../../../ContentVersion';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {CreateParams, VersionHistoryItem} from './VersionHistoryItem';
+import {VersionHistoryItem, VersionHistoryItemBuilder, VersionItemStatus} from './VersionHistoryItem';
 import {ContentVersions} from '../../../../ContentVersions';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ContentPath} from '../../../../content/ContentPath';
+import {ContentVersionPublishInfo} from '../../../../ContentVersionPublishInfo';
 
 export class ContentVersionsConverter {
 
@@ -80,17 +82,50 @@ export class ContentVersionsConverter {
 
     private createHistoryItemFromPublishInfo(version: ContentVersion, index: number): VersionHistoryItem {
         const publishDateAsString: string = DateHelper.formatDate(version.getDisplayDate());
+        const publishInfo: ContentVersionPublishInfo = version.getPublishInfo();
+        const status: VersionItemStatus = this.getPublishVersionItemStatus(version);
 
-        const item: VersionHistoryItem = VersionHistoryItem
-            .fromPublishInfo(version)
+        const builder: VersionHistoryItemBuilder = new VersionHistoryItemBuilder()
+            .setStatus(status)
+            .setVersion(version)
+            .setDateTime(publishInfo.getTimestamp())
+            .setUser(publishInfo.getPublisherDisplayName() || publishInfo.getPublisher())
             .setSkipDate(publishDateAsString === this.lastDate)
             .setRepublished(this.isRepublished(version, index))
-            .setContentId(this.content.getContentId())
-            .build();
+            .setMessage(publishInfo.getMessage())
+            .setContentId(this.content.getContentId());
+
+        if (publishInfo.isPublished()) {
+            builder.setActiveTo(publishInfo.getPublishedTo());
+
+            if (!publishInfo.isScheduled()) {
+                builder.setActiveFrom(publishInfo.getPublishedFrom());
+            }
+        }
 
         this.lastDate = publishDateAsString;
 
-        return item;
+        return builder.build();
+    }
+
+    private getPublishVersionItemStatus(version: ContentVersion): VersionItemStatus {
+        const publishInfo: ContentVersionPublishInfo = version.getPublishInfo();
+
+        if (publishInfo.isPublished()) {
+            if (publishInfo.isScheduled()) {
+                return VersionItemStatus.SCHEDULED;
+            } else {
+                return VersionItemStatus.PUBLISHED;
+            }
+        } else if (publishInfo.isUnpublished()) {
+            return VersionItemStatus.UNPUBLISHED;
+        } else if (publishInfo.isArchived()) {
+            return VersionItemStatus.ARCHIVED;
+        } else if (publishInfo.isRestored()) {
+            return VersionItemStatus.RESTORED;
+        }
+
+        return VersionItemStatus.EDITED;
     }
 
     private isRepublished(version: ContentVersion, index: number): boolean {
@@ -112,9 +147,15 @@ export class ContentVersionsConverter {
 
     private createHistoryItemFromVersion(version: ContentVersion): VersionHistoryItem {
         const timestampAsString: string = this.getVersionTimestampAsString(version);
+        const isFirstVersion: boolean = version === this.getFirstVersion();
+        const timestamp: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getTimestamp();
+        const status: VersionItemStatus = this.getRegularVersionItemStatus(version);
 
-        const item: VersionHistoryItem = VersionHistoryItem
-            .fromContentVersion(version, this.createHistoryItemsParams(version))
+        const item: VersionHistoryItem = new VersionHistoryItemBuilder()
+            .setStatus(status)
+            .setDateTime(timestamp)
+            .setVersion(version)
+            .setUser(version.getModifierDisplayName() || version.getModifier())
             .setSkipDate(timestampAsString === this.lastDate)
             .setContentId(this.content.getContentId())
             .build();
@@ -134,26 +175,38 @@ export class ContentVersionsConverter {
         return this.filteredVersions.slice().pop();
     }
 
-    private createHistoryItemsParams(version: ContentVersion): CreateParams {
+    private getRegularVersionItemStatus(version: ContentVersion): VersionItemStatus {
         const isFirstVersion: boolean = version === this.getFirstVersion();
-        const timestamp: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getTimestamp();
+
+        if (isFirstVersion) {
+            return VersionItemStatus.CREATED;
+        }
+
         const previousVersion: ContentVersion = this.getPreviousVersion(version);
+        const isSort: boolean = !ObjectHelper.equals(version.getChildOrder(), previousVersion?.getChildOrder());
+
+        if (isSort) {
+            return VersionItemStatus.SORTED;
+        }
 
         const isNonDataChange: boolean = !isFirstVersion &&
                                          !ContentVersion.equalDates(version.getTimestamp(), version.getModified(), 200);
-        const isMove: boolean = !ObjectHelper.stringEquals(version.getPath(), previousVersion?.getPath()) &&
-                                (isNonDataChange || previousVersion?.hasPublishInfo());
-        const isSort: boolean = !ObjectHelper.equals(version.getChildOrder(), previousVersion?.getChildOrder());
+
+        if ((isNonDataChange || previousVersion?.hasPublishInfo()) && this.isPathChanged(version, previousVersion)) {
+            return this.getMoveOrRenameStatus(version, previousVersion);
+        }
+
         const isPermissionsChange: boolean = isNonDataChange && this.isPermissionChange(version, previousVersion);
 
-        const createParams: CreateParams = {
-            createdDate: isFirstVersion ? timestamp : null,
-            isSort: isSort,
-            isMove: isMove,
-            isPermissionsChange: isPermissionsChange
-        };
+        if (isPermissionsChange) {
+            return VersionItemStatus.PERMISSIONS;
+        }
 
-        return createParams;
+        if (version.isInReadyState()) {
+            return VersionItemStatus.MARKED_AS_READY;
+        }
+
+        return VersionItemStatus.EDITED;
     }
 
     private getPreviousVersion(version: ContentVersion): ContentVersion {
@@ -169,6 +222,25 @@ export class ContentVersionsConverter {
         });
 
         return previousVersion;
+    }
+
+    private isPathChanged(version: ContentVersion, previousVersion: ContentVersion): boolean {
+        if (!previousVersion) {
+            return false;
+        }
+
+        return !ObjectHelper.stringEquals(version.getPath(), previousVersion.getPath());
+    }
+
+    private getMoveOrRenameStatus(version: ContentVersion, previousVersion: ContentVersion): VersionItemStatus {
+        const path: ContentPath = ContentPath.create().fromString(version.getPath()).build();
+        const previousPath: ContentPath = ContentPath.create().fromString(previousVersion.getPath()).build();
+
+        if (path.getParentPath()?.equals(previousPath.getParentPath())) {
+            return VersionItemStatus.RENAMED;
+        }
+
+        return VersionItemStatus.MOVED;
     }
 
     private isPermissionChange(version: ContentVersion, previousVersion: ContentVersion): boolean {
