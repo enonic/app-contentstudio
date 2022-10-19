@@ -513,14 +513,20 @@ class ContentWizardPanel extends Page {
             await this.waitForSaveButtonVisible();
             return await this.waitForElementEnabled(this.saveButton, appConst.mediumTimeout);
         } catch (err) {
-            throw new Error("Save button should be enabled in the wizard: " + err);
+            let screenshot = appConst.generateRandomName("err_save_button");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Save button should be enabled in the wizard, screenshot: " + screenshot + "  " + err);
         }
     }
 
-    waitForSaveButtonDisabled() {
-        return this.waitForElementDisabled(this.saveButton, appConst.mediumTimeout).catch(err => {
-            throw new Error("Content Wizard -Save button should be disabled! " + err);
-        })
+    async waitForSaveButtonDisabled() {
+        try {
+            await this.waitForElementDisabled(this.saveButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_save_button");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Content Wizard - Save button should be disabled! Screenshot:" + screenshot + "  " + err);
+        }
     }
 
     waitForSaveButtonVisible() {

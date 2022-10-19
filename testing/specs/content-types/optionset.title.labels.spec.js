@@ -86,7 +86,6 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         async () => {
             let contentWizard = new ContentWizard();
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
-            let singleSelectionOptionSet = new SingleSelectionOptionSet();
             //1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
             await contentWizard.typeDisplayName(OPTION_SET_NAME1);
