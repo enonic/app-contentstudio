@@ -15,6 +15,7 @@ const xpath = {
     permissionsUpdatedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Permissions updated')]]",
     markedAsReadyListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Marked as Ready')]]",
     movedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Moved')]]",
+    renamedListItem: "//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'Renamed')]]",
 };
 
 class WizardVersionsWidget extends BaseVersionsWidget {
@@ -59,6 +60,9 @@ class WizardVersionsWidget extends BaseVersionsWidget {
 
     get movedItems() {
         return this.versionsWidget + xpath.versionsList + xpath.movedListItem;
+    }
+    get renamedItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.renamedListItem;
     }
 }
 
