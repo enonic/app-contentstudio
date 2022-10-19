@@ -166,6 +166,10 @@ export class VersionHistoryItem implements Cloneable {
         return this.status === VersionItemStatus.PERMISSIONS;
     }
 
+    isRenamed(): boolean {
+        return this.status === VersionItemStatus.RENAMED;
+    }
+
     getContentVersion(): ContentVersion {
         return this.version;
     }

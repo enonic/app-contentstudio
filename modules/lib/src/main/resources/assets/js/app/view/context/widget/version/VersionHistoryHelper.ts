@@ -9,7 +9,8 @@ export class VersionHistoryHelper {
     static isRevertableItem(version: VersionHistoryItem): boolean {
         return VersionHistoryHelper.isComparableItem(version) &&
                !version.isMoved() &&
-               !version.isPermissions();
+               !version.isPermissions() &&
+               !version.isRenamed();
     }
 
     static isComparableItem(version: VersionHistoryItem): boolean {
