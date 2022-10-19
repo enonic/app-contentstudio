@@ -106,6 +106,10 @@ generate "_my-cool-project_" in the *Identifier* field and upon save the new rep
 
 TIP: You can only use alphanumeric characters and "-" in the *Identifier* field. Value of the field will be validated for uniqueness.
 
+NOTE: If you are creating a layer (an upstream project is selected) and have selected Default Language on a previous
+step, the system will try to predict/preset values in the Display Name and Description fields based on combination of the
+upstream project's display name/description and the new layer's language.
+
 image::new-project-dialog-6.png[Base Properties, 470]
 
 === Summary

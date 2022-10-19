@@ -27,7 +27,6 @@ image::rich-text-editor-link-dialog-3.png[470, Insert Link dialog]
 image::rich-text-editor-link-dialog-1.png[470, Insert Link dialog]
 image::rich-text-editor-link-dialog-2.png[470, Insert Link dialog]
 
-
 === Collaboration
 
 This experimental feature that has been introduced in Content Studio 4.1 has now been thoroughly tested in cluster environment and turned on by default.
@@ -44,6 +43,19 @@ Creation of a new content project is now done by completing the <<storage/projec
 :imagesdir: storage/projects/images
 
 image::new-project-dialog-7.png[New Project summary, 470]
+
+=== RTL support in text inputs
+
+Support of RTL (right-to-left) languages have been added for TextLine, TextArea and HtmlArea input types, as well as for Text components.
+Currently supported RTL languages are: Arabic ('ar'), Dhivehi ('dv'), Persian/Farsi ('fa'), Hausa ('ha'), Hebrew ('he'), Kashmiri ('ks'),
+Kurdish ('ku'), Pashto('ps'), Sindhi ('sd'), Urdu ('ur'), Yiddish ('yi').
+
+If content language is set to one of these languages, inputs of types TextLine, TextArea and HtmlArea, as well as Text components inside Page Editor, will be set to right-to-left direction.
+
+:imagesdir: release/images
+
+image::cs43-rtl.png[RTL inputs, 470]
+
 
 == Content Studio 4 Update 2
 
