@@ -64,12 +64,14 @@ export class ContentVersionsConverter {
     }
 
     private isSameVersionForDraftAndMaster(publishedVersion: ContentVersion): boolean {
-        if (!publishedVersion.getPublishInfo()) {
-            return false;
+        const publishInfo: ContentVersionPublishInfo = publishedVersion.getPublishInfo();
+
+        if (publishInfo?.isPublished() || publishInfo?.isScheduled()) {
+            return this.getPreviousVersion(publishedVersion)?.hasPublishInfo() || publishedVersion.getTimestamp().getTime() -
+                   publishedVersion.getModified().getTime() < ContentVersionsConverter.FILTER_STEP_MS;
         }
 
-        return this.getPreviousVersion(publishedVersion)?.hasPublishInfo() || publishedVersion.getTimestamp().getTime() -
-               publishedVersion.getModified().getTime() < ContentVersionsConverter.FILTER_STEP_MS;
+        return false;
     }
 
     private versionToHistoryItem(version: ContentVersion, index: number): VersionHistoryItem {
