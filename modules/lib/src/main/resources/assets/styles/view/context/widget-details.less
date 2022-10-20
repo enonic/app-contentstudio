@@ -31,20 +31,15 @@
 
   .properties-widget-item-view {
     dl {
-      overflow: hidden;
-
-      dt {
-        .ellipsis();
-      }
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: 20px;
+      grid-column-gap: 10px;
 
       dd, dt {
-        padding: 1px 0;
-        float: left;
-        width: 50%;
+        .ellipsis();
       }
     }
-
-    min-height: 115px;
   }
 
   .attachments-widget-item-view {
@@ -82,14 +77,12 @@
 
   .status-widget-item-view {
     text-align: center;
-    height: 35px;
 
     span {
       display: inline-block;
       width: 100%;
       height: 100%;
       font-size: 18px;
-      line-height: 35px;
       background-color: @admin-white;
 
       &.equal {
@@ -179,6 +172,10 @@
           line-height: 29px;
           top: 3px;
           right: 10px;
+          max-width: 60px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: break-spaces;
         }
       }
     }
