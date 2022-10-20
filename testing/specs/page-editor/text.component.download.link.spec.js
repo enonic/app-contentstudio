@@ -115,8 +115,8 @@ describe('Text Component with CKE - insert download-link specification', functio
             await wizardVersionsWidget.waitForActiveVersionButtonNotDisplayed();
             await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
             //5. Verify that 'Compare with current version' button is displayed in Moved item:
-            let result = await wizardVersionsWidget.isCompareWithCurrentVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
-            assert.isTrue(result, "'Compare with current version' button should be present in Moved version item ")
+            let result = await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
+            assert.isTrue(result, "'Show changes' button should be present in Moved version item ");
         });
 
     it(`GIVEN Moved content has been opened WHEN 'Compare Content Versions Dialog' has been opened for the latest moved item THEN left revert menu buttons should be enabled`,

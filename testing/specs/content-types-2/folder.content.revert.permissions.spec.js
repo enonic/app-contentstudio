@@ -57,18 +57,16 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             let numberItems = await wizardVersionsWidget.countPermissionsUpdatedItems();
             assert.equal(numberItems, 1, "One 'Permissions updated'  item should be present in the widget");
 
-            //8. Verify 'Compare with current version' in all version items:
-            let isDisplayed = await wizardVersionsWidget.isCompareWithCurrentVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.CREATED,
-                0);
-            assert.isFalse(isDisplayed, "'Compare with current version' button should not be displayed for the first item (Created)");
+            //8. Verify 'Show changes' in all version items:
+            let isDisplayed = await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
+            assert.isFalse(isDisplayed, "'Show changes' button should not be displayed for the first item (Created)");
 
             isDisplayed =
-                await wizardVersionsWidget.isCompareWithCurrentVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
-            assert.isTrue(isDisplayed,
-                "'Compare with current version' button should be displayed in the first Permissions updated-item");
+                await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
+            assert.isTrue(isDisplayed, "'Show changes' button should be displayed in the first Permissions updated-item");
 
-            isDisplayed = await wizardVersionsWidget.isCompareWithCurrentVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
-            assert.isTrue(isDisplayed, "'Compare with current version' button should be displayed in Edit-item");
+            isDisplayed = await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            assert.isTrue(isDisplayed, "'Show changes' button should be displayed in Edit-item");
         });
 
     it(`WHEN 'Permissions updated' item has been clicked THEN 'Revert' button should not be visible in the item`,

@@ -4,10 +4,6 @@ const XPATH = {};
 
 class SiteConfiguratorWitOptionSetDialog extends BaseSiteConfiguratorDialog {
 
-    get cancelButton() {
-        return XPATH.container + `${XPATH.cancelButton}`;
-    }
-
     async clickOnOption(option) {
         let multiSelectionOptionSet = new MultiSelectionOptionSet();
         await multiSelectionOptionSet.clickOnOption(option);
@@ -17,7 +13,6 @@ class SiteConfiguratorWitOptionSetDialog extends BaseSiteConfiguratorDialog {
         let multiSelectionOptionSet = new MultiSelectionOptionSet();
         return await multiSelectionOptionSet.isCheckboxSelected(option);
     }
-
 }
 
 module.exports = SiteConfiguratorWitOptionSetDialog;
