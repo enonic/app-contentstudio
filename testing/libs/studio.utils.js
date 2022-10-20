@@ -681,6 +681,8 @@ module.exports = {
             let contentWizardPanel = new ContentWizardPanel();
             return await contentWizardPanel.waitForSpinnerNotVisible();
         } catch (err) {
+            let screenshot = appConst.generateRandomName("err_switch_window");
+            await this.saveScreenshot(screenshot);
             await this.getBrowser().pause(1500);
             await this.getBrowser().switchWindow(contentDisplayName);
         }
