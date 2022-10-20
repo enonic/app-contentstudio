@@ -54,8 +54,18 @@ If content language is set to one of these languages, inputs of types TextLine, 
 
 :imagesdir: release/images
 
-image::cs43-rtl.png[RTL inputs, 470]
+image::cs43-rtl.png[RTL inputs, 860]
 
+
+=== Version History improvements
+
+:imagesdir: widgets/images
+image:widgets-version-compare-icon.png[Version history, 24] icon now compares the selected version to the previous one, not to the current one.
+
+The widget now displays content versions created for Permissions update, Sort and Move actions.
+
+:imagesdir: release/images
+image::cs43-version-history.png[Version History, 430]
 
 == Content Studio 4 Update 2
 

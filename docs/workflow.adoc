@@ -2,8 +2,6 @@
 :toc: right
 :imagesdir: workflow/images
 
-CAUTION: Content Workflow requires XP 7.1.0 and Content Studio 2.1.0
-
 Content Workflow in Content Studio consists of the following stages:
 
 * In progress
