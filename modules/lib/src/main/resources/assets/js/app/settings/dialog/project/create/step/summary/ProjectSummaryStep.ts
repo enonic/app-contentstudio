@@ -90,7 +90,7 @@ export class ProjectSummaryStep
 
     private createAndAddIdContainer(): void {
         const idNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(i18n('dialog.project.wizard.summary.id.title'));
-        this.idContainer = new SummaryValueContainer();
+        this.idContainer = new SummaryValueContainer('id-value-container');
         this.dataContainer.prependChild(this.idContainer);
         this.dataContainer.prependChild(idNameContainer);
     }
