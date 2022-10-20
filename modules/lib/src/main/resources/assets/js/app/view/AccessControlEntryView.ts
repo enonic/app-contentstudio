@@ -20,7 +20,8 @@ export class AccessControlEntryView
         super(ace, readonly);
     }
 
-    doLayout(object: Principal) {
+    doLayout(object: Principal): void {
+        console.log('doLayout');
         super.doLayout(object);
 
         if (AccessControlEntryView.debug) {
@@ -30,48 +31,63 @@ export class AccessControlEntryView
         // permissions will be set on access selector value change
 
         if (!this.accessSelector) {
-            this.accessSelector = new AccessSelector();
-            this.accessSelector.setEnabled(this.isEditable());
-            this.appendChild(this.accessSelector);
+            this.initAccessSelector();
         }
+
         this.accessSelector.setValue(AccessControlEntryView.getAccessValueFromEntry(this.item), true);
 
         this.appendRemoveButton();
 
         if (!this.permissionSelector) {
-            this.permissionSelector = new PermissionSelector();
-            this.permissionSelector.setEnabled(this.isEditable());
-            this.permissionSelector.onValueChanged((event: ValueChangedEvent) => {
-                this.toggleClass('dirty', event.getNewValue() !== JSON.stringify({
-                    allow: this.item.getAllowedPermissions().sort(),
-                    deny: this.item.getDeniedPermissions().sort()
-                }));
-                this.notifyValueChanged(this.getItem());
-            });
-
-            this.accessSelector.onValueChanged((event: AccessChangedEvent) => {
-                if (event.getNewValue() === Access.CUSTOM) {
-                    this.permissionSelector.show();
-                } else {
-                    if (event.getOldValue() === Access.CUSTOM) {
-                        this.permissionSelector.hide();
-                    }
-                    this.permissionSelector.setValue(this.getPermissionsValueFromAccess(event.getNewValue()));
-                }
-            });
-
-            if (this.accessSelector.getValue() === Access.CUSTOM) {
-                this.permissionSelector.onAdded(() => {
-                    this.permissionSelector.show();
-                });
-            }
-            this.appendChild(this.permissionSelector);
+            this.initPermissionSelector();
         }
+
         this.permissionSelector.setValue({allow: this.item.getAllowedPermissions(), deny: this.item.getDeniedPermissions()}, true);
     }
 
-    getPermissionSelector(): PermissionSelector {
-        return this.permissionSelector;
+    private initAccessSelector(): void {
+        this.accessSelector = new AccessSelector();
+        this.accessSelector.setEnabled(this.isEditable());
+        this.appendChild(this.accessSelector);
+    }
+
+    private initPermissionSelector(): void {
+        this.permissionSelector = new PermissionSelector();
+        this.permissionSelector.setEnabled(this.isEditable());
+        this.permissionSelector.hide();
+
+        this.initSelectorListeners();
+
+        this.whenRendered(() => {
+            this.permissionSelector.insertAfterEl(this);
+        });
+    }
+
+    private initSelectorListeners(): void {
+        if (this.accessSelector.getValue() === Access.CUSTOM) {
+            this.permissionSelector.onAdded(() => {
+                this.permissionSelector.show();
+            });
+        }
+
+        this.permissionSelector.onValueChanged((event: ValueChangedEvent) => {
+            this.toggleClass('dirty', event.getNewValue() !== JSON.stringify({
+                allow: this.item.getAllowedPermissions().sort(),
+                deny: this.item.getDeniedPermissions().sort()
+            }));
+            this.notifyValueChanged(this.getItem());
+        });
+
+        this.accessSelector.onValueChanged((event: AccessChangedEvent) => {
+            if (event.getNewValue() === Access.CUSTOM) {
+                this.permissionSelector.show();
+            } else {
+                if (event.getOldValue() === Access.CUSTOM) {
+                    this.permissionSelector.hide();
+                }
+                this.permissionSelector.setValue(this.getPermissionsValueFromAccess(event.getNewValue()));
+            }
+        });
     }
 
     setEditable(editable: boolean) {
