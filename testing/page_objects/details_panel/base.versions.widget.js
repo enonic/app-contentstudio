@@ -11,13 +11,13 @@ const xpath = {
     versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
     itemByDisplayName: displayName => `${lib.itemByDisplayName(displayName)}`,
     anyItemByHeader: header => `//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'${header}')]]`,
-    compareWithCurrentVersionButtonLocator: ".//button[@title='Show changes']",
+    showChangesButtonLocator: ".//button[@title='Show changes']",
 };
 
 class BaseVersionsWidget extends Page {
 
     get compareWithCurrentVersionButton() {
-        return this.versionsWidget + lib.COMPARE_WITH_CURRENT_VERSION;
+        return this.versionsWidget + lib.VERSIONS_SHOW_CHANGES_BUTTON;
     }
 
     get revertButton() {
@@ -253,8 +253,8 @@ class BaseVersionsWidget extends Page {
             await buttons[index].click();
             return await this.pause(400);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_click_on_compare"));
-            throw new Error("Version Widget - error when clicking on CompareWithCurrentVersionButton " + err);
+            await this.saveScreenshot(appConst.generateRandomName("err_click_on_show_changes"));
+            throw new Error("Version Widget - error when clicking on Show changes button " + err);
         }
     }
 
@@ -262,12 +262,12 @@ class BaseVersionsWidget extends Page {
         try {
             let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
             let versionItems = await this.findElements(itemLocator);
-            let buttonElements = await versionItems[index].$$(xpath.compareWithCurrentVersionButtonLocator);
+            let buttonElements = await versionItems[index].$$(xpath.showChangesButtonLocator);
             await buttonElements[0].click();
             return await this.pause(200);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_click_on_compare"));
-            throw new Error("Version Widget - error when clicking on CompareWithCurrentVersionButton " + err);
+            throw new Error("Version Widget - error when clicking on Show changes button " + err);
         }
     }
 
@@ -309,10 +309,10 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    async isCompareWithCurrentVersionButtonDisplayed(itemHeader, index) {
+    async isShowChangesInVersionButtonDisplayed(itemHeader, index) {
         let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
         let elements = await this.findElements(itemLocator);
-        let buttonElements = await elements[index].$$(xpath.compareWithCurrentVersionButtonLocator);
+        let buttonElements = await elements[index].$$(xpath.showChangesButtonLocator);
         return buttonElements.length > 0;
     }
 }
