@@ -37,19 +37,19 @@ image::widgets-details.png[,212]
 
 === Version History
 
-A new version of content will be created each time you make changes to the content. Version History widget lists all versions of the content
+For every action applied to the content throughout its lifecycle a new content version is created. This widget lists all content versions
 and allows comparing the versions and reverting content to a specific version. In addition to versions, the widget also shows
 publish and unpublish actions. Current content status is displayed in the Widget header.
 
 To revert to the specific version, click on the version box to expand details, and then click the `Revert` button. Note that current version
 cannot be reverted and is therefore not expandable, as well as Publish/Unpublish actions.
 
+NOTE: Some versions cannot be reverted, for example those created by Permissions Update, Rename and Move operations.
+
 image::widgets-version-history.png[Version history, 283]
 
-By clicking the  image:widgets-version-compare-icon.png[Version history, 24] icon you can compare the version with the current (or any other)
-version in the `Compare versions` modal dialog.
-
-NOTE: Version Comparison has been introduced in Content Studio 3.0.0 and requires XP 7.3.0 or higher.
+A click on the  image:widgets-version-compare-icon.png[Version history, 24] icon will open the `Compare versions` modal dialog displaying
+changes done in this specific version compared to the previous one.
 
 Two dropdowns on top of the dialog contain the full list of versions: the left one (`Older`) is the one being compared, and the right one (`Newer`)
 is the one being compared against. By default the version you clicked will be selected in the left dropdown and current/active version will
