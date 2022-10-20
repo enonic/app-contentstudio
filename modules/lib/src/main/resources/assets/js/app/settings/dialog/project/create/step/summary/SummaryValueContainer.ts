@@ -9,7 +9,7 @@ export class SummaryValueContainer extends SummaryItemContainer {
     }
 
     protected createItemContainer(): Element {
-        return new H6El();
+        return new H6El('default-item-value-container');
     }
 
     updateValue(value: any): SummaryValueContainer {
