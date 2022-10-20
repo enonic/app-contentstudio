@@ -156,11 +156,15 @@ class BaseBrowsePanel extends Page {
         })
     }
 
-    waitForEditButtonEnabled() {
-        return this.waitForElementEnabled(this.editButton, appConst.longTimeout).catch(err => {
-            this.saveScreenshot('err_edit_button');
-            throw Error('Edit button is not enabled after ' + appConst.longTimeout + 'ms')
-        })
+    async waitForEditButtonEnabled() {
+        try {
+            await this.waitForElementEnabled(this.editButton, appConst.longTimeout);
+            return await this.pause(300);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_edit_button');
+            await this.saveScreenshot(screenshot);
+            throw Error('Edit button is not enabled, screenshot: ' + screenshot + " " + err);
+        }
     }
 
     isEditButtonEnabled() {
