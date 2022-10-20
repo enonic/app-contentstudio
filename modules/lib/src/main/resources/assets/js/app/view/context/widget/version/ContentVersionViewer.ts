@@ -24,7 +24,7 @@ export class ContentVersionViewer
 
     setObject(item: VersionHistoryItem) {
         const version: ContentVersion = item.getContentVersion();
-        const displayDate: Date = version.getDisplayDate();
+        const displayDate: Date = item.getDateTime();
         const displayName: string = version.hasPublishInfo() ?
                              version.getPublishInfo().getPublisherDisplayName() : version.getModifierDisplayName();
         const isAlias: boolean = item.isAlias();
