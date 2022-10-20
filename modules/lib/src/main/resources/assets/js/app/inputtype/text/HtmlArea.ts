@@ -159,6 +159,8 @@ export class HtmlArea
     }
 
     resetInputOccurrenceElement(occurrence: Element) {
+        super.resetInputOccurrenceElement(occurrence);
+
         occurrence.getChildren().forEach((child) => {
             if (ObjectHelper.iFrameSafeInstanceOf(child, TextArea)) {
                 (<TextArea>child).resetBaseValues();
