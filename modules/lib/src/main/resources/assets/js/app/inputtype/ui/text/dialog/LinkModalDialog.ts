@@ -276,7 +276,7 @@ export class LinkModalDialog
         };
 
         const contentPanel = this.createFormPanel([
-            this.createSelectorFormItem('contentId', i18n('dialog.link.formitem.target'),
+            this.createSelectorFormItem('contentId', i18n('field.content'),
                 this.createSelector(getContentId, this.createContentSelectorBuilder()),
                 true),
             this.createMediaOptionRadio('contentMediaRadio'),
@@ -292,7 +292,7 @@ export class LinkModalDialog
 
 
     private createUrlPanel(): Panel {
-        const urlFormItem = this.createUrlFormItem('url', 'Link');
+        const urlFormItem = this.createUrlFormItem('url', i18n('dialog.link.formitem.url'));
         const urlInput = <TextInput>urlFormItem.getInput();
         this.protocolsDropdownButton = this.createProtocolsDropdownButton(urlFormItem, urlInput);
         urlFormItem.prependChild(this.protocolsDropdownButton);
@@ -616,7 +616,7 @@ export class LinkModalDialog
     }
 
     private createProtocolsDropdownButton(formItem: FormItem, textInput: TextInput): MenuButton {
-        const protocolsDropdownButton = new MenuButton(new Action('Type'));
+        const protocolsDropdownButton = new MenuButton(new Action(i18n('field.type')));
         protocolsDropdownButton.addClass('menu-button-type');
 
         const actions = this.urlProtocols.map(({title, prefix, validator}) => {
