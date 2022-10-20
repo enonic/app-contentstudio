@@ -85,7 +85,7 @@ public class DeleteRunnableTaskTest
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
         assertEquals(
-            "{\"state\":\"WARNING\",\"message\":\"3 items are deleted ( \\\"content3\\\" is marked for deletion ). Item \\\"content2\\\" could not be deleted.\"}",
+            "{\"state\":\"WARNING\",\"message\":\"2 items are deleted. Item \\\"content2\\\" could not be deleted.\"}",
             resultMessage );
     }
 
@@ -105,24 +105,6 @@ public class DeleteRunnableTaskTest
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
         assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content4\\\" is deleted.\"}", resultMessage );
-    }
-
-    @Test
-    public void create_message_single_pending()
-        throws Exception
-    {
-        Mockito.when( params.getContentPaths() )
-            .thenReturn( contents.subList( 3, 4 ).stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
-        Mockito.when( contentService.deleteWithoutFetch( Mockito.isA( DeleteContentParams.class ) ) ).
-            thenReturn( DeleteContentsResult.create().addPending( contents.get( 3 ).getId() ).build() );
-
-        createAndRunTask();
-
-        Mockito.verify( progressReporter, Mockito.times( 2 ) ).info( contentQueryArgumentCaptor.capture() );
-
-        final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
-
-        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content4\\\" is marked for deletion.\"}", resultMessage );
     }
 
     @Test
