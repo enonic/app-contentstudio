@@ -83,18 +83,20 @@ export class PublishScheduleForm
 
     public setFormVisible(flag: boolean, silent?: boolean) {
         this.scheduleFormWrapper.setVisible(flag);
-        this.scheduleFormView.displayValidationErrors(false);   // hide validation
 
         if (!flag) {
-            const data = this.scheduleFormView.getData();
+            const data: PropertySet = this.scheduleFormView.getData();
             data.reset();
 
             if (this.scheduleFormView.isRendered()) {
                 this.scheduleFormView.update(data, false);
+                this.scheduleFormView.reset();
             }
 
             this.removeClass('invalid');
         }
+
+        this.scheduleFormView.displayValidationErrors(false);   // hide validation
 
         if (!silent) {
             this.notifyFormVisibilityChanged(flag);
