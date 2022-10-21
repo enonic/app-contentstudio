@@ -327,11 +327,8 @@ export class ContentTreeGrid
 
     appendUploadNode(item: UploadItem<ContentSummary>) {
         const data: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromUploadItem(item);
-        const parent: TreeNode<ContentSummaryAndCompareStatus> = this.getFirstSelectedOrHighlightedNode();
-
-        if (!parent) {
-            return;
-        }
+        const parent: TreeNode<ContentSummaryAndCompareStatus> =
+            this.getFirstSelectedOrHighlightedNode() || this.getRoot().getDefaultRoot();
 
         if (!parent.isExpandable() || parent.hasChildren()) {
             const uploadNode: TreeNode<ContentSummaryAndCompareStatus> = this.dataToTreeNode(data, parent);
