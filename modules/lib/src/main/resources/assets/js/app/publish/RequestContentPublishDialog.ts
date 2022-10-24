@@ -13,20 +13,25 @@ import {PublishRequest} from '../issue/PublishRequest';
 import {PublishRequestItem} from '../issue/PublishRequestItem';
 import {IssueType} from '../issue/IssueType';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
-import {TextLine} from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
-import {PrincipalSelector} from '../inputtype/selector/PrincipalSelector';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
-import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
-import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
-import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {TogglableStatusSelectionItem} from '../dialog/DialogTogglableItemList';
+import {ContentId} from '../content/ContentId';
+import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
+import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
+import {PrincipalLoader} from '../security/PrincipalLoader';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
+enum Step {
+    ITEMS, DETAILS
+}
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
  * Resolved items are converted into array of SelectionPublishItem<ContentPublishItem> items and stored in selectionItems property.
@@ -40,8 +45,6 @@ export class RequestContentPublishDialog
 
     private requestPublishAction: Action;
 
-    private requestDetailsPropertySet: PropertySet;
-
     private requestDetailsStep: DivEl;
 
     private publishItemsStep: DivEl;
@@ -50,7 +53,11 @@ export class RequestContentPublishDialog
 
     private nextAction: Action;
 
-    private detailsFormView: FormView;
+    private detailsForm: Form;
+
+    private detailsFormItem: FormItem;
+
+    private assigneesFormItem: FormItem;
 
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
 
@@ -74,61 +81,75 @@ export class RequestContentPublishDialog
         return RequestContentPublishDialog.INSTANCE;
     }
 
-    protected initActions() {
+    protected initActions(): void {
         super.initActions();
 
         this.requestPublishAction = new Action(i18n('action.createRequest')).onExecuted(() => this.doRequestPublish());
-        this.prevAction = new Action(i18n('action.previous')).onExecuted(() => this.goToStep(0));
-        this.nextAction = new Action(i18n('action.next')).onExecuted(() => this.goToStep(1));
+        this.prevAction = new Action(i18n('action.previous')).onExecuted(() => this.goToStep(Step.ITEMS));
+        this.nextAction = new Action(i18n('action.next')).onExecuted(() => this.goToStep(Step.DETAILS));
     }
 
-    protected initElements() {
+    protected initElements(): void {
         super.initElements();
 
-        this.publishProcessor.setCheckPublishable(false);
-
         this.actionButton = this.addAction(this.requestPublishAction);
-
-        this.requestDetailsPropertySet = new PropertySet();
-
-        const detailsForm = this.createDetailsForm();
-
         this.publishItemsStep = new DivEl('publish-items-step');
         this.requestDetailsStep = new DivEl('request-details-step');
 
-        this.detailsFormView = new FormView(FormContext.create().build(), detailsForm, this.requestDetailsPropertySet);
-        this.detailsFormView.displayValidationErrors(false);
-        this.detailsFormView.layout(false);
-
-        this.requestDetailsPropertySet.onChanged((event: PropertyEvent) => {
-            this.detailsFormView.validate(false, true);
-            this.detailsFormView.displayValidationErrors(!this.detailsFormView.getData().isEmpty());
-
-            this.updateControls();
-        });
+        this.detailsFormItem = this.createDetailsFormItem();
+        this.assigneesFormItem = this.createAssigneesFormItem();
+        this.detailsForm = this.createForm();
 
         this.getButtonRow().makeActionMenu(this.nextAction, [this.markAllAsReadyAction]);
     }
 
-    protected initListeners() {
+    private createForm(): Form {
+        const detailsForm: Form = new Form(FormView.VALIDATION_CLASS);
+
+        const fieldSet: Fieldset = new Fieldset();
+        fieldSet.add(this.detailsFormItem);
+        fieldSet.add(this.assigneesFormItem);
+        detailsForm.add(fieldSet);
+
+        return detailsForm;
+    }
+
+    protected postInitElements(): void {
+        super.postInitElements();
+
+        this.publishProcessor.setCheckPublishable(false);
+    }
+
+    protected initListeners(): void {
         super.initListeners();
 
         this.publishProcessor.onLoadingFailed(() => {
             this.setSubTitle(i18n('dialog.requestPublish.error.loadFailed'));
         });
+
+        (<PrincipalComboBox>this.assigneesFormItem.getInput()).onValueChanged(() => this.handleDataChanged());
+        (<TextInput>this.detailsFormItem.getInput()).onValueChanged(() => this.handleDataChanged());
+    }
+
+    private handleDataChanged(): void {
+        this.detailsForm.addClass(FormView.VALIDATION_CLASS);
+        this.detailsForm.validate(true);
+        this.updateControls();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            const issueIcon = new DivEl('icon-publish-request opened');
+            const issueIcon: DivEl = new DivEl('icon-publish-request opened');
             this.prependChildToHeader(issueIcon);
 
             this.appendChildToContentPanel(this.publishIssuesStateBar);
 
+            this.detailsForm.addClass('details-form-view');
+
             this.publishItemsStep.appendChildren(this.getItemList(), this.getDependantsContainer());
             this.appendChildToContentPanel(this.publishItemsStep);
 
-            this.requestDetailsStep.appendChildren<Element>(this.publishScheduleForm, this.detailsFormView);
+            this.requestDetailsStep.appendChildren<Element>(this.publishScheduleForm, this.detailsForm);
             this.appendChildToContentPanel(this.requestDetailsStep);
 
             this.addAction(this.prevAction).addClass('force-enabled prev');
@@ -138,97 +159,106 @@ export class RequestContentPublishDialog
         });
     }
 
-    private createDetailsForm(): Form {
-        const changes = new InputBuilder()
-            .setName('changes')
+    private createDetailsFormItem(): FormItem {
+        return new FormItemBuilder(TextInput.middle('details-text-input'))
             .setLabel(i18n('dialog.requestPublish.changes'))
-            .setInputType(TextLine.getName())
-            .setOccurrences(new OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
-            .setMaximizeUIInputWidth(true)
+            .setValidator(Validators.required)
             .build();
-
-        const assignees = new InputBuilder()
-            .setName('assignees')
-            .setLabel(i18n('dialog.requestPublish.assignees'))
-            .setInputType(PrincipalSelector.getName())
-            .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(0).build())
-            .setMaximizeUIInputWidth(true)
-            .setInputTypeConfig({
-                principalType: PrincipalType[PrincipalType.USER],
-                skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]
-            })
-            .build();
-
-        return new FormBuilder().addFormItem(changes).addFormItem(assignees).build();
     }
 
-    private goToStep(num: number) {
-        this.requestPublishAction.setVisible(num === 1);
-        this.publishItemsStep.setVisible(num === 0);
-        this.requestDetailsStep.setVisible(num === 1);
-        this.prevAction.setVisible(num === 1);
-        this.getButtonRow().getActionMenu().setVisible(num === 0);
+    private createAssigneesFormItem(): FormItem {
+        const principalLoader = new PrincipalLoader()
+            .setAllowedTypes([PrincipalType.USER])
+            .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
+        const assigneesCombobox: PrincipalComboBox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(principalLoader).build();
+
+        return new FormItemBuilder(assigneesCombobox).setLabel(i18n('dialog.requestPublish.assignees')).build();
+    }
+
+    private goToStep(step: Step): void {
+        const isDetailsStep: boolean = step === Step.DETAILS;
+        this.requestPublishAction.setVisible(isDetailsStep);
+        this.publishItemsStep.setVisible(!isDetailsStep);
+        this.requestDetailsStep.setVisible(isDetailsStep);
+        this.prevAction.setVisible(isDetailsStep);
+        this.getButtonRow().getActionMenu().setVisible(!isDetailsStep);
         this.setSubTitle(i18n(`dialog.requestPublish.subname${this.getCurrentStep() + 1}`));
         this.updateControls();
-        if (num === 1) {
-            this.detailsFormView.giveFocus();
+
+        if (isDetailsStep) {
+            this.detailsFormItem.getInput().giveFocus();
         }
     }
 
     private getCurrentStep(): number {
-        return this.detailsFormView.isVisible() ? 1 : 0;
+        return this.detailsFormItem.isVisible() ? 1 : 0;
     }
 
-    open() {
+    open(): void {
         this.publishScheduleForm.setFormVisible(false, true);   // form will be reset on hide as well
         this.publishProcessor.reloadPublishDependencies(true);
-        this.requestDetailsPropertySet.reset();
 
-        if (this.detailsFormView.isRendered()) {
-            this.detailsFormView.update(this.requestDetailsPropertySet, false);
-        }
+        (<TextInput>this.detailsFormItem.getInput()).setValue('');
+        (<PrincipalComboBox>this.assigneesFormItem.getInput()).clearCombobox();
+        this.detailsForm.removeClass(FormView.VALIDATION_CLASS);
 
-        this.goToStep(0);
+        this.goToStep(Step.ITEMS);
 
         super.open();
     }
 
-    private doRequestPublish() {
-
+    private doRequestPublish(): void {
         this.lockControls();
         this.publishProcessor.setIgnoreDependantItemsChanged(true);
 
-        const selectedIds = this.getContentToPublishIds();
-        const exludeChildrenIds = this.getItemList().getExcludeChildrenIds();
-        const publishRequest = PublishRequest.create()
-            .addPublishRequestItems(selectedIds.map(id =>
-                PublishRequestItem.create()
-                    .setId(id)
-                    .setIncludeChildren(!ArrayHelper.contains(exludeChildrenIds, id))
-                    .build()))
-            .addExcludeIds(this.getExcludedIds())
-            .build();
-
-        const changes = this.requestDetailsPropertySet.getString('changes');
-        const assignees = this.requestDetailsPropertySet.getPropertyArray('assignees');
-
-        const createIssueRequest = new CreateIssueRequest()
-            .setTitle(changes)
-            .setType(IssueType.PUBLISH_REQUEST)
-            .setApprovers(assignees ? assignees.map((prop) => {
-                return PrincipalKey.fromString(prop.getReference().getNodeId());
-            }) : undefined)
-            .setPublishRequest(publishRequest);
-
-        createIssueRequest.sendAndParse().then((issue: Issue) => {
+        this.createIssuesRequest().sendAndParse().then((issue: Issue) => {
             showSuccess(i18n('notify.publishRequest.created'));
             this.notifyIssueCreated(issue);
-        }).catch((reason) => {
-            this.unlockControls();
-            this.close();
-            if (reason && reason.message) {
-                showError(reason.message);
-            }
+        }).catch((reason: any) => {
+            this.handleErrorOnPublishRequest(reason);
+        });
+    }
+
+    private handleErrorOnPublishRequest(reason: any): void {
+        this.unlockControls();
+        this.close();
+
+        if (reason?.message) {
+            showError(reason.message);
+        }
+    }
+
+    private createIssuesRequest(): CreateIssueRequest {
+        return new CreateIssueRequest()
+            .setTitle(this.getDetailsText())
+            .setType(IssueType.PUBLISH_REQUEST)
+            .setApprovers(this.getApprovers())
+            .setPublishRequest(this.createPublishRequest());
+    }
+
+    private getDetailsText(): string {
+        return (<TextInput>this.detailsFormItem.getInput()).getValue();
+    }
+
+    private getApprovers(): PrincipalKey[] {
+        return (<PrincipalComboBox>this.assigneesFormItem.getInput()).getSelectedDisplayValues().map((p: Principal) => p.getKey());
+    }
+
+    private createPublishRequest(): PublishRequest {
+        return PublishRequest.create()
+            .addPublishRequestItems(this.getPublishRequestItems())
+            .addExcludeIds(this.getExcludedIds())
+            .build();
+    }
+
+    private getPublishRequestItems(): PublishRequestItem[] {
+        const excludeChildrenIds: ContentId[] = this.getItemList().getExcludeChildrenIds();
+
+        return this.getContentToPublishIds().map((id: ContentId) => {
+            return PublishRequestItem.create()
+                .setId(id)
+                .setIncludeChildren(!ArrayHelper.contains(excludeChildrenIds, id))
+                .build();
         });
     }
 
@@ -236,7 +266,7 @@ export class RequestContentPublishDialog
         return <RequestContentPublishDialog>super.setContentToPublish(contents);
     }
 
-    setIncludeChildItems(include: boolean, silent?: boolean) {
+    setIncludeChildItems(include: boolean, silent?: boolean): RequestContentPublishDialog {
         this.getItemList().getItemViews()
             .filter((itemView: TogglableStatusSelectionItem) => itemView.hasChildrenItems())
             .forEach((itemView: TogglableStatusSelectionItem) => itemView.toggleIncludeChildren(include, silent));
@@ -244,7 +274,7 @@ export class RequestContentPublishDialog
         return this;
     }
 
-    protected updateSubTitle(itemsToPublish: number = this.countTotal()) {
+    protected updateSubTitle(itemsToPublish: number = this.countTotal()): void {
         this.setSubTitle(i18n(`dialog.requestPublish.subname${this.getCurrentStep() + 1}`));
 
         if (itemsToPublish === 0) {
@@ -260,7 +290,7 @@ export class RequestContentPublishDialog
 
         const canPublish: boolean = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
         const scheduleValid: boolean = this.isScheduleFormValid();
-        const detailsValid: boolean = this.detailsFormView.validate().isValid();
+        const detailsValid: boolean = !this.detailsFormItem.getError() && !StringHelper.isBlank(this.getDetailsText());
 
         this.requestPublishAction.setEnabled(canPublish && scheduleValid && detailsValid);
         this.nextAction.setEnabled(canPublish);
@@ -272,16 +302,15 @@ export class RequestContentPublishDialog
         this.requestPublishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.createRequest')));
     }
 
-    private notifyIssueCreated(issue: Issue) {
+    private notifyIssueCreated(issue: Issue): void {
         this.issueCreatedListeners.forEach(listener => listener(issue));
     }
 
-    public onIssueCreated(listener: (issue: Issue) => void) {
+    public onIssueCreated(listener: (issue: Issue) => void): void {
         this.issueCreatedListeners.push(listener);
     }
 
-    public unIssueCreated(listener: (issue: Issue) => void) {
+    public unIssueCreated(listener: (issue: Issue) => void): void {
         this.issueCreatedListeners = this.issueCreatedListeners.filter(curr => curr !== listener);
     }
 }
-

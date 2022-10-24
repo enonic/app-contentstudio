@@ -7,7 +7,7 @@ const xpath = {
     nextButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Next')]]`,
     previousButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Previous')]]`,
     createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
-    changesInput: `//div[contains(@id,'InputView') and descendant::div[text()='Describe the changes']]`,
+    changesInput: `//div[contains(@id,'FormItem') and descendant::label[text()='Describe the changes']]`,
     showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
@@ -35,7 +35,7 @@ class CreateRequestPublishDialog extends Page {
     }
 
     get assigneesDropDownHandle() {
-        return xpath.container + "//div[contains(@id,'PrincipalSelector')]" + lib.DROP_DOWN_HANDLE;
+        return xpath.container + "//div[contains(@id,'PrincipalComboBox')]" + lib.DROP_DOWN_HANDLE;
     }
 
     get cancelButtonTop() {
