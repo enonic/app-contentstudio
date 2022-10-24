@@ -27,7 +27,7 @@ updates:
       - "rymsha"
     reviewers:
       - "rymsha"
-- package-ecosystem: "npm"
+  - package-ecosystem: "npm"
     directory: "/modules/app"
     schedule:
       interval: "weekly"
