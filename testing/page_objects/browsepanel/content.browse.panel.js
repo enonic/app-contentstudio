@@ -419,21 +419,21 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     waitForPreviewButtonDisabled() {
         return this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_preview_disabled_button');
-            throw Error('Preview button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw Error('Preview button should be disabled : ' + err);
         })
     }
 
     waitForPreviewButtonEnabled() {
         return this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_preview_enabled_button');
-            throw Error('Preview button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw Error('Preview button should be enabled, timeout: ' + err);
         })
     }
 
     waitForDetailsPanelToggleButtonDisplayed() {
         return this.waitForElementDisplayed(this.detailsPanelToggleButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_details_panel_displayed');
-            throw Error('Details Panel toggle button should be displayed, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw Error('Details Panel toggle button should be displayed, timeout: ' + err);
         })
     }
 
@@ -508,21 +508,21 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     waitForMoveButtonDisabled() {
         return this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_move_disabled_button');
-            throw Error('Move button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw Error('Move button should be disabled, timeout: ' + err);
         })
     }
 
     waitForSortButtonEnabled() {
         return this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_sort_enabled_button');
-            throw Error('Sort button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw Error('Sort button should be enabled, timeout: ' + err);
         })
     }
 
     waitForMoveButtonEnabled() {
         return this.waitForElementEnabled(this.moveButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_move_enabled_button');
-            throw Error('Move button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw Error('Move button should be enabled, timeout: ' + err);
         })
     }
 
@@ -556,12 +556,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-    waitForContentByDisplayNameVisible(displayName) {
-        let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(displayName);
-        return this.waitForElementDisplayed(nameXpath, 3000).catch(err => {
-            this.saveScreenshot('err_find_' + displayName);
-            throw Error('Content with the displayName ' + displayName + ' is not visible after ' + 3000 + 'ms')
-        })
+    async waitForContentByDisplayNameVisible(displayName) {
+        try {
+            let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(displayName);
+            await this.waitForElementDisplayed(nameXpath, 3000)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_find_content');
+            this.saveScreenshot(screenshot);
+            throw Error('Content was not found,screenshot ' + screenshot + "  " + err);
+        }
     }
 
     async clickOnCheckboxAndSelectRowByName(name) {

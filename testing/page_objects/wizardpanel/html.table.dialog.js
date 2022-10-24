@@ -44,9 +44,6 @@ class HtmlTableDialog extends Page {
 
     async waitForDialogLoaded() {
         try {
-            let res5 = await this.findElements("//button");
-
-            let res1 = await this.findElements(xpath.container);
             let res = await this.findElements(this.okButton);
             return await this.waitForElementDisplayed(this.okButton, appConst.shortTimeout);
         } catch (err) {

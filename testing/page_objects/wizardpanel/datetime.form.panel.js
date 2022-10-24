@@ -42,6 +42,7 @@ class DateTimeForm extends OccurrencesFormView {
     async getValueInDateTime(index) {
         let dateTimeElements = await this.getDisplayedElements(this.dateTimeInput);
         const value = await dateTimeElements[index].getValue();
+        return value;
     }
 
     waitForValidationRecording() {

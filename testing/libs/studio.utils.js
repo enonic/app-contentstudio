@@ -22,9 +22,7 @@ const BrowseLayersWidget = require('../page_objects/browsepanel/detailspanel/bro
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
 const ProjectSelectionDialog = require('../page_objects/project/project.selection.dialog');
-const ProjectWizard = require('../page_objects/project/project.wizard.panel');
 const SettingsBrowsePanel = require('../page_objects/project/settings.browse.panel');
-const ArchiveBrowsePanel = require('../page_objects/archive/archive.browse.panel');
 const UserBrowsePanel = require('../page_objects/users/userbrowse.panel');
 const UserWizard = require('../page_objects/users/user.wizard');
 const NewPrincipalDialog = require('../page_objects/users/new.principal.dialog');
@@ -70,12 +68,12 @@ module.exports = {
     },
     async clickOnElement(selector) {
         let el = await this.getBrowser().$(selector);
-        await el.waitForDisplayed(1500);
+        await el.waitForDisplayed({timeout: 2000});
         return await el.click();
     },
     async getText(selector) {
         let el = await this.getBrowser().$(selector);
-        await el.waitForDisplayed(1500);
+        await el.waitForDisplayed({timeout: 2000});
         return await el.getText();
     },
 
@@ -91,7 +89,7 @@ module.exports = {
         try {
             let selector = `//iframe[contains(@src,'${src}')]`;
             let el = await this.getBrowser().$(selector);
-            await el.waitForDisplayed(1500);
+            await el.waitForDisplayed({timeout: 2000});
             return await this.getBrowser().switchToFrame(el);
         } catch (err) {
             throw new Error('Error when switch to frame  ' + err);
@@ -824,20 +822,6 @@ module.exports = {
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_open_settings"));
             throw new Error("Settings Panel was not opened: " + err);
-        }
-    },
-    async openArchivePanel() {
-        try {
-            let archiveBrowsePanel = new ArchiveBrowsePanel();
-            await this.openContentStudioMenu();
-            await this.waitForElementDisplayed(lib.SETTINGS_BUTTON, appConst.mediumTimeout);
-            await this.clickOnElement(lib.SETTINGS_BUTTON);
-            await this.getBrowser().pause(300);
-            await archiveBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
-            return archiveBrowsePanel;
-        } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_open_archive"));
-            throw new Error("Archive Panel was not opened: " + err);
         }
     },
     async switchToContentMode() {

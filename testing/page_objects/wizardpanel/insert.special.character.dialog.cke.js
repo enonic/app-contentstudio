@@ -40,6 +40,7 @@ class InsertSpecialCharacterDialog extends Page {
     waitForDialogClosed() {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
-};
+}
+
 module.exports = InsertSpecialCharacterDialog;
 

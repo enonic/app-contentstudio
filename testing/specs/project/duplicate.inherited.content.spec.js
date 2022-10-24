@@ -21,7 +21,6 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const SITE_NAME = studioUtils.generateRandomName('site');
     const EXPECTED_ORDER = `Sorted by "Modified date" in descending order`;
-    const IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.GEEK;
 
     it("Precondition 1 - new layer in Default project should be added by SU",
         async () => {

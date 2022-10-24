@@ -27,11 +27,14 @@ class DefaultPageInspectionPanel extends PageInspectionPanel {
         }
     }
 
-    getTitle() {
-        return this.getTextInInput(this.titleTextInput).catch(err => {
-            this.saveScreenshot('err_get_text_in_caption');
-            throw new Error('error- Default page, Inspect Panel, get text in Title input: ' + err)
-        });
+    async getTitle() {
+        try {
+            return await this.getTextInInput(this.titleTextInput)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_get_title_inspection');
+            await this.saveScreenshot(screenshot);
+            throw new Error('error- Default page, Inspect Panel, get text in Title input, screenshot: ' + screenshot + " " + err);
+        }
     }
 
     async waitForTitleInputDisplayed() {

@@ -20,9 +20,9 @@ const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form
 
 describe('fragment.layout.inspect.panel.spec - Select a site with not valid child and try to publish it', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-        if (typeof browser === "undefined") {
-                webDriverHelper.setupBrowser();
-        }
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let FRAGMENT_LAYOUT_DESCRIPTION = "layout";
     const MAIN_REGION_CONTROLLER = "main region";
@@ -164,11 +164,17 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
             //3. Expand the dropdown and click on the option:
             await fragmentInspectionPanel.clickOnFragmentDropdownHandle();
             await fragmentInspectionPanel.clickOnOptionInFragmentDropdown(LAYOUT_3_COL);
-            await contentWizard.waitForNotificationMessage();
+            let message = await contentWizard.waitForNotificationMessage();
+            assert.equal(message, appConst.itemSavedNotificationMessage(SITE_1_NAME),
+                "Item is saved - this notification message should appear");
             //4. Verify that two 3-col fragments should be displayed in Page Component View:
             let result = await pageComponentView.getPageComponentsDisplayName();
             assert.equal(result[2], LAYOUT_3_COL, "Two 3-col fragments should be present in the Page Component View");
             assert.equal(result[3], LAYOUT_3_COL, "Two 3-col fragments should be present in the Page Component View");
+
+            //Verify issue https://github.com/enonic/app-contentstudio/issues/1504
+            //Fragment Wizard - Save button remains enabled after updating a fragment #1504
+            await contentWizard.waitForSaveButtonDisabled();
         });
 
     it("GIVEN existing fragment is opened WHEN 2-col layout replaced with 3-col layout THEN 3 columns should be present in Live Edit",
@@ -178,7 +184,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
             let contentWizard = new ContentWizardPanel();
             let liveFormPanel = new LiveFormPanel();
             //1. Open the existing site with a fragment:
-            await studioUtils.openContentAndSwitchToTabByDisplayName(FRAGMENT_2_COL_GENERATED_NAME,"25/75" );
+            await studioUtils.openContentAndSwitchToTabByDisplayName(FRAGMENT_2_COL_GENERATED_NAME, "25/75");
             //2. Click on the layout component in Page Components View:
             await contentWizard.clickOnShowComponentViewToggler();
             await pageComponentView.clickOnComponent(LAYOUT_2_COL);

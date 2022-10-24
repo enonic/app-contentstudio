@@ -15,8 +15,8 @@ describe('browse.panel.mark.as.ready.single.content.spec - tests for Request Pub
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
-        let TEST_FOLDER;
     }
+    let TEST_FOLDER;
 
     it("WHEN 'Work in progress' folder is selected AND 'Publish...' menu item has been clicked THEN publishing wizard should be opened AND the folder is Work in progress",
         async () => {
@@ -26,7 +26,7 @@ describe('browse.panel.mark.as.ready.single.content.spec - tests for Request Pub
             TEST_FOLDER = contentBuilder.buildFolder(name);
             //1. 'Work in progress' folder has been added:
             await studioUtils.doAddFolder(TEST_FOLDER);
-            //2. Click on checkbox and select select the folder:
+            //2. Click on checkbox and select the folder:
             await studioUtils.findContentAndClickCheckBox(name);
             //3. Click on 'Publish...' menu item
             await contentBrowsePanel.openPublishMenuSelectItem("Publish...");

@@ -1,7 +1,6 @@
 /**
  * Created on 05.08.2022
  */
-const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ComboBox = require('../../components/loader.combobox');

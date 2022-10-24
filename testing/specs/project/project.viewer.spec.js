@@ -78,7 +78,6 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
 
     it("Precondition 2: ready for publishing folder should be created in the just created project",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             TEST_FOLDER = contentBuilder.buildFolder(FOLDER_NAME);
             //1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp();

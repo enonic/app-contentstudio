@@ -10,7 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const LocaleCodeCustomValidationForm = require('../../page_objects/wizardpanel/locale.code.custom.validation');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-describe('combobox.content.spec: tests for comboBox content', function () {
+describe('inputs.custom.validation.spec: tests for content with custom validation', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();

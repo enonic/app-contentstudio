@@ -257,5 +257,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             throw new Error("Request Details dialog should be closed: " + err);
         }
     }
-};
+}
+
 module.exports = PublishRequestDetailsDialog;

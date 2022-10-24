@@ -9,7 +9,6 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils.js');
-const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 
 describe('project.wizard.panel.spec - ui-tests for project wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -33,11 +32,10 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             //3. Verify that Identifier input is disabled:
             await projectWizard.waitForProjectIdentifierInputDisabled()
             await projectWizard.waitForRolesComboboxDisplayed();
-
-            //3. Verify access mode: all radio button should not be selected:
+            //4. Verify access mode: all radio button should not be selected:
             let isSelected = await projectWizard.isAccessModeRadioSelected("Custom");
             assert.isFalse(isSelected, "'Custom' radio button should not be selected");
-            //4. Verify that Private radio is selected:
+            //5. Verify that Private radio is selected:
             isSelected = await projectWizard.isAccessModeRadioSelected("Private");
             assert.isTrue(isSelected, "'Private' radio button should not be selected");
             isSelected = await projectWizard.isAccessModeRadioSelected("Public");
@@ -48,7 +46,6 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
         async () => {
             await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME,PROJECT_DISPLAY_NAME.toLowerCase());
         });
-
 
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();

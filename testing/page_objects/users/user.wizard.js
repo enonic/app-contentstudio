@@ -127,14 +127,6 @@ class UserWizard extends wizards.WizardPanel {
         });
     }
 
-    //clicks on Remove icon and removes the role
-    removeRole(roleDisplayName) {
-        let removeIconSelector = XPATH.container + `${lib.selectedPrincipalByDisplayName(roleDisplayName)}` + lib.REMOVE_ICON;
-        return this.clickOnElement(removeIconSelector).then(() => {
-            return this.pause(500);
-        })
-    }
-
     addRoles(roleDisplayNames) {
         let result = Promise.resolve();
         roleDisplayNames.forEach(displayName => {

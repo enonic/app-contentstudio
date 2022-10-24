@@ -95,20 +95,6 @@ class FreeFormView extends Page {
         return await this.pause(300);
     }
 
-    //Types a text in the option filter input and select the option:
-    async selectElementType(option) {
-        await this.waitForElementDisplayed(xpath.itemSet + xpath.elementTypeDropdown, appConst.mediumTimeout);
-        await this.clickOnElement(xpath.itemSet + xpath.elementTypeDropdown);
-        await this.typeTextInInput(this.elementTypeOptionFilterInput, option);
-
-        let optionLocator = "//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='element type']]" +
-                            lib.slickRowByDisplayName(option);
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        let element = await this.getDisplayedElements(optionLocator);
-        await element.moveTo();
-        await element.click();
-        return await this.pause(200);
-    }
 }
 
 module.exports = FreeFormView;

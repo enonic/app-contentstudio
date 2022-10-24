@@ -106,15 +106,6 @@ class ArchiveBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async waitForProjectNotDisplayed(projectDisplayName) {
-        try {
-            let selector = XPATH.itemsTreeGrid + lib.itemByDisplayName(projectDisplayName);
-            return await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
-        } catch (err) {
-            throw new Error("projectName is still displayed :" + err);
-        }
-    }
-
     async clickOnRowByDisplayName(displayName) {
         try {
             let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
@@ -188,43 +179,6 @@ class ArchiveBrowsePanel extends BaseBrowsePanel {
             this.saveScreenshot('expander_not_exists ' + name);
             return false;
         })
-    }
-
-    rightClickOnProjectItemByDisplayName(displayName) {
-        const nameXpath = XPATH.container + XPATH.projectItemByDisplayName(displayName);
-        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).then(() => {
-            return this.doRightClick(nameXpath);
-        }).catch(err => {
-            throw Error(`Error when do right click on the row:` + err);
-        })
-    }
-
-    async openProjectByDisplayName(displayName) {
-        let projectWizard = new ProjectWizard();
-        // the root folder(Projects) should be expanded:
-        //1. click on the project:
-        await this.clickOnRowByDisplayName(displayName);
-        //2. wait for Edit button gets enabled:
-        await this.clickOnEditButton();
-        //3. wait for Project is loaded in the wizard page:
-        return await projectWizard.waitForLoaded();
-    }
-
-    async checkAndOpenProjectByDisplayName(displayName) {
-        let projectWizard = new ProjectWizard();
-        // the root folder(Projects) should be expanded:
-        //1. check the project:
-        await this.clickOnCheckboxAndSelectRowByName(displayName);
-        //2. wait for Edit button gets enabled:
-        await this.clickOnEditButton();
-        //3. wait for Project is loaded:
-        await projectWizard.waitForLoaded();
-        return projectWizard;
-    }
-
-    getProjectDisplayName(name) {
-        let selector = XPATH.projectItemByName(name) + "//span[@class='display-name']";
-        return this.getText(selector)
     }
 }
 

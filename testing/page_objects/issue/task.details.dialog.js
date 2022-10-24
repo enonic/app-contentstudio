@@ -1,5 +1,4 @@
 const BaseDetailsDialog = require('./base.details.dialog');
-const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,

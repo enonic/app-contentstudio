@@ -2,8 +2,6 @@
  * Created on 15.02.2018.
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements');
-const utils = require('../../../libs/studio.utils');
 const appConst = require('../../../libs/app_const');
 const ContentWizard = require('../content.wizard.panel');
 const LoaderComboBox = require('../../../page_objects/components/loader.combobox');

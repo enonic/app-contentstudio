@@ -1,10 +1,8 @@
 /**
  * Created on 08.07.2019.
  */
-
 const Page = require('../page');
 const lib = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
 const xpath = {
     container: "//div[contains(@id,'XDataWizardStepForm') and preceding-sibling::div[child::span[text()='Photo']]]",
     lensInput: `//input[contains(@name,'lens')]`,
@@ -48,5 +46,6 @@ class ImagePhotoInfoFormPanel extends Page {
     getDateTimeValue() {
         return this.getTextInInput(this.dateTimeInput);
     }
-};
+}
+
 module.exports = ImagePhotoInfoFormPanel;

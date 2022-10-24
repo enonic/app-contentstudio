@@ -5,7 +5,6 @@
 const BaseSelectorForm = require('./base.selector.form');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const LoaderComboBox = require('../components/loader.combobox');
 const XPATH = {
     container: lib.FORM_VIEW + "//div[contains(@id,'ContentSelector')]",
     selectedOptionByName: option => {

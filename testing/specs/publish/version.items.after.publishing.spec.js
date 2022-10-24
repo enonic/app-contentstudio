@@ -45,7 +45,6 @@ describe('version.items.after.publishing.spec tests for version items', function
             //1. Select the folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
             await wizardDetailsPanel.openVersionHistory();
-            let allVersions = await wizardVersionsWidget.countVersionItems();
             //2. Update permissions:
             await contentWizard.clickOnEditPermissionsButton();
             await editPermissionsDialog.waitForDialogLoaded();
@@ -54,7 +53,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             //3. Verify that 'Permissions updated' item appears in the widget
             await wizardVersionsWidget.waitForPermissionsUpdatedItemDisplayed();
             //4. Verify that the total number of items is 4
-            allVersions = await wizardVersionsWidget.countVersionItems();
+            let allVersions = await wizardVersionsWidget.countVersionItems();
             assert.equal(allVersions,4,"4 version items should be present in the widget");
             //5. Verify that one 'Published' item is present in the widget
             let publishedItems = await wizardVersionsWidget.countPublishedItems();
@@ -77,7 +76,6 @@ describe('version.items.after.publishing.spec tests for version items', function
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
             await wizardDetailsPanel.openVersionHistory();
             //2. Publish the folder:
-            let allVersions = await wizardVersionsWidget.countVersionItems();
             await contentWizard.clickOnPublishButton();
             await publishContentDialog.waitForDialogOpened();
             await publishContentDialog.clickOnPublishNowButton();
@@ -85,7 +83,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             //3. Verify that 'Permissions updated' item remains visible after the publishing
             await wizardVersionsWidget.waitForPermissionsUpdatedItemDisplayed();
             //4. Verify that the total number of version items is 5 now
-            allVersions = await wizardVersionsWidget.countVersionItems();
+            let allVersions = await wizardVersionsWidget.countVersionItems();
             assert.equal(allVersions,5,"Total number of versions should be increased by 1");
             //5. Verify that two 'Published' item is present in the widget
             let publishedItems = await wizardVersionsWidget.countPublishedItems();

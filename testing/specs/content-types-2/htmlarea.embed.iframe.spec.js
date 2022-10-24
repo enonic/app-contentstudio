@@ -16,7 +16,6 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
-    const TEST_TEXT = "test text";
     const ENONIC_IFRAME = "<iframe src='http://www.enonic.com'> enonic</iframe>";
     const ENONIC_URL = "http://www.enonic.com";
     const PREVIEW_MACRO_NOT_ALLOWED = "Preview of this macro is not allowed";

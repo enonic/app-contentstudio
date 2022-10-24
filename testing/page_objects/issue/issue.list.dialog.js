@@ -313,5 +313,6 @@ class IssuesListDialog extends Page {
             throw new Error("Issue List Dialog : error when getting the number in Selected option: " + err);
         }
     }
-};
+}
+
 module.exports = IssuesListDialog;

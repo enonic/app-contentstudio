@@ -31,7 +31,6 @@ describe('project.wizard.dialog.summary.step.spec - ui-tests for Summary wizard 
             let applicationsStep = new ProjectWizardDialogApplicationsStep();
             let accessModeStep = new ProjectWizardDialogAccessModeStep();
             let permissionsStep = new ProjectWizardDialogPermissionsStep();
-            let projectWizard = new ProjectWizard();
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Select Default project:
@@ -44,7 +43,7 @@ describe('project.wizard.dialog.summary.step.spec - ui-tests for Summary wizard 
             //4. Select Private access mode:
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PRIVATE);
             await accessModeStep.clickOnNextButton();
-            //6. Add contributor:
+            //5. Add contributor:
             await permissionsStep.selectProjectAccessRole(appConst.systemUsersDisplayName.SUPER_USER);
             await permissionsStep.clickOnNextButton();
             if (await applicationsStep.isLoaded()) {
@@ -53,7 +52,7 @@ describe('project.wizard.dialog.summary.step.spec - ui-tests for Summary wizard 
             let summaryStep = await projectUtils.fillNameAndDescriptionStep(PROJECT_DISPLAY_NAME);
             await summaryStep.waitForLoaded();
             await studioUtils.saveScreenshot("summary_step");
-            //7. Verify all parameters in the step:
+            //6. Verify all parameters in the step:
             let actualAccessMode = await summaryStep.getAccessMode();
             assert.equal(actualAccessMode, "Private", "Private access mode should be displayed");
             let actualProjectName = await summaryStep.getProjectName();
@@ -63,7 +62,7 @@ describe('project.wizard.dialog.summary.step.spec - ui-tests for Summary wizard 
 
             let actualDefaultLanguage = await summaryStep.getDefaultLanguage();
             assert.equal(actualDefaultLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed");
-            //Verify that Back button is displayed
+            //7. Verify that Back button is displayed
             await summaryStep.waitForBackButtonDisplayed();
         });
 

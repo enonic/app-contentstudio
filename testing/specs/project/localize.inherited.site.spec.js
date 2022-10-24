@@ -56,15 +56,14 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
     it("GIVEN inherited site has been selected WHEN 'Sort' dialog has been opened THEN 'Inherited: Modified date' order should be selected in the modal dialog",
         async () => {
             let sortContentDialog = new SortContentDialog();
-            let projectSelectionDialog = new ProjectSelectionDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. layer's context should be selected automatically:
             //await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
             //2. Select the inherited site and open Sort dialog:
-            let result = await studioUtils.findAndSelectItem(SITE_NAME);
+            await studioUtils.findAndSelectItem(SITE_NAME);
             await contentBrowsePanel.clickOnSortButton();
             await sortContentDialog.waitForDialogVisible();
-            studioUtils.saveScreenshot("inherited_site_order");
+            await studioUtils.saveScreenshot("inherited_site_order");
             //3. Verify that 'Inherited' order is selected and Save button is disabled:
             let actualOrder = await sortContentDialog.getSelectedOrder();
             assert.equal(actualOrder, EXPECTED_ORDER, "Inherited order should be selected in the modal dialog");
@@ -78,7 +77,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             //1. layer's context should be selected automatically:
             //await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
             //2. Select the inherited site and open Sort dialog:
-            let result = await studioUtils.findAndSelectItem(SITE_NAME);
+            await studioUtils.findAndSelectItem(SITE_NAME);
             await contentBrowsePanel.clickOnSortButton();
             await sortContentDialog.waitForDialogVisible();
             await sortContentDialog.clickOnMenuButton();
