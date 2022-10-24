@@ -30,6 +30,7 @@
   }
 
   .project-viewer {
+    margin-left: 10px;
     display: flex;
     pointer-events: none;
     flex-shrink: 0;
@@ -40,24 +41,7 @@
       display: flex;
       align-items: center;
 
-      &::before {
-        color: @admin-white;
-      }
-
-      .@{_COMMON_PREFIX}wrapper {
-        margin-right: 0;
-        padding: 0 10px;
-
-        .font-icon-default {
-          &::before {
-            color: @admin-white;
-            font-size: 30px;
-          }
-        }
-      }
-
       .@{_COMMON_PREFIX}names-view {
-        margin-left: 0;
 
         .@{_COMMON_PREFIX}main-name {
           color: @admin-white;

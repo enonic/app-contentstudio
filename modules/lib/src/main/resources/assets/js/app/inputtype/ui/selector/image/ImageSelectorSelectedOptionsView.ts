@@ -172,16 +172,8 @@ export class ImageSelectorSelectedOptionsView
         selectedOption.getOptionView().setOption(newOption);
     }
 
-    makeEmptyOption(id: string): Option<MediaTreeSelectorItem> {
-        const item: MediaTreeSelectorItem = new MediaTreeSelectorItem(null)
-            .setDisplayValue(MediaSelectorDisplayValue.makeEmpty())
-            .setMissingItemId(id);
-
-        return Option.create<MediaTreeSelectorItem>()
-                .setValue(id)
-                .setDisplayValue(item)
-                .setEmpty(true)
-                .build();
+    protected getEmptyDisplayValue(id: string): MediaTreeSelectorItem {
+        return new MediaTreeSelectorItem().setMissingItemId(id);
     }
 
     private uncheckOthers(option: SelectedOption<MediaTreeSelectorItem>) {

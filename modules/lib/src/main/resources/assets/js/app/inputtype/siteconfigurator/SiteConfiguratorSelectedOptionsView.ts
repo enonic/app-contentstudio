@@ -41,17 +41,12 @@ export class SiteConfiguratorSelectedOptionsView
         });
     }
 
-    makeEmptyOption(id: string): Option<Application> {
-        const key: ApplicationKey = ApplicationKey.fromString(id);
+    protected getEmptyDisplayValue(id: string): Application {
         const emptyApp: ApplicationBuilder = new ApplicationBuilder();
-        emptyApp.applicationKey = key;
+        emptyApp.applicationKey = ApplicationKey.fromString(id);
         emptyApp.displayName = id;
 
-        return Option.create<Application>()
-            .setValue(id)
-            .setDisplayValue(emptyApp.build())
-            .setEmpty(true)
-            .build();
+        return emptyApp.build();
     }
 
     createSelectedOption(option: Option<Application>): SelectedOption<Application> {
