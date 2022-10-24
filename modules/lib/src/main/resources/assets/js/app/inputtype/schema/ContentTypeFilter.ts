@@ -69,6 +69,7 @@ export class ContentTypeFilter
         const comboBox: ContentTypeComboBox = <ContentTypeComboBox>ContentTypeComboBox.create()
             .setLoader(loader)
             .setMaximumOccurrences(this.getInput().getOccurrences().getMaximum())
+            .setDisplayMissingSelectedOptions(true)
             .build();
 
         comboBox.onLoaded(this.onContentTypesLoadedHandler);

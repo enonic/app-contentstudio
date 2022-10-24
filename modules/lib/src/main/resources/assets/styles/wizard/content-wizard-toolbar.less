@@ -129,23 +129,11 @@
   }
 
   .project-info {
+    height: 100%;
     overflow: auto;
     padding-left: 10px;
     padding-right: 15px;
     border-right: 1px solid @admin-font-gray;
-
-    .@{_COMMON_PREFIX}wrapper {
-      display: flex;
-      height: @app-header-height-inner;
-      width: @app-header-height-inner;
-      line-height: @app-header-height-inner;
-      margin-right: 0px;
-      cursor: pointer;
-
-      .font-icon-default {
-        height: 32px;
-      }
-    }
 
     .@{_COMMON_PREFIX}names-view {
 
@@ -228,8 +216,7 @@
     }
 
     .project-info {
-      padding: 0;
-      margin-right: 0;
+      padding-right: 0;
 
       .@{_COMMON_PREFIX}names-view {
         display: none;

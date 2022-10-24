@@ -19,7 +19,7 @@ export class MediaTreeSelectorItem
 
     private publishStatus: PublishStatus;
 
-    constructor(content: ContentSummary, selectable?: boolean, expandable?: boolean) {
+    constructor(content?: ContentSummary, selectable?: boolean, expandable?: boolean) {
         super(content, selectable, expandable);
         this.mediaSelectorDisplayValue =
             content ? MediaSelectorDisplayValue.fromContentSummary(content) : MediaSelectorDisplayValue.makeEmpty();
