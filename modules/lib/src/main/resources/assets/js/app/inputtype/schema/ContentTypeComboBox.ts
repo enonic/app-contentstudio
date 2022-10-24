@@ -7,6 +7,7 @@ import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ContentTypeSummaryViewer} from '../ui/schema/ContentTypeSummaryViewer';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {SchemaBuilder} from '@enonic/lib-admin-ui/schema/Schema';
 
 export class ContentTypeComboBox
     extends RichComboBox<ContentTypeSummary> {
@@ -30,9 +31,14 @@ export class ContentTypeSelectedOptionsView
     }
 
     createSelectedOption(option: Option<ContentTypeSummary>): SelectedOption<ContentTypeSummary> {
+        return new SelectedOption<ContentTypeSummary>(new ContentTypeSelectedOptionView(option), this.count());
+    }
 
-        let optionView = new ContentTypeSelectedOptionView(option);
-        return new SelectedOption<ContentTypeSummary>(optionView, this.count());
+    getEmptyDisplayValue(id: string): ContentTypeSummary {
+        return <ContentTypeSummary>new SchemaBuilder()
+            .setDisplayName(id)
+            .setName(id)
+            .build();
     }
 }
 
