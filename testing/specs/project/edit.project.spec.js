@@ -50,7 +50,6 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     it(`WHEN existing project is selected THEN expected identifier should be displayed in the settings browse panel`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
             //1.Click on the project select it:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.pause(500);

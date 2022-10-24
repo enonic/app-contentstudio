@@ -611,26 +611,6 @@ class ContentWizardPanel extends Page {
         return await contentDeleteDialog.waitForDialogClosed();
     }
 
-    async doMarkAsDeleted() {
-        let contentDeleteDialog = new ContentDeleteDialog();
-        await this.clickOnDelete();
-        await contentDeleteDialog.waitForDialogOpened();
-        await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
-        return await contentDeleteDialog.waitForDialogClosed();
-    }
-
-    async clickOnDeleteAndMarkAsDeletedAndConfirm(numberItems) {
-        let contentDeleteDialog = new ContentDeleteDialog();
-        let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
-        await this.clickOnDelete();
-        await contentDeleteDialog.waitForDialogOpened();
-        await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
-        await confirmContentDeleteDialog.waitForDialogOpened();
-        await confirmContentDeleteDialog.typeNumberOrName(numberItems);
-        await confirmContentDeleteDialog.clickOnConfirmButton();
-        return await confirmContentDeleteDialog.waitForDialogClosed();
-    }
-
     //clicks on 'Publish...' button
     async clickOnPublishButton() {
         try {
@@ -834,9 +814,7 @@ class ContentWizardPanel extends Page {
     }
 
     hotKeyDelete() {
-        return this.getBrowser().status().then(status => {
-            return this.getBrowser().keys(['Control', 'Delete']);
-        })
+        return this.getBrowser().keys(['Control', 'Delete']);
     }
 
     hotKeySave() {

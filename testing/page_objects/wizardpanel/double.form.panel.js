@@ -4,7 +4,6 @@
 
 const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
 const XPATH = {
     doubleInput: `//div[contains(@id,'Double')]`,
     occurrenceErrorBlock: `//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]`,

@@ -450,28 +450,28 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
     waitForPreviewButtonDisabled() {
         return this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_preview_disabled_button');
-            throw Error('Preview button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw Error('Preview button should be disabled, timeout: ' + err);
         })
     }
 
     waitForPreviewButtonEnabled() {
         return this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_preview_enabled_button');
-            throw Error('Preview button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw Error('Preview button should be enabled, timeout: ' + err);
         })
     }
 
     waitForDetailsPanelToggleButtonDisplayed() {
         return this.waitForElementDisplayed(this.detailsPanelToggleButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_details_panel_displayed');
-            throw Error('Details Panel toggle button should be displayed, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw Error('Details Panel toggle button should be displayed, timeout: ' + err);
         })
     }
 
     waitForSortButtonDisabled() {
         return this.waitForElementDisabled(this.sortButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_sort_disabled_button');
-            throw Error('Sort button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            throw Error('Sort button should be disabled, timeout: ' + err);
         })
     }
 
@@ -485,16 +485,6 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             throw Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
         }
     }
-
-    // async waitForDuplicateButtonDisabled() {
-    //     try {
-    //         await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
-    //         return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
-    //     } catch (err) {
-    //         await this.saveScreenshot('err_duplicate_disabled_button');
-    //         throw Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
-    //     }
-    // }
 
     async waitForDuplicateButtonEnabled() {
         try {

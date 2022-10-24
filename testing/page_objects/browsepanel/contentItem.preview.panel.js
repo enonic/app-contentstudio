@@ -4,7 +4,6 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const {XPATH} = require('../users/wizard.panel');
 
 const xpath = {
     container: "//div[contains(@id,'ContentItemPreviewPanel')]",
@@ -48,7 +47,7 @@ class ContentItemPreviewPanel extends Page {
 
     waitForPanelVisible() {
         return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
-            throw new Error('Content Item preview toolbar was not loaded in ' + appConst.shortTimeout);
+            throw new Error('Content Item preview toolbar was not loaded ' + err);
         });
     }
 
@@ -129,7 +128,7 @@ class ContentItemPreviewPanel extends Page {
 
     async getContentStatus() {
         let result = await this.getDisplayedElements(this.contentStatus);
-        return await result[0].getText(this.contentStatus);
+        return await result[0].getText();
     }
 
     async waitForAuthorNotDisplayed() {

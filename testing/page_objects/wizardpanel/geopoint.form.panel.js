@@ -1,10 +1,8 @@
 /**
  * Created on 08.10.2021
  */
-
 const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
 const XPATH = {
     container: "//div[contains(@id,'GeoPoint')]",
     locationInput: "//input[contains(@id,'GeoPoint') and @placeholder='latitude,longitude']",

@@ -3,7 +3,6 @@
  */
 
 const lib = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
 const BaseSelectorForm = require('./base.selector.form');
 const XPATH = {
     container: lib.FORM_VIEW + "//div[contains(@id,'ContentSelector')]",

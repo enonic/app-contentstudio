@@ -136,5 +136,6 @@ class ContentDuplicateDialog extends Page {
             throw new Error('Duplicate Dialog: error when getting dependents name : ' + err)
         })
     }
-};
+}
+
 module.exports = ContentDuplicateDialog;

@@ -12,7 +12,7 @@ const XPATH = {
 
 class ContentSelector extends LoaderComboBox {
 
-    get selectorDrppdownHandle() {
+    get selectorDropdownHandle() {
         return XPATH.container + lib.DROP_DOWN_HANDLE;
     }
 

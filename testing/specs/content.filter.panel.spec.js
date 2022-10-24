@@ -110,7 +110,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             let countInWeek = await filterPanel.getLastModifiedCount(appConst.LAST_MODIFIED_ENTRY.WEEK);
             let countInDay = await filterPanel.getLastModifiedCount(appConst.LAST_MODIFIED_ENTRY.DAY);
             let countInHour = await filterPanel.getLastModifiedCount(appConst.LAST_MODIFIED_ENTRY.HOUR);
-            assert.equal(countInHour, 1, "Expected count should be present in 'Week'");
+            assert.equal(countInWeek, 1, "Expected count should be present in 'Week'");
             assert.equal(countInHour, 1, "Expected count should be present in 'hour'");
             assert.equal(countInDay, 1, "Expected count should be present in 'Day'");
         });

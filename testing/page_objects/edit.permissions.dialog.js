@@ -189,7 +189,6 @@ class EditPermissionsDialog extends Page {
 
     async waitForAccessSelectorDisabled(principalName) {
         let locator = xpath.aclEntryByDisplayName(principalName) + xpath.accessSelector;
-        let result = await this.getAttribute(locator, "class");
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(locator, "class");
             return result.includes("disabled");

@@ -6,9 +6,6 @@ const ArticleForm = require('./article.form.panel');
 const PageTemplateForm = require('./page.template.form.panel');
 const HtmlAreaForm = require('./htmlarea.form.panel');
 const appConst = require('../../libs/app_const');
-const XPATH = {
-    container: `//div[contains(@id,'ContentWizardPanel')]`,
-};
 
 class ContentWizardStepForm extends Page {
 

@@ -99,7 +99,7 @@ class Page {
             if (value == "") {
                 await inputElement.setValue(text);
             }
-            return await inputElement.pause(300);
+            return await this.pause(200);
         } catch (err) {
             throw new Error("Error when set value in input " + err);
         }
