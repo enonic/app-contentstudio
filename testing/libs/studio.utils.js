@@ -933,7 +933,7 @@ module.exports = {
         await browsePanel.clickOnSearchButton();
         await principalFilterPanel.waitForOpened();
         await principalFilterPanel.typeSearchText(name);
-        await browsePanel.pause(300);
+        await browsePanel.pause(700);
         return await browsePanel.waitForSpinnerNotVisible();
     },
     async showLauncherPanel() {
