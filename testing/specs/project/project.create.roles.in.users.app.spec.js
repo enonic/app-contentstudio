@@ -31,6 +31,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             await studioUtils.navigateToUsersApp();
             //3. Type the project's name in the filter-input
             await studioUtils.typeNameInUsersFilterPanel(PROJECT_DISPLAY_NAME);
+            await studioUtils.saveScreenshot("new_project_roles");
             //4. Verify that required new roles are added:
             let items = await userBrowsePanel.getGridItemDisplayNames();
             assert.equal(items.length, 5, "Five new roles should be filtered in the grid");
