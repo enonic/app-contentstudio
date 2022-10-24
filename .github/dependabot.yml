@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "gradle"
-    directory: "/"
+    directory: "/modules/app"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -9,7 +9,25 @@ updates:
       - "rymsha"
     reviewers:
       - "rymsha"
-  - package-ecosystem: "npm"
+  - package-ecosystem: "gradle"
+    directory: "/modules/lib"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    assignees:
+      - "rymsha"
+    reviewers:
+      - "rymsha"
+  - package-ecosystem: "gradle"
+    directory: "/modules/rest"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    assignees:
+      - "rymsha"
+    reviewers:
+      - "rymsha"
+- package-ecosystem: "npm"
     directory: "/modules/app"
     schedule:
       interval: "weekly"
