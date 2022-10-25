@@ -205,6 +205,18 @@
             }
           }
         }
+
+        &.sorted, &.moved, &.permissions, &.renamed {
+          .wrapper {
+            .names-and-icon-view {
+              .@{_COMMON_PREFIX}names-view {
+                .@{_COMMON_PREFIX}sub-name {
+                  display: none;
+                }
+              }
+            }
+          }
+        }
       }
 
       &.expanded {
