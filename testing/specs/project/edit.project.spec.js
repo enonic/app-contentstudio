@@ -23,7 +23,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     const PROJ_IDENTIFIER = studioUtils.generateRandomName("id");
 
     //Verifies:  Project identifier field is editable issue#2923
-    it(`WHEN existing project is opened THEN expected identifier, description and language should be displayed`,
+    it.skip(`WHEN existing project is opened THEN expected identifier, description and language should be displayed`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -47,7 +47,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.waitForDeleteButtonEnabled();
         });
 
-    it(`WHEN existing project is selected THEN expected identifier should be displayed in the settings browse panel`,
+    it.skip(`WHEN existing project is selected THEN expected identifier should be displayed in the settings browse panel`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.Click on the project select it:
@@ -59,7 +59,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             assert.equal(actualIdentifier, PROJ_IDENTIFIER, "Expected Identifier should be displayed in the grid");
         });
 
-    it(`GIVEN existing project is opened WHEN 'SU' has been added in 'custom read access' THEN 'SU' should appear in the selected options`,
+    it.skip(`GIVEN existing project is opened WHEN 'SU' has been added in 'custom read access' THEN 'SU' should appear in the selected options`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -78,7 +78,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             assert.equal(result[0], appConst.systemUsersDisplayName.SUPER_USER, "SU should be in 'Custom Read Access'");
         });
 
-    it(`WHEN existing project with selected 'Custom Access mode' has been opened THEN 'Custom Access mode' radio should be selected AND expected user should be in this form`,
+    it.skip(`WHEN existing project with selected 'Custom Access mode' has been opened THEN 'Custom Access mode' radio should be selected AND expected user should be in this form`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -92,7 +92,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             assert.equal(result[0], appConst.systemUsersDisplayName.SUPER_USER, "'SU' option should be in 'Custom Read Access'");
         });
 
-    it(`GIVEN existing project with selected 'Custom Access mode' WHEN 'Public' radio has been clicked THEN 'Custom Access' combobox gets disabled`,
+    it.skip(`GIVEN existing project with selected 'Custom Access mode' WHEN 'Public' radio has been clicked THEN 'Custom Access' combobox gets disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
