@@ -141,15 +141,15 @@
       .user-access-list-item-view {
         padding: 3px 0;
         position: relative;
-
-        .clearfix();
+        display: grid;
+        grid-template-columns: 3fr 2fr;
+        grid-column-gap: 5px;
 
         .user-line {
           position: relative;
-          margin-right: 100px;
           height: 29px;
           overflow: hidden;
-          padding-right: 30px;
+          padding-right: 25px;
           text-align: left;
 
           &::after {
@@ -168,14 +168,13 @@
 
         .access-line {
           font-size: 14px;
-          position: absolute;
           line-height: 29px;
           top: 3px;
           right: 10px;
-          max-width: 60px;
           overflow: hidden;
           text-overflow: ellipsis;
-          white-space: break-spaces;
+          white-space: nowrap;
+          text-align: right;
         }
       }
     }
