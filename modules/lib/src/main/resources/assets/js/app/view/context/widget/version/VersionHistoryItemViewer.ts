@@ -42,6 +42,7 @@ export class VersionHistoryItemViewer
 
     setObject(version: VersionHistoryItem) {
         this.toggleClass('publish-action', version.isPublishAction());
+        this.addClass(version.getStatus());
         return super.setObject(version);
     }
 
