@@ -39,7 +39,7 @@ export class UserAccessListItemView
         if (!this.accessLine && !this.userLine) {
             this.accessLine = new SpanEl('access-line');
             this.userLine = new DivEl('user-line');
-            this.appendChildren(this.accessLine, this.userLine);
+            this.appendChildren(this.userLine, this.accessLine);
 
             this.resizeListener = this.setExtraCount.bind(this);
             if (window.ResizeObserver) {
@@ -51,7 +51,8 @@ export class UserAccessListItemView
         }
 
         if (object) {
-            this.accessLine.setHtml(i18n(`security.access.${object.getAccess()}`));
+            const status: string = i18n(`security.access.${object.getAccess()}`);
+            this.accessLine.setHtml(status).setTitle(status);
 
             object.getMembers().map((epm: EffectivePermissionMember) => epm.toPrincipal()).forEach((principal: Principal) => {
                 const principalViewer: PrincipalViewerCompact = new PrincipalViewerCompact();
