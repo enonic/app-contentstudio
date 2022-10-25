@@ -119,9 +119,9 @@ describe('tests for Sorted versions item', function () {
             //5. Verify that 3 sorted items are displayed:
             let numberOfSortedItems = await browseVersionsWidget.countSortedItems();
             assert.equal(numberOfSortedItems, 3, "Three sorted items should be present in the versions widget");
-            //6. Verify an user in a version item:
+            //6. Verify that user-name should not be displayed in Sorted version item
             let byUser = await browseVersionsWidget.getUserNameInItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
-            assert.equal(byUser, "by Super User", "Super User should be displayed in the version item");
+            assert.equal(byUser, "", "user-name should not be displayed in Sorted version item");
         });
 
     it(`GIVEN existing folder is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN expected options with 'sorted' icon should be present in the list`,
