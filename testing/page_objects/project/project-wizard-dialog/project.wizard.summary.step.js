@@ -93,7 +93,7 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();
             return actualDescription.includes(DESCRIPTION);
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 6 is not loaded"});
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Project Wizard Dialog, step 6 is not loaded"});
     }
 }
 

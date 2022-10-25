@@ -10,16 +10,27 @@ const ProjectWizardDialogPermissionsStep = require('../page_objects/project/proj
 const ProjectWizardDialogApplicationsStep = require('../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const ProjectWizardDialogNameAndIdStep = require('../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
 const ProjectWizardDialogSummaryStep = require('../page_objects/project/project-wizard-dialog/project.wizard.summary.step');
+const appConst = require("./app_const");
+const path = require('path');
+const fs = require('fs');
+const addContext = require('mochawesome/addContext');
+const webDriverHelper = require('./WebDriverHelper');
 
 module.exports = {
-
+    getBrowser() {
+        if (typeof browser !== "undefined") {
+            return browser;
+        } else {
+            return webDriverHelper.browser;
+        }
+    },
     async saveTestProject(name, description, language, permissions, accessMode, applications, identifier) {
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
         let summaryStep = new ProjectWizardDialogSummaryStep();
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.clickOnNewButton();
         await parentProjectStep.waitForLoaded();
-        let project = this.buildProject( language, accessMode, permissions, applications, name, identifier, description);
+        let project = this.buildProject(language, accessMode, permissions, applications, name, identifier, description);
         await this.fillFormsWizard(project);
         await summaryStep.waitForLoaded();
         await summaryStep.clickOnCreateProjectButton();
@@ -107,26 +118,33 @@ module.exports = {
         return new ProjectWizardDialogSummaryStep();
     },
     async fillFormsWizard(project) {
-        let languageStep = await this.fillParentNameStep(project.parentName);
-        await languageStep.waitForLoaded();
-        let accessModeStep = await this.fillLanguageStep(project.language);
-        await accessModeStep.waitForLoaded();
-        let permissionsStep = await this.fillAccessModeStep(project.accessMode);
-        await permissionsStep.waitForLoaded();
-        await this.fillPermissionsStep(project.principalsToAccess);
-        let applicationStep = new ProjectWizardDialogApplicationsStep();
+        try {
+            let languageStep = await this.fillParentNameStep(project.parentName);
+            await languageStep.waitForLoaded();
+            let accessModeStep = await this.fillLanguageStep(project.language);
+            await accessModeStep.waitForLoaded();
+            let permissionsStep = await this.fillAccessModeStep(project.accessMode);
+            await permissionsStep.waitForLoaded();
+            await this.fillPermissionsStep(project.principalsToAccess);
+            let applicationStep = new ProjectWizardDialogApplicationsStep();
 
-        if (await applicationStep.isLoaded()) {
-            if (project.applications) {
-                await this.fillApplicationStep(project.applications);
-            } else {
-                await applicationStep.clickOnSkipButton();
+            if (await applicationStep.isLoaded()) {
+                if (project.applications) {
+                    await this.fillApplicationStep(project.applications);
+                } else {
+                    await applicationStep.clickOnSkipButton();
+                }
             }
+            let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
+            await nameAndIdStep.waitForLoaded();
+            let projectWizardDialogSummaryStep = await this.fillNameAndDescriptionStep(project.name, project.identifier,
+                project.description);
+            await projectWizardDialogSummaryStep.waitForLoaded();
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_save_proj");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error when saving a project, screenshot:" + screenshot + "  " + err);
         }
-        let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
-        await nameAndIdStep.waitForLoaded();
-        let projectWizardDialogSummaryStep = await this.fillNameAndDescriptionStep(project.name, project.identifier, project.description);
-        await projectWizardDialogSummaryStep.waitForLoaded();
     },
     async fillFormsWizardAndClickOnCreateButton(project) {
         let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -154,6 +172,20 @@ module.exports = {
         await confirmValueDialog.clickOnConfirmButton();
         await confirmValueDialog.waitForDialogClosed();
         return await settingsBrowsePanel.waitForNotificationMessage();
+    },
+    saveScreenshot(name, that) {
+        let screenshotsDir = path.join(__dirname, '/../build/mochawesome-report/screenshots/');
+        if (!fs.existsSync(screenshotsDir)) {
+            fs.mkdirSync(screenshotsDir, {recursive: true});
+        }
+        return this.getBrowser().saveScreenshot(screenshotsDir + name + '.png').then(() => {
+            if (that) {
+                addContext(that, 'screenshots/' + name + '.png');
+            }
+            return console.log('screenshot saved ' + name);
+        }).catch(err => {
+            return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);
+        })
     },
     buildProject(language, accessMode, principalsToAccess, applications, name, identifier, description) {
         return {
