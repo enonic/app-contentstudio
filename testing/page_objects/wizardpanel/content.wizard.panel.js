@@ -498,7 +498,7 @@ class ContentWizardPanel extends Page {
 
     async waitForOpened() {
         try {
-            await this.waitForElementDisplayed(this.duplicateButton, appConst.longTimeout);
+            await this.waitForElementDisplayed(this.saveButton, appConst.longTimeout);
             await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(200);
         } catch (err) {
@@ -897,7 +897,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
-//Clicks on publish-menu dropdown handler then click on Publish... menu item
+    //Clicks on publish-menu dropdown handler then click on Publish... menu item
     async openPublishMenuAndPublish() {
         let contentPublishDialog = new ContentPublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
