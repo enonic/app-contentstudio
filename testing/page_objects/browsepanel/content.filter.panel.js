@@ -9,7 +9,7 @@ const XPATH = {
     clearFilterLink: "//a[contains(@id,'ClearFilterButton')]",
     searchInput: "//input[contains(@id,'TextSearchField')]",
     dependenciesSection: "//div[contains(@id,'DependenciesSection')]",
-    showResultsButton: "//div[contains(@class,'show-filter-results')]",
+    showResultsButton: "//span[contains(@class,'show-filter-results')]",
     showMoreButton: "//button[child::span[text()='Show more']]",
     showLessButton: "//button[child::span[text()='Show less']]",
     selectorOptionCheckbox: "//ul[contains(@id,'BucketListBox')]//div[contains(@id,'Checkbox')]",
