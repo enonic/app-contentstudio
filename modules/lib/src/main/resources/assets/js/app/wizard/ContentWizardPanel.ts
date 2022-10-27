@@ -814,6 +814,7 @@ export class ContentWizardPanel
             const contentClone: Content = newPersistedContent.clone();
             this.initFormContext(contentClone);
             this.updateWizard(contentClone, true);
+            this.updateEditPermissionsButtonIcon(contentClone);
 
             const liveFormPanel: LiveFormPanel = this.getLivePanel();
 
