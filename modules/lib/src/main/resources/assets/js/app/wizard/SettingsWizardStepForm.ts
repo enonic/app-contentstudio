@@ -1,19 +1,20 @@
 import {ContentSettingsModel} from './ContentSettingsModel';
 import {Content, ContentBuilder} from '../content/Content';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {ProjectContext} from '../project/ProjectContext';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {LocaleComboBox} from '../locale/LocaleComboBox';
 import {PrincipalLoader} from '../security/PrincipalLoader';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 
 export class SettingsWizardStepForm
     extends WizardStepForm {
@@ -30,20 +31,25 @@ export class SettingsWizardStepForm
     constructor() {
         super('settings-wizard-step-form');
 
+        this.initModelChangeListener();
+    }
+
+    private initModelChangeListener(): void {
         this.modelChangeListener = (event: PropertyChangedEvent) => {
-            if (!this.ignorePropertyChange) {
-                let value = event.getNewValue();
-                switch (event.getPropertyName()) {
-                case ContentSettingsModel.PROPERTY_LANG:
-                    if (!this.updateUnchangedOnly || !this.localeCombo.isDirty()) {
-                        this.localeCombo.setValue(value ? value.toString() : '');
-                    }
-                    break;
-                case ContentSettingsModel.PROPERTY_OWNER:
-                    if (!this.updateUnchangedOnly || !this.ownerCombo.isDirty()) {
-                        this.ownerCombo.setValue(value ? value.toString() : '');
-                    }
-                    break;
+            if (this.ignorePropertyChange) {
+                return;
+            }
+
+            const value: any = event.getNewValue();
+            const propertyName: string = event.getPropertyName();
+
+            if (propertyName === ContentSettingsModel.PROPERTY_LANG) {
+                if (!this.updateUnchangedOnly || !this.localeCombo.isDirty()) {
+                    this.localeCombo.setValue(value?.toString());
+                }
+            } else if (propertyName === ContentSettingsModel.PROPERTY_OWNER) {
+                if (!this.updateUnchangedOnly || !this.ownerCombo.isDirty()) {
+                    this.ownerCombo.setValue(value?.toString());
                 }
             }
         };
@@ -52,36 +58,58 @@ export class SettingsWizardStepForm
     layout(content: Content) {
         this.content = content;
 
-        this.localeCombo = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).setValue(content.getLanguage()).build();
-        let localeFormItem = new FormItemBuilder(this.localeCombo).setLabel(i18n('field.lang')).build();
+        this.addSettingsForm();
+        this.setModel(new ContentSettingsModel(content));
+        this.addOwnerChangeListener();
+        this.addLocaleChangeListener();
+    }
 
-        let loader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]);
+    private addSettingsForm(): void {
+        const fieldSet: Fieldset = new Fieldset();
+        fieldSet.add(this.addLocaleFormItem());
+        fieldSet.add(this.addOwnerFormItem());
 
-        this.ownerCombo = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).setMaximumOccurrences(1).setValue(
-            content.getOwner() ? content.getOwner().toString() : undefined).setDisplayMissingSelectedOptions(true).build();
+        const form: Form = new Form().add(fieldSet);
 
-        let ownerFormItem = new FormItemBuilder(this.ownerCombo).setLabel(i18n('field.owner')).build();
-
-        let fieldSet = new Fieldset();
-        fieldSet.add(localeFormItem);
-        fieldSet.add(ownerFormItem);
-
-        let form = new Form().add(fieldSet);
         this.appendChild(form);
 
-        form.onFocus((event) => {
+        form.onFocus((event: FocusEvent) => {
             this.notifyFocused(event);
         });
-        form.onBlur((event) => {
+
+        form.onBlur((event: FocusEvent) => {
             this.notifyBlurred(event);
         });
+    }
 
-        this.setModel(new ContentSettingsModel(content));
+    private addLocaleFormItem(): FormItem {
+        this.localeCombo = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).setValue(this.content.getLanguage()).build();
+        return new FormItemBuilder(this.localeCombo).setLabel(i18n('field.lang')).build();
+    }
+
+    private addOwnerFormItem(): FormItem {
+        const loader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]);
+
+        this.ownerCombo = <PrincipalComboBox>PrincipalComboBox.create()
+            .setLoader(loader)
+            .setMaximumOccurrences(1).setValue(this.content.getOwner()?.toString())
+            .setDisplayMissingSelectedOptions(true)
+            .build();
+
+        return new FormItemBuilder(this.ownerCombo).setLabel(i18n('field.owner')).build();
     }
 
     update(content: Content, unchangedOnly: boolean = true) {
+        this.content = content;
         this.updateUnchangedOnly = unchangedOnly;
-        this.model.setOwner(content.getOwner()).setLanguage(content.getLanguage());
+
+        if (!this.updateUnchangedOnly || !this.localeCombo.isDirty()) {
+            this.model.setLanguage(content.getLanguage());
+        }
+
+        if (!this.updateUnchangedOnly || !this.ownerCombo.isDirty()) {
+            this.model.setOwner(content.getOwner());
+        }
     }
 
     reset() {
@@ -100,31 +128,42 @@ export class SettingsWizardStepForm
     private setModel(model: ContentSettingsModel) {
         assertNotNull(model, 'Model can\'t be null');
 
-        if (this.model) {
-            model.unPropertyChanged(this.modelChangeListener);
-        }
-
-        // 2-way data binding
-        let ownerListener = () => {
-            let principals: Principal[] = this.ownerCombo.getSelectedDisplayValues();
-            this.ignorePropertyChange = true;
-            model.setOwner(principals.length > 0 ? principals[0].getKey() : null);
-            this.ignorePropertyChange = false;
-        };
-        this.ownerCombo.onOptionSelected((event) => ownerListener());
-        this.ownerCombo.onOptionDeselected((option) => ownerListener());
-
-        let localeListener = () => {
-            this.ignorePropertyChange = true;
-            model.setLanguage(this.localeCombo.getValue());
-            this.ignorePropertyChange = false;
-        };
-        this.localeCombo.onOptionSelected((event) => localeListener());
-        this.localeCombo.onOptionDeselected((option) => localeListener());
-
+        this.model?.unPropertyChanged(this.modelChangeListener);
         model.onPropertyChanged(this.modelChangeListener);
-
         this.model = model;
+    }
+
+    private addOwnerChangeListener(): void {
+        const ownerListener = () => {
+            const owner: PrincipalKey = this.ownerCombo.getSelectedDisplayValues()[0]?.getKey();
+            this.ignorePropertyChange = true;
+            this.model.setOwner(owner);
+
+            if (ObjectHelper.equals(owner, this.content.getOwner())) {
+                this.ownerCombo.resetBaseValues();
+            }
+
+            this.ignorePropertyChange = false;
+        };
+
+        this.ownerCombo.onOptionSelected(ownerListener);
+        this.ownerCombo.onOptionDeselected(ownerListener);
+    }
+
+    private addLocaleChangeListener(): void {
+        const localeListener = () => {
+            this.ignorePropertyChange = true;
+            this.model.setLanguage(this.localeCombo.getValue());
+
+            if (this.localeCombo.getValue() === this.content.getLanguage()) {
+                this.localeCombo.resetBaseValues();
+            }
+
+            this.ignorePropertyChange = false;
+        };
+
+        this.localeCombo.onOptionSelected(localeListener);
+        this.localeCombo.onOptionDeselected(localeListener);
     }
 
     apply(builder: ContentBuilder) {
