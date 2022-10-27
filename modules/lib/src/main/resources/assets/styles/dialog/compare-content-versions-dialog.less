@@ -21,7 +21,7 @@
       width: 350px;
 
       .font-icon-default {
-        font-size: 24px;
+        font-size: 22px !important;
 
         &::before {
           color: @admin-dark-gray;
@@ -37,6 +37,12 @@
         }
       }
 
+      div.font-icon-default {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+      }
+
       .options-container {
         margin-top: 10px;
       }
@@ -44,10 +50,26 @@
       .@{_COMMON_PREFIX}dropdown {
         width: 300px;
 
-        .grid .viewer.divider {
-          border-top: 1px solid @admin-dark-gray-border;
-          padding-top: 10px;
-          margin-top: -8px;
+        .selected-option {
+          .option-value {
+            margin: 6px 0 5px 10px;
+          }
+        }
+
+        .names-and-icon-view {
+          overflow: visible;
+        }
+
+        .grid .viewer {
+          .divider {
+            border-top: 1px solid @admin-dark-gray-border;
+            padding-top: 10px;
+            margin-top: -8px;
+          }
+
+          .names-and-icon-view {
+            margin-left: 2px;
+          }
         }
       }
     }

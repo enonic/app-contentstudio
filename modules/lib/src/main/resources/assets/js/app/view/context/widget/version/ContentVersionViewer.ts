@@ -14,7 +14,7 @@ export class ContentVersionViewer
 
     constructor() {
         super();
-        this.namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
+        this.namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.compact).build();
         this.appendChild(this.namesAndIconView);
     }
 
