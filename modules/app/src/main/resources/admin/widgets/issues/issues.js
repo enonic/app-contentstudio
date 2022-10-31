@@ -4,6 +4,8 @@ const adminLib = require('/lib/xp/admin');
 const authLib = require('/lib/xp/auth');
 const helper = require('/helpers/dashboard-helper');
 
+const baseToolUri = adminLib.getToolUrl(app.name, 'main');
+
 const handleGet = (req) => {
     const showLast = req.params.showLast || 5;
     const view = resolve('./issues.html');
@@ -26,24 +28,23 @@ const handleGet = (req) => {
 const getLastModifiedIssues = (showLast) => {
     const result = [];
     const projects = helper.getProjects();
-    const baseToolUri = adminLib.getToolUrl(app.name, 'main');
 
     projects.forEach((project) => {
         const findIssuesResult = helper.getIssuesInRepo(`com.enonic.cms.${project.id}`, showLast, authLib.getUser()['key']);
 
         findIssuesResult.getIssues().forEach((issue) => {
-            result.push(createIssueItem(issue, project, baseToolUri));
+            result.push(createIssueItem(issue, project));
         });
     });
 
     return result;
 }
 
-const createIssueItem = (issue, project, baseToolUri) => {
+const createIssueItem = (issue, project) => {
     const modifiedDateTime = helper.parseDateTime(issue.modifiedTime.toString());
     const modifiedText = generateModifiedText(issue, modifiedDateTime);
-    const issueUrl = generateIssueUrl(issue.id, project.id, baseToolUri);
-    const projectUrl = generateProjectUrl(project.id, baseToolUri);
+    const issueUrl = generateIssueUrl(issue.id, project.id);
+    const projectUrl = generateProjectUrl(project.id);
     const name = generateNameWithId(issue);
     const imgUrl = generateImgUrl(issue);
     const projectDisplayName = project.displayName;
@@ -60,11 +61,11 @@ const createIssueItem = (issue, project, baseToolUri) => {
     }
 }
 
-const generateIssueUrl = (id, project, baseToolUri) => {
+const generateIssueUrl = (id, project) => {
     return `${baseToolUri}#/${project}/issue/${id}`;
 }
 
-const generateProjectUrl = (id, project, baseToolUri) => {
+const generateProjectUrl = (project) => {
     return `${baseToolUri}#/${project}/browse`;
 }
 
