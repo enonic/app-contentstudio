@@ -1,4 +1,5 @@
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {VersionHistoryItem} from './VersionHistoryItem';
@@ -11,7 +12,7 @@ export class VersionHistoryItemViewer
     private readonly namesAndIconViewWrapperDiv: DivEl;
 
     constructor() {
-        super('version-viewer');
+        super('version-viewer', NamesAndIconViewSize.compact);
 
         this.namesAndIconViewWrapperDiv = new DivEl('wrapper');
     }
