@@ -1,7 +1,6 @@
 /**
  * Created on 02.12.2017.
  */
-
 module.exports = Object.freeze({
     NOTIFICATION_TEXT: "//div[@class='notification-text']",
     REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
@@ -70,6 +69,7 @@ module.exports = Object.freeze({
     tabMenuItem: menuName => `//li[contains(@id,'TabMenuItem') and child::a[text()='${menuName}']]`,
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
+    MORE_FOLD_BUTTON: "//div[contains(@id,'FoldButton') and descendant::span[text()='More']]",
     CANCEL_BUTTON_DIALOG: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     COMBO_BOX_OPTION_FILTER_INPUT: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
     CONTENT_WIZARD_STEP_FORM: "//div[contains(@id,'ContentWizardStepForm')]",

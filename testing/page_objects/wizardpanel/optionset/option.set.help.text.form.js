@@ -25,8 +25,6 @@ class OptionSetHelpFormView extends OptionSetFormView {
         let locator = xpath.inputInOption(inputLabel) + "//div[@class='help-text visible']/p";
         return this.getText(locator);
     }
-
-
 }
 
 module.exports = OptionSetHelpFormView;

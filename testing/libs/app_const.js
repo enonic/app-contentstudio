@@ -294,6 +294,7 @@ module.exports = Object.freeze({
         TAG_0_5: "tag0_5",
         CUSTOM_SELECTOR_0_2: 'custom-selector0_2',
         CUSTOM_SELECTOR_1_1: 'custom-selector1_1',
+        EXPANDED_SINGLE_SELECTION_OPTION_SET: 'optionset-single-selection',
         OPTION_SET: 'optionset',
         OPTION_SET_0_2: 'optionset0_2',
         ITEM_SET_0_0: 'item-set0_0',
