@@ -120,9 +120,9 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             await contentWizard.waitForXdataTogglerVisible();
             //2. Verify the order of titles:
             let result = await contentWizard.getXdataTitles();
-            assert.equal(result[0], 'Text Area x-data');
-            assert.equal(result[1], 'X-data (image selector)');
-            assert.equal(result[2], 'Html Area x-data')
+            assert.isTrue(result.includes('Text Area x-data'), 'Text Area x-data should be present');
+            assert.isTrue(result.includes('X-data (image selector)'), 'X-data (image selector) should be present');
+            assert.isTrue(result.includes('Html Area x-data'), 'Html Area x-data should be present');
         });
 
     it(`GIVEN content with optional x-data(textarea) is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area gets visible`,

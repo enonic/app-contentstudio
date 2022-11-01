@@ -67,7 +67,7 @@ export class ContentWizardToolbar
 
         this.config.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
             this.updateStateIcon(status);
-            this.toggleValid(!status.invalid);
+            this.toggleValid(!WorkflowStateManager.isInvalid(status));
         });
 
         this.componentsViewToggler.onActiveChanged((isActive: boolean) => {
@@ -103,9 +103,9 @@ export class ContentWizardToolbar
             return;
         }
 
-        if (status.ready) {
+        if (WorkflowStateManager.isReady(status)) {
             this.stateIcon.getEl().setTitle(i18n('tooltip.state.ready'));
-        } else if (status.inProgress) {
+        } else if (WorkflowStateManager.isInProgress(status)) {
             this.stateIcon.getEl().setTitle(i18n('tooltip.state.in_progress'));
         } else {
             this.stateIcon.getEl().removeAttribute('title');

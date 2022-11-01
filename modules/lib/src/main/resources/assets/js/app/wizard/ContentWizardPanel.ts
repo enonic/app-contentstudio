@@ -743,8 +743,8 @@ export class ContentWizardPanel
             thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
 
             this.workflowStateManager.onStatusChanged((status: WorkflowStateStatus) => {
-                this.wizardActions.setContentCanBeMarkedAsReady(status.inProgress).refreshState();
-                this.setIsMarkedAsReady(status.ready);
+                this.wizardActions.setContentCanBeMarkedAsReady(WorkflowStateManager.isInProgress(status)).refreshState();
+                this.setIsMarkedAsReady(WorkflowStateManager.isReady(status));
             });
 
             this.getContentWizardToolbarPublishControls().getPublishButton().onPublishRequestActionChanged((added: boolean) => {

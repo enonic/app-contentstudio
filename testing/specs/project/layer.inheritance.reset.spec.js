@@ -120,7 +120,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await confirmationDialog.clickOnYesButton();
             await contentWizard.pause(1500);
             await studioUtils.saveScreenshot("reset_confirmed_w_status");
-            let actualStatus = await contentWizard.getIconWorkflowState();
+            let actualStatus = await contentWizard.getContentWorkflowState();
             //5. Verify that workflow status is 'work in progress' ( initial inherited state):
             assert.equal(actualStatus, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
                 "'Work in progress' status should be after the resetting");

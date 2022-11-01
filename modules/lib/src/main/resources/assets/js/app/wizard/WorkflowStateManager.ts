@@ -1,23 +1,17 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ContentWizardPanel} from './ContentWizardPanel';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummary} from '../content/ContentSummary';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
-export interface WorkflowStateStatus {
-    invalid: boolean;
-    ready: boolean;
-    inProgress: boolean;
+export enum WorkflowStateStatus {
+    INVALID = 'invalid',
+    READY = 'ready',
+    IN_PROGRESS = 'in-progress'
 }
 
 export class WorkflowStateManager {
-
-    static INVALID_CLASS: string = 'invalid';
-
-    static READY_CLASS: string = 'ready';
-
-    static IN_PROGRESS_CLASS: string = 'in-progress';
 
     private wizard: ContentWizardPanel;
 
@@ -46,62 +40,54 @@ export class WorkflowStateManager {
     private updateIcons(): void {
         const thumbnailUploader: ThumbnailUploaderEl = this.wizard.getFormIcon();
         const toolbarIcon: DivEl = this.wizard.getMainToolbar()?.getStateIcon();
+        const isStatusHidden: boolean = this.isStatusToBeHidden();
 
-        if (thumbnailUploader) {
-            this.toggleWorkflowStateClasses(thumbnailUploader);
-        }
+        thumbnailUploader.setStatus(this.status);
+        thumbnailUploader.toggleClass('status-hidden', isStatusHidden);
 
-        if (toolbarIcon) {
-            this.toggleWorkflowStateClasses(toolbarIcon);
-        }
+        toolbarIcon?.toggleClass(WorkflowStateStatus.INVALID, WorkflowStateManager.isInvalid(this.status));
+        toolbarIcon?.toggleClass(WorkflowStateStatus.READY, WorkflowStateManager.isReady(this.status));
+        toolbarIcon?.toggleClass(WorkflowStateStatus.IN_PROGRESS, WorkflowStateManager.isInProgress(this.status));
+        toolbarIcon?.toggleClass('status-hidden', isStatusHidden);
+    }
+
+    private isStatusToBeHidden(): boolean {
+        return this.status === WorkflowStateStatus.READY && (this.isPublished() || this.isMoved());
     }
 
     private isWorkflowStateStatusChanged(status: WorkflowStateStatus) {
-        if (status == null && this.status == null) {
+        if (ObjectHelper.noneDefined(status, this.status)) {
             return false;
         }
 
-        return this.status == null || status == null ||
-               this.status.inProgress !== status.inProgress ||
-               this.status.invalid !== status.invalid ||
-               this.status.ready !== status.ready;
+        return this.status !== status;
     }
 
     private createWorkflowStateStatus(): WorkflowStateStatus {
         const content: ContentSummaryAndCompareStatus = this.wizard.getContent();
 
         if (content == null) {
-            return {
-                invalid: false,
-                ready: false,
-                inProgress: false
-            };
+            return null;
         }
 
-        const contentSummary: ContentSummary = content.getContentSummary();
         const isValid: boolean = this.wizard.isValid();
+
+        if (!isValid) {
+            return WorkflowStateStatus.INVALID;
+        }
+
         const isPendingDelete: boolean = content.isPendingDelete();
         const isInWorkflow: boolean = isValid && !isPendingDelete;
         const hasUnsavedChanges: boolean = this.wizard.hasUnsavedChanges();
+        const contentSummary: ContentSummary = content.getContentSummary();
 
         const isReady: boolean = isInWorkflow && !hasUnsavedChanges && contentSummary.isReady();
-        const isInProgress: boolean = isInWorkflow && (hasUnsavedChanges || contentSummary.isInProgress());
 
-        return {
-            invalid: !isValid,
-            ready: isReady,
-            inProgress: isInProgress
-        };
-    }
+        if (isReady) {
+            return WorkflowStateStatus.READY;
+        }
 
-    private toggleWorkflowStateClasses(element: Element) {
-        element.toggleClass(WorkflowStateManager.INVALID_CLASS, this.status.invalid);
-        element.toggleClass(WorkflowStateManager.READY_CLASS, this.isWorkflowReadyIconRequired());
-        element.toggleClass(WorkflowStateManager.IN_PROGRESS_CLASS, this.status.inProgress);
-    }
-
-    private isWorkflowReadyIconRequired(): boolean {
-        return this.status.ready && !this.isPublished() && !this.isMoved();
+        return WorkflowStateStatus.IN_PROGRESS;
     }
 
     private isPublished(): boolean {
@@ -110,6 +96,18 @@ export class WorkflowStateManager {
 
     private isMoved(): boolean {
         return this.wizard.getContent()?.isMoved();
+    }
+
+    static isReady(status: WorkflowStateStatus): boolean {
+        return status === WorkflowStateStatus.READY;
+    }
+
+    static isInProgress(status: WorkflowStateStatus): boolean {
+        return status === WorkflowStateStatus.IN_PROGRESS;
+    }
+
+    static isInvalid(status: WorkflowStateStatus): boolean {
+        return status === WorkflowStateStatus.INVALID;
     }
 
     public onStatusChanged(listener: (status: WorkflowStateStatus) => void) {

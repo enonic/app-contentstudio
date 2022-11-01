@@ -53,32 +53,20 @@
       max-width: 100%;
       max-height: 100%;
     }
+
+    .workflow-status {
+      position: absolute;
+      right: -8px;
+      top: 5px;
+      font-size: 20px;
+    }
   }
 
-  &.invalid .result-container {
-    .icon-state-invalid;
+  &.status-hidden .result-container .workflow-status {
+    display: none;
   }
 
   &.has-origin-project .result-container {
     .icon-cloud-download(24px, -4px, -6px);
-  }
-
-  &.in-progress:not(.invalid) .result-container {
-    .icon-state-in-progress;
-  }
-
-  &.ready:not(.invalid) .result-container {
-    .icon-state-ready;
-  }
-
-  &.invalid, &.in-progress, &.ready {
-    .result-container:before {
-      position: absolute;
-      font-size: 20px;
-      border-radius: 10px;
-      background-color: @admin-white;
-      right: -8px;
-      top: 5px;
-    }
   }
 }

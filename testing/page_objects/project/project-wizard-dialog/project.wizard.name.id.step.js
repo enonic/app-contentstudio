@@ -59,7 +59,8 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
 
     async typeTextInProjectIdentifierInput(text) {
         await this.waitForIdentifierInputEnabled();
-        return await this.typeTextInInput(this.projectIdentifierInput, text);
+        await this.typeTextInInput(this.projectIdentifierInput, text);
+        return await this.pause(200);
     }
 
     async getProjectIdentifierValidationMessage() {

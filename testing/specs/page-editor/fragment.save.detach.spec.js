@@ -108,7 +108,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             let result = await contentWizard.isWizardStepByTitlePresent("Fragment");
             assert.isTrue(result, "Fragment Wizard Step should be present in the toolbar");
             //parent site is 'Work in progress', so this fragment must have the same state
-            let state = await contentWizard.getIconWorkflowState();
+            let state = await contentWizard.getContentWorkflowState();
             assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "Work in progress state should be in fragment-wizard ");
         });
 
