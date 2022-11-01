@@ -80,39 +80,39 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get moreButton() {
-        return XPATH.toolbar + XPATH.moreFoldButton;
+        return XPATH.toolbar + lib.MORE_FOLD_BUTTON
     }
 
     get moveFoldedButton() {
-        return XPATH.moreFoldButton + XPATH.moveButton;
+        return lib.MORE_FOLD_BUTTON + XPATH.moveButton;
     }
 
     get sortFoldedButton() {
-        return XPATH.moreFoldButton + XPATH.sortButton;
+        return lib.MORE_FOLD_BUTTON + XPATH.sortButton;
     }
 
     get newFoldedButton() {
-        return XPATH.moreFoldButton + XPATH.newButton;
+        return lib.MORE_FOLD_BUTTON + XPATH.newButton;
     }
 
     get editFoldedButton() {
-        return XPATH.moreFoldButton + XPATH.editButton;
+        return lib.MORE_FOLD_BUTTON + XPATH.editButton;
     }
 
     get archiveFoldedButton() {
-        return XPATH.moreFoldButton + XPATH.archiveButton;
+        return lib.MORE_FOLD_BUTTON + XPATH.archiveButton;
     }
 
     get duplicateFoldedButton() {
-        return XPATH.moreFoldButton + XPATH.duplicateButton;
+        return lib.MORE_FOLD_BUTTON + XPATH.duplicateButton;
     }
 
     get publishFoldedButton() {
-        return XPATH.moreFoldButton + XPATH.publishButton;
+        return lib.MORE_FOLD_BUTTON + XPATH.publishButton;
     }
 
     get previewFoldedButton() {
-        return XPATH.moreFoldButton + XPATH.previewButton;
+        return lib.MORE_FOLD_BUTTON + XPATH.previewButton;
     }
 
     get hideMobilePreviewButton() {
@@ -1016,8 +1016,6 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             throw Error('Mobile resolution, Duplicate... button should be disabled' + err);
         }
     }
-
-
 }
 
 module.exports = MobileContentBrowsePanel;

@@ -51,7 +51,6 @@ class OptionSetForm2View extends BaseOptionSetFormView {
     }
 
     async expandOptionSetMenu() {
-        let locator = xpath.itemSetOccurrenceMenuButton;
         await this.waitForElementDisplayed(this.optionSetMenuButton, appConst.mediumTimeout);
         await this.clickOnElement(this.optionSetMenuButton);
         return await this.pause(400);
