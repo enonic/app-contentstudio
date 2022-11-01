@@ -7,8 +7,6 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
 const CreateRequestPublishDialog = require('../issue/create.request.publish.dialog');
-const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
-const ConfirmValueDialog = require('../confirm.content.delete.dialog');
 const BrowseDetailsPanel = require('../browsepanel/detailspanel/browse.details.panel');
 const BaseBrowsePanel = require('../base.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
@@ -80,39 +78,39 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get moreButton() {
-        return XPATH.toolbar + lib.MORE_FOLD_BUTTON
+        return XPATH.toolbar + XPATH.moreFoldButton;
     }
 
     get moveFoldedButton() {
-        return lib.MORE_FOLD_BUTTON + XPATH.moveButton;
+        return XPATH.moreFoldButton + XPATH.moveButton;
     }
 
     get sortFoldedButton() {
-        return lib.MORE_FOLD_BUTTON + XPATH.sortButton;
+        return XPATH.moreFoldButton + XPATH.sortButton;
     }
 
     get newFoldedButton() {
-        return lib.MORE_FOLD_BUTTON + XPATH.newButton;
+        return XPATH.moreFoldButton + XPATH.newButton;
     }
 
     get editFoldedButton() {
-        return lib.MORE_FOLD_BUTTON + XPATH.editButton;
+        return XPATH.moreFoldButton + XPATH.editButton;
     }
 
     get archiveFoldedButton() {
-        return lib.MORE_FOLD_BUTTON + XPATH.archiveButton;
+        return XPATH.moreFoldButton + XPATH.archiveButton;
     }
 
     get duplicateFoldedButton() {
-        return lib.MORE_FOLD_BUTTON + XPATH.duplicateButton;
+        return XPATH.moreFoldButton + XPATH.duplicateButton;
     }
 
     get publishFoldedButton() {
-        return lib.MORE_FOLD_BUTTON + XPATH.publishButton;
+        return XPATH.moreFoldButton + XPATH.publishButton;
     }
 
     get previewFoldedButton() {
-        return lib.MORE_FOLD_BUTTON + XPATH.previewButton;
+        return XPATH.moreFoldButton + XPATH.previewButton;
     }
 
     get hideMobilePreviewButton() {
@@ -936,8 +934,9 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementEnabled(this.archiveFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_archive_folded_mobile');
-            throw Error('Mobile resolution, Archive folded button should be enabled' + err);
+            let screenshot = appConst.generateRandomName('err_archive_folded_mobile');
+            await this.saveScreenshot(screenshot);
+            throw Error('Mobile resolution, Archive folded button should be enabled, screenshot:' + screenshot + "  " + err);
         }
     }
 
@@ -954,8 +953,9 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementDisabled(this.moveFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_edit_mobile_disabled');
-            throw Error('Mobile resolution, Edit button should be disabled' + err);
+            let screenshot = appConst.generateRandomName('err_edit_mobile_disabled');
+            await this.saveScreenshot(screenshot);
+            throw Error('Mobile resolution, Edit button should be disabled, screenshot:  ' + screenshot + "  " + err);
         }
     }
 
@@ -963,8 +963,9 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementEnabled(this.newFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_new_button_mobile');
-            throw Error('Mobile resolution, New... button should be enabled' + err);
+            let screenshot = appConst.generateRandomName('err_new_button_mobile');
+            await this.saveScreenshot(screenshot);
+            throw Error('Mobile resolution, New... button should be enabled, screenshot: ' + screenshot + "  " + err);
         }
     }
 
@@ -972,8 +973,9 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementEnabled(this.publishFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_publish_button_mobile');
-            throw Error('Mobile resolution, New... button should be enabled' + err);
+            let screenshot = appConst.generateRandomName('err_new_button_mobile');
+            await this.saveScreenshot(screenshot);
+            throw Error('Mobile resolution, New... button should be enabled' + screenshot + "  " + err);
         }
     }
 
@@ -982,8 +984,9 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.moveFoldedButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.moveFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_move_mobile_disabled');
-            throw Error('Mobile resolution, Move button should be disabled' + err);
+            let screenshot = appConst.generateRandomName('err_move_mobile_disabled');
+            await this.saveScreenshot(screenshot);
+            throw Error('Mobile resolution, Move button should be disabled ' + screenshot + "  " + err);
         }
     }
 
@@ -1012,8 +1015,9 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.duplicateFoldedButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.duplicateFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_duplicate_mobile');
-            throw Error('Mobile resolution, Duplicate... button should be disabled' + err);
+            let screenshot = appConst.generateRandomName('err_duplicate_mobile');
+            await this.saveScreenshot(screenshot);
+            throw Error('Mobile resolution, Duplicate... button should be disabled, screenshot: ' + screenshot + "  " + err);
         }
     }
 }
