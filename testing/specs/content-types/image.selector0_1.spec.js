@@ -49,8 +49,8 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             //6. Verify that 'Save' button gets disabled:
             await contentWizard.waitForSaveButtonDisabled();
             //7. Verify the workflow state:
-            let iconState = await contentWizard.getIconWorkflowState();
-            assert.equal(iconState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'Ready for publishing'");
+            let workflow = await contentWizard.getContentWorkflowState();
+            assert.equal(workflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'Ready for publishing'");
         });
 
     it(`GIVEN existing content (image is not selected) opened WHEN an image has been selected THEN content gets Work in progress`,
@@ -70,7 +70,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await contentWizard.waitForSaveButtonEnabled();
             await studioUtils.saveScreenshot("test_workflow_icon_2");
             //6. Verify the workflow state:
-            let iconState = await contentWizard.getIconWorkflowState();
+            let iconState = await contentWizard.getContentWorkflowState();
             assert.equal(iconState, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "The content gets 'Ready for publishing'");
             await contentWizard.waitAndClickOnSave();
         });

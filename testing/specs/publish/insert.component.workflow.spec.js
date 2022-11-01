@@ -49,7 +49,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             assert.equal(actualMessage, expectedMessage, "Item is marked as ready - this message should appear");
             await studioUtils.saveScreenshot("text_component_mark_as_ready_pressed");
             //4. Verify the workflow state get 'Ready for publishing'
-            let actualWorkflow = await contentWizard.getIconWorkflowState();
+            let actualWorkflow = await contentWizard.getContentWorkflowState();
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
                 "Ready for publishing status should be displayed in the wizard");
             //5. Verify that Publish button gets displayed in the wizard-toolbar

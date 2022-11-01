@@ -114,6 +114,7 @@ module.exports = {
         if (identifier) {
             await nameAndIdStep.typeTextInProjectIdentifierInput(identifier);
         }
+        await nameAndIdStep.pause(800);
         await nameAndIdStep.clickOnNextButton();
         return new ProjectWizardDialogSummaryStep();
     },
@@ -139,6 +140,7 @@ module.exports = {
             await nameAndIdStep.waitForLoaded();
             let projectWizardDialogSummaryStep = await this.fillNameAndDescriptionStep(project.name, project.identifier,
                 project.description);
+            await projectWizardDialogSummaryStep.pause(1000);
             await projectWizardDialogSummaryStep.waitForLoaded();
         } catch (err) {
             let screenshot = appConst.generateRandomName("err_save_proj");

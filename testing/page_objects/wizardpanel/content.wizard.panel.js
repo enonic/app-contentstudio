@@ -15,7 +15,6 @@ const VersionsWidget = require('./details/wizard.versions.widget');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
-const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
 const RenamePublishedContentDialog = require('./rename.content.dialog');
 const WizardLayersWidget = require('./details/wizard.layers.widget');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
@@ -127,6 +126,10 @@ class ContentWizardPanel extends Page {
 
     get thumbnailUploader() {
         return XPATH.container + XPATH.thumbnailUploader;
+    }
+
+    get workflowIconAndValidation() {
+        return XPATH.container + XPATH.thumbnailUploader + "//div[contains(@class, 'workflow-status')]";
     }
 
     get archiveButton() {
@@ -650,27 +653,33 @@ class ContentWizardPanel extends Page {
         return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
     }
 
-    isContentInvalid() {
-        let selector = this.thumbnailUploader;
-        return this.getAttribute(selector, 'class').then(result => {
+    async isContentInvalid() {
+        try {
+            let locator = this.workflowIconAndValidation;
+            let result = await this.getAttribute(locator, 'class');
             return result.includes("invalid");
-        }).catch(err => {
-            throw new Error('Validation Error: error when try to find the content validation state: ' + err);
-        });
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_wizard_validation');
+            await this.saveScreenshot(screenshot);
+            throw new Error('error, content validation screenshot: ' + screenshot + "  " + err);
+        }
     }
 
-    waitUntilInvalidIconAppears() {
-        let selector = this.thumbnailUploader;
-        return this.waitUntilInvalid(selector).catch(err => {
-            this.saveScreenshot('err_wizard_validation_icon1');
-            throw new Error('Validation Error: invalid-icon did not appear in content-wizard after 2 seconds ' + err);
-        });
+    async waitUntilInvalidIconAppears() {
+        try {
+            let locator = this.workflowIconAndValidation;
+            await this.waitUntilInvalid(locator);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_wizard_validation');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Validation Error: invalid-icon did not appear in content-wizard screenshot: ' + screenshot + " " + err);
+        }
     }
 
     waitUntilInvalidIconDisappears() {
-        let selector = this.thumbnailUploader;
+        let locator = this.workflowIconAndValidation;
         return this.getBrowser().waitUntil(() => {
-            return this.getAttribute(selector, 'class').then(result => {
+            return this.getAttribute(locator, 'class').then(result => {
                 return !result.includes('invalid');
             })
         }, {
@@ -980,18 +989,12 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    //Gets workflow state in the wizard toolbar
-    async getIconWorkflowState() {
-        let selector = XPATH.thumbnailUploader;
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        let result = await this.getAttribute(selector, 'class');
-        if (result.includes('in-progress')) {
-            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
-        } else if (result.includes('ready')) {
-            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
-        } else {
-            return undefined;
-        }
+    //Gets workflow state in the wizard toolbar or null
+    async getContentWorkflowState() {
+        let locator = this.workflowIconAndValidation;
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        let result = await this.getAttribute(locator, 'title');
+        return result;
     }
 
     async clickOnPageEditorToggler() {

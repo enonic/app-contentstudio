@@ -107,7 +107,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             let onlineFrom = await scheduleForm.getOnlineFrom();
             assert.isFalse(studioUtils.isStringEmpty(onlineFrom), "Online from input should not be empty");
 
-            let workflow = await contentWizard.getIconWorkflowState();
+            let workflow = await contentWizard.getContentWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
@@ -141,7 +141,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //Schedule form gets not visible:
             await scheduleForm.waitForNotDisplayed();
 
-            let workflow = await contentWizard.getIconWorkflowState();
+            let workflow = await contentWizard.getContentWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 

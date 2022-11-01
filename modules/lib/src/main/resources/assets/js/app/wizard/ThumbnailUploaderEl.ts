@@ -2,16 +2,20 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Content, ContentBuilder} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {UploaderEl, UploaderElConfig} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
-import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {UrlHelper} from '../util/UrlHelper';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {ContentPath} from '../content/ContentPath';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class ThumbnailUploaderEl
     extends UploaderEl<Content> {
 
     private iconUrlResolver: ContentIconUrlResolver;
+
+    private statusBlock?: DivEl;
 
     constructor(config?: UploaderElConfig) {
 
@@ -60,6 +64,23 @@ export class ThumbnailUploaderEl
 
     createResultItem(value: string): Element {
         return new ImgEl(value);
+    }
+
+    setStatus(status: WorkflowStateStatus): void {
+        if (!this.statusBlock) {
+            this.statusBlock = new DivEl('workflow-status');
+            this.appendNewItems([this.statusBlock]);
+        }
+
+        this.statusBlock.setClass(`workflow-status icon-state-${status}`);
+
+        if (WorkflowStateManager.isReady(status)) {
+            this.statusBlock.setTitle(i18n('tooltip.state.ready'));
+        } else if (WorkflowStateManager.isInProgress(status)) {
+            this.statusBlock.setTitle(i18n('tooltip.state.in_progress'));
+        } else {
+            this.statusBlock.getEl().removeAttribute('title');
+        }
     }
 
 }

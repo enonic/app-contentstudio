@@ -33,7 +33,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
         async () => {
             let wizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            let state = await wizard.getIconWorkflowState();
+            let state = await wizard.getContentWorkflowState();
             assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "'Work in progress' icon should be displayed");
         });
 
@@ -48,7 +48,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             studioUtils.saveScreenshot("marked_as_ready_workflow_state");
             assert.equal(message, appConst.markedAsReadyMessage(TEST_FOLDER.displayName),
                 "Message: 'Item is marked as ready' should appear");
-            let state = await wizard.getIconWorkflowState();
+            let state = await wizard.getContentWorkflowState();
             assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
                 "'Ready for publishing' icon should be displayed in the wizard");
         });
@@ -74,7 +74,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             await versionPanel.clickOnRevertButton();
             studioUtils.saveScreenshot("revert_workflow_state");
             //State in wizard gets 'Work in Progress':
-            let state = await wizard.getIconWorkflowState(TEST_FOLDER.displayName);
+            let state = await wizard.getContentWorkflowState();
             assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
                 "'Work in progress' -state should appear after reverting the previous version");
         });
