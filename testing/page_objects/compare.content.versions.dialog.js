@@ -141,12 +141,6 @@ class CompareContentVersionsDialog extends Page {
         return await this.findElements(locator);
     }
 
-    async clickOnLeftDropdownHandle() {
-        await this.waitForElementDisplayed(this.leftDropdownHandle, appConst.mediumTimeout);
-        await this.clickOnElement(this.leftDropdownHandle);
-        return await this.pause(300);
-    }
-
     async clickOnRightDropdownHandle() {
         await this.waitForElementDisplayed(this.rightDropdownHandle, appConst.mediumTimeout);
         await this.clickOnElement(this.rightDropdownHandle);

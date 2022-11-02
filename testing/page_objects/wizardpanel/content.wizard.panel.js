@@ -20,7 +20,6 @@ const WizardLayersWidget = require('./details/wizard.layers.widget');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
 const WizardDependenciesWidget = require('./details/wizard.dependencies.widget');
 
-
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
     wizardHeader: "//div[contains(@id,'ContentWizardHeader')]",
@@ -434,15 +433,16 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    clickOnComponentViewToggler() {
-        return this.waitForElementDisplayed(this.componentViewToggler, appConst.mediumTimeout).then(() => {
-            return this.clickOnElement(this.componentViewToggler);
-        }).catch(err => {
-            this.saveScreenshot('err_click_on_show_component_view');
-            throw new Error("Error when clicking on 'Show Component View!'" + err);
-        }).then(() => {
-            return this.pause(500);
-        });
+    async clickOnComponentViewToggler() {
+        try {
+            await this.waitForElementDisplayed(this.componentViewToggler, appConst.mediumTimeout);
+            await this.clickOnElement(this.componentViewToggler);
+            return await this.pause(300);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_componentView_toggler')
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error when clicking on 'Show Component View!' button, screenshot:" + screenshot + " " + err);
+        }
     }
 
     async waitForHideComponentViewTogglerDisplayed() {
@@ -459,7 +459,7 @@ class ContentWizardPanel extends Page {
             return await this.waitForElementDisplayed(XPATH.hidePageEditorTogglerButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_hide_page_editor_button_not_displayed');
-            throw new Error("'Hide Page Editor !' button should be displayed : " + err);
+            throw new Error("'Hide Page Editor' button should be displayed : " + err);
         }
     }
 
@@ -468,7 +468,7 @@ class ContentWizardPanel extends Page {
             return await this.waitForElementDisplayed(XPATH.showPageEditorTogglerButton, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_show_page_editor_button_not_displayed');
-            throw new Error("'Show Page Editor !' button should be displayed : " + err);
+            throw new Error("'Show Page Editor' button should be displayed : " + err);
         }
     }
 
@@ -797,7 +797,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisplayed(this.publishDropDownHandle, appConst.mediumTimeout);
             await this.clickOnElement(this.publishDropDownHandle);
-            return await this.pause(300);
+            return await this.pause(400);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_click_on_dropdown"));
             throw new Error("Error when clicking on Publish dropdown handle " + err);
@@ -929,12 +929,12 @@ class ContentWizardPanel extends Page {
         return await createRequestPublishDialog.clickOnCreateRequestButton();
     }
 
-    async showPublishMenuClickOnMarkAsReadyMenuItem() {
-        await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.MARK_AS_READY);
-        let dialog = new ConfirmationDialog();
-        await dialog.waitForDialogOpened();
-        return await dialog.clickOnYesButton();
-    }
+    // async showPublishMenuClickOnMarkAsReadyMenuItem() {
+    //     await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.MARK_AS_READY);
+    //     let dialog = new ConfirmationDialog();
+    //     await dialog.waitForDialogOpened();
+    //     return await dialog.clickOnYesButton();
+    // }
 
     async clickOnMarkAsReadyButton() {
         let selector = XPATH.container + XPATH.markAsReadyButton;
@@ -1054,8 +1054,9 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.previewButton);
             return await this.pause(2000);
         } catch (err) {
-            this.saveScreenshot('err_wizard_preview');
-            throw new Error('Error when clicking on Preview button ' + err);
+            let screenshot = appConst.generateRandomName('err_preview_button');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error when clicking on Preview button, screenshot:' + screenshot + " " + err);
         }
     }
 
