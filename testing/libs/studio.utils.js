@@ -90,7 +90,7 @@ module.exports = {
             let selector = `//iframe[contains(@src,'${src}')]`;
             let el = await this.getBrowser().$(selector);
             await el.waitForDisplayed({timeout: 2000});
-            return await this.getBrowser().switchToFrame(el);
+            await this.getBrowser().switchToFrame(el);
         } catch (err) {
             throw new Error('Error when switch to frame  ' + err);
         }
@@ -140,12 +140,11 @@ module.exports = {
         await insertLinkDialog.clickOnInsertButton();
         return await insertLinkDialog.pause(700);
     },
-    doCloseCurrentBrowserTab: function () {
-        return this.getBrowser().getTitle().then(title => {
-            if (title != 'Enonic XP Home') {
-                return this.getBrowser().closeWindow();
-            }
-        })
+    async doCloseCurrentBrowserTab() {
+        let title = await this.getBrowser().getTitle();
+        if (title != 'Enonic XP Home') {
+            return await this.getBrowser().closeWindow();
+        }
     },
     async openIssuesListDialog() {
         let browsePanel = new BrowsePanel();

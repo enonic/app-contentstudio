@@ -139,7 +139,7 @@ describe('close.task.by.user.spec: create a task for user and close it', functio
             //3. Select the copy :
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName + "-copy");
             await studioUtils.saveScreenshot("owner_copy_folder");
-            //4. Verify the owner name in the properties widget:
+            //4. Verify the owner name in the Properties widget:
             let owner = await propertiesWidget.getOwnerName();
             assert.equal(owner, USER.displayName, "Expected user should be displayed in the widget");
             //5. Open Versions widget:

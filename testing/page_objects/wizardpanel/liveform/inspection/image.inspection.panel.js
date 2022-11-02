@@ -55,7 +55,7 @@ class ImageInspectionPanel extends Page {
 
     async expandFolderInOptions(folderName) {
         let locator = xpath.container + lib.expanderIconByName(folderName);
-        this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
         return await this.pause(300);
     }

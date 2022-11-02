@@ -62,7 +62,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
-            //4. Do not insert a url and a text, but click on 'Insert' button:
+            //4. Do not insert an url and a text, but click on 'Insert' button:
             await insertLinkDialog.clickOnInsertButton();
             //5. Verify that both validation messages are displayed:
             let validationMessage1 = await insertLinkDialog.getUrlInputValidationMessage();

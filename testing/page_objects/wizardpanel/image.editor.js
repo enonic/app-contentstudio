@@ -19,10 +19,8 @@ const xpath = {
     resetMaskButton: "//button[contains(@id,'Button') and child::span[text()='Reset Mask']]",
     closeEditModeButton: "//button[contains(@class,'close-button')]",
     buttonApply: "//button[child::span[text()='Apply']]",
-    resetMaskButton: "//button[contains(@id,'Button')]/span[text()='Reset Mask']",
     cropHandle: "//*[name()='svg' and contains(@id,'ImageEditor-dragHandle')]//*[name()='circle']",
     focusCircle: "//*[name()='svg']/*[name()='g' and contains(@class,'focus-group')]",
-
 };
 
 class ImageEditor extends Page {

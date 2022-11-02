@@ -106,7 +106,7 @@ describe('create.content.in.project.spec - create new content in the selected co
 
         });
 
-    //verifies Details Panel should be reset after switching to another project #1570
+    //verifies the issue: Details Panel should be reset after switching to another project #1570
     //https://github.com/enonic/app-contentstudio/issues/1570
     it(`GIVEN existing folder in current project is selected WHEN switch to 'Default' project THEN Details Panel should be reset and this content should not be searchable`,
         async () => {

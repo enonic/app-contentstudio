@@ -86,10 +86,11 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             let res = await this.findElements(this.publishButton);
             await this.clickOnElement(this.publishButton);
             let publishContentDialog = new ContentPublishDialog();
-            publishContentDialog.waitForDialogOpened();
+            await publishContentDialog.waitForDialogOpened();
         } catch (err) {
-            this.saveScreenshot('err_click_on_publish_and_close');
-            throw new Error('Error when clicking on Publish and close ' + err);
+            let screenshot = appConst.generateRandomName('err_publish_button');
+            this.saveScreenshot(screenshot);
+            throw new Error('Error when clicking on Publish button, screenshot: ' + screenshot + "  " + err);
         }
     }
 
@@ -212,8 +213,9 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             await this.waitForAddScheduleButtonDisplayed();
             return await this.clickOnElement(this.addScheduleButton);
         } catch (err) {
-            this.saveScreenshot('err_publish_dialog_add_schedule_button');
-            throw new Error('`Request Publish dialog` Error when clicking Add Schedule button  ' + err);
+            let screenshot = appConst.generateRandomName('err_schedule_button');
+            await this.saveScreenshot(screenshot);
+            throw new Error('`Request Publish dialog` Error when clicking Add Schedule button, screenshot  ' + screenshot + " " + err);
         }
     }
 
