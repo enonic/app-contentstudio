@@ -142,23 +142,24 @@
 
           .names-and-icon-view {
             flex: 1;
-            display: flex;
 
             .@{_COMMON_PREFIX}wrapper {
-              height: 100%;
-
               .font-icon-default {
                 font-size: 22px;
+
                 &:before {
                   color: @admin-dark-gray;
                 }
 
-                &.icon-version-published::before {
-                  color: @admin-green;
+                &.icon-version-published {
+                  font-size: 20px;
+                  &::before {
+                    color: @admin-green;
+                  }
                 }
 
                 &.icon-version-unpublished::before {
-                  font-size: 34px;
+                  font-size: 28px;
                 }
               }
             }
