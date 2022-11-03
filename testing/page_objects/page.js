@@ -229,12 +229,12 @@ class Page {
     }
 
     waitForSpinnerNotVisible(ms) {
-        let timeout;
-        timeout = ms === undefined ? appConst.longTimeout : ms;
-        let message = "Spinner still displayed! timeout is " + timeout;
+        let timeout1;
+        timeout1 = ms === undefined ? appConst.longTimeout : ms;
+        let message = "Spinner still displayed! timeout is " + timeout1;
         return this.browser.waitUntil(() => {
             return this.isElementNotDisplayed("//div[@class='spinner']");
-        }, {timeout: timeout, timeoutMsg: message});
+        }, {timeout: timeout1, timeoutMsg: message});
     }
 
     waitUntilElementNotVisible(selector, ms) {
@@ -261,8 +261,9 @@ class Page {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_remove_notif_msg"));
-            throw new Error(err);
+            let screenshot = appConst.generateRandomName("err_remove_notif_msg");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error after removing the notification message, screenshot: " + screenshot + "  " + err);
         }
     }
 
@@ -275,7 +276,9 @@ class Page {
             await this.pause(400);
             return await this.getText(notificationXpath);
         } catch (err) {
-            throw new Error('Error when wait for the notification message: ' + err);
+            let screenshot = appConst.generateRandomName("err_notification");
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error when wait for the notification message, screenshot:  ' + screenshot + "  " + err);
         }
     }
 
@@ -286,31 +289,21 @@ class Page {
             await this.pause(300);
             return await this.getTextInDisplayedElements(lib.NOTIFICATION_TEXT);
         } catch (err) {
-            this.saveScreenshot('err_notification_messages');
-            throw new Error('Error when wait for notification message: ' + err);
+            let screenshot = appConst.generateRandomName("err_notification");
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error when wait for notification message, screenshot: ' + screenshot + "  " + err);
         }
     }
 
-    waitForExpectedNotificationMessage(expectedMessage) {
-        let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-text') and contains(.,'${expectedMessage}')]`;
-        return this.waitForElementDisplayed(selector, appConst.longTimeout).catch(err => {
-            this.saveScreenshot('err_notification_mess');
-            throw new Error('expected notification message was not shown! ' + err);
-        })
-    }
-
-    waitForErrorNotificationMessage() {
-        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']` + lib.NOTIFICATION_TEXT;
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
-            return this.getText(selector);
-        })
-    }
-
-    async waitForNotificationWarning() {
-        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']` + lib.NOTIFICATION_TEXT;
-        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-        await this.pause(500);
-        return await this.getText(selector);
+    async waitForExpectedNotificationMessage(expectedMessage) {
+        try {
+            let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-text') and contains(.,'${expectedMessage}')]`;
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_notification");
+            await this.saveScreenshot(screenshot);
+            throw new Error('expected notification message was not shown, screenshot: ' + screenshot + "  " + err);
+        }
     }
 
     async doRightClick(selector) {

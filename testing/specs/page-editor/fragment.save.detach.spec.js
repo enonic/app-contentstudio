@@ -42,6 +42,29 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await contentWizard.waitForHideComponentViewTogglerDisplayed();
         });
 
+    //verifies -  Context menu stays open when menu button's dropdown is expanded #5075
+    //https://github.com/enonic/app-contentstudio/issues/5075
+    it(`GIVEN menu in 'Show Component View' has been opened WHEN publish-menu button's dropdown has been clicked THEN component's menu should be closed`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            //1. Click on 'Show Component View'
+            await contentWizard.clickOnShowComponentViewToggler();
+            await pageComponentView.waitForOpened();
+            //2. Open the menu in Page Component View dialog:
+            await pageComponentView.openMenu("main");
+            //3. Verify that required items are visible:
+            await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
+            //4. Click on publish-menu button's dropdown:
+            await contentWizard.clickOnPublishMenuDropdownHandle();
+            await studioUtils.saveScreenshot("components_menu_closed");
+            //5. Verify that page-component's menu gets closed:
+            await pageComponentView.waitForMenuItemNotDisplayed(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
+            //6.  But Publish-menu should be expanded and Create task menu item is enabled here:
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+        });
+
     //https://github.com/enonic/app-contentstudio/issues/1445
     //Exception after an empty text component has been saved as fragment #1445
     it(`GIVEN existing site is opened AND Text component has been inserted WHEN text-component has been saved as fragment THEN 'Detach from Fragment' menu item should appear`,
