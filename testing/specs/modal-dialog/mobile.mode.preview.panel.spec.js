@@ -45,6 +45,7 @@ describe('Tests for preview panel in mobile mode', function () {
             //1. Open the folder-wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(displayName);
+            await contentWizard.pause(1000);
             await studioUtils.saveScreenshot("mobile_res_414_736");
             //2. Verify styles for Dropdown handle in Publish menu button:
             let result = await contentWizard.getPublishMenuDropdownCSSProperty("display");
