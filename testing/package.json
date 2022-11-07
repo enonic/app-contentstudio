@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "assert": "^2.0.0",
-    "chai": "^4.3.6",
+    "chai": "^4.3.7",
     "glob": "8.0.3",
     "mocha": "^10.1.0",
     "mochawesome": "7.1.3",
