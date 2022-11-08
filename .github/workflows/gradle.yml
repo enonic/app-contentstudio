@@ -66,7 +66,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                suite: [ testContentStudioProjects, testPageEditor, testInputTypes, testInputTypes_2, testWizardsGrid, testPublishIssues, testModalDialog, testProjectApps ]
+                suite: [ testContentStudioProjectsFirefox, testPageEditorFirefox, testInputTypesFirefox, testInputTypesFirefox_2, testWizardsGridFirefox, testPublishIssuesFirefox, testModalDialogFirefox ]
 
         runs-on: ubuntu-latest
 
