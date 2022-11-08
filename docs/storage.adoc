@@ -1,0 +1,35 @@
+= Content Storage
+:toc: right
+:imagesdir: storage/images
+
+Content in XP is stored in <<storage/projects#,Content Projects>>, each having its own underlying repository. In a clean new instance of XP
+there's only one project (called "Default") which cannot be deleted but <<config#disable_default_project,can be disabled>> using the
+configuration file.
+
+Users with privileged permissions can create their own Content Projects and localise content in these projects using <<storage/layers#,Content Layers>>, which essentially is a special type of project inheriting content from an upstream project while enabling localisation into a specific language.
+
+Each project/layer (except for the default one) can be set up with independent access level and a set of default permissions for new content.
+
+Content that is no longer needed can be deleted for good or put into <<storage/archive#,Archive>> for future reference.
+Each project/layer has its own Archive.
+
+
+== Project Context
+
+If current user has access to more than one project or layer, he/she will be asked to select the context after opening Content Studio.
+
+image::project-context.png[Project context, 490]
+
+Project context can be switched at any time by using project selector in the Content Studio header:
+
+image::project-switcher.png[Project switcher, 606]
+
+NOTE: <<issues#,*Issues*>> are context-dependent which means that an issue can be accessed only from inside the project it was created in.
+
+Current project context is also shown in the Content Wizard header:
+
+image::content-wizard-context.png[Context in Content Wizard, 790]
+
+IMPORTANT: If the Default project is <<config#disable_default_project,hidden>> via config file and a logged-in user doesn't have access to any projects and has necessary permissions, he/she will be asked to create a new Content Project using <<storage/projects#new_project_wizard,multistep wizard>>.
+
+image::context-no-projects.png[No projects, 790]

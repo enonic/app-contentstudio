@@ -3,6 +3,70 @@
 
 TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.com/docs/content-studio/3.x/release[here]
 
+== Content Studio 4 Update 3
+
+IMPORTANT: Content Studio 4.3.x requires XP 7.11.0 or higher.
+
+New features in Content Studio 4.3.0 include major improvements of the Insert Link dialog and Version History widget,
+wizard for creating a New content project, RTL support in text inputs and ability to see all current editors on the Content Editor page.
+
+=== Insert Link dialog improvements
+
+The <<editor/rich-text-editor#insertedit_link,Insert Link dialog>> in the HTML editor has been completely revamped to support relative URLs, parameters/anchor for internal URLs and advanced handling of media links.
+
+:imagesdir: editor/images
+
+Here's what's new:
+
+* "Content" tab for adding an internal link has been made default
+* Added support for relative links
+* Added support for anchor and parameters in internal links
+* "Download" tab has been removed. Instead, upon selection of a media content, user can now select how the media link should be handled: open the media in a new tab, download or treat it as regular content.
+
+image::rich-text-editor-link-dialog-3.png[470, Insert Link dialog]
+image::rich-text-editor-link-dialog-1.png[470, Insert Link dialog]
+image::rich-text-editor-link-dialog-2.png[470, Insert Link dialog]
+
+=== Collaboration
+
+This experimental feature that has been introduced in Content Studio 4.1 has now been thoroughly tested in cluster environment and turned on by default.
+
+In <<editor#collaboration, collaboration mode>> Content Wizard's header will display avatar icons of all users simultaneously editing the content or simply having it opened.
+
+:imagesdir: editor/images
+image::content-wizard-collaboration.png[Collaboration, 665]
+
+=== New Project wizard
+
+Creation of a new content project is now done by completing the <<storage/projects#new_project_wizard, multistep wizard>>. This dialog will now automatically pop up for a user that doesn't have access to any existing projects upon logging into Content Studio.
+
+:imagesdir: storage/projects/images
+
+image::new-project-dialog-7.png[New Project summary, 470]
+
+=== RTL support in text inputs
+
+Support of RTL (right-to-left) languages have been added for TextLine, TextArea and HtmlArea input types, as well as for Text components.
+Currently supported RTL languages are: Arabic ('ar'), Dhivehi ('dv'), Persian/Farsi ('fa'), Hausa ('ha'), Hebrew ('he'), Kashmiri ('ks'),
+Kurdish ('ku'), Pashto('ps'), Sindhi ('sd'), Urdu ('ur'), Yiddish ('yi').
+
+If content language is set to one of these languages, inputs of types TextLine, TextArea and HtmlArea, as well as Text components inside Page Editor, will be set to right-to-left direction.
+
+:imagesdir: release/images
+
+image::cs43-rtl.png[RTL inputs, 860]
+
+
+=== Version History improvements
+
+:imagesdir: widgets/images
+image:widgets-version-compare-icon.png[Version history, 24] icon now compares the selected version to the previous one, not to the current one.
+
+The widget now displays content versions created for Permissions update, Sort and Move actions.
+
+:imagesdir: release/images
+image::cs43-version-history.png[Version History, 430]
+
 == Content Studio 4 Update 2
 
 Content Studio 4.2.0 comes with several major improvements in the Filter panel.
@@ -48,10 +112,7 @@ image::widgets-menu-item.png[Top menu widgets,600]
 
 In <<editor#collaboration, collaboration mode>> Content Wizard's header will display avatar icons of all users simultaneously editing the content or simply having it opened.
 
-:imagesdir: editor/images
-image::content-wizard-collaboration.png[Collaboration, 665]
-
-NOTE: This feature is experimental and has to be turned on via <<config#collaboration_mode, config file>>.
+NOTE: This feature is experimental and has to be turned on in the config file.
 
 :imagesdir: release/images
 

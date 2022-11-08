@@ -31,6 +31,26 @@
       ]
     },
     {
+      "title": "Content Storage",
+      "document": "storage",
+      "menuItems": [
+        {
+          "title": "Projects",
+          "document" : "storage/projects"
+        },
+        {
+          "title": "Localisation",
+          "document" : "storage/layers"
+        },
+        {
+          "title": "Archive",
+          "document": "storage/archive"
+        }
+      ]
+    },
+
+
+    {
       "title": "Content Archive",
       "document": "archive"
     },
