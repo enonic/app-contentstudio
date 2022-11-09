@@ -40,7 +40,7 @@ exports.config = {
     //
     // Default timeout in milliseconds for request
     // if Selenium Grid doesn't send response
-    connectionRetryTimeout: 9000,
+    connectionRetryTimeout: 90000,
     //
     // Default request retries count
     connectionRetryCount: 3,
@@ -85,7 +85,7 @@ exports.config = {
     onPrepare: function (config, capabilities) {
         let reportAggregator = new ReportAggregator({
             outputDir: "./build/mochawesome-report/",
-            filename: 'app-report.html',
+            filename: 'master-report.html',
             reportTitle: 'Content Studio, Publish Tests Report',
             browserName: capabilities.browserName,
             collapseTests: true
