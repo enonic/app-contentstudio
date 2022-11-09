@@ -173,6 +173,10 @@ class ContentWizardPanel extends Page {
         return XPATH.toolbar + XPATH.goToGridButton;
     }
 
+    get markAsReadyButton() {
+        return XPATH.container + "//div[contains(@id,'ContentWizardToolbarPublishControls')]" + XPATH.markAsReadyButton;
+    }
+
     async waitForHelpTextsButtonTogglerDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.wizardToolbarHelpButton, appConst.mediumTimeout);
@@ -851,9 +855,8 @@ class ContentWizardPanel extends Page {
         })
     }
 
-    waitForMarkAsReadyButtonVisible() {
-        let selector = XPATH.container + XPATH.markAsReadyButton;
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+    async waitForMarkAsReadyButtonVisible() {
+        return await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
     }
 
     waitForOpenRequestButtonVisible() {
@@ -944,10 +947,15 @@ class ContentWizardPanel extends Page {
     }
 
     async clickOnMarkAsReadyButton() {
-        let selector = XPATH.container + XPATH.markAsReadyButton;
-        await this.waitForMarkAsReadyButtonVisible();
-        await this.clickOnElement(selector);
-        return await this.pause(1000);
+        try {
+            await this.waitForMarkAsReadyButtonVisible();
+            await this.clickOnElement(this.markAsReadyButton);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_mark_as_ready_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error in clickOnMarkAsReadyButton, screenshot:" + screenshot + " " + err);
+        }
     }
 
     async clickOnUnpublishButton() {

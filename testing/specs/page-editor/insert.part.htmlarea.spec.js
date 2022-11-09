@@ -134,7 +134,10 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             //4. Go to Fragment Wizard (generated displayName is 'Html Area Example'")
             await studioUtils.switchToContentTabWindow("Html Area Example");
+            await contentWizard.pause(1000);
             //5. Open Page Component View in Fragment Wizard:
+            await contentWizard.waitForSpinnerNotVisible();
+            //Open Page Component View in the fragment-wizard
             await contentWizard.clickOnShowComponentViewToggler();
             //6. Verify that custom icon should be present in Fragment Wizard:
             let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example");

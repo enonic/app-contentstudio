@@ -471,6 +471,7 @@ module.exports = {
         let contentWizardPanel = new ContentWizardPanel();
         await browsePanel.waitForEditButtonEnabled();
         await browsePanel.clickOnEditButton();
+        await browsePanel.pause(2000);
         //switch to the opened wizard:
         await this.switchToContentTabWindow(displayName);
         await contentWizardPanel.waitForOpened();
