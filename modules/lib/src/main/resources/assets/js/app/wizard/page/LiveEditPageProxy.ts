@@ -53,10 +53,7 @@ import {IEObjectHolder} from './IEObjectHolder';
 import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
 import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
 import {Descriptor} from '../../page/Descriptor';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {LiveEditPagePlaceholder} from './LiveEditPagePlaceholder';
-import {ClickPosition} from '../../../page-editor/ClickPosition';
-import {ItemViewContextMenuPosition} from '../../../page-editor/ItemViewContextMenuPosition';
+import {ContentId} from '../../content/ContentId';
 
 export class LiveEditPageProxy {
 
@@ -64,9 +61,9 @@ export class LiveEditPageProxy {
 
     private pageView: PageView;
 
-    private liveEditIFrame: IFrameEl;
+    private liveEditIFrame?: IFrameEl;
 
-    private placeholderEl: LiveEditPagePlaceholder;
+    private contentId: ContentId;
 
     private liveEditWindow: any;
 
@@ -138,12 +135,8 @@ export class LiveEditPageProxy {
 
     private modifyPermissions: boolean = false;
 
-    constructor() {
-
-        this.liveEditIFrame = this.createLiveEditIFrame();
-        this.placeholderEl = this.createPlaceholderEl();
-
-        this.dragMask = new DragMask(this.liveEditIFrame);
+    constructor(contentId: ContentId) {
+        this.contentId = contentId;
 
         this.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
             if (LiveEditPageProxy.debug) {
@@ -153,6 +146,10 @@ export class LiveEditPageProxy {
         });
 
         EmulatedEvent.on((event: EmulatedEvent) => {
+            if (!this.pageView) {
+                return;
+            }
+
             this.setWidth(event.getWidthWithUnits());
             this.setHeight(event.getHeightWithUnits());
 
@@ -169,20 +166,6 @@ export class LiveEditPageProxy {
         liveEditIFrame.onLoaded(() => this.handleIFrameLoadedEvent());
 
         return liveEditIFrame;
-    }
-
-    private createPlaceholderEl(): DivEl {
-        const placeholderEl = new LiveEditPagePlaceholder();
-
-        placeholderEl.onAdded(() => {
-            if (this.liveEditModel && this.liveEditModel.getSiteModel()) {
-                this.liveEditModel.getSiteModel().onApplicationAdded(() => {
-                    this.hidePlaceholderAndShowEditor();
-                });
-            }
-        });
-
-        return placeholderEl;
     }
 
     // this helps to put horizontal scrollbar in the bottom of live edit frame
@@ -270,10 +253,6 @@ export class LiveEditPageProxy {
         return this.liveEditIFrame;
     }
 
-    public getPlaceholderEl(): DivEl {
-        return this.placeholderEl;
-    }
-
     public getJQuery(): JQueryStatic {
         return this.livejq;
     }
@@ -311,6 +290,11 @@ export class LiveEditPageProxy {
     }
 
     public load() {
+        if (!this.liveEditIFrame) {
+            this.liveEditIFrame = this.createLiveEditIFrame();
+            this.dragMask = new DragMask(this.liveEditIFrame);
+        }
+
         this.notifyBeforeLoad();
 
         let scrollTop;
@@ -345,38 +329,42 @@ export class LiveEditPageProxy {
             if (LiveEditPageProxy.debug) {
                 console.log(`LiveEditPageProxy.load loading page from '${pageUrl}' at ${new Date().toISOString()}`);
             }
-            this.hidePlaceholderAndShowEditor();
+
+            this.liveEditIFrame.show();
         } else {
 
             if (LiveEditPageProxy.debug) {
                 console.debug('LiveEditPageProxy.load: no reason to load page, showing blank placeholder');
             }
 
-            this.hideEditorAndShowPlaceholder();
-
+            this.liveEditIFrame.hide();
         }
     }
 
-    public isPlaceholderVisible(): boolean {
-        return this.placeholderEl.isVisible();
-    }
+    public unload(): void {
+        this.pageView?.remove();
+        this.pageView = null;
 
-    private hideEditorAndShowPlaceholder() {
-        this.liveEditIFrame.hide();
-        this.placeholderEl.show();
-    }
+        this.liveEditIFrame?.getEl().removeAttribute('src');
+        this.liveEditIFrame?.remove();
+        this.dragMask?.remove();
 
-    private hidePlaceholderAndShowEditor() {
-        this.placeholderEl.hide();
-        this.liveEditIFrame.show();
+        if (this.liveEditWindow) {
+            this.stopListening(this.liveEditWindow);
+            this.liveEditWindow = null;
+        }
     }
 
     public skipNextReloadConfirmation(skip: boolean) {
-        new SkipLiveEditReloadConfirmationEvent(skip).fire(this.liveEditWindow);
+        if (this.liveEditWindow) {
+            new SkipLiveEditReloadConfirmationEvent(skip).fire(this.liveEditWindow);
+        }
     }
 
     public propagateEvent(event: Event) {
-        event.fire(this.liveEditWindow);
+        if (this.liveEditWindow) {
+            event.fire(this.liveEditWindow);
+        }
     }
 
     private handleIFrameLoadedEvent() {
@@ -423,7 +411,7 @@ export class LiveEditPageProxy {
     }
 
     public loadComponent(componentView: ComponentView<Component>, componentUrl: string,
-        avoidInspectComponentRefresh?: boolean): Q.Promise<string> {
+                         avoidInspectComponentRefresh?: boolean): Q.Promise<string> {
 
         const deferred = Q.defer<string>();
         assertNotNull(componentView, 'componentView cannot be null');

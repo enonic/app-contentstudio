@@ -305,8 +305,10 @@ export class ContentWizardPanel
         this.debouncedEditorRefresh = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
 
-            livePanel.skipNextReloadConfirmation(true);
-            livePanel.loadPage(clearInspection);
+            if (this.isRenderable()) {
+                livePanel.skipNextReloadConfirmation(true);
+                livePanel.loadPage(clearInspection);
+            }
         }, 500);
 
         this.dataChangedHandler = AppHelper.debounce(() => {
@@ -320,11 +322,6 @@ export class ContentWizardPanel
 
         let applicationKeys: ApplicationKey[] = [];
         const saveOnAppChange = (force: boolean = false) => {
-            if (this.getLivePanel()?.getPage()) {
-                this.handleAppChange();
-                return;
-            }
-
             (force ? Q.resolve(true) : this.checkIfAppsHaveDescriptors(applicationKeys))
                 .then((appsHaveDescriptors: boolean) => appsHaveDescriptors ? this.saveChanges() : Q.resolve())
                 .then(this.handleAppChange)
@@ -347,17 +344,16 @@ export class ContentWizardPanel
         });
 
         this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
-            this.removeXDataStepForms(event.getApplicationKey())
-                .then((removedXDataCount: number) => {
-                    applicationKeys.push(event.getApplicationKey());
+            this.removeXDataStepForms(event.getApplicationKey()).then((removedXDataCount: number) => {
+                applicationKeys.push(event.getApplicationKey());
 
-                    if (this.isSaving()) {
-                        // Save might already have been initiated by the LiveEdit page on app remove
-                        return;
-                    }
+                if (this.isSaving()) {
+                    // Save might already have been initiated by the LiveEdit page on app remove
+                    return;
+                }
 
-                    saveOnAppChange(removedXDataCount > 0);
-                });
+                saveOnAppChange(removedXDataCount > 0);
+            }).catch(DefaultErrorHandler.handle);
         };
 
         this.applicationUninstalledListener = (event: ApplicationEvent) => {
@@ -550,26 +546,6 @@ export class ContentWizardPanel
                     );
                 this.setPersistedContent(this.currentContent);
 
-                this.livePanel = this.createLivePanel();
-
-                if (this.livePanel) {
-                    this.toggleMinimizeListener = (event: ActivatedEvent) => {
-                        this.toggleMinimize(event.getIndex());
-                    };
-
-                    this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
-                    this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
-                    this.liveMask = new LoadMask(this.livePanel);
-
-                    this.livePanel.whenRendered(() => {
-                        if (WizardPanel.debug) {
-                            console.debug('WizardPanel: livePanel.onRendered');
-                        }
-                        this.liveMask.hide();
-                        this.livePanel.removeClass('rendering');
-                    });
-                }
-
                 this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
                 this.wizardHeader.setPath(this.getWizardHeaderPath());
@@ -673,15 +649,37 @@ export class ContentWizardPanel
     }
 
     private createLivePanel(): LiveFormPanel {
-        if (this.isLivePanelAllowed()) {
-            return new LiveFormPanel(<LiveFormPanelConfig>{
-                contentWizardPanel: this,
-                contentType: this.contentType.getContentTypeName(),
-                defaultModels: this.defaultModels
-            });
+        if (!this.isLivePanelAllowed()) {
+            return null;
         }
 
-        return null;
+        const liveFormPanel: LiveFormPanel = new LiveFormPanel(<LiveFormPanelConfig>{
+            contentWizardPanel: this,
+            contentType: this.contentType,
+            defaultModels: this.defaultModels,
+            content: this.getPersistedItem()
+        });
+
+        this.toggleMinimizeListener = (event: ActivatedEvent) => {
+            this.toggleMinimize(event.getIndex());
+        };
+
+        this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
+        this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
+        this.liveMask = new LoadMask(liveFormPanel);
+
+        this.wizardActions.getShowLiveEditAction().setEnabled(true);
+        this.wizardActions.getShowSplitEditAction().setEnabled(true);
+
+        liveFormPanel.whenRendered(() => {
+            if (WizardPanel.debug) {
+                console.debug('WizardPanel: livePanel.onRendered');
+            }
+            this.liveMask.hide();
+            liveFormPanel.removeClass('rendering');
+        });
+
+        return liveFormPanel;
     }
 
     private isLivePanelAllowed(): boolean {
@@ -698,6 +696,26 @@ export class ContentWizardPanel
 
     doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
         this.initListeners();
+
+        this.livePanel = this.createLivePanel();
+
+        if (this.livePanel) {
+            this.toggleMinimizeListener = (event: ActivatedEvent) => {
+                this.toggleMinimize(event.getIndex());
+            };
+
+            this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
+            this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
+            this.liveMask = new LoadMask(this.livePanel);
+
+            this.livePanel.whenRendered(() => {
+                if (WizardPanel.debug) {
+                    console.debug('WizardPanel: livePanel.onRendered');
+                }
+                this.liveMask.hide();
+                this.livePanel.removeClass('rendering');
+            });
+        }
 
         return super.doRenderOnDataLoaded(rendered).then(() => {
             if (ContentWizardPanel.debug) {
@@ -805,33 +823,46 @@ export class ContentWizardPanel
         return this.formState.isNew();
     }
 
-    private updateModifiedPersistedContent(newPersistedContent: Content) {
-        const viewedContent = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
+    private updateModifiedPersistedContent(newPersistedContent: Content): void {
+        const viewedContent: Content = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
 
-        if (!viewedContent.equals(newPersistedContent)) {
-            this.setPersistedItem(newPersistedContent);
-
-            const contentClone: Content = newPersistedContent.clone();
-            this.initFormContext(contentClone);
-            this.updateWizard(contentClone, true);
-            this.updateEditPermissionsButtonIcon(contentClone);
-
-            const liveFormPanel: LiveFormPanel = this.getLivePanel();
-
-            if (liveFormPanel) {
-                this.liveEditModel.setContent(contentClone);
-                this.updateLiveForm(contentClone);
-            }
-
-            if (!this.isDisplayNameUpdated()) {
-                this.getWizardHeader().resetBaseValues();
-            }
-
-            this.wizardActions.setDeleteOnlyMode(viewedContent, false);
-            this.updateButtonsState();
-        } else {
-            // this update was triggered by our changes, so reset dirty state after save
+        // this update was triggered by our changes, so reset dirty state after save
+        if (viewedContent.equals(newPersistedContent)) {
             this.resetWizard();
+            this.resetLivePanel(newPersistedContent);
+            return;
+        }
+
+        this.doUpdateModifiedPersistedContent(viewedContent, newPersistedContent);
+    }
+
+    private doUpdateModifiedPersistedContent(viewedContent: Content, newPersistedContent: Content): void {
+        this.setPersistedItem(newPersistedContent);
+        const contentClone: Content = newPersistedContent.clone();
+
+        this.initFormContext(contentClone);
+        this.updateWizard(contentClone, true);
+        this.updateEditPermissionsButtonIcon(contentClone);
+        this.resetLivePanel(contentClone);
+
+        if (!this.isDisplayNameUpdated()) {
+            this.getWizardHeader().resetBaseValues();
+        }
+
+        this.wizardActions.setDeleteOnlyMode(viewedContent, false);
+        this.updateButtonsState();
+    }
+
+    private resetLivePanel(contentClone: Content): void {
+        if (!this.livePanel) {
+            return;
+        }
+
+        if (this.isRenderable()) {
+            this.updateLiveEditModel(contentClone).finally(() => this.contextView.updateWidgetsVisibility());
+        } else {
+            this.liveEditModel = null;
+            this.livePanel.unloadPage();
         }
     }
 
@@ -867,36 +898,7 @@ export class ContentWizardPanel
         new BeforeContentSavedEvent().fire();
 
         return super.saveChanges().then((content: Content) => {
-            const persistedItem = content.clone();
-
-            if (this.livePanel && this.liveEditModel) {
-                this.initFormContext(persistedItem);
-                this.liveEditModel.setContent(persistedItem);
-
-                if (this.pageEditorUpdatedDuringSave) {
-                    if (this.reloadPageEditorOnSave) {
-                        this.updateLiveForm(persistedItem);
-                    }
-                    this.updateXDataStepForms(persistedItem);
-                }
-            }
-
-            if (this.wizardFormUpdatedDuringSave && !this.isRename) {
-                if (persistedItem.getType().isImage()) {
-                    this.updateWizard(persistedItem);
-                } else {
-                    this.updateWizardStepForms(persistedItem, false);
-
-                    if (persistedItem.isSite()) {
-                        this.updateSiteModel(<Site>persistedItem);
-                    }
-                }
-                this.xDataWizardStepForms.resetDisabledForms();
-            } else if (persistedItem.isSite() && !this.isNew() && !this.isRename) {
-                this.updateWizardStepForms(persistedItem, false);
-            }
-
-            return persistedItem;
+            return content.clone();
         }).finally(() => {
             this.contentUpdateDisabled = false;
             this.isRename = false;
@@ -1054,12 +1056,12 @@ export class ContentWizardPanel
     }
 
     private handleAppChange() {
-        const appsIsMissing = this.missingOrStoppedAppKeys.length > 0;
-        const livePanel = this.getLivePanel();
+        const isAnyAppMissing: boolean = this.missingOrStoppedAppKeys.length > 0;
+        const livePanel: LiveFormPanel = this.getLivePanel();
 
         if (livePanel) {
-            if (!appsIsMissing) {
-                if (this.renderable) {
+            if (!isAnyAppMissing) {
+                if (this.isRenderable()) {
                     this.debouncedEditorRefresh(false);
                 }
                 livePanel.clearErrorMissingApps();
@@ -1068,9 +1070,9 @@ export class ContentWizardPanel
             }
         }
 
-        this.getCycleViewModeButton().setEnabled(!appsIsMissing);
+        this.getCycleViewModeButton().setEnabled(!isAnyAppMissing);
 
-        this.getComponentsViewToggler().setVisible(this.renderable && !appsIsMissing);
+        this.getComponentsViewToggler().setVisible(this.isRenderable() && !isAnyAppMissing);
     }
 
     public checkContentCanBePublished(): boolean {
@@ -1132,7 +1134,7 @@ export class ContentWizardPanel
         InspectEvent.on((event: InspectEvent) => {
             const minimizeWizard = event.isShowPanel() &&
                                    !this.isMinimized() &&
-                                   this.renderable &&
+                                   this.isRenderable() &&
                                    this.getLivePanel().isShown() &&
                                    !this.contextSplitPanel.isMobileMode() &&
                                    ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
@@ -1177,7 +1179,6 @@ export class ContentWizardPanel
     }
 
     private resetWizard() {
-
         this.getWizardHeader().resetBaseValues();
 
         this.contentWizardStepForm.reset();
@@ -1615,7 +1616,9 @@ export class ContentWizardPanel
             this.refreshScheduleWizardStep();
         }
 
-        this.fetchPersistedContent().then(this.updateModifiedPersistedContent.bind(this)).catch(DefaultErrorHandler.handle).done();
+        this.fetchPersistedContent().then((content: Content) => {
+            return this.checkIfRenderable().then(() => this.updateModifiedPersistedContent(content));
+        }).catch(DefaultErrorHandler.handle).done();
     }
 
     private handleOtherContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
@@ -1750,30 +1753,26 @@ export class ContentWizardPanel
         return result;
     }
 
-    private updateLiveForm(content: Content): Q.Promise<any> {
-        let liveFormPanel = this.getLivePanel();
-        if (liveFormPanel) {
+    private updateLiveEditModel(content: Content): Q.Promise<any> {
+        const site: Site = content.isSite() ? <Site>content : this.site;
 
-            let site = content.isSite() ? <Site>content : this.site;
-
-            this.siteModel = this.siteModel ? this.updateSiteModel(site) : this.createSiteModel(site);
-
-            return this.initLiveEditModel(content, this.siteModel, this.formContext).then((liveEditModel) => {
-                this.liveEditModel = liveEditModel;
-
-                const showPanel = this.renderableChanged && this.renderable;
-                liveFormPanel.setModel(this.liveEditModel);
-                liveFormPanel.clearSelectionAndInspect(showPanel, false);
-
-                this.debouncedEditorRefresh(false);
-
-                return Q(null);
-            });
+        if (this.siteModel) {
+            this.updateSiteModel(site);
+        } else {
+            this.initSiteModel(site);
         }
-        if (!this.siteModel && content.isSite()) {
-            this.siteModel = this.createSiteModel(<Site>content);
-            this.initSiteModelListeners();
-        }
+
+        return this.initLiveEditModel(content).then((liveEditModel: LiveEditModel) => {
+            this.liveEditModel = liveEditModel;
+
+            const showPanel: boolean = this.renderableChanged && this.isRenderable();
+            this.getLivePanel().setModel(this.liveEditModel);
+            this.getLivePanel().clearSelectionAndInspect(showPanel, false);
+
+            this.debouncedEditorRefresh(false);
+
+            return Q(null);
+        });
     }
 
     private updatePersistedContent(persistedContent: Content) {
@@ -1819,35 +1818,29 @@ export class ContentWizardPanel
         this.workflowStateManager.update();
     }
 
-    private initLiveEditor(formContext: ContentFormContext, content: Content): Q.Promise<void> {
+    private initLiveEditor(content: Content): Q.Promise<void> {
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.initLiveEditor at ' + new Date().toISOString());
         }
 
         const liveFormPanel: LiveFormPanel = this.getLivePanel();
 
-        if (liveFormPanel) {
-            if (!this.liveEditModel) {
-                const site: Site = content.isSite() ? <Site>content : this.site;
-                this.unbindSiteModelListeners();
-                this.siteModel = this.siteModel ? this.updateSiteModel(site) : this.createSiteModel(site);
-                this.initSiteModelListeners();
-
-                return this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
-                    this.liveEditModel = liveEditModel;
-
-                    liveFormPanel.setModel(this.liveEditModel);
-                    liveFormPanel.loadPage();
-                    this.setupWizardLiveEdit();
-
-                    return Q(null);
-                });
-            } else {
-                liveFormPanel.loadPage();
-            }
+        if (!liveFormPanel) {
+            return Q(null);
         }
 
-        return Q(null);
+        if (!this.isRenderable()) {
+            this.setupWizardLiveEdit();
+            return Q.resolve();
+        }
+
+        if (this.liveEditModel) {
+            liveFormPanel.loadPage();
+            return Q(null);
+        }
+
+        this.setupWizardLiveEdit();
+        return this.updateLiveEditModel(content).finally(() => this.contextView.updateWidgetsVisibility());
     }
 
     // sync persisted content extra data with xData
@@ -1950,7 +1943,7 @@ export class ContentWizardPanel
         this.initFormContext(content);
 
         return this.updateButtonsState().then(() => {
-            return this.initLiveEditor(this.formContext, content).then(() => {
+            return this.initLiveEditor(content).then(() => {
 
                 this.fetchMissingOrStoppedAppKeys().then(this.missingOrStoppedAppKeys.length && this.handleAppChange.bind(this));
 
@@ -1978,8 +1971,7 @@ export class ContentWizardPanel
                         this.enableDisplayNameScriptExecution(this.contentWizardStepForm.getFormView());
 
                         if (!this.siteModel && content.isSite()) {
-                            this.siteModel = this.createSiteModel(<Site>content);
-                            this.initSiteModelListeners();
+                            this.initSiteModel(<Site>content);
                         }
 
                         this.wizardActions.initUnsavedChangesListeners();
@@ -2111,8 +2103,8 @@ export class ContentWizardPanel
         return this.siteModel;
     }
 
-    private createSiteModel(site: Site): SiteModel {
-        const siteModel = new SiteModel(site);
+    private initSiteModel(site: Site): SiteModel {
+        this.siteModel = new SiteModel(site);
 
         const handler = AppHelper.debounce(() => {
             return this.fetchContentXData().then((xDatas: XData[]) => {
@@ -2125,14 +2117,16 @@ export class ContentWizardPanel
             });
         }, 100, false);
 
-        siteModel.onSiteModelUpdated(() => {
+        this.siteModel.onSiteModelUpdated(() => {
             if (this.wizardFormUpdatedDuringSave) {
                 this.formMask.show();
                 handler();
             }
         });
 
-        return siteModel;
+        this.initSiteModelListeners();
+
+        return this.siteModel;
     }
 
     private getXDatasToRemove(xDatas: XData[]): XData[] {
@@ -2184,12 +2178,12 @@ export class ContentWizardPanel
         });
     }
 
-    private initLiveEditModel(content: Content, siteModel: SiteModel, formContext: ContentFormContext): Q.Promise<LiveEditModel> {
-        const liveEditModel = LiveEditModel.create()
+    private initLiveEditModel(content: Content): Q.Promise<LiveEditModel> {
+        const liveEditModel: LiveEditModel = LiveEditModel.create()
             .setParentContent(this.parentContent)
             .setContent(content)
-            .setContentFormContext(formContext)
-            .setSiteModel(siteModel)
+            .setContentFormContext(this.formContext)
+            .setSiteModel(this.siteModel)
             .build();
 
         return this.initPageModel(liveEditModel, this.defaultModels).then(() => liveEditModel);
@@ -2267,7 +2261,7 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.validate();
         this.displayValidationErrors(!this.isValid());
 
-        return Q(persistedItem);
+        return this.checkIfRenderable().then(() => persistedItem);
     }
 
     private showFeedbackContentSaved(content: Content, wasInherited: boolean = false) {
@@ -2364,13 +2358,12 @@ export class ContentWizardPanel
 
     private removeXDataStepForms(applicationKey: ApplicationKey): Q.Promise<number> {
         this.missingOrStoppedAppKeys = [];
-
         this.applicationLoadCount++;
         this.formMask.show();
+
         return new GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
             (xDatasToRemove: XData[]) => {
                 this.formMask.show();
-                this.handleAppChange();
                 this.removeXDataSteps(xDatasToRemove);
                 return xDatasToRemove.length;
             }).finally(() => {
@@ -2381,8 +2374,7 @@ export class ContentWizardPanel
     }
 
     private assembleViewedPage(): Page {
-        let liveFormPanel = this.getLivePanel();
-        return liveFormPanel ? liveFormPanel.getPage() : null;
+        return this.getLivePanel()?.getPage();
     }
 
     private resolveContentNameForUpdateRequest(): ContentName {
@@ -2682,7 +2674,7 @@ export class ContentWizardPanel
         const isTemplate: boolean = this.contentType.getContentTypeName().isPageTemplate();
         const isSite: boolean = this.contentType.getContentTypeName().isSite();
 
-        return this.renderable || isSite || isTemplate;
+        return this.isRenderable() || isSite || isTemplate;
     }
 
     private isEditorEnabled(): boolean {
@@ -2692,12 +2684,12 @@ export class ContentWizardPanel
 
     private updateButtonsState(): Q.Promise<void> {
         return this.checkIfRenderable().then(() => {
-            this.wizardActions.getPreviewAction().setEnabled(this.renderable);
+            this.wizardActions.getPreviewAction().setEnabled(this.isRenderable());
 
             return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
-                this.getComponentsViewToggler().setEnabled(this.renderable);
-                this.getComponentsViewToggler().setVisible(this.renderable);
-                this.contextView.updateRenderableStatus(this.renderable);
+                this.getComponentsViewToggler().setEnabled(this.isRenderable());
+                this.getComponentsViewToggler().setVisible(this.isRenderable());
+                this.contextView.updateWidgetsVisibility();
             });
         });
     }
@@ -2770,7 +2762,7 @@ export class ContentWizardPanel
         const pageView = this.getLivePanel().getPageView();
 
         if (pageView) {
-            pageView.setRenderable(this.renderable);
+            pageView.setRenderable(this.isRenderable());
             pageView.onChange(listener);
         }
 

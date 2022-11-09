@@ -62,8 +62,6 @@ export class ContextView
 
     protected alreadyFetchedCustomWidgets: boolean;
 
-    protected contentRenderable: boolean;
-
     protected pageEditorVisible: boolean;
 
     private sizeChangedListeners: { (): void }[] = [];
@@ -77,7 +75,6 @@ export class ContextView
 
         this.data = data;
 
-        this.contentRenderable = false;
         this.pageEditorVisible = false;
 
         this.contextContainer = new DivEl('context-container');
@@ -552,11 +549,6 @@ export class ContextView
                 break;
             }
         }
-    }
-
-    updateRenderableStatus(renderable: boolean) {
-        this.contentRenderable = renderable;
-        this.updateWidgetsVisibility();
     }
 
     isPageEditable(): boolean {
