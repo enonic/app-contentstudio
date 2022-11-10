@@ -132,7 +132,7 @@ export class LiveFormPanel
 
     private contentType: ContentType;
 
-    private liveEditModel: LiveEditModel;
+    private liveEditModel?: LiveEditModel;
 
     private pageView: PageView;
 
@@ -179,6 +179,7 @@ export class LiveFormPanel
     private propertyChangedHandler: (event: PropertyChangedEvent) => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
     private contentPermissionsUpdatedHandler: (contentIds: ContentIds) => void;
+    private applicationRemovedHandler: (event: ApplicationRemovedEvent) => void;
 
     private pageViewReadyListeners: { (pageView: PageView): void }[];
 
@@ -236,6 +237,15 @@ export class LiveFormPanel
         ShowContentFormEvent.on(this.hideLoadMaskHandler);
         ContentServerEventsHandler.getInstance().onContentUpdated(this.contentUpdatedHandler);
         ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentPermissionsUpdatedHandler);
+
+        this.applicationRemovedHandler = (event: ApplicationRemovedEvent) => {
+            const currentController: Descriptor = this.pageModel.getController();
+            const removedApp: ApplicationKey = event.getApplicationKey();
+
+            if (currentController && removedApp.equals(currentController.getKey().getApplicationKey())) {
+                this.pageModel.setMode(PageMode.NO_CONTROLLER);
+            }
+        };
     }
 
     private initMaskHandlers() {
@@ -620,11 +630,13 @@ export class LiveFormPanel
     }
 
     setModel(liveEditModel: LiveEditModel) {
-        this.liveEditModel = liveEditModel;
+        this.pageModel?.unPropertyChanged(this.propertyChangedHandler);
+        this.pageModel?.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
+        this.liveEditModel?.getSiteModel()?.unApplicationRemoved(this.applicationRemovedHandler);
 
+        this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
         this.insertablesPanel.setContent(this.content);
-
         this.pageModel = liveEditModel.getPageModel();
         this.pageModel.setIgnorePropertyChanges(true);
 
@@ -647,20 +659,9 @@ export class LiveFormPanel
         this.fragmentInspectionPanel.setModel(liveEditModel);
 
         this.pageModel.setIgnorePropertyChanges(false);
-
-        this.pageModel.unPropertyChanged(this.propertyChangedHandler);
         this.pageModel.onPropertyChanged(this.propertyChangedHandler);
-        this.pageModel.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
-
-        this.liveEditModel.getSiteModel().onApplicationRemoved((event: ApplicationRemovedEvent) => {
-            const currentController: Descriptor = this.pageModel.getController();
-            const removedApp: ApplicationKey = event.getApplicationKey();
-
-            if (currentController && removedApp.equals(currentController.getKey().getApplicationKey())) {
-                this.pageModel.setMode(PageMode.NO_CONTROLLER);
-            }
-        });
+        this.liveEditModel.getSiteModel().onApplicationRemoved(this.applicationRemovedHandler);
 
         this.handleContentUpdatedEvent();
     }
@@ -1169,6 +1170,10 @@ export class LiveFormPanel
     unloadPage(): void {
         this.liveEditPageProxy.unload();
         this.frameContainer?.hide();
+        this.partInspectionPanel?.unbindSiteModelListeners();
+        this.layoutInspectionPanel.unbindSiteModelListeners();
+        this.liveEditModel = null;
+        this.pageModel = null;
 
         if (this.placeholderEl) {
             this.placeholderEl.deselectOptions();

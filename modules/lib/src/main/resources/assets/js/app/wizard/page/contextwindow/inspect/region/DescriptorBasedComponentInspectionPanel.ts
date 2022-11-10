@@ -47,7 +47,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private readonly componentType: ComponentType;
 
-    constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
+    protected constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
         super(config);
 
         this.initElements(config.componentType);
@@ -93,7 +93,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         }
     }
 
-    private unbindSiteModelListeners() {
+    unbindSiteModelListeners() {
         if (this.liveEditModel != null && this.liveEditModel.getSiteModel() != null) {
             const siteModel: SiteModel = this.liveEditModel.getSiteModel();
 
@@ -104,7 +104,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         }
     }
 
-    private bindSiteModelListeners() {
+    bindSiteModelListeners() {
         const siteModel: SiteModel = this.liveEditModel.getSiteModel();
 
         siteModel.onSiteModelUpdated(this.debouncedDescriptorsReload);

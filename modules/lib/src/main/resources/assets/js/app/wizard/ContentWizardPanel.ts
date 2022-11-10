@@ -309,7 +309,7 @@ export class ContentWizardPanel
                 livePanel.skipNextReloadConfirmation(true);
                 livePanel.loadPage(clearInspection);
             }
-        }, 500);
+        }, 200);
 
         this.dataChangedHandler = AppHelper.debounce(() => {
             if (!this.isRendered()) {
@@ -829,7 +829,7 @@ export class ContentWizardPanel
         // this update was triggered by our changes, so reset dirty state after save
         if (viewedContent.equals(newPersistedContent)) {
             this.resetWizard();
-            this.resetLivePanel(newPersistedContent);
+            this.resetLivePanel(newPersistedContent).then(() => this.contextView.updateWidgetsVisibility());
             return;
         }
 
@@ -843,7 +843,7 @@ export class ContentWizardPanel
         this.initFormContext(contentClone);
         this.updateWizard(contentClone, true);
         this.updateEditPermissionsButtonIcon(contentClone);
-        this.resetLivePanel(contentClone);
+        this.resetLivePanel(contentClone).then(() => this.contextView.updateWidgetsVisibility());
 
         if (!this.isDisplayNameUpdated()) {
             this.getWizardHeader().resetBaseValues();
@@ -853,17 +853,19 @@ export class ContentWizardPanel
         this.updateButtonsState();
     }
 
-    private resetLivePanel(contentClone: Content): void {
+    private resetLivePanel(contentClone: Content): Q.Promise<void> {
         if (!this.livePanel) {
-            return;
+            return Q.resolve();
         }
 
         if (this.isRenderable()) {
-            this.updateLiveEditModel(contentClone).finally(() => this.contextView.updateWidgetsVisibility());
-        } else {
-            this.liveEditModel = null;
-            this.livePanel.unloadPage();
+            return this.updateLiveEditModel(contentClone);
         }
+
+        this.liveEditModel = null;
+        this.livePanel.unloadPage();
+
+        return Q.resolve();
     }
 
     private availableSizeChangedHandler(item: ResponsiveItem) {
@@ -1163,10 +1165,6 @@ export class ContentWizardPanel
         this.updateWizardStepForms(content, unchangedOnly);
         this.updateXDataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
-
-        if (content.isSite()) {
-            this.updateSiteModel(<Site>content);
-        }
     }
 
     private removeXDataSteps(xDatas: XData[]) {
@@ -1840,7 +1838,7 @@ export class ContentWizardPanel
         }
 
         this.setupWizardLiveEdit();
-        return this.updateLiveEditModel(content).finally(() => this.contextView.updateWidgetsVisibility());
+        return this.updateLiveEditModel(content);
     }
 
     // sync persisted content extra data with xData
@@ -1944,7 +1942,7 @@ export class ContentWizardPanel
 
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(content).then(() => {
-
+                this.contextView.updateWidgetsVisibility();
                 this.fetchMissingOrStoppedAppKeys().then(this.missingOrStoppedAppKeys.length && this.handleAppChange.bind(this));
 
                 return this.createWizardStepForms().then(() => {
@@ -2091,10 +2089,6 @@ export class ContentWizardPanel
     }
 
     private updateSiteModel(site: Site): SiteModel {
-        if (this.siteModel.getSite().equals(site)) {
-            return this.siteModel;
-        }
-
         this.unbindSiteModelListeners();
         this.siteModel.update(site);
         this.site = site;
