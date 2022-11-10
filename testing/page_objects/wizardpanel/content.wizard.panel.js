@@ -713,7 +713,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
-// wait for 'Customize Page' context menu item
+     // wait for 'Customize Page' context menu item
     async clickOnCustomizeMenuItem() {
         let locator = XPATH.itemViewContextMenu + "//dl//dt[text()='Customize Page']";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -730,8 +730,9 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(optionSelector);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_select_controller_in_wizard');
-            throw new Error('Controller selector - Error when selecting the option ' + pageControllerDisplayName + ' ' + err);
+            let screenshot = appConst.generateRandomName('err_select_controller');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Controller selector - Error when selecting the option, screenshot ' + screenshot + ' ' + err);
         }
     }
 
@@ -739,11 +740,9 @@ class ContentWizardPanel extends Page {
         return this.isClickable(this.controllerOptionFilterInput);
     }
 
-//Select a page descriptor and wait for Context Window is loaded
+    //Select a page descriptor and wait for Context Window is loaded
     async selectPageDescriptor(pageControllerDisplayName) {
-        await this.switchToLiveEditFrame();
         await this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
-        await this.switchToParentFrame();
         return await this.waitForContextWindowVisible();
     }
 
