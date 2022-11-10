@@ -1,4 +1,4 @@
-= Content Localisation
+= Content Layers / Localisation
 :toc: right
 :imagesdir: layers/images
 
@@ -31,51 +31,37 @@ Just like projects, layers can be created and managed in the Settings section.
 
 == Settings
 
-To create a new layer, click *New* button in the Settings section and select "_Layer_" from the modal dialog.
+:imagesdir: projects/images
 
-image::layer-create-1.png[Create Layer, 832]
+To create a new layer, click *New* button in the Settings section and select "_Layer_" on the
+"Project type" step of the New Project wizard. You will be required to select a parent project
+(or another layer) which data in the new layer will be synchronised with.
 
-If you have selected a project (or another layer) in the grid before clicking *New*, you will only have one option (_Layer_) in the dialog.
-The dialog will also display that the new layer will be created under the project/layer you've selected.
+image::new-project-dialog-1.png[Create Layer, 832]
 
-image::layer-create-2.png[Create Layer 2, 832]
+IMPORTANT: You will not be able to select or change the parent project/layer once the new layer is created.
 
-Upon selection, you will be redirected to the New Layer wizard which is very similar to the <<projects#project_wizard,New Project wizard>>,
-although there's a few key differences.
-
-The New Layer wizard will have a dropdown called "_Parent project_" for selecting a project/layer where the new layer will be inheriting its content from.
-
-image::layer-parent-1.png[Parent Project, 725]
-
-If you have already selected a project/layer in the Settings grid before clicking the *New* button,
-the selected project/layer will be preset in the "_Parent project_" dropdown.
-
-image::layer-parent-2.png[Parent Project 2, 725]
-
-NOTE: You will not be able to select or change the parent project/layer once the new layer is created.
-
-TIP: In the Layer wizard you can copy settings like Language, Access Mode and Roles from the parent project/layer by using the *Copy from parent* button.
+TIP: On the steps of the New Project wizard you can copy settings like Language, Access Mode and Roles from the parent project/layer by using the *Copy from parent* button.
 If the parent doesn't have those properties set, or they are the same as in this layer, the button will be disabled.
 
-image::layer-wizard-1.png[Copy from parent, 767]
+image::new-project-dialog-2.png[Create Layer, 832]
 
-Icon of the layer will be automatically set to a flag of the layer's language. It can be changed by clicking the icon thumbnail and
-selecting an icon file from your local file system.
-
-image::layer-wizard-2.png[Layer icon, 690]
-
-Once the new layer is created, the synchronisation job will kick in and inherit content from the parent project/layer.
+Once the new layer is created, you will be redirected to the details page of the created layer and synchronisation job will kick in to create content from the parent project/layer in the new layer.
 
 
 == Localising inherited content
 
-To navigate between the layers use the same context switch in the header that was implemented for switching between project contexts in XP 7.3.
+:imagesdir: images
 
-image::layer-navigation-1.png[Context switch, 420]
+To navigate between the layers use the context switch in the Content Studio header.
+
+image::project-context.png[Context switch, 420]
+
+:imagesdir: layers/images
 
 In the Content grid localised content will be greyed out, providing visual difference from a local content manually created directly in this layer.
 
-image::layer-navigation-2.png[Layer navigation, 457]
+image::layer-localisation.png[Layer localisation, 457]
 
 To localise (translate) an inherited content item, select it in the content tree and click *Localise* button in the Content grid toolbar
 
