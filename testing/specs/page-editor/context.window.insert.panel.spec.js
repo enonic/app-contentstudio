@@ -30,13 +30,15 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
+            //1. type a name:
             await contentWizard.typeDisplayName(displayName);
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.APP_CONTENT_TYPES);
-            //Application is selected, the site should be automatically saved:
+            //2. Application is selected so the site should be automatically saved:
             await contentWizard.waitForNotificationMessage();
-            //Verify that 'Show Component' toggler is not visible now:
+            //3. Verify that 'Show Component' toggler is not visible, because page controller is not selected:
             await contentWizard.waitForComponentVewTogglerNotVisible();
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            //Verify that 'Show Component' toggler appears in the toolbar
             await contentWizard.waitForShowComponentVewTogglerVisible();
         });
 

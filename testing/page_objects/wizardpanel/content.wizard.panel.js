@@ -713,7 +713,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
-     // wait for 'Customize Page' context menu item
+    // wait for 'Customize Page' context menu item
     async clickOnCustomizeMenuItem() {
         let locator = XPATH.itemViewContextMenu + "//dl//dt[text()='Customize Page']";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -732,7 +732,7 @@ class ContentWizardPanel extends Page {
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_select_controller');
             await this.saveScreenshot(screenshot);
-            throw new Error('Controller selector - Error when selecting the option, screenshot ' + screenshot + ' ' + err);
+            throw new Error('Controller selector - Error when selecting the option, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -752,26 +752,22 @@ class ContentWizardPanel extends Page {
 
     async waitForControllerOptionFilterInputVisible() {
         try {
-            await this.switchToLiveEditFrame();
-            let result = await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
-            await this.switchToParentFrame();
-            return result;
+            await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
         } catch (err) {
-            await this.switchToMainFrame();
-            await this.saveScreenshot("err_controller_filter_input");
-            throw new Error(err);
+            let screenshot = appConst.generateRandomName("err_controller_filter_input");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Controller selector should be displayed, screenshot:" + screenshot+ " " + err);
         }
     }
 
-    waitForControllerOptionFilterInputNotVisible() {
-        return this.switchToLiveEditFrame().then(() => {
-            return this.waitForElementNotDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
-        }).catch(err => {
-            console.log(err);
-            return this.getBrowser().switchToParentFrame().then(() => {
-                return false;
-            });
-        })
+    async waitForControllerOptionFilterInputNotVisible() {
+        try {
+            await this.waitForElementNotDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_controller_selector");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Controller selector should not be visible, screenshot: " + screenshot + " " + err);
+        }
     }
 
     async typeData(content) {

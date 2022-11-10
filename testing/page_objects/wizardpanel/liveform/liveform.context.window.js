@@ -1,7 +1,6 @@
 /**
  * Created on 15.02.2018.
  */
-
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 
@@ -20,26 +19,30 @@ class LiveContextWindow extends Page {
         return xpath.container + xpath.insertTabBarItem;
     }
 
-    clickOnTabBarItem(name) {
-        let selector = xpath.container + xpath.tabBarItemByName(name);
-        return this.waitForElementDisplayed(selector).then(() => {
-            return this.getDisplayedElements(selector);
-        }).then(result => {
-            return this.getBrowser().elementClick(result[0].elementId);
-        }).catch(err => {
-            this.saveScreenshot('err_click_on_inspection_link');
-            throw new Error('clickOnContentType:' + err);
-        }).then(() => {
-            return this.pause(500);
-        });
+    async clickOnTabBarItem(tabName) {
+        try {
+            let selector = xpath.container + xpath.tabBarItemByName(tabName);
+            await this.waitForElementDisplayed(selector);
+            let result = await this.getDisplayedElements(selector);
+            await this.getBrowser().elementClick(result[0].elementId);
+            return await this.pause(500);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_context_window');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error during clicking on tab bar item in Context Window, screenshot: ' + screenshot + "  " + err);
+        }
     }
 
-    waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_open_context_window');
-            throw new Error('Live Edit, Context window is not opened' + err);
-        });
+    async waitForOpened() {
+        try {
+            await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_context_window')
+            await this.saveScreenshot(screenshot);
+            throw new Error('Live Edit, Context window is not opened, screenshot:' + screenshot + " " + err);
+        }
     }
 }
+
 module.exports = LiveContextWindow;
 

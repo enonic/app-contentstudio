@@ -30,7 +30,7 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`Preconditions: GIVEN existing site is opened AND an image has been inserted`,
+    it(`Preconditions: GIVEN existing site is opened AND text component has been inserted`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
@@ -41,7 +41,7 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             await contentWizard.clickOnShowComponentViewToggler();
             //2. Open the context menu:
             await pageComponentView.openMenu("main");
-            //3. Click on the 'Insert image' menu item:
+            //3. Click on the 'Insert Text' menu item:
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
             await textComponentCke.typeTextInCkeEditor(TEXT);
             await contentWizard.waitAndClickOnSave();
@@ -50,17 +50,17 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             await liveFormPanel.waitForEditableTextComponentDisplayed(TEXT);
         });
 
-    it(`GIVEN existing site with image component is opened WHEN do right click on the image-component THEN component's context menu should appear`,
+    it(`GIVEN existing site with text component is opened WHEN do right click on the text-component THEN component's context menu should appear`,
         async () => {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
-            //1. Open the site with inserted image:
+            //1. Open the site with text component:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             let position = await contentWizard.getLiveFramePosition();
-            //2. Do right click on the image-component:
+            //2. Do right-click on the text-component:
             await contentWizard.switchToLiveEditFrame();
             await liveFormPanel.doRightClickOnTextComponent(TEXT, position.x, position.y);
-            await studioUtils.saveScreenshot("image_component_context_menu");
+            await studioUtils.saveScreenshot("text_component_context_menu");
             //3. Verify menu items:
             let result = await liveFormPanel.getItemViewContextMenuItems();
             assert.equal(result[0], 'Select parent');
@@ -73,7 +73,7 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
         });
 
     //Verifies https://github.com/enonic/xp/issues/7603  (Page changes are not reverted on version revert )
-    it(`GIVEN existing site with image component is opened WHEN the version without the image has been reverted THEN the image should not be present in Live Edit frame`,
+    it(`GIVEN existing site with text component is opened WHEN the version without the component has been reverted THEN the component should not be present in Live Edit frame`,
         async () => {
             let contentWizard = new ContentWizard();
             let versionPanel = new WizardVersionsWidget();
@@ -84,9 +84,9 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             //2. Revert the previous version:
             await versionPanel.clickAndExpandVersion(1);
             await versionPanel.clickOnRevertButton();
-            studioUtils.saveScreenshot("site_reverted1");
+            await studioUtils.saveScreenshot("site_reverted1");
             await contentWizard.switchToLiveEditFrame();
-            //3. After reverting - Image should not be present in Live Frame
+            //3. After reverting - text-component should not be present in Live Frame
             await liveFormPanel.waitForTextComponentNotDisplayed(TEXT);
             await contentWizard.switchToMainFrame();
             //4.Verify - Save button should be disabled after the reverting:
