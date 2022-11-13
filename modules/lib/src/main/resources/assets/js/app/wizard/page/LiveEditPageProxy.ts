@@ -89,8 +89,6 @@ export class LiveEditPageProxy {
 
     private pageUnlockedListeners: { (event: PageUnlockedEvent): void; }[] = [];
 
-    private pageUnloadedListeners: { (event: PageUnloadedEvent): void; }[] = [];
-
     private pageTextModeStartedListeners: { (event: PageTextModeStartedEvent): void; }[] = [];
 
     private regionSelectedListeners: { (event: RegionSelectedEvent): void; }[] = [];
@@ -535,8 +533,6 @@ export class LiveEditPageProxy {
 
         PageUnlockedEvent.on(this.notifyPageUnlocked.bind(this), contextWindow);
 
-        PageUnloadedEvent.on(this.notifyPageUnloaded.bind(this), contextWindow);
-
         PageTextModeStartedEvent.on(this.notifyPageTextModeStarted.bind(this), contextWindow);
 
         RegionSelectedEvent.on(this.notifyRegionSelected.bind(this), contextWindow);
@@ -692,18 +688,6 @@ export class LiveEditPageProxy {
 
     private notifyPageUnlocked(event: PageUnlockedEvent) {
         this.pageUnlockedListeners.forEach((listener) => listener(event));
-    }
-
-    onPageUnloaded(listener: (event: PageUnloadedEvent) => void) {
-        this.pageUnloadedListeners.push(listener);
-    }
-
-    unPageUnloaded(listener: (event: PageUnloadedEvent) => void) {
-        this.pageUnloadedListeners = this.pageUnloadedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyPageUnloaded(event: PageUnloadedEvent) {
-        this.pageUnloadedListeners.forEach((listener) => listener(event));
     }
 
     onPageTextModeStarted(listener: (event: PageTextModeStartedEvent) => void) {

@@ -1,20 +1,21 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
-import {PageEditorData} from '../../../../wizard/page/LiveFormPanel';
 import {WidgetItemView} from '../../WidgetItemView';
+import {ContextWindow} from '../../../../wizard/page/contextwindow/ContextWindow';
 
 export class PageEditorWidgetItemView
     extends WidgetItemView {
 
-    constructor(config: PageEditorData) {
+    constructor() {
         super('page-editor-widget-item-view');
 
-        this.initContextWindow(config);
         this.initNoPreviewMessageContainer();
     }
 
-    private initContextWindow(config: PageEditorData) {
-        this.appendChild(config.contextWindow);
+    appendContextWindow(contextWindow: ContextWindow) {
+        if (contextWindow && !this.hasChild(contextWindow)) {
+            this.appendChild(contextWindow);
+        }
     }
 
     private initNoPreviewMessageContainer() {

@@ -37,4 +37,11 @@ export class PagePlaceholderInfoBlock
         return this;
     }
 
+    setErrorTexts(message: string, description: string): PagePlaceholderInfoBlock {
+        this.line1.setHtml(message);
+        this.line2.setHtml(description);
+
+        return this;
+    }
+
 }

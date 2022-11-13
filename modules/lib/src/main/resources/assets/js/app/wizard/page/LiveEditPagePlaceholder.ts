@@ -9,6 +9,7 @@ import {PagePlaceholderInfoBlock} from '../../../page-editor/PagePlaceholderInfo
 import {PageDescriptorDropdown} from './contextwindow/inspect/page/PageDescriptorDropdown';
 import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ContentType} from '../../inputtype/schema/ContentType';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 
 export class LiveEditPagePlaceholder
     extends DivEl {
@@ -30,13 +31,14 @@ export class LiveEditPagePlaceholder
         this.contentType = type;
     }
 
-    loadControllers(): Q.Promise<void> {
+    loadControllers(): Q.Promise<Descriptor[]> {
         return this.createControllersRequest().sendAndParse().then((descriptors: Descriptor[]) => {
             this.handleControllersLoaded(descriptors);
-            return Q.resolve();
+            return Q.resolve(descriptors);
         }).catch((err) => {
             this.handleControllersLoaded([]);
             DefaultErrorHandler.handle(err);
+            return Q.resolve([])
         });
     }
 
@@ -98,6 +100,19 @@ export class LiveEditPagePlaceholder
 
     deselectOptions(): void {
         this.controllerDropdown?.deselectOptions();
+    }
+
+    selectController(descriptor: Descriptor, silent: boolean = false): void {
+        if (!this.controllerDropdown || !descriptor)  {
+            return;
+        }
+
+        const optionToSelect: Option<Descriptor> = this.controllerDropdown.createOption(descriptor)
+        this.controllerDropdown.selectOption(optionToSelect, silent);
+    }
+
+    setErrorTexts(message: string, description: string): void {
+        this.pagePlaceholderInfoBlock.setErrorTexts(message, description);
     }
 
     onControllerSelected(listener: { (descriptor: Descriptor): void; }) {

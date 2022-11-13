@@ -13,7 +13,7 @@ import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {SettingsWizardStepForm} from './SettingsWizardStepForm';
 import {ScheduleWizardStepForm} from './ScheduleWizardStepForm';
 import {DisplayNameResolver} from './DisplayNameResolver';
-import {LiveFormPanel, LiveFormPanelConfig, PageEditorData} from './page/LiveFormPanel';
+import {LiveFormPanel, LiveFormPanelConfig} from './page/LiveFormPanel';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
@@ -249,8 +249,6 @@ export class ContentWizardPanel
     private contentDeleted: boolean;
 
     private renderable: boolean = false;
-
-    private renderableChanged: boolean = false;
 
     private reloadPageEditorOnSave: boolean = true;
 
@@ -603,17 +601,14 @@ export class ContentWizardPanel
     }
 
     protected createWizardAndDetailsSplitPanel(leftPanel: Panel): SplitPanel {
-        const data: PageEditorData = this.getLivePanel()
-                                     ? this.getLivePanel().getPageEditorData()
-                                     : LiveFormPanel.createEmptyPageEditorData();
-        this.contextView = new ContextView(data);
+        this.contextView = new ContextView();
         this.contextView.setItem(this.persistedContent);
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
 
         this.contextSplitPanel = ContentWizardContextSplitPanel.create(leftPanel, rightPanel)
             .setSecondPanelSize(SplitPanelSize.Percents(this.livePanel ? 16 : 38))
             .setContextView(this.contextView)
-            .setData(data)
+            .setLiveFormPanel(this.getLivePanel())
             .setWizardFormPanel(this.formPanel)
             .build();
         this.contextSplitPanel.hideSecondPanel();
@@ -829,7 +824,7 @@ export class ContentWizardPanel
         // this update was triggered by our changes, so reset dirty state after save
         if (viewedContent.equals(newPersistedContent)) {
             this.resetWizard();
-            this.resetLivePanel(newPersistedContent).then(() => this.contextView.updateWidgetsVisibility());
+            this.resetLivePanel(newPersistedContent).then(() => this.contextView.updateWidgetsVisibility(this.isRenderable()));
             return;
         }
 
@@ -843,7 +838,7 @@ export class ContentWizardPanel
         this.initFormContext(contentClone);
         this.updateWizard(contentClone, true);
         this.updateEditPermissionsButtonIcon(contentClone);
-        this.resetLivePanel(contentClone).then(() => this.contextView.updateWidgetsVisibility());
+        this.resetLivePanel(contentClone).then(() => this.contextView.updateWidgetsVisibility(this.isRenderable()));
 
         if (!this.isDisplayNameUpdated()) {
             this.getWizardHeader().resetBaseValues();
@@ -862,8 +857,16 @@ export class ContentWizardPanel
             return this.updateLiveEditModel(contentClone);
         }
 
+        return this.unloadPage();
+    }
+
+    private unloadPage(): Q.Promise<void> {
         this.liveEditModel = null;
         this.livePanel.unloadPage();
+
+        if (this.getPersistedItem().getPage()) {
+            this.getLivePanel().setPageIsNotRenderable();
+        }
 
         return Q.resolve();
     }
@@ -1210,22 +1213,6 @@ export class ContentWizardPanel
 
             return outboundDependencyUpdated && !pageChanged;
         });
-    }
-
-    private isNearestSiteChanged(content: ContentSummaryAndCompareStatus): boolean {
-        const persistedContent = this.getPersistedItem();
-        const isSiteUpdated = content.getType().isSite();
-        const isPageTemplateUpdated = content.getType().isPageTemplate();
-        const isItemUnderUpdatedSite = persistedContent.getPath().isDescendantOf(content.getPath());
-        const site = persistedContent.isSite() ? <Site>persistedContent : this.site;
-
-        const isUpdatedItemUnderSite = site ? content.getPath().isDescendantOf(site.getPath()) : false;
-
-        // 1. template of the nearest site was updated
-        // 2. nearest site was updated (app may have been added)
-        const nearestSiteChanged = (isPageTemplateUpdated && isUpdatedItemUnderSite) || (isSiteUpdated && isItemUnderUpdatedSite);
-
-        return nearestSiteChanged;
     }
 
     private createSteps(): ContentWizardStep[] {
@@ -1620,6 +1607,16 @@ export class ContentWizardPanel
     }
 
     private handleOtherContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
+        if (this.isParentSiteUpdated(updatedContent) || this.isPageTemplateModified(updatedContent)) {
+            const wasRenderable: boolean = this.isRenderable();
+            this.checkIfRenderable().then(() => {
+                if (wasRenderable !== this.isRenderable()) {
+                    this.resetLivePanel(this.getPersistedItem().clone());
+                }
+            });
+            return;
+        }
+
         const contentId: ContentId = updatedContent.getContentId();
         const containsIdPromise: Q.Promise<boolean> = this.createComponentsContainIdPromise(contentId);
         const templateUpdatedPromise: Q.Promise<boolean> = this.createTemplateUpdatedPromise(updatedContent);
@@ -1631,6 +1628,15 @@ export class ContentWizardPanel
                 this.debouncedEditorRefresh(false);
             }
         }).catch(DefaultErrorHandler.handle).done();
+    }
+
+    private isParentSiteUpdated(updatedContent: ContentSummaryAndCompareStatus): boolean {
+        return updatedContent.getType().isSite() && this.getPersistedItem().getPath().isDescendantOf(updatedContent.getPath());
+    }
+
+    private isPageTemplateModified(updatedContent: ContentSummaryAndCompareStatus): boolean {
+        return updatedContent.getType().isPageTemplate() &&
+               updatedContent.getPath().getRootElement() === this.getPersistedItem().getPath().getRootElement();
     }
 
     private loadDefaultModelsAndUpdatePageModel(reloadPage: boolean = true) {
@@ -1674,11 +1680,6 @@ export class ContentWizardPanel
     }
 
     private createTemplateUpdatedPromise(updatedContent: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
-        if (this.isNearestSiteChanged(updatedContent)) {
-            this.updateButtonsState();
-            return this.loadDefaultModelsAndUpdatePageModel(false);
-        }
-
         return this.isUpdateOfPageModelRequired(updatedContent).then(value => {
             if (value) {
                 return this.loadDefaultModelsAndUpdatePageModel(false);
@@ -1761,9 +1762,10 @@ export class ContentWizardPanel
         }
 
         return this.initLiveEditModel(content).then((liveEditModel: LiveEditModel) => {
+            const wasNotRenderable: boolean = !this.liveEditModel;
             this.liveEditModel = liveEditModel;
 
-            const showPanel: boolean = this.renderableChanged && this.isRenderable();
+            const showPanel: boolean = wasNotRenderable && this.isRenderable();
             this.getLivePanel().setModel(this.liveEditModel);
             this.getLivePanel().clearSelectionAndInspect(showPanel, false);
 
@@ -1821,24 +1823,26 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.initLiveEditor at ' + new Date().toISOString());
         }
 
-        const liveFormPanel: LiveFormPanel = this.getLivePanel();
-
-        if (!liveFormPanel) {
+        if (!this.getLivePanel()) {
             return Q(null);
         }
 
         if (!this.isRenderable()) {
             this.setupWizardLiveEdit();
+
+            if (this.getPersistedItem().getPage()) {
+                this.getLivePanel().setPageIsNotRenderable();
+            }
+
             return Q.resolve();
         }
 
-        if (this.liveEditModel) {
-            liveFormPanel.loadPage();
-            return Q(null);
-        }
-
         this.setupWizardLiveEdit();
-        return this.updateLiveEditModel(content);
+
+        return this.updateLiveEditModel(content).then(() => {
+            this.contextView.appendContextWindow(this.getLivePanel().getContextWindow());
+            return Q.resolve();
+        });
     }
 
     // sync persisted content extra data with xData
@@ -1942,7 +1946,7 @@ export class ContentWizardPanel
 
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(content).then(() => {
-                this.contextView.updateWidgetsVisibility();
+                this.contextView.updateWidgetsVisibility(this.isRenderable());
                 this.fetchMissingOrStoppedAppKeys().then(this.missingOrStoppedAppKeys.length && this.handleAppChange.bind(this));
 
                 return this.createWizardStepForms().then(() => {
@@ -2088,13 +2092,11 @@ export class ContentWizardPanel
             (principal: PrincipalKey) => principalFullAccess.equals(principal)));
     }
 
-    private updateSiteModel(site: Site): SiteModel {
+    private updateSiteModel(site: Site): void {
         this.unbindSiteModelListeners();
         this.siteModel.update(site);
         this.site = site;
         this.initSiteModelListeners();
-
-        return this.siteModel;
     }
 
     private initSiteModel(site: Site): SiteModel {
@@ -2255,7 +2257,7 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.validate();
         this.displayValidationErrors(!this.isValid());
 
-        return this.checkIfRenderable().then(() => persistedItem);
+        return Q.resolve(persistedItem);
     }
 
     private showFeedbackContentSaved(content: Content, wasInherited: boolean = false) {
@@ -2653,7 +2655,6 @@ export class ContentWizardPanel
 
     private checkIfRenderable(): Q.Promise<Boolean> {
         return new IsRenderableRequest(this.getPersistedItem(), RenderingMode.EDIT).sendAndParse().then((renderable: boolean) => {
-            this.renderableChanged = this.renderable !== renderable;
             this.renderable = renderable;
 
             return renderable;
@@ -2683,7 +2684,7 @@ export class ContentWizardPanel
             return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
                 this.getComponentsViewToggler().setEnabled(this.isRenderable());
                 this.getComponentsViewToggler().setVisible(this.isRenderable());
-                this.contextView.updateWidgetsVisibility();
+                this.contextView.updateWidgetsVisibility(this.isRenderable());
             });
         });
     }

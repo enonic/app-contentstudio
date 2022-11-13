@@ -174,7 +174,8 @@ export class PageTemplateAndControllerSelector
     }
 
     private static isDescendantTemplate(summary: ContentSummaryAndCompareStatus, liveEditModel: LiveEditModel): boolean {
-        return summary.getType().isPageTemplate() && summary.getPath().isDescendantOf(liveEditModel.getSiteModel().getSite().getPath());
+        return summary.getType().isPageTemplate() && liveEditModel &&
+               summary.getPath().isDescendantOf(liveEditModel.getSiteModel().getSite().getPath());
     }
 
     private reload() {
