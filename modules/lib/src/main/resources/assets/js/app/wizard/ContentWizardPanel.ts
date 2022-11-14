@@ -2251,6 +2251,7 @@ export class ContentWizardPanel
     postUpdatePersistedItem(persistedItem: Content): Q.Promise<Content> {
         this.initFormContext(persistedItem);
         this.contentWizardStepForm.validate();
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => form.isEnabled() ? null : form.resetData());
         this.xDataWizardStepForms.validate();
         this.displayValidationErrors(!this.isValid());
 
