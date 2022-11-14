@@ -1,5 +1,5 @@
 .appbar-content {
-  padding: 0 44px 0 44px;
+  padding: 0 @app-header-height;
   display: flex;
   justify-content: space-between;
   overflow: visible;
@@ -136,6 +136,10 @@
   &._0-240,
   &._240-360,
   &._360-540 {
+    .project-viewer {
+      margin-left: 5px;
+    }
+
     .separator {
       display: none;
     }
