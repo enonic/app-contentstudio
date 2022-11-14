@@ -24,6 +24,8 @@ export class LiveEditPagePlaceholder
 
     private controllerSelectedListeners: { (descriptor: Descriptor): void; }[] = [];
 
+    private enabled: boolean = true;
+
     constructor(contentId: ContentId, type: ContentType) {
         super('page-placeholder');
 
@@ -81,6 +83,7 @@ export class LiveEditPagePlaceholder
 
     private createControllerDropdown(): PageDescriptorDropdown {
         const controllerDropdown: PageDescriptorDropdown = new PageDescriptorDropdown(this.contentId);
+        controllerDropdown.setEnabled(this.enabled);
         controllerDropdown.addClass('page-placeholder-dropdown');
 
         controllerDropdown.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
@@ -125,5 +128,10 @@ export class LiveEditPagePlaceholder
 
     private notifyControllerSelected(descriptor: Descriptor) {
         this.controllerSelectedListeners.forEach((listener) => listener(descriptor));
+    }
+
+    setEnabled(value: boolean): void {
+        this.controllerDropdown?.setEnabled(value);
+        this.enabled = value;
     }
 }

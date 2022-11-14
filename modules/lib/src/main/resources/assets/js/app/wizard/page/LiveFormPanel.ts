@@ -49,7 +49,6 @@ import {ComponentFragmentCreatedEvent} from '../../../page-editor/ComponentFragm
 import {FragmentComponentView} from '../../../page-editor/fragment/FragmentComponentView';
 import {FragmentComponentReloadRequiredEvent} from '../../../page-editor/FragmentComponentReloadRequiredEvent';
 import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEditEvent';
-import {PageUnloadedEvent} from '../../../page-editor/PageUnloadedEvent';
 import {ImageComponentView} from '../../../page-editor/image/ImageComponentView';
 import {PageModel} from '../../../page-editor/PageModel';
 import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/ComponentDetachedFromFragmentEvent';
@@ -218,6 +217,7 @@ export class LiveFormPanel
 
     private createLiveEditPagePlaceholder(): void {
         this.placeholderEl = new LiveEditPagePlaceholder(this.content.getContentId(), this.contentType);
+        this.placeholderEl.setEnabled(this.modifyPermissions);
         this.whenRendered(() => this.appendChild(this.placeholderEl));
         this.listenControllerSelected();
     }
@@ -1121,6 +1121,7 @@ export class LiveFormPanel
         this.modifyPermissions = modifyPermissions;
         this.insertablesPanel?.setModifyPermissions(modifyPermissions);
         this.liveEditPageProxy?.setModifyPermissions(modifyPermissions);
+        this.placeholderEl?.setEnabled(modifyPermissions);
     }
 
     unloadPage(): void {
