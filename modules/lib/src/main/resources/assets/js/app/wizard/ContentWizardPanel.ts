@@ -1768,7 +1768,7 @@ export class ContentWizardPanel
             const showPanel: boolean = wasNotRenderable && this.isRenderable();
             this.getLivePanel().setModel(this.liveEditModel);
             this.getLivePanel().clearSelectionAndInspect(showPanel, false);
-
+            this.contextView.appendContextWindow(this.getLivePanel().getContextWindow());
             this.debouncedEditorRefresh(false);
 
             return Q(null);
@@ -1839,10 +1839,7 @@ export class ContentWizardPanel
 
         this.setupWizardLiveEdit();
 
-        return this.updateLiveEditModel(content).then(() => {
-            this.contextView.appendContextWindow(this.getLivePanel().getContextWindow());
-            return Q.resolve();
-        });
+        return this.updateLiveEditModel(content);
     }
 
     // sync persisted content extra data with xData
@@ -2556,9 +2553,7 @@ export class ContentWizardPanel
         this.modifyPermissions =
             this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY);
         this.getEl().toggleClass('no-modify-permissions', !this.modifyPermissions);
-        if (this.getLivePanel()) {
-            this.getLivePanel().setModifyPermissions(this.modifyPermissions);
-        }
+        this.getLivePanel()?.setModifyPermissions(this.modifyPermissions);
 
         if (!this.modifyPermissions) {
             NotifyManager.get().showFeedback(i18n('notify.item.readonly'));

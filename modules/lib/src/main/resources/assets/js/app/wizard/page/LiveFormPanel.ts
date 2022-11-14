@@ -142,6 +142,8 @@ export class LiveFormPanel
 
     private lockPageAfterProxyLoad: boolean = false;
 
+    private modifyPermissions: boolean = false;
+
     private contextWindow: ContextWindow;
     private contextWindowController: ContextWindowController;
 
@@ -201,7 +203,7 @@ export class LiveFormPanel
     protected initPageRequiredElements(): void {
         this.saveAsTemplateAction = new SaveAsTemplateAction();
         this.liveEditPageProxy = new LiveEditPageProxy(this.content.getContentId());
-
+        this.liveEditPageProxy.setModifyPermissions(this.modifyPermissions);
         this.contextWindow = this.createContextWindow();
 
         // constructor to listen to live edit events during wizard rendering
@@ -420,6 +422,8 @@ export class LiveFormPanel
             contentWizardPanel: this.contentWizardPanel,
             saveAsTemplateAction: this.saveAsTemplateAction
         });
+
+        this.insertablesPanel.setModifyPermissions(this.modifyPermissions);
 
         return new ContextWindow(<ContextWindowConfig>{
             liveFormPanel: this,
@@ -1113,17 +1117,10 @@ export class LiveFormPanel
         });
     }
 
-    setModifyPermissions(modifyPermissions: boolean): boolean {
-        let result = null;
-        if (this.insertablesPanel) {
-            const insertablesResult = this.insertablesPanel.setModifyPermissions(modifyPermissions);
-            result = result && insertablesResult;
-        }
-        if (this.liveEditPageProxy) {
-            const liveEditResult = this.liveEditPageProxy.setModifyPermissions(modifyPermissions);
-            result = result && liveEditResult;
-        }
-        return result;
+    setModifyPermissions(modifyPermissions: boolean): void {
+        this.modifyPermissions = modifyPermissions;
+        this.insertablesPanel?.setModifyPermissions(modifyPermissions);
+        this.liveEditPageProxy?.setModifyPermissions(modifyPermissions);
     }
 
     unloadPage(): void {
