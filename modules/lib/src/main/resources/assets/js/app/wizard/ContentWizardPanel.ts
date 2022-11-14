@@ -824,7 +824,7 @@ export class ContentWizardPanel
         // this update was triggered by our changes, so reset dirty state after save
         if (viewedContent.equals(newPersistedContent)) {
             this.resetWizard();
-            this.resetLivePanel(newPersistedContent).then(() => this.contextView.updateWidgetsVisibility(this.isRenderable()));
+            this.resetLivePanel(newPersistedContent).then(() => this.contextView.updateWidgetsVisibility());
             return;
         }
 
@@ -838,7 +838,7 @@ export class ContentWizardPanel
         this.initFormContext(contentClone);
         this.updateWizard(contentClone, true);
         this.updateEditPermissionsButtonIcon(contentClone);
-        this.resetLivePanel(contentClone).then(() => this.contextView.updateWidgetsVisibility(this.isRenderable()));
+        this.resetLivePanel(contentClone).then(() => this.contextView.updateWidgetsVisibility());
 
         if (!this.isDisplayNameUpdated()) {
             this.getWizardHeader().resetBaseValues();
@@ -1943,7 +1943,7 @@ export class ContentWizardPanel
 
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(content).then(() => {
-                this.contextView.updateWidgetsVisibility(this.isRenderable());
+                this.contextView.updateWidgetsVisibility();
                 this.fetchMissingOrStoppedAppKeys().then(this.missingOrStoppedAppKeys.length && this.handleAppChange.bind(this));
 
                 return this.createWizardStepForms().then(() => {
@@ -2651,6 +2651,7 @@ export class ContentWizardPanel
     private checkIfRenderable(): Q.Promise<Boolean> {
         return new IsRenderableRequest(this.getPersistedItem(), RenderingMode.EDIT).sendAndParse().then((renderable: boolean) => {
             this.renderable = renderable;
+            this.contextView.setIsPageRenderable(renderable);
 
             return renderable;
         });
@@ -2679,7 +2680,7 @@ export class ContentWizardPanel
             return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
                 this.getComponentsViewToggler().setEnabled(this.isRenderable());
                 this.getComponentsViewToggler().setVisible(this.isRenderable());
-                this.contextView.updateWidgetsVisibility(this.isRenderable());
+                this.contextView.updateWidgetsVisibility();
             });
         });
     }

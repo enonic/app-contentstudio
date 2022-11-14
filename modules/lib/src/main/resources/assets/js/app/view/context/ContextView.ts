@@ -62,8 +62,7 @@ export class ContextView
     protected contextWindow?: ContextWindow;
     protected alreadyFetchedCustomWidgets: boolean;
 
-    protected pageEditorVisible: boolean;
-
+    protected isPageRenderable: boolean;
     private sizeChangedListeners: { (): void }[] = [];
 
     private widgetsUpdateList: { [key: string]: (key: string, type: ApplicationEventType) => void } = {};
@@ -72,8 +71,6 @@ export class ContextView
 
     constructor() {
         super('context-panel-view');
-
-        this.pageEditorVisible = false;
 
         this.contextContainer = new DivEl('context-container');
 
@@ -107,7 +104,7 @@ export class ContextView
         });
 
         const createPageEditorVisibilityChangedHandler = (visible: boolean) => () => {
-            this.pageEditorVisible = visible;
+            this.updateWidgetsVisibility();
         };
 
         ShowLiveEditEvent.on(createPageEditorVisibilityChangedHandler(true));
@@ -224,7 +221,7 @@ export class ContextView
     }
 
     private isActiveWidget(key: string): boolean {
-        return this.activeWidget && this.activeWidget.getWidgetKey() === key;
+        return ObjectHelper.bothDefined(key, this.activeWidget?.getWidgetKey()) && key === this.activeWidget?.getWidgetKey();
     }
 
     private handleWidgetUpdateEvent(key: string) {
@@ -537,25 +534,30 @@ export class ContextView
         }
     }
 
-    updateWidgetsVisibility(isRenderable: boolean) {
-        this.updatePageEditorWidgetView(isRenderable);
-        this.updateEmulatorWidgetView(isRenderable);
+    setIsPageRenderable(value: boolean): void {
+        this.isPageRenderable = value;
     }
 
-    private updatePageEditorWidgetView(isRenderable?: boolean): void {
+    updateWidgetsVisibility() {
+        this.updatePageEditorWidgetView();
+        this.updateEmulatorWidgetView();
+    }
+
+    private updatePageEditorWidgetView(): void {
         const isVersionsWidgetActive: boolean = this.isActiveWidget(this.versionsWidgetView.getWidgetKey());
         const isPageEditorWidgetPresent: boolean = this.isWidgetPresent(this.pageEditorWidgetView);
         const isPageEditorWidgetActive: boolean = this.isActiveWidget(this.pageEditorWidgetView?.getWidgetKey());
 
-        if (isRenderable) {
+        if (this.isPageRenderable) {
             if (!isPageEditorWidgetPresent) {
                 if (!this.pageEditorWidgetView) {
                     this.initPageEditorWidgetView();
                 }
 
                 this.insertWidget(this.pageEditorWidgetView, 0);
-                this.defaultWidgetView = this.pageEditorWidgetView;
             }
+
+            this.defaultWidgetView = this.pageEditorWidgetView;
 
             if (!isPageEditorWidgetActive && !isVersionsWidgetActive) {
                 this.activateDefaultWidget();
@@ -573,11 +575,11 @@ export class ContextView
         }
     }
 
-    private updateEmulatorWidgetView(isRenderable?: boolean): void {
+    private updateEmulatorWidgetView(): void {
         const isEmulatorWidgetPresent = this.isWidgetPresent(this.emulatorWidgetView);
         const emulatorWidgetActive = this.isActiveWidget(this.emulatorWidgetView?.getWidgetKey());
 
-        if (isRenderable) {
+        if (this.isPageRenderable) {
             if (!isEmulatorWidgetPresent) {
                 const index = this.getIndexOfLastInternalWidget() + 1;
                 this.insertWidget(this.emulatorWidgetView, index);
