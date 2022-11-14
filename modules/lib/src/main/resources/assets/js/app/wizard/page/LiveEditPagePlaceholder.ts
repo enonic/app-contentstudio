@@ -38,7 +38,7 @@ export class LiveEditPagePlaceholder
         }).catch((err) => {
             this.handleControllersLoaded([]);
             DefaultErrorHandler.handle(err);
-            return Q.resolve([])
+            return Q.resolve([]);
         });
     }
 
@@ -107,7 +107,7 @@ export class LiveEditPagePlaceholder
             return;
         }
 
-        const optionToSelect: Option<Descriptor> = this.controllerDropdown.createOption(descriptor)
+        const optionToSelect: Option<Descriptor> = this.controllerDropdown.createOption(descriptor);
         this.controllerDropdown.selectOption(optionToSelect, silent);
     }
 
