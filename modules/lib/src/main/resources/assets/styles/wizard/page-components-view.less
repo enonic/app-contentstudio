@@ -95,20 +95,15 @@
             &.menu-cell {
               .menu-icon {
                 position: absolute;
-                top: 5px;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                top: 0;
                 right: 5px;
-                width: 34px;
-                height: 34px;
                 cursor: pointer;
                 transition-duration: 0.5s;
 
                 &::before {
-                  position: absolute;
-                  top: 50%;
-                  left: 50%;
-                  width: 0;
-                  height: 0;
-                  margin: -5px 0 0 -7px;
                   color: @admin-font-gray1;
                 }
               }
@@ -178,18 +173,10 @@
           }
 
           .slick-cell {
-            height: 30px;
-
-            &.menu-cell .menu-icon {
-              padding-left: 0;
-            }
-
             .names-and-icon-view {
               .xp-admin-common-wrapper {
-                line-height: 22px;
-                height: 22px;
-                width: 22px;
-                margin-right: 0;
+                height: 18px;
+                width: 18px;
 
                 .font-icon, .font-icon-default {
                   font-size: 18px;
@@ -202,13 +189,6 @@
               }
 
               .xp-admin-common-names-view {
-                margin-left: 35px;
-
-                .xp-admin-common-main-name {
-                  line-height: 22px;
-                  height: auto;
-                }
-
                 .xp-admin-common-sub-name {
                   display: none;
                 }
