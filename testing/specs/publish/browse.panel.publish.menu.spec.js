@@ -9,6 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
 const appConst = require('../../libs/app_const');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolbar', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -40,10 +41,14 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
     it(`WHEN existing folder(New and Ready to publish) has been selected THEN 'Publish' button should appear in the browse-toolbar`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
             //1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            //2. Click on Mark As Ready:
+            //2. Click on 'Mark As Ready' then close the 'Publish wizard':
             await contentBrowsePanel.clickOnMarkAsReadyButton();
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
             // open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
             await studioUtils.saveScreenshot('publish_menu_Folder_ready');
@@ -53,7 +58,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
             //3.  do publish the folder:
-            await studioUtils.doPublish();
+            await studioUtils.openDialogAndPublishSelectedContent();
             let status = await contentBrowsePanel.getContentStatus(FOLDER.displayName);
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, 'The folder should be Published');
         });

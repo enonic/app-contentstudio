@@ -358,15 +358,18 @@ module.exports = {
         return await contentWizardPanel.pause(2000);
     },
     //Clicks on Publish button on the toolbar then clicks on Publish button in the dialog
-    async doPublish() {
+    async openDialogAndPublishSelectedContent() {
         let browsePanel = new BrowsePanel();
-        let contentPublishDialog = new ContentPublishDialog();
         await browsePanel.waitForPublishButtonVisible();
         await browsePanel.clickOnPublishButton();
+        await this.doPublish();
+        return await browsePanel.pause(1000);
+    },
+    async doPublish() {
+        let contentPublishDialog = new ContentPublishDialog();
         await contentPublishDialog.waitForDialogOpened();
         await contentPublishDialog.clickOnPublishNowButton();
         await contentPublishDialog.waitForDialogClosed();
-        return await browsePanel.pause(1000);
     },
     async doPublishTree() {
         let browsePanel = new BrowsePanel();

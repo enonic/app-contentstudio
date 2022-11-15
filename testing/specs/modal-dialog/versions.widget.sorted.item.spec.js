@@ -158,12 +158,9 @@ describe('tests for Sorted versions item', function () {
             //1. Open the existing folder with sorted version items:
             await studioUtils.selectAndOpenContentInWizard(PARENT_FOLDER.displayName);
             await wizardDetailsPanel.openVersionHistory();
-            //2. Publish this folder:
+            //2. Click on Mark as ready button then publish the folder:
             await contentWizard.clickOnMarkAsReadyButton();
-            await contentWizard.clickOnPublishButton();
-            await publishContentDialog.waitForDialogOpened();
-            await publishContentDialog.clickOnPublishNowButton();
-            await publishContentDialog.waitForDialogClosed();
+            await studioUtils.doPublish();
             //3. Verify that Published version item gets visible now:
             await wizardVersionsWidget.waitForPublishedItemDisplayed();
             await studioUtils.saveScreenshot("sorted_versions_after_publishing");

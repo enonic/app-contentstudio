@@ -473,7 +473,7 @@ export class ContentWizardActions
             this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject() && !this.content.isFullyInherited());
     }
 
-    private canBePublished(): boolean {
+    canBePublished(): boolean {
         if (!this.contentCanBePublished) {
             return false;
         }
