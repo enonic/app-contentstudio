@@ -10,6 +10,7 @@ export interface BasePublishActionConfig {
     shortcut?: string;
     errorMessage?: string;
     omitCanPublishCheck?: boolean;
+    markAsReady?: boolean;
 }
 
 export abstract class BasePublishAction
@@ -27,8 +28,14 @@ export abstract class BasePublishAction
             if (this.mustSaveBeforeExecution()) {
 
                 this.setEnabled(false);
+
+                if (config.markAsReady) {
+                    config.wizard.setMarkedAsReady(true);
+                }
+
                 this.config.wizard.saveChanges().then((content) => {
-                    if (content) {
+                    const canMarkOnly = config.markAsReady && !this.config.wizard.getWizardActions().canBePublished();
+                    if (content != null && !canMarkOnly) {
                         this.firePromptEvent();
                     }
                 }).catch((reason: any) => {
@@ -61,6 +68,7 @@ export abstract class BasePublishAction
     protected abstract createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void;
 
     mustSaveBeforeExecution(): boolean {
-        return this.config.wizard.hasUnsavedChanges();
+        const isReadyStateChanged = this.config.markAsReady && !this.config.wizard.isMarkedAsReady();
+        return isReadyStateChanged || this.config.wizard.hasUnsavedChanges();
     }
 }
