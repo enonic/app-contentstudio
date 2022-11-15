@@ -1,8 +1,6 @@
 /**
  * Created on 21.01.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -22,11 +20,16 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
     it("Precondition: ready for publishing site with invalid child folder should be added",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.SIMPLE_SITE_APP]);
             await studioUtils.doAddSite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
+            //Close Publish Wizard:
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
             //Add invalid child folder
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await studioUtils.doCloseWizardAndSwitchToGrid();
@@ -36,7 +39,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Select an existing folder with not valid child and open Publish wizard:
+            //1. Select an existing folder with invalid child and open Publish wizard:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();

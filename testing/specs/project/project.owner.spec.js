@@ -24,6 +24,7 @@ const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('project.owner.spec - ui-tests for user with Owner role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -76,7 +77,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await permissionsStep.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.OWNER);
             //8. Click on Next button in permissions step:
             await permissionsStep.clickOnNextButton();
-            if(await applicationsStep.isLoaded()){
+            if (await applicationsStep.isLoaded()) {
                 await applicationsStep.clickOnSkipButton();
             }
             //9. Fil in the name input:
@@ -86,7 +87,6 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await summaryStep.clickOnCreateProjectButton();
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
-
             //11. Open the project
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
@@ -151,7 +151,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //2.Double click on the project:
+            //2.Do a double click on the project:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that the project is opened:
             await projectWizard.waitForLoaded();
@@ -194,7 +194,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             let items = await newContentDialog.getItems();
-            studioUtils.saveScreenshot("project_owner_3");
+            await studioUtils.saveScreenshot("project_owner_3");
             //3. Verify that only 'Folders', 'Shortcut' 'Sites' are allowed for Owner role
             assert.equal(items.length, 3, "Three items should be available for Owner");
             assert.isTrue(items.includes("Folder"), "Folder is allowed for creating");
@@ -212,9 +212,9 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
-            studioUtils.saveScreenshot("project_owner_4");
+            await studioUtils.saveScreenshot("project_owner_4");
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot("project_owner_5");
+            await studioUtils.saveScreenshot("project_owner_5");
             //3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
             let isVisible = await settingsStepForm.isLanguageOptionsFilterVisible();
@@ -227,15 +227,19 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
     it("GIVEN user with 'Owner' role is logged in WHEN existing folder has been marked as ready THEN 'Publish' menu item should be enabled for users with Owner role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.findAndSelectItem(FOLDER_NAME);
-            //2. The folder has been 'Marked as ready' in browse panel:
+            //2. The folder has been 'Marked as ready' in browse panel (Publish wizard loads automatically):
             await contentBrowsePanel.clickOnMarkAsReadyButton();
-            studioUtils.saveScreenshot("project_owner_6");
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
+            await studioUtils.saveScreenshot("project_owner_6");
             //3. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
-            studioUtils.saveScreenshot("project_owner_7");
+            await studioUtils.saveScreenshot("project_owner_7");
             //4. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Owner role:
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
@@ -273,7 +277,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //7. Verify that 'Publish Now' button is enabled:
             await studioUtils.saveScreenshot("project_owner_8");
             await publishRequestDetailsDialog.waitForPublishNowButtonEnabled();
-            //8. Click on Publish Now button:
+            //8. Click on 'Publish Now' button:
             await publishRequestDetailsDialog.clickOnPublishNowButton();
             //9. Verify that modal dialog is closed:
             await publishRequestDetailsDialog.waitForClosed();
@@ -290,7 +294,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //2.Double click on the project:
+            //2.Do a double click on the project:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. wait for the project is opened:
             await projectWizard.waitForLoaded();
