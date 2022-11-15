@@ -19,6 +19,8 @@ export class Project
 
     private readonly description: string;
 
+    private readonly timeZone: string;
+
     private readonly parent: string;
 
     private readonly icon: Attachment;
@@ -35,6 +37,7 @@ export class Project
         this.name = builder.name;
         this.displayName = builder.displayName;
         this.description = builder.description;
+        this.timeZone = builder.timeZone;
         this.parent = builder.parent;
         this.icon = builder.icon;
         this.permissions = builder.permissions;
@@ -87,6 +90,10 @@ export class Project
         return this.siteConfigs;
     }
 
+    getTimeZone(): string {
+        return this.timeZone;
+    }
+
     equals(o: Equitable): boolean {
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Project)) {
             return false;
@@ -97,6 +104,7 @@ export class Project
         return ObjectHelper.objectEquals(this.name, other.name) &&
                ObjectHelper.objectEquals(this.displayName, other.displayName) &&
                ObjectHelper.objectEquals(this.description, other.description) &&
+               ObjectHelper.objectEquals(this.timeZone, other.timeZone) &&
                ObjectHelper.objectEquals(this.icon, other.icon) &&
                ObjectHelper.objectEquals(this.language, other.language) &&
                ObjectHelper.equals(this.permissions, other.permissions) &&
@@ -113,6 +121,8 @@ export class ProjectBuilder {
     displayName: string;
 
     description: string;
+
+    timeZone: string;
 
     parent: string;
 
@@ -131,6 +141,7 @@ export class ProjectBuilder {
             this.name = source.getName();
             this.displayName = source.getDisplayName();
             this.description = source.getDescription();
+            this.timeZone = source.getTimeZone();
             this.parent = source.getParent();
             this.icon = source.getIcon();
             this.permissions = source.getPermissions();
@@ -185,10 +196,16 @@ export class ProjectBuilder {
         return this;
     }
 
+    setTimeZone(value: string): ProjectBuilder {
+        this.timeZone = value;
+        return this;
+    }
+
     fromJson(json: ProjectJson): ProjectBuilder {
         this.name = json.name;
         this.displayName = json.displayName;
         this.description = json.description || '';
+        this.timeZone = json.timeZone;
         this.parent = json.parent;
         this.icon = json.icon ? new AttachmentBuilder().fromJson(json.icon).build() : null;
         this.permissions = ProjectPermissions.fromJson(json.permissions);

@@ -10,6 +10,8 @@ export interface ProjectJson {
 
     description: string;
 
+    timeZone: string;
+
     parent: string;
 
     icon: AttachmentJson;

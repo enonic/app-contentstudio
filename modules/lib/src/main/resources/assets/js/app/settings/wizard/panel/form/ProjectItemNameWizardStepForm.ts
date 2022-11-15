@@ -19,6 +19,8 @@ export class ProjectItemNameWizardStepForm
 
     private descriptionInput: TextInput;
 
+    private timeZoneInput: TextInput;
+
     private parentProjectFormItem: ParentProjectFormItem;
 
     getProjectName(): string {
@@ -33,12 +35,20 @@ export class ProjectItemNameWizardStepForm
         this.descriptionInput.setValue(value, silent);
     }
 
+    setTimeZone(value: string, silent?: boolean): void {
+        this.timeZoneInput.setValue(value, silent);
+    }
+
     disableProjectNameInput() {
         this.getProjectNameInput().whenRendered(() => this.getProjectNameInput().setEnabled(false));
     }
 
     getDescription(): string {
         return this.descriptionInput.getValue().trim();
+    }
+
+    getTimeZone(): string {
+        return this.timeZoneInput.getValue().trim();
     }
 
     disableProjectNameHelpText() {
@@ -100,6 +110,7 @@ export class ProjectItemNameWizardStepForm
 
         this.descriptionInput.setValue(item.getDescription(), true);
         this.nameFormItem.setValue(item.getName(), true);
+        this.timeZoneInput.setValue(item.getTimeZone(), true);
         this.disableProjectNameHelpText();
         this.disableProjectNameInput();
 
@@ -117,6 +128,10 @@ export class ProjectItemNameWizardStepForm
 
     protected initListeners() {
         this.descriptionInput.onValueChanged(() => {
+            this.notifyDataChanged();
+        });
+
+        this.timeZoneInput.onValueChanged(() => {
             this.notifyDataChanged();
         });
 
@@ -140,9 +155,11 @@ export class ProjectItemNameWizardStepForm
         this.nameFormItem = new ProjectNameFormItem();
 
         this.descriptionInput = new TextInput();
+        this.timeZoneInput = new TextInput();
         const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
+        const timeZoneFormItem: FormItem = new FormItemBuilder(this.timeZoneInput).setLabel(i18n('field.timezone')).build();
 
-        return [this.nameFormItem, descriptionFormItem];
+        return [this.nameFormItem, descriptionFormItem, timeZoneFormItem];
     }
 
     private isParentProjectSet(): boolean {

@@ -1,5 +1,6 @@
 package com.enonic.xp.app.contentstudio.rest.resource.project.json;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,8 @@ import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.resource.project.ProjectReadAccess;
 import com.enonic.xp.project.ProjectName;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 public final class CreateProjectParamsJson
 {
     private final ProjectName name;
@@ -17,6 +20,8 @@ public final class CreateProjectParamsJson
     private final String displayName;
 
     private final String description;
+
+    private final ZoneId timeZone;
 
     private final ProjectName parent;
 
@@ -27,12 +32,14 @@ public final class CreateProjectParamsJson
     @JsonCreator
     CreateProjectParamsJson( @JsonProperty("name") final String name, @JsonProperty("displayName") final String displayName,
                              @JsonProperty("description") final String description, @JsonProperty("parent") final String parent,
+                             @JsonProperty("timeZone") final String timeZone,
                              @JsonProperty("readAccess") final ProjectReadAccessJson readAccess,
                              @JsonProperty("applications") final List<String> applications)
     {
         this.name = ProjectName.from( name );
         this.displayName = displayName;
         this.description = description;
+        this.timeZone = !isNullOrEmpty( timeZone ) ? ZoneId.of( timeZone ) : null;
         this.parent = parent == null || parent.isBlank() ? null : ProjectName.from( parent );
         this.readAccess = readAccess != null ? readAccess.getProjectReadAccess() : null;
         this.applicationKeys =
@@ -67,5 +74,10 @@ public final class CreateProjectParamsJson
     public List<ApplicationKey> getApplicationKeys()
     {
         return applicationKeys;
+    }
+
+    public ZoneId getTimeZone()
+    {
+        return timeZone;
     }
 }

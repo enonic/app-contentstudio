@@ -12,6 +12,8 @@ export class ProjectData {
 
     description?: string;
 
+    timeZone?: string;
+
     access: ProjectAccessDialogStepData;
 
     permissions?: ProjectPermissionsDialogStepData;
