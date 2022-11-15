@@ -66,6 +66,7 @@ const XPATH = {
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
     goToGridButton: "//div[contains(@class,'font-icon-default icon-tree-2')]",
     helpTextsButton: "//div[contains(@class,'help-text-button')]",
+    pagePlaceholderInfoBlock1: "//div[contains(@id,'PagePlaceholderInfoBlock')]//div[contains(@class,'page-placeholder-info-line1')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -741,9 +742,11 @@ class ContentWizardPanel extends Page {
     }
 
     //Select a page descriptor and wait for Context Window is loaded
-    async selectPageDescriptor(pageControllerDisplayName) {
+    async selectPageDescriptor(pageControllerDisplayName, checkContextPanel) {
         await this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
-        return await this.waitForContextWindowVisible();
+        if (typeof checkContextPanel === "undefined" || checkContextPanel) {
+            await this.waitForContextWindowVisible();
+        }
     }
 
     switchToMainFrame() {
@@ -756,7 +759,7 @@ class ContentWizardPanel extends Page {
         } catch (err) {
             let screenshot = appConst.generateRandomName("err_controller_filter_input");
             await this.saveScreenshot(screenshot);
-            throw new Error("Controller selector should be displayed, screenshot:" + screenshot+ " " + err);
+            throw new Error("Controller selector should be displayed, screenshot:" + screenshot + " " + err);
         }
     }
 
@@ -1164,6 +1167,11 @@ class ContentWizardPanel extends Page {
             await this.saveScreenshot(appConst.generateRandomName("err_collaboration_icon"));
             throw new Error("Collaboration element should be displayed in the wizard toolbar: " + err);
         }
+    }
+
+    getMessageInPagePlaceholderInfoBlock() {
+        let locator = XPATH.pagePlaceholderInfoBlock1;
+        return this.getText(locator);
     }
 }
 
