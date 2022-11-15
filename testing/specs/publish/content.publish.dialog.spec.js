@@ -33,12 +33,12 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('shortcut'));
             //2. Select a target in the selector:
             await shortcutForm.filterOptionsAndSelectTarget(TEST_IMAGE);
+            //3. Open Publish Wizard:
             await contentWizard.clickOnMarkAsReadyButton();
-            //3. Open 'Publish' dialog:
-            await contentWizard.clickOnPublishButton();
+            await contentPublishDialog.waitForDialogOpened();
             //4. Click on 'Show dependent items':
             await contentPublishDialog.clickOnShowDependentItems();
-            studioUtils.saveScreenshot("shortcut_publish_dependent_items")
+            await studioUtils.saveScreenshot("shortcut_publish_dependent_items")
             //5. Verify that the dependent item is removable:
             let isRemovable = await contentPublishDialog.isPublishItemRemovable(TEST_IMAGE);
             assert.isTrue(isRemovable, "The dependent item should be removable");
@@ -53,11 +53,9 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentWizard.typeDisplayName(FOLDER1_NAME);
             //1. Click on 'MARK AS READY' default action:
             await contentWizard.clickOnMarkAsReadyButton();
-            //2. Open Publish Wizard:
-            await contentWizard.clickOnPublishButton();
             await studioUtils.saveScreenshot("wizard_publish_dialog_single_folder");
             let status = await contentPublishDialog.getContentStatus(FOLDER1_NAME);
-            //3. New status should be displayed in the modal dialog:
+            //2. New status should be displayed in the modal dialog:
             assert.equal(status, "New", "'New' status should be displayed in the dialog");
             await contentPublishDialog.waitForAddScheduleIconDisplayed();
 
@@ -66,7 +64,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             assert.isFalse(isRemovable, "One publish item should be displayed and it should not be removable");
         });
 
-    it(`GIVEN existing folder(no children) is selected WHEN 'Publish' button has been pressed THEN 'New' status should be displayed in the modal dialog`,
+    it(`GIVEN existing folder(does not have children) is selected WHEN 'Publish' button has been pressed THEN 'New' status should be displayed in the modal dialog`,
         async () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -128,7 +126,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentPublishDialog.waitForShowDependentItemsButtonDisplayed();
 
             let items = await contentPublishDialog.getNumberItemsToPublish();
-            assert.equal(items, 13, "13 items to publish should be in the dialog");
+            assert.equal(items, '13', "13 items to publish should be in the dialog");
         });
 
     it(`GIVEN folder is selected AND Publish dialog is opened WHEN 'Include children' and Show dependent items button have been pressed THEN 'Hide dependent items' gets visible`,
