@@ -158,7 +158,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             //1. Do log in with the user-editor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.findAndSelectItem(FOLDER_NAME);
-            //2. The folder has been 'Marked as ready' in browse panel:
+            //2. The folder has been 'Marked as ready' in browse panel(Publish wizard loads automatically):
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             studioUtils.saveScreenshot("project_editor_6");
             //3. The folder has been published in browse panel:

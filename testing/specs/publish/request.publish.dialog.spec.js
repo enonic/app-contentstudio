@@ -10,6 +10,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('request.publish.dialog.spec - opens request publish modal dialog and checks control elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -22,15 +23,19 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
         async () => {
             let contentWizard = new ContentWizard();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
+            let contentPublishDialog = new ContentPublishDialog();
             FOLDER1_NAME = contentBuilder.generateRandomName('folder');
             //1. Open new folder-wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER1_NAME);
-            //2.Click on  'mark as ready':
+            //2.Click on  'mark as ready' then close Publish wizard:
             await contentWizard.clickOnMarkAsReadyButton();
-            //3. Expand the Publish Menu and select 'Request Publishing...' menu item
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
+            //3. Expand Publish Menu and select 'Request Publishing...' menu item
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-            studioUtils.saveScreenshot("wizard_publish_dialog_single_folder");
+            await studioUtils.saveScreenshot("wizard_publish_dialog_single_folder");
             let status = await createRequestPublishDialog.getContentStatus(FOLDER1_NAME);
 
             assert.equal(status, "New", "'New' status should be displayed in the dialog");
@@ -47,11 +52,11 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. folder with children is selected:
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_WITH_IMAGES_NAME_2);
-            //expand the Publish Menu and select 'Request Publishing...' menu item
+            //Expand Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             //2. click on 'Include children items'
             await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES_2);
-            studioUtils.saveScreenshot("request_publish_include_children");
+            await studioUtils.saveScreenshot("request_publish_include_children");
             //3. 'Show dependent items' link should appear, because all children are Ready for publishing
             await createRequestPublishDialog.waitForShowDependentItemsLinkDisplayed();
         });
@@ -63,7 +68,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             let contentBrowsePanel = new ContentBrowsePanel();
             //1.Select the existing content:
             await studioUtils.findAndSelectItem(FOLDER1_NAME);
-            //expand the Publish Menu and click on 'Request Publishing...' menu item:
+            //Expand Publish Menu and click on 'Request Publishing...' menu item:
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             //click on the publish-item:
             await createRequestPublishDialog.clickOnItemToPublishAndSwitchToWizard(FOLDER1_NAME);
@@ -81,7 +86,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             let contentBrowsePanel = new ContentBrowsePanel();
             //1.Select the content:
             await studioUtils.findAndSelectItem(FOLDER1_NAME);
-            //2. expand the Publish Menu and select 'Request Publishing...' menu item
+            //2. Expand Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             await createRequestPublishDialog.clickOnNextButton();
             await studioUtils.saveScreenshot("request_publishing_next");
@@ -97,7 +102,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             let contentBrowsePanel = new ContentBrowsePanel();
             //1.Select the content:
             await studioUtils.findAndSelectItem(FOLDER1_NAME);
-            //2. expand the 'Publish Menu' and select 'Request Publishing...' menu item
+            //2. Expand 'Publish Menu' and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             //3. Go to the second step in the wizard:
             await createRequestPublishDialog.clickOnNextButton();
