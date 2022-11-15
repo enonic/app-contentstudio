@@ -124,15 +124,20 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.publishNowButton, appConst.longTimeout);
+    async waitForDialogOpened() {
+        await this.waitForElementDisplayed(this.publishNowButton, appConst.mediumTimeout);
+        await this.pause(300);
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout).catch(err => {
-            this.saveScreenshot('err_close_publish_dialog');
-            throw new Error('Publish dialog must be closed ' + err);
-        })
+    async waitForDialogClosed() {
+        try {
+            await this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout);
+            await this.pause(500);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_close_publish_dialog');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Publish dialog must be closed, screenshot: ' + screenshot + "  " + err);
+        }
     }
 
     async clickOnPublishNowButton() {

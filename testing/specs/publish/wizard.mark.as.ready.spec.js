@@ -8,6 +8,7 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -61,12 +62,16 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
     it(`GIVEN new folder-wizard is opened, a name has been typed WHEN new 'Publish Request' has been created THEN default action gets OPEN REQUEST`,
         async () => {
             let contentWizard = new ContentWizard();
+            let contentPublishDialog = new ContentPublishDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             //1. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(displayName);
             await contentWizard.clickOnMarkAsReadyButton(displayName);
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
             //2. Open Request Publishing dialog and create new request:
             await contentWizard.openPublishMenuAndCreateRequestPublish("my changes");
             //3. Verify that 'Open Request' -  action gets default in the wizard's toolbar.

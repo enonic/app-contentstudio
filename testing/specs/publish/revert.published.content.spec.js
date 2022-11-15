@@ -32,11 +32,10 @@ describe('Revert published content spec', function () {
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await settingsForm.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
             await contentWizard.waitAndClickOnSave();
+            //3. Publish the folder
             await contentWizard.clickOnMarkAsReadyButton();
-            await contentWizard.clickOnPublishButton();
-            await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnPublishNowButton();
-            await contentPublishDialog.waitForDialogClosed();
+            await studioUtils.doPublish();
+
             //"Published status should be in Wizard"
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHED);
         });

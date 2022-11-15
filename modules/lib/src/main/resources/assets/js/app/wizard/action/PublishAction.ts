@@ -6,8 +6,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class PublishAction extends BasePublishAction {
 
-    private wizard: ContentWizardPanel;
-
     constructor(wizard: ContentWizardPanel) {
         super({
             wizard,
@@ -15,8 +13,6 @@ export class PublishAction extends BasePublishAction {
             shortcut: 'ctrl+alt+p',
             errorMessage: i18n('notify.publish.invalidError')
         });
-
-        this.wizard = wizard;
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {

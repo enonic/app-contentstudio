@@ -30,10 +30,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             await contentWizard.typeDisplayName(FOLDER_NAME);
             //3. Publish this folder:
             await contentWizard.clickOnMarkAsReadyButton();
-            await contentWizard.clickOnPublishButton();
-            await publishContentDialog.waitForDialogOpened();
-            await publishContentDialog.clickOnPublishNowButton();
-            await publishContentDialog.waitForDialogClosed();
+            await studioUtils.doPublish();
         });
 
     it(`GIVEN existing published folder is opened WHEN permissions have been updated THEN 'Permissions updated' item should appear in Versions Widget`,

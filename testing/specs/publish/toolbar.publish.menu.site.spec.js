@@ -1,6 +1,5 @@
 /**
  * Created on 21.01.2019.
- * verifies : https://github.com/enonic/app-contentstudio/issues/493
  */
 const chai = require('chai');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -16,7 +15,7 @@ describe('toolbar.publish.menu.site.spec - publishes a site and checks publish m
     }
 
     let SITE;
-    //verifies 'Create Issue' button should not appear on the toolbar after publishing site's child items
+    //verifies 'Create Issue' button should not appear on the toolbar after publishing site's child items #493
     it(`WHEN existing site first has been published then Publish Tree actions has been performed THEN Unpublish button should appear in the toolbar`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();

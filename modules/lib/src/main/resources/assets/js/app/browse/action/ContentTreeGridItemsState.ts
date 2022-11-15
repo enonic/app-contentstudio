@@ -271,6 +271,12 @@ export class ContentTreeGridItemsState {
         return this.managedActionExecuting;
     }
 
+    isReadyForPublishing(): boolean {
+        return !this.isEmpty() && !this.isManagedActionExecuting() && this.canPublish() &&
+               !this.hasAllOnline() && this.hasValidNonOnline() &&
+               (this.canModify() || !this.hasAnyInProgress());
+    }
+
     total(): number {
         return this.items.length;
     }
