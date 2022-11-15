@@ -61,7 +61,7 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             //1. Select the parent folder
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             //2. open 'Publish dialog' and click on 'Publish Now' button:(Children items are not included by default in Publish dialog)
-            await studioUtils.doPublish();
+            await studioUtils.openDialogAndPublishSelectedContent();
             //3. Verify - PUBLISH TREE... should be default action now:
             await contentBrowsePanel.waitForDefaultAction(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);

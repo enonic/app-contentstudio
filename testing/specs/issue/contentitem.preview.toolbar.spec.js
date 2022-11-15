@@ -1,8 +1,5 @@
 /**
  * Created on 21.06.2018.
- * verifies https://github.com/enonic/app-contentstudio/issues/261
- *
- * ContentItemPreviewToolbar - issues are not refreshed on the toolbar, when an issue has been closed or reopened or updated
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -14,6 +11,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('contentItem.preview.toolbar.spec: create a task and check it in the preview toolbar', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -61,11 +59,17 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentPublishDialog = new ContentPublishDialog();
             //1. Select the folder
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            //2. Click on Mark on ready then publish the folder:
+            //2. Click on 'Mark on ready' button in the browse toolbar:
             await contentBrowsePanel.clickOnMarkAsReadyButton();
-            await studioUtils.doPublish();
+            let message = await contentBrowsePanel.waitForNotificationMessage();
+
+            //3. Verify that Publish wizard is loaded
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnPublishNowButton();
+            await contentPublishDialog.waitForDialogClosed();
             //3. Published status should be displayed in the item preview toolbar:
             let status = await contentItemPreviewPanel.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");

@@ -10,6 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
 const PublishContentDialog = require('../../page_objects/content.publish.dialog');
 const appConst = require('../../libs/app_const');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('delete.content.dialog.spec:  tests for Delete Content Dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -50,13 +51,14 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let publishContentDialog = new PublishContentDialog();
+            let contentPublishDialog = new ContentPublishDialog();
             //1. Select 2 folders
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
             await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
-            //2. Open Publish Wizard
+            //2. Click on Mark as ready button
             await contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
-            await contentBrowsePanel.clickOnPublishButton();
-            await publishContentDialog.waitForDialogOpened();
+            //3. Publish Wizard should be loaded automatically
+            await contentPublishDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot("2_folders_to_publish");
             //3. Verify the number of items in 'Publish Now' button
             let result = await publishContentDialog.getNumberItemsToPublish();
@@ -121,7 +123,7 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             let deleteContentDialog = new DeleteContentDialog();
             //1.Select and publish the folder:
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
-            await studioUtils.doPublish();
+            await studioUtils.openDialogAndPublishSelectedContent();
             //2. Open Delete Dialog:
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
