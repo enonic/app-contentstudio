@@ -10,7 +10,7 @@ const XPATH = {
     wizardStep: `//div[contains(@id,'ContentWizardStepForm')]`,
     supportsCombobox: `//div[contains(@id,'ContentTypeComboBox')]`,
     supportOptionFilterInput: "//div[contains(@id,'ContentTypeFilter')]//input[contains(@class,'option-filter-input')]",
-    contentTypeSelectedOptionsView:displayName=> `//div[contains(@id,'ContentTypeSelectedOptionsView') and descendant::h6[text()=${displayName}]]`,
+    contentTypeSelectedOptionsView: displayName => `//div[contains(@id,'ContentTypeSelectedOptionsView') and descendant::h6[text()='${displayName}']]`,
 };
 
 class PageTemplateForm extends Page {
