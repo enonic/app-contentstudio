@@ -220,8 +220,12 @@ export class ContextView
         this.updateView();
     }
 
+    private isActiveWidgetByType(view: WidgetView): boolean {
+        return view?.compareByType(this.activeWidget);
+    }
+
     private isActiveWidget(key: string): boolean {
-        return ObjectHelper.bothDefined(key, this.activeWidget?.getWidgetKey()) && key === this.activeWidget?.getWidgetKey();
+        return this.activeWidget && this.activeWidget.getWidgetKey() === key;
     }
 
     private handleWidgetUpdateEvent(key: string) {
@@ -544,10 +548,11 @@ export class ContextView
     }
 
     private updatePageEditorWidgetView(): void {
-        const isVersionsWidgetActive: boolean = this.isActiveWidget(this.versionsWidgetView.getWidgetKey());
+        const isVersionsWidgetActive: boolean = this.isActiveWidgetByType(this.versionsWidgetView);
         const isPageEditorWidgetPresent: boolean = this.isWidgetPresent(this.pageEditorWidgetView);
-        const isPageEditorWidgetActive: boolean = this.isActiveWidget(this.pageEditorWidgetView?.getWidgetKey());
+        const isPageEditorWidgetActive: boolean = this.isActiveWidgetByType(this.pageEditorWidgetView);
 
+        debugger;
         if (this.isPageRenderable) {
             if (!isPageEditorWidgetPresent) {
                 if (!this.pageEditorWidgetView) {
@@ -559,7 +564,7 @@ export class ContextView
 
             this.defaultWidgetView = this.pageEditorWidgetView;
 
-            if (!isPageEditorWidgetActive && !isVersionsWidgetActive) {
+            if (!isPageEditorWidgetPresent && !isVersionsWidgetActive) {
                 this.activateDefaultWidget();
             }
 
