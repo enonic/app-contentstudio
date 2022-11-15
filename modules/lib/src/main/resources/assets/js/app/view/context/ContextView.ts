@@ -552,7 +552,6 @@ export class ContextView
         const isPageEditorWidgetPresent: boolean = this.isWidgetPresent(this.pageEditorWidgetView);
         const isPageEditorWidgetActive: boolean = this.isActiveWidgetByType(this.pageEditorWidgetView);
 
-        debugger;
         if (this.isPageRenderable) {
             if (!isPageEditorWidgetPresent) {
                 if (!this.pageEditorWidgetView) {
