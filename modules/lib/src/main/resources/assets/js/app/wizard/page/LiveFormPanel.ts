@@ -238,14 +238,14 @@ export class LiveFormPanel
                             const partView = <PartComponentView>componentView;
                             const partComponent: PartComponent = partView.getComponent();
                             if (partComponent.hasDescriptor()) {
-                                this.contentWizardPanel.setIsMarkedAsReady(false);
+                                this.contentWizardPanel.setMarkedAsReady(false);
                                 this.saveAndReloadOnlyComponent(componentView);
                             }
                         } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
                             const layoutView = <LayoutComponentView>componentView;
                             const layoutComponent: LayoutComponent = layoutView.getComponent();
                             if (layoutComponent.hasDescriptor()) {
-                                this.contentWizardPanel.setIsMarkedAsReady(false);
+                                this.contentWizardPanel.setMarkedAsReady(false);
                                 this.saveAndReloadOnlyComponent(componentView);
                             }
                         }
@@ -257,7 +257,7 @@ export class LiveFormPanel
                 if (event.getPropertyName() === ImageComponent.PROPERTY_IMAGE && !event.getComponent().isEmpty()) {
                     const componentView = this.pageView.getComponentViewByPath(event.getPath());
                     if (componentView) {
-                        this.contentWizardPanel.setIsMarkedAsReady(false);
+                        this.contentWizardPanel.setMarkedAsReady(false);
                         this.saveAndReloadOnlyComponent(componentView);
                     }
                 }
@@ -265,7 +265,7 @@ export class LiveFormPanel
                 if (event.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT && !event.getComponent().isEmpty()) {
                     const componentView = this.pageView.getComponentViewByPath(event.getPath());
                     if (componentView) {
-                        this.contentWizardPanel.setIsMarkedAsReady(false);
+                        this.contentWizardPanel.setMarkedAsReady(false);
                         this.saveAndReloadOnlyComponent(componentView);
                     }
                 }
@@ -395,7 +395,7 @@ export class LiveFormPanel
                     const savedPage: Page = persistedContent.getPage().clone();
 
                     if (!viewedPage.equals(savedPage)) {
-                        this.contentWizardPanel.setIsMarkedAsReady(false);
+                        this.contentWizardPanel.setMarkedAsReady(false);
                     }
 
                     this.saveAndReloadOnlyComponent(<ComponentView<Component>>itemView, true);
@@ -805,7 +805,7 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onComponentDuplicated((event: ComponentDuplicatedEvent) => {
-            this.contentWizardPanel.setIsMarkedAsReady(false);
+            this.contentWizardPanel.setMarkedAsReady(false);
             this.saveAndReloadOnlyComponent(event.getDuplicatedComponentView());
         });
 
@@ -888,7 +888,7 @@ export class LiveFormPanel
     private saveMarkedContentAndReloadOnlyComponent(componentView: ComponentView<Component>) {
         const componentPath = componentView.getComponentPath();
         const canMarkContentAsReady = this.canMarkContentAsReady(componentPath);
-        this.contentWizardPanel.setIsMarkedAsReady(canMarkContentAsReady);
+        this.contentWizardPanel.setMarkedAsReady(canMarkContentAsReady);
         this.saveAndReloadOnlyComponent(componentView);
     }
 

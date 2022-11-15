@@ -11,6 +11,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const appConst = require('../../libs/app_const');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolbar', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -109,11 +110,15 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
     it("GIVEN not localized site has been marked as ready WHEN 'Reset' button has been clicked THEN the site's workflow state should be reverted to Work in progress",
         async () => {
             let contentWizard = new ContentWizard();
+            let contentPublishDialog = new ContentPublishDialog();
             //layer's context should be loaded automatically.
             //2. Open the inherited site(not localized):
             await studioUtils.selectContentAndClickOnLocalize(SITE_NAME);
             //2. Press 'Mark as Ready' button:
             await contentWizard.clickOnMarkAsReadyButton();
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
             //3. Click on 'Reset' button:
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
             //4. Click on 'Yes' button in confirmation dialog:

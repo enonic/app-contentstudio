@@ -31,7 +31,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             //1. add new folder and do publish one
             await studioUtils.doAddReadyFolder(FOLDER);
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            await studioUtils.doPublish();
+            await studioUtils.openDialogAndPublishSelectedContent();
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
             let expectedMessage = appConst.itemPublishedNotificationMessage(FOLDER.displayName);
             assert.equal(actualMessage, expectedMessage, "Item is published - message should appear");

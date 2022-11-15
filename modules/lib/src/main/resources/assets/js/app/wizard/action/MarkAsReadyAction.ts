@@ -1,23 +1,22 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {BasePublishAction} from './BasePublishAction';
 import {ContentWizardPanel} from '../ContentWizardPanel';
+import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
-export class MarkAsReadyAction
-    extends Action {
-
-    private wizard: ContentWizardPanel;
+export class MarkAsReadyAction extends BasePublishAction {
 
     constructor(wizard: ContentWizardPanel) {
-        super(i18n('action.markAsReady'));
-
-        this.wizard = wizard;
-
-        this.onExecuted(() => this.handleExecuted());
+        super({
+            wizard,
+            label: i18n('action.markAsReady'),
+            shortcut: 'ctrl+alt+r',
+            errorMessage: i18n('notify.publish.invalidError'),
+            markAsReady: true,
+        });
     }
 
-    private handleExecuted() {
-        this.wizard.setIsMarkedAsReady(true);
-        this.wizard.saveChanges().catch(DefaultErrorHandler.handle);
+    protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
+        new ContentPublishPromptEvent({model: summary}).fire();
     }
 }

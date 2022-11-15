@@ -203,7 +203,7 @@ export class ContentWizardPanel
 
     private isContentFormValid: boolean;
 
-    private isMarkedAsReady: boolean;
+    private markedAsReady: boolean;
 
     private contentNamedListeners: { (event: ContentNamedEvent): void }[];
 
@@ -291,7 +291,7 @@ export class ContentWizardPanel
         super.initElements();
 
         this.isContentFormValid = false;
-        this.setIsMarkedAsReady(false);
+        this.setMarkedAsReady(false);
         this.requireValid = false;
         this.skipValidation = false;
         this.contentNamedListeners = [];
@@ -537,7 +537,7 @@ export class ContentWizardPanel
                     // in case of new content will be created in super.loadData()
                     this.formState.setIsNew(false);
                     this.setPersistedItem(loader.content);
-                    this.setIsMarkedAsReady(loader.content.getWorkflow().getState() === WorkflowState.READY);
+                    this.setMarkedAsReady(loader.content.getWorkflow().getState() === WorkflowState.READY);
                 }
                 this.defaultModels = loader.defaultModels;
                 this.site = loader.siteContent;
@@ -744,7 +744,7 @@ export class ContentWizardPanel
 
             this.workflowStateManager.onStatusChanged((status: WorkflowStateStatus) => {
                 this.wizardActions.setContentCanBeMarkedAsReady(WorkflowStateManager.isInProgress(status)).refreshState();
-                this.setIsMarkedAsReady(WorkflowStateManager.isReady(status));
+                this.setMarkedAsReady(WorkflowStateManager.isReady(status));
             });
 
             this.getContentWizardToolbarPublishControls().getPublishButton().onPublishRequestActionChanged((added: boolean) => {
@@ -2236,7 +2236,7 @@ export class ContentWizardPanel
 
         const updateContentRoutine: UpdatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
             .setRequireValid(this.requireValid)
-            .setWorkflowState(this.isMarkedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
+            .setWorkflowState(this.markedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
 
         return updateContentRoutine.execute().then((context: RoutineContext) => {
             const content: Content = context.content;
@@ -2280,7 +2280,7 @@ export class ContentWizardPanel
             message = i18n('notify.item.savedUnnamed');
         } else if (this.isRename) {
             message = i18n('notify.wizard.contentRenamed', name);
-        } else if (this.isMarkedAsReady) {
+        } else if (this.markedAsReady) {
             message = i18n('notify.item.markedAsReady', name);
         } else {
             message = i18n('notify.item.saved', name);
@@ -2406,8 +2406,12 @@ export class ContentWizardPanel
         this.requireValid = requireValid;
     }
 
-    setIsMarkedAsReady(value: boolean) {
-        this.isMarkedAsReady = value;
+    setMarkedAsReady(value: boolean) {
+        this.markedAsReady = value;
+    }
+
+    isMarkedAsReady(): boolean {
+        return this.markedAsReady;
     }
 
     showLiveEdit() {

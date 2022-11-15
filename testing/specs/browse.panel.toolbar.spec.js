@@ -63,7 +63,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(SITE.displayName);
             //do publish the site(children are not included)
-            await studioUtils.doPublish();
+            await studioUtils.openDialogAndPublishSelectedContent();
             //'Publish tree' button  gets visible
             await contentBrowsePanel.waitForPublishTreeButtonVisible();
         });

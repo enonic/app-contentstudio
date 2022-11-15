@@ -46,12 +46,18 @@ describe('task.publish.two.items.spec: 2 folders have been added and published',
             let taskDetailsDialog = new TaskDetailsDialog();
             let createTaskDialog = new CreateTaskDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
             let taskDetailsDialogItemsTab = new TaskDetailsDialogItemsTab();
             //1. Do both folders 'Mark as Ready':
             await studioUtils.findContentAndClickCheckBox(folder1.displayName);
             await contentBrowsePanel.pause(500);
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
+            //2. Click on MARK AS READY and confirm it:
             await contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
+
             await contentBrowsePanel.waitForPublishButtonVisible();
             //2. Open 'Create Task' dialog and create new task:
             await contentBrowsePanel.openPublishMenuAndClickOnCreateTask();
