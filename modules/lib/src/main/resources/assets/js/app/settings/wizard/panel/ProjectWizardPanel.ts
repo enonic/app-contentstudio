@@ -133,6 +133,7 @@ export class ProjectWizardPanel
     protected isNewItemChanged(): boolean {
         return !StringHelper.isBlank(this.projectWizardStepForm.getProjectName()) ||
                !StringHelper.isBlank(this.projectWizardStepForm.getDescription()) ||
+               !StringHelper.isBlank(this.projectWizardStepForm.getTimeZone()) ||
                (this.rolesWizardStepForm && !this.rolesWizardStepForm.getPermissions().isEmpty()) ||
                !this.readAccessWizardStepForm.isEmpty() ||
                super.isNewItemChanged();
@@ -178,6 +179,7 @@ export class ProjectWizardPanel
             const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
             this.wizardHeader.setDisplayName(project.getDisplayName());
             this.projectWizardStepForm.setDescription(project.getDescription(), true);
+            this.projectWizardStepForm.setTimeZone(project.getTimeZone(), true);
             showFeedback(this.getSuccessfulUpdateMessage(item.getName()));
             return item;
         });
@@ -242,7 +244,8 @@ export class ProjectWizardPanel
     }
 
     private isProjectMetaChanged(): boolean {
-        if (!ObjectHelper.stringEquals(this.getPersistedItem().getDescription(), this.projectWizardStepForm.getDescription())) {
+        if (!ObjectHelper.stringEquals(this.getPersistedItem().getDescription(), this.projectWizardStepForm.getDescription()) ||
+            !ObjectHelper.stringEquals(this.getPersistedItem().getTimeZone(), this.projectWizardStepForm.getTimeZone())) {
             return true;
         }
 
@@ -387,6 +390,7 @@ export class ProjectWizardPanel
             .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
             .setDescription(this.projectWizardStepForm.getDescription())
             .setName(this.projectWizardStepForm.getProjectName())
+            .setTimeZone(this.projectWizardStepForm.getTimeZone())
             .setDisplayName(this.getDisplayName());
     }
 
@@ -399,6 +403,7 @@ export class ProjectWizardPanel
             .setDescription(this.projectWizardStepForm.getDescription().trim())
             .setName(this.projectWizardStepForm.getProjectName())
             .setDisplayName(this.getDisplayName())
+            .setTimeZone(this.projectWizardStepForm.getTimeZone())
             .setApplications(
                 this.applicationsWizardStepForm?.getApplications().map((app: ProjectApplication) => app.getApplicationKey().toString()));
     }

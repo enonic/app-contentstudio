@@ -104,6 +104,10 @@ export class ProjectWizardDialog
         return this.getSelectedLocaleStep()?.getData().getLocale();
     }
 
+    private getSelectedTimeZone(): string {
+        return this.getSelectedLocaleStep()?.getData().getTimeZone();
+    }
+
     private getSelectedLocaleStep(): ProjectLocaleDialogStep {
         return <ProjectLocaleDialogStep>this.steps.find((step: DialogStep) => step instanceof ProjectLocaleDialogStep);
     }
@@ -161,6 +165,7 @@ export class ProjectWizardDialog
             .setDescription(idData.getDescription())
             .setName(idData.getName())
             .setDisplayName(idData.getDisplayName())
+            .setTimeZone(this.getSelectedTimeZone())
             .setApplications(this.getProjectApplications()?.map((app: ProjectApplication) => app.getApplicationKey().toString()));
     }
 
@@ -208,6 +213,7 @@ export class ProjectWizardDialog
             name: idData.getName(),
             displayName: idData.getDisplayName(),
             locale: this.getSelectedLocale(),
+            timeZone: this.getSelectedTimeZone(),
             parent: this.getParentProject(),
             access: this.getReadAccess(),
             permissions: this.getPermissions(),

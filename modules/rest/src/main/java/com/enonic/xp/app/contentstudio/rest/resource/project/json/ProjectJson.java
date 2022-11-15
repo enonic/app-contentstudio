@@ -21,6 +21,8 @@ public final class ProjectJson
 
     private final String description;
 
+    private final String timeZone;
+
     private final String language;
 
     private final String parent;
@@ -42,6 +44,7 @@ public final class ProjectJson
         this.name = project.getName().toString();
         this.displayName = project.getDisplayName();
         this.description = project.getDescription();
+        this.timeZone = project.getTimeZone() != null ? project.getTimeZone().toString() : null;
         this.icon = project.getIcon() != null ? new AttachmentJson( project.getIcon() ) : null;
         this.language = language != null ? language.toLanguageTag() : null;
         this.parent = project.getParent() != null ? project.getParent().toString() : null;
@@ -67,6 +70,11 @@ public final class ProjectJson
     public String getDescription()
     {
         return description;
+    }
+
+    public String getTimeZone()
+    {
+        return timeZone;
     }
 
     public AttachmentJson getIcon()

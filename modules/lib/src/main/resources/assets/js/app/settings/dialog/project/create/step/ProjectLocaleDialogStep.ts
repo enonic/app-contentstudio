@@ -1,16 +1,20 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {LocaleComboBox} from '../../../../../locale/LocaleComboBox';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {LocaleFormItem} from '../../../../wizard/panel/form/element/LocaleFormItem';
 import {Project} from '../../../../data/project/Project';
 import {ProjectLocaleDialogStepData} from '../data/ProjectLocaleDialogStepData';
+import {ProjectFormItem, ProjectFormItemBuilder} from '../../../../wizard/panel/form/element/ProjectFormItem';
 
 export class ProjectLocaleDialogStep
     extends ProjectDialogStep {
 
+    private timeZoneInput: TextInput;
+
     protected createFormItems(): FormItem[] {
-        return [new LocaleFormItem()];
+        return [new LocaleFormItem(), this.createTimeZoneFormItem()];
     }
 
     isOptional(): boolean {
@@ -25,12 +29,19 @@ export class ProjectLocaleDialogStep
         });
     }
 
+    private createTimeZoneFormItem(): FormItem {
+        this.timeZoneInput = new TextInput();
+
+        return <ProjectFormItem>new ProjectFormItemBuilder(this.timeZoneInput).setLabel(i18n('field.timezone')).build();
+    }
+
     setParentProject(value: Project) {
         this.getFormItem().setParentProject(value);
     }
 
     getData(): ProjectLocaleDialogStepData {
-        return new ProjectLocaleDialogStepData().setLocale(this.getLocaleCombobox().getSelectedDisplayValues()[0]);
+        return new ProjectLocaleDialogStepData().setLocale(this.getLocaleCombobox().getSelectedDisplayValues()[0]).setTimeZone(
+            this.timeZoneInput.getValue().trim());
     }
 
     hasData(): boolean {

@@ -13,6 +13,8 @@ export abstract class ProjectCreateUpdateRequest
 
     protected description: string;
 
+    protected timeZone: string;
+
     protected applications: string[];
 
     protected constructor() {
@@ -35,6 +37,11 @@ export abstract class ProjectCreateUpdateRequest
         return this;
     }
 
+    setTimeZone(value: string): ProjectCreateUpdateRequest {
+        this.timeZone = value;
+        return this;
+    }
+
     setApplications(value: string[]): ProjectCreateUpdateRequest {
         this.applications = value || [];
         return this;
@@ -45,7 +52,8 @@ export abstract class ProjectCreateUpdateRequest
             name: this.name,
             displayName: this.displayName,
             description: this.description,
-            applications: this.applications
+            applications: this.applications,
+            timeZone: this.timeZone,
         };
     }
 

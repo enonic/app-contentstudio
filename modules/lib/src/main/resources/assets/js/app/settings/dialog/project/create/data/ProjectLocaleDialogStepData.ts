@@ -6,12 +6,23 @@ export class ProjectLocaleDialogStepData
 
     private locale: Locale;
 
+    private timeZone: string;
+
     setLocale(value: Locale): ProjectLocaleDialogStepData {
         this.locale = value;
         return this;
     }
 
+    setTimeZone(value: string): ProjectLocaleDialogStepData {
+        this.timeZone = value;
+        return this;
+    }
+
     getLocale(): Locale {
         return this.locale;
+    }
+
+    getTimeZone(): string {
+        return this.timeZone;
     }
 }

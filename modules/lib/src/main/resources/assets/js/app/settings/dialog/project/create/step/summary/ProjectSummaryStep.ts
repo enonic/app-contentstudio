@@ -25,6 +25,8 @@ export class ProjectSummaryStep
 
     private descriptionContainer: SummaryValueContainer;
 
+    private timeZoneContainer: SummaryValueContainer;
+
     private parentProjectContainer: SummaryValueContainer;
 
     private languageContainer: LanguageValueContainer;
@@ -78,6 +80,7 @@ export class ProjectSummaryStep
         this.updateAccessContainer();
         this.updatePermissionsBlock();
         this.updateApplicationsBlock();
+        this.updateTimeZoneBlock();
     }
 
     private updateIdBlock(): void {
@@ -115,6 +118,28 @@ export class ProjectSummaryStep
         this.descriptionContainer = new SummaryValueContainer();
         descriptionNameContainer.insertAfterEl(this.idContainer);
         this.descriptionContainer.insertAfterEl(descriptionNameContainer);
+    }
+
+    private updateTimeZoneBlock(): void {
+        if (this.data.timeZone) {
+            if (!this.timeZoneContainer) {
+                this.createAndAddTimeZoneBlock();
+            }
+
+            this.timeZoneContainer.updateValue(this.data.timeZone);
+            this.timeZoneContainer.show();
+        } else {
+            this.timeZoneContainer?.getPreviousElement()?.hide();
+            this.timeZoneContainer?.hide();
+        }
+    }
+
+    private createAndAddTimeZoneBlock(): void {
+        const timeZoneNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
+            i18n('dialog.project.wizard.summary.timezone.title'));
+        this.timeZoneContainer = new SummaryValueContainer();
+        timeZoneNameContainer.insertAfterEl(this.accessContainer);
+        this.timeZoneContainer.insertAfterEl(timeZoneNameContainer);
     }
 
     private updateParentProjectBlock(): void {

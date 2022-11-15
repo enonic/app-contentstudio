@@ -232,12 +232,13 @@ public final class ProjectResource
             .name( json.getName() )
             .displayName( json.getDisplayName() )
             .description( json.getDescription() )
+            .timeZone( json.getTimeZone() )
             .parent( json.getParent() )
             .forceInitialization( true );
 
         if ( json.getApplicationKeys() != null )
         {
-            json.getApplicationKeys().stream().forEach( key -> paramsBuilder.addSiteConfig( appKeyToSiteConfig( key ) ) );
+            json.getApplicationKeys().forEach( key -> paramsBuilder.addSiteConfig( appKeyToSiteConfig( key ) ) );
         }
 
         if ( json.getReadAccess() != null && ProjectReadAccessType.PUBLIC.equals( json.getReadAccess().getType() ) )
@@ -262,12 +263,12 @@ public final class ProjectResource
         final ModifyProjectParams.Builder paramsBuilder = ModifyProjectParams.create()
             .name( json.getName() )
             .displayName( json.getDisplayName() )
-            .description( json.getDescription() );
-
+            .description( json.getDescription() )
+            .timeZone( json.getTimeZone() );
 
         if ( json.getApplicationKeys() != null )
         {
-            json.getApplicationKeys().stream().forEach( key -> paramsBuilder.addSiteConfig( appKeyToSiteConfig( key ) ) );
+            json.getApplicationKeys().forEach( key -> paramsBuilder.addSiteConfig( appKeyToSiteConfig( key ) ) );
         }
 
         return paramsBuilder.build();

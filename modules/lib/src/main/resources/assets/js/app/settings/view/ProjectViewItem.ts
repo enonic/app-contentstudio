@@ -34,6 +34,10 @@ export class ProjectViewItem
         return this.data.getDescription();
     }
 
+    getTimeZone(): string {
+        return this.data.getTimeZone();
+    }
+
     getIconClass(): string {
         return ProjectIconUrlResolver.getDefaultIcon(this.data);
     }
