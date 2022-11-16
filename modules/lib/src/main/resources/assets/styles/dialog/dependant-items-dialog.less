@@ -54,9 +54,8 @@
     .content-status-mixin();
 
     .remove {
-      display: flex;
-      align-items: center;
       display: none;
+      align-items: center;
       color: lightgray;
       cursor: default;
       order: 1;
@@ -153,7 +152,11 @@
       .dependants-header:not(:empty) {
         margin-top: 10px;
         cursor: pointer;
-        color: @admin-blue;
+        color: @admin-button-blue2;
+
+        &:hover {
+          color: @admin-button-blue3;
+        }
       }
 
       .dependants-body {
@@ -220,7 +223,7 @@
 
             &.small {
               .@{_COMMON_PREFIX}wrapper:before {
-                top: 1px;
+                top: 0;
                 left: 11px;
                 width: 11px;
                 height: 11px;

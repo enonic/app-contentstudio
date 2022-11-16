@@ -41,3 +41,24 @@
     }
   }
 }
+
+.link-button {
+  padding: 0 8px;
+  background: transparent;
+  border: none;
+  transition: none;
+
+  span {
+    color: @admin-button-blue2;
+    transition: none;
+    font-size: 12px;
+  }
+
+  &:hover:not(:disabled) {
+    background: transparent;
+
+    span {
+      color: @admin-button-blue3;
+    }
+  }
+}

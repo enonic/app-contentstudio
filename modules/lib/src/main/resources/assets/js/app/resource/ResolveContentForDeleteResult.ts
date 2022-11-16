@@ -1,6 +1,5 @@
 import {ContentId} from '../content/ContentId';
 import {ResolveContentForDeleteJson} from './json/ResolveContentForDeleteJson';
-import {InboundDependenciesJson} from './json/InboundDependenciesJson';
 import {InboundDependenciesResult} from './InboudDependenciesResult';
 
 export class ResolveContentForDeleteResult {
@@ -9,7 +8,7 @@ export class ResolveContentForDeleteResult {
 
     private readonly inboundDependencies: InboundDependenciesResult[];
 
-    constructor(contentIds: ContentId[], inboundDependencies: InboundDependenciesResult[]) {
+    private constructor(contentIds: ContentId[], inboundDependencies: InboundDependenciesResult[]) {
 
         this.contentIds = contentIds;
         this.inboundDependencies = inboundDependencies;

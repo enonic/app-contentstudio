@@ -1,36 +1,27 @@
-.delete-dialog {
+.content-delete-dialog {
   .dialog-buttons .button-container .dropdown-dialog-menu {
     button {
       .dialog-button(@bg: @input-red-text);
 
       &.@{_COMMON_PREFIX}dropdown-handle {
         display: flex;
-      }
-    }
-  }
 
-  .names-and-icon-viewer {
-    .icon-link {
-      color: @admin-red;
-    }
-  }
-
-  .item-list {
-    .names-and-icon-viewer {
-      .names-and-icon-view {
-        .icon-link {
-          font-size: 24px;
+        &:hover {
+          background-color: @input-red-text
         }
       }
     }
   }
 
-  .dependant-list {
-    .names-and-icon-viewer {
-      .names-and-icon-view {
-        .icon-link {
-          font-size: 16px;
-        }
+  .dependants {
+    .xp-admin-common-main-name,
+    .xp-admin-common-sub-name {
+      cursor: default !important;
+    }
+
+    .archive-item {
+      span {
+        font-size: 12px;
       }
     }
   }
@@ -47,21 +38,7 @@
     }
   }
 
-  .status-line {
-    display: flex;
-    align-items: center;
-    padding-bottom: 10px;
-
-    .icon {
-      color: @admin-red;
-    }
-
-    .part {
-      padding-left: 7px;
-    }
-
-    .part1 {
-      font-weight: bold;
-    }
+  .warning-line {
+    margin-bottom: 10px;
   }
 }
