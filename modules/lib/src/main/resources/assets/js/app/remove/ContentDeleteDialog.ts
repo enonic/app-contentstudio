@@ -17,11 +17,7 @@ import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
 import {ContentId} from '../content/ContentId';
 import {StatusLine} from './StatusLine';
-import {StatusSelectionItem} from '../dialog/StatusSelectionItem';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {NamesAndIconView} from '@enonic/lib-admin-ui/app/NamesAndIconView';
-import {DialogDependantList} from '../dialog/DependantItemsDialog';
+import {ArchiveItem} from '../dialog/ArchiveItem';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {DeleteDialogDependantList} from './DeleteDialogDependantList';
 import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
@@ -30,7 +26,6 @@ import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDelete
 import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselectAllEvent';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {ShowDependenciesEvent} from '../browse/ShowDependenciesEvent';
 
 enum ActionType {
     DELETE, ARCHIVE
@@ -111,7 +106,7 @@ export class ContentDeleteDialog
         const itemsAddedHandler = (items: ContentSummaryAndCompareStatus[], itemList: ListBox<ContentSummaryAndCompareStatus>) => {
             if (this.resolveDependenciesResult) {
                 this.updateItemViewsWithInboundDependencies(
-                    items.map((item: ContentSummaryAndCompareStatus) => <StatusSelectionItem>itemList.getItemView(item)));
+                    items.map((item: ContentSummaryAndCompareStatus) => <ArchiveItem>itemList.getItemView(item)));
             }
         };
 
@@ -155,43 +150,23 @@ export class ContentDeleteDialog
         return <DeleteDialogItemList>super.getItemList();
     }
 
-    protected createDependantList(): DialogDependantList {
+    protected createDependantList(): DeleteDialogDependantList {
         return new DeleteDialogDependantList();
     }
 
-    protected getDependantList(): DialogDependantList {
-        return <DialogDependantList>super.getDependantList();
+    protected getDependantList(): DeleteDialogDependantList {
+        return super.getDependantList() as DeleteDialogDependantList;
     }
 
-    private handleItemClick(contentSummary: ContentSummary) {
-        new ShowDependenciesEvent(contentSummary.getContentId(), true).fire();
-    }
-
-    private updateItemViewsWithInboundDependencies(itemViews: StatusSelectionItem[]) {
-        itemViews
-            .filter((itemView: StatusSelectionItem) => this.hasInboundRef(itemView.getBrowseItem().getId()))
-            .filter((itemView: StatusSelectionItem) => !itemView.hasClass('has-inbound'))
-            .forEach((itemView: StatusSelectionItem) => this.updateItemViewWithInboundDependencies(itemView));
+    private updateItemViewsWithInboundDependencies(itemViews: ArchiveItem[]) {
+        itemViews.forEach((itemView: ArchiveItem) => {
+            const hasInbound = this.hasInboundRef(itemView.getBrowseItem().getId());
+            itemView.setHasInbound(hasInbound);
+        });
     }
 
     private hasInboundRef(id: string): boolean {
         return this.resolveDependenciesResult?.hasInboundDependency(id);
-    }
-
-    private updateItemViewWithInboundDependencies(itemView: StatusSelectionItem) {
-        itemView.addClass('has-inbound');
-        itemView.getViewer().whenRendered(() => {
-            const namesAndIconView: NamesAndIconView =
-                (<ContentSummaryAndCompareStatusViewer>itemView.getViewer()).getNamesAndIconView();
-            namesAndIconView.whenRendered(() => {
-                namesAndIconView.getFirstChild().onClicked(() => {
-                    this.handleItemClick((<ContentSummaryAndCompareStatus>itemView.getBrowseItem()).getContentSummary());
-                });
-            });
-
-            namesAndIconView.setIconClass('icon-link');
-            namesAndIconView.setIconToolTip(i18n('dialog.archive.hasInbound.tooltip'));
-        });
     }
 
     private manageDescendants() {
@@ -218,7 +193,7 @@ export class ContentDeleteDialog
     }
 
     private resolveItemsWithInboundRefs() {
-        (<DeleteDialogDependantList>this.getDependantList()).setResolveDependenciesResult(this.resolveDependenciesResult);
+        this.getDependantList().setResolveDependenciesResult(this.resolveDependenciesResult);
 
         const itemsWithInboundRefs: ContentId[] =
             this.dependantIds.filter((id: ContentId) => this.hasInboundRef(id.toString()));
