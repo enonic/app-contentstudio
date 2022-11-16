@@ -135,6 +135,10 @@ export class ImageContentComboBox
         this.reload(this.getComboBox().getInput().getValue());
     }
 
+    clear() {
+        super.clear();
+    }
+
     public static create(): ImageContentComboBoxBuilder {
         return new ImageContentComboBoxBuilder();
     }
