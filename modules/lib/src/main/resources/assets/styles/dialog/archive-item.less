@@ -1,0 +1,60 @@
+.archive-item {
+  &.has-inbound {
+    .names-and-icon-viewer .names-and-icon-view .@{_COMMON_PREFIX}wrapper {
+      .icon-big-plus;
+
+      &::before {
+        top: -1px;
+        transform: rotateZ(45deg);
+        background: transparent;
+        color: @admin-red;
+        text-shadow: 0 0 1px white;
+      }
+    }
+  }
+
+  &:not(.has-inbound) {
+    .show-ref-button {
+      display: none;
+    }
+  }
+
+  &.clickable {
+    &:hover {
+      background-color: @admin-bg-light-gray;
+      outline: 2px solid @admin-bg-light-gray;
+    }
+
+    * {
+      cursor: pointer !important;
+    }
+
+    cursor: pointer;
+  }
+
+  &:not(.clickable) {
+    .status {
+      cursor: default;
+    }
+  }
+
+  .show-ref-button {
+    align-self: stretch;
+    padding: 0 8px;
+    background: transparent;
+    border: none;
+    transition: none;
+
+    span {
+      color: @admin-blue;
+    }
+
+    &:hover:not(:disabled) {
+      background: transparent;
+
+      span {
+        color: @admin-button-blue2;
+      }
+    }
+  }
+}
