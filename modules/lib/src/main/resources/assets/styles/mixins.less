@@ -41,3 +41,23 @@
     }
   }
 }
+
+.link-button {
+  padding: 0 8px;
+  background: transparent;
+  border: none;
+  transition: none;
+
+  span {
+    color: @admin-button-blue1;
+    transition: none;
+  }
+
+  &:hover:not(:disabled) {
+    background: transparent;
+
+    span {
+      color: @admin-button-blue2;
+    }
+  }
+}

@@ -11,11 +11,11 @@ export class StatusSelectionItem
     extends SelectionItem<ContentSummaryAndCompareStatus> {
 
     protected item: ContentSummaryAndCompareStatus;
+    protected status: DivEl;
     private removeHandlerFn: () => void;
     private isRemovableFn: () => boolean;
     private clickTooltip: Tooltip;
     private removeClickTooltip: string = i18n('tooltip.list.itemRequired');
-    private status: DivEl;
 
     constructor(viewer: Viewer<ContentSummaryAndCompareStatus>, item: ContentSummaryAndCompareStatus) {
         super(viewer, item);
@@ -29,15 +29,15 @@ export class StatusSelectionItem
         return this.isRemovableFn();
     }
 
-    setIsRemovableFn(fn: () => boolean) {
+    setIsRemovableFn(fn: () => boolean): void {
         this.isRemovableFn = fn;
     }
 
-    setRemoveHandlerFn(fn: () => void) {
+    setRemoveHandlerFn(fn: () => void): void {
         this.removeHandlerFn = fn;
     }
 
-    setRemoveButtonClickTooltip(text: string) {
+    setRemoveButtonClickTooltip(text: string): void {
         if (this.isRendered()) {
             this.clickTooltip.setText(text);
         } else {
@@ -66,7 +66,7 @@ export class StatusSelectionItem
             });
 
             this.status = this.initStatusDiv(this.item);
-            this.appendChild(this.status);
+            this.status.insertBeforeEl(this.removeEl);
 
             return rendered;
         });
