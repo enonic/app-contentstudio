@@ -406,7 +406,7 @@ export class ContextView
     }
 
     protected getInitialWidgets(): WidgetView[] {
-       return [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
+        return [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
     }
 
     protected createVersionsWidgetView(): WidgetView {
@@ -548,56 +548,82 @@ export class ContextView
     }
 
     private updatePageEditorWidgetView(): void {
-        const isVersionsWidgetActive: boolean = this.isActiveWidgetByType(this.versionsWidgetView);
-        const isPageEditorWidgetPresent: boolean = this.isWidgetPresent(this.pageEditorWidgetView);
-        const isPageEditorWidgetActive: boolean = this.isActiveWidgetByType(this.pageEditorWidgetView);
-
         if (this.isPageRenderable) {
-            if (!isPageEditorWidgetPresent) {
-                if (!this.pageEditorWidgetView) {
-                    this.initPageEditorWidgetView();
-                }
-
-                this.insertWidget(this.pageEditorWidgetView, 0);
-            }
-
-            this.defaultWidgetView = this.pageEditorWidgetView;
-
-            if (!isPageEditorWidgetPresent && !isVersionsWidgetActive) {
-                this.activateDefaultWidget();
-            }
-
-            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
-        } else if (isPageEditorWidgetPresent) {
-            this.defaultWidgetView = this.propertiesWidgetView;
-
-            if (isPageEditorWidgetActive) {
-                this.activateDefaultWidget();
-            }
-            this.removeWidget(this.pageEditorWidgetView);
-            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
+            this.activatePageEditorWidget();
+        } else if (this.isPageEditorWidgetPresent()) {
+            this.deActivatePageEditorWidget();
         }
     }
 
-    private updateEmulatorWidgetView(): void {
-        const isEmulatorWidgetPresent = this.isWidgetPresent(this.emulatorWidgetView);
-        const emulatorWidgetActive = this.isActiveWidget(this.emulatorWidgetView?.getWidgetKey());
+    private activatePageEditorWidget(): void {
+        const isPageEditorWidgetPresent: boolean = this.isPageEditorWidgetPresent();
+        const isVersionsWidgetActive: boolean = this.isActiveWidgetByType(this.versionsWidgetView);
 
-        if (this.isPageRenderable) {
-            if (!isEmulatorWidgetPresent) {
-                const index = this.getIndexOfLastInternalWidget() + 1;
-                this.insertWidget(this.emulatorWidgetView, index);
-                this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
-            }
-        } else if (isEmulatorWidgetPresent) {
-            if (emulatorWidgetActive) {
-                this.activateDefaultWidget();
+        if (!isPageEditorWidgetPresent) {
+            if (!this.pageEditorWidgetView) {
+                this.initPageEditorWidgetView();
             }
 
-            this.removeWidget(this.emulatorWidgetView);
-            new EmulatedEvent(EmulatorDevice.getFullscreen(), false).fire();
-            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
+            this.insertWidget(this.pageEditorWidgetView, 0);
         }
+
+        this.defaultWidgetView = this.pageEditorWidgetView;
+
+        if (!isPageEditorWidgetPresent && !isVersionsWidgetActive) {
+            this.activateDefaultWidget();
+        }
+
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
+    }
+
+    private deActivatePageEditorWidget(): void {
+        const isPageEditorWidgetActive: boolean = this.isActiveWidgetByType(this.pageEditorWidgetView);
+        this.defaultWidgetView = this.propertiesWidgetView;
+
+        if (isPageEditorWidgetActive) {
+            this.activateDefaultWidget();
+        }
+
+        this.removeWidget(this.pageEditorWidgetView);
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
+    }
+
+    private isPageEditorWidgetPresent(): boolean {
+        return this.isWidgetPresent(this.pageEditorWidgetView);
+    }
+
+    private updateEmulatorWidgetView(): void {
+        if (this.isPageRenderable) {
+            this.activateEmulatorWidgetView();
+        } else if (this.isEmulatorWidgetPresent()) {
+            this.deActivateEmulatorWidgetView();
+        }
+    }
+
+    private isEmulatorWidgetPresent(): boolean {
+        return this.isWidgetPresent(this.emulatorWidgetView);
+    }
+
+    private activateEmulatorWidgetView(): void {
+        if (this.isEmulatorWidgetPresent()) {
+            return;
+        }
+
+        const index: number = this.getIndexOfLastInternalWidget() + 1;
+        this.insertWidget(this.emulatorWidgetView, index);
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
+    }
+
+    private deActivateEmulatorWidgetView(): void {
+        const isEmulatorWidgetActive: boolean = this.isActiveWidgetByType(this.emulatorWidgetView);
+
+        if (isEmulatorWidgetActive) {
+            this.activateDefaultWidget();
+        }
+
+        this.removeWidget(this.emulatorWidgetView);
+        new EmulatedEvent(EmulatorDevice.getFullscreen(), false).fire();
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
     }
 
     private isWidgetPresent(widget: WidgetView): boolean {
