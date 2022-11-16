@@ -484,10 +484,10 @@ export class LiveFormPanel
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             WindowDOM.get().onBeforeUnload((event) => {
-                console.log('onbeforeunload ' + this.liveEditModel.getContent().getDisplayName());
+                console.log('onbeforeunload ' + this.liveEditModel?.getContent().getDisplayName());
                 // the reload is triggered by the main frame,
                 // so let the live edit know it to skip the popup
-                this.liveEditPageProxy.skipNextReloadConfirmation(true);
+                this.liveEditPageProxy?.skipNextReloadConfirmation(true);
             });
 
             this.previewMessageEl = new PEl('no-preview-message');

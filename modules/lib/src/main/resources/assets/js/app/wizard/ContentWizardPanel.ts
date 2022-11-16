@@ -900,6 +900,7 @@ export class ContentWizardPanel
         this.setRequireValid(false);
         this.contentUpdateDisabled = true;
         this.isFirstUpdateAndRenameEventSkiped = false;
+        this.contentWizardStepForm?.getFormView()?.clean();
         new BeforeContentSavedEvent().fire();
 
         return super.saveChanges().then((content: Content) => {
