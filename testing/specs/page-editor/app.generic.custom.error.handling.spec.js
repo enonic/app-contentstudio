@@ -28,8 +28,10 @@ describe('Custom error handling - specification. Verify that application error p
             //1. Open new wizard for a site:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
+            await contentWizard.pause(1000);
             //2. Select a controller with error:
             await contentWizard.selectPageDescriptor(CONTROLLER_WITH_ERROR, false);
+            await contentWizard.pause(500);
             await studioUtils.saveScreenshot("site_controller_with_errors");
             //3. Verify that 'Preview' button is not displayed in the wizard:
             await contentWizard.waitForPreviewButtonNotDisplayed();

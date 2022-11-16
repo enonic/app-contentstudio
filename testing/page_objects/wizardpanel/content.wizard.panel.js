@@ -747,6 +747,7 @@ class ContentWizardPanel extends Page {
         if (typeof checkContextPanel === "undefined" || checkContextPanel) {
             await this.waitForContextWindowVisible();
         }
+        await this.pause(500);
     }
 
     switchToMainFrame() {
