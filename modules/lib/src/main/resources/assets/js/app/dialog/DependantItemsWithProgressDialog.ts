@@ -25,7 +25,7 @@ export abstract class DependantItemsWithProgressDialog
 
     setProcessingLabel: (processingLabel: string) => string;
 
-    constructor(config: DependantItemsWithProgressDialogConfig) {
+    protected constructor(config: DependantItemsWithProgressDialogConfig) {
         super(config);
     }
 
