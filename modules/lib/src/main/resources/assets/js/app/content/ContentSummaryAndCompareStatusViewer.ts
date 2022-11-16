@@ -65,7 +65,7 @@ export class ContentSummaryAndCompareStatusViewer
                    NamePrettyfier.prettifyUnnamed()).build().toString();
     }
 
-    private toggleState(object: ContentSummaryAndCompareStatus) {
+    protected toggleState(object: ContentSummaryAndCompareStatus): void {
         if (!object || !object.hasContentSummary()) {
             return;
         }
