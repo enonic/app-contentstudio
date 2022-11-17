@@ -89,6 +89,10 @@
       max-width: initial;
       min-height: @widget-selector-height;
 
+      .icon-list:before {
+        font-size: 22px !important;
+      }
+
       .option-filter-input {
         border: none;
         height: @widget-filter-height;
@@ -120,7 +124,7 @@
 
           .widget-viewer {
             line-height: @widget-selector-height;
-            padding: 8px 0 8px 8px;
+            padding: 8px 0 8px 10px;
           }
         }
       }
@@ -129,29 +133,6 @@
         font-size: 14px;
         cursor: default;
         .ellipsis();
-
-        .names-and-icon-view {
-          .@{_COMMON_PREFIX}wrapper {
-            margin-right: 8px;
-
-            img {
-              width: 26px;
-              height: 26px;
-            }
-
-            .font-icon-default {
-              font-size: 21px;
-
-              &::before {
-                font-size: 21px;
-              }
-
-              &.icon-list {
-                font-size: 20px;
-              }
-            }
-          }
-        }
       }
 
       .options-container {
