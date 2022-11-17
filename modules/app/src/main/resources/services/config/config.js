@@ -11,7 +11,8 @@ function handleGet() {
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const hideDefaultProject = app.config['settings.hideDefaultProject'] === 'true' || false;
-    const projectAppsEnabled = app.config['projectApps.enabled'] === 'true' || false;
+    //const projectAppsEnabled = app.config['projectApps.enabled'] === 'true' || false;
+    const projectAppsEnabled = true;
 
     return {
         status: 200,
