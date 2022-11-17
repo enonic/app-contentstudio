@@ -5,6 +5,7 @@ import {ContextView} from './ContextView';
 import {Dropdown} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 
@@ -160,7 +161,7 @@ export class WidgetViewOption {
 export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
 
     constructor() {
-        super('widget-viewer');
+        super('widget-viewer', NamesAndIconViewSize.compact);
     }
 
     doLayout(object: WidgetViewOption) {
