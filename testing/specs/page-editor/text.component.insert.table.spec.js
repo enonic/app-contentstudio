@@ -13,7 +13,9 @@ const HtmlTableDialog = require('../../page_objects/wizardpanel/html.table.dialo
 
 describe('Text Component with CKE - insert html table', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let CONTROLLER_NAME = 'main region';

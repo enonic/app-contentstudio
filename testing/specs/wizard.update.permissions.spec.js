@@ -20,6 +20,32 @@ describe('wizard.update.permissions.spec: update permissions and check the state
     let DISPLAY_NAME_1 = contentBuilder.generateRandomName('folder');
     let newDisplayName = contentBuilder.generateRandomName('folder');
 
+    //Verify - https://github.com/enonic/app-contentstudio/issues/5172
+    //Content Wizard has incorrect state after data changes followed by permissions update #5172
+    //Path is cleared after updating permissions in new unsaved content #5407
+    it(`GIVEN wizard for folder is opened AND name input is filled in WHEN permissions have been updated THEN path input should not be cleared`,
+        async () => {
+            let folderName = appConst.generateRandomName('folder');
+            let contentWizard = new ContentWizard();
+            let editPermissionsDialog = new EditPermissionsDialog();
+            //1. Open new folder-wizard,
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            //2. Fill in the name input:
+            await contentWizard.typeDisplayName(folderName);
+            //3. Open 'Edit Permissions' dialog:
+            await contentWizard.clickOnEditPermissionsButton();
+            await editPermissionsDialog.waitForDialogLoaded();
+            //4. Uncheck Inherit Permissions checkbox and apply it:
+            await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
+            await editPermissionsDialog.clickOnApplyButton();
+            await editPermissionsDialog.waitForDialogClosed();
+            await studioUtils.saveScreenshot("unsaved_folder_permissions_updated");
+            await editPermissionsDialog.waitForNotificationMessage();
+            //5. Verify that path input is not empty after updating permissions:
+            let result = await contentWizard.getPath();
+            assert.equal(result, folderName, "Expected folder-name should be present in the path input");
+        });
+
     it(`GIVEN wizard for folder is opened WHEN 'Edit Permissions' dialog has been opened THEN Apply button should be disabled`,
         async () => {
             let contentWizard = new ContentWizard();

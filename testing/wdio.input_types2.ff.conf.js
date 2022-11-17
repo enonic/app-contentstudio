@@ -83,7 +83,7 @@ exports.config = {
 
         reportAggregator = new ReportAggregator({
             outputDir: './build/mochawesome-report/',
-            filename: 'report.html',
+            filename: 'master-report.html',
             reportTitle: 'Tests for Input Types (2) Report',
             browserName: capabilities.browserName,
             collapseTests: true

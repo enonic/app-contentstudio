@@ -14,7 +14,9 @@ const appConst = require('../../libs/app_const');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let TEMPLATE;
     let SUPPORT = 'article';
