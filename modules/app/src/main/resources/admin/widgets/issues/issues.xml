@@ -1,0 +1,10 @@
+<widget xmlns="urn:enonic:xp:model:1.0">
+  <display-name>Content Studio: My Issues</display-name>
+  <interfaces>
+    <interface>home.dashboard</interface>
+  </interfaces>
+  <config>
+    <property name="width" value="medium"/>
+    <property name="order" value="100"/>
+  </config>
+</widget>
