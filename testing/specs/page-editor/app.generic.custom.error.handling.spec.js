@@ -9,7 +9,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 
 describe('Custom error handling - specification. Verify that application error page is loaded when error occurred', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -24,21 +23,22 @@ describe('Custom error handling - specification. Verify that application error p
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();
-            let liveFormPanel = new LiveFormPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.SIMPLE_SITE_APP], CONTROLLER_WITH_ERROR);
             //1. Open new wizard for a site:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
+            await contentWizard.pause(1000);
             //2. Select a controller with error:
-            await contentWizard.selectPageDescriptor(CONTROLLER_WITH_ERROR);
+            await contentWizard.selectPageDescriptor(CONTROLLER_WITH_ERROR, false);
+            await contentWizard.pause(500);
             await studioUtils.saveScreenshot("site_controller_with_errors");
             //3. Verify that 'Preview' button is not displayed in the wizard:
             await contentWizard.waitForPreviewButtonNotDisplayed();
             //4. 'Show Component View' should not be visible
             await contentWizard.waitForShowComponentVewTogglerNotVisible();
-            //4. Verify that 'Failed to render content preview' message appears in the 'Live Form' panel:
-            let message = await liveFormPanel.getErrorMessage();
+            //4. Verify that 'Failed to render content preview' message appears in the wizard page:
+            let message = await contentWizard.getMessageInPagePlaceholderInfoBlock();
             assert.equal(message, "Failed to render content preview.");
             await studioUtils.doCloseCurrentBrowserTab();
             await studioUtils.doSwitchToContentBrowsePanel();

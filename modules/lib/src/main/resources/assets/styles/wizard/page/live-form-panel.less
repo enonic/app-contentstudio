@@ -68,6 +68,8 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      text-align: center;
+      z-index: 1;
 
       &-line1 {
         font-size: 22px;
@@ -79,6 +81,16 @@
         font-size: 14px;
         color: @admin-font-gray1;
       }
+    }
+
+    &-dropdown {
+      margin-top: 10px;
+    }
+
+    &:before {
+      position: absolute;
+      color: #d3e0f2;
+      font-size: 105px;
     }
   }
 }

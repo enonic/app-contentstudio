@@ -39,7 +39,7 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             await newContentDialog.waitForOpened();
             //2. Verify the Upload button
             let isDisplayed = await newContentDialog.waitForUploaderButtonDisplayed();
-            assert.isTrue(isDisplayed, "Uploader button should be present on the modal dialog");
+            assert.isTrue(isDisplayed, "Uploader button should be present in the modal dialog");
             //3.  Most popular block should be displayed
             await newContentDialog.waitForMostPopularBlockDisplayed();
         });

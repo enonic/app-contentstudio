@@ -853,6 +853,7 @@ module.exports = {
         let loginPage = new LoginPage();
         await loginPage.doLogin(userName, password);
         let launcherPanel = new LauncherPanel();
+        await launcherPanel.pause(700);
         await launcherPanel.clickOnUsersLink();
         return await loginPage.pause(1000);
     },

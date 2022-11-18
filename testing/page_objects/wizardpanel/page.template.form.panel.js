@@ -10,7 +10,7 @@ const XPATH = {
     wizardStep: `//div[contains(@id,'ContentWizardStepForm')]`,
     supportsCombobox: `//div[contains(@id,'ContentTypeComboBox')]`,
     supportOptionFilterInput: "//div[contains(@id,'ContentTypeFilter')]//input[contains(@class,'option-filter-input')]",
-    contentTypeSelectedOptionsView: "//div[contains(@id,'ContentTypeSelectedOptionsView')]",
+    contentTypeSelectedOptionsView: displayName => `//div[contains(@id,'ContentTypeSelectedOptionsView') and descendant::h6[text()='${displayName}']]`,
 };
 
 class PageTemplateForm extends Page {
@@ -34,9 +34,9 @@ class PageTemplateForm extends Page {
         return this.pause(500);
     }
 
-    async clickOnRemoveSupportIcon() {
+    async clickOnRemoveSupportIcon(displayName) {
         try {
-            let selector = XPATH.contentTypeSelectedOptionsView + lib.REMOVE_ICON;
+            let selector = XPATH.contentTypeSelectedOptionsView(displayName) + lib.REMOVE_ICON;
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
             return await this.pause(500);

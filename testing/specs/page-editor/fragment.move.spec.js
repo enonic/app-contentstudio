@@ -1,6 +1,5 @@
 /**
  * Created on 06.04.2018.
- * Verifies: xp-apps#747 Issues with the moving of fragments(Confirmation dialog does not appear, when a fragment is filtered)
  */
 const chai = require('chai');
 const assert = chai.assert;

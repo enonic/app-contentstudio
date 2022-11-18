@@ -66,6 +66,7 @@ const XPATH = {
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
     goToGridButton: "//div[contains(@class,'font-icon-default icon-tree-2')]",
     helpTextsButton: "//div[contains(@class,'help-text-button')]",
+    pagePlaceholderInfoBlock1: "//div[contains(@id,'PagePlaceholderInfoBlock')]//div[contains(@class,'page-placeholder-info-line1')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -713,7 +714,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
-// wait for 'Customize Page' context menu item
+    // wait for 'Customize Page' context menu item
     async clickOnCustomizeMenuItem() {
         let locator = XPATH.itemViewContextMenu + "//dl//dt[text()='Customize Page']";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -730,8 +731,9 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(optionSelector);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_select_controller_in_wizard');
-            throw new Error('Controller selector - Error when selecting the option ' + pageControllerDisplayName + ' ' + err);
+            let screenshot = appConst.generateRandomName('err_select_controller');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Controller selector - Error when selecting the option, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -739,12 +741,13 @@ class ContentWizardPanel extends Page {
         return this.isClickable(this.controllerOptionFilterInput);
     }
 
-//Select a page descriptor and wait for Context Window is loaded
-    async selectPageDescriptor(pageControllerDisplayName) {
-        await this.switchToLiveEditFrame();
+    //Select a page descriptor and wait for Context Window is loaded
+    async selectPageDescriptor(pageControllerDisplayName, checkContextPanel) {
         await this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
-        await this.switchToParentFrame();
-        return await this.waitForContextWindowVisible();
+        if (typeof checkContextPanel === "undefined" || checkContextPanel) {
+            await this.waitForContextWindowVisible();
+        }
+        await this.pause(500);
     }
 
     switchToMainFrame() {
@@ -753,26 +756,22 @@ class ContentWizardPanel extends Page {
 
     async waitForControllerOptionFilterInputVisible() {
         try {
-            await this.switchToLiveEditFrame();
-            let result = await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
-            await this.switchToParentFrame();
-            return result;
+            await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
         } catch (err) {
-            await this.switchToMainFrame();
-            await this.saveScreenshot("err_controller_filter_input");
-            throw new Error(err);
+            let screenshot = appConst.generateRandomName("err_controller_filter_input");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Controller selector should be displayed, screenshot:" + screenshot + " " + err);
         }
     }
 
-    waitForControllerOptionFilterInputNotVisible() {
-        return this.switchToLiveEditFrame().then(() => {
-            return this.waitForElementNotDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
-        }).catch(err => {
-            console.log(err);
-            return this.getBrowser().switchToParentFrame().then(() => {
-                return false;
-            });
-        })
+    async waitForControllerOptionFilterInputNotVisible() {
+        try {
+            await this.waitForElementNotDisplayed(this.controllerOptionFilterInput, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_controller_selector");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Controller selector should not be visible, screenshot: " + screenshot + " " + err);
+        }
     }
 
     async typeData(content) {
@@ -1169,6 +1168,11 @@ class ContentWizardPanel extends Page {
             await this.saveScreenshot(appConst.generateRandomName("err_collaboration_icon"));
             throw new Error("Collaboration element should be displayed in the wizard toolbar: " + err);
         }
+    }
+
+    getMessageInPagePlaceholderInfoBlock() {
+        let locator = XPATH.pagePlaceholderInfoBlock1;
+        return this.getText(locator);
     }
 }
 

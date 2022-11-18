@@ -32,8 +32,7 @@ describe('site.wizard.add.application.spec: Select an application in the wizard 
             //3. Add the application:
             await siteForm.addApplications([appConst.SIMPLE_SITE_APP]);
             //4. Controller-selector should appear in the Page Editor:
-            let result = await contentWizard.waitForControllerOptionFilterInputVisible();
-            assert.isTrue(result, "Controller Selector dropdown should appear in the page");
+            await contentWizard.waitForControllerOptionFilterInputVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -1,7 +1,5 @@
 /**
  * Created on 01.02.2018.
- *
- * Verifies xp-apps#359 "Page Inspection panel - Template name is missing for the Automatic template option"
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -62,7 +60,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             //1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             //await contentBrowsePanel.waitForPreviewButtonDisabled();
-            //2. Select the controller:
+            //2. Select a controller:
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
             await contentWizard.pause(700);
             //3. Verify that Preview button gets visible in the wizard-toolbar
