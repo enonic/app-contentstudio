@@ -215,7 +215,7 @@ export class PageModel {
         this.notifyReset();
     }
 
-    private setMode(value: PageMode) {
+    setMode(value: PageMode) {
         let oldValue = this.mode;
 
         this.mode = value;

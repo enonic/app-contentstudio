@@ -277,6 +277,10 @@ export class ContentSelector
         this.contentComboBox.resetBaseValues();
     }
 
+    clear() {
+        this.contentComboBox.clearCombobox();
+    }
+
     setEnabled(enable: boolean): void {
         super.setEnabled(enable);
         this.contentComboBox.setEnabled(enable);

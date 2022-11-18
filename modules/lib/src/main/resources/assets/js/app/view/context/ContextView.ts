@@ -18,7 +18,6 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
 import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
 import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
-import {PageEditorData} from '../../wizard/page/LiveFormPanel';
 import {ContentWidgetItemView} from './widget/details/ContentWidgetItemView';
 import {InspectEvent} from '../../event/InspectEvent';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
@@ -37,6 +36,7 @@ import {ContentId} from '../../content/ContentId';
 import {WidgetItemView} from './WidgetItemView';
 import {VersionContext} from './widget/version/VersionContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
 
 export class ContextView
     extends DivEl {
@@ -53,32 +53,24 @@ export class ContextView
     protected activeWidget: WidgetView;
     private defaultWidgetView: WidgetView;
 
-    protected pageEditorWidgetView: WidgetView;
+    protected pageEditorWidgetView?: WidgetView;
+    protected pageEditorWidgetItemView?: PageEditorWidgetItemView;
     protected propertiesWidgetView: WidgetView;
     protected versionsWidgetView: WidgetView;
     protected emulatorWidgetView?: WidgetView;
 
-    protected data: PageEditorData;
-
+    protected contextWindow?: ContextWindow;
     protected alreadyFetchedCustomWidgets: boolean;
 
-    protected contentRenderable: boolean;
-
-    protected pageEditorVisible: boolean;
-
+    protected isPageRenderable: boolean;
     private sizeChangedListeners: { (): void }[] = [];
 
     private widgetsUpdateList: { [key: string]: (key: string, type: ApplicationEventType) => void } = {};
 
     public static debug: boolean = false;
 
-    constructor(data?: PageEditorData) {
+    constructor() {
         super('context-panel-view');
-
-        this.data = data;
-
-        this.contentRenderable = false;
-        this.pageEditorVisible = false;
 
         this.contextContainer = new DivEl('context-container');
 
@@ -112,7 +104,6 @@ export class ContextView
         });
 
         const createPageEditorVisibilityChangedHandler = (visible: boolean) => () => {
-            this.pageEditorVisible = visible;
             this.updateWidgetsVisibility();
         };
 
@@ -227,6 +218,10 @@ export class ContextView
         }
 
         this.updateView();
+    }
+
+    private isActiveWidgetByType(view: WidgetView): boolean {
+        return view?.compareByType(this.activeWidget);
     }
 
     private isActiveWidget(key: string): boolean {
@@ -361,25 +356,6 @@ export class ContextView
     }
 
     private initCommonWidgetViews() {
-        if (this.isPageEditorPresent()) {
-            this.pageEditorWidgetView = WidgetView.create()
-                .setName(i18n('field.contextPanel.pageEditor'))
-                .setDescription(i18n('field.contextPanel.pageEditor.description'))
-                .setWidgetClass('page-editor-widget')
-                .setIconClass('icon-puzzle')
-                .addWidgetItemView(new PageEditorWidgetItemView(this.data))
-                .setContextView(this)
-                .setType(InternalWidgetType.COMPONENTS)
-                .build();
-
-            InspectEvent.on((event: InspectEvent) => {
-                if (event.isShowWidget() && this.activeWidget !== this.versionsWidgetView &&
-                    this.pageEditorWidgetView.compareByType(this.defaultWidgetView)) {
-                    this.activateDefaultWidget();
-                }
-            });
-        }
-
         this.propertiesWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.details'))
             .setDescription(i18n('field.contextPanel.details.description'))
@@ -407,22 +383,30 @@ export class ContextView
         this.setActiveWidget(this.defaultWidgetView);
     }
 
-    private isInsideWizard(): boolean {
-        return this.data != null;
-    }
+    private initPageEditorWidgetView(): void {
+        this.pageEditorWidgetItemView = new PageEditorWidgetItemView();
+        this.pageEditorWidgetItemView.appendContextWindow(this.contextWindow);
 
-    private isPageEditorPresent(): boolean {
-        return this.isInsideWizard() && this.data.liveFormPanel != null;
+        this.pageEditorWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.pageEditor'))
+            .setDescription(i18n('field.contextPanel.pageEditor.description'))
+            .setWidgetClass('page-editor-widget')
+            .setIconClass('icon-puzzle')
+            .addWidgetItemView(this.pageEditorWidgetItemView)
+            .setContextView(this)
+            .setType(InternalWidgetType.COMPONENTS)
+            .build();
+
+        InspectEvent.on((event: InspectEvent) => {
+            if (event.isShowWidget() && this.activeWidget !== this.versionsWidgetView &&
+                this.pageEditorWidgetView.compareByType(this.defaultWidgetView)) {
+                this.activateDefaultWidget();
+            }
+        });
     }
 
     protected getInitialWidgets(): WidgetView[] {
-        const widgets: WidgetView[] = [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
-
-        if (!this.isInsideWizard()) {
-            widgets.push(this.emulatorWidgetView);
-        }
-
-        return widgets;
+        return [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
     }
 
     protected createVersionsWidgetView(): WidgetView {
@@ -554,72 +538,96 @@ export class ContextView
         }
     }
 
-    updateRenderableStatus(renderable: boolean) {
-        this.contentRenderable = renderable;
-        this.updateWidgetsVisibility();
-    }
-
-    isPageEditable(): boolean {
-        const model = this.data.liveFormPanel.getPageModel();
-        const pageModelRenderable = model?.isRenderable();
-        return this.pageEditorVisible && pageModelRenderable;
+    setIsPageRenderable(value: boolean): void {
+        this.isPageRenderable = value;
     }
 
     updateWidgetsVisibility() {
-        const checkWidgetPresent = (widget: WidgetView) => this.widgetViews.some(w => widget.compareByType(w));
-        const checkWidgetActive = (widget: WidgetView) => widget.compareByType(this.activeWidget);
+        this.updatePageEditorWidgetView();
+        this.updateEmulatorWidgetView();
+    }
 
-        let widgetsUpdated = false;
+    private updatePageEditorWidgetView(): void {
+        if (this.isPageRenderable) {
+            this.activatePageEditorWidget();
+        } else if (this.isPageEditorWidgetPresent()) {
+            this.deactivatePageEditorWidget();
+        }
+    }
 
-        const canAddPageEditorWidget = this.isPageEditorPresent() && this.pageEditorWidgetView != null;
-        const canAddEmulatorWidget = this.isPageEditorPresent();
-        const versionsWidgetActive = checkWidgetActive(this.versionsWidgetView);
+    private activatePageEditorWidget(): void {
+        const isPageEditorWidgetPresent: boolean = this.isPageEditorWidgetPresent();
+        const isVersionsWidgetActive: boolean = this.isActiveWidgetByType(this.versionsWidgetView);
 
-        if (canAddPageEditorWidget) {
-            const pageEditorWidgetPresent = checkWidgetPresent(this.pageEditorWidgetView);
-            const pageEditorWidgetActive = checkWidgetActive(this.pageEditorWidgetView);
-            // editor open and there is a controller
-            const shouldPageEditorWidgetBePresent = this.isPageEditable();
-
-            if (shouldPageEditorWidgetBePresent && !pageEditorWidgetPresent) {
-                this.insertWidget(this.pageEditorWidgetView, 0);
-                this.defaultWidgetView = this.pageEditorWidgetView;
-                if (!pageEditorWidgetActive && !versionsWidgetActive) {
-                    this.activateDefaultWidget();
-                }
-                widgetsUpdated = true;
-            } else if (!shouldPageEditorWidgetBePresent && pageEditorWidgetPresent) {
-                this.defaultWidgetView = this.propertiesWidgetView;
-                if (pageEditorWidgetActive) {
-                    this.activateDefaultWidget();
-                }
-                this.removeWidget(this.pageEditorWidgetView);
-                widgetsUpdated = true;
+        if (!isPageEditorWidgetPresent) {
+            if (!this.pageEditorWidgetView) {
+                this.initPageEditorWidgetView();
             }
+
+            this.insertWidget(this.pageEditorWidgetView, 0);
         }
 
-        if (canAddEmulatorWidget) {
-            const emulatorWidgetPresent = checkWidgetPresent(this.emulatorWidgetView);
-            const emulatorWidgetActive = checkWidgetActive(this.emulatorWidgetView);
-            const shouldEmulatorWidgetBePresent = this.isPageEditable();
+        this.defaultWidgetView = this.pageEditorWidgetView;
 
-            if (shouldEmulatorWidgetBePresent && !emulatorWidgetPresent) {
-                const index = this.getIndexOfLastInternalWidget() + 1;
-                this.insertWidget(this.emulatorWidgetView, index);
-                widgetsUpdated = true;
-            } else if (!shouldEmulatorWidgetBePresent && emulatorWidgetPresent) {
-                if (emulatorWidgetActive) {
-                    this.activateDefaultWidget();
-                }
-                this.removeWidget(this.emulatorWidgetView);
-                new EmulatedEvent(EmulatorDevice.getFullscreen(), false).fire();
-                widgetsUpdated = true;
-            }
+        if (!isPageEditorWidgetPresent && !isVersionsWidgetActive) {
+            this.activateDefaultWidget();
         }
 
-        if (widgetsUpdated) {
-            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
+    }
+
+    private deactivatePageEditorWidget(): void {
+        const isPageEditorWidgetActive: boolean = this.isActiveWidgetByType(this.pageEditorWidgetView);
+        this.defaultWidgetView = this.propertiesWidgetView;
+
+        if (isPageEditorWidgetActive) {
+            this.activateDefaultWidget();
         }
+
+        this.removeWidget(this.pageEditorWidgetView);
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
+    }
+
+    private isPageEditorWidgetPresent(): boolean {
+        return this.isWidgetPresent(this.pageEditorWidgetView);
+    }
+
+    private updateEmulatorWidgetView(): void {
+        if (this.isPageRenderable) {
+            this.activateEmulatorWidgetView();
+        } else if (this.isEmulatorWidgetPresent()) {
+            this.deactivateEmulatorWidgetView();
+        }
+    }
+
+    private isEmulatorWidgetPresent(): boolean {
+        return this.isWidgetPresent(this.emulatorWidgetView);
+    }
+
+    private activateEmulatorWidgetView(): void {
+        if (this.isEmulatorWidgetPresent()) {
+            return;
+        }
+
+        const index: number = this.getIndexOfLastInternalWidget() + 1;
+        this.insertWidget(this.emulatorWidgetView, index);
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
+    }
+
+    private deactivateEmulatorWidgetView(): void {
+        const isEmulatorWidgetActive: boolean = this.isActiveWidgetByType(this.emulatorWidgetView);
+
+        if (isEmulatorWidgetActive) {
+            this.activateDefaultWidget();
+        }
+
+        this.removeWidget(this.emulatorWidgetView);
+        new EmulatedEvent(EmulatorDevice.getFullscreen(), false).fire();
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews, this.activeWidget);
+    }
+
+    private isWidgetPresent(widget: WidgetView): boolean {
+        return widget && this.widgetViews.some((w: WidgetView) => widget.compareByType(w));
     }
 
     private layout(empty: boolean = true) {
@@ -632,5 +640,10 @@ export class ContextView
 
     notifyPanelSizeChanged() {
         this.sizeChangedListeners.forEach((listener: () => void) => listener());
+    }
+
+    appendContextWindow(contextWindow: ContextWindow) {
+        this.contextWindow = contextWindow;
+        this.pageEditorWidgetItemView?.appendContextWindow(this.contextWindow);
     }
 }

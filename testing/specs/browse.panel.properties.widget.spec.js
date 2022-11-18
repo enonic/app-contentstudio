@@ -94,18 +94,17 @@ describe('Browse panel, properties widget, language spec`', function () {
             assert.isFalse(isVisible, "Details panel should be hidden");
         });
 
-    it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
+    it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 3 options should be displayed in the dropdown list`,
         async () => {
             let browseDetailsPanel = new BrowseDetailsPanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await browseDetailsPanel.clickOnWidgetSelectorDropdownHandle();
             let actualOptions = await browseDetailsPanel.getWidgetSelectorDropdownOptions();
             await studioUtils.saveScreenshot("details_panel_widget_options");
-            assert.isTrue(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.EMULATOR));
             assert.isTrue(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DEPENDENCIES));
             assert.isTrue(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY));
             assert.isTrue(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS));
-            assert.equal(actualOptions.length, 4, "Four options should be in the selector");
+            assert.equal(actualOptions.length, 3, "Three options should be in the selector");
         });
 
     it(`GIVEN existing folder with language is opened WHEN the language has been removed and 'Details Panel' opened THEN language should not be displayed in the widget`,

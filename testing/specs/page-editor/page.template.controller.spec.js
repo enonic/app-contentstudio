@@ -1,8 +1,5 @@
 /**
  * Created on 6.04.2018.
- *
- * Verifies:
- *  xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -57,7 +54,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await liveContextWindow.waitForOpened();
         });
 
-    //xp-apps#737 Page Editor panel for a site is not correctly refreshed when a page template was added or removed
+    //xp-apps#737: Page Editor panel for a site is not correctly refreshed when a page template was added or removed
     it(`GIVEN site is opened AND page-template is opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -71,14 +68,13 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await pageTemplateForm.filterOptionsAndSelectSupport(appConst.TEMPLATE_SUPPORT.SITE);
             await contentWizard.waitAndClickOnSave();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
-            //4. Template should be applied in the site-wizard:
-            let isNotVisible = await contentWizard.waitForControllerOptionFilterInputNotVisible();
-            studioUtils.saveScreenshot("template_applied");
-            assert.isTrue(isNotVisible, 'Options filter input must not be visible, because the template has been applied to site');
+            await studioUtils.saveScreenshot("support_site_applied");
+            //4. Template should be applied in the site-wizard so the controller selector should not be visible now:
+            await contentWizard.waitForControllerOptionFilterInputNotVisible();
         });
 
-    //xp-apps#737 Live Editor is not updated after a page template was added or removed
-    it(`GIVEN site is opened AND page-template is opened WHEN 'support' has been removed (in template) THEN controller-selector must appear on the site-wizard`,
+    //xp-apps#737: Live Editor is not updated after a page template was added or removed
+    it(`GIVEN site is opened AND its page-template is opened WHEN 'support' option has been removed (in template) THEN controller-selector must appear in the site-wizard`,
         async () => {
             let pageTemplateForm = new PageTemplateForm();
             let contentWizard = new ContentWizard();
@@ -87,15 +83,14 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.doSwitchToContentBrowsePanel();
             //2. Open the template:
             await studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
-            //3. Remove 'support' in the template
-            await pageTemplateForm.clickOnRemoveSupportIcon();
+            //3. Remove 'support site' in the template
+            await pageTemplateForm.clickOnRemoveSupportIcon("Site");
             //4. Save the template
             await contentWizard.waitAndClickOnSave();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
-            //Site wizard should be updated:
-            let isDisplayed = await contentWizard.waitForControllerOptionFilterInputVisible();
             await studioUtils.saveScreenshot("template_support_removed");
-            assert.isTrue(isDisplayed, 'Options filter input must be visible, because the `support` option has been removed');
+            //site wizard should be updated: Options filter input must be visible, because the `support` option has been removed in the page template
+            await contentWizard.waitForControllerOptionFilterInputVisible();
         });
 
     //xp-apps#737 Live Editor is not updated after a page template was added or removed
@@ -109,10 +104,9 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.doDeleteContent(TEMPLATE.displayName);
             //3. Switch to site wizard again:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
-            //4. Controller selector should appear in the wizard:
-            let isVisible = await contentWizard.waitForControllerOptionFilterInputVisible();
             await studioUtils.saveScreenshot(SITE.displayName + '_reset');
-            assert.isTrue(isVisible, 'Options filter input should appear in the site, because the template was deleted');
+            //4. Controller selector should appear in the wizard(Options filter input should appear):
+            await contentWizard.waitForControllerOptionFilterInputVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

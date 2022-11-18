@@ -6,8 +6,8 @@ import {DescriptorKey} from '../../../../page/DescriptorKey';
 export class DescriptorBasedDropdown
     extends RichDropdown<Descriptor> {
 
-    protected createOption(descriptor: Descriptor): Option<Descriptor> {
-        let indices: string[] = [];
+    createOption(descriptor: Descriptor): Option<Descriptor> {
+        const indices: string[] = [];
         indices.push(descriptor.getDisplayName());
         indices.push(descriptor.getName().toString());
 

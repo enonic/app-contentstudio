@@ -23,12 +23,6 @@ export class ContentWizardStepForm
 
     constructor() {
         super();
-
-        BeforeContentSavedEvent.on(() => {
-            if (this.formView) {
-                this.formView.clean();
-            }
-        });
     }
 
     update(data: PropertyTree, unchangedOnly: boolean = true): Q.Promise<void> {

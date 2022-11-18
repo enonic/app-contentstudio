@@ -55,10 +55,12 @@ class SiteForm extends Page {
     async filterOptionsAndSelectApplication(displayName) {
         try {
             let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(displayName, "//div[contains(@id,'SiteConfiguratorComboBox')]");
+            await loaderComboBox.typeTextAndSelectOption(displayName, "//div[contains(@id,'SiteConfiguratorComboBox')]");
+            await this.pause(700);
         } catch (err) {
-            this.saveScreenshot(appConst.generateRandomName('err_option'));
-            throw new Error('application selector :' + err);
+            let screenshot = appConst.generateRandomName('err_app_option')
+            await this.saveScreenshot(screenshot);
+            throw new Error('application selector, screenshot :' + screenshot + "  " + err);
         }
     }
 

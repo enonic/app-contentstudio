@@ -168,6 +168,16 @@ export class HtmlArea
         });
     }
 
+    clearInputOccurrenceElement(occurrence: Element): void {
+        super.clearInputOccurrenceElement(occurrence);
+
+        const editor: HtmlAreaOccurrenceInfo = this.editors.find((e: HtmlAreaOccurrenceInfo) => e.textAreaWrapper === occurrence);
+
+        if (editor) {
+            HtmlEditor.setData(editor.id, '');
+        }
+    }
+
     setEnabledInputOccurrenceElement(occurrence: Element, enable: boolean) {
         occurrence.getChildren().forEach((child) => {
             if (ObjectHelper.iFrameSafeInstanceOf(child, TextArea)) {

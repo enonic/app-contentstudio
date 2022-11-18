@@ -2,7 +2,7 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {ContextSplitPanel, ContextSplitPanelBuilder} from '../view/context/ContextSplitPanel';
-import {PageEditorData} from './page/LiveFormPanel';
+import {LiveFormPanel} from './page/LiveFormPanel';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
 import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
@@ -10,7 +10,7 @@ import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 export class ContentWizardContextSplitPanel
     extends ContextSplitPanel {
 
-    private readonly data: PageEditorData;
+    private readonly liveFormPanel: LiveFormPanel;
 
     private readonly wizardFormPanel: Panel;
 
@@ -19,12 +19,12 @@ export class ContentWizardContextSplitPanel
 
         this.addClass('content-wizard-context-split-panel');
 
-        this.data = splitPanelBuilder.data;
+        this.liveFormPanel = splitPanelBuilder.liveFormPanel;
         this.wizardFormPanel = splitPanelBuilder.wizardFormPanel;
     }
 
     protected getLeftPanelResponsiveRangeToSwitchToFloatingMode(): ResponsiveRange {
-        if (!this.data || !this.data.liveFormPanel || !this.isPageEditorShown()) {
+        if (!this.liveFormPanel || !this.isPageEditorShown()) {
             return ResponsiveRanges._720_960;
         }
 
@@ -36,7 +36,7 @@ export class ContentWizardContextSplitPanel
     }
 
     private isPageEditorShown(): boolean {
-        return this.data?.liveFormPanel && this.data.liveFormPanel.isShown();
+        return this.liveFormPanel?.isShown();
     }
 
     private isWizardPanelMaximized(): boolean {
@@ -59,7 +59,7 @@ export class ContentWizardContextSplitPanel
 export class ContentWizardContextSplitPanelBuilder
     extends ContextSplitPanelBuilder {
 
-    data: PageEditorData;
+    liveFormPanel: LiveFormPanel;
 
     wizardFormPanel: Panel;
 
@@ -72,8 +72,8 @@ export class ContentWizardContextSplitPanelBuilder
         return this;
     }
 
-    setData(value: PageEditorData): ContentWizardContextSplitPanelBuilder {
-        this.data = value;
+    setLiveFormPanel(value: LiveFormPanel): ContentWizardContextSplitPanelBuilder {
+        this.liveFormPanel = value;
         return this;
     }
 

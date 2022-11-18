@@ -51,6 +51,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
             await pageComponentView.selectMenuItem(["Insert", "Layout"]);
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_2_COL);
+            await pageComponentView.pause(500);
             //3. Verify that the site is automatically saved after selecting a layout in the dropdown:
             await pageComponentView.openMenu(LAYOUT_2_COL);
             //4. Click on 'Save as Fragment' menu item. (Save the layout as fragment)

@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {LiveEditPageProxy} from '../LiveEditPageProxy';
 import {LiveFormPanel} from '../LiveFormPanel';
 import {InspectionsPanel} from './inspect/InspectionsPanel';
 import {BaseInspectionPanel} from './inspect/BaseInspectionPanel';
@@ -17,8 +16,6 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
 
 export interface ContextWindowConfig {
-
-    liveEditPage: LiveEditPageProxy;
 
     liveFormPanel: LiveFormPanel;
 
@@ -60,11 +57,6 @@ export class ContextWindow
         this.liveFormPanel = config.liveFormPanel;
         this.inspectionsPanel = config.inspectionPanel;
         this.insertablesPanel = config.insertablesPanel;
-
-        this.onRemoved(() => {
-            ResponsiveManager.unAvailableSizeChanged(this);
-            ResponsiveManager.unAvailableSizeChanged(this.liveFormPanel);
-        });
     }
 
     doRender(): Q.Promise<boolean> {

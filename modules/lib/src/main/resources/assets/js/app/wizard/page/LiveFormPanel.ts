@@ -22,7 +22,7 @@ import {PageInspectionPanel} from './contextwindow/inspect/page/PageInspectionPa
 import {InspectionsPanel, InspectionsPanelConfig} from './contextwindow/inspect/InspectionsPanel';
 import {InsertablesPanel} from './contextwindow/insert/InsertablesPanel';
 import {ContextWindowController} from './contextwindow/ContextWindowController';
-import {ContextWindow, ContextWindowConfig, getInspectParameters, InspectParameters} from './contextwindow/ContextWindow';
+import {ContextWindow, ContextWindowConfig, getInspectParameters} from './contextwindow/ContextWindow';
 import {ShowContentFormEvent} from '../ShowContentFormEvent';
 import {SaveAsTemplateAction} from '../action/SaveAsTemplateAction';
 import {ShowLiveEditEvent} from '../ShowLiveEditEvent';
@@ -49,7 +49,6 @@ import {ComponentFragmentCreatedEvent} from '../../../page-editor/ComponentFragm
 import {FragmentComponentView} from '../../../page-editor/fragment/FragmentComponentView';
 import {FragmentComponentReloadRequiredEvent} from '../../../page-editor/FragmentComponentReloadRequiredEvent';
 import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEditEvent';
-import {PageUnloadedEvent} from '../../../page-editor/PageUnloadedEvent';
 import {ImageComponentView} from '../../../page-editor/image/ImageComponentView';
 import {PageModel} from '../../../page-editor/PageModel';
 import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/ComponentDetachedFromFragmentEvent';
@@ -66,7 +65,7 @@ import {Content, ContentBuilder} from '../../content/Content';
 import {Site} from '../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Component} from '../../page/region/Component';
-import {Page} from '../../page/Page';
+import {Page, PageBuilder} from '../../page/Page';
 import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
 import {ComponentPropertyChangedEvent} from '../../page/region/ComponentPropertyChangedEvent';
 import {PartComponent} from '../../page/region/PartComponent';
@@ -79,7 +78,6 @@ import {RegionPath} from '../../page/region/RegionPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentIds} from '../../content/ContentIds';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
@@ -94,19 +92,23 @@ import * as $ from 'jquery';
 import {InspectEvent} from '../../event/InspectEvent';
 import {ContextSplitPanel} from '../../view/context/ContextSplitPanel';
 import {ContextPanelStateEvent} from '../../view/context/ContextPanelStateEvent';
+import {LiveEditPagePlaceholder} from './LiveEditPagePlaceholder';
+import {Descriptor} from '../../page/Descriptor';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {ContentType} from '../../inputtype/schema/ContentType';
+import {ApplicationRemovedEvent} from '../../site/ApplicationRemovedEvent';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {DescriptorKey} from '../../page/DescriptorKey';
 
 export interface LiveFormPanelConfig {
 
-    contentType: ContentTypeName;
+    contentType: ContentType;
 
     contentWizardPanel: ContentWizardPanel;
 
     defaultModels: DefaultModels;
-}
 
-export interface PageEditorData {
-    contextWindow?: ContextWindow;
-    liveFormPanel?: LiveFormPanel;
+    content: Content;
 }
 
 enum ErrorType {
@@ -123,22 +125,28 @@ export class LiveFormPanel
 
     private content: Content;
 
-    private liveEditModel: LiveEditModel;
+    private contentType: ContentType;
+
+    private liveEditModel?: LiveEditModel;
 
     private pageView: PageView;
 
     private pageModel: PageModel;
 
-    private pageLoading: boolean;
+    private pageLoading: boolean = false;
 
-    private pageSkipReload: boolean;
-    private frameContainer: Panel;
+    private pageSkipReload: boolean = false;
 
-    private lockPageAfterProxyLoad: boolean;
+    private frameContainer?: Panel;
+
+    private lockPageAfterProxyLoad: boolean = false;
+
+    private modifyPermissions: boolean = false;
 
     private contextWindow: ContextWindow;
     private contextWindowController: ContextWindowController;
 
+    private placeholderEl?: LiveEditPagePlaceholder;
     private insertablesPanel: InsertablesPanel;
     private inspectionsPanel: InspectionsPanel;
     private contentInspectionPanel: ContentInspectionPanel;
@@ -152,7 +160,7 @@ export class LiveFormPanel
 
     private contentWizardPanel: ContentWizardPanel;
 
-    private liveEditPageProxy: LiveEditPageProxy;
+    private liveEditPageProxy?: LiveEditPageProxy;
 
     private previewMessageEl: PEl;
 
@@ -168,23 +176,34 @@ export class LiveFormPanel
     private propertyChangedHandler: (event: PropertyChangedEvent) => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
     private contentPermissionsUpdatedHandler: (contentIds: ContentIds) => void;
+    private applicationRemovedHandler: (event: ApplicationRemovedEvent) => void;
 
-    private pageViewReadyListeners: { (pageView: PageView): void }[];
+    private pageViewReadyListeners: { (pageView: PageView): void }[] = [];
 
     constructor(config: LiveFormPanelConfig) {
         super('live-form-panel');
+
         this.contentWizardPanel = config.contentWizardPanel;
         this.defaultModels = config.defaultModels;
+        this.content = config.content;
+        this.contentType = config.contentType;
 
-        this.pageLoading = false;
-        this.pageSkipReload = false;
-        this.lockPageAfterProxyLoad = false;
+        this.initElements();
+        this.initEventHandlers();
+    }
 
+    protected initElements(): void {
+        if (!this.content.getPage()) {
+            this.createLiveEditPagePlaceholder();
+            this.placeholderEl.loadControllers();
+        }
+    }
+
+    protected initPageRequiredElements(): void {
         this.saveAsTemplateAction = new SaveAsTemplateAction();
-
-        this.liveEditPageProxy = this.createLiveEditPageProxy();
-
-        this.contextWindow = this.createContextWindow(this.liveEditPageProxy, this.liveEditModel);
+        this.liveEditPageProxy = new LiveEditPageProxy(this.content.getContentId());
+        this.liveEditPageProxy.setModifyPermissions(this.modifyPermissions);
+        this.contextWindow = this.createContextWindow();
 
         // constructor to listen to live edit events during wizard rendering
         this.contextWindowController = new ContextWindowController(
@@ -192,27 +211,42 @@ export class LiveFormPanel
             this.contentWizardPanel
         );
 
-        this.pageViewReadyListeners = [];
+        this.addPageProxyLoadEventListeners();
+        this.addPageProxyEventListeners();
+    }
 
-        this.initEventHandlers();
+    private createLiveEditPagePlaceholder(): void {
+        this.placeholderEl = new LiveEditPagePlaceholder(this.content.getContentId(), this.contentType);
+        this.placeholderEl.setEnabled(this.modifyPermissions);
+        this.whenRendered(() => this.appendChild(this.placeholderEl));
+        this.listenControllerSelected();
+    }
+
+    protected initEventHandlers() {
+        this.initMaskHandlers();
+        this.initPropertyChangedHandlers();
+        this.initContentUpdatedHandler();
 
         ShowLiveEditEvent.on(this.showLoadMaskHandler);
         ShowSplitEditEvent.on(this.showLoadMaskHandler);
         ShowContentFormEvent.on(this.hideLoadMaskHandler);
         ContentServerEventsHandler.getInstance().onContentUpdated(this.contentUpdatedHandler);
         ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentPermissionsUpdatedHandler);
-    }
 
-    private initEventHandlers() {
-        this.initMaskHandlers();
-        this.initPropertyChangedHandlers();
-        this.initContentUpdatedHandler();
+        this.applicationRemovedHandler = (event: ApplicationRemovedEvent) => {
+            const currentController: Descriptor = this.pageModel.getController();
+            const removedApp: ApplicationKey = event.getApplicationKey();
+
+            if (currentController && removedApp.equals(currentController.getKey().getApplicationKey())) {
+                this.pageModel.setMode(PageMode.NO_CONTROLLER);
+            }
+        };
     }
 
     private initMaskHandlers() {
         this.showLoadMaskHandler = () => {
             // in case someone tries to open live edit while it's still not loaded
-            if (this.pageLoading && !this.liveEditPageProxy.isPlaceholderVisible()) {
+            if (this.pageLoading) {
                 this.contentWizardPanel.getLiveMask().show();
             }
         };
@@ -310,16 +344,25 @@ export class LiveFormPanel
     }
 
     private handleContentUpdate(summaryAndStatuses: ContentSummaryAndCompareStatus[]) {
+        if (!this.content) {
+            return;
+        }
+
         // Update action with new content on save if it gets updated
         summaryAndStatuses.some((summaryAndStatus: ContentSummaryAndCompareStatus) => {
             if (this.content.getContentId().equals(summaryAndStatus.getContentId())) {
-                this.saveAsTemplateAction.setContentSummary(summaryAndStatuses[0].getContentSummary());
+                this.saveAsTemplateAction?.setContentSummary(summaryAndStatuses[0].getContentSummary());
+                this.placeholderEl?.loadControllers();
                 return true;
             }
         });
     }
 
     private handleContentPermissionsUpdate(contentIds: ContentIds) {
+        if (!this.content) {
+            return;
+        }
+
         const thisContentId: ContentId = this.content.getContentId();
         const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
 
@@ -334,9 +377,8 @@ export class LiveFormPanel
     }
 
 
-    private createLiveEditPageProxy(): LiveEditPageProxy {
-        let liveEditPageProxy = new LiveEditPageProxy();
-        liveEditPageProxy.onLoaded(() => {
+    private addPageProxyLoadEventListeners(): void {
+        this.liveEditPageProxy.onLoaded(() => {
             this.hideLoadMaskHandler();
             this.pageLoading = false;
 
@@ -349,18 +391,24 @@ export class LiveFormPanel
         });
 
         if (BrowserHelper.isIE()) { // have to cleanup objects loaded by current live edit frame so IE won't fail after frame reload
-            liveEditPageProxy.onBeforeLoad(() => {
+            this.liveEditPageProxy.onBeforeLoad(() => {
                 this.fragmentInspectionPanel.cleanUp();
                 this.imageInspectionPanel.cleanUp();
                 this.partInspectionPanel.cleanUp();
                 this.layoutInspectionPanel.cleanUp();
             });
         }
-
-        return liveEditPageProxy;
     }
 
-    private createContextWindow(proxy: LiveEditPageProxy, model: LiveEditModel): ContextWindow { //
+    private listenControllerSelected(): void {
+        this.placeholderEl.onControllerSelected(() => {
+            this.contentWizardPanel.saveChanges().catch((error: any) => {
+                DefaultErrorHandler.handle(error);
+            });
+        });
+    }
+
+    private createContextWindow(): ContextWindow { //
         this.inspectionsPanel = this.createInspectionsPanel();
 
         this.pageView?.getPageViewController().onTextEditModeChanged((value: boolean) => {
@@ -370,13 +418,14 @@ export class LiveFormPanel
         });
 
         this.insertablesPanel = new InsertablesPanel({
-            liveEditPage: proxy,
+            liveEditPage: this.liveEditPageProxy,
             contentWizardPanel: this.contentWizardPanel,
             saveAsTemplateAction: this.saveAsTemplateAction
         });
 
+        this.insertablesPanel.setModifyPermissions(this.modifyPermissions);
+
         return new ContextWindow(<ContextWindowConfig>{
-            liveEditPage: proxy,
             liveFormPanel: this,
             inspectionPanel: this.inspectionsPanel,
             insertablesPanel: this.insertablesPanel
@@ -432,56 +481,21 @@ export class LiveFormPanel
         });
     }
 
-    getPageEditorData(): PageEditorData {
-        return {
-            contextWindow: this.contextWindow,
-            liveFormPanel: this
-        };
-    }
-
-    static createEmptyPageEditorData(): PageEditorData {
-        return {};
-    }
-
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-
             WindowDOM.get().onBeforeUnload((event) => {
-                console.log('onbeforeunload ' + this.liveEditModel.getContent().getDisplayName());
+                console.log('onbeforeunload ' + this.liveEditModel?.getContent().getDisplayName());
                 // the reload is triggered by the main frame,
                 // so let the live edit know it to skip the popup
-                this.liveEditPageProxy.skipNextReloadConfirmation(true);
+                this.liveEditPageProxy?.skipNextReloadConfirmation(true);
             });
-
-            if (!this.liveEditModel.isRenderableContent()) {
-                // If we are about to show blank placeholder in the editor then remove
-                // 'rendering' class from the panel so that it's instantly visible
-                this.removeClass('rendering');
-            }
-
-            this.frameContainer = new Panel('frame-container');
-            this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(),
-                this.liveEditPageProxy.getPlaceholderEl(), this.liveEditPageProxy.getDragMask());
 
             this.previewMessageEl = new PEl('no-preview-message');
 
             // append mask here in order for the context window to be above
-            this.appendChildren<Element>(this.frameContainer, this.previewMessageEl);
+            this.appendChild(this.previewMessageEl);
 
-            this.liveEditListen();
-
-            // delay rendered event until live edit page is fully loaded
-            let liveEditDeferred = Q.defer<boolean>();
-
-            this.liveEditPageProxy.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
-                liveEditDeferred.resolve(rendered);
-            });
-
-            this.liveEditPageProxy.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {
-                liveEditDeferred.reject(event.getMessage());
-            });
-
-            return liveEditDeferred.promise;
+            return rendered;
         });
     }
 
@@ -555,7 +569,20 @@ export class LiveFormPanel
     }
 
     public getPage(): Page {
-        return this.pageModel ? this.pageModel.getPage() : null;
+        return this.pageModel?.getPage() || this.assemblePageFromSelectedController();
+    }
+
+    private assemblePageFromSelectedController(): Page {
+        if (this.placeholderEl?.hasSelectedController()) {
+            const descriptor: Descriptor = this.placeholderEl.getSelectedController();
+            return new PageBuilder()
+                .setController(descriptor.getKey())
+                .setConfig(new PropertyTree())
+                .setCustomized(true)
+                .build();
+        }
+
+        return null;
     }
 
     public getPageMode(): PageMode {
@@ -567,12 +594,17 @@ export class LiveFormPanel
     }
 
     setModel(liveEditModel: LiveEditModel) {
+        if (!this.liveEditPageProxy) {
+            this.initPageRequiredElements();
+        }
+
+        this.pageModel?.unPropertyChanged(this.propertyChangedHandler);
+        this.pageModel?.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
+        this.liveEditModel?.getSiteModel()?.unApplicationRemoved(this.applicationRemovedHandler);
 
         this.liveEditModel = liveEditModel;
-
         this.content = liveEditModel.getContent();
         this.insertablesPanel.setContent(this.content);
-
         this.pageModel = liveEditModel.getPageModel();
         this.pageModel.setIgnorePropertyChanges(true);
 
@@ -595,11 +627,9 @@ export class LiveFormPanel
         this.fragmentInspectionPanel.setModel(liveEditModel);
 
         this.pageModel.setIgnorePropertyChanges(false);
-
-        this.pageModel.unPropertyChanged(this.propertyChangedHandler);
         this.pageModel.onPropertyChanged(this.propertyChangedHandler);
-        this.pageModel.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
         this.pageModel.onComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
+        this.liveEditModel.getSiteModel().onApplicationRemoved(this.applicationRemovedHandler);
 
         this.handleContentUpdatedEvent();
     }
@@ -621,40 +651,58 @@ export class LiveFormPanel
     }
 
     skipNextReloadConfirmation(skip: boolean) {
-        this.liveEditPageProxy.skipNextReloadConfirmation(skip);
+        this.liveEditPageProxy?.skipNextReloadConfirmation(skip);
     }
 
     propagateEvent(event: Event) {
         this.liveEditPageProxy.propagateEvent(event);
     }
 
-    loadPage(clearInspection: boolean = true) {
+    loadPage(clearInspection: boolean = true): void {
         if (LiveFormPanel.debug) {
             console.debug('LiveFormPanel.loadPage at ' + new Date().toISOString());
         }
-        if (this.pageSkipReload === false && !this.pageLoading) {
 
-            if (clearInspection) {
-                this.clearSelectionAndInspect(false, true);
+        if (this.pageSkipReload || this.pageLoading) {
+            return;
+        }
+
+        if (clearInspection) {
+            this.clearSelectionAndInspect(false, true);
+        }
+
+        this.pageLoading = true;
+
+        this.insertablesPanel.getComponentsView().addClass('loading');
+        this.liveEditPageProxy.onLoaded(() => {
+            this.insertablesPanel.getComponentsView().removeClass('loading');
+        });
+
+        this.clearPreviewErrors();
+
+        this.liveEditPageProxy.load();
+        this.placeholderEl?.hide();
+        this.placeholderEl?.deselectOptions();
+
+        if (!this.frameContainer) {
+            this.frameContainer = new Panel('frame-container');
+            this.frameContainer.setDoOffset(false);
+            this.appendChild(this.frameContainer);
+            this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(), this.liveEditPageProxy.getDragMask());
+        } else {
+            this.frameContainer.show();
+
+            if (!this.frameContainer.hasChild(this.liveEditPageProxy.getIFrame())) {
+                this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(), this.liveEditPageProxy.getDragMask());
             }
+        }
 
-            this.pageLoading = true;
-
-            this.insertablesPanel.getComponentsView().addClass('loading');
-            this.liveEditPageProxy.onLoaded(() => {
-                this.insertablesPanel.getComponentsView().removeClass('loading');
-            });
-
-            this.clearPreviewErrors();
-            this.liveEditPageProxy.load();
-
-            if (clearInspection) {
-                let clearInspectionFn = () => {
-                    this.contextWindow.clearSelection();
-                    this.liveEditPageProxy.unLoaded(clearInspectionFn);
-                };
-                this.liveEditPageProxy.onLoaded(clearInspectionFn);
-            }
+        if (clearInspection) {
+            let clearInspectionFn = () => {
+                this.contextWindow.clearSelection();
+                this.liveEditPageProxy.unLoaded(clearInspectionFn);
+            };
+            this.liveEditPageProxy.onLoaded(clearInspectionFn);
         }
     }
 
@@ -678,7 +726,7 @@ export class LiveFormPanel
         }).done();
     }
 
-    private liveEditListen() {
+    private addPageProxyEventListeners() {
         this.liveEditPageProxy.onPageLocked(() => {
             this.inspectPage(false);
         });
@@ -865,10 +913,6 @@ export class LiveFormPanel
             this.contentWizardPanel.showForm();
         });
 
-        this.liveEditPageProxy.onPageUnloaded((event: PageUnloadedEvent) => {
-            this.contentWizardPanel.close();
-        });
-
         this.liveEditPageProxy.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {
             let modalDialog = HTMLAreaDialogHandler.createAndOpenDialog(event);
             this.liveEditPageProxy.notifyLiveEditPageDialogCreated(modalDialog, event.getConfig());
@@ -934,7 +978,7 @@ export class LiveFormPanel
         const unlocked = this.pageView ? !this.pageView.isLocked() : true;
         const canShowWidget = unlocked && showWidget;
         const canShowPanel = unlocked && showPanel;
-        this.contextWindow.showInspectionPanel(
+        this.contextWindow?.showInspectionPanel(
             getInspectParameters({
                 panel: this.pageInspectionPanel,
                 showWidget: canShowWidget,
@@ -1073,16 +1117,65 @@ export class LiveFormPanel
         });
     }
 
-    setModifyPermissions(modifyPermissions: boolean): boolean {
-        let result = null;
-        if (this.insertablesPanel) {
-            const insertablesResult = this.insertablesPanel.setModifyPermissions(modifyPermissions);
-            result = result && insertablesResult;
+    setModifyPermissions(modifyPermissions: boolean): void {
+        this.modifyPermissions = modifyPermissions;
+        this.insertablesPanel?.setModifyPermissions(modifyPermissions);
+        this.liveEditPageProxy?.setModifyPermissions(modifyPermissions);
+        this.placeholderEl?.setEnabled(modifyPermissions);
+    }
+
+    unloadPage(): void {
+        this.liveEditPageProxy?.unload();
+        this.frameContainer?.hide();
+        this.partInspectionPanel?.unbindSiteModelListeners();
+        this.layoutInspectionPanel?.unbindSiteModelListeners();
+        this.liveEditModel = null;
+        this.pageModel = null;
+
+        if (this.placeholderEl) {
+            this.placeholderEl.deselectOptions();
+            this.placeholderEl.show();
+            this.placeholderEl.loadControllers();
+        } else {
+            this.createLiveEditPagePlaceholder();
+            this.placeholderEl.loadControllers();
         }
-        if (this.liveEditPageProxy) {
-            const liveEditResult = this.liveEditPageProxy.setModifyPermissions(modifyPermissions);
-            result = result && liveEditResult;
+
+        ContentDeletedEvent.un(this.contentEventListener);
+        ContentUpdatedEvent.un(this.contentEventListener);
+    }
+
+    setPageIsNotRenderable(): void {
+        if (!this.placeholderEl) {
+            this.createLiveEditPagePlaceholder();
         }
-        return result;
+
+        this.placeholderEl.loadControllers().then((descriptors: Descriptor[]) => {
+            this.placeholderEl.setErrorTexts(i18n('field.preview.failed'), i18n('field.preview.failed.description'));
+
+            const controllerToSelect: Descriptor = this.getCurrentController(descriptors);
+
+            if (controllerToSelect) {
+                this.placeholderEl.selectController(controllerToSelect);
+            }
+        });
+    }
+
+    private getCurrentController(descriptors: Descriptor[]): Descriptor {
+        const currentControllerKey: DescriptorKey = this.contentWizardPanel.getPersistedItem().getPage().getController();
+
+        if (!currentControllerKey) {
+            return null;
+        }
+
+        return descriptors?.find((d: Descriptor) => d.getKey().equals(currentControllerKey));
+    }
+
+    isRenderable(): boolean {
+        return this.contentWizardPanel.isRenderable();
+    }
+
+    getContextWindow(): ContextWindow {
+        return this.contextWindow;
     }
 }

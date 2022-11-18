@@ -79,6 +79,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await textComponent.clickOnInsertImageButton();
             //4. Verify that 'Upload' button is present in the dialog:
             await insertImageDialog.waitForUploadButtonDisplayed();
+            await insertImageDialog.clickOnCancelButton();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

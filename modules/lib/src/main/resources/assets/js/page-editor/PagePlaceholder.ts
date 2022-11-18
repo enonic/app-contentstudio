@@ -9,6 +9,8 @@ import {GetContentTypeByNameRequest} from '../app/resource/GetContentTypeByNameR
 import {ContentType} from '../app/inputtype/schema/ContentType';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {Descriptor} from '../app/page/Descriptor';
+import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {SetController} from './PageModel';
 
 export class PagePlaceholder
     extends ItemViewPlaceholder {
@@ -40,11 +42,17 @@ export class PagePlaceholder
             this.controllerDropdown.giveFocus();
             event.stopPropagation();
         });
+
+        this.controllerDropdown.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
+            const pageDescriptor: Descriptor = event.getOption().getDisplayValue();
+            const setController: SetController = new SetController(this).setDescriptor(pageDescriptor);
+            this.pageView.getLiveEditModel().getPageModel().setController(setController);
+        });
     }
 
     private initElements() {
         this.infoBlock = new PagePlaceholderInfoBlock();
-        this.controllerDropdown = new PageDescriptorDropdown(this.pageView.getLiveEditModel());
+        this.controllerDropdown = new PageDescriptorDropdown(this.pageView.getLiveEditModel().getContent().getContentId());
         this.pageDescriptorPlaceholder = new DivEl('page-descriptor-placeholder', StyleHelper.getCurrentPrefix());
     }
 

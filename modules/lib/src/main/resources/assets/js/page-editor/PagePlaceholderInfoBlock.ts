@@ -4,9 +4,9 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 export class PagePlaceholderInfoBlock
     extends DivEl {
 
-    private line1: DivEl;
+    private readonly line1: DivEl;
 
-    private line2: DivEl;
+    private readonly line2: DivEl;
 
     constructor() {
         super('page-placeholder-info');
@@ -17,19 +17,31 @@ export class PagePlaceholderInfoBlock
         this.appendChildren(this.line1, this.line2);
     }
 
-    setTextForContent(contentTypeDisplayName: string) {
+    setTextForContent(contentTypeDisplayName: string): PagePlaceholderInfoBlock {
         this.toggleHeader(true);
-        this.line2.setHtml(i18n('live.view.page.notemplates', contentTypeDisplayName));
+        this.line2.setHtml(i18n('text.notemplates', contentTypeDisplayName));
+
+        return this;
     }
 
-    toggleHeader(hasControllers: boolean) {
-        this.line1.setHtml(hasControllers ? i18n('live.view.page.selectcontroller')
+    toggleHeader(hasControllers: boolean): PagePlaceholderInfoBlock {
+        this.line1.setHtml(hasControllers ? i18n('text.selectcontroller')
             : i18n('text.nocontrollers'));
+
+        return this;
     }
 
-    setEmptyText() {
+    setEmptyText(): PagePlaceholderInfoBlock {
         this.toggleHeader(false);
         this.line2.setHtml(i18n('text.addapplications'));
+        return this;
+    }
+
+    setErrorTexts(message: string, description: string): PagePlaceholderInfoBlock {
+        this.line1.setHtml(message);
+        this.line2.setHtml(description);
+
+        return this;
     }
 
 }

@@ -69,6 +69,7 @@ class PageComponentView extends Page {
         try {
             let menuButton = xpath.componentByName(componentName) + "/../..//div[contains(@class,'menu-icon')]";
             await this.waitForElementDisplayed(menuButton, appConst.shortTimeout);
+            await this.pause(300);
             await this.clickOnElement(menuButton);
             return await this.pause(500);
         } catch (err) {
