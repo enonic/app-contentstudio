@@ -10,6 +10,7 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentAlreadyMovedException;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
+import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.DuplicateContentParams;
 import com.enonic.xp.content.DuplicateContentsResult;
@@ -66,11 +67,16 @@ public class DuplicateRunnableTask
 
             final ContentId contentId = ContentId.from( content.getContentId() );
 
+            final ContentPath parent = content.getParent() != null ? ContentPath.from( content.getParent() ) : null;
+
             final DuplicateContentParams duplicateContentParams = DuplicateContentParams.create().
                 contentId( contentId ).
                 creator( authInfo.getUser().getKey() ).
                 duplicateContentListener( listener ).
                 includeChildren( content.getIncludeChildren() ).
+                variant( content.getVariant() ).
+                name( content.getName() ).
+                parent( parent ).
                 build();
             try
             {

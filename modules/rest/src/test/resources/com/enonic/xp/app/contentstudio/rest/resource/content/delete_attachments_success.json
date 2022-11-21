@@ -35,6 +35,7 @@
     "thumbnail": null,
     "type": "base:folder",
     "validationErrors": [],
+    "variantOf" : null,
     "workflow": {
         "checks": {},
         "state": "READY"

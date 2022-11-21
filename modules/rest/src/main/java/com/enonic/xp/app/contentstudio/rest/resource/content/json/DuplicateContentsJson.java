@@ -8,10 +8,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DuplicateContentsJson
 {
-    private List<DuplicateContentJson> contents;
+    private final List<DuplicateContentJson> contents;
 
     @JsonCreator
-    public DuplicateContentsJson( @JsonProperty("aggregationQueries") final List<DuplicateContentJson> contents )
+    public DuplicateContentsJson( @JsonProperty("contents") final List<DuplicateContentJson> contents )
     {
         this.contents = contents;
     }
@@ -19,10 +19,5 @@ public class DuplicateContentsJson
     public List<DuplicateContentJson> getContents()
     {
         return contents;
-    }
-
-    public void setContents( final List<DuplicateContentJson> contents )
-    {
-        this.contents = contents;
     }
 }

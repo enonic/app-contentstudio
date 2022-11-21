@@ -54,6 +54,7 @@
     "thumbnail": null,
     "type": "myapplication:content-type",
     "validationErrors": [],
+    "variantOf" : null,
     "workflow": {
         "checks": {},
         "state": "READY"

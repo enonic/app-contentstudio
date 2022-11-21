@@ -6,8 +6,8 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
 import {ContentDuplicatePromptEvent} from '../browse/ContentDuplicatePromptEvent';
-import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
-import {DuplicatableId, DuplicateContentRequest} from '../resource/DuplicateContentRequest';
+import {DialogTogglableItemList, TogglableStatusSelectionItem} from '../dialog/DialogTogglableItemList';
+import {DuplicateContentRequest} from '../resource/DuplicateContentRequest';
 import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
 import {ContentEventsProcessor} from '../ContentEventsProcessor';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
@@ -19,6 +19,7 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentDuplicateParams} from '../resource/ContentDuplicateParams';
 
 export class ContentDuplicateDialog
     extends DependantItemsWithProgressDialog
@@ -181,7 +182,7 @@ export class ContentDuplicateDialog
 
             Q.all([taskIsFinishedPromise, duplicatedPromise]).spread((isFinished: boolean, duplicatedContent: ContentSummary) => {
                 if (isFinished) {
-                    this.openTab(duplicatedContent);
+                    this.openTabOnDuplicate(duplicatedContent);
                 }
             });
         }
@@ -235,7 +236,7 @@ export class ContentDuplicateDialog
         return deferred.promise;
     }
 
-    private openTab(content: ContentSummary) {
+    protected openTabOnDuplicate(content: ContentSummary): void {
         const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(content.getContentId().toString());
 
         const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
@@ -254,10 +255,11 @@ export class ContentDuplicateDialog
     }
 
     private createDuplicateRequest(): DuplicateContentRequest {
-        const duplicatableIds: DuplicatableId[] = this.getItemList().getItemViews().map(
-            item => (<DuplicatableId>{contentId: item.getContentId(), includeChildren: item.includesChildren()}));
+        const contentDuplicateParams: ContentDuplicateParams[] =
+            this.getItemList().getItemViews().map((item: TogglableStatusSelectionItem) =>
+                new ContentDuplicateParams(item.getContentId()).setIncludeChildren(item.includesChildren()));
 
-        return new DuplicateContentRequest(duplicatableIds);
+        return new DuplicateContentRequest(contentDuplicateParams);
     }
 
     protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {

@@ -2,6 +2,7 @@ package com.enonic.xp.app.contentstudio.json.content;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.enonic.xp.app.contentstudio.json.ChangeTraceableJson;
@@ -12,7 +13,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.ContentListTitleRes
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentInheritType;
-import com.enonic.xp.security.PrincipalKey;
 
 @SuppressWarnings("UnusedDeclaration")
 public class ContentSummaryJson
@@ -47,6 +47,8 @@ public class ContentSummaryJson
 
     private final String originalName;
 
+    private final String variantOf;
+
     public ContentSummaryJson( final Content content, final ContentIconUrlResolver iconUrlResolver,
                                ContentListTitleResolver contentListTitleResolver )
     {
@@ -62,9 +64,10 @@ public class ContentSummaryJson
         this.contentState = content.getContentState().toString();
         this.publish = content.getPublishInfo() != null ? new ContentPublishInfoJson( content.getPublishInfo() ) : null;
         this.workflow = content.getWorkflowInfo() != null ? new ContentWorkflowInfoJson( content.getWorkflowInfo() ) : null;
-        this.originProject = content.getOriginProject() != null ? content.getOriginProject().toString() : null;
-        this.originalParentPath = content.getOriginalParentPath() != null ? content.getOriginalParentPath().toString() : null;
-        this.originalName = content.getOriginalName() != null ? content.getOriginalName().toString() : null;
+        this.originProject = Objects.toString( content.getOriginProject(), null );
+        this.originalParentPath = Objects.toString( content.getOriginalParentPath(), null );
+        this.originalName = Objects.toString( content.getOriginalName(), null );
+        this.variantOf = Objects.toString( content.getVariantOf(), null );
     }
 
     public String getIconUrl()
@@ -218,4 +221,8 @@ public class ContentSummaryJson
         return true;
     }
 
+    public String getVariantOf()
+    {
+        return variantOf;
+    }
 }

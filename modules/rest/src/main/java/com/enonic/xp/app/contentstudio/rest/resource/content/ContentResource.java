@@ -173,6 +173,12 @@ import com.enonic.xp.extractor.ExtractedData;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.JaxRsComponent;
+import com.enonic.xp.query.expr.CompareExpr;
+import com.enonic.xp.query.expr.FieldExpr;
+import com.enonic.xp.query.expr.FieldOrderExpr;
+import com.enonic.xp.query.expr.OrderExpr;
+import com.enonic.xp.query.expr.QueryExpr;
+import com.enonic.xp.query.expr.ValueExpr;
 import com.enonic.xp.query.filter.BooleanFilter;
 import com.enonic.xp.query.filter.IdFilter;
 import com.enonic.xp.query.parser.QueryParser;
@@ -1216,6 +1222,26 @@ public final class ContentResource
             .execute();
     }
 
+    @GET
+    @Path("findVariants")
+    public ContentListJson<ContentSummaryJson> findVariants( @QueryParam("id") final String id,
+                                                            @QueryParam("from") @DefaultValue(value = "0") final Integer fromParam,
+                                                            @QueryParam("size") @DefaultValue(value = "10") final Integer sizeParam )
+    {
+        final QueryExpr queryExpr =
+            QueryExpr.from( CompareExpr.eq( FieldExpr.from( "variantOf" ), ValueExpr.string( Objects.requireNonNull( id ) ) ),
+                            new FieldOrderExpr( FieldExpr.from( "modifiedTime" ), OrderExpr.Direction.DESC ) );
+
+        final FindContentIdsByQueryResult queryResult =
+            contentService.find( ContentQuery.create().queryExpr( queryExpr ).size( sizeParam ).from( fromParam ).build() );
+
+        final Contents contents = contentService.getByIds( new GetContentByIdsParams( queryResult.getContentIds() ) );
+
+        final ContentListMetaData metaData =
+            ContentListMetaData.create().totalHits( contents.getSize() ).hits( contents.getSize() ).build();
+
+        return new ContentListJson<>( contents, metaData, jsonObjectsFactory::createContentSummaryJson );
+    }
 
     @POST
     @Path("selectorQuery")

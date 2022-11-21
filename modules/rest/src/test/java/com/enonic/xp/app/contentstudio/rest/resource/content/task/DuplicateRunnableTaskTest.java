@@ -76,7 +76,7 @@ public class DuplicateRunnableTaskTest
 
         Mockito.when( params.getContents() )
             .thenReturn( contents.stream()
-                             .map( content -> new DuplicateContentJson( content.getId().toString(), true ) )
+                             .map( content -> new DuplicateContentJson( content.getId().toString(), true, false, null, null ) )
                              .collect( Collectors.toList() ) );
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( contents ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
@@ -111,7 +111,7 @@ public class DuplicateRunnableTaskTest
         Mockito.when( params.getContents() )
             .thenReturn( contents.subList( 0, 1 )
                              .stream()
-                             .map( content -> new DuplicateContentJson( content.getId().toString(), true ) )
+                             .map( content -> new DuplicateContentJson( content.getId().toString(), true, false, null, null ) )
                              .collect( Collectors.toList() ) );
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) )
             .thenReturn( Contents.from( contents.subList( 0, 1 ) ) );
@@ -140,7 +140,7 @@ public class DuplicateRunnableTaskTest
         Mockito.when( params.getContents() )
             .thenReturn( contents.subList( 0, 2 )
                              .stream()
-                             .map( content -> new DuplicateContentJson( content.getId().toString(), true ) )
+                             .map( content -> new DuplicateContentJson( content.getId().toString(), true, false, null, null ) )
                              .collect( Collectors.toList() ) );
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) )
             .thenReturn( Contents.from( contents.subList( 0, 2 ) ) );
