@@ -32,6 +32,7 @@
     },
     "thumbnail": null,
     "type": "myapplication:my_type",
+    "variantOf" : null,
     "workflow": {
         "checks": {},
         "state": "READY"
