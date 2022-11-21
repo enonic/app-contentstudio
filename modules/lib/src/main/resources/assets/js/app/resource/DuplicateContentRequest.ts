@@ -2,32 +2,25 @@ import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-
-export type DuplicatableId = {
-    contentId: ContentId,
-    includeChildren: boolean
-};
+import {ContentDuplicateParams} from './ContentDuplicateParams';
 
 export class DuplicateContentRequest
     extends CmsContentResourceRequest<TaskId> {
 
-    private contents: DuplicatableId[];
+    private readonly contents: ContentDuplicateParams[];
 
-    constructor(contents: DuplicatableId[]) {
+    constructor(contents: ContentDuplicateParams[]) {
         super();
         this.setHeavyOperation(true);
         this.setMethod(HttpMethod.POST);
-        this.contents = contents;
+        this.contents = contents || [];
         this.addRequestPathElements('duplicate');
     }
 
     getParams(): Object {
         return {
-            contents: this.contents ? this.contents.map(value => {
-                return {contentId: value.contentId.toString(), includeChildren: value.includeChildren};
-            }) : []
+            contents: this.contents.map((item: ContentDuplicateParams) => item.toJson())
         };
     }
 

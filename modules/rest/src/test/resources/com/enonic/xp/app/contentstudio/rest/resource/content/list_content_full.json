@@ -56,6 +56,7 @@
             "thumbnail": null,
             "type": "myapplication:my_type",
             "validationErrors": [],
+            "variantOf" : null,
             "workflow": {
                 "checks": {},
                 "state": "READY"
@@ -117,6 +118,7 @@
             "thumbnail": null,
             "type": "myapplication:my_type",
             "validationErrors": [],
+            "variantOf" : null,
             "workflow": {
                 "checks": {},
                 "state": "READY"
