@@ -126,7 +126,7 @@ export class VersionHistoryListItem
         const compareButton: ActionButton = new ActionButton(new Action(), false);
 
         compareButton
-            .setTitle(i18n('tooltip.widget.versions.showChanges'))
+            .setTitle(i18n('text.versions.showChanges'))
             .addClass('compare icon-compare icon-medium transparent');
 
         compareButton.getAction().onExecuted(this.openCompareDialog.bind(this));
