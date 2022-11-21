@@ -52,6 +52,7 @@
     "thumbnail": null,
     "type": "portal:page-template",
     "validationErrors": [],
+    "variantOf" : null,
     "workflow": {
         "checks": {},
         "state": "READY"
