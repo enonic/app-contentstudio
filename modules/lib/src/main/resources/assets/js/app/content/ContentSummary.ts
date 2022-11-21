@@ -81,6 +81,7 @@ export class ContentSummary {
 
     private readonly archivedBy: PrincipalKey;
 
+    private readonly variantOf: string;
 
     constructor(builder: ContentSummaryBuilder) {
         this.name = builder.name;
@@ -116,6 +117,7 @@ export class ContentSummary {
         this.listTitle = builder.listTitle;
         this.originalParentPath = builder.originalParentPath;
         this.originalName = builder.originalName;
+        this.variantOf = builder.variantOf;
     }
 
     static fromJson(json: ContentSummaryJson): ContentSummary {
@@ -302,6 +304,14 @@ export class ContentSummary {
         return this.originalName;
     }
 
+    getVariantOf(): string {
+        return this.variantOf;
+    }
+
+    isVariant(): boolean {
+        return !!this.variantOf;
+    }
+
     private isInheritedByType(type: ContentInheritType): boolean {
         return this.isInherited() && this.inherit.some((inheritType: ContentInheritType) => inheritType === type);
     }
@@ -404,6 +414,9 @@ export class ContentSummary {
         if (!ObjectHelper.stringEquals(this.getOriginalName(), other.getOriginalName())) {
             return false;
         }
+        if (!ObjectHelper.stringEquals(this.variantOf, other.getVariantOf())) {
+            return false;
+        }
 
         return true;
     }
@@ -475,6 +488,8 @@ export class ContentSummaryBuilder {
 
     archivedBy: PrincipalKey;
 
+    variantOf: string;
+
     constructor(source?: ContentSummary) {
         if (source) {
             this.id = source.getId();
@@ -509,6 +524,7 @@ export class ContentSummaryBuilder {
             this.listTitle = source.getListTitle();
             this.originalParentPath = source.getOriginalParentPath();
             this.originalName = source.getOriginalName();
+            this.variantOf = source.getVariantOf();
         }
     }
 
@@ -550,6 +566,7 @@ export class ContentSummaryBuilder {
 
         this.originalParentPath = json.originalParentPath;
         this.originalName = json.originalName;
+        this.variantOf = json.variantOf;
 
         return this;
     }

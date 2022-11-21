@@ -83,6 +83,7 @@
     "thumbnail": null,
     "type": "portal:site",
     "validationErrors": [],
+    "variantOf" : null,
     "workflow": {
         "checks": {},
         "state": "READY"
