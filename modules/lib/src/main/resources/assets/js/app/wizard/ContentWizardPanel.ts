@@ -572,7 +572,14 @@ export class ContentWizardPanel
         return new ContentWizardToolbar({
             actions: this.wizardActions,
             workflowStateIconsManager: this.workflowStateManager,
-            className: 'content-wizard-toolbar'
+            className: 'content-wizard-toolbar',
+            compareVersionsPreHook: () => {
+                if (!this.hasUnsavedChanges()) {
+                    return Q.resolve();
+                }
+
+                return this.saveChangesWithoutValidation();
+            }
         });
     }
 
