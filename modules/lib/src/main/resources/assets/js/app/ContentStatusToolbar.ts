@@ -3,10 +3,8 @@ import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompare
 import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import * as Q from 'q';
-import {GetPrincipalByKeyRequest} from './resource/GetPrincipalByKeyRequest';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+import {ShowPublishedVersionChangesDialog} from './dialog/ShowPublishedVersionChangesDialog';
 
 export interface ContentStatusToolbarConfig {
     className?: string;
@@ -16,6 +14,8 @@ export class ContentStatusToolbar
     extends ItemPreviewToolbar<ContentSummaryAndCompareStatus> {
 
     protected status: SpanEl;
+
+    private showChangesLink: AEl;
 
     protected config: ContentStatusToolbarConfig;
 
@@ -30,6 +30,14 @@ export class ContentStatusToolbar
 
     protected initElements(): void {
         this.status = new SpanEl('status');
+        this.createShowChangesLink();
+    }
+
+    private createShowChangesLink() {
+        this.showChangesLink = new AEl('show-changes');
+        this.showChangesLink.setHtml('Show changes');
+        this.showChangesLink.onClicked(() => this.openShowPublishedVersionChangesDialog());
+        this.showChangesLink.hide();
     }
 
     protected initListeners(): void {
@@ -38,28 +46,31 @@ export class ContentStatusToolbar
 
     setItem(item: ContentSummaryAndCompareStatus): void {
         if (item && !item.equals(this.getItem())) {
-            const content: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus
-                .fromContentAndCompareStatus(item.getContentSummary(), item.getCompareStatus())
-                .setPublishStatus(item.getPublishStatus())
-                .setRenderable(item.isRenderable());
-            const isValid: boolean = content.getContentSummary() && content.getContentSummary().isValid();
+            const content = item.clone();
+            const isValid: boolean = content?.getContentSummary()?.isValid();
             super.setItem(content);
             this.toggleValid(isValid);
             this.updateStatus(content);
         }
     }
 
+    protected shouldShowChangesLink(item: ContentSummaryAndCompareStatus) {
+        return item.isModified();
+    }
+
     toggleValid(valid: boolean): void {
         this.toggleClass('invalid', !valid);
     }
 
-    private updateStatus(content: ContentSummaryAndCompareStatus): void {
+    protected updateStatus(content: ContentSummaryAndCompareStatus): void {
         this.status.setClass('status');
 
         if (content) {
             this.status.addClass(content.getStatusClass());
             this.status.setHtml(content.getStatusText());
         }
+
+        this.showChangesLink.setVisible(this.shouldShowChangesLink(content));
     }
 
     clearItem(): void {
@@ -75,9 +86,15 @@ export class ContentStatusToolbar
         return super.doRender().then(rendered => {
             const statusWrapper: DivEl = new DivEl('content-status-wrapper');
             this.addElement(statusWrapper);
-            statusWrapper.appendChildren(this.status);
+            statusWrapper.appendChildren(this.status, this.showChangesLink);
 
             return rendered;
         });
+    }
+
+    private openShowPublishedVersionChangesDialog() {
+        ShowPublishedVersionChangesDialog.get()
+            .setContent(this.getItem())
+            .open();
     }
 }

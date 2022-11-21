@@ -20,6 +20,7 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {CollaborationEl} from './CollaborationEl';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {WebSocketConnection} from '@enonic/lib-admin-ui/connection/WebSocketConnection';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 
 export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
     actions: ContentWizardActions;
@@ -44,6 +45,8 @@ export class ContentWizardToolbar
     private stateIcon?: DivEl;
 
     private projectViewer: ProjectViewer;
+
+    private isPersistedContentModified: boolean;
 
     constructor(config: ContentWizardToolbarConfig) {
         super(config);
@@ -93,9 +96,22 @@ export class ContentWizardToolbar
             }
         });
 
+        ContentServerEventsHandler.getInstance().onContentUpdated((items) => this.updateStatusForPersistedContent(items));
+
         this.whenRendered(() => {
             this.projectViewer.getNamesAndIconView().getFirstChild().onClicked(() => this.handleHomeIconClicked());
         });
+    }
+
+    private updateStatusForPersistedContent(items: ContentSummaryAndCompareStatus[]) {
+        const currentContentId = this.getItem()?.getContentId();
+        const updatedContent = currentContentId && items.find((item) => item.getContentId().equals(currentContentId));
+        if (updatedContent) {
+            // new version of content has been saved
+            // do not listen for it in setItem because it's runtime version of content there with manipulated state
+            this.isPersistedContentModified = updatedContent.isModified();
+            this.updateStatus(updatedContent);
+        }
     }
 
     private updateStateIcon(status: WorkflowStateStatus): void {
@@ -113,7 +129,14 @@ export class ContentWizardToolbar
     }
 
     setItem(item: ContentSummaryAndCompareStatus): void {
+        if (!this.getItem() && item) {
+            // save the original saved version modified state
+            // because wizard will overwrite that when edited
+            this.isPersistedContentModified = item.isModified();
+        }
+
         super.setItem(item);
+
 
         if (this.isCollaborationToBeAdded()) {
             this.addCollaboration();
@@ -130,6 +153,10 @@ export class ContentWizardToolbar
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
         super.addElement(this.collaborationBlock);
         this.openCollaborationWSConnection();
+    }
+
+    protected shouldShowChangesLink(item: ContentSummaryAndCompareStatus): boolean {
+        return super.shouldShowChangesLink(item) && this.isPersistedContentModified;
     }
 
     private addHomeButton(): void {
