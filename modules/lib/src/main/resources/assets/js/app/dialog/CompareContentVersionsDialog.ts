@@ -247,7 +247,7 @@ export class CompareContentVersionsDialog
             const bottomContainer = new DivEl('container bottom');
             this.htmlFormatter = (<any>formatters.html);
             this.htmlFormatter.showUnchanged(false, null, 0);
-            const changesCheckbox = new CheckboxBuilder().setLabelText(i18n('dialog.compareVersions.showUnchanged')).build();
+            const changesCheckbox = new CheckboxBuilder().setLabelText(i18n('field.content.showEntire')).build();
             changesCheckbox.onValueChanged(event => {
                 this.htmlFormatter.showUnchanged(event.getNewValue() === 'true', null, 0);
             });
@@ -334,7 +334,7 @@ export class CompareContentVersionsDialog
 
     private resetVersions(versions: ContentVersions): void {
         this.versions = versions;
-        VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersion());
+        VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersionId());
         this.versionIdCounters = {};
     }
 

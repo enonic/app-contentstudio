@@ -13,7 +13,6 @@ import {ContentId} from '../../../../content/ContentId';
 import {ContentVersionsConverter} from './ContentVersionsConverter';
 import {ContentVersions} from '../../../../ContentVersions';
 import {VersionContext} from './VersionContext';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class VersionHistoryView extends WidgetItemView {
 
@@ -109,7 +108,7 @@ export class VersionHistoryView extends WidgetItemView {
 
         if (this.versionListView) {
             return this.versionsLoader.load(this.content).then((versions: ContentVersions) => {
-                VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersion());
+                VersionContext.setActiveVersion(this.content.getId(), versions.getActiveVersionId());
 
                 const items: VersionHistoryItem[] = ContentVersionsConverter.create()
                     .setContent(this.content)
