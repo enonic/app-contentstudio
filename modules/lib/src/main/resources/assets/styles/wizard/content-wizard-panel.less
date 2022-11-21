@@ -1,4 +1,46 @@
 .content-wizard-panel {
+
+  .thumbnail-uploader-el {
+    &.status-hidden .result-container .workflow-status {
+      display: none;
+    }
+
+    &:not(.icon-variant).has-origin-project .result-container {
+      .icon-inherited(12px, 13px);
+
+      &::before {
+        position: absolute;
+        top: 50px;
+        left: -6px;
+        padding-left: 3px;
+      }
+    }
+
+    &.icon-variant {
+      .icon-variant(14px);
+
+      &::before {
+        position: absolute;
+        bottom: -8px;
+        left: -8px;
+      }
+
+      &.has-origin-project {
+        .icon-variant(14px, @color: @admin-white, @bg-color: @admin-button-blue1, @border-color: transparent);
+      }
+
+      &::before,
+      &.has-origin-project::before {
+        padding-left: 3px;
+        width: 15px;
+      }
+
+      &.has-origin-project::before {
+        border: none;
+      }
+    }
+  }
+
   .mobile-mode {
     .split-panel.wizard-and-preview {
       &.toggle-live {
@@ -79,8 +121,32 @@
           min-height: auto;
         }
 
-        &.has-origin-project .result-container {
-          .icon-cloud-download(18px, -6px, -6px);
+        &:not(.icon-variant).has-origin-project .result-container {
+          .icon-inherited(8px, 9px);
+
+          &::before {
+            top: 20px;
+            left: -4px;
+            padding-left: 3px;
+          }
+        }
+
+        &.icon-variant {
+          .icon-variant(8px);
+
+          &.has-origin-project {
+            .icon-variant(8px, @color: @admin-white, @bg-color: @admin-button-blue1, @border-color: transparent);
+          }
+
+          &::before,
+          &.has-origin-project::before {
+            padding-left: 3px;
+            width: 9px;
+          }
+
+          &.has-origin-project::before {
+            border: none;
+          }
         }
 
         .result-container {

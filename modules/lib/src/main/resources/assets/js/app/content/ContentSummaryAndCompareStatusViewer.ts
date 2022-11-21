@@ -19,7 +19,7 @@ export class ContentSummaryAndCompareStatusViewer
     doLayout(object: ContentSummaryAndCompareStatus) {
         super.doLayout(object);
 
-        this.toggleState(object);
+        this.resolveStateClass(object);
     }
 
     resolveDisplayName(object: ContentSummaryAndCompareStatus): string {
@@ -65,7 +65,7 @@ export class ContentSummaryAndCompareStatusViewer
                    NamePrettyfier.prettifyUnnamed()).build().toString();
     }
 
-    protected toggleState(object: ContentSummaryAndCompareStatus): void {
+    private resolveStateClass(object: ContentSummaryAndCompareStatus) {
         if (!object || !object.hasContentSummary()) {
             return;
         }
@@ -77,6 +77,7 @@ export class ContentSummaryAndCompareStatusViewer
         this.toggleClass('readonly', object.isReadOnly());
         this.toggleClass('has-origin-project', object.hasOriginProject());
         this.toggleClass('data-inherited', object.isDataInherited());
+        this.toggleClass('icon-variant', object.isVariant());
 
         if (!invalid && !object.isOnline() && !object.isPendingDelete()) {
             const workflowState = this.resolveWorkflowState(object);
