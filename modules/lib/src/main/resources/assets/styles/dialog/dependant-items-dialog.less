@@ -198,11 +198,41 @@
           .content-summary-and-compare-status-viewer {
             height: 24px;
 
-            &.has-origin-project {
-              .names-and-icon-view {
-                .@{_COMMON_PREFIX}wrapper {
-                  .icon-cloud-download(14px, -4px);
-                }
+            &.icon-variant.has-origin-project {
+              .icon-variant(@size: 6px, @color: @admin-white, @bg-color: @admin-button-blue1, @border-color: transparent);
+
+              &:before {
+                border: none;
+              }
+            }
+
+            &.has-origin-project:not(.icon-variant) {
+              .icon-inherited(6px);
+            }
+
+            &.icon-variant:not(.has-origin-project) {
+              .icon-variant(6px);
+
+              &:before {
+                width: 7px;
+              }
+            }
+
+            &.has-origin-project:not(.icon-variant),
+            &.icon-variant.has-origin-project {
+              &:before {
+                width: 7px;
+              }
+            }
+
+            &.has-origin-project,
+            &.icon-variant {
+              &:before {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                padding: 1px !important;
+                padding-left: 2px !important;
               }
             }
 

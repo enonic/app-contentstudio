@@ -197,6 +197,10 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
         return !!this.contentSummary ? this.contentSummary.isEditable() : false;
     }
 
+    isVariant(): boolean {
+        return this.contentSummary?.isVariant();
+    }
+
     getStatusText(): string {
         if (this.isUnpublished()) {
             return i18n('status.unpublished');
