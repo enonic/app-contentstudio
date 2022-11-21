@@ -23,8 +23,6 @@ export interface ContentSummaryJson
 
     modifier: string;
 
-    creator: string;
-
     modifiedTime: string;
 
     createdTime: string;
@@ -60,4 +58,6 @@ export interface ContentSummaryJson
     originalParentPath: string;
 
     originalName: string;
+
+    variantOf: string;
 }
