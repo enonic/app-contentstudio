@@ -1,10 +1,14 @@
-.delete-dialog {
+.content-delete-dialog {
   .dialog-buttons .button-container .dropdown-dialog-menu {
     button {
       .dialog-button(@bg: @input-red-text);
 
       &.@{_COMMON_PREFIX}dropdown-handle {
         display: flex;
+
+        &:hover {
+          background-color: @input-red-text
+        }
       }
     }
   }
@@ -34,21 +38,7 @@
     }
   }
 
-  .status-line {
-    display: flex;
-    align-items: center;
-    padding-bottom: 10px;
-
-    .icon {
-      color: @admin-red;
-    }
-
-    .part {
-      padding-left: 7px;
-    }
-
-    .part1 {
-      font-weight: bold;
-    }
+  .warning-line {
+    margin-bottom: 10px;
   }
 }

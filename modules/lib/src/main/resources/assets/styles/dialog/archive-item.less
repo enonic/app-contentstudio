@@ -40,21 +40,6 @@
 
   .show-ref-button {
     align-self: stretch;
-    padding: 0 8px;
-    background: transparent;
-    border: none;
-    transition: none;
-
-    span {
-      color: @admin-blue;
-    }
-
-    &:hover:not(:disabled) {
-      background: transparent;
-
-      span {
-        color: @admin-button-blue2;
-      }
-    }
+    .link-button();
   }
 }

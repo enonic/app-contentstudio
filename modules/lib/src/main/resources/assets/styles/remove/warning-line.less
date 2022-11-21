@@ -1,0 +1,36 @@
+.warning-line {
+  display: flex;
+  align-items: center;
+  margin: 0 -30px;
+  padding: 12px 26px 12px 39px;
+  background-color: @color-red-warning;
+
+  .icon {
+    @icon-size: 26px;
+    height: @icon-size;
+    width: @icon-size;
+    margin-right: 5px;
+    line-height: @icon-size;
+    font-size: @icon-size - 8px;
+    text-align: center;
+    color: @admin-red;
+    transform: rotateZ(45deg);
+    text-shadow: 0 0 1px @admin-white;
+  }
+
+  .warning-text {
+    flex: 1 0 auto;
+    font-weight: bold;
+    font-size: 14px;
+
+    &::after {
+      content: attr(data-count);
+      font-weight: normal;
+      margin-left: 0.25em;
+    }
+  }
+
+  .ignore-button {
+    .link-button();
+  }
+}
