@@ -26,6 +26,8 @@ import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselect
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {WarningLine} from './WarningLine';
+import {ContentUpdatedEvent} from '../event/ContentUpdatedEvent';
+import {ContentDeletedEvent} from '../event/ContentDeletedEvent';
 
 enum ActionType {
     DELETE, ARCHIVE
@@ -52,15 +54,17 @@ export class ContentDeleteDialog
 
     private resolveDependenciesResult: ResolveContentForDeleteResult;
 
+    private referringIds: ContentId[];
+
     private actionInProgressType: ActionType;
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
-                title: i18n('dialog.archive'),
-                class: 'content-delete-dialog',
-                dialogSubName: i18n('dialog.archive.subname'),
-                dependantsDescription: i18n('dialog.archive.dependants'),
-                showDependantList: true,
+            title: i18n('dialog.archive'),
+            class: 'content-delete-dialog',
+            dialogSubName: i18n('dialog.archive.subname'),
+            dependantsDescription: i18n('dialog.archive.dependants'),
+            showDependantList: true,
                 processingLabel: `${i18n('field.progress.deleting')}...`,
                 buttonRow: new ContentDeleteDialogButtonRow(),
                 processHandler: () => {
@@ -100,7 +104,7 @@ export class ContentDeleteDialog
     protected initListeners() {
         super.initListeners();
 
-        this.getItemList().onItemsRemoved(this.onListItemsRemoved.bind(this));
+        this.getItemList().onItemsRemoved(() => this.onListItemsRemoved());
 
         const itemsAddedHandler = (items: ContentSummaryAndCompareStatus[], itemList: ListBox<ContentSummaryAndCompareStatus>) => {
             if (this.resolveDependenciesResult) {
@@ -118,6 +122,28 @@ export class ContentDeleteDialog
                 const msg: string = this.totalItemsToDelete > 1 ? i18n('dialog.archive.success.multiple', this.totalItemsToDelete) :
                                     i18n('dialog.archive.success.single', this.getItemList().getItems()[0].getDisplayName());
                 NotifyManager.get().showSuccess(msg);
+            }
+        });
+
+        ContentUpdatedEvent.on(event => {
+            if (!this.isOpen()) {
+                return;
+            }
+            const contentId = event.getContentId();
+            const referringWasUpdated = this.referringIds.find(id => id.equals(contentId));
+            if (referringWasUpdated) {
+                this.refreshInboundRefs();
+            }
+        });
+
+        ContentDeletedEvent.on(event => {
+            if (!this.isOpen()) {
+                return;
+            }
+            const contentIds = event.getDeletedItems().map(item => item.getContentId());
+            const referringWasDeleted = this.referringIds.find(id => contentIds.some(contentId => contentId.equals(id)));
+            if (referringWasDeleted) {
+                this.refreshInboundRefs();
             }
         });
     }
@@ -168,6 +194,16 @@ export class ContentDeleteDialog
         return this.resolveDependenciesResult?.hasInboundDependency(id);
     }
 
+    private refreshInboundRefs(): Q.Promise<void> {
+        return this.resolveDescendants()
+            .then(() => this.resolveItemsWithInboundRefs(true))
+            .then(() => {
+                if (!this.resolveDependenciesResult.hasInboundDependencies()) {
+                    this.unlockMenu();
+                }
+            }).catch(DefaultErrorHandler.handle);
+    }
+
     private manageDescendants() {
         this.showLoadMask();
         this.lockControls();
@@ -197,7 +233,7 @@ export class ContentDeleteDialog
         });
     }
 
-    private resolveItemsWithInboundRefs() {
+    private resolveItemsWithInboundRefs(forceUpdate?: boolean) {
         this.getDependantList().setResolveDependenciesResult(this.resolveDependenciesResult);
 
         const itemsWithInboundRefs: ContentId[] =
@@ -209,12 +245,18 @@ export class ContentDeleteDialog
         this.updateWarningLine(inboundCount);
 
         const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
-        if (hasInboundDeps) {
-            this.warningLine.show();
+        this.warningLine.setVisible(hasInboundDeps);
 
-            this.updateItemViewsWithInboundDependencies(
-                this.getItemList().getItemViews().concat(this.getDependantList().getItemViews()));
+        if (hasInboundDeps || forceUpdate) {
+            const views = [...this.getItemList().getItemViews(), ...this.getDependantList().getItemViews()];
+            this.updateItemViewsWithInboundDependencies(views);
         }
+    }
+
+    private resolveReferringIds(): void {
+        this.referringIds = this.resolveDependenciesResult.getInboundDependencies().reduce((prev, curr) => {
+            return prev.concat(curr.getInboundDependencies());
+        }, [] as ContentId[]);
     }
 
     private updateWarningLine(inboundCount: number): void {
@@ -226,6 +268,7 @@ export class ContentDeleteDialog
         const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
         return new ResolveDeleteRequest(ids).sendAndParse().then((result: ResolveContentForDeleteResult) => {
             this.resolveDependenciesResult = result;
+            this.resolveReferringIds();
             return result.getContentIds();
         });
     }
