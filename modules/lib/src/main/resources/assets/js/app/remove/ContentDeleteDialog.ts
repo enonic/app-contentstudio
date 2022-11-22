@@ -54,7 +54,7 @@ export class ContentDeleteDialog
 
     private resolveDependenciesResult: ResolveContentForDeleteResult;
 
-    private referringIds: ContentId[];
+    private referenceIds: ContentId[];
 
     private actionInProgressType: ActionType;
 
@@ -130,7 +130,7 @@ export class ContentDeleteDialog
                 return;
             }
             const contentId = event.getContentId();
-            const referringWasUpdated = this.referringIds.find(id => id.equals(contentId));
+            const referringWasUpdated = this.referenceIds.find(id => id.equals(contentId));
             if (referringWasUpdated) {
                 this.refreshInboundRefs();
             }
@@ -141,7 +141,7 @@ export class ContentDeleteDialog
                 return;
             }
             const contentIds = event.getDeletedItems().map(item => item.getContentId());
-            const referringWasDeleted = this.referringIds.find(id => contentIds.some(contentId => contentId.equals(id)));
+            const referringWasDeleted = this.referenceIds.find(id => contentIds.some(contentId => contentId.equals(id)));
             if (referringWasDeleted) {
                 this.refreshInboundRefs();
             }
@@ -253,8 +253,8 @@ export class ContentDeleteDialog
         }
     }
 
-    private resolveReferringIds(): void {
-        this.referringIds = this.resolveDependenciesResult.getInboundDependencies().reduce((prev, curr) => {
+    private resolveReferanceIds(): void {
+        this.referenceIds = this.resolveDependenciesResult.getInboundDependencies().reduce((prev, curr) => {
             return prev.concat(curr.getInboundDependencies());
         }, [] as ContentId[]);
     }
@@ -268,7 +268,7 @@ export class ContentDeleteDialog
         const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
         return new ResolveDeleteRequest(ids).sendAndParse().then((result: ResolveContentForDeleteResult) => {
             this.resolveDependenciesResult = result;
-            this.resolveReferringIds();
+            this.resolveReferanceIds();
             return result.getContentIds();
         });
     }
