@@ -17,10 +17,10 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 
-export class ShowPublishedVersionChangesDialog
+export class CompareWithPublishedVersionDialog
     extends ModalDialog {
 
-    private static INSTANCE: ShowPublishedVersionChangesDialog;
+    private static INSTANCE: CompareWithPublishedVersionDialog;
 
     private activeVersionId: string;
 
@@ -122,14 +122,14 @@ export class ShowPublishedVersionChangesDialog
         });
     }
 
-    public static get(): ShowPublishedVersionChangesDialog {
-        if (!ShowPublishedVersionChangesDialog.INSTANCE) {
-            ShowPublishedVersionChangesDialog.INSTANCE = new ShowPublishedVersionChangesDialog();
+    public static get(): CompareWithPublishedVersionDialog {
+        if (!CompareWithPublishedVersionDialog.INSTANCE) {
+            CompareWithPublishedVersionDialog.INSTANCE = new CompareWithPublishedVersionDialog();
         }
-        return ShowPublishedVersionChangesDialog.INSTANCE;
+        return CompareWithPublishedVersionDialog.INSTANCE;
     }
 
-    setContent(content: ContentSummaryAndCompareStatus): ShowPublishedVersionChangesDialog {
+    setContent(content: ContentSummaryAndCompareStatus): CompareWithPublishedVersionDialog {
         this.content = content;
         (<ShowPublishedVersionChangesDialogHeader>this.header).setSubTitle(content ? content.getPath().toString() : null);
         return this;

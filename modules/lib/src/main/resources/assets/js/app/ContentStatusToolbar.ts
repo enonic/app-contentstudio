@@ -4,10 +4,12 @@ import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolb
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import * as Q from 'q';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
-import {ShowPublishedVersionChangesDialog} from './dialog/ShowPublishedVersionChangesDialog';
+import {CompareWithPublishedVersionDialog} from './dialog/CompareWithPublishedVersionDialog';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export interface ContentStatusToolbarConfig {
     className?: string;
+    compareVersionsPreHook?: () => Q.Promise<void>
 }
 
 export class ContentStatusToolbar
@@ -15,7 +17,7 @@ export class ContentStatusToolbar
 
     protected status: SpanEl;
 
-    private showChangesLink: AEl;
+    private compareVersionsLink: AEl;
 
     protected config: ContentStatusToolbarConfig;
 
@@ -30,14 +32,23 @@ export class ContentStatusToolbar
 
     protected initElements(): void {
         this.status = new SpanEl('status');
-        this.createShowChangesLink();
+        this.compareVersionsLink = this.createCompareVersionsLink();
     }
 
-    private createShowChangesLink() {
-        this.showChangesLink = new AEl('show-changes');
-        this.showChangesLink.setHtml('Show changes');
-        this.showChangesLink.onClicked(() => this.openShowPublishedVersionChangesDialog());
-        this.showChangesLink.hide();
+    private createCompareVersionsLink() {
+        const compareVersionsLink = new AEl('show-changes');
+        compareVersionsLink.setHtml(i18n('text.versions.showChanges'));
+        compareVersionsLink.onClicked(() => {
+            const promise = this.config.compareVersionsPreHook || (() => Q.resolve());
+            compareVersionsLink.getEl().setDisabled(true);
+            promise().then(() => {
+                compareVersionsLink.getEl().setDisabled(false);
+                this.openShowPublishedVersionChangesDialog();
+            });
+        });
+        compareVersionsLink.hide();
+
+        return compareVersionsLink;
     }
 
     protected initListeners(): void {
@@ -48,14 +59,12 @@ export class ContentStatusToolbar
         if (item && !item.equals(this.getItem())) {
             const content = item.clone();
             const isValid: boolean = content?.getContentSummary()?.isValid();
+
             super.setItem(content);
+
             this.toggleValid(isValid);
             this.updateStatus(content);
         }
-    }
-
-    protected shouldShowChangesLink(item: ContentSummaryAndCompareStatus) {
-        return item.isModified();
     }
 
     toggleValid(valid: boolean): void {
@@ -70,7 +79,7 @@ export class ContentStatusToolbar
             this.status.setHtml(content.getStatusText());
         }
 
-        this.showChangesLink.setVisible(this.shouldShowChangesLink(content));
+        this.compareVersionsLink.setVisible(content.isModified());
     }
 
     clearItem(): void {
@@ -86,14 +95,14 @@ export class ContentStatusToolbar
         return super.doRender().then(rendered => {
             const statusWrapper: DivEl = new DivEl('content-status-wrapper');
             this.addElement(statusWrapper);
-            statusWrapper.appendChildren(this.status, this.showChangesLink);
+            statusWrapper.appendChildren(this.status, this.compareVersionsLink);
 
             return rendered;
         });
     }
 
     private openShowPublishedVersionChangesDialog() {
-        ShowPublishedVersionChangesDialog.get()
+        CompareWithPublishedVersionDialog.get()
             .setContent(this.getItem())
             .open();
     }
