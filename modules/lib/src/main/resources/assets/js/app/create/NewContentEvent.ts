@@ -2,15 +2,16 @@ import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {Content} from '../content/Content';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class NewContentEvent
     extends Event {
 
-    private contentType: ContentTypeSummary;
+    private readonly contentType: ContentTypeSummary;
 
-    private parentContent: Content;
+    private readonly parentContent: ContentSummary;
 
-    constructor(contentType: ContentTypeSummary, parentContent: Content) {
+    constructor(contentType: ContentTypeSummary, parentContent: ContentSummary) {
         super();
         this.contentType = contentType;
         this.parentContent = parentContent;
@@ -20,7 +21,7 @@ export class NewContentEvent
         return this.contentType;
     }
 
-    getParentContent(): Content {
+    getParentContent(): ContentSummary {
         return this.parentContent;
     }
 

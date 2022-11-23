@@ -62,6 +62,7 @@ import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {ProjectNotAvailableDialog} from 'lib-contentstudio/app/settings/dialog/project/create/ProjectNotAvailableDialog';
 import {ProjectDeletedEvent} from 'lib-contentstudio/app/settings/event/ProjectDeletedEvent';
+import {NewContentEvent} from 'lib-contentstudio/app/create/NewContentEvent';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -503,6 +504,7 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
     wizard.onClosed(event => window.close());
 
     EditContentEvent.on(ContentEventsProcessor.handleEdit);
+    NewContentEvent.on(ContentEventsProcessor.handleNew);
 
     Body.get().addClass('wizard-page').appendChild(wizard);
 
