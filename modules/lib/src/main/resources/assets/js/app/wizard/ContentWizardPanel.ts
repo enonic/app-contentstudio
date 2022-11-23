@@ -2207,21 +2207,12 @@ export class ContentWizardPanel
     }
 
     private produceCreateContentRequest(): Q.Promise<CreateContentRequest> {
-        return this.contentType.getContentTypeName().isMedia() ? Q(null) : this.doCreateContentRequest();
+        return this.contentType.getContentTypeName().isMedia() ? Q(null) : Q.resolve(this.doCreateContentRequest());
     }
 
-    private doCreateContentRequest(): Q.Promise<CreateContentRequest> {
+    private doCreateContentRequest(): CreateContentRequest {
         const parentPath: ContentPath = this.parentContent != null ? this.parentContent.getPath() : ContentPath.getRoot();
-
-        return Q(new CreateContentRequest()
-            .setRequireValid(this.requireValid)
-            .setName(ContentUnnamed.newUnnamed())
-            .setParent(parentPath)
-            .setContentType(this.contentType.getContentTypeName())
-            .setDisplayName('')     // new content is created on wizard open so display name is always empty
-            .setData(new PropertyTree())
-            .setExtraData([])
-            .setWorkflow(Workflow.create().setState(WorkflowState.IN_PROGRESS).build()));
+        return ContentHelper.makeNewContentRequest(this.contentType.getContentTypeName(), parentPath, this.requireValid);
     }
 
     updatePersistedItem(): Q.Promise<Content> {

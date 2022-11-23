@@ -27,7 +27,6 @@ import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig} from '@enonic/
 import {DropzoneContainer} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
 import {SectionEl} from '@enonic/lib-admin-ui/dom/SectionEl';
 import {AsideEl} from '@enonic/lib-admin-ui/dom/AsideEl';
-import {ElementHiddenEvent} from '@enonic/lib-admin-ui/dom/ElementHiddenEvent';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
@@ -35,11 +34,12 @@ import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {GetContentTypeDescriptorsRequest} from '../resource/GetContentTypeDescriptorsRequest';
 import {ContentPath} from '../content/ContentPath';
 import {ContentTypeSummaries} from '../content/ContentTypeSummaries';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class NewContentDialog
     extends ModalDialog {
 
-    private parentContent: Content;
+    private parentContent: ContentSummary;
 
     private fileInput: FileInput;
 
@@ -54,6 +54,8 @@ export class NewContentDialog
     private recentContentTypes: RecentItemsBlock;
 
     private keyDownHandler: (event: KeyboardEvent) => void;
+
+    private typeSelectedHandler?: (contentType: ContentTypeSummary, parentContent: ContentSummary) => void;
 
     protected header: NewContentDialogHeader;
 
@@ -114,9 +116,10 @@ export class NewContentDialog
     protected initListeners() {
         super.initListeners();
 
-        this.allContentTypes.onSelected(this.closeAndFireEventFromContentType.bind(this));
-        this.mostPopularContentTypes.getItemsList().onSelected(this.closeAndFireEventFromContentType.bind(this));
-        this.recentContentTypes.getItemsList().onSelected(this.closeAndFireEventFromContentType.bind(this));
+        const selectedHandler: (event: NewContentDialogItemSelectedEvent) => void = this.handleTypeSelected.bind(this);
+        this.allContentTypes.onSelected(selectedHandler);
+        this.mostPopularContentTypes.getItemsList().onSelected(selectedHandler);
+        this.recentContentTypes.getItemsList().onSelected(selectedHandler);
         this.initDragAndDropUploaderEvents();
         this.initKeyDownHandler();
         this.initFileInputEvents();
@@ -191,26 +194,21 @@ export class NewContentDialog
     }
 
     private closeAndFireEventFromMediaUpload(event: UploadStartedEvent<Content>) {
-        const handler = (e: ElementHiddenEvent) => {
-            new NewMediaUploadEvent(event.getUploadItems(), this.parentContent).fire();
-            this.unHidden(handler);
-        };
-        this.onHidden(handler);
-
+        new NewMediaUploadEvent(event.getUploadItems(), this.parentContent).fire();
         this.close();
     }
 
-    private closeAndFireEventFromContentType(event: NewContentDialogItemSelectedEvent) {
-        const handler = (e: ElementHiddenEvent) => {
+    private handleTypeSelected(event: NewContentDialogItemSelectedEvent) {
+        if (this.typeSelectedHandler) {
+            this.typeSelectedHandler(event.getItem().getContentType(), this.parentContent);
+        } else {
             new NewContentEvent(event.getItem().getContentType(), this.parentContent).fire();
-            this.unHidden(handler);
-        };
-        this.onHidden(handler);
+        }
 
         this.close();
     }
 
-    setParentContent(parent: Content) {
+    setParentContent(parent: ContentSummary): NewContentDialog {
         this.parentContent = parent;
 
         const params: { [key: string]: any } = {
@@ -218,6 +216,14 @@ export class NewContentDialog
         };
 
         this.newContentUploader.setUploaderParams(params);
+
+        return this;
+    }
+
+    setTypeSelectedHandler(handler: (contentType: ContentTypeSummary, parentContent: ContentSummary) => void): NewContentDialog {
+        this.typeSelectedHandler = handler;
+
+        return this;
     }
 
     open() {
@@ -263,6 +269,7 @@ export class NewContentDialog
     close() {
         this.fileInput.reset();
         this.newContentUploader.reset();
+        this.typeSelectedHandler = null;
 
         if (this.isOpen()) {
             super.close();
