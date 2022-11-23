@@ -20,10 +20,12 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {CollaborationEl} from './CollaborationEl';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {WebSocketConnection} from '@enonic/lib-admin-ui/connection/WebSocketConnection';
+import * as Q from 'q';
 
 export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateManager;
+    compareVersionsPreHook?: () => Q.Promise<any>
 }
 
 export class ContentWizardToolbar
@@ -237,5 +239,14 @@ export class ContentWizardToolbar
 
     getStateIcon(): DivEl {
         return this.stateIcon;
+    }
+
+    protected openShowPublishedVersionChangesDialog() {
+        const promise = this.config.compareVersionsPreHook || (() => Q.resolve());
+        this.compareVersionsLink.getEl().setDisabled(true);
+        promise().then(() => {
+            this.compareVersionsLink.getEl().setDisabled(false);
+            super.openShowPublishedVersionChangesDialog();
+        });
     }
 }

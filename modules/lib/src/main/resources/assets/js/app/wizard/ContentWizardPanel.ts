@@ -604,10 +604,7 @@ export class ContentWizardPanel
                     return Q.resolve();
                 }
 
-                const deferred: Q.Deferred<void> = Q.defer<void>();
-                this.saveChangesWithoutValidation().then(() => deferred.resolve());
-
-                return deferred.promise;
+                return this.saveChangesWithoutValidation();
             }
         });
     }

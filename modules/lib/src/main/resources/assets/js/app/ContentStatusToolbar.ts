@@ -9,7 +9,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export interface ContentStatusToolbarConfig {
     className?: string;
-    compareVersionsPreHook?: () => Q.Promise<void>
 }
 
 export class ContentStatusToolbar
@@ -17,7 +16,7 @@ export class ContentStatusToolbar
 
     protected status: SpanEl;
 
-    private compareVersionsLink: AEl;
+    protected compareVersionsLink: AEl;
 
     protected config: ContentStatusToolbarConfig;
 
@@ -38,14 +37,7 @@ export class ContentStatusToolbar
     private createCompareVersionsLink() {
         const compareVersionsLink = new AEl('show-changes');
         compareVersionsLink.setHtml(i18n('text.versions.showChanges'));
-        compareVersionsLink.onClicked(() => {
-            const promise = this.config.compareVersionsPreHook || (() => Q.resolve());
-            compareVersionsLink.getEl().setDisabled(true);
-            promise().then(() => {
-                compareVersionsLink.getEl().setDisabled(false);
-                this.openShowPublishedVersionChangesDialog();
-            });
-        });
+        compareVersionsLink.onClicked(() => this.openShowPublishedVersionChangesDialog());
         compareVersionsLink.hide();
 
         return compareVersionsLink;
@@ -101,7 +93,7 @@ export class ContentStatusToolbar
         });
     }
 
-    private openShowPublishedVersionChangesDialog() {
+    protected openShowPublishedVersionChangesDialog() {
         CompareWithPublishedVersionDialog.get()
             .setContent(this.getItem())
             .open();
