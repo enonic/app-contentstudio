@@ -26,8 +26,8 @@ import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselect
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {WarningLine} from './WarningLine';
-import {ContentUpdatedEvent} from '../event/ContentUpdatedEvent';
-import {ContentDeletedEvent} from '../event/ContentDeletedEvent';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 
 enum ActionType {
     DELETE, ARCHIVE
@@ -125,27 +125,19 @@ export class ContentDeleteDialog
             }
         });
 
-        ContentUpdatedEvent.on(event => {
+        const handleRefsChange = (items: ContentSummaryAndCompareStatus[] | ContentServerChangeItem[]): void => {
             if (!this.isOpen()) {
                 return;
             }
-            const contentId = event.getContentId();
-            const referringWasUpdated = this.referenceIds.find(id => id.equals(contentId));
+            const contentIds = items.map(item => item.getContentId());
+            const referringWasUpdated = this.referenceIds.find(id => contentIds.some(contentId => contentId.equals(id)));
             if (referringWasUpdated) {
                 this.refreshInboundRefs();
             }
-        });
+        };
 
-        ContentDeletedEvent.on(event => {
-            if (!this.isOpen()) {
-                return;
-            }
-            const contentIds = event.getDeletedItems().map(item => item.getContentId());
-            const referringWasDeleted = this.referenceIds.find(id => contentIds.some(contentId => contentId.equals(id)));
-            if (referringWasDeleted) {
-                this.refreshInboundRefs();
-            }
-        });
+        ContentServerEventsHandler.getInstance().onContentUpdated(handleRefsChange);
+        ContentServerEventsHandler.getInstance().onContentDeleted(handleRefsChange);
     }
 
     doRender(): Q.Promise<boolean> {
