@@ -17,6 +17,7 @@ import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTyp
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentSummary} from './content/ContentSummary';
 import {UrlHelper} from './util/UrlHelper';
+import {ContentAppHelper} from './wizard/ContentAppHelper';
 
 export class ContentEventsProcessor {
 
@@ -76,7 +77,7 @@ export class ContentEventsProcessor {
         const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
             .setTabId(tabId)
             .setContentTypeName(contentTypeSummary.getContentTypeName())
-            .setParentContentId(newContentEvent.getParentContent() ? newContentEvent.getParentContent().getContentId() : undefined)
+            .setParentContentId(newContentEvent.getParentContent()?.getContentId() || undefined)
             .setCreateSite(newContentEvent.getContentType().isSite());
 
         ContentEventsProcessor.openWizardTab(wizardParams);
@@ -100,7 +101,8 @@ export class ContentEventsProcessor {
                 .setContentTypeName(contentTypeName)
                 .setProject(event.getProject())
                 .setLocalize(isLocalize)
-                .setContentId(contentSummary.getContentId());
+                .setContentId(contentSummary.getContentId())
+                .setDisplayAsNew(event.isDisplayAsNew());
 
             const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
 
@@ -147,7 +149,8 @@ export class ContentEventsProcessor {
 
         if (!!params.contentId) {
             const action: string = params.localize ? UrlAction.LOCALIZE : UrlAction.EDIT;
-            return `${project}/${action}/${params.contentId.toString()}`;
+            const displayAsNew: string = params.displayAsNew ? `?${ContentAppHelper.DISPLAY_AS_NEW}` : '';
+            return `${project}/${action}/${params.contentId.toString()}${displayAsNew}`;
         }
 
         if (params.parentContentId) {

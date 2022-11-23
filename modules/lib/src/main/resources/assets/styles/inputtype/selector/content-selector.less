@@ -8,4 +8,44 @@
       padding-left: 0;
     }
   }
+
+  .new-content {
+    display: flex;
+
+    .content-combo-box {
+      flex-grow: 1;
+      max-width: calc(100% - 39px);
+
+      .selected-options {
+        width: calc(100% + 39px);
+      }
+    }
+
+    &-button {
+      width: 37px;
+      height: 37px;
+      border: 1px solid @admin-medium-gray-border;
+      border-left: none;
+      background-color: @admin-white;
+
+      &.icon-spinner::before {
+        .animation(rotate360, 0.5s, 0s, linear);
+      }
+
+      &::before {
+        font-size: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      &:not([disabled]) {
+        cursor: pointer;
+
+        &:hover {
+          background-color: @admin-almost-white;
+        }
+      }
+    }
+  }
 }

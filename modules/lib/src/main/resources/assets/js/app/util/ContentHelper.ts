@@ -12,6 +12,13 @@ import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {CreateContentRequest} from '../resource/CreateContentRequest';
+import {ContentUnnamed} from '../content/ContentUnnamed';
+import {Workflow} from '../content/Workflow';
+import {WorkflowState} from '../content/WorkflowState';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {ContentPath} from '../content/ContentPath';
 
 export class ContentHelper {
 
@@ -55,5 +62,17 @@ export class ContentHelper {
         }
 
         return Q(false);
+    }
+
+    static makeNewContentRequest(type: ContentTypeName, parentPath?: ContentPath, requiredValid?: boolean): CreateContentRequest {
+        return new CreateContentRequest()
+            .setRequireValid(requiredValid)
+            .setName(ContentUnnamed.newUnnamed())
+            .setParent(parentPath)
+            .setContentType(type)
+            .setDisplayName('')     // new content is created on wizard open so display name is always empty
+            .setData(new PropertyTree())
+            .setExtraData([])
+            .setWorkflow(Workflow.create().setState(WorkflowState.IN_PROGRESS).build());
     }
 }

@@ -7,6 +7,10 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class ContentAppHelper {
 
+    static DISPLAY_AS_NEW_PARAM: string = 'displayAsNew';
+
+    static DISPLAY_AS_NEW: string = `${ContentAppHelper.DISPLAY_AS_NEW_PARAM}=true`;
+
     private static getContentWizardUrlPattern(action: string): string {
         return `(${CONFIG.getString('toolUri')})/(.+)/(${action})/.+$`;
     }
@@ -63,9 +67,11 @@ export class ContentAppHelper {
 
         const contentId = new ContentId(actionArguments[0]);
         const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(contentId.toString());
+        const displayAsNew: boolean = window.location.href.indexOf(ContentAppHelper.DISPLAY_AS_NEW) > 0;
 
         return new ContentWizardPanelParams()
             .setContentId(contentId)
-            .setTabId(tabId);
+            .setTabId(tabId)
+            .setDisplayAsNew(displayAsNew);
     }
 }
