@@ -76,7 +76,7 @@ export class ContentEventsProcessor {
         const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
             .setTabId(tabId)
             .setContentTypeName(contentTypeSummary.getContentTypeName())
-            .setParentContentId(newContentEvent.getParentContent() ? newContentEvent.getParentContent().getContentId() : undefined)
+            .setParentContentId(newContentEvent.getParentContent()?.getContentId() || undefined)
             .setCreateSite(newContentEvent.getContentType().isSite());
 
         ContentEventsProcessor.openWizardTab(wizardParams);
