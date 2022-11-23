@@ -3,7 +3,6 @@ import {NewContentDialogList} from './NewContentDialogList';
 import {AggregateContentTypesResult, ContentTypeAggregation} from '../resource/AggregateContentTypesResult';
 import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentTypeSummaries} from '../content/ContentTypeSummaries';
 
 export class MostPopularItemsList extends NewContentDialogList {
 
@@ -13,7 +12,7 @@ export class MostPopularItemsList extends NewContentDialogList {
         super('most-popular-content-types-list');
     }
 
-    createItems(contentTypes: ContentTypeSummaries, aggregations: AggregateContentTypesResult): number {
+    createItems(contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult): number {
         const mostPopularItems: MostPopularItem[] = [];
         const allowedContentTypeAggregations: ContentTypeAggregation[] =
             aggregations.getAggregations().filter((aggregation: ContentTypeAggregation) => {
@@ -21,7 +20,9 @@ export class MostPopularItemsList extends NewContentDialogList {
             });
 
         for (let i = 0; i < allowedContentTypeAggregations.length && i < MostPopularItemsList.DEFAULT_MAX_ITEMS; i++) {
-            const contentType: ContentTypeSummary = contentTypes.getByName(allowedContentTypeAggregations[i].getContentType());
+            const name: string = allowedContentTypeAggregations[i].getContentType().toString();
+            const contentType: ContentTypeSummary = contentTypes.find((type: ContentTypeSummary) => type.getName() === name);
+
             if (contentType) {
                 mostPopularItems.push(new MostPopularItem(contentType, allowedContentTypeAggregations[i].getCount()));
             }

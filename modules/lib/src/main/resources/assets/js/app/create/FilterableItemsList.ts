@@ -2,13 +2,12 @@ import {NewContentDialogList} from './NewContentDialogList';
 import {NewContentDialogListItem} from './NewContentDialogListItem';
 import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeComparator} from '../inputtype/schema/ContentTypeComparator';
-import {ContentTypeSummaries} from '../content/ContentTypeSummaries';
 
 export class FilterableItemsList extends NewContentDialogList {
 
-    private contentTypes: ContentTypeSummaries;
+    private contentTypes: ContentTypeSummary[];
 
-    createItems(contentTypes: ContentTypeSummaries) {
+    createItems(contentTypes: ContentTypeSummary[]) {
         this.contentTypes = contentTypes;
 
         this.setItems(this.getAllItems());

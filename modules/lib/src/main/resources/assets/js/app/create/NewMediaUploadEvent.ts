@@ -2,15 +2,16 @@ import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {Content} from '../content/Content';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class NewMediaUploadEvent
     extends Event {
 
-    private uploadItems: UploadItem<Content>[];
+    private readonly uploadItems: UploadItem<Content>[];
 
-    private parentContent: Content;
+    private readonly parentContent: ContentSummary;
 
-    constructor(items: UploadItem<Content>[], parentContent: Content) {
+    constructor(items: UploadItem<Content>[], parentContent: ContentSummary) {
         super();
         this.uploadItems = items;
         this.parentContent = parentContent;
@@ -20,7 +21,7 @@ export class NewMediaUploadEvent
         return this.uploadItems;
     }
 
-    getParentContent(): Content {
+    getParentContent(): ContentSummary {
         return this.parentContent;
     }
 

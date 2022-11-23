@@ -15,6 +15,7 @@ import org.mockito.stubbing.Answer;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
+import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
@@ -81,6 +82,9 @@ class FilterByContentResolverTest
 
     Set<ContentType> knownContentTypes;
 
+    @Mock
+    AdminRestConfig config;
+
     @BeforeEach
     void setUp()
     {
@@ -92,10 +96,13 @@ class FilterByContentResolverTest
         filterByContentResolver.setPartDescriptorService( partDescriptorService );
         filterByContentResolver.setProjectService( projectService );
 
+        when( config.contentTypePatternMode() ).thenReturn( "MATCH" );
+        filterByContentResolver.activate( config );
+
         knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll() );
 
         lenient().when( contentTypeService.getByName(
-            argThat( argument -> knownContentTypes.stream().anyMatch( ct -> ct.getName().equals( argument.getContentTypeName() ) ) ) ) )
+                argThat( argument -> knownContentTypes.stream().anyMatch( ct -> ct.getName().equals( argument.getContentTypeName() ) ) ) ) )
             .thenAnswer( (Answer<ContentType>) invocation -> knownContentTypes.stream()
                 .filter( ct -> ct.getName().equals( invocation.<GetContentTypeParams>getArgument( 0 ).getContentTypeName() ) )
                 .findAny()
@@ -121,7 +128,7 @@ class FilterByContentResolverTest
 
         when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn( ContentTypes.from( contentType ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ) );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
         assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.folder(), ContentTypeName.site(),
                                                                                 ContentTypeName.shortcut(),
                                                                                 ContentTypeName.from( "application:test-type" ) );
@@ -147,7 +154,7 @@ class FilterByContentResolverTest
 
         when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn( ContentTypes.from( contentType ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ) );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
         assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.folder(),
                                                                                 ContentTypeName.from( "application:test-type" ) );
     }
@@ -169,14 +176,14 @@ class FilterByContentResolverTest
         when( contentService.getById( ContentId.from( "test" ) ) ).thenReturn(
             someContent( ContentTypeName.from( "application:test-type" ) ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ) );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
         assertThat( contentTypes ).isEmpty();
     }
 
     @Test
     void contentTypes_root()
     {
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( null );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( null, Set.of() );
 
         verify( contentService, never() ).getById( any() );
         assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.folder(), ContentTypeName.site(),
@@ -188,7 +195,7 @@ class FilterByContentResolverTest
     {
         when( contentService.getById( ContentId.from( "test" ) ) ).thenReturn( someContent( ContentTypeName.templateFolder() ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ) );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
 
         assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.pageTemplate() );
     }
@@ -223,7 +230,7 @@ class FilterByContentResolverTest
         when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn(
             ContentTypes.from( content, abstractContent ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ) );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
         assertThat( contentTypes.map( ContentType::getName ).map( ContentTypeName::toString ) ).containsExactly( "base:folder",
                                                                                                                  "portal:site",
                                                                                                                  "base:shortcut",
@@ -260,7 +267,7 @@ class FilterByContentResolverTest
         when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn(
             ContentTypes.from( content, disabledContent ) );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ) );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
         assertThat( contentTypes.map( ContentType::getName ).map( ContentTypeName::toString ) ).containsExactly( "base:folder",
                                                                                                                  "portal:site",
                                                                                                                  "base:shortcut",
@@ -292,21 +299,47 @@ class FilterByContentResolverTest
         when( contentService.getById( ContentId.from( "test" ) ) ).thenReturn(
             someContent( ContentTypeName.from( "application1:test-type" ) ) );
 
-        when( contentTypeService.getByApplication( ApplicationKey.from( "application2" ) ) ).thenReturn(
-            ContentTypes.from( content2 ) );
+        when( contentTypeService.getByApplication( ApplicationKey.from( "application2" ) ) ).thenReturn( ContentTypes.from( content2 ) );
 
         final Project.Builder builder = Project.create();
         builder.name( ProjectName.from( "default" ) );
         builder.displayName( "Default" );
-        builder.addSiteConfig( SiteConfig.create().application( ApplicationKey.from( "application2" ) ).config( new PropertyTree() ).build() );
+        builder.addSiteConfig(
+            SiteConfig.create().application( ApplicationKey.from( "application2" ) ).config( new PropertyTree() ).build() );
 
         when( projectService.get( ProjectName.from( "default" ) ) ).thenReturn( builder.build() );
 
-        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ) );
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of() );
         assertThat( contentTypes.map( ContentType::getName ).map( ContentTypeName::toString ) ).containsExactly( "base:folder",
                                                                                                                  "portal:site",
                                                                                                                  "base:shortcut",
                                                                                                                  "application2:test-type" );
+    }
+
+    @Test
+    void contentTypes_allowedContentTypes_filter()
+    {
+        final ContentType contentType = ContentType.create()
+            .superType( ContentTypeName.structured() )
+            .allowChildContent( true )
+            .displayName( "My type" )
+            .name( "application:test-type" )
+            .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
+            .build();
+
+        knownContentTypes.add( contentType );
+
+        when( contentService.getById( ContentId.from( "test" ) ) ).thenReturn(
+            someContent( ContentTypeName.from( "application:test-type" ) ) );
+        when( contentService.getNearestSite( ContentId.from( "test" ) ) ).thenReturn( someSite() );
+
+        when( contentTypeService.getByApplication( ApplicationKey.from( "application" ) ) ).thenReturn( ContentTypes.from( contentType ) );
+
+        Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of( "test-type" ) );
+        assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.from( "application:test-type" ) );
+
+        contentTypes = filterByContentResolver.contentTypes( ContentId.from( "test" ), Set.of( "base:folder" ) );
+        assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.folder() );
     }
 
 
@@ -433,21 +466,10 @@ class FilterByContentResolverTest
                                                                            DescriptorKey.from( "module:allowed" ) );
     }
 
-    private ContentType someContentType()
-    {
-        return ContentType.create()
-            .superType( ContentTypeName.structured() )
-            .allowChildContent( true )
-            .displayName( "My type" )
-            .name( "application:test-type" )
-            .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
-            .build();
-    }
-
     private Content someContent( ContentTypeName contentTypeName )
     {
 
-        final Content.Builder builder = Content.create();
+        final Content.Builder<?> builder = Content.create();
 
         builder.id( ContentId.from( "123" ) );
         builder.name( "someName" );
