@@ -7,14 +7,25 @@ import {ProjectContext} from '../project/ProjectContext';
 export class EditContentEvent
     extends Event {
 
-    private model: ContentSummaryAndCompareStatus[];
+    private readonly model: ContentSummaryAndCompareStatus[];
 
-    private project: Project;
+    private readonly project: Project;
+
+    private displayAsNew: boolean = false;
 
     constructor(model: ContentSummaryAndCompareStatus[], project?: Project) {
         super();
         this.model = model;
         this.project = project ? project : ProjectContext.get().getProject();
+    }
+
+    setDisplayAsNew(value: boolean): EditContentEvent {
+        this.displayAsNew = value;
+        return this;
+    }
+
+    isDisplayAsNew(): boolean {
+        return this.displayAsNew;
     }
 
     getModels(): ContentSummaryAndCompareStatus[] {

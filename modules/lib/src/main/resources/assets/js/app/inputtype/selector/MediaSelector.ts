@@ -29,16 +29,16 @@ export class MediaSelector
         this.addClass('media-selector');
     }
 
-    layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
-        return super.layout(input, propertyArray).then(() => {
-            if (this.context.content) {
-                return this.createUploader().then((mediaUploader: MediaUploaderEl) => {
-                    this.comboBoxWrapper.appendChild(this.uploader = mediaUploader);
+    protected addExtraElementsOnLayout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
+        if (!this.context.content) {
+            return Q.resolve();
+        }
 
-                    if (!this.contentComboBox.getComboBox().isVisible()) {
-                        this.uploader.hide();
-                    }
-                });
+        return this.createUploader().then((mediaUploader: MediaUploaderEl) => {
+            this.comboBoxWrapper.appendChild(this.uploader = mediaUploader);
+
+            if (!this.contentComboBox.getComboBox().isVisible()) {
+                this.uploader.hide();
             }
         });
     }
