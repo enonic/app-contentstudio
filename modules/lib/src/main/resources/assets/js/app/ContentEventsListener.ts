@@ -1,5 +1,4 @@
 import {NewContentEvent} from './create/NewContentEvent';
-import {ViewContentEvent} from './browse/ViewContentEvent';
 import {SortContentEvent} from './browse/sort/SortContentEvent';
 import {MoveContentEvent} from './move/MoveContentEvent';
 import {ContentEventsProcessor} from './ContentEventsProcessor';
@@ -15,12 +14,6 @@ export class ContentEventsListener {
         NewContentEvent.on((event) => {
             if (this.started) {
                 ContentEventsProcessor.handleNew(event);
-            }
-        });
-
-        ViewContentEvent.on((event) => {
-            if (this.started) {
-                // Do we use this any more ?
             }
         });
 
