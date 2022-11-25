@@ -207,18 +207,45 @@
   }
 }
 
-.icon-cloud-download(@size: 18px, @bottom: -6px, @left:-4px) {
-  &::after {
-    background-image: url("../images/cloud-download.svg");
-    background-repeat: no-repeat;
-    background-size: @size;
-    display: block;
-    width: @size;
-    height: @size;
-    content: " ";
-    position: absolute;
-    bottom: @bottom;
-    left: @left;
+.icon-down-arrow {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\ea36";
+  }
+}
+
+.icon-inherited(@size: 18px, @width: @size+2, @height: @size+2, @line-height: @size+4) {
+  .icon-down-arrow();
+
+  &::before {
+    z-index: 1;
+    font-size: @size;
+    border-radius: @size;
+    width: @width;
+    height: @height;
+    line-height: @line-height;
+    padding: 2px;
+    color: @admin-white;
+    background-color: @admin-button-blue1;
+  }
+}
+
+.icon-variant(@size: 10px, @color: @admin-bg-dark-gray, @bg-color: @admin-white, @border-color: @admin-bg-dark-gray) {
+  .icon-studio-lib();
+
+  &::before {
+    z-index: 1;
+    content: "\e910";
+    font-size: @size;
+    border-radius: @size;
+    padding: 2px;
+    color: @color;
+    border: 1px @border-color solid;
+    background-color: @bg-color;
+    width: @size+2;
+    height: @size+2;
+    line-height: @size+4;
   }
 }
 
