@@ -221,3 +221,17 @@
     left: @left;
   }
 }
+
+.icon-variant(@size: 12px, @color: @admin-bg-dark-gray, @bg-color: @admin-white, @border-color: @admin-bg-dark-gray) {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e910";
+    font-size: @size;
+    border-radius: @size;
+    padding: 2px;
+    color: @color;
+    border: 1px @border-color solid;
+    background-color: @bg-color;
+  }
+}

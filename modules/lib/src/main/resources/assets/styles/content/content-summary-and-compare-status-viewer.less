@@ -1,4 +1,4 @@
-.names-and-icon-viewer.content-summary-and-compare-status-viewer {
+.content-summary-and-compare-status-viewer {
   &.invalid,
   &.ready,
   &.in-progress {
@@ -22,8 +22,22 @@
     .icon-state-in-progress;
   }
 
-  &.has-origin-project .names-and-icon-view .@{_COMMON_PREFIX}wrapper {
+  &:not(.icon-variant).has-origin-project .names-and-icon-view .@{_COMMON_PREFIX}wrapper {
     .icon-cloud-download();
+  }
+
+  &.icon-variant {
+    .icon-variant();
+
+    &:before {
+      position: absolute;
+      z-index: 1;
+      bottom: 4px;
+    }
+
+    &.has-origin-project {
+      .icon-variant(@color: @admin-white, @bg-color: lighten(@admin-button-blue1, 15%), @border-color: transparent);
+    }
   }
 
   &.pending-delete .names-and-icon-view .@{_COMMON_PREFIX}names-view {

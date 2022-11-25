@@ -1,4 +1,29 @@
 .content-wizard-panel {
+
+  .thumbnail-uploader-el {
+    &.status-hidden .result-container .workflow-status {
+      display: none;
+    }
+
+    &:not(.icon-variant).has-origin-project .result-container {
+      .icon-cloud-download(24px, -4px, -6px);
+    }
+
+    &.icon-variant {
+      .icon-variant(14px);
+
+      &:before {
+        position: absolute;
+        bottom: -8px;
+        left: -8px;
+      }
+
+      &.has-origin-project {
+        .icon-variant(@color: @admin-white, @bg-color: @admin-button-blue1, @border-color: transparent);
+      }
+    }
+  }
+
   .mobile-mode {
     .split-panel.wizard-and-preview {
       &.toggle-live {

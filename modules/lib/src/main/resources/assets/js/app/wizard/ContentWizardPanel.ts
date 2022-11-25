@@ -741,6 +741,7 @@ export class ContentWizardPanel
 
             thumbnailUploader.setEnabled(!this.contentType.isImage());
             thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
+            thumbnailUploader.toggleClass('icon-variant', this.getPersistedItem().isVariant());
 
             this.workflowStateManager.onStatusChanged((status: WorkflowStateStatus) => {
                 this.wizardActions.setContentCanBeMarkedAsReady(WorkflowStateManager.isInProgress(status)).refreshState();
