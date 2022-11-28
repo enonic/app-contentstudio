@@ -680,6 +680,11 @@ export class ContentSummaryBuilder {
         return this;
     }
 
+    setVariantOf(value: string): ContentSummaryBuilder {
+        this.variantOf = value;
+        return this;
+    }
+
     build(): ContentSummary {
         return new ContentSummary(this);
     }
