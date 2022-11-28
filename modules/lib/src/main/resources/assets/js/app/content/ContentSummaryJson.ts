@@ -60,4 +60,6 @@ export interface ContentSummaryJson
     originalParentPath: string;
 
     originalName: string;
+
+    variantOf: string;
 }
