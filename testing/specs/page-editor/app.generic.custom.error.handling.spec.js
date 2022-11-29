@@ -17,7 +17,8 @@ describe('Custom error handling - specification. Verify that application error p
     }
 
     let SITE;
-    let CONTROLLER_WITH_ERROR = 'Page with error';
+    const CONTROLLER_WITH_ERROR = 'Page with error';
+    const ERROR_MESSAGE_LIVE_EDIT = "Failed to render content preview.";
 
     it(`WHEN a controller with error has been selected THEN 'Preview' button should be disabled in the browse toolbar`,
         async () => {
@@ -37,12 +38,11 @@ describe('Custom error handling - specification. Verify that application error p
             await contentWizard.waitForPreviewButtonNotDisplayed();
             //4. 'Show Component View' should not be visible
             await contentWizard.waitForShowComponentVewTogglerNotVisible();
-            //4. Verify that 'Failed to render content preview' message appears in the wizard page:
-            let message = await contentWizard.getMessageInPagePlaceholderInfoBlock();
-            assert.equal(message, "Failed to render content preview.");
+            //5. Verify that 'Failed to render content preview' message appears in the wizard page:
+            await contentWizard.waitForErrorMessageInLiveFormPanel(ERROR_MESSAGE_LIVE_EDIT);
             await studioUtils.doCloseCurrentBrowserTab();
             await studioUtils.doSwitchToContentBrowsePanel();
-            //5. Verify that Preview button is disabled on the browse toolbar:
+            //6. Verify that 'Preview' button is disabled in the browse panel toolbar:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.pause(1000);
             await contentBrowsePanel.waitForPreviewButtonDisabled();

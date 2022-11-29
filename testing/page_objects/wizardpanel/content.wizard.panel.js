@@ -588,8 +588,8 @@ class ContentWizardPanel extends Page {
             await this.waitForSavingButtonNotVisible();
             return await this.pause(1200);
         } catch (err) {
-            this.saveScreenshot(appConst.generateRandomName("err_save"));
-            throw new Error(err);
+            await this.saveScreenshot(appConst.generateRandomName("err_save"));
+            throw new Error("Error in waitAndClickOnSave: " + err);
         }
     }
 
@@ -843,9 +843,9 @@ class ContentWizardPanel extends Page {
         })
     }
 
-    waitForMarkAsReadyButtonVisible() {
+    async waitForMarkAsReadyButtonVisible() {
         let selector = XPATH.container + XPATH.markAsReadyButton;
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
     waitForOpenRequestButtonVisible() {
@@ -928,18 +928,17 @@ class ContentWizardPanel extends Page {
         return await createRequestPublishDialog.clickOnCreateRequestButton();
     }
 
-    // async showPublishMenuClickOnMarkAsReadyMenuItem() {
-    //     await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.MARK_AS_READY);
-    //     let dialog = new ConfirmationDialog();
-    //     await dialog.waitForDialogOpened();
-    //     return await dialog.clickOnYesButton();
-    // }
-
     async clickOnMarkAsReadyButton() {
-        let selector = XPATH.container + XPATH.markAsReadyButton;
-        await this.waitForMarkAsReadyButtonVisible();
-        await this.clickOnElement(selector);
-        return await this.pause(1000);
+        try {
+            let selector = XPATH.container + XPATH.markAsReadyButton;
+            await this.waitForMarkAsReadyButtonVisible();
+            await this.clickOnElement(selector);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_mark_as_ready_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error in clickOnMarkAsReadyButton, screenshot:" + screenshot + " " + err);
+        }
     }
 
     async clickOnUnpublishButton() {
@@ -1170,9 +1169,14 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    getMessageInPagePlaceholderInfoBlock() {
+    getMessageInLiveFormPanel() {
         let locator = XPATH.pagePlaceholderInfoBlock1;
         return this.getText(locator);
+    }
+
+    async waitForErrorMessageInLiveFormPanel(message) {
+        let locator = `//div[contains(@id,'PagePlaceholderInfoBlock')]//div[contains(@class,'page-placeholder-info-line1') and contains(.,'${message}')]`;
+        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 }
 

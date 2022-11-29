@@ -604,7 +604,7 @@ module.exports = {
     },
     async clickOnContentStudioLink(userName, password) {
         let launcherPanel = new LauncherPanel();
-        let result = await launcherPanel.waitForPanelDisplayed(2000);
+        let result = await launcherPanel.isDisplayed(2000);
         console.log("Launcher Panel is opened, click on the `Content Studio` link...");
         if (result) {
             await launcherPanel.clickOnContentStudioLink(userName, password);
@@ -754,15 +754,13 @@ module.exports = {
             return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);
         })
     },
-    openDependencyWidgetInBrowsePanel() {
+    async openDependencyWidgetInBrowsePanel() {
         let browsePanel = new BrowsePanel();
         let browseDependenciesWidget = new BrowseDependenciesWidget();
         let browseDetailsPanel = new BrowseDetailsPanel();
-        return browsePanel.openDetailsPanel().then(() => {
-            return browseDetailsPanel.openDependencies();
-        }).then(() => {
-            return browseDependenciesWidget.waitForWidgetLoaded();
-        })
+        await browsePanel.openDetailsPanel();
+        await browseDetailsPanel.openDependencies();
+        return await browseDependenciesWidget.waitForWidgetLoaded();
     },
     async openLayersWidgetInBrowsePanel() {
         let browsePanel = new BrowsePanel();
@@ -834,7 +832,7 @@ module.exports = {
     async navigateToUsersApp(userName, password) {
         try {
             let launcherPanel = new LauncherPanel();
-            let isDisplayed = await launcherPanel.waitForPanelDisplayed(appConst.mediumTimeout);
+            let isDisplayed = await launcherPanel.isDisplayed(appConst.mediumTimeout);
             if (isDisplayed) {
                 console.log("Launcher Panel is opened, click on the `Users` link...");
                 await launcherPanel.pause(300);
@@ -945,7 +943,7 @@ module.exports = {
             await this.clickOnElement(selector);
             //let el = await this.getDisplayedElements(selector);
             //await el[0].click();
-            return await launcherPanel.waitForPanelDisplayed(1000);
+            return await launcherPanel.waitForPanelDisplayed();
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_launcher_button"));
             await this.getBrowser().refresh();
@@ -955,7 +953,7 @@ module.exports = {
 
             let el = await this.getDisplayedElements(selector);
             await el[0].click();
-            return await launcherPanel.waitForPanelDisplayed(1000);
+            return await launcherPanel.waitForPanelDisplayed();
         }
 
     },
