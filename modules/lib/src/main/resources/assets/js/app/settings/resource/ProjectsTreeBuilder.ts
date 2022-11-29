@@ -52,15 +52,16 @@ export class ProjectsTreeBuilder {
             return;
         }
 
-        const parentProjectsTreeItem: ProjectsTreeItem =
-            projectsTreeItems.find((item: ProjectsTreeItem) => item.getName() === project.getParent());
+        const parentProjectsTreeItem = projectsTreeItems.find((item: ProjectsTreeItem) => project.hasMainParentByName(item.getName()));
 
         if (!parentProjectsTreeItem) {
             return;
         }
 
-        const notAvailableParentProject: Project = new ProjectBuilder().setName(parentProjectsTreeItem.getName()).setParent(
-            parentProjectsTreeItem.getParent()).build();
+        const notAvailableParentProject = new ProjectBuilder()
+            .setName(parentProjectsTreeItem.getName())
+            .setParents([parentProjectsTreeItem.getParent()])
+            .build();
 
         this.projectsTree.push(notAvailableParentProject);
 
@@ -68,12 +69,13 @@ export class ProjectsTreeBuilder {
     }
 
     private isDefaultOrHasParent(project: Project): boolean {
-        return ProjectHelper.isDefault(project) || this.projectsTree.some((p: Project) => project.getParent() === p.getName());
+        return ProjectHelper.isDefault(project) || this.projectsTree.some((p: Project) => project.hasMainParentByName(p.getName()));
     }
 
     private getProjectsWithoutParents(): Project[] {
-        return this.availableProjects.filter(
-            (p1: Project) => !!p1.getParent() && !this.availableProjects.some((p2: Project) => p1.getParent() === p2.getName()));
+        return this.availableProjects.filter((p1: Project) => {
+            return !!p1.getParents() && !this.availableProjects.some((p2: Project) => p1.hasParentByName(p2.getName()));
+        });
     }
 
     private filterDefaultProjectIfNeeded(projects: Project[]): Project[] {
@@ -105,6 +107,6 @@ export class ProjectsTreeBuilder {
     }
 
     private getParent(project: Project): Project {
-        return this.projectsTree.find((p: Project) => p.getName() === project.getParent());
+        return this.projectsTree.find((p: Project) => project.hasMainParentByName(p.getName()));
     }
 }

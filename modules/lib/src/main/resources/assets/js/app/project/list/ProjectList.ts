@@ -36,18 +36,18 @@ export class ProjectList
         items.forEach((item: Project) => this.calcProjectLevel(item, items));
     }
 
-    private calcProjectLevel(item: Project, items: Project[]) {
-        let parentName: string = item.getParent();
+    private calcProjectLevel(item: Project, items: Project[]): void {
+        let parentNames = item.getParents();
         let level: number = 0;
 
-        while (parentName) {
-            const parent: Project = items.find((p: Project) => p.getName() === parentName);
+        while (parentNames) {
+            const parent: Project = items.find((p: Project) => parentNames.indexOf(p.getName()) >= 0);
 
             if (parent) {
                 level++;
-                parentName = parent.getParent();
+                parentNames = parent.getParents();
             } else {
-                parentName = null;
+                parentNames = null;
             }
         }
 
@@ -59,7 +59,7 @@ export class ProjectList
     }
 
     private getDirectProjectChildren(project: Project, projects: Project[]): Project[] {
-        return projects.filter((item: Project) => item.getParent() === project.getName());
+        return projects.filter((item: Project) => item.hasMainParentByName(project.getName()));
     }
 
     private sortProjects(items: Project[]): Project[] {

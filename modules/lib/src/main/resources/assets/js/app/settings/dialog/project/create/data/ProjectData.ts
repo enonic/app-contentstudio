@@ -4,9 +4,9 @@ import {ProjectAccessDialogStepData} from './ProjectAccessDialogStepData';
 import {ProjectPermissionsDialogStepData} from './ProjectPermissionsDialogStepData';
 import {ProjectApplication} from '../../../../wizard/panel/form/element/ProjectApplication';
 
-export class ProjectData {
+export interface ProjectData {
 
-    parent?: Project;
+    parents?: Project[];
 
     locale?: Locale;
 

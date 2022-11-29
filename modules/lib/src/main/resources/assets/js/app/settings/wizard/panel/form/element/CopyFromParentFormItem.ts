@@ -2,31 +2,37 @@ import {ProjectFormItem} from './ProjectFormItem';
 import {Project} from '../../../../data/project/Project';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export abstract class CopyFromParentFormItem
     extends ProjectFormItem {
 
     protected copyFromParentButton?: Button;
 
-    protected parentProject?: Project;
+    protected parentProjects?: Project[];
 
-    setParentProject(value: Project) {
-        this.parentProject = value;
+    setParentProjects(value: Project[]) {
+        if (!ObjectHelper.arrayEquals(this.parentProjects, value)) {
+            this.removeCopyButton();
+        }
+
+        this.parentProjects = value;
 
         if (value) {
-            this.appendCopyButtons();
+            this.appendCopyButton();
         } else {
-            this.removeCopyButtons();
+            this.removeCopyButton();
         }
     }
 
-    private removeCopyButtons() {
+    private removeCopyButton() {
         if (this.copyFromParentButton) {
             this.removeChild(this.copyFromParentButton);
+            this.copyFromParentButton = null;
         }
     }
 
-    private appendCopyButtons() {
+    private appendCopyButton() {
         if (!this.copyFromParentButton) {
             this.copyFromParentButton = this.createCopyFromParentButton();
         }
@@ -36,11 +42,12 @@ export abstract class CopyFromParentFormItem
     }
 
     private createCopyFromParentButton(): Button {
-        const button: Button = new Button(i18n('settings.wizard.project.copy')).setEnabled(false);
+        const parentProjectName = this.parentProjects[0]?.getDisplayName() || '';
+        const button: Button = new Button(i18n('settings.wizard.project.copy', parentProjectName)).setEnabled(false);
         button.addClass('copy-parent-button');
 
         button.onClicked(() => {
-            if (!this.parentProject) {
+            if (!this.parentProjects) {
                 return;
             }
 

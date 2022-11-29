@@ -177,14 +177,14 @@ export class SortContentDialog
     }
 
     private addInheritedOptionIfParentExists() {
-        const parentProject: string = ProjectContext.get().getProject().getParent();
+        const hasParents = ProjectContext.get().getProject().hasParents();
 
-        if (parentProject) {
+        if (hasParents) {
             this.fetchParentLayerContent().then((parentLayerContent: ContentSummaryAndCompareStatus) => {
                 if (!parentLayerContent) {
                     this.sortContentMenu.removeInheritedItem();
                 } else {
-                   this.addInheritedItemByOrder(parentLayerContent.getContentSummary().getChildOrder());
+                    this.addInheritedItemByOrder(parentLayerContent.getContentSummary().getChildOrder());
                 }
             }).catch(DefaultErrorHandler.handle);
         } else {
@@ -193,9 +193,10 @@ export class SortContentDialog
     }
 
     private fetchParentLayerContent(): Q.Promise<any> {
-        const parentProject: string = ProjectContext.get().getProject().getParent();
+        // TODO: Projects. Fix. May calculate to invalid project
+        const parentProject: string = ProjectContext.get().getProject().getMainParent();
 
-       return new ContentsExistRequest([this.selectedContent.getId()])
+        return new ContentsExistRequest([this.selectedContent.getId()])
             .setRequestProjectName(parentProject)
             .sendAndParse()
             .then((result: ContentsExistResult) => {

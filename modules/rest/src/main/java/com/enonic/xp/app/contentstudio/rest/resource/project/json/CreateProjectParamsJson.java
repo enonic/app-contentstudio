@@ -1,5 +1,7 @@
 package com.enonic.xp.app.contentstudio.rest.resource.project.json;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +20,7 @@ public final class CreateProjectParamsJson
 
     private final String description;
 
-    private final ProjectName parent;
+    private final List<ProjectName> parents;
 
     private final ProjectReadAccess readAccess;
 
@@ -26,14 +28,17 @@ public final class CreateProjectParamsJson
 
     @JsonCreator
     CreateProjectParamsJson( @JsonProperty("name") final String name, @JsonProperty("displayName") final String displayName,
-                             @JsonProperty("description") final String description, @JsonProperty("parent") final String parent,
+                             @JsonProperty("description") final String description,
+                             @JsonProperty("parents") final Collection<String> parents,
                              @JsonProperty("readAccess") final ProjectReadAccessJson readAccess,
-                             @JsonProperty("applications") final List<String> applications)
+                             @JsonProperty("applications") final List<String> applications )
     {
         this.name = ProjectName.from( name );
         this.displayName = displayName;
         this.description = description;
-        this.parent = parent == null || parent.isBlank() ? null : ProjectName.from( parent );
+        this.parents = parents == null
+            ? Collections.emptyList()
+            : parents.stream().filter( parent -> !parent.isBlank() ).map( ProjectName::from ).collect( Collectors.toList() );
         this.readAccess = readAccess != null ? readAccess.getProjectReadAccess() : null;
         this.applicationKeys =
             applications != null ? applications.stream().map( ApplicationKey::from ).collect( Collectors.toList() ) : null;
@@ -54,9 +59,9 @@ public final class CreateProjectParamsJson
         return description;
     }
 
-    public ProjectName getParent()
+    public List<ProjectName> getParents()
     {
-        return parent;
+        return parents;
     }
 
     public ProjectReadAccess getReadAccess()

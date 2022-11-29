@@ -4,7 +4,7 @@ import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 export class ProjectCreateRequest
     extends ProjectCreateUpdateRequest {
 
-    private parent: string;
+    private parents: string[];
 
     private readAccess: ProjectReadAccess;
 
@@ -13,8 +13,8 @@ export class ProjectCreateRequest
         this.addRequestPathElements('create');
     }
 
-    setParent(value: string): ProjectCreateRequest {
-        this.parent = value;
+    setParents(value: string[]): ProjectCreateRequest {
+        this.parents = value;
         return this;
     }
 
@@ -26,8 +26,8 @@ export class ProjectCreateRequest
     getParams(): Object {
         const params: Object = super.getParams();
 
-        if (this.parent) {
-            params['parent'] = this.parent;
+        if (this.parents) {
+            params['parents'] = this.parents;
         }
 
         if (this.readAccess) {

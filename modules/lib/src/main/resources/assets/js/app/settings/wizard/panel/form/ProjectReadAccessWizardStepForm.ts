@@ -124,10 +124,10 @@ export class ProjectReadAccessWizardStepForm
         return this.readAccessFormItem;
     }
 
-    setParentProject(project: Project) {
-        super.setParentProject(project);
-        this.localeFormItem.setParentProject(project);
-        this.readAccessFormItem.setParentProject(project);
+    setParentProjects(projects: Project[]) {
+        super.setParentProjects(projects);
+        this.localeFormItem.setParentProjects(projects);
+        this.readAccessFormItem.setParentProjects(projects);
     }
 
     private createLanguageFormItem(): FormItem {

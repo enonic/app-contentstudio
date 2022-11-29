@@ -25,8 +25,8 @@ export class ProjectLocaleDialogStep
         });
     }
 
-    setParentProject(value: Project) {
-        this.getFormItem().setParentProject(value);
+    setParentProjects(value: Project[]) {
+        this.getFormItem().setParentProjects(value);
     }
 
     getData(): ProjectLocaleDialogStepData {

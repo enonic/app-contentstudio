@@ -7,7 +7,6 @@ import * as Q from 'q';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
 import {Project} from '../../../data/project/Project';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {SettingsType} from '../../../data/type/SettingsType';
 import {ParentProjectFormItem} from './element/ParentProjectFormItem';
 import {ProjectNameFormItem} from './element/ProjectNameFormItem';
@@ -19,7 +18,7 @@ export class ProjectItemNameWizardStepForm
 
     private descriptionInput: TextInput;
 
-    private parentProjectFormItem: ParentProjectFormItem;
+    private parentProjectsFormItem: ParentProjectFormItem;
 
     getProjectName(): string {
         return this.nameFormItem.getValue();
@@ -46,33 +45,33 @@ export class ProjectItemNameWizardStepForm
     }
 
     disableParentProjectHelpText() {
-        this.parentProjectFormItem.disableHelpText();
+        this.parentProjectsFormItem.disableHelpText();
     }
 
-    disableParentProjectInput() {
-        this.getProjectComboBox().setEnabled(false);
+    disableParentProjectsInput() {
+        this.getProjectsComboBox().setEnabled(false);
     }
 
-    getParentProject(): string {
-        return this.parentProjectFormItem ? this.getProjectComboBox().getValue() : undefined;
+    getParentProjectsNames(): string[] {
+        return this.parentProjectsFormItem ? this.getProjectsComboBox().getSelectedValues() : undefined;
     }
 
-    setParentProject(project: Project) {
-        super.setParentProject(project);
+    getParentProjects(): Project[] {
+        return this.parentProjectsFormItem ? this.getProjectsComboBox().getSelectedDisplayValues() : undefined;
+    }
+
+    setParentProjects(projects: Project[]) {
+        super.setParentProjects(projects);
 
         this.appendParentProjectDropdown();
-        this.getProjectComboBox().selectProject(project);
+        this.getProjectsComboBox().updateAndSelectProjects(projects);
     }
 
-    onParentProjectChanged(callback: (project: Project) => void) {
-        this.getProjectComboBox().onOptionSelected((event: SelectedOptionEvent<Project>) => {
-            callback(event.getSelectedOption().getOption().getDisplayValue());
-        });
+    onParentProjectChanged(callback: (projects: Project[]) => void) {
+        const handler = () => callback(this.getProjectsComboBox().getSelectedDisplayValues());
 
-
-        this.getProjectComboBox().onOptionDeselected(() => {
-           callback(null);
-        });
+        this.getProjectsComboBox().onOptionSelected(handler);
+        this.getProjectsComboBox().onOptionDeselected(handler);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -90,7 +89,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     public isValid(): boolean {
-        return this.nameFormItem.isProjectNameValid() && this.isParentProjectSet();
+        return this.nameFormItem.isProjectNameValid() && this.isParentProjectsSet();
     }
 
     layout(item: ProjectViewItem): Q.Promise<void> {
@@ -106,9 +105,9 @@ export class ProjectItemNameWizardStepForm
         return Q(null);
     }
 
-    disableParentProjectElements(parentProject: string) {
+    disableParentProjectElements() {
         this.disableParentProjectHelpText();
-        this.disableParentProjectInput();
+        this.disableParentProjectsInput();
     }
 
     public getName(type: SettingsType): string {
@@ -127,13 +126,13 @@ export class ProjectItemNameWizardStepForm
     }
 
     private appendParentProjectDropdown() {
-        if (!!this.parentProjectFormItem) {
+        if (this.parentProjectsFormItem) {
             return;
         }
 
-        this.parentProjectFormItem = new ParentProjectFormItem();
+        this.parentProjectsFormItem = new ParentProjectFormItem();
 
-        this.addFormItem(this.parentProjectFormItem);
+        this.addFormItem(this.parentProjectsFormItem);
     }
 
     protected createFormItems(): FormItem[] {
@@ -145,12 +144,12 @@ export class ProjectItemNameWizardStepForm
         return [this.nameFormItem, descriptionFormItem];
     }
 
-    private isParentProjectSet(): boolean {
-        return !this.parentProjectFormItem || !!this.getProjectComboBox().getValue();
+    private isParentProjectsSet(): boolean {
+        return !this.parentProjectsFormItem || this.getProjectsComboBox().getSelectedValues()?.length > 0;
     }
 
-    private getProjectComboBox() {
-        return this.parentProjectFormItem.getProjectsComboBox();
+    private getProjectsComboBox() {
+        return this.parentProjectsFormItem.getProjectsSelector();
     }
 
     private getProjectNameInput(): TextInput {
