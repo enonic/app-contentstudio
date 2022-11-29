@@ -290,7 +290,7 @@ const getProjectToSet = (projects: Project[]): Project => {
 };
 
 const getParentProject = (project: Project, projects: Project[]): Project => {
-    const parentProject: Project = projects.find((p: Project) => p.getName() === project.getParent());
+    const parentProject: Project = projects.find((p: Project) => project.hasParentByName(p.getName()));
 
     if (parentProject) {
         return ProjectHelper.isAvailable(parentProject) ? parentProject : getParentProject(parentProject, projects);
