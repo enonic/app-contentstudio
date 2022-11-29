@@ -8,7 +8,8 @@ import {ProjectRolesFormItem} from './element/ProjectRolesFormItem';
 import {Project} from '../../../data/project/Project';
 import {ProjectPermissions} from '../../../data/project/ProjectPermissions';
 
-export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
+export class ProjectRolesWizardStepForm
+    extends ProjectWizardStepForm {
 
     private rolesFormItem: ProjectRolesFormItem;
 
@@ -17,9 +18,9 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
         return [this.rolesFormItem];
     }
 
-    setParentProject(project: Project) {
-        super.setParentProject(project);
-        this.rolesFormItem.setParentProject(project);
+    setParentProjects(projects: Project[]): void {
+        super.setParentProjects(projects);
+        this.rolesFormItem.setParentProjects(projects);
     }
 
     getName(): string {
