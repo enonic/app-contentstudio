@@ -17,7 +17,7 @@ export class ProjectIconUrlResolver
     private ts: number;
 
     static getDefaultIcon(project: Project) {
-        return !!project.getParent() ? ProjectIconUrlResolver.DEFAULT_LAYER_ICON_CLASS : ProjectIconUrlResolver.DEFAULT_PROJECT_ICON_CLASS;
+        return project.hasParents() ? ProjectIconUrlResolver.DEFAULT_LAYER_ICON_CLASS : ProjectIconUrlResolver.DEFAULT_PROJECT_ICON_CLASS;
     }
 
     static getDefaultProjectIcon() {

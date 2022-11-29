@@ -83,10 +83,11 @@ export class SettingsAppPanel
 
             wizard.setHasChildrenLayers(this.browsePanel.hasChildren(projectItem.getId()));
 
-            if (projectItem.getData() && projectItem.getData().getParent()) {
-                const parentProject: Project =
-                    (this.browsePanel.getItemById(projectItem.getData().getParent()) as ProjectViewItem).getData();
-                wizard.setParentProject(parentProject);
+            if (projectItem.getData() && projectItem.getData().hasParents()) {
+                const parentProjects = projectItem.getData().getParents().map(id => {
+                    return (this.browsePanel.getItemById(id) as ProjectViewItem).getData();
+                });
+                wizard.updateParentProjects(parentProjects);
             }
 
             return wizard;
@@ -147,7 +148,7 @@ export class SettingsAppPanel
 
         this.browsePanel.addSettingsItem(item);
         this.getProjectWizards().forEach((wizardPanel: ProjectWizardPanel) => {
-            if (wizardPanel.isItemPersisted() && wizardPanel.getPersistedItem().getId() === project.getParent()) {
+            if (wizardPanel.isItemPersisted() && project.hasParentByName(wizardPanel.getPersistedItem().getId())) {
                 wizardPanel.setHasChildrenLayers(true);
             }
         });
@@ -173,8 +174,12 @@ export class SettingsAppPanel
             projectWizardPanel.updatePersistedSettingsDataItem(projectItem);
         }
 
-        if (projectWizardPanel.getParentProject() === projectItem.getName()) {
-            projectWizardPanel.setParentProject(projectItem.getData());
+        const parentIndex = projectWizardPanel.getParentProjectsNames().indexOf(projectItem.getName());
+        const isParent = parentIndex >= 0;
+        if (isParent) {
+            const projects = [...projectWizardPanel.getParentProjects()];
+            projects[parentIndex] = projectItem.getData();
+            projectWizardPanel.updateParentProjects(projects);
         }
     }
 

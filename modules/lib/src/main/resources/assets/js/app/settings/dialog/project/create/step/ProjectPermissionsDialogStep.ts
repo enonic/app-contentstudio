@@ -24,8 +24,8 @@ export class ProjectPermissionsDialogStep
         return true;
     }
 
-    setParentProject(value: Project) {
-        this.getFormItem().setParentProject(value);
+    setParentProjects(value: Project[]) {
+        this.getFormItem().setParentProjects(value);
     }
 
     protected initEventListeners(): void {

@@ -62,7 +62,7 @@ export class ProjectViewItem
     }
 
     getType(): SettingsType {
-        return !!this.data.getParent() ? SettingsTypes.get().getLayer() : SettingsTypes.get().getProject();
+        return this.data.hasParents() ? SettingsTypes.get().getLayer() : SettingsTypes.get().getProject();
     }
 
     isDefaultProject(): boolean {
