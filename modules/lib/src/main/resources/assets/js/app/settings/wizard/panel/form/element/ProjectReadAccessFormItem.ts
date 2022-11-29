@@ -147,16 +147,17 @@ export class ProjectReadAccessFormItem
     }
 
     protected doCopyFromParent(): void {
-        this.layoutReadAccess(this.parentProject.getReadAccess(), this.parentProject.getPermissions(), false).then(() => {
+        const parentProject = this.parentProjects[0];
+        this.layoutReadAccess(parentProject.getReadAccess(), parentProject.getPermissions(), false).then(() => {
             this.notifyAccessCopiedFromParent();
             return Q.resolve();
         });
     }
 
     private notifyAccessCopiedFromParent(): void {
-        NotifyManager.get().showSuccess(
-            i18n('settings.wizard.project.copy.success', i18n('settings.items.wizard.readaccess.label'),
-                this.parentProject.getDisplayName()));
+        const parentProject = this.parentProjects[0];
+        const accessLabel = i18n('settings.items.wizard.readaccess.label');
+        NotifyManager.get().showSuccess(i18n('settings.wizard.project.copy.success', accessLabel, parentProject.getDisplayName()));
     }
 
     updateCopyButtonState(): void {
@@ -164,7 +165,9 @@ export class ProjectReadAccessFormItem
     }
 
     private isCopyButtonToBeEnabled(): boolean {
-        if (!ProjectHelper.isAvailable(this.parentProject)) {
+        const parentProject = this.parentProjects?.[0];
+
+        if (!ProjectHelper.isAvailable(parentProject)) {
             return false;
         }
 
@@ -172,7 +175,7 @@ export class ProjectReadAccessFormItem
             return true;
         }
 
-        if (!this.parentProject.getReadAccess().equals(this.getReadAccess())) {
+        if (!parentProject.getReadAccess().equals(this.getReadAccess())) {
             return true;
         }
 
