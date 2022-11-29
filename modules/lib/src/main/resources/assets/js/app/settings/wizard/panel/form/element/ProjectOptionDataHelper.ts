@@ -15,7 +15,7 @@ export class ProjectOptionDataHelper
     }
 
     hasChildren(data: Project): boolean {
-        return this.projects.some((project: Project) => project.getParent() === data.getName());
+        return this.projects.some((project: Project) => project.hasParentByName(data.getName()));
     }
 
     isDescendingPath(childOption: Project, parentOption: Project): any {
@@ -23,7 +23,7 @@ export class ProjectOptionDataHelper
     }
 
     isExpandable(data: Project): boolean {
-        return this.projects.some((project: Project) => project.getParent() === data.getName());
+        return this.projects.some((project: Project) => project.hasParentByName(data.getName()));
     }
 
     isSelectable(data: Project): boolean {

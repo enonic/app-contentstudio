@@ -56,8 +56,8 @@ export class ProjectAccessDialogStep
         return 'project-read-access-step';
     }
 
-    setParentProject(value: Project) {
-        this.getFormItem().setParentProject(value);
+    setParentProjects(value: Project[]) {
+        this.getFormItem().setParentProjects(value);
     }
 
     hasData(): boolean {

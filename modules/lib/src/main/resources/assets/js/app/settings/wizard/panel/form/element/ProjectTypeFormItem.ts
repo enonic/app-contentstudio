@@ -61,20 +61,13 @@ export class ProjectTypeFormItem
         return <RadioGroup>this.getInput();
     }
 
-    setSelectedProject(value: Project): void {
-        if (value) {
-            this.getRadioGroup().setValue(PARENT_TYPE.LAYER);
-            this.projectsCombobox.selectProject(value);
-        }
-    }
-
     hasData(): boolean {
         const selectedType: string = this.getRadioGroup().getValue();
         return selectedType === PARENT_TYPE.PROJECT || (selectedType === PARENT_TYPE.LAYER && !!this.projectsCombobox.getValue());
     }
 
-    getSelectedProject(): Project {
-        return this.getRadioGroup().getValue() === PARENT_TYPE.LAYER ? this.projectsCombobox.getSelectedDisplayValues()[0] : null;
+    getSelectedProjects(): Project[] {
+        return this.getRadioGroup().getValue() === PARENT_TYPE.LAYER ? this.projectsCombobox.getSelectedDisplayValues() : null;
     }
 
     onRadioValueChanged(listener: () => void): void {

@@ -57,7 +57,7 @@ export class ProjectOptionDataLoader
     }
 
     private getDirectProjectChildren(project: Project): Project[] {
-        return this.getResults().filter((item: Project) => item.getParent() === project.getName());
+        return this.getResults().filter((item: Project) => item.hasParentByName(project.getName()));
     }
 
     onLoadModeChanged(listener: (isTreeMode: boolean) => void) {
