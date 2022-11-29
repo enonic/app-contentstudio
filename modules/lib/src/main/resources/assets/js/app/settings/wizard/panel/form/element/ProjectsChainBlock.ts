@@ -68,7 +68,7 @@ export class ProjectsChainBlock
 
             if (parentProject) {
                 parentProjects.unshift(parentProject);
-                parentProjectName = parentProject.getParent();
+                parentProjectName = parentProject.getMainParent();
             } else {
                 parentProjectName = null;
             }
