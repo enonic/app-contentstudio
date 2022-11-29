@@ -40,10 +40,11 @@ export class LocaleFormItem
     }
 
     protected doCopyFromParent(): void {
-        const parentLanguage: string = this.parentProject?.getLanguage();
+        const parentProject = this.parentProjects?.[0];
+        const parentLanguage: string = parentProject?.getLanguage() ?? '';
         const combobox: LocaleComboBox = this.getLocaleCombobox();
 
-        combobox.getComboBox().setValue(parentLanguage || '');
+        combobox.getComboBox().setValue(parentLanguage);
 
         if (combobox.countSelected() === 0) {
             combobox.getComboBox().getInput().openForTyping();
@@ -51,13 +52,13 @@ export class LocaleFormItem
         }
 
         NotifyManager.get().showSuccess(
-            i18n('settings.wizard.project.copy.success', i18n('field.lang'), this.parentProject.getDisplayName()));
+            i18n('settings.wizard.project.copy.success', i18n('field.lang'), parentProject?.getDisplayName()));
     }
 
     updateCopyButtonState(): void {
-        this.copyFromParentButton?.setEnabled(this.parentProject &&
-                                                  !ObjectHelper.stringEquals(this.parentProject.getLanguage(),
-                                                      this.getLocaleCombobox().getValue()));
+        const parentProject = this.parentProjects?.[0];
+        const canCopy = !!parentProject && !ObjectHelper.stringEquals(parentProject?.getLanguage(), this.getLocaleCombobox().getValue());
+        this.copyFromParentButton?.setEnabled(canCopy);
     }
 }
 

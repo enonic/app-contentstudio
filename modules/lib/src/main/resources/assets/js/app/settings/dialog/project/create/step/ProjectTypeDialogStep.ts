@@ -34,7 +34,7 @@ export class ProjectTypeDialogStep
     }
 
     getData(): ProjectParentDialogStepData {
-        return new ProjectParentDialogStepData().setParentProject(this.getFormItem()?.getSelectedProject());
+        return new ProjectParentDialogStepData().setParentProjects(this.getFormItem()?.getSelectedProjects());
     }
 
     hasData(): boolean {
