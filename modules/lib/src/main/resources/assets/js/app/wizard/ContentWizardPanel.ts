@@ -1472,22 +1472,25 @@ export class ContentWizardPanel
                 return;
             }
 
-            const parentProject: string = ProjectContext.get().getProject().getParent();
+            const contextProject = ProjectContext.get().getProject();
 
-            if (!parentProject) {
+            if (!contextProject.hasParents()) {
                 return;
             }
 
-            const parentProjectRepo: string = RepositoryId.fromProjectName(parentProject).toString();
             const thisContentId: ContentId = this.getPersistedItem().getContentId();
             const thisContentIdAsString: string = this.getPersistedItem().getContentId().toString();
-            const isParentDeleted: boolean = items.some((item: ContentServerChangeItem) => {
-                return item.getContentId().equals(thisContentId) && item.getRepo() === parentProjectRepo;
+
+            let deletedParent = contextProject.getParents().find(parent => {
+                const parentProjectRepo = RepositoryId.fromProjectName(parent).toString();
+                return items.some((item: ContentServerChangeItem) => {
+                    return item.getContentId().equals(thisContentId) && item.getRepo() === parentProjectRepo;
+                });
             });
 
-            if (isParentDeleted) {
+            if (deletedParent) {
                 void new ContentsExistRequest([thisContentIdAsString])
-                    .setRequestProjectName(parentProject)
+                    .setRequestProjectName(deletedParent)
                     .sendAndParse()
                     .then((result: ContentsExistResult) => {
                         this.contentExistsInParentProject = !!result.getContentsExistMap()[thisContentIdAsString];

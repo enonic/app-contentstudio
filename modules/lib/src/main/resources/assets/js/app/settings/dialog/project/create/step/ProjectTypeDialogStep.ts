@@ -1,7 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {Project} from '../../../../data/project/Project';
 import {ProjectParentDialogStepData} from '../data/ProjectParentDialogStepData';
 import {ProjectTypeFormItem} from '../../../../wizard/panel/form/element/ProjectTypeFormItem';
 import * as Q from 'q';
@@ -34,7 +33,7 @@ export class ProjectTypeDialogStep
     }
 
     getData(): ProjectParentDialogStepData {
-        return new ProjectParentDialogStepData().setParentProject(this.getFormItem().getSelectedProject());
+        return new ProjectParentDialogStepData().setParentProjects(this.getFormItem().getSelectedProjects());
     }
 
     hasData(): boolean {
@@ -43,10 +42,6 @@ export class ProjectTypeDialogStep
 
     isValid(): Q.Promise<boolean> {
         return Q.resolve(this.hasData());
-    }
-
-    setSelectedProject(value: Project): void {
-        this.getFormItem().setSelectedProject(value);
     }
 
     getName(): string {

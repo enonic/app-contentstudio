@@ -5,7 +5,7 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 export class SummaryValueContainer extends SummaryItemContainer {
 
     constructor(className?: string) {
-        super('summary-value-container ' + (className ? className : ''));
+        super(`summary-value-container ${className ?? ''}`);
     }
 
     protected createItemContainer(): Element {
