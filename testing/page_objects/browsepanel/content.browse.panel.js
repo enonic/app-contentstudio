@@ -395,10 +395,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    waitForContentNotDisplayed(contentName) {
-        return this.waitForElementNotDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.mediumTimeout).catch(err => {
-            throw new Error("Content is still displayed :" + err);
-        });
+    async waitForContentNotDisplayed(contentName) {
+        let locator = XPATH.treeGrid + lib.itemByName(contentName)
+        try {
+            await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_preview_btn_disabled");
+            await this.saveScreenshot(screenshot);
+            throw new Error("Content is still displayed, screenshot :" + screenshot + "  " + err);
+        }
     }
 
     async clickOnPreviewButton() {
@@ -416,18 +421,24 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.isElementDisplayed(this.searchButton);
     }
 
-    waitForPreviewButtonDisabled() {
-        return this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_preview_disabled_button');
-            throw Error('Preview button should be disabled : ' + err);
-        })
+    async waitForPreviewButtonDisabled() {
+        try {
+            await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_preview_btn_disabled");
+            await this.saveScreenshot(screenshot);
+            throw Error('Preview button should be disabled, screenshot  : ' + screenshot + "  " + err);
+        }
     }
 
-    waitForPreviewButtonEnabled() {
-        return this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_preview_enabled_button');
-            throw Error('Preview button should be enabled, timeout: ' + err);
-        })
+    async waitForPreviewButtonEnabled() {
+        try {
+            await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName("err_preview_btn_enabled");
+            await this.saveScreenshot(screenshot);
+            throw Error('Preview button should be enabled, screenshot  : ' + screenshot + "  " + err);
+        }
     }
 
     waitForDetailsPanelToggleButtonDisplayed() {

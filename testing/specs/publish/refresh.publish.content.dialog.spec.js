@@ -22,7 +22,7 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
 
     //verifies https://github.com/enonic/app-contentstudio/issues/697
     //         https://github.com/enonic/lib-admin-ui/issues/1061
-    it(`GIVEN new folder ('Work in progress') is selected AND Publish dialog has been opened WHEN this folder has been clicked in the dialog and 'Marked as ready' has been done in the wizard THEN Publish Wizard should be updated`,
+    it(`GIVEN 'Ready for publishing' folder is selected AND Publish dialog has been opened WHEN folder-link has been clicked in the dialog and a language has been selected THEN the workflow-status should be updated in Publish Wizard`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -32,11 +32,11 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             //1. New folder has been added:(status of this folder is Ready for publishing)
             await studioUtils.doAddReadyFolder(FOLDER);
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            //2. expand 'Publish Menu' and select 'Publish...' menu item, Publish Wizard gets visible:
+            //2. expand 'Publish Menu' and select 'Publish...' menu item, Publish Wizard should be loaded:
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForPublishNowButtonEnabled();
 
-            //3. click on the folder-name in the modal dialog and switches to new wizard-tab:
+            //3. click on the folder-name in the modal dialog then switch to the wizard-tab:
             await contentPublishDialog.clickOnItemToPublishAndSwitchToWizard(FOLDER.displayName);
             //4. Select a language in the wizard. The folder gets Work in Progress
             let settingsForm = new SettingsStepForm();

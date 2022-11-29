@@ -64,10 +64,15 @@ class LauncherPanel extends Page {
         return this.waitForElementDisplayed(this.logoutLink);
     }
 
-    waitForPanelDisplayed(ms) {
+    isDisplayed(ms) {
         return this.waitForElementDisplayed(XPATH.container, ms).catch(err => {
             return false;
         })
+    }
+
+    async waitForPanelDisplayed() {
+        await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+        await this.pause(500);
     }
 
     async waitForPanelClosed() {
