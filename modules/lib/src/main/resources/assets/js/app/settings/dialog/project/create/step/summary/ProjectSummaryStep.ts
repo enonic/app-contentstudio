@@ -13,6 +13,7 @@ import {LanguageValueContainer} from './LanguageValueContainer';
 import {ApplicationsValueContainer} from './ApplicationsValueContainer';
 import {AccessValueContainer} from './AccessValueContainer';
 import {PermissionsValueContainer} from './PermissionsValueContainer';
+import {ProjectsValueContainer} from './ProjectsValueContainer';
 
 export class ProjectSummaryStep
     extends DialogStep {
@@ -25,7 +26,7 @@ export class ProjectSummaryStep
 
     private descriptionContainer: SummaryValueContainer;
 
-    private parentProjectContainer: SummaryValueContainer;
+    private parentProjectsContainer: ProjectsValueContainer;
 
     private languageContainer: LanguageValueContainer;
 
@@ -118,26 +119,26 @@ export class ProjectSummaryStep
     }
 
     private updateParentProjectBlock(): void {
-        if (this.data.parent) {
-            if (!this.parentProjectContainer) {
+        if (this.data.parents) {
+            if (!this.parentProjectsContainer) {
                 this.createAndAddParentProjectContainer();
             }
 
-            this.parentProjectContainer.updateValue(`${this.data.parent.getDisplayName()} (${this.data.parent.getName()})`);
-            this.parentProjectContainer.show();
+            this.parentProjectsContainer.updateValue(this.data.parents);
+            this.parentProjectsContainer.show();
         } else {
-            this.parentProjectContainer?.getPreviousElement()?.hide();
-            this.parentProjectContainer?.hide();
+            this.parentProjectsContainer?.getPreviousElement()?.hide();
+            this.parentProjectsContainer?.hide();
         }
     }
 
     private createAndAddParentProjectContainer(): void {
         const parentNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
             i18n('dialog.project.wizard.summary.parent.title'));
-        this.parentProjectContainer = new SummaryValueContainer();
+        this.parentProjectsContainer = new ProjectsValueContainer();
         const insertAfterEl: Element = this.descriptionContainer || this.idContainer || this.dataContainer;
         parentNameContainer.insertAfterEl(insertAfterEl);
-        this.parentProjectContainer.insertAfterEl(parentNameContainer);
+        this.parentProjectsContainer.insertAfterEl(parentNameContainer);
     }
 
     private updateLanguageBlock(): void {
@@ -158,7 +159,7 @@ export class ProjectSummaryStep
         const languageNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
             i18n('dialog.project.wizard.summary.language.title'));
         this.languageContainer = new LanguageValueContainer();
-        const insertAfterEl: Element = this.parentProjectContainer || this.descriptionContainer || this.idContainer || this.dataContainer;
+        const insertAfterEl: Element = this.parentProjectsContainer || this.descriptionContainer || this.idContainer || this.dataContainer;
         languageNameContainer.insertAfterEl(insertAfterEl);
         this.languageContainer.insertAfterEl(languageNameContainer);
     }
@@ -182,7 +183,7 @@ export class ProjectSummaryStep
         const accessNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
             i18n('dialog.project.wizard.summary.access.title'));
         this.accessContainer = new AccessValueContainer(this.currentUser);
-        const insertAfterEl: Element = this.languageContainer || this.parentProjectContainer || this.descriptionContainer ||
+        const insertAfterEl: Element = this.languageContainer || this.parentProjectsContainer || this.descriptionContainer ||
                                        this.idContainer || this.dataContainer;
         accessNameContainer.insertAfterEl(insertAfterEl);
         this.accessContainer.insertAfterEl(accessNameContainer);
@@ -205,7 +206,7 @@ export class ProjectSummaryStep
         const permissionsNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
             i18n('dialog.project.wizard.summary.permissions.title'));
         this.permissionsContainer = new PermissionsValueContainer(this.currentUser);
-        const insertAfterEl: Element = this.accessContainer || this.languageContainer || this.parentProjectContainer ||
+        const insertAfterEl: Element = this.accessContainer || this.languageContainer || this.parentProjectsContainer ||
                                        this.descriptionContainer || this.idContainer || this.dataContainer;
         permissionsNameContainer.insertAfterEl(insertAfterEl);
         this.permissionsContainer.insertAfterEl(permissionsNameContainer);
@@ -229,7 +230,7 @@ export class ProjectSummaryStep
             i18n('dialog.project.wizard.summary.applications.title'));
         this.applicationsContainer = new ApplicationsValueContainer();
         const insertAfterEl: Element = this.permissionsContainer || this.accessContainer || this.languageContainer ||
-                                       this.parentProjectContainer || this.descriptionContainer || this.idContainer || this.dataContainer;
+                                       this.parentProjectsContainer || this.descriptionContainer || this.idContainer || this.dataContainer;
         applicationsNameContainer.insertAfterEl(insertAfterEl);
         this.applicationsContainer.insertAfterEl(applicationsNameContainer);
     }

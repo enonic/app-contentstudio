@@ -139,15 +139,16 @@ export class ProjectRolesFormItem
     }
 
     protected doCopyFromParent(): void {
-        this.layoutAccessCombobox(this.parentProject.getPermissions(), false).then(() => {
-            NotifyManager.get().showSuccess(
-                i18n('settings.wizard.project.copy.success', i18n('settings.items.wizard.step.roles'),
-                    this.parentProject.getDisplayName()));
+        const parentProject = this.parentProjects[0];
+        this.layoutAccessCombobox(parentProject.getPermissions(), false).then(() => {
+            const roleText = i18n('settings.items.wizard.step.roles');
+            NotifyManager.get().showSuccess(i18n('settings.wizard.project.copy.success', roleText, parentProject.getDisplayName()));
         });
     }
 
     updateCopyButtonState(): void {
-        this.copyFromParentButton?.setEnabled(
-            this.parentProject && !ObjectHelper.equals(this.parentProject.getPermissions(), this.getPermissions()));
+        const parentProject = this.parentProjects?.[0];
+        const canCopy = !!parentProject && !ObjectHelper.equals(parentProject.getPermissions(), this.getPermissions());
+        this.copyFromParentButton?.setEnabled(canCopy);
     }
 }

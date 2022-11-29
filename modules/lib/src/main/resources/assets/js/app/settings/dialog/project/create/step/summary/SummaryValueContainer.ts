@@ -6,7 +6,7 @@ import {ProjectApplication} from '../../../../../wizard/panel/form/element/Proje
 export class SummaryValueContainer extends SummaryItemContainer {
 
     constructor(className?: string) {
-        super('summary-value-container ' + (className ? className : ''));
+        super(`summary-value-container ${className ?? ''}`);
     }
 
     protected createItemContainer(): Element {
