@@ -228,11 +228,8 @@ public final class ProjectResource
 
     private CreateProjectParams createParams( final CreateProjectParamsJson json )
     {
-        final CreateProjectParams.Builder paramsBuilder = CreateProjectParams.create()
-            .name( json.getName() )
-            .displayName( json.getDisplayName() )
-            .description( json.getDescription() )
-            .parent( json.getParent() )
+        final CreateProjectParams.Builder paramsBuilder = CreateProjectParams.create().name( json.getName() ).displayName(
+                json.getDisplayName() ).description( json.getDescription() ).addParents( json.getParents() )
             .forceInitialization( true );
 
         json.getApplicationConfigs().stream().forEach( paramsBuilder::addSiteConfig );

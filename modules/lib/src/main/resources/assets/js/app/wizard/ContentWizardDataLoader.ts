@@ -161,7 +161,8 @@ export class ContentWizardDataLoader {
     }
 
     private loadParentProjectItemIfExists(): Q.Promise<boolean> {
-        const parentProjectName: string = ProjectContext.get().getProject().getParent();
+        // TODO: Projects. Fix. May calculate to invalid project
+        const parentProjectName: string = ProjectContext.get().getProject().getMainParent();
 
         if (!parentProjectName) {
             return Q(false);

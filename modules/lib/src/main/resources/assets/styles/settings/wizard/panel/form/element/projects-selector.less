@@ -1,4 +1,4 @@
-.parent-project-selector {
+.projects-selector {
   .@{_COMMON_PREFIX}wrapper {
     .font-icon-default {
       width: 100%;
@@ -11,13 +11,21 @@
     }
   }
 
-  .tree-grid {
-    .flag {
-      &.fi {
-        &::before {
-          line-height: 24px;
-        }
+  &.multiple-occurrence {
+    .selected-option {
+      padding-left: 0;
+
+      &.placeholder {
+        outline: 2px dashed @admin-medium-gray-border;
+        border: none;
+        height: 45px !important;
       }
+    }
+  }
+
+  &.disabled {
+    .drag-control {
+      display: none;
     }
   }
 
@@ -36,6 +44,16 @@
       .tree-grid-toolbar {
         .selection-controller {
           display: none;
+        }
+      }
+    }
+  }
+
+  .tree-grid {
+    .flag {
+      &.fi {
+        &::before {
+          line-height: 24px;
         }
       }
     }

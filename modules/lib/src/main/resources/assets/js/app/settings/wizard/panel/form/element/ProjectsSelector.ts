@@ -1,51 +1,66 @@
+import * as Q from 'q';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Project} from '../../../../data/project/Project';
 import {ProjectViewer} from '../../../viewer/ProjectViewer';
-import * as Q from 'q';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {ProjectsChainBlock} from './ProjectsChainBlock';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectOptionDataHelper} from './ProjectOptionDataHelper';
 import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
 import {ComboBoxConfig} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
 import {ProjectOptionDataLoader} from './ProjectOptionDataLoader';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
 
-export class ProjectsComboBox extends RichComboBox<Project> {
+export class ProjectsSelector
+    extends RichComboBox<Project> {
 
     private readonly helper: ProjectOptionDataHelper;
 
-    constructor(builder: ProjectsDropdownBuilder = new ProjectsDropdownBuilder()) {
+    constructor(builder = new ProjectsDropdownBuilder()) {
         super(builder);
 
         this.helper = builder.optionDataHelper;
 
         this.initListeners();
+
+        this.addClass('projects-selector');
     }
 
     private initListeners(): void {
         const loader: ProjectOptionDataLoader = this.getLoader() as ProjectOptionDataLoader;
 
         loader.onLoadedData(() => {
-            const isFlatList: boolean = this.isFlatList();
             this.helper.setProjects(this.getLoadedResults());
-            this.toggleClass('flat', isFlatList);
-            loader.notifyModeChange(!isFlatList);
+
+            const isFlat = this.isFlatList();
+            this.toggleClass('flat', isFlat);
+            loader.notifyModeChange(!isFlat);
+
+            this.updateSortable();
 
             return Q.resolve();
         });
 
-        this.onOptionSelected((option: SelectedOptionEvent<Project>) => {
-            this.getAllProjects().then((projects: Project[]) => {
-                const view: ProjectSelectedOptionView = option.getSelectedOption()?.getOptionView() as ProjectSelectedOptionView;
-                const project: Project = option.getSelectedOption().getOption().getDisplayValue();
-                const subName: string =
-                    ProjectsChainBlock.buildProjectsChain(project.getName(), projects).map((p: Project) => p.getName()).join(' / ');
-                view.getNamesAndIconView().setSubName(subName);
-            }).catch(DefaultErrorHandler.handle);
-        });
+        this.onOptionSelected(() => this.updateSortable());
+        this.onOptionDeselected(() => this.updateSortable());
+    }
+
+    protected getSelectedOptionsView(): ProjectSelectedOptionsView {
+        return this.getSelectedOptionView() as ProjectSelectedOptionsView;
+    }
+
+    private updateSortable(): void {
+        const isSortable = this.countSelected() > 1;
+        const wasSortable = this.getSelectedOptionsView().hasClass('sortable');
+
+        if (wasSortable === isSortable) {
+            return;
+        }
+
+        this.toggleClass('multiple-occurrence', isSortable);
+        this.toggleClass('single-occurrence', !isSortable);
+
+        this.getSelectedOptionsView().setOccurrencesSortable(isSortable);
     }
 
     private isFlatList(): boolean {
@@ -67,19 +82,11 @@ export class ProjectsComboBox extends RichComboBox<Project> {
 
     protected createOptions(items: Project[]): Q.Promise<Option<Project>[]> {
         this.helper.setProjects(items);
-        const result: Project[] = this.isSearchStringSet() ? items : items.filter((item: Project) => !item.getParent());
+        const result: Project[] = this.isSearchStringSet() ? items : items.filter((item: Project) => !item.hasParents());
         return super.createOptions(result);
     }
 
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered) => {
-            this.addClass('parent-project-selector');
-
-            return rendered;
-        });
-    }
-
-    selectProject(project: Project) {
+    private updateProject(project: Project) {
         if (!project) {
             return;
         }
@@ -87,8 +94,15 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         const newOption: Option<Project> = this.createOption(project);
         const existingOption: Option<Project> = this.getOptionByValue(project.getName());
 
+        const wasChanged = !project.equals(existingOption?.getDisplayValue());
+        if (!wasChanged) {
+            return;
+        }
+
         if (existingOption) {
             this.updateOption(existingOption, project);
+        } else {
+            this.addOption(newOption);
         }
 
         this.getSelectedOptions().forEach((selectedOption: SelectedOption<Project>) => {
@@ -96,8 +110,35 @@ export class ProjectsComboBox extends RichComboBox<Project> {
                 selectedOption.getOptionView().setOption(newOption);
             }
         });
+    }
 
-        this.selectOption(newOption);
+    updateAndSelectProjects(projects: Project[]) {
+        if (!projects) {
+            return;
+        }
+
+        const projectValues = projects.map(p => p.getName());
+
+        projects.forEach(p => this.updateProject(p));
+
+        this.getOptions().forEach(option => {
+            const value = option.getValue();
+
+            const mustSelect = projectValues.indexOf(value) >= 0 && !this.isSelected(option.getDisplayValue());
+            if (mustSelect) {
+                this.selectOption(option);
+                return;
+            }
+
+            const mustDeselect = projectValues.indexOf(value) < 0 && this.isSelected(option.getDisplayValue());
+            if (mustDeselect) {
+                this.deselect(option.getDisplayValue());
+            }
+        });
+    }
+
+    protected getDisplayValueId(value: Project): string {
+        return value.getName();
     }
 
     private getAllProjects(): Q.Promise<Project[]> {
@@ -129,7 +170,7 @@ class ProjectSelectedOptionView
     constructor(option: Option<Project>) {
         super('selected-option');
         this.setOption(option);
-        this.appendRemoveButton();
+        this.initElements();
     }
 
     setOption(option: Option<Project>) {
@@ -140,9 +181,17 @@ class ProjectSelectedOptionView
     getOption(): Option<Project> {
         return this.option;
     }
+
+    protected initElements(): void {
+        const dragControl = new DivEl('drag-control');
+        this.appendChild(dragControl);
+
+        this.setEditable(true);
+        this.appendRemoveButton();
+    }
 }
 
-export class ProjectSelectedOptionsView
+class ProjectSelectedOptionsView
     extends BaseSelectedOptionsView<Project> {
 
     createSelectedOption(option: Option<Project>): SelectedOption<Project> {
@@ -163,5 +212,5 @@ export class ProjectsDropdownBuilder extends RichComboBoxBuilder<Project> {
 
     selectedOptionsView: ProjectSelectedOptionsView = new ProjectSelectedOptionsView();
 
-    maximumOccurrences: number = 1;
+    maximumOccurrences: number = 0;
 }

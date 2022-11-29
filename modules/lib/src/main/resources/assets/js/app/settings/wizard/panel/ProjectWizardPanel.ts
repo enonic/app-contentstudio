@@ -139,6 +139,21 @@ export class ProjectWizardPanel
         throw new Error('Project creation is done via Project Wizard Dialog');
     }
 
+    postPersistNewItem2(item: ProjectViewItem): Q.Promise<ProjectViewItem> {
+        return super.postPersistNewItem(item).then(() => {
+            this.projectWizardStepForm.disableProjectNameHelpText();
+            const hasParents = item.getData().hasParents();
+            if (hasParents) {
+                this.projectWizardStepForm.disableParentProjectHelpText();
+                this.projectWizardStepForm.disableParentProjectsInput();
+            }
+
+            this.projectWizardStepForm.disableProjectNameInput();
+
+            return Q(item);
+        });
+    }
+
     persistNewItem(): Q.Promise<ProjectViewItem> {
         throw new Error('Project creation is done via Project Wizard Dialog');
     }
@@ -339,6 +354,15 @@ export class ProjectWizardPanel
         });
     }
 
+    private produceCreateItemRequest(): ProjectCreateRequest {
+        return <ProjectCreateRequest>new ProjectCreateRequest()
+            .setParents(this.projectWizardStepForm.getParentProjectsNames())
+            .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
+            .setDescription(this.projectWizardStepForm.getDescription())
+            .setName(this.projectWizardStepForm.getProjectName())
+            .setDisplayName(this.getDisplayName());
+    }
+
     private getDisplayName(): string {
         return this.wizardHeader.getDisplayName().trim();
     }
@@ -359,22 +383,29 @@ export class ProjectWizardPanel
         });
     }
 
-    getParentProject(): string {
-        return !!this.projectWizardStepForm ? this.projectWizardStepForm.getParentProject() : null;
+    getParentProjectsNames(): string[] | undefined {
+        return this.projectWizardStepForm ? this.projectWizardStepForm.getParentProjectsNames() : undefined;
     }
 
-    setParentProject(project?: Project) {
-        this.whenRendered(() => {
-            this.projectWizardStepForm.setParentProject(project);
-            if (!!project && this.getPersistedItem()) { // Existing layer
-                this.projectWizardStepForm.disableParentProjectElements(project.getName());
-            }
-            this.readAccessWizardStepForm.setParentProject(project);
-            this.rolesWizardStepForm.setParentProject(project);
+    getParentProjects(): Project[] | undefined {
+        return this.projectWizardStepForm ? this.projectWizardStepForm.getParentProjects() : undefined;
+    }
 
-            this.projectWizardStepForm.onParentProjectChanged((_project: Project) => {
-                this.readAccessWizardStepForm.setParentProject(_project);
-                this.rolesWizardStepForm.setParentProject(_project);
+    updateParentProjects(projects: Project[] | undefined) {
+        this.whenRendered(() => {
+            this.projectWizardStepForm.setParentProjects(projects);
+
+            const isExistingLayer = projects?.length > 0 && this.getPersistedItem();
+            if (isExistingLayer) {
+                this.projectWizardStepForm.disableParentProjectElements();
+            }
+
+            this.readAccessWizardStepForm.setParentProjects(projects);
+            this.rolesWizardStepForm.setParentProjects(projects);
+
+            this.projectWizardStepForm.onParentProjectChanged((p: Project[]) => {
+                this.readAccessWizardStepForm.setParentProjects(p);
+                this.rolesWizardStepForm.setParentProjects(p);
             });
         });
     }
