@@ -72,14 +72,16 @@ export class ProjectWizardDialog
 
     private setNameFromParentProjects(): void {
         const parents = this.getParentProjects();
-        const locale: Locale = this.getSelectedLocale();
+        const hasParents = parents?.length > 0;
 
-        if (parents?.length > 0 && locale) {
+        if (hasParents) {
+            const locale = this.getSelectedLocale();
+
             const names = parents.map(p => p.getName()).join('-');
-            const newName: string = `${names}-${locale.getId().toLowerCase()}`;
+            const newName = locale ? `${names}-${locale.getId().toLowerCase()}` : names;
 
             const parentDescription = parents.length === 1 ? parents[0].getDescription() : null;
-            const description = parentDescription ? `${parentDescription} (${locale.getDisplayName()})` : '';
+            const description = parentDescription ? `${parentDescription}${locale ? ` (${locale.getDisplayName()})` : ''}` : '';
 
             (<ProjectIdDialogStep>this.currentStep).setDescription(description, true);
             (<ProjectIdDialogStep>this.currentStep).setDisplayName(newName, true);

@@ -52,8 +52,7 @@ export class ProjectsTreeBuilder {
             return;
         }
 
-        const parentProjectsTreeItem: ProjectsTreeItem =
-            projectsTreeItems.find((item: ProjectsTreeItem) => project.hasParentByName(item.getName()));
+        const parentProjectsTreeItem = projectsTreeItems.find((item: ProjectsTreeItem) => project.hasMainParentByName(item.getName()));
 
         if (!parentProjectsTreeItem) {
             return;
@@ -70,7 +69,7 @@ export class ProjectsTreeBuilder {
     }
 
     private isDefaultOrHasParent(project: Project): boolean {
-        return ProjectHelper.isDefault(project) || this.projectsTree.some((p: Project) => project.hasParentByName(p.getName()));
+        return ProjectHelper.isDefault(project) || this.projectsTree.some((p: Project) => project.hasMainParentByName(p.getName()));
     }
 
     private getProjectsWithoutParents(): Project[] {
@@ -108,6 +107,6 @@ export class ProjectsTreeBuilder {
     }
 
     private getParent(project: Project): Project {
-        return this.projectsTree.find((p: Project) => project.hasParentByName(p.getName()));
+        return this.projectsTree.find((p: Project) => project.hasMainParentByName(p.getName()));
     }
 }

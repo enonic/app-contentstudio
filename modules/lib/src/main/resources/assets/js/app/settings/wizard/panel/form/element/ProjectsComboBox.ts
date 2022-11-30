@@ -67,7 +67,7 @@ export class ProjectsComboBox extends RichComboBox<Project> {
 
     protected createOptions(items: Project[]): Q.Promise<Option<Project>[]> {
         this.helper.setProjects(items);
-        const result: Project[] = this.isSearchStringSet() ? items : items.filter((item: Project) => !item.getParents());
+        const result: Project[] = this.isSearchStringSet() ? items : items.filter((item: Project) => !item.hasParents());
         return super.createOptions(result);
     }
 

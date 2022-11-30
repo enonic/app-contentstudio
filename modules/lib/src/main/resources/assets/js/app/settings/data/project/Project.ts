@@ -87,6 +87,10 @@ export class Project
         return this.parents?.length > 0;
     }
 
+    hasMainParentByName(projectName: string): boolean {
+        return this.parents?.indexOf(projectName) === 0;
+    }
+
     hasParentByName(projectName: string): boolean {
         return this.parents?.indexOf(projectName) >= 0;
     }

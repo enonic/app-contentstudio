@@ -73,13 +73,13 @@ export class SettingsItemsTreeGrid
         if (parentName == null) {
             return this.projects.filter((project: Project) => (project.getParents() ?? []).length === 0);
         } else {
-            return this.projects.filter((project: Project) => project.hasParentByName(parentName));
+            return this.projects.filter((project: Project) => project.hasMainParentByName(parentName));
         }
     }
 
     hasChildren(item: SettingsViewItem): boolean {
         return ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem) ||
-               this.projects.some((project: Project) => project.hasParentByName(item.getId()));
+               this.projects.some((project: Project) => project.hasMainParentByName(item.getId()));
     }
 
     getItemById(id: string): SettingsViewItem {

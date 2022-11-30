@@ -23,7 +23,7 @@ export class ProjectOptionDataHelper
     }
 
     isExpandable(data: Project): boolean {
-        return this.projects.some((project: Project) => project.hasParentByName(data.getName()));
+        return this.projects.some((project: Project) => project.hasMainParentByName(data.getName()));
     }
 
     isSelectable(data: Project): boolean {

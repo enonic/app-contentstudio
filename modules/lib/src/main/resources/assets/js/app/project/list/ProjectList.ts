@@ -59,7 +59,7 @@ export class ProjectList
     }
 
     private getDirectProjectChildren(project: Project, projects: Project[]): Project[] {
-        return projects.filter((item: Project) => item.hasParentByName(project.getName()));
+        return projects.filter((item: Project) => item.hasMainParentByName(project.getName()));
     }
 
     private sortProjects(items: Project[]): Project[] {

@@ -10,6 +10,7 @@ export class ProjectsValueContainer
     }
 
     updateValue(value: Project[]): ProjectsValueContainer {
+        this.itemContainer.removeChildren();
         value.forEach(project => {
             const row = new SpanEl('project-item');
             row.setHtml(`${project.getDisplayName()} (${project.getName()})`);
