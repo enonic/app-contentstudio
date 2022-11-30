@@ -6,13 +6,14 @@ import {ProjectContext} from '../../project/ProjectContext';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {WidgetHelper} from '../../util/WidgetHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {WidgetInjectionResult} from '../../util/WidgetInjectionResult';
 
 export class WidgetItemView
     extends DivEl {
 
     public static debug: boolean = false;
 
-    private scriptNodes: HTMLElement[] = [];
+    private injectedNodes: HTMLElement[] = [];
 
     constructor(className?: string) {
         super('widget-item-view' + (className ? ' ' + className : ''));
@@ -40,7 +41,9 @@ export class WidgetItemView
     }
 
     private injectWidget(html: string) {
-        this.scriptNodes.push(...WidgetHelper.injectWidgetHtml(html, this).scriptElements);
+        const result: WidgetInjectionResult = WidgetHelper.injectWidgetHtml(html, this);
+        this.injectedNodes.push(...result.scriptElements);
+        this.injectedNodes.push(...result.linkElements);
     }
 
     public fetchWidgetContents(url: string, contentId: string): Q.Promise<void> {
@@ -51,6 +54,7 @@ export class WidgetItemView
             .then(response => response.text())
             .then((html: string) => {
                 this.removeChildren();
+                this.reset();
                 this.injectWidget(html);
                 deferred.resolve();
             })
@@ -70,7 +74,7 @@ export class WidgetItemView
 
     public reset() {
         const documentHead = document.getElementsByTagName('head')[0];
-        this.scriptNodes.forEach((scriptNode: HTMLElement) => documentHead.removeChild(scriptNode));
-        this.scriptNodes = [];
+        this.injectedNodes.forEach((injectedNode: HTMLElement) => documentHead.removeChild(injectedNode));
+        this.injectedNodes = [];
     }
 }
