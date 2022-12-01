@@ -7,7 +7,6 @@ import * as Q from 'q';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
 import {Project} from '../../../data/project/Project';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {SettingsType} from '../../../data/type/SettingsType';
 import {ParentProjectFormItem} from './element/ParentProjectFormItem';
 import {ProjectNameFormItem} from './element/ProjectNameFormItem';
@@ -150,7 +149,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     private getProjectsComboBox() {
-        return this.parentProjectsFormItem.getProjectsComboBox();
+        return this.parentProjectsFormItem.getProjectsSelector();
     }
 
     private getProjectNameInput(): TextInput {

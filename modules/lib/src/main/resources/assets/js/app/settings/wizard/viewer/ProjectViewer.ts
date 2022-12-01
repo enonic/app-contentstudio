@@ -9,7 +9,7 @@ export class ProjectViewer
     extends ExtendedViewer<Project> {
 
     constructor(className?: string) {
-        super('project-viewer ' + (!!className ? className : ''));
+        super(`project-viewer ${className ?? ''}`);
     }
 
     doLayout(object: Project) {
