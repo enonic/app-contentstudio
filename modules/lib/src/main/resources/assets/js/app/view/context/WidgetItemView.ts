@@ -7,6 +7,7 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {WidgetHelper} from '../../util/WidgetHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {WidgetInjectionResult} from '../../util/WidgetInjectionResult';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class WidgetItemView
     extends DivEl {
@@ -14,6 +15,8 @@ export class WidgetItemView
     public static debug: boolean = false;
 
     private injectedNodes: HTMLElement[] = [];
+
+    private widgetContainer?: Element;
 
     constructor(className?: string) {
         super('widget-item-view' + (className ? ' ' + className : ''));
@@ -76,5 +79,6 @@ export class WidgetItemView
         const documentHead = document.getElementsByTagName('head')[0];
         this.injectedNodes.forEach((injectedNode: HTMLElement) => documentHead.removeChild(injectedNode));
         this.injectedNodes = [];
+        this.widgetContainer?.getHTMLElement().dispatchEvent(new Event('remove'));
     }
 }
