@@ -45,6 +45,7 @@ export class WidgetItemView
 
     private injectWidget(html: string) {
         const result: WidgetInjectionResult = WidgetHelper.injectWidgetHtml(html, this);
+        this.widgetContainer = result.widgetContainer;
         this.injectedNodes.push(...result.scriptElements);
         this.injectedNodes.push(...result.linkElements);
     }
