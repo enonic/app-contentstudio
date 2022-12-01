@@ -55,6 +55,8 @@ export class NewContentDialog
 
     private keyDownHandler: (event: KeyboardEvent) => void;
 
+    private typeSelectedHandler?: (contentType: ContentTypeSummary, parentContent: ContentSummary) => void;
+
     protected header: NewContentDialogHeader;
 
     constructor() {
@@ -114,9 +116,10 @@ export class NewContentDialog
     protected initListeners() {
         super.initListeners();
 
-        this.allContentTypes.onSelected(this.closeAndFireEventFromContentType.bind(this));
-        this.mostPopularContentTypes.getItemsList().onSelected(this.closeAndFireEventFromContentType.bind(this));
-        this.recentContentTypes.getItemsList().onSelected(this.closeAndFireEventFromContentType.bind(this));
+        const selectedHandler: (event: NewContentDialogItemSelectedEvent) => void = this.handleTypeSelected.bind(this);
+        this.allContentTypes.onSelected(selectedHandler);
+        this.mostPopularContentTypes.getItemsList().onSelected(selectedHandler);
+        this.recentContentTypes.getItemsList().onSelected(selectedHandler);
         this.initDragAndDropUploaderEvents();
         this.initKeyDownHandler();
         this.initFileInputEvents();
@@ -195,12 +198,17 @@ export class NewContentDialog
         this.close();
     }
 
-    private closeAndFireEventFromContentType(event: NewContentDialogItemSelectedEvent) {
-        new NewContentEvent(event.getItem().getContentType(), this.parentContent).fire();
+    private handleTypeSelected(event: NewContentDialogItemSelectedEvent) {
+        if (this.typeSelectedHandler) {
+            this.typeSelectedHandler(event.getItem().getContentType(), this.parentContent);
+        } else {
+            new NewContentEvent(event.getItem().getContentType(), this.parentContent).fire();
+        }
+
         this.close();
     }
 
-    setParentContent(parent: ContentSummary) {
+    setParentContent(parent: ContentSummary): NewContentDialog {
         this.parentContent = parent;
 
         const params: { [key: string]: any } = {
@@ -208,6 +216,14 @@ export class NewContentDialog
         };
 
         this.newContentUploader.setUploaderParams(params);
+
+        return this;
+    }
+
+    setTypeSelectedHandler(handler: (contentType: ContentTypeSummary, parentContent: ContentSummary) => void): NewContentDialog {
+        this.typeSelectedHandler = handler;
+
+        return this;
     }
 
     open() {
@@ -253,6 +269,7 @@ export class NewContentDialog
     close() {
         this.fileInput.reset();
         this.newContentUploader.reset();
+        this.typeSelectedHandler = null;
 
         if (this.isOpen()) {
             super.close();
