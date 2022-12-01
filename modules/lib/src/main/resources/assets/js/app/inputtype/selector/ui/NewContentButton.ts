@@ -1,14 +1,16 @@
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {NewContentDialog} from '../../../create/NewContentDialog';
-import {NewMediaUploadEvent} from '../../../create/NewMediaUploadEvent';
-import {Content} from '../../../content/Content';
-import {NewContentEvent} from '../../../create/NewContentEvent';
-import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import {ContentServerEventsHandler} from '../../../event/ContentServerEventsHandler';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ContentSummary} from '../../../content/ContentSummary';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Content} from '../../../content/Content';
+import {EditContentEvent} from '../../../event/EditContentEvent';
+import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
+import * as Q from 'q';
+import {ContentHelper} from '../../../util/ContentHelper';
 
-export class NewContentButton extends ButtonEl {
+export class NewContentButton
+    extends ButtonEl {
 
     private static newContentDialog: NewContentDialog;
 
@@ -33,50 +35,30 @@ export class NewContentButton extends ButtonEl {
     }
 
     private initEventListeners(): void {
-        const newContentHandler: () => void = () => {
-            this.waitForContentCreate();
-        };
-
-        const newMediaHandler: (event: NewMediaUploadEvent) => void = (event: NewMediaUploadEvent) => {
-            event.getUploadItems().forEach((uploadItem: UploadItem<Content>) => {
-                uploadItem.onUploaded((uploadedContent: Content) => {
-                    this.notifyContentAdded(uploadedContent);
-                });
-            });
-        };
-
-        const dialogClosedHandler: () => void = () => {
-            NewContentButton.getContentDialog().unClosed(dialogClosedHandler);
-            NewContentEvent.un(newContentHandler);
-            NewMediaUploadEvent.un(newMediaHandler);
-        };
+        const typeSelectedHandler: (contentType: ContentTypeSummary, parentContent?: ContentSummary) => void =
+            this.typeSelectedHandler.bind(this);
 
         this.onClicked(() => {
-            const dialog: NewContentDialog = NewContentButton.getContentDialog();
-            dialog.setParentContent(this.content);
-            dialog.open();
-
-            dialog.onClosed(dialogClosedHandler);
-            NewContentEvent.on(newContentHandler);
-            NewMediaUploadEvent.on(newMediaHandler);
+            NewContentButton.getContentDialog()
+                .setParentContent(this.content)
+                .setTypeSelectedHandler(typeSelectedHandler)
+                .open();
         });
     }
 
-    private waitForContentCreate(): void {
-        const createHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            const createdItem: ContentSummaryAndCompareStatus =
-                data.find((item: ContentSummaryAndCompareStatus) => item.getPath().getParentPath().equals(this.content.getPath()));
+    private typeSelectedHandler(contentType: ContentTypeSummary, parentContent?: ContentSummary): void {
+        this.createContent(contentType, parentContent).then((content: Content) => {
+            this.handleContentCreated(content);
+        }).catch(DefaultErrorHandler.handle);
+    }
 
-            if (createdItem) {
-                this.notifyContentAdded(createdItem.getContentSummary());
-            }
-        };
+    private createContent(contentType: ContentTypeSummary, parentContent?: ContentSummary): Q.Promise<Content> {
+        return ContentHelper.makeNewContentRequest(contentType.getContentTypeName(), parentContent?.getPath()).sendAndParse();
+    }
 
-        ContentServerEventsHandler.getInstance().onContentCreated(createHandler);
-
-        setTimeout(() => { // waiting for a content creation event
-            ContentServerEventsHandler.getInstance().unContentCreated(createHandler);
-        }, 3000);
+    private handleContentCreated(content: Content): void {
+        this.notifyContentAdded(content);
+        new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(content)]).fire();
     }
 
     onContentAdded(listener: (content: ContentSummary) => void): void {
