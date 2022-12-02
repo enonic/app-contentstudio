@@ -23,7 +23,8 @@ module.exports = {
         assetModuleFilename: './[file]'
     },
     resolve: {
-        extensions: ['.ts', '.js', '.less', '.css']
+        extensions: ['.ts', '.js', '.less', '.css'],
+        conditionNames: ['import', 'node', 'default']
     },
     module: {
         rules: [
