@@ -13,12 +13,9 @@ import {NewMediaUploadEvent} from './NewMediaUploadEvent';
 import {NewContentEvent} from './NewContentEvent';
 import {FilterableItemsList} from './FilterableItemsList';
 import {AggregateContentTypesResult} from '../resource/AggregateContentTypesResult';
-import {AggregateContentTypesByPathRequest} from '../resource/AggregateContentTypesByPathRequest';
 import {FileInput} from './FileInput';
 import {Content} from '../content/Content';
 import {NewContentUploader} from './NewContentUploader';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
@@ -30,16 +27,14 @@ import {AsideEl} from '@enonic/lib-admin-ui/dom/AsideEl';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
-import {ProjectHelper} from '../settings/data/project/ProjectHelper';
-import {GetContentTypeDescriptorsRequest} from '../resource/GetContentTypeDescriptorsRequest';
 import {ContentPath} from '../content/ContentPath';
-import {ContentTypeSummaries} from '../content/ContentTypeSummaries';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentTypesHelper} from '../util/ContentTypesHelper';
 
 export class NewContentDialog
     extends ModalDialog {
 
-    private parentContent: ContentSummary;
+    private parentContent?: ContentSummary;
 
     private fileInput: FileInput;
 
@@ -52,6 +47,8 @@ export class NewContentDialog
     private mostPopularContentTypes: MostPopularItemsBlock;
 
     private recentContentTypes: RecentItemsBlock;
+
+    private contentTypes?: ContentTypeSummary[];
 
     private keyDownHandler: (event: KeyboardEvent) => void;
 
@@ -226,8 +223,17 @@ export class NewContentDialog
         return this;
     }
 
+    setContentTypes(types: ContentTypeSummary[]): NewContentDialog {
+        this.contentTypes = types;
+        return this;
+    }
+
     open() {
         super.open();
+        this.bindKeys();
+    }
+
+    private bindKeys(): void {
         const keyBindings = [
             new KeyBinding('up', () => {
                 FormEl.moveFocusToPrevFocusable(Element.fromHtmlElement(<HTMLElement>document.activeElement),
@@ -253,7 +259,7 @@ export class NewContentDialog
 
         // CMS-3711: reload content types each time when dialog is show.
         // It is slow but newly create content types are displayed.
-        this.loadContentTypes();
+        this.updateContentTypesLists();
     }
 
     hide() {
@@ -270,75 +276,47 @@ export class NewContentDialog
         this.fileInput.reset();
         this.newContentUploader.reset();
         this.typeSelectedHandler = null;
+        this.contentTypes = null;
 
         if (this.isOpen()) {
             super.close();
         }
     }
 
-    private loadContentTypes() {
+    private updateContentTypesLists() {
         this.showLoadMask();
 
-        Q.all(this.sendRequestsToFetchContentData())
-            .spread((contentTypes: ContentTypeSummaries, aggregations: AggregateContentTypesResult) => {
-
-                this.allContentTypes.createItems(contentTypes);
-
-                const popularItemsCount = this.mostPopularContentTypes.getItemsList().createItems(contentTypes, aggregations);
-                this.mostPopularContentTypes.setVisible(popularItemsCount > 0);
-
-                const recentItemsCount = this.recentContentTypes.getItemsList().createItems(this.allContentTypes.getItems());
-                this.recentContentTypes.setVisible(recentItemsCount > 0);
-
-
-            }).catch((reason: any) => {
-
-            DefaultErrorHandler.handle(reason);
-
-        }).finally(() => {
-            this.fileInput.enable();
-            this.toggleUploadersEnabled();
-            this.hideLoadMask();
-            this.mostPopularContentTypes.showIfNotEmpty();
-            this.newContentUploader.focus();
-        }).done();
+        Q.all([this.loadContentTypes(), ContentTypesHelper.getAggregatedTypesByContent(this.parentContent)])
+            .spread((contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult) => this.updateLists(contentTypes,
+                aggregations))
+            .catch((DefaultErrorHandler.handle))
+            .finally(() => this.handleTypesLoaded());
     }
 
-    private sendRequestsToFetchContentData(): Q.Promise<any>[] {
-        const requests: Q.Promise<any>[] = [];
-        requests.push(new GetContentTypeDescriptorsRequest()
-            .setContentId(this.parentContent?.getContentId())
-            .sendAndParse()
-            .then((contentTypes: ContentTypeSummary[]) =>
-                new IsAuthenticatedRequest()
-                    .sendAndParse()
-                    .then((loginResult: LoginResult) => this.filterContentTypes(ContentTypeSummaries.from(contentTypes), loginResult))
-            )
-        );
-
-        requests.push(new AggregateContentTypesByPathRequest(this.parentContent?.getPath() || ContentPath.getRoot()).sendAndParse());
-
-        return requests;
+    private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
+        return this.contentTypes ? Q.resolve(this.contentTypes) : ContentTypesHelper.getAvailableContentTypes(this.parentContent);
     }
 
-    private filterContentTypes(contentTypes: ContentTypeSummaries, loginResult: LoginResult): Q.Promise<ContentTypeSummaries> {
-        const isContentAdmin: boolean = loginResult.isContentAdmin();
+    private updateLists(contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult): void {
+        this.allContentTypes.createItems(contentTypes);
 
-        return (isContentAdmin ? Q(true) : ProjectHelper.isUserProjectOwner(loginResult)).then((hasAdminRights: boolean) => {
-            return Q(hasAdminRights ? contentTypes : this.getContentTypesWithoutSite(contentTypes));
-        });
+        const popularItemsCount = this.mostPopularContentTypes.getItemsList().createItems(contentTypes, aggregations);
+        this.mostPopularContentTypes.setVisible(popularItemsCount > 0);
+
+        const recentItemsCount = this.recentContentTypes.getItemsList().createItems(this.allContentTypes.getItems());
+        this.recentContentTypes.setVisible(recentItemsCount > 0);
     }
 
-    private getContentTypesWithoutSite(contentTypes: ContentTypeSummaries): ContentTypeSummaries {
-        return contentTypes.filter((contentType: ContentTypeSummary) => !contentType.isSite());
+    private handleTypesLoaded(): void {
+        this.fileInput.enable();
+        this.toggleUploadersEnabled();
+        this.hideLoadMask();
+        this.mostPopularContentTypes.showIfNotEmpty();
+        this.newContentUploader.focus();
     }
 
     private updateDialogTitlePath() {
-        if (this.parentContent) {
-            this.getHeader().setPath(this.parentContent.getPath().toString());
-        } else {
-            this.getHeader().setPath('');
-        }
+        this.getHeader().setPath(this.parentContent?.getPath().toString() || '');
     }
 
     private clearAllItems() {

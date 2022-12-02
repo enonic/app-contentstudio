@@ -28,6 +28,10 @@
       border-left: none;
       background-color: @admin-white;
 
+      &.icon-spinner::before {
+        .animation(rotate360, 0.5s, 0s, linear);
+      }
+
       &::before {
         font-size: 20px;
         display: flex;
