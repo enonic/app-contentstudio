@@ -34,10 +34,10 @@ export class WarningLine
     }
 
     protected initElements() {
-        this.icon = new SpanEl('icon icon-big-plus');
+        this.icon = new SpanEl('warning-icon');
 
         this.warning = new SpanEl('warning-text');
-        this.warning.setHtml(i18n('dialog.archive.warning.text'));
+        this.setDefaultWarningText();
 
         const ignoreAction = new Action(i18n('dialog.archive.warning.ignore'));
         this.ignoreButton = new ActionButton(ignoreAction);
@@ -57,6 +57,26 @@ export class WarningLine
 
     setIgnoreEnabled(enabled: boolean): void {
         this.ignoreButton.setEnabled(enabled);
+    }
+
+    getIcon(): SpanEl {
+        return this.icon;
+    }
+
+    setWarningText(text: string): void {
+        this.warning.setHtml(text);
+    }
+
+    setDefaultWarningText(): void {
+        this.warning.setHtml(i18n('dialog.archive.warning.text'));
+    }
+
+    setIconClass(iconCls: string): void {
+        this.icon.setClass(`warning-icon ${iconCls}`);
+    }
+
+    setDefaultIconClass(): void {
+        this.setIconClass('icon-big-plus');
     }
 
 }

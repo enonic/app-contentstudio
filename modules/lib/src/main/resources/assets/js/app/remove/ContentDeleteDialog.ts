@@ -28,6 +28,8 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {WarningLine} from './WarningLine';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+
 
 enum ActionType {
     DELETE, ARCHIVE
@@ -252,8 +254,24 @@ export class ContentDeleteDialog
     }
 
     private updateWarningLine(inboundCount: number): void {
+        const dependenciesExist = inboundCount > 0;
+
+        if (dependenciesExist) {
+            this.warningLine.addClass('running-checks');
+            this.warningLine.setWarningText(i18n('dialog.runningChecks'));
+            this.warningLine.setIconClass('icon-spinner');
+        }
+
         this.warningLine.updateCount(inboundCount);
-        this.warningLine.setVisible(inboundCount > 0);
+        this.warningLine.setVisible(dependenciesExist);
+
+        if (dependenciesExist) {
+            setTimeout(() => {
+                this.warningLine.removeClass('running-checks');
+                this.warningLine.setDefaultWarningText();
+                this.warningLine.setDefaultIconClass();
+            }, 1000);
+        }
     }
 
     protected resolveDescendants(): Q.Promise<ContentId[]> {
