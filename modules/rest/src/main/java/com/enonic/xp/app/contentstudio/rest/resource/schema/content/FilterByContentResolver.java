@@ -9,12 +9,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.app.ApplicationWildcardMatcher;
+import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
@@ -59,22 +62,34 @@ public class FilterByContentResolver
 
     private ProjectService projectService;
 
+    private ApplicationWildcardMatcher.Mode mode;
 
-    public Stream<ContentType> contentTypes( final ContentId contentId )
+    @Activate
+    @Modified
+    public void activate( final AdminRestConfig config )
     {
-        final Content content;
-        if ( contentId != null )
-        {
-            content = this.contentService.getById( contentId );
-        }
-        else
+        this.mode = ApplicationWildcardMatcher.Mode.valueOf( config.contentTypePatternMode() );
+    }
+
+    public Stream<ContentType> contentTypes( final ContentId contentId, final Set<String> allowedContentTypes )
+    {
+        if ( contentId == null )
         {
             return Stream.concat( mapToContentTypes( DEFAULT_CONTENT_TYPE_NAMES ), getProjectContentTypes() );
         }
 
+        final Content content = contentService.getById( contentId );
+
+        final ApplicationWildcardMatcher<ContentTypeName> wildcardMatcher =
+            new ApplicationWildcardMatcher<>( content.getType().getApplicationKey(), ContentTypeName::toString, this.mode );
+
+        final Predicate<ContentTypeName> allowedContentTypesPredicate =
+            allowedContentTypes.stream().map( wildcardMatcher::createPredicate ).reduce( Predicate::or ).orElse( s -> true );
+
         if ( content.getType().isTemplateFolder() )
         {
-            return mapToContentTypes( List.of( ContentTypeName.pageTemplate() ) );
+            return mapToContentTypes( List.of( ContentTypeName.pageTemplate() ) ).filter(
+                contentType -> allowedContentTypesPredicate.test( contentType.getName() ) );
         }
         else
         {
@@ -99,7 +114,8 @@ public class FilterByContentResolver
 
             return Stream.of( defaultContentTypes, siteContentTypes, projectContentTypes )
                 .flatMap( s -> s )
-                .filter( type -> allowChildContentTypePredicate.test( type.getName() ) );
+                .filter( type -> allowChildContentTypePredicate.test( type.getName() ) )
+                .filter( type -> allowedContentTypesPredicate.test( type.getName() ) );
         }
     }
 
@@ -113,8 +129,7 @@ public class FilterByContentResolver
                 .map( this.contentTypeService::getByApplication )
                 .flatMap( ContentTypes::stream )
                 .filter( Predicate.not( ContentType::isAbstract ) )
-                .filter( type -> type.getSchemaConfig().getValue( "allowNewContent", Boolean.class, Boolean.TRUE ) )
-                 )
+                .filter( type -> type.getSchemaConfig().getValue( "allowNewContent", Boolean.class, Boolean.TRUE ) ) )
             .orElseGet( Stream::of );
     }
 
@@ -181,7 +196,8 @@ public class FilterByContentResolver
     private Predicate<ContentTypeName> allowContentTypeFilter( final ApplicationKey applicationKey, final List<String> wildcards )
     {
         final ApplicationWildcardMatcher<ContentTypeName> wildcardMatcher =
-            new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString );
+            new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString, mode );
+
         return wildcards.stream().map( wildcardMatcher::createPredicate ).reduce( Predicate::or ).orElse( s -> true );
     }
 

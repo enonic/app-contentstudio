@@ -23,12 +23,16 @@ export class NewContentButton
 
     private typeSelectedHandler: (contentType: ContentTypeSummary, parentContent?: ContentSummary) => void;
 
+    private readonly allowedContentTypes?: string[];
+
     private contentAddedListeners: { (content: ContentSummary): void }[] = [];
 
-    constructor(content: ContentSummary) {
+    constructor(content: ContentSummary, allowedContentTypes?: string[]) {
         super();
 
         this.content = content;
+        this.allowedContentTypes = allowedContentTypes;
+
         this.initEventListeners();
     }
 
@@ -55,7 +59,7 @@ export class NewContentButton
     }
 
     private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
-        return ContentTypesHelper.getAvailableContentTypes(this.content);
+        return ContentTypesHelper.getAvailableContentTypes(this.content, this.allowedContentTypes);
     }
 
     private handleTypesLoaded(types: ContentTypeSummary[]): void {
@@ -74,6 +78,7 @@ export class NewContentButton
         NewContentButton.getContentDialog()
             .setParentContent(this.content)
             .setContentTypes(types)
+            .setAllowedContentTypes(this.allowedContentTypes)
             .setTypeSelectedHandler(this.typeSelectedHandler)
             .open();
     }
@@ -95,7 +100,7 @@ export class NewContentButton
 
     private handleContentCreated(content: Content): void {
         this.notifyContentAdded(content);
-        new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(content)]).fire();
+        new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(content)]).setDisplayAsNew(true).fire();
     }
 
     onContentAdded(listener: (content: ContentSummary) => void): void {
