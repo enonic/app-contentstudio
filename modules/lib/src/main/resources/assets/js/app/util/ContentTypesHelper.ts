@@ -11,15 +11,16 @@ import {ContentPath} from '../content/ContentPath';
 
 export class ContentTypesHelper {
 
-    static getAvailableContentTypes(parent?: ContentSummary): Q.Promise<ContentTypeSummary[]> {
-        return Q.all([this.fetchAvailableTypes(parent), new IsAuthenticatedRequest().sendAndParse()]).spread(
+    static getAvailableContentTypes(parent?: ContentSummary, allowedContentTypes?: string[]): Q.Promise<ContentTypeSummary[]> {
+        return Q.all([this.fetchAvailableTypes(parent, allowedContentTypes), new IsAuthenticatedRequest().sendAndParse()]).spread(
             (types: ContentTypeSummary[], loginResult: LoginResult) => {
                 return ContentTypesHelper.filterContentTypes(types, loginResult);
             });
     }
 
-    private static fetchAvailableTypes(parent?: ContentSummary): Q.Promise<ContentTypeSummary[]> {
+    private static fetchAvailableTypes(parent?: ContentSummary, allowedContentTypes?: string[]): Q.Promise<ContentTypeSummary[]> {
         return new GetContentTypeDescriptorsRequest()
+            .setAllowedContentTypes(allowedContentTypes)
             .setContentId(parent?.getContentId())
             .sendAndParse();
     }

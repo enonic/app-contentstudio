@@ -302,7 +302,8 @@ export class NewContentDialog
     }
 
     private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
-        return this.contentTypes ? Q.resolve(this.contentTypes) : ContentTypesHelper.getAvailableContentTypes(this.parentContent);
+        return this.contentTypes ? Q.resolve(this.contentTypes) :
+               ContentTypesHelper.getAvailableContentTypes(this.parentContent, this.allowedContentTypes);
     }
 
     private updateLists(contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult): void {

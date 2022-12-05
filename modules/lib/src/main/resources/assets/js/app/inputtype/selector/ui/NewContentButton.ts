@@ -74,9 +74,10 @@ export class NewContentButton
         }
     }
 
-    private openNewContentDialog(): void {
+    private openNewContentDialog(types: ContentTypeSummary[]): void {
         NewContentButton.getContentDialog()
             .setParentContent(this.content)
+            .setContentTypes(types)
             .setAllowedContentTypes(this.allowedContentTypes)
             .setTypeSelectedHandler(this.typeSelectedHandler)
             .open();
