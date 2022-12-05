@@ -165,7 +165,7 @@ export class ContentSelector
     private addNewContentButton(): void {
         this.comboBoxWrapper.addClass('new-content');
 
-        this.newContentButton = new NewContentButton(this.context.content);
+        this.newContentButton = new NewContentButton(this.context.content, this.allowedContentTypes);
         this.newContentButton.setTitle(i18n('action.addNew'));
         this.newContentButton.onContentAdded((content: ContentSummary) => this.contentComboBox.select(this.createSelectorItem(content)));
 

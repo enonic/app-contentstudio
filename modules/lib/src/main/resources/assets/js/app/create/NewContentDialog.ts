@@ -41,6 +41,8 @@ export class NewContentDialog
 
     private parentContent: ContentSummary;
 
+    private allowedContentTypes: string[];
+
     private fileInput: FileInput;
 
     private dropzoneContainer: DropzoneContainer;
@@ -175,22 +177,10 @@ export class NewContentDialog
 
     // in order to toggle appropriate handlers during drag event
     // we catch drag enter on this element and trigger uploader to appear,
-    // then catch drag leave on uploader's dropzone to get back to previous state
-    private initDragAndDropUploaderEvents() {
-        let dragOverEl;
-        this.onDragEnter((event: DragEvent) => {
-            if (this.newContentUploader.isEnabled()) {
-                let target = <HTMLElement> event.target;
 
-                if (!!dragOverEl || dragOverEl === this.getHTMLElement()) {
-                    this.dropzoneContainer.show();
-                }
-                dragOverEl = target;
-            }
-        });
-
-        this.newContentUploader.onDropzoneDragLeave(() => this.dropzoneContainer.hide());
-        this.newContentUploader.onDropzoneDrop(() => this.dropzoneContainer.hide());
+    setAllowedContentTypes(types: string[]): NewContentDialog {
+        this.allowedContentTypes = types;
+        return this;
     }
 
     private closeAndFireEventFromMediaUpload(event: UploadStartedEvent<Content>) {
@@ -224,6 +214,24 @@ export class NewContentDialog
         this.typeSelectedHandler = handler;
 
         return this;
+    }
+
+    // then catch drag leave on uploader's dropzone to get back to previous state
+    private initDragAndDropUploaderEvents() {
+        let dragOverEl;
+        this.onDragEnter((event: DragEvent) => {
+            if (this.newContentUploader.isEnabled()) {
+                let target = <HTMLElement>event.target;
+
+                if (!!dragOverEl || dragOverEl === this.getHTMLElement()) {
+                    this.dropzoneContainer.show();
+                }
+                dragOverEl = target;
+            }
+        });
+
+        this.newContentUploader.onDropzoneDragLeave(() => this.dropzoneContainer.hide());
+        this.newContentUploader.onDropzoneDrop(() => this.dropzoneContainer.hide());
     }
 
     open() {
@@ -307,6 +315,7 @@ export class NewContentDialog
     private sendRequestsToFetchContentData(): Q.Promise<any>[] {
         const requests: Q.Promise<any>[] = [];
         requests.push(new GetContentTypeDescriptorsRequest()
+            .setAllowedContentTypes(this.allowedContentTypes)
             .setContentId(this.parentContent?.getContentId())
             .sendAndParse()
             .then((contentTypes: ContentTypeSummary[]) =>

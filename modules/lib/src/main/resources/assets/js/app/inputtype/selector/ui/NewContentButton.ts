@@ -16,13 +16,17 @@ export class NewContentButton
 
     private readonly content: ContentSummary;
 
+    private readonly allowedContentTypes: string[];
+
     private contentAddedListeners: { (content: ContentSummary): void }[] = [];
 
-    constructor(content: ContentSummary) {
+    constructor(content: ContentSummary, allowedContentTypes: string[]) {
         super();
 
         this.addClass('new-content-button icon-plus');
         this.content = content;
+        this.allowedContentTypes = allowedContentTypes;
+
         this.initEventListeners();
     }
 
@@ -41,6 +45,7 @@ export class NewContentButton
         this.onClicked(() => {
             NewContentButton.getContentDialog()
                 .setParentContent(this.content)
+                .setAllowedContentTypes(this.allowedContentTypes)
                 .setTypeSelectedHandler(typeSelectedHandler)
                 .open();
         });
