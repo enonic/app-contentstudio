@@ -1,0 +1,47 @@
+.checked-value-element {
+  .label {
+    margin-bottom: 5px;
+
+    &.required::after {
+      position: absolute;
+      content: '\00a0*';
+      color: @input-red-text;
+    }
+  }
+
+  .wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid @admin-medium-gray-border;
+    padding: 5px;
+
+    input {
+      flex-grow: 1;
+      box-sizing: border-box;
+      font-size: 18px;
+      border: none;
+      outline: none;
+    }
+
+    .status {
+      margin-left: 10px;
+      margin-right: 10px;
+      color: @input-red-text;
+
+      &.valid {
+        color: @admin-green;
+      }
+
+      &.icon-spinner::before {
+        color: @admin-black;
+        display: inline-block;
+        .animation(rotate360, 0.5s, 0s, linear);
+      }
+    }
+
+    &:focus {
+      box-shadow: 0 0 5px @admin-input-blue;
+      border: 1px solid @admin-input-blue;
+    }
+  }
+}
