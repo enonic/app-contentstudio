@@ -300,6 +300,10 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
         this.workflowStateManager = new WorkflowStateManager(this);
+
+        this.editPermissionsToolbarButton = this.createEditButtonToolbar();
+        this.getStepNavigator().whenRendered(() => this.editPermissionsToolbarButton.insertAfterEl(this.getStepNavigator()));
+
         this.debouncedEditorRefresh = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
 
@@ -764,8 +768,6 @@ export class ContentWizardPanel
                 this.wizardActions.setHasPublishRequest(added);
                 this.wizardActions.refreshState();
             });
-
-            this.createEditButtonToolbar();
 
             if (this.livePanel) {
                 this.livePanel.addClass('rendering');
@@ -1238,46 +1240,31 @@ export class ContentWizardPanel
     }
 
     private addAccessibilityToSteps(steps: ContentWizardStep[]): void {
-        steps.forEach((step: ContentWizardStep, index: number) => this.addAccessibilityToStep(step, index === steps.length - 1));
+        steps.forEach((step: ContentWizardStep) => this.addAccessibilityToStep(step));
     }
 
-    private addAccessibilityToStep(step: ContentWizardStep, isLastStep: boolean): void {
+    private addAccessibilityToStep(step: ContentWizardStep): void {
         const stepTabBarItem: ContentTabBarItem = step.getTabBarItem();
         stepTabBarItem.getEl().setTabIndex(0);
         stepTabBarItem.onKeyDown((event: KeyboardEvent): void => {
             if (KeyHelper.isEnterKey(event)) {
                 stepTabBarItem.getHTMLElement().click();
             }
-
-            if (!KeyHelper.isShiftKeyPressed(event) && KeyHelper.isTabKey(event) && isLastStep) {
-                event.preventDefault();
-                this.editPermissionsToolbarButton.getEl().setTabIndex(0);
-                this.editPermissionsToolbarButton.getEl().focus();
-            }
         });
     }
 
-    private createEditButtonToolbar(): void {
-        this.editPermissionsToolbarButton = new DivEl('edit-permissions-button');
-        this.editPermissionsToolbarButton.getEl().setTitle(i18n('field.access'));
-        this.editPermissionsToolbarButton.addClass(this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
-        this.editPermissionsToolbarButton.onClicked(this.handleEditPermissionsButtonClicked.bind(this));
-        this.editPermissionsToolbarButton.onFocusOut(() => this.editPermissionsToolbarButton.getEl().removeAttribute('tabindex'));
-        this.editPermissionsToolbarButton.onKeyDown((event: KeyboardEvent): void => {
+    private createEditButtonToolbar(): DivEl {
+        const editPermissionsToolbarButton = new DivEl('edit-permissions-button');
+        editPermissionsToolbarButton.getEl().setTitle(i18n('field.access'));
+        editPermissionsToolbarButton.onClicked(this.handleEditPermissionsButtonClicked.bind(this));
+        editPermissionsToolbarButton.getEl().setTabIndex(0);
+         editPermissionsToolbarButton.onKeyDown((event: KeyboardEvent): void => {
             if (KeyHelper.isEnterKey(event)) {
-                this.editPermissionsToolbarButton.getHTMLElement().click();
-            }
-
-            if (KeyHelper.isShiftKeyPressed(event) && KeyHelper.isTabKey(event)) {
-                event.preventDefault();
-                const steps = this.getSteps() || [];
-                const lastStep = steps.slice(-1)[0];
-                if (lastStep) {
-                    lastStep.getTabBarItem().getEl().focus();
-                }
+                editPermissionsToolbarButton.getHTMLElement().click();
             }
         });
-        this.getStepNavigatorContainer().appendChild(this.editPermissionsToolbarButton);
+
+        return editPermissionsToolbarButton;
     }
 
     private fetchPersistedContent(): Q.Promise<Content> {
@@ -2820,6 +2807,7 @@ export class ContentWizardPanel
         super.setPersistedItem(newPersistedItem);
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
+        this.updateEditPermissionsButtonIcon(newPersistedItem);
     }
 
     isHeaderValidForSaving(): boolean {
