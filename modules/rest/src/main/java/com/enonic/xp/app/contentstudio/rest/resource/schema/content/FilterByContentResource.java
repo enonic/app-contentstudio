@@ -4,6 +4,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -35,19 +36,13 @@ public class FilterByContentResource
 
     private FilterByContentResolver filterByContentResolver;
 
-    public FilterByContentResource()
-    {
-        int i = 0;
-    }
-
-    @GET
+    @POST
     @Path("contentTypes")
-    public ContentTypeSummaryListJson contentTypes( @QueryParam("contentId") final String contentId )
+    public ContentTypeSummaryListJson contentTypes( GetContentTypesJson json )
     {
-        return new ContentTypeSummaryListJson(
-            filterByContentResolver.contentTypes( contentId == null ? null : ContentId.from( contentId ) )
-                .map( jsonObjectsFactory::createContentTypeSummaryJson )
-                .collect( Collectors.toUnmodifiableList() ) );
+        return new ContentTypeSummaryListJson( filterByContentResolver.contentTypes( json.getContentId(), json.getAllowedContentTypes() )
+                                                   .map( jsonObjectsFactory::createContentTypeSummaryJson )
+                                                   .collect( Collectors.toUnmodifiableList() ) );
     }
 
     @GET

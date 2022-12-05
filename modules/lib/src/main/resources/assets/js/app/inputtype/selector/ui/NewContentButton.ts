@@ -23,12 +23,16 @@ export class NewContentButton
 
     private typeSelectedHandler: (contentType: ContentTypeSummary, parentContent?: ContentSummary) => void;
 
+    private readonly allowedContentTypes: string[];
+
     private contentAddedListeners: { (content: ContentSummary): void }[] = [];
 
-    constructor(content: ContentSummary) {
+    constructor(content: ContentSummary, allowedContentTypes: string[]) {
         super();
 
         this.content = content;
+        this.allowedContentTypes = allowedContentTypes;
+
         this.initEventListeners();
     }
 
@@ -70,10 +74,10 @@ export class NewContentButton
         }
     }
 
-    private openNewContentDialog(types: ContentTypeSummary[]): void {
+    private openNewContentDialog(): void {
         NewContentButton.getContentDialog()
             .setParentContent(this.content)
-            .setContentTypes(types)
+            .setAllowedContentTypes(this.allowedContentTypes)
             .setTypeSelectedHandler(this.typeSelectedHandler)
             .open();
     }
