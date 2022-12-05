@@ -108,4 +108,21 @@ public class UserMembersResolverTest
         final PrincipalKeys res = resolver.getUserMembers( GROUP_1 );
         assertEquals( 3, res.getSize() );
     }
+
+    @Test
+    public void testHandleCircularPrincipalMembership()
+    {
+        final PrincipalRelationship group1Members = PrincipalRelationship.from( GROUP_1 ).to( GROUP_2 );
+        final PrincipalRelationship group2Members = PrincipalRelationship.from( GROUP_2 ).to( GROUP_1 );
+        final PrincipalRelationships memberships = PrincipalRelationships.from( group1Members, group2Members );
+
+        Mockito.when( this.securityService.getRelationships( eq( USER_1 ) ) ).thenReturn( memberships );
+        Mockito.when( this.securityService.getRelationships( eq( GROUP_1 ) ) ).thenReturn( PrincipalRelationships.from( group1Members ) );
+        Mockito.when( this.securityService.getRelationships( eq( GROUP_2 ) ) ).thenReturn( PrincipalRelationships.from( group2Members ) );
+
+        final UserMembersResolver resolver = new UserMembersResolver( securityService );
+
+        final PrincipalKeys res = resolver.getUserMembers( USER_1 );
+        assertEquals( 0, res.getSize() );
+    }
 }

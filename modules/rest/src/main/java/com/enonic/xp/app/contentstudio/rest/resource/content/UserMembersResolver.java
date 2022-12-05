@@ -12,6 +12,7 @@ import com.enonic.xp.security.PrincipalRelationships;
 import com.enonic.xp.security.SecurityService;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
 final class UserMembersResolver
 {
@@ -48,7 +49,7 @@ final class UserMembersResolver
 
         for ( PrincipalKey member : newMembers )
         {
-            if ( !member.isUser() )
+            if ( !member.isUser() && !membersCache.containsKey( member ) )
             {
                 doGetUserMembers( members, member );
             }
@@ -64,12 +65,7 @@ final class UserMembersResolver
         }
 
         final PrincipalRelationships relationships = this.securityService.getRelationships( principal );
-        final ImmutableSet.Builder<PrincipalKey> memberSet = ImmutableSet.builder();
-        for ( PrincipalRelationship relationship : relationships )
-        {
-            memberSet.add( relationship.getTo() );
-        }
-        final PrincipalKeys members = PrincipalKeys.from( memberSet.build() );
+        final PrincipalKeys members = PrincipalKeys.from( relationships.stream().map( PrincipalRelationship::getTo ).collect( toList() ) );
 
         this.membersCache.put( principal, members );
         return members;
