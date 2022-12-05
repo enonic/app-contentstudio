@@ -23,11 +23,11 @@ export class NewContentButton
 
     private typeSelectedHandler: (contentType: ContentTypeSummary, parentContent?: ContentSummary) => void;
 
-    private readonly allowedContentTypes: string[];
+    private readonly allowedContentTypes?: string[];
 
     private contentAddedListeners: { (content: ContentSummary): void }[] = [];
 
-    constructor(content: ContentSummary, allowedContentTypes: string[]) {
+    constructor(content: ContentSummary, allowedContentTypes?: string[]) {
         super();
 
         this.content = content;
@@ -59,7 +59,7 @@ export class NewContentButton
     }
 
     private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
-        return ContentTypesHelper.getAvailableContentTypes(this.content);
+        return ContentTypesHelper.getAvailableContentTypes(this.content, this.allowedContentTypes);
     }
 
     private handleTypesLoaded(types: ContentTypeSummary[]): void {
