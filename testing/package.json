@@ -34,7 +34,7 @@
     "@wdio/spec-reporter": "^7.26.0",
     "chromedriver": "^107.0.3",
     "geckodriver": "^3.2.0",
-    "wdio-chromedriver-service": "^8.0.0",
+    "wdio-chromedriver-service": "^8.0.1",
     "wdio-geckodriver-service": "^4.0.0",
     "@wdio/cli": "^7.26.0",
     "@wdio/dot-reporter": "^7.26.0",
