@@ -149,8 +149,8 @@ export class ContentEventsProcessor {
 
         if (!!params.contentId) {
             const action: string = params.localize ? UrlAction.LOCALIZE : UrlAction.EDIT;
-            const skipValidation: string = params.displayAsNew ? `?${ContentAppHelper.DISPLAY_AS_NEW}` : '';
-            return `${project}/${action}/${params.contentId.toString()}${skipValidation}`;
+            const displayAsNew: string = params.displayAsNew ? `?${ContentAppHelper.DISPLAY_AS_NEW}` : '';
+            return `${project}/${action}/${params.contentId.toString()}${displayAsNew}`;
         }
 
         if (params.parentContentId) {
