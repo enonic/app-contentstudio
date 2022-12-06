@@ -94,6 +94,18 @@ export class ProjectIdDialogStep
             .setDescription(this.descriptionInput.getValue().trim());
     }
 
+    hasData(): boolean {
+        if (!this.formItems) {
+            return false;
+        }
+
+        const data: ProjectIdDialogStepData = this.getData();
+
+        return !StringHelper.isBlank(data.getName()) ||
+               !StringHelper.isBlank(data.getDisplayName()) ||
+               !StringHelper.isBlank(data.getDescription());
+    }
+
     isValid(): Q.Promise<boolean> {
         if (this.isNameOrDisplayNameMissing() || this.displayNameFormItem.getError() || this.nameFormItem.getError()) {
             return Q.resolve(false);

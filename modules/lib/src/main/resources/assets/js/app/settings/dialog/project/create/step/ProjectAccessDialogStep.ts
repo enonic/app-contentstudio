@@ -7,6 +7,7 @@ import {ProjectAccessDialogStepData} from '../data/ProjectAccessDialogStepData';
 import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
 import {ProjectReadAccessFormItem} from '../../../../wizard/panel/form/element/ProjectReadAccessFormItem';
 import {Project} from '../../../../data/project/Project';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export class ProjectAccessDialogStep
     extends ProjectDialogStep {
@@ -28,14 +29,15 @@ export class ProjectAccessDialogStep
     }
 
     getData(): ProjectAccessDialogStepData {
-        if (!this.formItems) {
-            return null;
+        const data: ProjectAccessDialogStepData = new ProjectAccessDialogStepData();
+        const readAccessString: string = this.getFormItem()?.getRadioGroup().getValue();
+
+        if (StringHelper.isBlank(readAccessString)) {
+            return data;
         }
 
-        const readAccessString: string = this.getFormItem().getRadioGroup().getValue();
-
         if (readAccessString === ProjectReadAccessType.PUBLIC) {
-            return new ProjectAccessDialogStepData().setAccess(ProjectReadAccessType.PUBLIC);
+            return data.setAccess(ProjectReadAccessType.PUBLIC);
         }
 
         if (readAccessString === ProjectReadAccessType.CUSTOM) {
@@ -43,13 +45,13 @@ export class ProjectAccessDialogStep
                 this.getFormItem().getPrincipalComboBox().getSelectedDisplayValues();
 
             if (principals.length === 0) {
-                return new ProjectAccessDialogStepData().setAccess(ProjectReadAccessType.PRIVATE);
+                return data.setAccess(ProjectReadAccessType.PRIVATE);
             }
 
-            return new ProjectAccessDialogStepData().setAccess(ProjectReadAccessType.CUSTOM).setPrincipals(principals);
+            return data.setAccess(ProjectReadAccessType.CUSTOM).setPrincipals(principals);
         }
 
-        return new ProjectAccessDialogStepData().setAccess(ProjectReadAccessType.PRIVATE);
+        return data.setAccess(ProjectReadAccessType.PRIVATE);
     }
 
     protected getFormClass(): string {
@@ -61,7 +63,7 @@ export class ProjectAccessDialogStep
     }
 
     hasData(): boolean {
-        return !!this.getFormItem().getRadioGroup().getValue();
+        return !!this.getFormItem()?.getRadioGroup().getValue();
     }
 
     isValid(): Q.Promise<boolean> {
@@ -81,6 +83,6 @@ export class ProjectAccessDialogStep
     }
 
     private getFormItem(): ProjectReadAccessFormItem {
-        return <ProjectReadAccessFormItem>this.formItems[0];
+        return this.formItems && <ProjectReadAccessFormItem>this.formItems[0];
     }
 }

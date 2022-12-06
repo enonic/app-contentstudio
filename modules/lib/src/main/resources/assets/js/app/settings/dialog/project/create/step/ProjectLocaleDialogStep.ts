@@ -30,11 +30,11 @@ export class ProjectLocaleDialogStep
     }
 
     getData(): ProjectLocaleDialogStepData {
-        return new ProjectLocaleDialogStepData().setLocale(this.getLocaleCombobox().getSelectedDisplayValues()[0]);
+        return new ProjectLocaleDialogStepData().setLocale(this.getLocaleCombobox()?.getSelectedDisplayValues()[0]);
     }
 
     hasData(): boolean {
-        return !!this.getLocaleCombobox().getValue();
+        return !!this.getLocaleCombobox()?.getValue();
     }
 
     protected getFormClass(): string {
@@ -50,10 +50,10 @@ export class ProjectLocaleDialogStep
     }
 
     private getLocaleCombobox(): LocaleComboBox {
-        return this.getFormItem().getLocaleCombobox();
+        return this.getFormItem()?.getLocaleCombobox();
     }
 
     private getFormItem(): LocaleFormItem {
-        return <LocaleFormItem>this.formItems[0];
+        return this.formItems && <LocaleFormItem>this.formItems[0];
     }
 }
