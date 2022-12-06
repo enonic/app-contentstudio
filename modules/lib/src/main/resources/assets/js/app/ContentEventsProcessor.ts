@@ -102,7 +102,7 @@ export class ContentEventsProcessor {
                 .setProject(event.getProject())
                 .setLocalize(isLocalize)
                 .setContentId(contentSummary.getContentId())
-                .setSkipValidation(event.isSkipValidation());
+                .setDisplayAsNew(event.isDisplayAsNew());
 
             const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
 
@@ -149,7 +149,7 @@ export class ContentEventsProcessor {
 
         if (!!params.contentId) {
             const action: string = params.localize ? UrlAction.LOCALIZE : UrlAction.EDIT;
-            const skipValidation: string = params.skipValidation ? `?${ContentAppHelper.SKIP_VALIDATION}` : '';
+            const skipValidation: string = params.displayAsNew ? `?${ContentAppHelper.DISPLAY_AS_NEW}` : '';
             return `${project}/${action}/${params.contentId.toString()}${skipValidation}`;
         }
 

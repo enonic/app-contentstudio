@@ -11,7 +11,7 @@ export class EditContentEvent
 
     private readonly project: Project;
 
-    private skipValidation: boolean = false;
+    private displayAsNew: boolean = false;
 
     constructor(model: ContentSummaryAndCompareStatus[], project?: Project) {
         super();
@@ -19,13 +19,13 @@ export class EditContentEvent
         this.project = project ? project : ProjectContext.get().getProject();
     }
 
-    setSkipValidation(value: boolean): EditContentEvent {
-        this.skipValidation = value;
+    setDisplayAsNew(value: boolean): EditContentEvent {
+        this.displayAsNew = value;
         return this;
     }
 
-    isSkipValidation(): boolean {
-        return this.skipValidation;
+    isDisplayAsNew(): boolean {
+        return this.displayAsNew;
     }
 
     getModels(): ContentSummaryAndCompareStatus[] {

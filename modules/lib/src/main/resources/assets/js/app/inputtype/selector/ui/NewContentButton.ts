@@ -100,7 +100,7 @@ export class NewContentButton
 
     private handleContentCreated(content: Content): void {
         this.notifyContentAdded(content);
-        new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(content)]).setSkipValidation(true).fire();
+        new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(content)]).setDisplayAsNew(true).fire();
     }
 
     onContentAdded(listener: (content: ContentSummary) => void): void {
