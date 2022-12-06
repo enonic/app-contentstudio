@@ -25,6 +25,8 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
 
     localize: boolean = false;
 
+    skipValidation: boolean = false;
+
     constructor() {
         this.project = ProjectContext.get().getProject();
     }
@@ -66,6 +68,11 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
 
     setLocalize(value: boolean): ContentWizardPanelParams {
         this.localize = value;
+        return this;
+    }
+
+    setSkipValidation(value: boolean): ContentWizardPanelParams {
+        this.skipValidation = value;
         return this;
     }
 

@@ -7,6 +7,10 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class ContentAppHelper {
 
+    static SKIP_VALIDATION_PARAM: string = 'skipValidation';
+
+    static SKIP_VALIDATION: string = `${ContentAppHelper.SKIP_VALIDATION_PARAM}=true`;
+
     private static getContentWizardUrlPattern(action: string): string {
         return `(${CONFIG.getString('toolUri')})/(.+)/(${action})/.+$`;
     }
@@ -63,9 +67,11 @@ export class ContentAppHelper {
 
         const contentId = new ContentId(actionArguments[0]);
         const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(contentId.toString());
+        const skipValidation: boolean = window.location.href.indexOf(ContentAppHelper.SKIP_VALIDATION) > 0;
 
         return new ContentWizardPanelParams()
             .setContentId(contentId)
-            .setTabId(tabId);
+            .setTabId(tabId)
+            .setSkipValidation(skipValidation);
     }
 }

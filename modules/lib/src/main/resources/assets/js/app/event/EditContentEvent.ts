@@ -7,14 +7,25 @@ import {ProjectContext} from '../project/ProjectContext';
 export class EditContentEvent
     extends Event {
 
-    private model: ContentSummaryAndCompareStatus[];
+    private readonly model: ContentSummaryAndCompareStatus[];
 
-    private project: Project;
+    private readonly project: Project;
+
+    private skipValidation: boolean = false;
 
     constructor(model: ContentSummaryAndCompareStatus[], project?: Project) {
         super();
         this.model = model;
         this.project = project ? project : ProjectContext.get().getProject();
+    }
+
+    setSkipValidation(value: boolean): EditContentEvent {
+        this.skipValidation = value;
+        return this;
+    }
+
+    isSkipValidation(): boolean {
+        return this.skipValidation;
     }
 
     getModels(): ContentSummaryAndCompareStatus[] {
