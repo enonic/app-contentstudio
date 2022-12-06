@@ -32,7 +32,9 @@ class SiteForm extends Page {
     }
 
     async type(siteData) {
-        await this.typeDescription(siteData.description);
+        if (siteData.description) {
+            await this.typeDescription(siteData.description);
+        }
         if (siteData.applications) {
             await this.addApplications(siteData.applications);
         }
@@ -132,5 +134,3 @@ class SiteForm extends Page {
 }
 
 module.exports = SiteForm;
-
-
