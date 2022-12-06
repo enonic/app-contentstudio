@@ -529,7 +529,7 @@ export class ContentWizardPanel
                 }
                 if (loader.content) {
                     // in case of new content will be created in super.loadData()
-                    this.formState.setIsNew(false);
+                    this.formState.setIsNew(this.params.skipValidation);
                     this.setPersistedItem(loader.content);
                     this.setMarkedAsReady(loader.content.getWorkflow().getState() === WorkflowState.READY);
                 }
