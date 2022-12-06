@@ -37,7 +37,7 @@ export class ProjectPermissionsDialogStep
     }
 
     getData(): ProjectPermissionsDialogStepData {
-        const selectedAccessEntries: ProjectAccessControlEntry[] = this.getAccessComboBox().getSelectedDisplayValues();
+        const selectedAccessEntries: ProjectAccessControlEntry[] = this.getAccessComboBox()?.getSelectedDisplayValues() || [];
         const items: Map<ProjectAccess, Principal[]> = new Map<ProjectAccess, Principal[]>;
 
         selectedAccessEntries.forEach((entry: ProjectAccessControlEntry) => {
@@ -54,7 +54,7 @@ export class ProjectPermissionsDialogStep
     }
 
     hasData(): boolean {
-        return !!this.getAccessComboBox().getValue();
+        return !!this.getAccessComboBox()?.getValue();
     }
 
     getName(): string {
@@ -66,10 +66,10 @@ export class ProjectPermissionsDialogStep
     }
 
     private getAccessComboBox(): ProjectAccessControlComboBox {
-        return this.getFormItem().getAccessComboBox();
+        return this.getFormItem()?.getAccessComboBox();
     }
 
     private getFormItem(): ProjectRolesFormItem {
-        return <ProjectRolesFormItem>this.formItems[0];
+        return this.formItems && <ProjectRolesFormItem>this.formItems[0];
     }
 }

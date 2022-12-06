@@ -25,11 +25,11 @@ export class ProjectApplicationsDialogStep
     }
 
     getData(): ProjectApplicationsDialogStepData {
-        return new ProjectApplicationsDialogStepData().setApplications(this.getProjectApplicationsComboBox().getSelectedDisplayValues());
+        return new ProjectApplicationsDialogStepData().setApplications(this.getProjectApplicationsComboBox()?.getSelectedDisplayValues());
     }
 
     hasData(): boolean {
-        return !!this.getProjectApplicationsComboBox().getValue();
+        return !!this.getProjectApplicationsComboBox()?.getValue();
     }
 
     protected getFormClass(): string {
@@ -45,10 +45,10 @@ export class ProjectApplicationsDialogStep
     }
 
     private getProjectApplicationsComboBox(): ProjectApplicationsComboBox {
-        return this.getFormItem().getComboBox();
+        return this.getFormItem()?.getComboBox();
     }
 
     private getFormItem(): ProjectApplicationsFormItem {
-        return <ProjectApplicationsFormItem>this.formItems[0];
+        return this.formItems && <ProjectApplicationsFormItem>this.formItems[0];
     }
 }

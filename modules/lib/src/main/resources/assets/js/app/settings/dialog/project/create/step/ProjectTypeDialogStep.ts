@@ -34,11 +34,11 @@ export class ProjectTypeDialogStep
     }
 
     getData(): ProjectParentDialogStepData {
-        return new ProjectParentDialogStepData().setParentProject(this.getFormItem().getSelectedProject());
+        return new ProjectParentDialogStepData().setParentProject(this.getFormItem()?.getSelectedProject());
     }
 
     hasData(): boolean {
-        return this.getFormItem().hasData();
+        return this.getFormItem()?.hasData();
     }
 
     isValid(): Q.Promise<boolean> {
@@ -58,6 +58,6 @@ export class ProjectTypeDialogStep
     }
 
     private getFormItem(): ProjectTypeFormItem {
-        return <ProjectTypeFormItem>this.formItems[0];
+        return this.formItems && <ProjectTypeFormItem>this.formItems[0];
     }
 }

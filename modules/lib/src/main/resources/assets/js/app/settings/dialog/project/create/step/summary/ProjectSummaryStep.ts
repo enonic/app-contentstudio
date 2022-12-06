@@ -62,7 +62,7 @@ export class ProjectSummaryStep
     }
 
     hasData(): boolean {
-        return true;
+        return !!this.data;
     }
 
     setData(data: ProjectData): void {
