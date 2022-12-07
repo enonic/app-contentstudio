@@ -1,4 +1,5 @@
 import * as Q from 'q';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -9,7 +10,6 @@ import {PublishDialogItemList} from '../publish/PublishDialogItemList';
 import {PublishDialogDependantList} from '../publish/PublishDialogDependantList';
 import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
-import {PublishIssuesStateBar} from '../publish/PublishIssuesStateBar';
 import {PublishScheduleForm} from '../publish/PublishScheduleForm';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
@@ -28,6 +28,8 @@ import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {DialogErrorsStateBar} from './DialogErrorsStateBar';
+import {DialogErrorStateEntry} from './DialogErrorStateEntry';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -36,8 +38,6 @@ export abstract class BasePublishDialog
 
     protected publishProcessor: PublishProcessor;
 
-    protected publishIssuesStateBar: PublishIssuesStateBar;
-
     protected publishScheduleForm: PublishScheduleForm;
 
     protected markAllAsReadyAction: Action;
@@ -45,6 +45,14 @@ export abstract class BasePublishDialog
     protected scheduleFormPropertySet: PropertySet;
 
     protected scheduleFormToggle: ButtonEl;
+
+    protected stateBar: DialogErrorsStateBar;
+
+    private invalidErrorEntry: DialogErrorStateEntry;
+
+    private inProgressErrorEntry: DialogErrorStateEntry;
+
+    private noPermissionsErrorEntry: DialogErrorStateEntry;
 
     protected constructor(config: DependantItemsWithProgressDialogConfig) {
         super(config);
@@ -68,14 +76,14 @@ export abstract class BasePublishDialog
         return <PublishDialogDependantList>super.getDependantList();
     }
 
-    protected initElements() {
+    protected initElements(): void {
         this.initActions();
 
         super.initElements();
 
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
 
-        this.publishIssuesStateBar = new PublishIssuesStateBar();
+        this.initStateBar();
 
         this.scheduleFormPropertySet = new PropertySet();
         this.publishScheduleForm = new PublishScheduleForm(this.scheduleFormPropertySet);
@@ -90,6 +98,50 @@ export abstract class BasePublishDialog
             this.updateControls();
             this.notifyResize();
         });
+    }
+
+    protected initStateBar(): void {
+        this.stateBar = new DialogErrorsStateBar({
+            failText: i18n('dialog.publish.error.loadFailed'),
+            resolvedText: i18n('dialog.publish.error.resolved'),
+        });
+
+        this.invalidErrorEntry = this.stateBar.addErrorEntry({
+            text: i18n('dialog.publish.error.invalid'),
+            iconClass: 'icon-state-invalid',
+            actionButton: {
+                label: i18n('dialog.publish.exclude.invalid'),
+                handler: () => {
+                    this.stateBar.markChecking(true);
+                    this.publishProcessor.excludeItems(this.publishProcessor.getInvalidIds());
+                },
+            },
+        });
+
+        this.inProgressErrorEntry = this.stateBar.addErrorEntry({
+            text: i18n('dialog.publish.error.inProgress'),
+            iconClass: 'icon-state-in-progress',
+            actionButton: {
+                label: i18n('dialog.publish.exclude.inProgress'),
+                handler: () => {
+                    this.stateBar.markChecking(true);
+                    this.publishProcessor.excludeItems(this.publishProcessor.getInProgressIdsWithoutInvalid());
+                },
+            },
+        });
+
+        this.noPermissionsErrorEntry = this.stateBar.addErrorEntry({
+            text: i18n('dialog.publish.error.noPermissions'),
+            actionButton: {
+                label: i18n('dialog.publish.exclude.noPermissions'),
+                handler: () => {
+                    this.stateBar.markChecking(true);
+                    this.publishProcessor.excludeItems(this.publishProcessor.getNotPublishableIds());
+                },
+            },
+        });
+
+        this.stateBar.markChecking(true);
     }
 
     protected postInitElements() {
@@ -107,30 +159,25 @@ export abstract class BasePublishDialog
     protected initListeners() {
         super.initListeners();
 
-        this.publishProcessor.onLoadingStarted(this.handleLoadStarted.bind(this));
-        this.publishProcessor.onLoadingFinished(this.handleLoadFinished.bind(this));
-        this.publishProcessor.onLoadingFailed(this.handleLoadFailed.bind(this));
-        this.publishProcessor.onItemsChanged(this.handleLoadFinished.bind(this));
+        // TODO: This delay was added to make UI transitions smooth. Consider removing it later
+        const debouncedFinishedHandler = AppHelper.debounce(() => this.handleLoadFinished(), 500);
 
-        this.publishIssuesStateBar.onExcludeAllInProgressClicked(() => {
-            this.publishProcessor.excludeItems(this.publishProcessor.getInProgressIdsWithoutInvalid());
-        });
-
-        this.publishIssuesStateBar.onExcludeAllInvalidClicked(() => {
-            this.publishProcessor.excludeItems(this.publishProcessor.getInvalidIds());
-        });
+        this.publishProcessor.onLoadingStarted(() => this.handleLoadStarted());
+        this.publishProcessor.onLoadingFinished(debouncedFinishedHandler);
+        this.publishProcessor.onLoadingFailed(() => this.handleLoadFailed());
+        this.publishProcessor.onItemsChanged(debouncedFinishedHandler);
 
         this.handleIssueGlobalEvents();
     }
 
-    private handleLoadStarted() {
+    private handleLoadStarted(): void {
         this.lockControls();
-        this.showLoadMask();
         this.setSubTitle(i18n('dialog.publish.resolving'));
-        this.publishIssuesStateBar.reset();
+        this.stateBar.markChecking(true);
+        this.stateBar.reset();
     }
 
-    private handleLoadFinished() {
+    private handleLoadFinished(): void {
         const header: string = this.getDependantsHeader(this.getDependantList().isVisible());
         this.updateDependantsHeader(header);
         this.updateChildItemsToggler();
@@ -140,19 +187,24 @@ export abstract class BasePublishDialog
             this.setDependantListVisible(true);
         }
 
-        const itemsToPublish: number = this.countTotal();
+        // updateCount
+        const itemsToPublish = this.countTotal();
+        const isNoItems = itemsToPublish === 0;
+        this.stateBar.toggleHideIfResolved(isNoItems);
+
         this.updateSubTitle(itemsToPublish);
         this.updateButtonCount(null, itemsToPublish);
         this.unlockControls();
         this.updateControls(itemsToPublish);
-        this.hideLoadMask();
+
+        if (this.isVisible()) {
+            this.stateBar.markChecking(false);
+        }
     }
 
     private handleLoadFailed() {
-        this.publishIssuesStateBar.showLoadFailed();
-        this.publishIssuesStateBar.addClass('has-issues');
+        this.stateBar.markErrored();
         this.scheduleFormToggle.setEnabled(false);
-        this.hideLoadMask();
     }
 
     private updateChildItemsToggler() {
@@ -172,22 +224,23 @@ export abstract class BasePublishDialog
         });
     }
 
-    protected updateSubTitle(itemsToPublish: number = this.countTotal()) {
-        const allValid: boolean = this.areItemsAndDependantsValid();
-        const containsItemsInProgress: boolean = this.containsItemsInProgress();
-        const needPublish = this.publishProcessor.isCheckPublishable();
-        const allPublishable: boolean = this.isAllPublishable();
+    protected updateSubTitle(itemsToPublish: number) {
+        const isAllValid = this.areItemsAndDependantsValid();
+        const hasInProgress = this.containsItemsInProgress();
+        const isNeedPublish = this.publishProcessor.isCheckPublishable();
+        const isAllPublishable = this.isAllPublishable();
 
-        if ((!needPublish || allPublishable) && allValid && !containsItemsInProgress) {
-            this.publishIssuesStateBar.removeClass('has-issues');
-            this.publishIssuesStateBar.reset();
+        if ((!isNeedPublish || isAllPublishable) && isAllValid && !hasInProgress) {
+            this.stateBar.reset();
         } else {
-            this.publishIssuesStateBar.addClass('has-issues');
-            this.publishIssuesStateBar.setContainsInProgress(this.getTotalInProgressWithoutInvalid() > 0);
-            this.publishIssuesStateBar.setTotalInProgress(this.publishProcessor.getTotalExcludableInProgress());
-            this.publishIssuesStateBar.setTotalInvalid(this.publishProcessor.getTotalExcludableInvalid());
-            this.publishIssuesStateBar.setContainsInvalid(!allValid);
-            this.publishIssuesStateBar.setContainsNotPublishableVisible(!allPublishable);
+            this.invalidErrorEntry.updateCount(this.publishProcessor.getTotalInvalid());
+            this.invalidErrorEntry.markNonInteractive(this.publishProcessor.hasNotExcludedInvalid());
+
+            this.inProgressErrorEntry.updateCount(this.publishProcessor.getTotalInProgress());
+            this.inProgressErrorEntry.markNonInteractive(this.publishProcessor.hasNotExcludedInProgress());
+
+            this.noPermissionsErrorEntry.updateCount(this.publishProcessor.getTotalNotPublishable());
+            this.noPermissionsErrorEntry.markNonInteractive(this.publishProcessor.hasNotExcludedNotPublishable());
         }
     }
 
@@ -306,41 +359,44 @@ export abstract class BasePublishDialog
         return this.publishProcessor && this.publishProcessor.isAllPendingDelete();
     }
 
-    open() {
+    open(): void {
         this.publishProcessor.setIgnoreDependantItemsChanged(false);
-        this.publishIssuesStateBar.reset();
+        this.stateBar.markChecking(true);
         CreateIssueDialog.get().reset();
 
         super.open();
     }
 
-    close() {
+    close(): void {
         super.close();
         this.publishProcessor.reset();
+        this.stateBar.reset();
         CreateIssueDialog.get().reset();
     }
 
     private markAllAsReady() {
         const ids: ContentId[] = this.publishProcessor.getContentIsProgressIds();
         this.lockControls();
-        this.showLoadMask();
+        this.stateBar.markChecking(true);
 
         new MarkAsReadyRequest(ids).sendAndParse()
             .then(() => showFeedback(i18n('notify.item.markedAsReady.multiple', ids.length)))
             .catch(DefaultErrorHandler.handle)
             .finally(() => {
-                this.hideLoadMask();
+                this.stateBar.markChecking(false);
                 this.unlockControls();
             });
     }
 
     protected lockControls() {
         super.lockControls();
+        this.stateBar.setEnabled(false);
         this.getButtonRow().getActionMenu().setDropdownHandleEnabled(false);
     }
 
     protected unlockControls() {
         super.unlockControls();
+        this.stateBar.setEnabled(true);
         this.getButtonRow().getActionMenu().setDropdownHandleEnabled(this.getTotalInProgressWithoutInvalid() > 0);
     }
 }
