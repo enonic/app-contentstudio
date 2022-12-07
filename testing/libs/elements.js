@@ -42,6 +42,7 @@ module.exports = Object.freeze({
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
     },
     actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
+    dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
     slickRowByName: (container, name) => {
         return container +
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`;

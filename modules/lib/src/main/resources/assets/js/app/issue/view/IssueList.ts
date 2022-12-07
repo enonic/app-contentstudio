@@ -144,7 +144,7 @@ export class IssueList
             return issue.getType() === IssueType.PUBLISH_REQUEST;
         }
 
-        if (this.filterState.filterType === FilterType.TASKS) {
+        if (this.filterState.filterType === FilterType.ISSUES) {
             return issue.getType() === IssueType.STANDARD;
         }
 

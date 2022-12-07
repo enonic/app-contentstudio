@@ -8,9 +8,9 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
-const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
-const TaskDetailsItemsTab = require('../../page_objects/issue/task.details.items.tab');
+const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
+const IssueDetailsItemsTab = require('../../page_objects/issue/issue.details.items.tab');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 
 describe('wizard.publish.menu.issue.item.spec - Publish menu(in wizard) ', function () {
@@ -25,27 +25,27 @@ describe('wizard.publish.menu.issue.item.spec - Publish menu(in wizard) ', funct
     it(`GIVEN new folder is opened WHEN new task has been created in the wizard THEN new menu item should be added in the Publish Menu`,
         async () => {
             let contentWizard = new ContentWizard();
-            let createTaskDialog = new CreateTaskDialog();
-            let taskDetailsDialog = new TaskDetailsDialog();
+            let createIssueDialog = new CreateIssueDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             let issueListDialog = new IssueListDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
-            //Open new folder-wizard:
+            // Open new folder-wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(displayName);
 
-            //Create a new task: (the folder will be automatically saved)
-            await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.CREATE_TASK);
-            await createTaskDialog.typeTitle("issue1");
-            await createTaskDialog.clickOnCreateTaskButton();
-            //Close Issue Details dialog and Issue List dialog:
-            await taskDetailsDialog.clickOnCancelTopButton();
-            await taskDetailsDialog.waitForDialogClosed();
+            // Create a new issue: (the folder will be automatically saved)
+            await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.CREATE_ISSUE);
+            await createIssueDialog.typeTitle("issue1");
+            await createIssueDialog.clickOnCreateIssueButton();
+            // Close Issue Details dialog and Issue List dialog:
+            await issueDetailsDialog.clickOnCancelTopButton();
+            await issueDetailsDialog.waitForDialogClosed();
             await issueListDialog.waitForDialogClosed();
-            //New menu item should appear in the Wizard Publish Menu:
+            // New menu item should appear in the Wizard Publish Menu:
             await contentWizard.openPublishMenuSelectItem("issue1");
-            //Issue details dialog should be loaded after clicking on the menu item:
-            await taskDetailsDialog.waitForDialogOpened();
+            // Issue details dialog should be loaded after clicking on the menu item:
+            await issueDetailsDialog.waitForDialogOpened();
         });
 
     //verifies Task Details Dialog switches to the Comments tab after save #1571
@@ -54,23 +54,23 @@ describe('wizard.publish.menu.issue.item.spec - Publish menu(in wizard) ', funct
     it(`GIVEN folder is opened AND existing issue-name has been clicked in the publish menu WHEN this folder has been excluded in the items-tab THEN this menu-item should be removed in Publish Menu`,
         async () => {
             let contentWizard = new ContentWizard();
-            let taskDetailsDialog = new TaskDetailsDialog();
-            let taskDetailsItemsTab = new TaskDetailsItemsTab();
-            //1. Open existing folder:
+            let taskDetailsDialog = new IssueDetailsDialog();
+            let issueDetailsItemsTab = new IssueDetailsItemsTab();
+            // 1. Open existing folder:
             await studioUtils.selectContentAndOpenWizard(TEST_FOLDER.displayName);
-            //2. Expand Publish Menu in the wizard and click on the issue-name(load the issue in modal dialog):
+            // 2. Expand Publish Menu in the wizard and click on the issue-name(load the issue in modal dialog):
             await contentWizard.openPublishMenuSelectItem("issue1");
-            //3. Click on the remove icon and exclude this folder in Items:
+            // 3. Click on the remove icon and exclude this folder in Items:
             await taskDetailsDialog.clickOnItemsTabBarItem();
-            await taskDetailsItemsTab.excludeItem(TEST_FOLDER.displayName);
+            await issueDetailsItemsTab.excludeItem(TEST_FOLDER.displayName);
             await taskDetailsDialog.pause(1000);
-            //4. Verify that Items tab remains active:
+            // 4. Verify that Items tab remains active:
             let isActive = await taskDetailsDialog.isItemsTabBarItemActive();
             assert.isTrue(isActive, "Items tab remains active");
-            //5. Close the modal dialog:
+            // 5. Close the modal dialog:
             await taskDetailsDialog.clickOnCancelTopButton();
-            studioUtils.saveScreenshot("publish_menu_item_hidden");
-            //6. Expand Publish Menu in wizard and verify that task-name is not present in the menu:
+            await studioUtils.saveScreenshot("publish_menu_item_hidden");
+            // 6. Expand Publish Menu in wizard and verify that task-name is not present in the menu:
             let result = await contentWizard.isPublishMenuItemPresent("issue1");
             assert.isFalse(result, "'issue1' menu item should not be present in the Publish Menu");
         });

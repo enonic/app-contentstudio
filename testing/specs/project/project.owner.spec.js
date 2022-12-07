@@ -15,8 +15,8 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
-const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
-const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
+const CreateTaskDialog = require('../../page_objects/issue/create.issue.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const IssueDetailsDialogAssigneesTab = require('../../page_objects/issue/issue.details.dialog.assignees.tab');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const appConst = require('../../libs/app_const');
@@ -41,7 +41,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
 
     it(`Preconditions: new system user should be created`,
         async () => {
-            //Do Log in with 'SU', navigate to 'Users' and create new user:
+            // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName("owner");
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
@@ -57,24 +57,24 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let languageStep = new ProjectWizardDialogLanguageStep();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
             let applicationsStep = new ProjectWizardDialogApplicationsStep();
-            //1. Do Log in with 'SU' and navigate to 'Settings':
+            // 1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //2.Open new project wizard:
+            // 2.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            //3. Select Project-radio then click on Next button:
+            // 3. Select Project-radio then click on Next button:
             await parentProjectStep.clickOnProjectRadioButton();
             await parentProjectStep.clickOnNextButton();
-            //4. Skip the language step:
+            // 4. Skip the language step:
             await languageStep.clickOnSkipButton();
-            //5. Select 'Private' access mode in the fours step:
+            // 5. Select 'Private' access mode in the fours step:
             let permissionsStep = await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PRIVATE);
             await permissionsStep.waitForLoaded();
-            //6. Select the user with default role:
+            // 6. Select the user with default role:
             await permissionsStep.selectProjectAccessRole(USER.displayName);
-            //7. Update the default role to "Owner"
+            // 7. Update the default role to "Owner"
             await permissionsStep.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.OWNER);
-            //8. Click on Next button in permissions step:
+            // 8. Click on Next button in permissions step:
             await permissionsStep.clickOnNextButton();
             if(await applicationsStep.isLoaded()){
                 await applicationsStep.clickOnSkipButton();
@@ -82,80 +82,80 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //9. Fil in the name input:
             let summaryStep = await projectUtils.fillNameAndDescriptionStep(PROJECT_DISPLAY_NAME);
             await summaryStep.waitForLoaded();
-            //10. click On Create button:
+            // 10. click On Create button:
             await summaryStep.clickOnCreateProjectButton();
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
 
-            //11. Open the project
+            // 11. Open the project
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             await studioUtils.saveScreenshot("project_owner_1");
-            //12. Verify that expected user is present in selected options:
+            // 12. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
-            //5. Verify that expected role is assigned to the user
+            // 5. Verify that expected role is assigned to the user
             let role = await projectWizard.getSelectedProjectAccessRole(USER.displayName);
             assert.equal(role[0], appConst.PROJECT_ROLES.OWNER, "Owner role should be assigned to the user");
         });
 
-    //Verifies https://github.com/enonic/xp/issues/8139  Users with Owner or Editor roles can not be assigned to issues
+    // Verifies https://github.com/enonic/xp/issues/8139  Users with Owner or Editor roles can not be assigned to issues
     it("WHEN SU have created new folder and new task for user-owner THEN expected notification message should appear",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createTaskDialog = new CreateTaskDialog();
-            let taskDetailsDialog = new TaskDetailsDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             let issueDetailsDialogAssigneesTab = new IssueDetailsDialogAssigneesTab();
             FOLDER_ISSUE = contentBuilder.buildFolder(FOLDER_NAME_2);
-            //1. Do Log in with 'SU' and navigate to 'Settings':
+            // 1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp();
             await contentBrowsePanel.selectContext(PROJECT_DISPLAY_NAME);
-            //2. Add new folder:
+            // 2. Add new folder:
             await studioUtils.doAddReadyFolder(FOLDER_ISSUE);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(FOLDER_NAME_2);
-            await contentBrowsePanel.openPublishMenuAndClickOnCreateTask();
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             await createTaskDialog.typeTitle(TASK_TITLE);
-            //3. Select the user with owner role in Assignees selector:
+            // 3. Select the user with owner role in Assignees selector:
             await createTaskDialog.selectUserInAssignees(USER.displayName);
             await studioUtils.saveScreenshot("project_owner_1_1");
-            //4. Click on 'Create Task' button and create new task:
-            await createTaskDialog.clickOnCreateTaskButton();
+            // 4. Click on 'Create Task' button and create new task:
+            await createTaskDialog.clickOnCreateIssueButton();
             let message = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(message, appConst.TASK_CREATED_MESSAGE);
-            await taskDetailsDialog.clickOnAssigneesTabBarItem();
-            await studioUtils.saveScreenshot("project_owner_assignees_tab");
+            assert.equal(message, appConst.ISSUE_CREATED_MESSAGE);
+            await issueDetailsDialog.clickOnAssigneesTabBarItem();
+            await studioUtils.saveScreenshot('project_owner_assignees_tab');
             let actualUsers = await issueDetailsDialogAssigneesTab.getSelectedUsers();
             assert.equal(actualUsers[0], USER.displayName, "Expected user should be present in Assignees tab");
-            //Do log out:
+            // Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
 
-    //Verifies https://github.com/enonic/xp/issues/8139  Users with Owner or Editor roles can not be assigned to issues
+    // Verifies https://github.com/enonic/xp/issues/8139  Users with Owner or Editor roles can not be assigned to issues
     it("WHEN user with 'Owner' role is logged in  THEN 'Assigned to Me' button should be present in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do Log in with the user-owner and navigate to 'Content Studio':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.pause(1000);
-            await studioUtils.saveScreenshot("has_assigned_issues_icon");
+            await studioUtils.saveScreenshot('has_assigned_issues_icon');
             //4. Verify that the user has assigned task('Assigned to Me' and red circle should be displayed on the toolbar):
             await contentBrowsePanel.hasAssignedIssues();
         });
 
     it("GIVEN user with 'Owner' role is logged in WHEN existing project has been opened THEN all inputs should be enabled",
         async () => {
-            //1. Do Log in with the user-owner and navigate to 'Settings':
+            // 1. Do Log in with the user-owner and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //2.Double click on the project:
+            // 2. Do Double-click on the project:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //3. Verify that the project is opened:
+            // 3. Verify that the project is opened:
             await projectWizard.waitForLoaded();
-            //4. Verify that all inputs in the project page are enabled for owner:
+            // 4. Verify that all inputs in the project page are enabled for owner:
             let isPageDisabled = await projectWizard.isNoModify();
             assert.isFalse(isPageDisabled, "Wizard page should be enabled for 'Owner' role");
             let result = await projectWizard.isDescriptionInputClickable();
@@ -232,12 +232,12 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             //2. The folder has been 'Marked as ready' in browse panel:
             await contentBrowsePanel.clickOnMarkAsReadyButton();
-            studioUtils.saveScreenshot("project_owner_6");
+            studioUtils.saveScreenshot('project_owner_6');
             //3. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
-            studioUtils.saveScreenshot("project_owner_7");
-            //4. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Owner role:
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            studioUtils.saveScreenshot('project_owner_7');
+            //4. Verify that 'Create Issue' and 'Request Publishing' menu items are enabled for Owner role:
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             //5. Verify that 'Publish' menu item is enabled:
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.PUBLISH);

@@ -10,9 +10,6 @@ const xpath = {
     showDependentItemsLink: `//h6[@class='dependants-header' and contains(.,'Show dependent items')]`,
     buttonRow: `//div[contains(@id,'IssueDetailsDialogButtonRow')]`,
     itemList: `//ul[contains[@id,'PublishDialogItemList']`,
-    publishButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish...')]]`,
-    closeTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Task']]`,
-    reopenTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Task']]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
@@ -27,22 +24,18 @@ const xpath = {
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]//div[@class='status']`,
 };
 
-class TaskDetailsDialogItemsTab extends Page {
+class IssueDetailsDialogItemsTab extends Page {
 
     get contentOptionsFilterInput() {
         return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
-    get closeTaskButton() {
-        return xpath.container + xpath.closeTaskButton;
-    }
-
-    get reopenTaskButton() {
-        return xpath.container + xpath.reopenTaskButton;
+    get reopenIssueButton() {
+        return xpath.container + lib.dialogButton('Reopen Issue');
     }
 
     get publishButton() {
-        return xpath.container + xpath.buttonRow + xpath.publishButton;
+        return xpath.container + xpath.buttonRow + lib.dialogButton('Publish...');
     }
 
     get itemNamesToPublish() {
@@ -191,23 +184,11 @@ class TaskDetailsDialogItemsTab extends Page {
         })
     }
 
-    async clickOnCloseTaskButton() {
+    async waitForReopenIssueButtonDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.closeTaskButton, appConst.mediumTimeout);
-            await this.clickOnElement(this.closeTaskButton);
-            //Reopen Task button should appear!
-            return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.reopenIssueButton, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_click_close_task_button');
-            throw  new Error('Error when clicking on the `Close Task`  ' + err);
-        }
-    }
-
-    async waitForReopenTaskButtonDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.mediumTimeout);
-        } catch (err) {
-            throw new Error("Reopen Task button is not displayed: " + err)
+            throw new Error("Reopen Issue button is not displayed: " + err)
         }
     }
 
@@ -225,4 +206,5 @@ class TaskDetailsDialogItemsTab extends Page {
         return this.getTextInElements(locator);
     }
 }
-module.exports = TaskDetailsDialogItemsTab;
+
+module.exports = IssueDetailsDialogItemsTab;

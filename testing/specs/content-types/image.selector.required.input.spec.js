@@ -97,8 +97,8 @@ describe('image.selector.required.input.spec tests for validation of content wit
             await imageSelectorForm.clickOnRemoveButton();
             //4. Verify that the content gets not valid now:
             await contentWizard.waitUntilInvalidIconAppears();
-            //5. Verify that default action is 'Create Task':
-            await contentWizard.waitForCreateTaskButtonDisplayed();
+            //5. Verify that default action is 'Create Issue':
+            await contentWizard.waitForCreateIssueButtonDisplayed();
             //6. Validation recording gets visible now:
             let record = await imageSelectorForm.getSelectorValidationMessage();
             assert.equal(record, "This field is required", "Expected validation record gets visible");

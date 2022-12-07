@@ -1,21 +1,18 @@
 /**
  * Created on 21.06.2018.
- * verifies https://github.com/enonic/app-contentstudio/issues/261
- *
- * ContentItemPreviewToolbar - issues are not refreshed on the toolbar, when an issue has been closed or reopened or updated
  */
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
-const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
-const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
+const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const contentBuilder = require("../../libs/content.builder");
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
 
-describe('contentItem.preview.toolbar.spec: create a task and check it in the preview toolbar', function () {
+describe('contentItem.preview.toolbar.spec: create an issue and check it in the preview toolbar', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
@@ -74,32 +71,32 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
 
     it(`GIVEN existing 'published' folder is selected WHEN the first task has been created THEN menu button with the task-name should appear in the ItemPreviewToolbar`,
         async () => {
-            let taskDetailsDialog = new TaskDetailsDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
-            let createTaskDialog = new CreateTaskDialog();
+            let createIssueDialog = new CreateIssueDialog();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            //1. open 'Create Task' dialog and create the first task:
-            await contentBrowsePanel.openPublishMenuAndClickOnCreateTask();
-            await createTaskDialog.typeTitle(firstIssueTitle);
-            await createTaskDialog.clickOnCreateTaskButton();
+            //1. open 'Create Issue' dialog and create the first task:
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+            await createIssueDialog.typeTitle(firstIssueTitle);
+            await createIssueDialog.clickOnCreateIssueButton();
             //2. Close the modal dialog
-            await taskDetailsDialog.clickOnCancelTopButton();
+            await issueDetailsDialog.clickOnCancelTopButton();
             let issueName = await contentItemPreviewPanel.getIssueNameInMenuButton();
-            assert.equal(issueName, firstIssueTitle, "The task-name should be appear im the item preview toolbar");
+            assert.equal(issueName, firstIssueTitle, "The task-name should be appear in the item preview toolbar");
         });
 
     it(`GIVEN existing 'published' folder is selected WHEN the second task has been created THEN task-name should be updated in the menu button(ItemPreviewToolbar)`,
         async () => {
-            let issueDetailsDialog = new TaskDetailsDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            let createTaskDialog = new CreateTaskDialog();
+            let createIssueDialog = new CreateIssueDialog();
             //1. Select the content,expand tasks-menu and open Task Details dialog:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            await studioUtils.openPublishMenuAndClickOnCreateTask();
-            //2. Create new task:
-            await createTaskDialog.typeTitle(secondIssueTitle);
-            await createTaskDialog.clickOnCreateTaskButton();
+            await studioUtils.openPublishMenuAndClickOnCreateIssue();
+            //2. Create new issue:
+            await createIssueDialog.typeTitle(secondIssueTitle);
+            await createIssueDialog.clickOnCreateIssueButton();
             //3. Close the modal dialog
             await issueDetailsDialog.clickOnCancelTopButton();
             //'Tasks-dropdown handle' should appear in the preview toolbar(the second issue is created)
@@ -110,29 +107,29 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
 
     it(`GIVEN existing folder is selected WHEN task-menu button has been clicked THEN 'Task Details' modal dialog should appear`,
         async () => {
-            let taskDetailsDialog = new TaskDetailsDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             //1. Select the content,expand tasks-menu and open Task Details dialog:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentItemPreviewPanel.clickOnIssueMenuButton();
-            await taskDetailsDialog.waitForDialogOpened();
-            studioUtils.saveScreenshot("task_menu_button_clicked");
-            let title = await taskDetailsDialog.getIssueTitle();
+            await issueDetailsDialog.waitForDialogOpened();
+            await studioUtils.saveScreenshot("task_menu_button_clicked");
+            let title = await issueDetailsDialog.getIssueTitle();
             assert.equal(title, secondIssueTitle, "required task-name should be loaded in the modal dialog");
         });
 
     it(`GIVEN existing folder with 2 tasks is selected AND dropdown in the issue-menu has been clicked WHEN click on the menu-item in the dropdown list THEN 'Task Details' modal dialog should appear with correct tittle`,
         async () => {
-            let taskDetailsDialog = new TaskDetailsDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            //1. Select the content,expand tasks-menu and open Task Details dialog:
+            // 1. Select the content,expand tasks-menu and open Task Details dialog:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentItemPreviewPanel.clickOnIssueMenuDropDownHandle();
             await contentItemPreviewPanel.clickOnIssueMenuItem(firstIssueTitle);
-            await taskDetailsDialog.waitForDialogOpened();
-            studioUtils.saveScreenshot("task_menu_item_clicked");
-            let title = await taskDetailsDialog.getIssueTitle();
-            assert.equal(title, firstIssueTitle, "required task-name should be loaded in the modal dialog");
+            await issueDetailsDialog.waitForDialogOpened();
+            await studioUtils.saveScreenshot('task_menu_item_clicked');
+            let title = await issueDetailsDialog.getIssueTitle();
+            assert.equal(title, firstIssueTitle, 'required task-name should be loaded in the modal dialog');
         });
 
     //verifies  https://github.com/enonic/app-contentstudio/issues/721
@@ -141,30 +138,30 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            //select the folder with 2 issues:
+            // 1. select the folder with 2 issues:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            //Dropdown handle for issues should be displayed on the Preview Panel:
+            // 2. Dropdown handle for issues should be displayed on the Preview Panel:
             await contentItemPreviewPanel.waitForIssueDropDownHandleDisplayed();
-            //unselect the folder:
+            // 3. unselect the folder:
             await contentBrowsePanel.clickOnRowByDisplayName(TEST_FOLDER.displayName);
-            //Dropdown handle for issues gets not visible(exception will be thrown after the timeout)
+            // 4. Dropdown handle for issues gets not visible(exception will be thrown after the timeout)
             await contentItemPreviewPanel.waitForIssueDropDownHandleNotDisplayed();
         });
     //verifies https://github.com/enonic/app-contentstudio/issues/261. ContentItemPreviewToolbar - issues are not refreshed on the toolbar
     it(`GIVEN folder(2 tasks) was selected and 'IssueDetails' dialog is opened WHEN the task has been closed THEN task-name should be updated in the task-menu(Preview toolbar)`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            let taskDetailsDialog = new TaskDetailsDialog();
-            //1. Select the folder and open Task Details dialog:
+            let issueDetailsDialog = new IssueDetailsDialog();
+            // 1. Select the folder and open Task Details dialog:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentItemPreviewPanel.clickOnIssueMenuButton();
-            await taskDetailsDialog.waitForDialogOpened();
-            //2. Close the task:
-            await taskDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
-            //3. Close the modal dialog:
-            await taskDetailsDialog.clickOnCancelTopButton();
-            studioUtils.saveScreenshot("issue_menu_button_updated");
-            //issue name should be updated in tne preview panel:
+            await issueDetailsDialog.waitForDialogOpened();
+            // 2. Close the issue:
+            await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
+            // 3. Close the modal dialog:
+            await issueDetailsDialog.clickOnCancelTopButton();
+            await studioUtils.saveScreenshot("issue_menu_button_updated");
+            //4. issue name should be updated in tne preview panel:
             await contentItemPreviewPanel.waitForIssueNameInMenuButton(firstIssueTitle);
         });
 

@@ -40,7 +40,7 @@ const XPATH = {
     previewButton: `//button[contains(@id,'ActionButton') and child::span[text()='Preview']]`,
     resetButton: "//button[contains(@id,'ActionButton') and child::span[text()='Reset']]",
     publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
-    createTaskButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Task...']]",
+    createIssueButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Issue...']]",
     markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
     openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
     unpublishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Unpublish...']]",
@@ -965,14 +965,14 @@ class ContentWizardPanel extends Page {
         }
     }
 
-//Wait for 'Create Task' button gets default action in the Publish menu:
-    async waitForCreateTaskButtonDisplayed() {
+    // Wait for 'Create Issue' button gets default action in the Publish menu:
+    async waitForCreateIssueButtonDisplayed() {
         try {
-            let selector = XPATH.container + XPATH.publishMenuButton + XPATH.createTaskButton;
+            let selector = XPATH.container + XPATH.publishMenuButton + XPATH.createIssueButton;
             return await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         } catch (err) {
             this.saveScreenshot("err_publish_menu_default_action");
-            throw new Error("'Create Task...' button should be default action in 'Publish Menu' in Wizard page.  " + err);
+            throw new Error("'Create Issue...' button should be default action in 'Publish Menu' in Wizard page.  " + err);
         }
     }
 

@@ -2,7 +2,7 @@
  * Created on 5/31/2017.
  */
 const ContentDuplicateDialog = require('../content.duplicate.dialog');
-const CreateTaskDialog = require('../issue/create.task.dialog');
+const CreateIssueDialog = require('../issue/create.issue.dialog');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
@@ -25,41 +25,37 @@ const XPATH = {
     searchButton: "//button[contains(@class, 'icon-search')]",
     hideSearchPanelButton: "//span[contains(@class, 'hide-filter-panel-button')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
-    createTaskMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Task...']",
+    createIssueMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Issue...']",
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
     requestPublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Request Publish']",
-    createTaskButton: "//button[contains(@id,'ActionButton')]//span[text()='Create Task...']",
     contentPublishMenuButton: `//div[contains(@id,'ContentBrowsePublishMenuButton')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
-    duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
     moreFoldButton: "//div[contains(@id,'FoldButton')]",
-    archiveButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Archive...']]`,
-    moveButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Move...']]`,
     editButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Edit']]`,
     newButton: `//button[contains(@id, 'ActionButton') and child::span[text()='New...']]`,
 
-    contentSummaryListViewerByName: function (name) {
+    contentSummaryListViewerByName(name) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
-    contentSummaryByName: function (name) {
+    contentSummaryByName(name) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
-    contentSummaryByDisplayName: function (displayName) {
+    contentSummaryByDisplayName(displayName) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
-    publishMenuItemByName: function (name) {
+    publishMenuItemByName(name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
     rowByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
 
-    checkboxByName: function (name) {
+    checkboxByName(name) {
         return `${lib.itemByName(
             name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
 
-    expanderIconByName: function (name) {
+    expanderIconByName(name) {
         return lib.itemByName(name) +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
     },
@@ -74,7 +70,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get archiveButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Archive...']]`;
+        return XPATH.toolbar + lib.actionButton('Archive...');
     }
 
     get moreButton() {
@@ -82,27 +78,27 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get moveButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Move...']]`;
+        return XPATH.toolbar + lib.actionButton('Move...');
     }
 
     get duplicateButton() {
-        return XPATH.toolbar + XPATH.duplicateButton;
+        return XPATH.toolbar + lib.actionButton('Duplicate...');
     }
 
     get previewButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`;
+        return XPATH.toolbar + lib.actionButton('Preview');
     }
 
     get sortButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Sort...')]]`;
+        return XPATH.toolbar + lib.actionButton('Sort...');
     }
 
     get localizeButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Localize')]]`;
+        return XPATH.toolbar + lib.actionButton('Localize');
     }
 
     get openButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Open')]]`;
+        return XPATH.toolbar + lib.actionButton('Open');
     }
 
     get searchButton() {
@@ -121,8 +117,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.toolbar + XPATH.contentPublishMenuButton + lib.DROP_DOWN_HANDLE;
     }
 
-    get createTaskMenuItem() {
-        return XPATH.toolbar + XPATH.createTaskMenuItem;
+    get createIssueMenuItem() {
+        return XPATH.toolbar + XPATH.createIssueMenuItem;
     }
 
     get requestPublishMenuItem() {
@@ -133,8 +129,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.toolbar + XPATH.markAsReadyMenuItem;
     }
 
-    get createTaskButton() {
-        return XPATH.toolbar + XPATH.createTaskButton;
+    get createIssueButton() {
+        return XPATH.toolbar + lib.actionButton('Create Issue...');
     }
 
     get showIssuesListButton() {
@@ -162,20 +158,20 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get publishButton() {
-        return XPATH.contentPublishMenuButton + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish...')]]`
+        return XPATH.contentPublishMenuButton + lib.actionButton('Publish...');
     }
 
     get unpublishButton() {
 
-        return XPATH.contentPublishMenuButton + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Unpublish...')]]`
+        return XPATH.contentPublishMenuButton + lib.actionButton('Unpublish...');
     }
 
     get publishTreeButton() {
-        return XPATH.contentPublishMenuButton + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Publish Tree...')]]`;
+        return XPATH.contentPublishMenuButton + lib.actionButton('Publish Tree...');
     }
 
     get markAsReadyButton() {
-        return XPATH.contentPublishMenuButton + `//button[contains(@id, 'ActionButton') and child::span[contains(.,'Mark as ready')]]`;
+        return XPATH.contentPublishMenuButton + lib.actionButton('Mark as ready');
     }
 
     get displayNames() {
@@ -236,7 +232,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Workflow icon is still visible in content: " + displayName});
     }
 
-    //Wait for `Publish Menu` Button gets 'Mark as ready'
+    // Wait for `Publish Menu` Button gets 'Mark as ready'
     waitForMarkAsReadyButtonVisible() {
         return this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_publish_button_mark_as_ready");
@@ -244,14 +240,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-    //Wait for `Publish Menu` Button gets 'Unpublish'
+    // Wait for `Publish Menu` Button gets 'Unpublish'
     waitForUnPublishButtonVisible() {
         return this.waitForElementDisplayed(this.unpublishButton, appConst.shortTimeout).catch(err => {
             throw new Error('Unpublish button is not displayed after 2 seconds ' + err);
         })
     }
 
-    //Wait for `Publish Menu` Button gets 'Publish Tree...'
+    // Wait for `Publish Menu` Button gets 'Publish Tree...'
     waitForPublishTreeButtonVisible() {
         return this.waitForElementDisplayed(this.publishTreeButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_browse_publish_tree_button");
@@ -259,7 +255,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-    //Click on Unpublish default action and wait for modal dialog is loaded:
+    // Click on Unpublish default action and wait for modal dialog is loaded:
     async clickOnUnpublishButton() {
         try {
             await this.waitForUnPublishButtonVisible();
@@ -680,20 +676,20 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.waitForElementDisplayed(this.showPublishMenuButton, appConst.mediumTimeout);
     }
 
-    waitForCreateTaskButtonDisplayed() {
-        return this.waitForElementDisplayed(this.createTaskButton, appConst.longTimeout).catch(err => {
+    waitForCreateIssueButtonDisplayed() {
+        return this.waitForElementDisplayed(this.createIssueButton, appConst.longTimeout).catch(err => {
             this.saveScreenshot("err_create_issue_button");
             throw new Error("Create Task button is not visible on the toolbar! " + err);
         });
     }
 
-    async clickOnCreateTaskButton() {
+    async clickOnCreateIssueButton() {
         try {
-            await this.waitForCreateTaskButtonDisplayed();
-            return await this.clickOnElement(this.createTaskButton);
+            await this.waitForCreateIssueButtonDisplayed();
+            return await this.clickOnElement(this.createIssueButton);
         } catch (err) {
             this.saveScreenshot("err_click_create_issue_button");
-            throw new Error("Browse Panel. Error when click on Create Task button in the toolbar! " + err);
+            throw new Error("Browse Panel. Error when click on Create Issue button in the toolbar! " + err);
         }
     }
 
@@ -746,10 +742,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     }
 
-    async openPublishMenuAndClickOnCreateTask() {
-        await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.CREATE_TASK);
-        let createTaskDialog = new CreateTaskDialog();
-        return await createTaskDialog.waitForDialogLoaded();
+    async openPublishMenuAndClickOnCreateIssue() {
+        await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.CREATE_ISSUE);
+        let createIssueDialog = new CreateIssueDialog();
+        return await createIssueDialog.waitForDialogLoaded();
     }
 
     async openPublishMenuAndClickOnRequestPublish() {

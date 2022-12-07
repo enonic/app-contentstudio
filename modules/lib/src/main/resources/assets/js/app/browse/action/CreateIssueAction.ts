@@ -8,7 +8,7 @@ import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 export class CreateIssueAction extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
-        super(grid, i18n('action.createTaskMore'));
+        super(grid, i18n('action.createIssueMore'));
 
         this.setEnabled(false);
     }

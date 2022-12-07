@@ -446,11 +446,11 @@ export class IssueDetailsDialog
     }
 
     private getCloseButtonLabel(): string {
-        return this.isPublishRequest() ? i18n('action.commentAndCloseRequest') : i18n('action.commentAndCloseTask');
+        return this.isPublishRequest() ? i18n('action.commentAndCloseRequest') : i18n('action.commentAndCloseIssue');
     }
 
     private getReopenButtonLabel(): string {
-        return this.isPublishRequest() ? i18n('action.reopenRequest') : i18n('action.reopenTask');
+        return this.isPublishRequest() ? i18n('action.reopenRequest') : i18n('action.reopenIssue');
     }
 
     private getPublishButtonLabel(itemsCount: number = 0): string {

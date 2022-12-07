@@ -28,7 +28,7 @@ export class CreateIssueDialog
 
     protected constructor() {
         super(<DependantItemsDialogConfig>{
-            title: i18n('dialog.newTask'),
+            title: i18n('text.newIssue'),
             allowOverflow: true
         });
     }
@@ -171,7 +171,7 @@ export class CreateIssueAction
     }
 
     public updateLabel(count: number) {
-        let label = i18n('action.createTask');
+        let label = i18n('action.createIssue');
         if (count > 1) {
             label += ' (' + count + ')';
         }

@@ -9,7 +9,7 @@ const LoaderComboBox = require('../components/loader.combobox');
 const XPATH = {
     container: `//div[contains(@id,'CreateIssueDialog')]`,
     dialogTitle: "//div[contains(@id,'DefaultModalDialogHeader') and child::h2[@class='title']]",
-    createTaskButton: `//button[contains(@class,'dialog-button') and child::span[contains(.,'Create Task')]]`,
+    createIssueButton: `//button[contains(@class,'dialog-button') and child::span[contains(.,'Create Issue')]]`,
     cancelButton: `//button[contains(@class,'button-bottom')]`,
     titleFormItem: "//div[contains(@id,'FormItem') and child::label[text()='Title']]",
     addItemsButton: "//button[contains(@id,'button') and child::span[text()='Add items']]",
@@ -19,7 +19,7 @@ const XPATH = {
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::span[contains(@class,'display-name') and text()='${text}']]`,
 };
 
-class CreateTaskDialog extends Page {
+class CreateIssueDialog extends Page {
 
     get cancelTopButton() {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
@@ -53,22 +53,23 @@ class CreateTaskDialog extends Page {
         return XPATH.container + lib.TEXT_AREA;
     }
 
-    get createTaskButton() {
-        return XPATH.container + XPATH.createTaskButton;
+    get createIssueButton() {
+        return XPATH.container + XPATH.createIssueButton;
     }
 
     getDialogTitle() {
         return this.getText(XPATH.container + XPATH.dialogTitle);
     }
 
-    async clickOnCreateTaskButton() {
+    async clickOnCreateIssueButton() {
         try {
-            await this.waitForElementEnabled(this.createTaskButton, appConst.shortTimeout);
-            await this.clickOnElement(this.createTaskButton);
-            await this.pause(400);
+            await this.waitForElementEnabled(this.createIssueButton, appConst.shortTimeout);
+            await this.clickOnElement(this.createIssueButton);
+            await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_click_create_task_button');
-            throw new Error('create task dialog: ' + err);
+            let screenshot = appConst.generateRandomName('err_create_issue_btn')
+            await this.saveScreenshot(screenshot);
+            throw new Error('create issue dialog: ' + screenshot + ' ' + err);
         }
     }
 
@@ -83,8 +84,8 @@ class CreateTaskDialog extends Page {
         return this.clickOnElement(this.cancelBottomButton).then(() => {
             return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
         }).catch(err => {
-            this.saveScreenshot('err_close_task_dialog');
-            throw new Error('Create Task dialog must be closed! ' + err);
+            this.saveScreenshot('err_close_issue_dialog');
+            throw new Error('Create Issue dialog must be closed! ' + err);
         })
     }
 
@@ -103,10 +104,11 @@ class CreateTaskDialog extends Page {
         return this.getText(this.titleInputValidationMessage);
     }
 
-    typeTitle(taskName) {
-        return this.typeTextInInput(this.titleInput, taskName).catch(err => {
-            this.saveScreenshot("err_type_task_name");
-            throw new Error('error when type the task-name ' + err);
+    // Insert text in Issue title input
+    typeTitle(issueName) {
+        return this.typeTextInInput(this.titleInput, issueName).catch(err => {
+            this.saveScreenshot("err_type_issue_name");
+            throw new Error('error when type the issue-name ' + err);
         })
     }
 
@@ -130,8 +132,8 @@ class CreateTaskDialog extends Page {
         return this.isElementDisplayed(this.titleInput);
     }
 
-    isCreateTaskButtonDisplayed() {
-        return this.isElementDisplayed(this.createTaskButton);
+    isCreateIssueButtonDisplayed() {
+        return this.isElementDisplayed(this.createIssueButton);
     }
 
     isCancelButtonTopDisplayed() {
@@ -163,9 +165,9 @@ class CreateTaskDialog extends Page {
             let loaderComboBox = new LoaderComboBox();
             return await loaderComboBox.typeTextAndSelectOption(userName, XPATH.container);
         } catch (err) {
-            throw new Error("Create task Dialog  " + err);
+            throw new Error("Create issue Dialog  " + err);
         }
     }
 }
 
-module.exports = CreateTaskDialog;
+module.exports = CreateIssueDialog;

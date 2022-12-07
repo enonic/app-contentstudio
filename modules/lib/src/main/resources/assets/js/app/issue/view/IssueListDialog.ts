@@ -60,7 +60,7 @@ export class IssueListDialog
         super.initElements();
 
         this.issuesPanel = this.createIssuePanel();
-        this.createAction = new Action(i18n('action.newTask'));
+        this.createAction = new Action(i18n('text.newIssue'));
         this.loadCurrentUser();
     }
 

@@ -3,7 +3,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
-    toIssueList: `//a[@title='To Issue List']`,
+    toIssueList: "//a[@title='To the Issue List']",
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
 

@@ -12,7 +12,7 @@ const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog
 const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
 const webDriverHelper = require("./WebDriverHelper");
 const IssueListDialog = require('../page_objects/issue/issue.list.dialog');
-const CreateTaskDialog = require('../page_objects/issue/create.task.dialog');
+const CreateIssueDialog = require('../page_objects/issue/create.issue.dialog');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const InsertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
@@ -153,17 +153,17 @@ module.exports = {
         await issueListDialog.waitForDialogOpened();
         return await issueListDialog.pause(300);
     },
-    async openCreateTaskDialog() {
+    async openCreateIssueDialog() {
         try {
             let browsePanel = new BrowsePanel();
-            let createTaskDialog = new CreateTaskDialog();
+            let createIssueDialog = new CreateIssueDialog();
             let issueListDialog = new IssueListDialog();
             await browsePanel.clickOnShowIssuesListButton();
             await issueListDialog.waitForDialogOpened();
-            await issueListDialog.clickOnNewTaskButton();
-            return await createTaskDialog.waitForDialogLoaded();
+            await issueListDialog.clickOnNewIssueButton();
+            return await createIssueDialog.waitForDialogLoaded();
         } catch (err) {
-            throw new Error("Error when opening Create Task Dialog " + err);
+            throw new Error("Error when opening Create Issue Dialog " + err);
         }
     },
     async createPublishRequest(text) {
@@ -180,11 +180,11 @@ module.exports = {
             throw new Error("Error when create Publish Request " + err);
         }
     },
-    async openPublishMenuAndClickOnCreateTask() {
+    async openPublishMenuAndClickOnCreateIssue() {
         let browsePanel = new BrowsePanel();
-        let createTaskDialog = new CreateTaskDialog();
-        await browsePanel.openPublishMenuAndClickOnCreateTask();
-        return await createTaskDialog.waitForDialogLoaded();
+        let createIssueDialog = new CreateIssueDialog();
+        await browsePanel.openPublishMenuAndClickOnCreateIssue();
+        return await createIssueDialog.waitForDialogLoaded();
     },
     async openBrowseDetailsPanel() {
         let browsePanel = new BrowsePanel();

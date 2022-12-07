@@ -52,11 +52,11 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1. Do Log in with 'SU' and navigate to 'Settings':
+            // 1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
 
-            //2.Open new project wizard:
+            // 2.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             let project = projectUtils.buildProject( null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName,
                 null, PROJECT_DISPLAY_NAME);
@@ -64,11 +64,11 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await projectWizard.waitForNotificationMessage(PROJECT_DISPLAY_NAME);
 
             await studioUtils.saveScreenshot("project_contributor_created_1");
-            //3. Select the project and click on Edit button:
+            // 3. Select the project and click on Edit button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            //4. Verify that expected user is present in selected options:
+            // 4. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
         });
@@ -77,7 +77,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             FOLDER_WORK_IN_PROGRESS = contentBuilder.buildFolder(FOLDER_NAME_1);
             FOLDER_READY_TO_PUBLISH = contentBuilder.buildFolder(FOLDER_NAME_2);
-            //1. Do Log in with 'SU' and navigate to 'Settings':
+            // 1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp();
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             await studioUtils.doAddFolder(FOLDER_WORK_IN_PROGRESS);
@@ -85,12 +85,12 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
 
             SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
-            //Do log out:
+            // Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
 
-    //Verifies: https://github.com/enonic/app-contentstudio/issues/1925
+    // Verifies: https://github.com/enonic/app-contentstudio/issues/1925
     // Page Controller should be disabled when an user has no permissions in a project (Contributor) #1925
     it("GIVEN user with 'Contributor' role is logged in WHEN existing site(controller is not selected) is opened THEN Page Controller should be disabled",
         async () => {
@@ -122,8 +122,8 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
         });
 
-    //Verifies Compare Versions dialog - Revert button should be disabled for users with no modify permissions #1934
-    //https://github.com/enonic/app-contentstudio/issues/1934
+    // Verifies Compare Versions dialog - Revert button should be disabled for users with no modify permissions #1934
+    // https://github.com/enonic/app-contentstudio/issues/1934
     it("GIVEN user -'Contributor' is logged in WHEN existing folder has been selected  AND versions panel opened THEN 'Revert' button should be disabled",
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
@@ -141,45 +141,45 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await browseVersionsWidget.waitForRevertButtonDisabled();
         });
 
-    //Verifies Compare Versions dialog - Revert button should be disabled for users with no modify permissions #1934
-    //https://github.com/enonic/app-contentstudio/issues/1934
+    // Verifies Compare Versions dialog - Revert button should be disabled for users with no modify permissions #1934
+    // https://github.com/enonic/app-contentstudio/issues/1934
     it("GIVEN user -'Contributor' is logged in WHEN existing folder has been opened AND versions panel opened THEN 'Revert' button should be disabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizardPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Open existing folder:
+            // 2. Open existing folder:
             await contentBrowsePanel.doubleClickOnRowByDisplayName(FOLDER_READY_TO_PUBLISH.displayName);
             await studioUtils.doSwitchToNewWizard();
-            //3. open Versions Panel
+            // 3. open Versions Panel
             await contentWizard.openVersionsHistoryPanel();
-            studioUtils.saveScreenshot("revert_button_should_be_disabled2");
-            //4. Click on the first item in versions widget:
-            await wizardVersionsWidget.clickAndExpandVersionItemByHeader("Created");
-            //5. Verify that 'Revert' button in wizard-versions panel is disabled:
+            await studioUtils.saveScreenshot('revert_button_should_be_disabled2');
+            // 4. Click on the first item in versions widget:
+            await wizardVersionsWidget.clickAndExpandVersionItemByHeader('Created');
+            // 5. Verify that 'Revert' button in wizard-versions panel is disabled:
             await wizardVersionsWidget.waitForRevertButtonDisabled();
         });
 
     it("GIVEN user with 'Contributor' role is logged in WHEN existing folder(Ready to publish) has been selected THEN 'Publish' menu item should be disabled for users with 'Contributor' role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Select existing folder(ready to publish):
+            // 2. Select existing folder(ready to publish):
             await studioUtils.findAndSelectItem(FOLDER_READY_TO_PUBLISH.displayName);
-            //3. Verify that Edit, New, Archive... buttons are disabled:
+            // 3. Verify that Edit, New, Archive... buttons are disabled:
             await contentBrowsePanel.waitForOpenButtonEnabled();
             await contentBrowsePanel.waitForArchiveButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
-            //4. Open Publish Menu:
+            // 4. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
-            studioUtils.saveScreenshot("project_contributor_3");
-            //5. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Contributor role:
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            studioUtils.saveScreenshot('project_contributor_3');
+            // 5. Verify that 'Create Issue' and 'Request Publishing' menu items are enabled for Contributor role:
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-            //6. Verify that 'Publish' menu item is disabled:
+            // 6. Verify that 'Publish' menu item is disabled:
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
         });
 
@@ -188,23 +188,22 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
     it("GIVEN user with 'Contributor' role is logged in WHEN existing folder(Work in Progress) has been selected THEN 'Publish', 'Request Publishing' menu items should be disabled for users with 'Contributor' role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Select existing folder(ready to publish):
+            // 2. Select existing folder(ready to publish):
             await studioUtils.findAndSelectItem(FOLDER_WORK_IN_PROGRESS.displayName);
-            //3. Verify that New, Archive buttons are disabled:
+            // 3. Verify that New, Archive buttons are disabled:
             await contentBrowsePanel.waitForOpenButtonEnabled();
             await contentBrowsePanel.waitForArchiveButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
-            //4. Open Publish Menu:
+            // 4. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
-            studioUtils.saveScreenshot("project_contributor_10");
-            //5. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Contributor role:
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
-            //6. Verify that 'Request Publish' menu item is disabled
-            // This assert temporarily skipped TODO uncomment it when issue#1984 will be fixed.
+            await studioUtils.saveScreenshot("project_contributor_10");
+            // 5. Verify that 'Create Issue' and 'Request Publishing' menu items are enabled for Contributor role:
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
+            // 6. verify issue#1984 - 'Request Publish' menu item should be disabled
             //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-            //7. Verify that 'Publish' menu item is disabled:
+            // 7. Verify that 'Publish' menu item is disabled:
             let menuItems = await contentBrowsePanel.getPublishMenuItems();
             assert.isFalse(menuItems.includes(appConst.PUBLISH_MENU.PUBLISH), "Publish menu item should not be present");
         });
@@ -214,41 +213,41 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizardPanel = new ContentWizardPanel();
             let settingsStepForm = new SettingsStepForm();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.pause(1000);
-            //2. Double click on existing folder(ready to publish):
+            // 2. Do a Double click on existing folder(ready to publish):
             await contentBrowsePanel.doubleClickOnRowByDisplayName(FOLDER_READY_TO_PUBLISH.displayName);
             await studioUtils.doSwitchToNewWizard();
-            //3. Verify that Archive..., Duplicate.. buttons are disabled:
+            // 3. Verify that Archive..., Duplicate.. buttons are disabled:
             await contentWizardPanel.waitForArchiveButtonDisabled();
             await contentWizardPanel.waitForDuplicateButtonDisabled();
-            //4. Verify that display name input is not clickable:
+            // 4. Verify that display name input is not clickable:
             await contentWizardPanel.isDisplayNameInputClickable();
-            //5. Verify that language options filter input is not visible for Contributor:
+            // 5. Verify that language options filter input is not visible for Contributor:
             let isVisible = await settingsStepForm.isLanguageOptionsFilterVisible();
             assert.isFalse(isVisible, "Language comboBox should not be visible for Contributor role");
             isVisible = await settingsStepForm.isOwnerOptionsFilterVisible();
             assert.isFalse(isVisible, "Owner comboBox should not be visible for Contributor role");
         });
 
-    //Verifies - https://github.com/enonic/app-contentstudio/issues/1984
-    //Improvement: Request Publishing menu item should be disabled for contributor (content's status  is 'Work in progress')
+    // Verifies - https://github.com/enonic/app-contentstudio/issues/1984
+    // Improvement: Request Publishing menu item should be disabled for contributor (content's status  is 'Work in progress')
     it.skip(
-        "GIVEN user with 'Contributor' role is logged in WHEN double click on an existing folder THEN 'Create Task' default action should be present in publish-menu",
+        "GIVEN user with 'Contributor' role is logged in WHEN double click on an existing folder THEN 'Create Issue' default action should be present in publish-menu",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizardPanel = new ContentWizardPanel();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.pause(1000);
-            //2. Double click on existing folder(status is Work in progress):
+            // 2. Double click on existing folder(status is Work in progress):
             await contentBrowsePanel.doubleClickOnRowByDisplayName(FOLDER_WORK_IN_PROGRESS.displayName);
             await studioUtils.doSwitchToNewWizard();
             await contentWizardPanel.pause(1000);
             //TODO this assert temporarily skipped
-            //3. Verify that Create Task is default action in publish menu:
-            await contentWizardPanel.waitForCreateTaskButtonDisplayed();
+            // 3. Verify that Create Issue is default action in publish menu:
+            await contentWizardPanel.waitForCreateIssueButtonDisplayed();
         });
 
     it("GIVEN user with 'Contributor' role is logged in WHEN existing folder(Ready to publish) has been selected and Publish Request has been created THEN 'Publish Now' button should be disabled on the last stage",
