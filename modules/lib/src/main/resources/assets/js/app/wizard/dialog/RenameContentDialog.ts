@@ -48,11 +48,11 @@ export class RenameContentDialog extends ModalDialog {
            this.close();
         });
 
-        this.nameInput.onValueCheckStarted(() => {
+        this.nameInput.onValueCheckInProgress(() => {
            this.disableRename();
         });
 
-        this.nameInput.onState((state: ValueValidationState) => {
+        this.nameInput.onStateUpdated((state: ValueValidationState) => {
             this.renameAction.setEnabled(state.getStatus() === ValidityStatus.VALID);
         });
     }

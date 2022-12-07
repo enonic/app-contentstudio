@@ -43,13 +43,13 @@ export abstract class CheckedValueInput
 
     private statusEl: DivEl;
 
-    private isValueCheckOn: boolean;
+    private isCheckInProgress: boolean;
 
-    private debouncedValueHandler: (...args: any[]) => void;
+    private debouncedValueCheckHandler: (...args: any[]) => void;
 
-    private stateListeners: { (state: ValueValidationState): void }[] = [];
+    private stateUpdatedListeners: { (state: ValueValidationState): void }[] = [];
 
-    private valueCheckStartedListeners: { (): void }[] = [];
+    private valueCheckInProgressListeners: { (): void }[] = [];
 
     private valueCheckErrorListeners: { (): void }[] = [];
 
@@ -65,7 +65,7 @@ export abstract class CheckedValueInput
         this.label = new LabelEl(this.getLabelText(), this.input, 'label');
         this.statusEl = new DivEl('status');
         this.inputAndStatusWrapper = new DivEl('wrapper');
-        this.debouncedValueHandler = AppHelper.debounce(() => this.checkValue(), this.getValueCheckDelay());
+        this.debouncedValueCheckHandler = AppHelper.debounce(() => this.checkValue(), this.getValueCheckDelay());
     }
 
     protected abstract getLabelText(): string;
@@ -85,7 +85,7 @@ export abstract class CheckedValueInput
             .then((state: ValueValidationState) => {
                 if (value === this.getValue()) { // value might change during check then no need in update as check is still to be done
                     this.updateByState(state);
-                    this.setCheckIsOn(false);
+                    this.setIsCheckInProgress(false);
                 }
             })
             .catch((e: any) => {
@@ -95,7 +95,7 @@ export abstract class CheckedValueInput
     }
 
     protected handlerError(): void {
-        this.setCheckIsOn(false);
+        this.setIsCheckInProgress(false);
         this.statusEl.addClass('error').setHtml(i18n('error.oncheck'));
         this.notifyValueCheckError();
     }
@@ -109,17 +109,17 @@ export abstract class CheckedValueInput
     }
 
     protected handleValueChanged(): void {
-        if (!this.isValueCheckOn) {
-            this.setCheckIsOn(true);
-            this.notifyValueCheckStarted();
+        if (!this.isCheckInProgress) {
+            this.setIsCheckInProgress(true);
+            this.notifyValueCheckInProgress();
             this.statusEl.setHtml('');
         }
 
-        this.debouncedValueHandler();
+        this.debouncedValueCheckHandler();
     }
 
-    private setCheckIsOn(value: boolean): void {
-        this.isValueCheckOn = value;
+    private setIsCheckInProgress(value: boolean): void {
+        this.isCheckInProgress = value;
         this.statusEl.toggleClass('icon-spinner', value);
     }
 
@@ -127,7 +127,7 @@ export abstract class CheckedValueInput
 
     protected updateByState(state: ValueValidationState): void {
         this.updateStatusElement(state);
-        this.notifyState(state);
+        this.notifyStateUpdated(state);
     }
 
     private updateStatusElement(state: ValueValidationState): void {
@@ -163,34 +163,34 @@ export abstract class CheckedValueInput
         this.statusEl.setClass('status').setHtml('');
     }
 
-    onState(listener: (state: ValueValidationState) => void): void {
-        this.stateListeners.push(listener);
+    onStateUpdated(listener: (state: ValueValidationState) => void): void {
+        this.stateUpdatedListeners.push(listener);
     }
 
-    unState(listener: (state: ValueValidationState) => void): void {
-        this.stateListeners = this.stateListeners.filter((curr: { (state: ValueValidationState): void }) => {
+    unStateUpdated(listener: (state: ValueValidationState) => void): void {
+        this.stateUpdatedListeners = this.stateUpdatedListeners.filter((curr: { (state: ValueValidationState): void }) => {
             return listener !== curr;
         });
     }
 
-    private notifyState(state: ValueValidationState): void {
-        this.stateListeners.forEach((listener: { (state: ValueValidationState): void }) => {
+    private notifyStateUpdated(state: ValueValidationState): void {
+        this.stateUpdatedListeners.forEach((listener: { (state: ValueValidationState): void }) => {
             listener(state);
         });
     }
 
-    onValueCheckStarted(listener: () => void): void {
-        this.valueCheckStartedListeners.push(listener);
+    onValueCheckInProgress(listener: () => void): void {
+        this.valueCheckInProgressListeners.push(listener);
     }
 
-    unValueCheckStarted(listener: () => void): void {
-        this.valueCheckStartedListeners = this.valueCheckStartedListeners.filter((curr: { (): void }) => {
+    unValueCheckInProgress(listener: () => void): void {
+        this.valueCheckInProgressListeners = this.valueCheckInProgressListeners.filter((curr: { (): void }) => {
             return listener !== curr;
         });
     }
 
-    private notifyValueCheckStarted(): void {
-        this.valueCheckStartedListeners.forEach((listener: { (): void }) => {
+    private notifyValueCheckInProgress(): void {
+        this.valueCheckInProgressListeners.forEach((listener: { (): void }) => {
             listener();
         });
     }
