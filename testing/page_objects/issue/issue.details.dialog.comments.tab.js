@@ -4,9 +4,8 @@ const appConst = require('../../libs/app_const');
 
 const XPATH = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
-    commentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment']]`,
     commentAndCloseRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Request']]`,
-    commentAndCloseTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Task']]`,
+    commentAndCloseIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Issue']]`,
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
     noCommentsMessage: "//h5[@class='empty-list-item']",
     commentsList: "//ul[contains(@id,'IssueCommentsList')]",
@@ -21,15 +20,15 @@ class IssueDetailsDialogCommentsTab extends Page {
     }
 
     get commentButton() {
-        return XPATH.container + XPATH.commentButton;
+        return XPATH.container + lib.dialogButton('Comment');
     }
 
     get commentAndCloseRequestButton() {
         return XPATH.container + XPATH.commentAndCloseRequestButton;
     }
 
-    get commentAndCloseTaskButton() {
-        return XPATH.container + XPATH.commentAndCloseTaskButton;
+    get commentAndCloseIssueButton() {
+        return XPATH.container + XPATH.commentAndCloseIssueButton;
     }
 
     isCommentTextAreaDisplayed() {
@@ -104,8 +103,8 @@ class IssueDetailsDialogCommentsTab extends Page {
         })
     }
 
-    waitForCommentAndCloseTaskButtonDisplayed() {
-        return this.waitForElementDisplayed(this.commentAndCloseTaskButton, appConst.shortTimeout).catch(err => {
+    waitForCommentAndCloseIssueButtonDisplayed() {
+        return this.waitForElementDisplayed(this.commentAndCloseIssueButton, appConst.shortTimeout).catch(err => {
             throw  new Error('Comments Tab   ' + err);
         })
     }

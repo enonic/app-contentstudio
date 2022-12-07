@@ -3,7 +3,6 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'IssueListDialog')]`,
-    newTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='New Task']]`,
     closedButton: "//button[contains(@id,'StatusFilterButton') and child::span[contains(.,'Closed')]]",
     openButton: "//button[contains(@id,'StatusFilterButton') and child::span[contains(.,'Open')]]",
     hideClosedIssuesButton: "//button[contains(@id,'OnOffButton') and child::span[contains(.,'Hide closed issues')]]",
@@ -44,8 +43,8 @@ class IssuesListDialog extends Page {
         return xpath.container + xpath.hideClosedIssuesButton;
     }
 
-    get newTaskButton() {
-        return xpath.container + xpath.newTaskButton;
+    get newIssueButton() {
+        return xpath.container + lib.dialogButton('New Issue');
     }
 
     get cancelTopButton() {
@@ -77,19 +76,22 @@ class IssuesListDialog extends Page {
         return await this.pause(500);
     }
 
-    clickOnNewTaskButton() {
-        return this.clickOnElement(this.newTaskButton).catch(err => {
-            this.saveScreenshot('err_click_issue_list_new');
-            throw  new Error('Isses List Dialog - Error when click on the `New task`  ' + err);
-        })
+    async clickOnNewIssueButton() {
+        try {
+            await this.waitForNewIssueButtonDisplayed();
+            await this.clickOnElement(this.newIssueButton);
+        } catch (err) {
+            await this.saveScreenshot('err_click_issue_list_new');
+            throw  new Error('Issues List Dialog - Error during clicking on the `New issue` button  ' + err);
+        }
     }
 
     getTitle() {
         return this.getText(this.title);
     }
 
-    isNewTaskButtonDisplayed() {
-        return this.isElementDisplayed(this.newTaskButton);
+    waitForNewIssueButtonDisplayed() {
+        return this.waitForElementDisplayed(this.newIssueButton, appConst.mediumTimeout);
     }
 
     isClosedButtonDisplayed() {

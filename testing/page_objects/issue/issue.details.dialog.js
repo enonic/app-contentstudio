@@ -4,7 +4,7 @@ const XPATH = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
-    reopenTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Task']]`,
+    reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
     commentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment']]`,
     itemsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Items')]]",
     assigneesTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Assignees')]]",
@@ -20,10 +20,10 @@ const XPATH = {
         menuItem => `//ul[contains(@class,'menu')]/li[contains(@id,'TabMenuItem') and child::a[text()='${menuItem}']]`,
 };
 
-class TaskDetailsDialog extends BaseDetailsDialog {
+class IssueDetailsDialog extends BaseDetailsDialog {
 
-    get reopenTaskButton() {
-        return XPATH.container + XPATH.reopenTaskButton;
+    get reopenIssueButton() {
+        return XPATH.container + XPATH.reopenIssueButton;
     }
 
     get issueStatusSelector() {
@@ -46,8 +46,8 @@ class TaskDetailsDialog extends BaseDetailsDialog {
 
     waitForDialogClosed() {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_close_task_det_dialog');
-            throw new Error('Task Details Dialog must be closed! ' + err)
+            this.saveScreenshot('err_close_issue_det_dialog');
+            throw new Error('Issue Details Dialog must be closed! ' + err)
         })
     }
 
@@ -67,13 +67,13 @@ class TaskDetailsDialog extends BaseDetailsDialog {
     }
 
     waitForReopenButtonLoaded() {
-        return this.waitForElementDisplayed(XPATH.reopenTaskButton, appConst.mediumTimeout).catch(err => {
-            throw new Error('Task Details dialog `Reopen button` is not loaded ' + err)
+        return this.waitForElementDisplayed(XPATH.reopenIssueButton, appConst.mediumTimeout).catch(err => {
+            throw new Error("Issue Details dialog 'Reopen issue' is not loaded " + err)
         });
     }
 
-    async clickOnReopenTaskButton() {
-        await this.clickOnElement(this.reopenTaskButton);
+    async clickOnReopenIssueButton() {
+        await this.clickOnElement(this.reopenIssueButton);
         await this.pause(800);
     }
 
@@ -97,7 +97,7 @@ class TaskDetailsDialog extends BaseDetailsDialog {
         return this.getAttribute(this.itemsTabBarItem, 'class').then(result => {
             return result.includes('active');
         }).catch(err => {
-            throw  new Error('Task Details Dialog  ' + err);
+            throw  new Error('Issue Details Dialog  ' + err);
         })
     }
 
@@ -107,7 +107,7 @@ class TaskDetailsDialog extends BaseDetailsDialog {
             await this.clickOnElement(this.itemsTabBarItem);
         } catch (err) {
             this.saveScreenshot('err_click_on_items_tabbar_item');
-            throw new Error('Task Details Dialog: error when clicking on Items tab bar item: ' + err)
+            throw new Error('Issue Details Dialog: error when clicking on Items tab bar item: ' + err)
         }
         return await this.pause(500);
     }
@@ -130,4 +130,4 @@ class TaskDetailsDialog extends BaseDetailsDialog {
     }
 }
 
-module.exports = TaskDetailsDialog;
+module.exports = IssueDetailsDialog;

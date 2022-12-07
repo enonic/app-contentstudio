@@ -28,24 +28,24 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             let browsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER1 = contentBuilder.buildFolder(displayName);
-            //1.Select existing folder:
+            // 1.Select existing folder:
             await studioUtils.doAddReadyFolder(TEST_FOLDER1);
             await studioUtils.findAndSelectItem(TEST_FOLDER1.displayName);
-            //2. Create new 'Publish Request':
+            // 2. Create new 'Publish Request':
             await studioUtils.createPublishRequest(REQ_TITLE);
             let message = await browsePanel.waitForNotificationMessage();
             assert.equal(message, appConst.REQUEST_CREATED_MESSAGE, "'New publish request created successfully' message should appear");
-            //3. Verify that Issue Details dialog closes after creating an issue:
+            // 3. Verify that Issue Details dialog closes after creating an issue:
             await publishRequestDetailsDialog.waitForClosed();
 
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            //4. Reopen Issue Details dialog and verify control elements:
+            // 4. Reopen Issue Details dialog and verify control elements:
             await contentItemPreviewPanel.clickOnIssueMenuButton();
             await publishRequestDetailsDialog.waitForTabLoaded();
-            //5. Expected buttons should be present:
+            // 5. Expected buttons should be present:
             await publishRequestDetailsDialog.waitForPublishNowButtonEnabled();
             let result = await publishRequestDetailsDialog.getItemDisplayNames();
-            //6. Expected content should be present in items-to-publish:
+            // 6. Expected content should be present in items-to-publish:
             assert.equal(result[0], TEST_FOLDER1.displayName, "Expected item to publish should be present in the dialog");
         });
 

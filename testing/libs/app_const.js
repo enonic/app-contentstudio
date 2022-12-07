@@ -35,8 +35,8 @@ module.exports = Object.freeze({
     publishRequestClosedMessage: function (name) {
         return `Publish request \"${name}\" is closed`;
     },
-    taskClosedMessage: function (name) {
-        return `Task \"${name}\" is closed`;
+    issueClosedMessage: function (name) {
+        return `Issue \"${name}\" is closed`;
     },
     saveFailedAttempt: function (name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
@@ -53,10 +53,10 @@ module.exports = Object.freeze({
     NO_CHANGES_TO_REVERT_MESSAGE: "No changes to revert.",
     THIS_PUBLISH_REQUEST_OPEN: 'The publish request is Open.',
     REQUEST_CREATED_MESSAGE: 'New publish request created successfully.',
-    TASK_CLOSED_MESSAGE: 'The task is Closed.',
-    TASK_CREATED_MESSAGE: "New task created successfully.",
+    ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
+    ISSUE_CREATED_MESSAGE: "A new issue is successfully created.",
     PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
-    TASK_OPENED_MESSAGE: 'The task is Open.',
+    ISSUE_OPENED_MESSAGE: 'The issue is Open.',
     TWO_ITEMS_PUBLISHED: "2 items are published.",
     TWO_ITEMS_UNPUBLISHED: "2 items are unpublished",
     ITEM_IS_UNDELETED_MESSAGE: "Item is undeleted",
@@ -74,7 +74,7 @@ module.exports = Object.freeze({
     FIRST_SELENIUM_APP: "First Selenium App",
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
-    YOUR_COMMENT_ADDED: 'Your comment is added to the task.',
+    YOUR_COMMENT_ADDED: 'Your comment is added to the issue.',
     LOCALIZED_MESSAGE_1: "Language was copied from current project.",
     LOCALIZED_MESSAGE_2: "Inherited content was localized",
     CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
@@ -360,7 +360,7 @@ module.exports = Object.freeze({
         PUBLISH_TREE: "Publish Tree...",
         MARK_AS_READY: "Mark as ready",
         UNPUBLISH: "Unpublish...",
-        CREATE_TASK: "Create Task..."
+        CREATE_ISSUE: "Create Issue..."
     },
     GRID_CONTEXT_MENU: {
         NEW: "New",
@@ -393,7 +393,7 @@ module.exports = Object.freeze({
         ASSIGNED_TO_ME: 'Assigned to Me',
         CREATED_BY_ME: 'Created by Me',
         PUBLISH_REQUESTS: 'Publish requests',
-        TASKS: 'Tasks'
+        ISSUES: 'Issues',
     },
     SYSTEM_ROLES: {
         CM_ADMIN: 'Content Manager Administrator',

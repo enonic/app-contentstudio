@@ -35,7 +35,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
 
     it(`GIVEN browse panel is loaded WHEN no selected items THEN 'CREATE TASK...' button should appear in the browse-toolbar`, async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
-        await contentBrowsePanel.waitForCreateTaskButtonDisplayed();
+        await contentBrowsePanel.waitForCreateIssueButtonDisplayed();
     });
 
     it(`WHEN existing folder(New and Ready to publish) has been selected THEN 'Publish' button should appear in the browse-toolbar`,

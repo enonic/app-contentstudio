@@ -78,7 +78,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await contentBrowsePanel.waitForMoveButtonDisabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
             await contentBrowsePanel.waitForPreviewButtonDisabled();
-            await contentBrowsePanel.waitForCreateTaskButtonDisplayed();
+            await contentBrowsePanel.waitForCreateIssueButtonDisplayed();
             await contentBrowsePanel.waitForDetailsPanelToggleButtonDisplayed();
         });
 

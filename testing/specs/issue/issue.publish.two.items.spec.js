@@ -6,22 +6,22 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
-const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
-const TaskDetailsDialogItemsTab = require('../../page_objects/issue/task.details.items.tab');
+const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const appConst = require('../../libs/app_const');
+const IssueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
 
-describe('task.publish.two.items.spec: 2 folders have been added and published', function () {
+describe('issue.publish.two.items.spec: 2 folders have been added and published', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
-    let TASK_TITLE = appConst.generateRandomName('task');
+    let ISSUE_TITLE = appConst.generateRandomName('issue');
     let folder1;
     let folder2;
     it(`Precondition: WHEN two 'Work in Progress' folders has been added THEN folders should be present in the grid`,
@@ -43,51 +43,51 @@ describe('task.publish.two.items.spec: 2 folders have been added and published',
     //Default action is not updated after several content items have been marked as ready in the filtered grid
     it(`GIVEN two folders are selected WHEN new task has been created THEN items tab on 'Issue Details Dialog' should be loaded with expected data`,
         async () => {
-            let taskDetailsDialog = new TaskDetailsDialog();
-            let createTaskDialog = new CreateTaskDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let createIssueDialog = new CreateIssueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            let taskDetailsDialogItemsTab = new TaskDetailsDialogItemsTab();
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             //1. Do both folders 'Mark as Ready':
             await studioUtils.findContentAndClickCheckBox(folder1.displayName);
             await contentBrowsePanel.pause(500);
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
             await contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
             await contentBrowsePanel.waitForPublishButtonVisible();
-            //2. Open 'Create Task' dialog and create new task:
-            await contentBrowsePanel.openPublishMenuAndClickOnCreateTask();
-            await createTaskDialog.typeTitle(TASK_TITLE);
-            await createTaskDialog.clickOnCreateTaskButton();
-            await taskDetailsDialog.clickOnItemsTabBarItem();
+            //2. Open 'Create Issue' dialog and create new task:
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+            await createIssueDialog.typeTitle(ISSUE_TITLE);
+            await createIssueDialog.clickOnCreateIssueButton();
+            await issueDetailsDialog.clickOnItemsTabBarItem();
             // 3. Verify issue's data:
-            let result = await taskDetailsDialogItemsTab.getItemDisplayNames();
+            let result = await issueDetailsDialogItemsTab.getItemDisplayNames();
             assert.isTrue(result.includes(folder1.displayName));
             assert.isTrue(result.includes(folder2.displayName));
-            let actualNumber = await taskDetailsDialog.getNumberInItemsTab();
-            assert.equal(actualNumber, '2', "2 items to publish should be present in the dialog");
-            let status = await taskDetailsDialogItemsTab.getContentStatus(folder1.displayName)
-            assert.equal(status, 'New', "New content-status should be displayed in the dialog");
+            let actualNumber = await issueDetailsDialog.getNumberInItemsTab();
+            assert.equal(actualNumber, '2', '2 items to publish should be present in the dialog');
+            let status = await issueDetailsDialogItemsTab.getContentStatus(folder1.displayName)
+            assert.equal(status, 'New', 'New content-status should be displayed in the dialog');
         });
 
     it(`GIVEN 'Issue Details Dialog' is opened AND Items-tab activated WHEN 'Publish...' button has been pressed THEN 2 content should be published and the task gets closed`,
         async () => {
-            let taskDetailsDialog = new TaskDetailsDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
             let issueListDialog = new IssueListDialog();
-            let taskDetailsDialogItemsTab = new TaskDetailsDialogItemsTab();
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             await studioUtils.openIssuesListDialog();
             //1. Open Issue Details Dialog:
-            await issueListDialog.clickOnIssue(TASK_TITLE);
-            await taskDetailsDialog.waitForDialogOpened();
+            await issueListDialog.clickOnIssue(ISSUE_TITLE);
+            await issueDetailsDialog.waitForDialogOpened();
             //2.Go to Items tab:
-            await taskDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabBarItem();
             //Click on Publish... button and open Publishing Wizard
-            await taskDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
+            await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
             let contentPublishDialog = new ContentPublishDialog();
             //3. Click on Publish Now button :
             await contentPublishDialog.clickOnPublishNowButton();
-            let message = await taskDetailsDialog.waitForNotificationMessage();
-            assert.equal(message, appConst.TWO_ITEMS_PUBLISHED, '`2 items are published` message should be displayed');
-            let expectedMessage = appConst.taskClosedMessage(TASK_TITLE);
-            await taskDetailsDialog.waitForExpectedNotificationMessage(expectedMessage);
+            let message = await issueDetailsDialog.waitForNotificationMessage();
+            assert.equal(message, appConst.TWO_ITEMS_PUBLISHED, "'2 items are published' message should be displayed");
+            let expectedMessage = appConst.issueClosedMessage(ISSUE_TITLE);
+            await issueDetailsDialog.waitForExpectedNotificationMessage(expectedMessage);
         });
 
     it(`GIVEN two items are published WHEN both items has been selected THEN issue-menu button should be visible in the toolbar because the issue was not closed`,

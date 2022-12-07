@@ -2,7 +2,6 @@
  * Created on 02.03.2022
  */
 const ContentDuplicateDialog = require('../content.duplicate.dialog');
-const CreateTaskDialog = require('../issue/create.task.dialog');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
@@ -25,10 +24,8 @@ const XPATH = {
     searchButton: "//button[contains(@class, 'icon-search')]",
     hideSearchPanelButton: "//span[contains(@class, 'hide-filter-panel-button')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
-    createTaskMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Task...']",
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
     requestPublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Request Publish']",
-    createTaskButton: "//button[contains(@id,'ActionButton')]//span[text()='Create Task...']",
     contentPublishMenuButton: `//div[contains(@id,'ContentBrowsePublishMenuButton')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
@@ -141,10 +138,6 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.toolbar + XPATH.contentPublishMenuButton + lib.DROP_DOWN_HANDLE;
     }
 
-    get createTaskMenuItem() {
-        return XPATH.toolbar + XPATH.createTaskMenuItem;
-    }
-
     get requestPublishMenuItem() {
         return XPATH.toolbar + XPATH.requestPublishMenuItem;
     }
@@ -153,8 +146,8 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.toolbar + XPATH.markAsReadyMenuItem;
     }
 
-    get createTaskButton() {
-        return XPATH.toolbar + XPATH.createTaskButton;
+    get createIssueButton() {
+        return XPATH.toolbar + lib.actionButton('Create Issue...');
     }
 
     get showIssuesListButton() {
@@ -635,17 +628,17 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         return this.waitForElementDisplayed(this.showPublishMenuButton, appConst.mediumTimeout);
     }
 
-    waitForCreateTaskButtonDisplayed() {
-        return this.waitForElementDisplayed(this.createTaskButton, appConst.longTimeout).catch(err => {
+    waitForCreateIssueButtonDisplayed() {
+        return this.waitForElementDisplayed(this.createIssueButton, appConst.longTimeout).catch(err => {
             this.saveScreenshot("err_create_issue_button");
             throw new Error("Create Task button is not visible on the toolbar! " + err);
         });
     }
 
-    async clickOnCreateTaskButton() {
+    async clickOnCreateIssueButton() {
         try {
-            await this.waitForCreateTaskButtonDisplayed();
-            return await this.clickOnElement(this.createTaskButton);
+            await this.waitForCreateIssueButtonDisplayed();
+            return await this.clickOnElement(this.createIssueButton);
         } catch (err) {
             this.saveScreenshot("err_click_create_issue_button");
             throw new Error("Browse Panel. Error when click on Create Task button in the toolbar! " + err);

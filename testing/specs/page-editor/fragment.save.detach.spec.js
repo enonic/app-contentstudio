@@ -61,8 +61,8 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await studioUtils.saveScreenshot("components_menu_closed");
             //5. Verify that page-component's menu gets closed:
             await pageComponentView.waitForMenuItemNotDisplayed(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
-            //6.  But Publish-menu should be expanded and Create task menu item is enabled here:
-            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            //6.  But Publish-menu should be expanded and 'Publish...' menu item is enabled here:
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.PUBLISH);
         });
 
     //https://github.com/enonic/app-contentstudio/issues/1445

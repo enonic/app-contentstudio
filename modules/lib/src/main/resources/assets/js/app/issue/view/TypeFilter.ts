@@ -33,7 +33,7 @@ export class TypeFilter
         const filterCreatedByMeAction = new IssuePanelFilterAction(FilterType.CREATED_BY_ME).setDefaultLabel(i18n('field.createdByMe'));
         const filterPublishRequestAction = new IssuePanelFilterAction(FilterType.PUBLISH_REQUESTS).setDefaultLabel(
             i18n('field.publishRequests'));
-        const filterTasksAction = new IssuePanelFilterAction(FilterType.TASKS).setDefaultLabel(i18n('field.tasks'));
+        const filterTasksAction = new IssuePanelFilterAction(FilterType.ISSUES).setDefaultLabel(i18n('field.issues'));
 
         this.menuActions = [filterAllIssuesAction, filterAssignedToMeAction, filterCreatedByMeAction,
             filterPublishRequestAction, filterTasksAction];

@@ -22,11 +22,11 @@ describe('folder.wizard.toolbar.spec: tests for toolbar in folder wizard', funct
         await contentWizard.waitForArchiveButtonEnabled();
         //2. 'Save' button should be disabled (name input is empty)
         await contentWizard.waitForSaveButtonDisabled();
-        //3 'Create Task' is Default action
-        await contentWizard.waitForCreateTaskButtonDisplayed();
-        //4. Only 'Create Task' menu item should be enabled:
+        //3 'Create Issue' is Default action
+        await contentWizard.waitForCreateIssueButtonDisplayed();
+        //4. Only 'Create Issue' menu item should be enabled:
         await contentWizard.openPublishMenu();
-        await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+        await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
         await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.UNPUBLISH);
         await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
@@ -52,7 +52,7 @@ describe('folder.wizard.toolbar.spec: tests for toolbar in folder wizard', funct
         assert.isFalse(result, "The folder should be valid before the name saving");
         //5. Only Unpublish menu item should be disabled:
         await contentWizard.openPublishMenu();
-        await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+        await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
         await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.UNPUBLISH);
         await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.MARK_AS_READY);

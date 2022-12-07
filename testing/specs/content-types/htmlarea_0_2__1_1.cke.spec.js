@@ -58,11 +58,11 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             //2. Fill the name input:
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             await contentWizard.pause(1000);
-            //3. Verify that the content is not valid(html-area is required input)
+            //3. Verify that the content is invalid html-area is required input
             let result = await contentWizard.isContentInvalid();
             assert.isTrue(result, "The content should be not valid, because html area is required input");
-            //4. Verify that 'Create Task' button is displayed in the wizard toolbar(It is the default action):
-            await contentWizard.waitForCreateTaskButtonDisplayed();
+            //4. Verify that 'Create Issue' button is displayed in the wizard toolbar(It is the default action):
+            await contentWizard.waitForCreateIssueButtonDisplayed();
         });
 
     it(`GIVEN wizard for 'htmlArea 1:1' is opened WHEN display name has been typed AND saved THEN validation message appears`,
