@@ -632,8 +632,8 @@ public final class ContentResource
         //Resolved the dependent ContentPublishItem
         final ContentIds dependentContentIds = ContentIds.from( compareResults.contentIds()
                                                                     .stream()
-                                                                    .filter( contentId -> !requestedContentIds.contains( contentId ) )
-                                                                    .collect( Collectors.toList() ) );
+                                                                    .filter( contentId -> !requestedContentIds.contains( contentId ) ).collect(
+                Collectors.toList() ) );
 
         final ContentIds fullPublishList = ContentIds.create().addAll( dependentContentIds ).addAll( requestedContentIds ).build();
 
@@ -643,10 +643,13 @@ public final class ContentResource
 
         final AuthenticationInfo authInfo = ContextAccessor.current().getAuthInfo();
 
-        final Predicate<ContentId> publishAllowedCondition = id -> this.contentService.getPermissionsById( id )
-            .isAllowedFor( ContextAccessor.current().getAuthInfo().getPrincipals(), Permission.PUBLISH );
+        final Predicate<ContentId> publishNotAllowedCondition =
+            id -> !this.contentService.getPermissionsById( id ).isAllowedFor( ContextAccessor.current().getAuthInfo().getPrincipals(),
+                                                                              Permission.PUBLISH );
         //check if user has access to publish every content
-        final Boolean isAllPublishable = authInfo.hasRole( RoleKeys.ADMIN ) || fullPublishList.stream().allMatch( publishAllowedCondition );
+        final ContentIds notPublishableContentIds = authInfo.hasRole( RoleKeys.ADMIN )
+            ? ContentIds.empty()
+            : ContentIds.from( fullPublishList.stream().filter( publishNotAllowedCondition ).collect( Collectors.toList() ) );
 
         //check that not all contents are pending delete
         final Boolean isAllPendingDelete = getNotPendingDeletion( fullPublishList, compareResults ).getSize() == 0;
@@ -672,18 +675,12 @@ public final class ContentResource
             problematicContentIds.getSize() > 0 ? sortContentIds( problematicContentIds, "_path" ) : problematicContentIds;
 
         //Returns the JSON result
-        return ResolvePublishContentResultJson.create()
-            .setRequestedContents( requestedContentIds )
-            .setDependentContents(
-                this.problematicDependantsOnTop( sortedDependentContentIds, requestedContentIds, sortedProblematicContentIds ) )
-            .setRequiredContents( requiredDependantIds )
-            .setAllPublishable( isAllPublishable )
-            .setAllPendingDelete( isAllPendingDelete )
-            .setContainsInvalid( !notValidContentIds.isEmpty() )
-            .setInvalidContents( notValidContentIds )
-            .setContainsNotReady( !notReadyContentIds.isEmpty() )
-            .setNotReadyContents( notReadyContentIds )
-            .build();
+        return ResolvePublishContentResultJson.create().setRequestedContents( requestedContentIds ).setDependentContents(
+            this.problematicDependantsOnTop( sortedDependentContentIds, requestedContentIds,
+                                             sortedProblematicContentIds ) ).setRequiredContents(
+            requiredDependantIds ).setNotPublishableContents( notPublishableContentIds ).setAllPendingDelete(
+            isAllPendingDelete ).setContainsInvalid( !notValidContentIds.isEmpty() ).setInvalidContents(
+            notValidContentIds ).setContainsNotReady( !notReadyContentIds.isEmpty() ).setNotReadyContents( notReadyContentIds ).build();
     }
 
     private ContentIds sortContentIds( final ContentIds contentIds, final String field )

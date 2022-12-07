@@ -136,8 +136,6 @@ export class IssueDetailsDialog
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
-    private isLoadInProgress: boolean;
-
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
                 title: i18n('dialog.issue'),
@@ -527,12 +525,6 @@ export class IssueDetailsDialog
             this.tabPanel.selectPanelByIndex(this.isPublishRequest() ? 1 : 0);
         }
 
-        this.whenRendered(() => {
-            if (this.isLoadInProgress) {
-                this.showLoadMask();
-            }
-        });
-
         this.toggleClass('with-schedule-form', this.publishScheduleForm.isFormVisible());
         this.isUpdatePending = false;
 
@@ -713,14 +705,12 @@ export class IssueDetailsDialog
         this.contentFetcher.fetchByIds(ids).then((items: ContentSummaryAndCompareStatus[]) => {
             this.clearListItems(true);
             this.setListItems(items);
-
-            if (items.length === 0) {
-                this.hideLoadMask();
-            }
-        }).catch((reason: any) => {
-            DefaultErrorHandler.handle(reason);
-            this.isLoadInProgress = false;
-        });
+        }).catch(
+            (reason: any) => DefaultErrorHandler.handle(reason)
+        )
+        .finally(
+            () => this.hideLoadMask()
+        );
     }
 
     private loadAndSetComments(): void {
@@ -1128,15 +1118,8 @@ export class IssueDetailsDialog
     }
 
     protected showLoadMask() {
-        this.isLoadInProgress = true;
-
         if (!this.loadMask.isVisible() && this.isOpen() && this.isRendered()) {
             super.showLoadMask();
         }
-    }
-
-    protected hideLoadMask() {
-        this.isLoadInProgress = false;
-        super.hideLoadMask();
     }
 }

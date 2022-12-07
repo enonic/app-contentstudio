@@ -28,9 +28,9 @@ export class PublishProcessor {
 
     private inProgressIds: ContentId[] = [];
 
-    private requiredIds: ContentId[] = [];
+    private notPublishableIds: ContentId[] = [];
 
-    private allPublishable: boolean;
+    private requiredIds: ContentId[] = [];
 
     private allPendingDelete: boolean;
 
@@ -46,11 +46,14 @@ export class PublishProcessor {
 
     private loadingFailedListeners: { (): void }[] = [];
 
-    private reloadDependenciesDebounced: Function;
+    private instanceId: number;
+
+    private readonly reloadDependenciesDebounced: (resetDependantItems?: boolean, silent?: boolean) => void;
 
     private static debug: boolean = false;
 
     constructor(itemList: PublishDialogItemList, dependantList: PublishDialogDependantList) {
+        this.instanceId = 0;
         this.itemList = itemList;
         this.dependantList = dependantList;
         this.reloadDependenciesDebounced = AppHelper.debounce(this.reloadPublishDependencies.bind(this), 100);
@@ -61,7 +64,7 @@ export class PublishProcessor {
     private initListeners() {
         this.itemList.onItemsRemoved(() => {
             if (!this.ignoreItemsChanged) {
-                this.reloadDependenciesDebounced(true);
+                this.reloadDependenciesDebounced(true, !this.itemList.isVisible());
             }
         });
 
@@ -69,12 +72,12 @@ export class PublishProcessor {
             const newIds: string[] = items.map(item => item.getId());
             this.excludedIds = this.excludedIds.filter(id => newIds.indexOf(id.toString()) < 0);
             if (!this.ignoreItemsChanged) {
-                this.reloadDependenciesDebounced(true);
+                this.reloadDependenciesDebounced(true, !this.itemList.isVisible());
             }
         });
 
         this.itemList.onChildrenListChanged(() => {
-            this.reloadDependenciesDebounced(true);
+            this.reloadDependenciesDebounced(true, !this.itemList.isVisible());
         });
 
         const itemClickedFn = (item: ContentSummaryAndCompareStatus) => {
@@ -86,12 +89,12 @@ export class PublishProcessor {
 
         this.dependantList.onItemRemoveClicked((item: ContentSummaryAndCompareStatus) => {
             this.excludedIds.push(item.getContentId());
-            this.reloadDependenciesDebounced(true);
+            this.reloadDependenciesDebounced(true, !this.dependantList.isVisible());
         });
 
         this.dependantList.onListChanged(() => {
             if (!this.ignoreDependantItemsChanged) {
-                this.reloadDependenciesDebounced(true);
+                this.reloadDependenciesDebounced(true, !this.dependantList.isVisible());
             }
         });
 
@@ -100,35 +103,39 @@ export class PublishProcessor {
         });
     }
 
-    reloadPublishDependencies(resetDependantItems?: boolean) {
+    reloadPublishDependencies(resetDependantItems?: boolean, silent?: boolean): void {
         if (PublishProcessor.debug) {
             console.debug('PublishProcessor.reloadPublishDependencies: resetDependantItems = ' + resetDependantItems);
         }
 
-        this.notifyLoadingStarted();
+        if (!silent) {
+            this.notifyLoadingStarted();
+        }
 
         const ids: ContentId[] = this.getContentToPublishIds();
         const noItemsToPublish: boolean = ids.length === 0;
 
         if (noItemsToPublish) {
-            this.handleNoPublishItemsToLoad(resetDependantItems);
+            this.handleNoPublishItemsToLoad(resetDependantItems, silent);
         } else {
-            this.loadPublishDependencies(ids, resetDependantItems);
+            this.loadPublishDependencies(ids, resetDependantItems, silent);
         }
     }
 
-    private handleNoPublishItemsToLoad(resetDependantItems?: boolean) {
+    private handleNoPublishItemsToLoad(resetDependantItems?: boolean, silent?: boolean) {
         this.dependantIds = [];
         this.dependantList.setRequiredIds([]);
         this.inProgressIds = [];
         this.invalidIds = [];
         this.requiredIds = [];
-        this.allPublishable = false;
+        this.notPublishableIds = [];
         this.allPendingDelete = false;
 
         this.processResolveDescendantsResult([], resetDependantItems);
 
-        this.notifyLoadingFinished();
+        if (!silent) {
+            this.notifyLoadingFinished();
+        }
     }
 
     private processResolveDescendantsResult(dependants: ContentSummaryAndCompareStatus[], resetDependantItems?: boolean) {
@@ -145,18 +152,25 @@ export class PublishProcessor {
         this.dependantList.refresh();
     }
 
-    private loadPublishDependencies(ids: ContentId[], resetDependantItems?: boolean) {
+    private loadPublishDependencies(ids: ContentId[], resetDependantItems?: boolean, silent?: boolean) {
+        const instanceId: number = this.instanceId;
         this.createResolveDependenciesRequest(ids).sendAndParse().then((result: ResolvePublishDependenciesResult) => {
             this.processResolveDependenciesResult(result);
             this.handleExclusionResult();
 
             return this.loadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
-                this.processResolveDescendantsResult(descendants, resetDependantItems);
-                this.notifyLoadingFinished();
+                if (instanceId === this.instanceId) {
+                    this.processResolveDescendantsResult(descendants, resetDependantItems);
+                    if (!silent) {
+                        this.notifyLoadingFinished();
+                    }
+                }
             });
         }).catch((reason: any) => {
-            this.notifyLoadingFailed();
-            DefaultErrorHandler.handle(reason);
+            if (instanceId === this.instanceId) {
+                this.notifyLoadingFailed();
+                DefaultErrorHandler.handle(reason);
+            }
         });
     }
 
@@ -178,7 +192,7 @@ export class PublishProcessor {
         this.invalidIds = result.getInvalid();
         this.inProgressIds = result.getInProgress();
         this.requiredIds = result.getRequired();
-        this.allPublishable = result.isAllPublishable();
+        this.notPublishableIds = result.getNotPublishable();
         this.allPendingDelete = result.isAllPendingDelete();
     }
 
@@ -193,7 +207,7 @@ export class PublishProcessor {
         return new ContentSummaryAndCompareStatusFetcher().fetchByIds(slicedIds);
     }
 
-    private handleExclusionResult() {
+    private handleExclusionResult(): void {
         const inProgressIds = this.getInProgressIdsWithoutInvalid();
         const invalidIds = this.getInvalidIds();
         if (this.isAnyExcluded(inProgressIds) || this.isAnyExcluded(invalidIds)) {
@@ -213,19 +227,36 @@ export class PublishProcessor {
         return this.excludedIds.some((excludedId: ContentId) => this.itemsIncludeId(ids, excludedId));
     }
 
+    public getTotalInProgress(): number {
+        return this.getInProgressIdsWithoutInvalid().length;
+    }
+
+    public getTotalInvalid(): number {
+        return this.getInvalidIds().length;
+    }
+
+    public getTotalNotPublishable(): number {
+        return this.getNotPublishableIds.length;
+    }
+
     private getTotalExcludable(ids: ContentId[]): number {
         return ids.filter((id: ContentId) => !this.itemsIncludeId(this.excludedIds, id)).length;
     }
 
-    public getTotalExcludableInProgress(): number {
-        return this.getTotalExcludable(this.getInProgressIdsWithoutInvalid());
+    public hasNotExcludedInProgress(): boolean {
+        return this.getTotalExcludable(this.getInProgressIdsWithoutInvalid()) < this.getTotalInProgress();
     }
 
-    public getTotalExcludableInvalid(): number {
-        return this.getTotalExcludable(this.getInvalidIds());
+    public hasNotExcludedInvalid(): boolean {
+        return this.getTotalExcludable(this.getInvalidIds()) < this.getTotalInvalid();
     }
 
-    public reset() {
+    public hasNotExcludedNotPublishable(): boolean {
+        return this.getTotalExcludable(this.getNotPublishableIds()) < this.getTotalNotPublishable();
+    }
+
+    public reset(): void {
+        this.instanceId += 1;
         this.itemList.setExcludeChildrenIds([]);
         this.itemList.setItems([]);
         this.itemList.setReadOnly(false);
@@ -246,7 +277,11 @@ export class PublishProcessor {
     }
 
     public isAllPublishable(): boolean {
-        return this.allPublishable;
+        return this.notPublishableIds.length === 0;
+    }
+
+    public getNotPublishableIds(): ContentId[] {
+        return this.notPublishableIds;
     }
 
     public isAllPendingDelete(): boolean {
@@ -352,7 +387,15 @@ export class PublishProcessor {
             return;
         }
 
-        this.excludedIds.push(...ids);
+        const excludedIds = this.excludedIds.map(id => id.toString());
+        ids.forEach(id => {
+            const isAlreadyExcluded = excludedIds.indexOf(id.toString()) >= 0;
+            if (!isAlreadyExcluded) {
+                this.excludedIds.push(id);
+                excludedIds.push(id.toString());
+            }
+        });
+
         this.itemList.removeItemsByIds(ids);
         this.reloadDependenciesDebounced(true);
     }
