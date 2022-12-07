@@ -25,9 +25,11 @@ import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDelete
 import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselectAllEvent';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {WarningLine} from './WarningLine';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {DialogErrorsStateBar} from '../dialog/DialogErrorsStateBar';
+import {DialogErrorStateEntry} from '../dialog/DialogErrorStateEntry';
+
 
 enum ActionType {
     DELETE, ARCHIVE
@@ -50,7 +52,9 @@ export class ContentDeleteDialog
 
     private confirmExecutionDialog?: ConfirmValueDialog;
 
-    private warningLine: WarningLine;
+    private stateBar: DialogErrorsStateBar;
+
+    private inboundErrorsEntry: DialogErrorStateEntry;
 
     private resolveDependenciesResult: ResolveContentForDeleteResult;
 
@@ -87,14 +91,14 @@ export class ContentDeleteDialog
         this.menuButton = this.getButtonRow().makeActionMenu(this.archiveAction, [this.deleteNowAction]);
         this.actionButton = this.menuButton.getActionButton();
 
-        const ignoreHandler = () => this.unlockControls();
-        this.warningLine = new WarningLine({ignoreHandler});
-    }
-
-    protected postInitElements(): void {
-        super.postInitElements();
-
-        this.warningLine.hide();
+        this.stateBar = new DialogErrorsStateBar({hideIfResolved: true});
+        this.inboundErrorsEntry = this.stateBar.addErrorEntry({
+            text: i18n('dialog.archive.warning.text'),
+            actionButton: {
+                label: i18n('dialog.archive.warning.ignore'),
+                markIgnored: true,
+            },
+        });
     }
 
     getButtonRow(): ContentDeleteDialogButtonRow {
@@ -108,14 +112,12 @@ export class ContentDeleteDialog
 
         const itemsAddedHandler = (items: ContentSummaryAndCompareStatus[], itemList: ListBox<ContentSummaryAndCompareStatus>) => {
             if (this.resolveDependenciesResult) {
-                this.updateItemViewsWithInboundDependencies(
-                    items.map((item: ContentSummaryAndCompareStatus) => <ArchiveItem>itemList.getItemView(item)));
+                this.updateItemViewsWithInboundDependencies(items.map(item => itemList.getItemView(item) as ArchiveItem));
             }
         };
 
-        this.getItemList().onItemsAdded((items: ContentSummaryAndCompareStatus[]) => itemsAddedHandler(items, this.getItemList()));
-        this.getDependantList().onItemsAdded(
-            (items: ContentSummaryAndCompareStatus[]) => itemsAddedHandler(items, this.getDependantList()));
+        this.getItemList().onItemsAdded(items => itemsAddedHandler(items, this.getItemList()));
+        this.getDependantList().onItemsAdded(items => itemsAddedHandler(items, this.getDependantList()));
 
         this.progressManager.onProgressComplete((task: TaskState) => {
             if (this.actionInProgressType === ActionType.ARCHIVE && task === TaskState.FINISHED) {
@@ -124,6 +126,8 @@ export class ContentDeleteDialog
                 NotifyManager.get().showSuccess(msg);
             }
         });
+
+        this.stateBar.onResolvedStateChange(resolved => this.toggleControls(resolved));
 
         const handleRefsChange = (items: ContentSummaryAndCompareStatus[] | ContentServerChangeItem[]): void => {
             if (!this.isOpen()) {
@@ -143,7 +147,7 @@ export class ContentDeleteDialog
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addCancelButtonToBottom();
-            this.prependChildToContentPanel(this.warningLine);
+            this.prependChildToContentPanel(this.stateBar);
 
             return rendered;
         });
@@ -225,7 +229,7 @@ export class ContentDeleteDialog
         });
     }
 
-    private resolveItemsWithInboundRefs(forceUpdate?: boolean) {
+    private resolveItemsWithInboundRefs(forceUpdate?: boolean): void {
         this.getDependantList().setResolveDependenciesResult(this.resolveDependenciesResult);
 
         const itemsWithInboundRefs: ContentId[] =
@@ -237,7 +241,6 @@ export class ContentDeleteDialog
         this.updateWarningLine(inboundCount);
 
         const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
-        this.warningLine.setVisible(hasInboundDeps);
 
         if (hasInboundDeps || forceUpdate) {
             const views = [...this.getItemList().getItemViews(), ...this.getDependantList().getItemViews()];
@@ -255,19 +258,14 @@ export class ContentDeleteDialog
         const dependenciesExist = inboundCount > 0;
 
         if (dependenciesExist) {
-            this.warningLine.addClass('running-checks');
-            this.warningLine.setWarningText(i18n('dialog.runningChecks'));
-            this.warningLine.setIconClass('icon-spinner');
+            this.stateBar.markChecking(true);
         }
 
-        this.warningLine.updateCount(inboundCount);
-        this.warningLine.setVisible(dependenciesExist);
+        this.inboundErrorsEntry.updateCount(inboundCount);
 
         if (dependenciesExist) {
             setTimeout(() => {
-                this.warningLine.removeClass('running-checks');
-                this.warningLine.setDefaultWarningText();
-                this.warningLine.setDefaultIconClass();
+                this.stateBar.markChecking(false);
             }, 1000);
         }
     }
@@ -473,13 +471,13 @@ export class ContentDeleteDialog
     protected lockControls(): void {
         super.lockControls();
         this.lockMenu();
-        this.warningLine.setIgnoreEnabled(false);
+        this.stateBar.setEnabled(false);
     }
 
     protected unlockControls(): void {
         super.unlockControls();
         this.unlockMenu();
-        this.warningLine.setIgnoreEnabled(true);
+        this.stateBar.setEnabled(true);
     }
 
     protected lockMenu(): void {
@@ -497,7 +495,7 @@ export class ContentDeleteDialog
     close() {
         super.close();
 
-        this.warningLine.hide();
+        this.stateBar.reset();
         this.resolveDependenciesResult = null;
     }
 }

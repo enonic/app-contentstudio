@@ -7,7 +7,7 @@ export class ResolvePublishDependenciesResult {
     requestedContents: ContentId[];
     requiredContents: ContentId[];
     containsInvalid: boolean;
-    allPublishable: boolean;
+    notPublishableContents: ContentId[];
     allPendingDelete: boolean;
     invalidContents: ContentId[];
     notReadyContents: ContentId[];
@@ -17,7 +17,7 @@ export class ResolvePublishDependenciesResult {
         this.requestedContents = builder.requestedContents;
         this.requiredContents = builder.requiredContents;
         this.containsInvalid = builder.containsInvalid;
-        this.allPublishable = builder.allPublishable;
+        this.notPublishableContents = builder.notPublishableContents;
         this.allPendingDelete = builder.allPendingDelete;
         this.invalidContents = builder.invalidContents;
         this.notReadyContents = builder.notReadyContents;
@@ -39,8 +39,8 @@ export class ResolvePublishDependenciesResult {
         return this.containsInvalid;
     }
 
-    isAllPublishable(): boolean {
-        return this.allPublishable;
+    getNotPublishable(): ContentId[] {
+        return this.notPublishableContents;
     }
 
     isAllPendingDelete(): boolean {
@@ -58,21 +58,21 @@ export class ResolvePublishDependenciesResult {
     static fromJson(json: ResolvePublishContentResultJson): ResolvePublishDependenciesResult {
 
         const dependants: ContentId[] = json.dependentContents
-                                      ? json.dependentContents.map(dependant => new ContentId(dependant.id))
-                                      : [];
-        const requested: ContentId[] = json.requestedContents ? json.requestedContents.map(dependant => new ContentId(dependant.id)) : [];
-        const required: ContentId[] = json.requiredContents ? json.requiredContents.map(dependant => new ContentId(dependant.id)) : [];
+                                        ? json.dependentContents.map(dependant => new ContentId(dependant.id))
+                                        : [];
+        const requested: ContentId[] = json.requestedContents?.map(dependant => new ContentId(dependant.id)) ?? [];
+        const required: ContentId[] = json.requiredContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const containsInvalid: boolean = json.containsInvalid;
-        const allPublishable: boolean = json.allPublishable;
+        const notPublishableIds: ContentId[] = json.notPublishableContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const allPendingDelete: boolean = json.allPendingDelete;
-        const invalidIds: ContentId[] = json.invalidContents ? json.invalidContents.map(dependant => new ContentId(dependant.id)) : [];
-        const notReadyIds: ContentId[] = json.notReadyContents ? json.notReadyContents.map(dependant => new ContentId(dependant.id)) : [];
+        const invalidIds: ContentId[] = json.invalidContents?.map(dependant => new ContentId(dependant.id)) ?? [];
+        const notReadyIds: ContentId[] = json.notReadyContents?.map(dependant => new ContentId(dependant.id)) ?? [];
 
         return ResolvePublishDependenciesResult.create().setDependentContents(dependants).setRequestedContents(
             requested)
             .setRequiredContents(required)
             .setContainsInvalid(containsInvalid)
-            .setAllPublishable(allPublishable)
+            .setNotPublishableContents(notPublishableIds)
             .setAllPendingDelete(allPendingDelete)
             .setInvalidContents(invalidIds)
             .setNotReadyContents(notReadyIds)
@@ -89,7 +89,7 @@ export class Builder {
     requestedContents: ContentId[];
     requiredContents: ContentId[];
     containsInvalid: boolean;
-    allPublishable: boolean;
+    notPublishableContents: ContentId[];
     allPendingDelete: boolean;
     invalidContents: ContentId[];
     notReadyContents: ContentId[];
@@ -114,8 +114,8 @@ export class Builder {
         return this;
     }
 
-    setAllPublishable(value: boolean): Builder {
-        this.allPublishable = value;
+    setNotPublishableContents(notPublishableContents: ContentId[]): Builder {
+        this.notPublishableContents = notPublishableContents;
         return this;
     }
 

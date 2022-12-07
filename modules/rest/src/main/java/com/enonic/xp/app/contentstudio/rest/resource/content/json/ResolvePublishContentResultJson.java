@@ -16,7 +16,7 @@ public class ResolvePublishContentResultJson
 
     private final Boolean containsInvalid;
 
-    private final Boolean allPublishable;
+    private final List<ContentIdJson> notPublishableContents;
 
     private final Boolean allPendingDelete;
 
@@ -32,7 +32,7 @@ public class ResolvePublishContentResultJson
         dependentContents = builder.dependentContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
         requiredContents = builder.requiredContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
         containsInvalid = builder.containsInvalid;
-        allPublishable = builder.allPublishable;
+        notPublishableContents = builder.notPublishableContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
         allPendingDelete = builder.allPendingDelete;
         containsNotReady = builder.containsNotReady;
         invalidContents = builder.invalidContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
@@ -67,9 +67,9 @@ public class ResolvePublishContentResultJson
         return containsInvalid;
     }
 
-    public Boolean isAllPublishable()
+    public List<ContentIdJson> getNotPublishableContents()
     {
-        return allPublishable;
+        return notPublishableContents;
     }
 
     public Boolean isAllPendingDelete()
@@ -103,7 +103,7 @@ public class ResolvePublishContentResultJson
 
         private Boolean containsInvalid;
 
-        private Boolean allPublishable;
+        private ContentIds notPublishableContents;
 
         private Boolean allPendingDelete;
 
@@ -141,9 +141,9 @@ public class ResolvePublishContentResultJson
             return this;
         }
 
-        public Builder setAllPublishable( final Boolean allPublishable )
+        public Builder setNotPublishableContents( final ContentIds notPublishableContents )
         {
-            this.allPublishable = allPublishable;
+            this.notPublishableContents = notPublishableContents;
             return this;
         }
 

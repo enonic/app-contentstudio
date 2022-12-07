@@ -1,6 +1,5 @@
 {
   "allPendingDelete": false,
-  "allPublishable": false,
   "containsInvalid": true,
   "containsNotReady": false,
   "dependentContents": [
@@ -11,6 +10,14 @@
   "invalidContents": [
     {
       "id": "dependant-contentId"
+    }
+  ],
+  "notPublishableContents" : [
+    {
+      "id" : "dependant-contentId"
+    },
+    {
+      "id" : "requested-contentId"
     }
   ],
   "notReadyContents": [],

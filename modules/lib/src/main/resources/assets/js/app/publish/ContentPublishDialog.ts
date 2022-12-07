@@ -42,7 +42,7 @@ export class ContentPublishDialog
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.publish'),
-            class: 'publish-dialog grey-header',
+            class: 'publish-dialog',
             dependantsDescription: i18n('dialog.publish.dependants'),
             buttonRow: new PublishDialogButtonRow(),
             processingLabel: `${i18n('field.progress.publishing')}...`,
@@ -116,7 +116,7 @@ export class ContentPublishDialog
 
             this.prependChildToContentPanel(this.publishScheduleForm);
 
-            this.prependChildToContentPanel(this.publishIssuesStateBar);
+            this.prependChildToContentPanel(this.stateBar);
 
             return rendered;
         });

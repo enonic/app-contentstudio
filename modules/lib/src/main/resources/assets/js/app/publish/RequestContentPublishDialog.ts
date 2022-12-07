@@ -65,7 +65,7 @@ export class RequestContentPublishDialog
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.requestPublish'),
             dialogSubName: i18n('dialog.requestPublish.subname1'),
-            class: 'request-publish-dialog grey-header',
+            class: 'request-publish-dialog',
             buttonRow: new PublishDialogButtonRow(),
             dependantsDescription: i18n('dialog.publish.dependants'),
             processingLabel: `${i18n('field.progress.publishing')}...`,
@@ -142,7 +142,7 @@ export class RequestContentPublishDialog
             const issueIcon: DivEl = new DivEl('icon-publish-request opened');
             this.prependChildToHeader(issueIcon);
 
-            this.appendChildToContentPanel(this.publishIssuesStateBar);
+            this.appendChildToContentPanel(this.stateBar);
 
             this.detailsForm.addClass('details-form-view');
 

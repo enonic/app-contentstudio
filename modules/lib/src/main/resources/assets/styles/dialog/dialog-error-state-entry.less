@@ -1,0 +1,52 @@
+.dialog-error-state-entry {
+  display: flex;
+  align-items: center;
+
+  &.resolved,
+  &.ignored {
+    display: none;
+  }
+
+  &.non-interactive {
+    .entry-button {
+      display: none;
+      pointer-events: none;
+    }
+  }
+
+  .entry-icon {
+    display: inline-block;
+
+    &.icon-big-plus {
+      color: @admin-red;
+      transform: rotateZ(45deg);
+      text-shadow: 0 0 1px @admin-white;
+    }
+
+    @icon-size: 26px;
+    height: @icon-size;
+    width: @icon-size;
+    margin-right: 5px;
+    line-height: @icon-size;
+    font-size: @icon-size - 8px;
+    text-align: center;
+  }
+
+  .entry-text {
+    font-size: 14px;
+    cursor: default;
+
+    font-weight: bold;
+
+    &::after {
+      content: attr(data-count);
+      font-weight: normal;
+      margin-left: 0.25em;
+    }
+  }
+
+  .entry-button {
+    .link-button();
+    margin-left: 8px;
+  }
+}
