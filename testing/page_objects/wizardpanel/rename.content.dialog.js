@@ -27,7 +27,7 @@ class RenameContentDialog extends Page {
     }
 
     get validationPathMessage() {
-        return XPATH.container + "//div[contains(@class,'input-wrapper')]/div[@class='status-block']";
+        return XPATH.container + "//div[contains(@id,'RenameInput')]//div[contains(@class,'status')]";
     }
 
     async typeInNewNameInput(text) {
