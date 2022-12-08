@@ -85,7 +85,7 @@ export class DialogErrorsStateBar
     }
 
     protected updateResolvedState(): void {
-        const isResolved = !this.errorsEntries.some(entry => entry.isActive());
+        const isResolved: boolean = this.isResolved();
         this.toggleClass(Modifiers.RESOLVED, isResolved);
         this.toggleClass(Modifiers.HIDDEN, isResolved && this.hideIfResolved);
         this.notifyResolvedStateChanged(isResolved);
@@ -109,7 +109,7 @@ export class DialogErrorsStateBar
     }
 
     setEnabled(enabled: boolean): void {
-        this.errorsEntries.forEach(entry => entry.setActionEnabled(enabled));
+        this.errorsEntries.forEach((entry: DialogErrorStateEntry) => entry.setActionEnabled(enabled));
     }
 
     markErrored(): void {
@@ -123,15 +123,18 @@ export class DialogErrorsStateBar
     }
 
     markChecking(checking: boolean): void {
-        this.errorsEntries.forEach(entry => entry.markChecking(checking));
+        this.errorsEntries.forEach((entry: DialogErrorStateEntry) => entry.markChecking(checking));
     }
 
     toggleHideIfResolved(hideIfResolved: boolean): void {
         if (this.hideIfResolved !== hideIfResolved) {
             this.hideIfResolved = hideIfResolved;
-            const isResolved = !this.errorsEntries.some(entry => entry.isActive());
-            this.toggleClass(Modifiers.HIDDEN, isResolved && this.hideIfResolved);
+            this.toggleClass(Modifiers.HIDDEN, this.isResolved() && this.hideIfResolved);
         }
+    }
+
+    private isResolved(): boolean {
+        return !this.errorsEntries.some((entry: DialogErrorStateEntry) => entry.isActive());
     }
 
     private isChecking(): boolean {

@@ -197,7 +197,9 @@ export abstract class BasePublishDialog
         this.unlockControls();
         this.updateControls(itemsToPublish);
 
-        this.stateBar.markChecking(false);
+        if (this.isVisible()) {
+            this.stateBar.markChecking(false);
+        }
     }
 
     private handleLoadFailed() {
