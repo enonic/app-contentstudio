@@ -82,11 +82,6 @@ export class IssueBuilder
         return this;
     }
 
-    setDescription(value: string): IssueBuilder {
-        this.description = value;
-        return this;
-    }
-
     setPublishFrom(value: Date): IssueBuilder {
         this.publishFrom = value;
         return this;

@@ -113,11 +113,6 @@ export class PageTemplateBuilder
         super(source);
     }
 
-    fromContentJson(contentJson: ContentJson): PageTemplateBuilder {
-        super.fromContentJson(contentJson);
-        return this;
-    }
-
     public build(): PageTemplate {
         return new PageTemplate(this);
     }
