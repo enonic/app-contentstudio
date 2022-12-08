@@ -2230,8 +2230,6 @@ export class ContentWizardPanel
                 Router.get().setPath(UrlHelper.createContentEditUrl(this.getPersistedItem().getId()));
             }
 
-            this.getWizardHeader().resetBaseValues();
-
             return content;
         });
     }
