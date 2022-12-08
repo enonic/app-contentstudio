@@ -44,25 +44,23 @@ export class SpecialCharDialog
     private createCharsBlock(): Element {
         const charsBlock: DivEl = new DivEl('chars-block');
         const specialChars: (string | [string, string])[] = this.getEditor().config.specialChars || [];
-        const chars: string[] = <string[]>(specialChars.length > 0 && specialChars[0] instanceof Array
-                                           ? specialChars.map(arr => arr[0])
-                                           : specialChars);
+
         const lang: any = this.getEditor().lang.specialchar;
-        let character: any;
+        let character: string | [string, string];
         let charDesc: string;
 
-        for (let i = 0; i < chars.length; i++) {
-            character = chars[i];
+        for (let i = 0; i < specialChars.length; i++) {
+            character = specialChars[i];
             charDesc = '';
 
-            if (character instanceof Array) {
-                charDesc = character[1];
-                character = character[0];
-            } else {
+            if (typeof(character) === 'string') {
                 const _tmpName = character.replace('&', '').replace(';', '').replace('#', '');
 
                 // Use character in case description unavailable.
                 charDesc = lang[_tmpName] || character;
+            } else {
+                charDesc = character[1];
+                character = character[0];
             }
 
             const span: SpanEl = new SpanEl('chars-block__char');
