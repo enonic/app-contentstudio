@@ -484,7 +484,7 @@ export class ContentServerEventsHandler {
                 d.getContentId())));
 
         if (unpublishedItems.length) {
-            this.contentFetcher.fetchByPaths(unpublishedItems.map(item => item.getPath()))
+            this.contentFetcher.fetchByIds(this.extractContentIds(unpublishedItems))
                 .then((summaries) => {
                     this.handleContentUnpublished(summaries);
                 });
@@ -503,7 +503,7 @@ export class ContentServerEventsHandler {
         }
 
         if (movedItems.length > 0) {
-            this.contentFetcher.fetchByPaths(this.extractNewContentPaths(movedItems))
+            this.contentFetcher.fetchByIds(this.extractContentIds(movedItems))
                 .then((summaries: ContentSummaryAndCompareStatus[]) => {
                     this.handleContentMoved(this.createMovedItems(summaries, movedItems));
                 });

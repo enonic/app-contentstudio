@@ -4,7 +4,6 @@ import {ListContentByIdRequest} from './ListContentByIdRequest';
 import {CompareContentRequest} from './CompareContentRequest';
 import {CompareContentResults} from './CompareContentResults';
 import {GetContentByIdRequest} from './GetContentByIdRequest';
-import {BatchContentRequest} from './BatchContentRequest';
 import {GetContentSummaryByIds} from './GetContentSummaryByIds';
 import {GetContentIdsByParentRequest} from './GetContentIdsByParentRequest';
 import {IsContentReadOnlyRequest} from './isContentReadOnlyRequest';
@@ -17,7 +16,6 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ChildOrder} from './order/ChildOrder';
 import {ContentId} from '../content/ContentId';
 import {FieldOrderExpr, FieldOrderExprBuilder} from './order/FieldOrderExpr';
-import {ContentPath} from '../content/ContentPath';
 import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class ContentSummaryAndCompareStatusFetcher {
@@ -99,21 +97,6 @@ export class ContentSummaryAndCompareStatusFetcher {
 
                 return this.updateReadOnly([result]).then(() => result);
             });
-    }
-
-    fetchByPaths(paths: ContentPath[]): Q.Promise<ContentSummaryAndCompareStatus[]> {
-        if (paths.length === 0) {
-            return Q([]);
-        }
-
-        return new BatchContentRequest().setContentPaths(paths).sendAndParse().then((response: ContentResponse<ContentSummary>) => {
-            const contentSummaries: ContentSummary[] = response.getContents();
-
-            return CompareContentRequest.fromContentSummaries(contentSummaries, null, this.contentRootPath).sendAndParse().then(
-                (compareResults: CompareContentResults) => {
-                    return this.updateCompareStatus(contentSummaries, compareResults);
-                });
-        });
     }
 
     fetchByIds(ids: ContentId[]): Q.Promise<ContentSummaryAndCompareStatus[]> {
