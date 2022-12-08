@@ -5,7 +5,7 @@ import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {RenameContentDialog} from './RenameContentDialog';
+import {RenameContentDialog} from './dialog/RenameContentDialog';
 import {Content} from '../content/Content';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {ContentPath} from '../content/ContentPath';
