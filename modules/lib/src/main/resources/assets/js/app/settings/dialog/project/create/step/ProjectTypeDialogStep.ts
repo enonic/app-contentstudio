@@ -45,10 +45,6 @@ export class ProjectTypeDialogStep
         return Q.resolve(this.hasData());
     }
 
-    setSelectedProject(value: Project): void {
-        this.getFormItem().setSelectedProject(value);
-    }
-
     getName(): string {
         return 'projectCreate';
     }
