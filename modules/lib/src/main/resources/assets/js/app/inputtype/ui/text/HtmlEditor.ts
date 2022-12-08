@@ -1028,7 +1028,8 @@ class HtmlEditorConfigBuilder {
             uploadUrl: this.getUploadUrl(),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false,
-            contentsLangDirection: this.editorParams.getLangDirection()
+            contentsLangDirection: this.editorParams.getLangDirection(),
+            specialChars: (CKEDITOR.config.specialChars || []).concat(this.getExtraSpecialChars())
         };
 
         config['qtRows'] = 10; // Count of rows
@@ -1085,6 +1086,35 @@ class HtmlEditorConfigBuilder {
 
     private getExtraAllowedContent(): string {
         return 'strong em u code address dl dt dd blockquote;*(*);td{*};*[data-*]';
+    }
+
+    private getExtraSpecialChars(): (string | [string, string])[] {
+        return [
+            ['&alpha;', 'alpha'],
+            ['&beta;', 'beta'],
+            ['&gamma;', 'gamma'],
+            ['&delta;', 'delta'],
+            ['&epsilon;', 'epsilon'],
+            ['&zeta;', 'zeta'],
+            ['&eta;', 'eta'],
+            ['&theta;', 'theta'],
+            ['&iota;', 'iota'],
+            ['&kappa;', 'kappa'],
+            ['&lambda;', 'lambda'],
+            ['&mu;', 'mu'],
+            ['&nu;', 'nu'],
+            ['&xi;', 'xi'],
+            ['&omicron;', 'omicron'],
+            ['&pi;', 'pi'],
+            ['&rho;', 'rho'],
+            ['&sigma;', 'sigma'],
+            ['&tau;', 'tau'],
+            ['&upsilon;', 'upsilon'],
+            ['&phi;', 'phi'],
+            ['&chi;', 'chi'],
+            ['&psi;', 'psi'],
+            ['&omega;', 'omega']
+        ];
     }
 
     private getUploadUrl(): string {
