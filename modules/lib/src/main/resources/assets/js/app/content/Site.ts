@@ -67,11 +67,6 @@ export class SiteBuilder
         super(source);
     }
 
-    fromContentJson(contentJson: ContentJson): SiteBuilder {
-        super.fromContentJson(contentJson);
-        return this;
-    }
-
     build(): Site {
         return new Site(this);
     }

@@ -240,7 +240,7 @@ export class ContentBuilder
         }
     }
 
-    fromContentJson(json: ContentJson): ContentBuilder {
+    fromContentJson(json: ContentJson): this {
 
         super.fromContentSummaryJson(json);
 
