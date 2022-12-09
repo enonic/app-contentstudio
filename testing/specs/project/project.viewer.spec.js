@@ -112,9 +112,9 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await contentBrowsePanel.waitForNewButtonDisabled();
         });
 
-    //Verify that 'Viewer' can not publish content:
-    //Verifies https://github.com/enonic/app-contentstudio/issues/2363
-    //Publish menu should be disabled for users with Viewer role #2363
+    // Verify that 'Viewer' can not publish content:
+    // Verifies https://github.com/enonic/app-contentstudio/issues/2363
+    // Publish menu should be disabled for users with Viewer role #2363
     it("GIVEN user with 'Viewer' role is logged in WHEN existing folder has been selected THEN 'Publish' menu item should be disabled for users with Viewer role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -130,10 +130,10 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
             //4. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
-            studioUtils.saveScreenshot("project_viewer_3");
+            await studioUtils.saveScreenshot("project_viewer_3");
             //TODO this assert temporarily skipped
             //5. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Viewer role:
-            //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             //6. Verify that 'Publish' menu item is disabled:
             //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
