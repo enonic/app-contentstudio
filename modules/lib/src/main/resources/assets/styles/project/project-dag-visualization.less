@@ -1,0 +1,54 @@
+.project-dag-visualization {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: auto;
+  opacity: 1;
+  animation-name: fadeInOpacity;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in;
+  animation-duration: 0.3s;
+
+  @keyframes fadeInOpacity {
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .svg-container {
+    width: 100%;
+
+    .project-icon-container,
+    .project-icon {
+      width: 25px;
+      height: 25px;
+    }
+
+    .project-icon-container {
+      transform: translate(10px, 12.5px);
+      line-height: 35px;
+
+      .project-icon {
+        font-size: 25px;
+      }
+
+      .flag {
+        border-radius: 50%;
+        border: 1px solid gray;
+        box-sizing: border-box;
+        background-position: center;
+      }
+
+      .custom-icon {
+        width: 100%;
+      }
+    }
+  }
+}

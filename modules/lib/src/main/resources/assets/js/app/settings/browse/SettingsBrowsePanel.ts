@@ -4,7 +4,7 @@ import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
 import {SettingsTreeGridActions} from '../grid/SettingsTreeGridActions';
 import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
 import {SettingsViewItem} from '../view/SettingsViewItem';
-import {ProjectContext} from '../../project/ProjectContext';
+import {SettingsItemsTreeGridHighlightEvent} from '../../event/SettingsItemsTreeGridHighlightEvent';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
@@ -15,6 +15,9 @@ export class SettingsBrowsePanel
         super.initListeners();
 
         this.treeGrid.onLoaded(this.updateBrowseActions.bind(this));
+        this.treeGrid.onHighlightingChanged(
+            () => this.treeGrid.hasHighlightedNode() && new SettingsItemsTreeGridHighlightEvent(this.treeGrid.getHighlightedItem()).fire()
+        );
     }
 
     protected createTreeGrid(): SettingsItemsTreeGrid {
