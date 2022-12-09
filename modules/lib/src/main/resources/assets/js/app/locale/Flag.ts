@@ -135,6 +135,11 @@ export class Flag
         this.countryCode = countryCode || '';
     }
 
+    getCountryClass(): string {
+        const codeData = this.mapCode((this.countryCode || ''));
+        return Flag.createCountryClass(codeData.classCode);
+    }
+
     private updateDataAttribute(code?: string) {
         const hasCode = !StringHelper.isEmpty(code);
         if (hasCode) {
