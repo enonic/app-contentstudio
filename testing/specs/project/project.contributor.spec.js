@@ -39,7 +39,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
 
     it(`Preconditions: new system user should be created`,
         async () => {
-            //Do Log in with 'SU', navigate to 'Users' and create new user:
+            // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName("contributor");
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
@@ -96,27 +96,27 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             let contentWizardPanel = new ContentWizardPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
             await contentBrowsePanel.pause(1000);
-            //2. Open existing site(controller is not selected yet):
+            // 2. Open existing site(controller is not selected yet):
             await contentBrowsePanel.doubleClickOnRowByDisplayName(SITE.displayName);
             await studioUtils.doSwitchToNewWizard();
             await contentWizardPanel.pause(1000);
-            //3. Verify that Page Controller is disabled (not clickable):
+            // 3. Verify that Page Controller is disabled (not clickable):
             let result = await contentWizardPanel.isPageControllerFilterInputClickable();
             assert.isFalse(result, "Page Controller selector should be disabled for user with contributor role")
         });
 
     it("GIVEN contributor user is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
         async () => {
-            //1. Do log in with the user and navigate to 'Settings':
+            // 1. Do log in with the user and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //2.Click(select) on existing project:
+            // 2. Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //3. Verify that all buttons are disabled in the toolbar:
+            // 3. Verify that all buttons are disabled in the toolbar:
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
@@ -241,7 +241,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.pause(1000);
-            // 2. Double click on existing folder(status is Work in progress):
+            // 2. Do a Double click on existing folder(status is Work in progress):
             await contentBrowsePanel.doubleClickOnRowByDisplayName(FOLDER_WORK_IN_PROGRESS.displayName);
             await studioUtils.doSwitchToNewWizard();
             await contentWizardPanel.pause(1000);
@@ -263,7 +263,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.clickOnNextButton();
-            await createRequestPublishDialog.typeInChangesInput("contributor request");
+            await createRequestPublishDialog.typeInChangesInput('contributor request');
             //3. Click on 'Create Request' button:
             await createRequestPublishDialog.clickOnCreateRequestButton();
             //4. Verify that Create Request dialog closes:
@@ -273,7 +273,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
             //7. Verify that 'Publish Now' button is disabled:
-            studioUtils.saveScreenshot("project_contributor_4");
+            await studioUtils.saveScreenshot('project_contributor_4');
             await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
         });
 
@@ -299,7 +299,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         }
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

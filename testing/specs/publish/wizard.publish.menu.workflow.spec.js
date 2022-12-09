@@ -13,13 +13,13 @@ const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dia
 
 describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let TEST_FOLDER;
-    let NEW_DISPLAY_NAME = "new display name 1";
+    let NEW_DISPLAY_NAME = 'new display name 1';
 
-    it(`GIVEN name input is filled in WHEN display name input is empty THEN only 'Create Task' menu item shoule be enabled`,
+    it(`GIVEN name input is filled in WHEN display name input is empty THEN only 'Create Task' menu item should be enabled`,
         async () => {
             let contentWizard = new ContentWizard();
             //1. Open wizard for new folder:
@@ -31,9 +31,9 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForNotificationMessage();
             //4. Click on dropdown handle and verify the menu items:
             await contentWizard.openPublishMenu();
-            await studioUtils.saveScreenshot("publish_menu_items2");
+            await studioUtils.saveScreenshot('publish_menu_items2');
             //Only Create Task menu item should be enabled
-            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.UNPUBLISH);
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
@@ -53,7 +53,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //1. Publish the folder:
             await contentWizard.doPublish();
             await contentWizard.pause(1000);
-            await studioUtils.saveScreenshot("check_default_action_unpublish");
+            await studioUtils.saveScreenshot('check_default_action_unpublish');
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED);
             //2. Verify that Unpublish is default action now
@@ -66,14 +66,14 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             let scheduleForm = new ScheduleForm();
             //1. Open the published folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.waitForWizardStepPresent("Schedule");
+            await contentWizard.waitForWizardStepPresent('Schedule');
             //2. Verify that actual dateTime is correct in Online From input
             let fromActual = await scheduleForm.getOnlineFrom();
             let expectedDate = new Date().toISOString().substring(0, 10);
             assert.isTrue(fromActual.includes(expectedDate), "Expected date time should be displayed");
             //3. Verify that 'Online to' input is empty
             let to = await scheduleForm.getOnlineTo();
-            assert.equal(to, "", "Online to should be empty");
+            assert.equal(to, '', 'Online to should be empty');
         });
 
     it(`GIVEN existing 'published' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be disabled AND 'Create Task...' is enabled`,
@@ -83,9 +83,9 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             //2. Click on dropdown handle and open Publish Menu:
             await contentWizard.openPublishMenu();
-            await studioUtils.saveScreenshot("publish_menu_items2");
+            await studioUtils.saveScreenshot('publish_menu_items2');
             //3. Verify that just only 2 menu items are enabled
-            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.UNPUBLISH);
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
@@ -105,7 +105,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForMarkAsReadyButtonVisible();
 
             let onlineFrom = await scheduleForm.getOnlineFrom();
-            assert.isFalse(studioUtils.isStringEmpty(onlineFrom), "Online from input should not be empty");
+            assert.isFalse(studioUtils.isStringEmpty(onlineFrom), 'Online from input should not be empty');
 
             let workflow = await contentWizard.getContentWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
@@ -118,7 +118,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //Click on dropdown handle and open Publish Menu:
             await contentWizard.openPublishMenu();
             studioUtils.saveScreenshot("publish_menu_items3");
-            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         });
 
