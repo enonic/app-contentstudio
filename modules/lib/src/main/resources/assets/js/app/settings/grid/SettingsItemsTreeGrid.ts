@@ -20,7 +20,7 @@ import {SettingsItemsTreeGridHelper} from './SettingsItemsTreeGridHelper';
 export class SettingsItemsTreeGrid
     extends TreeGrid<SettingsViewItem> {
 
-    private static PROJECTS_FOLDER_ID: string = 'projects';
+    static PROJECTS_FOLDER_ID: string = 'projects';
 
     private readonly treeGridActions: SettingsTreeGridActions;
 
