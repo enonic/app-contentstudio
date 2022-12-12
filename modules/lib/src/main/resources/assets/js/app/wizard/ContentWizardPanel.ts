@@ -2284,7 +2284,7 @@ export class ContentWizardPanel
     private enableDisplayNameScriptExecution(formView: FormView) {
         if (this.displayNameResolver.hasExpression()) {
             formView.onKeyUp((event: KeyboardEvent) => {
-                this.getWizardHeader().setDisplayName(this.displayNameResolver.execute(), true);
+                this.getWizardHeader().setGeneratedDisplayName(this.displayNameResolver.execute());
             });
         }
     }
@@ -2603,11 +2603,11 @@ export class ContentWizardPanel
         this.updateThumbnailWithContent(content);
 
         if (!this.getWizardHeader().isDisplayNameInputDirty()) {
-            this.getWizardHeader().setDisplayName(content.getDisplayName());
+            this.getWizardHeader().setDisplayName(content.getDisplayName(), true);
         }
 
         if (!this.getWizardHeader().isNameInputDirty()) {
-            this.getWizardHeader().setName(content.getName().toString());
+            this.getWizardHeader().setName(content.getName().toString(), true);
         }
 
         // case when content was moved
