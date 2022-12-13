@@ -6,6 +6,7 @@ import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 import eventInfo = CKEDITOR.eventInfo;
+import {HtmlEditor} from '../HtmlEditor';
 
 export class SpecialCharDialog
     extends ModalDialog {
@@ -26,7 +27,11 @@ export class SpecialCharDialog
 
             if (isSpecialCharClicked) {
                 const char: string = event.target.textContent;
-                this.getEditor().insertText(char);
+                if (char === HtmlEditor.SPECIAL_CHAR_NBSP) {
+                    this.getEditor().insertHtml('&nbsp;', 'text');
+                } else {
+                    this.getEditor().insertText(char);
+                }
                 this.close();
             }
         });
