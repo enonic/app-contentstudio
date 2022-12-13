@@ -233,4 +233,27 @@ export class ContentWizardHeader
             listener.call(this);
         });
     }
+
+    updateByContent(content: Content, silent?: boolean): void {
+        const isAutoGenerationEnabled: boolean = this.isAutoGenerationEnabled();
+
+        if (isAutoGenerationEnabled) {
+            this.setAutoGenerationEnabled(false);
+        }
+
+        if (!this.isDisplayNameInputDirty()) {
+            this.setDisplayName(content.getDisplayName(), silent);
+        }
+
+        if (!this.isNameInputDirty()) {
+            this.setName(content.getName().toString(), silent);
+        }
+
+        if (isAutoGenerationEnabled) {
+            this.setAutoGenerationEnabled(true);
+        }
+
+        const path: string = content.getPath().getParentPath().isRoot() ? '/' : `${content.getPath().getParentPath().toString()}/`;
+        this.setPath(path);
+    }
 }

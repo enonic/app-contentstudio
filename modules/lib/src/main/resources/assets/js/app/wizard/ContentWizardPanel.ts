@@ -1167,7 +1167,8 @@ export class ContentWizardPanel
     }
 
     private updateWizard(content: Content, unchangedOnly: boolean = true) {
-        this.updateWizardHeader(content);
+        this.updateThumbnailWithContent(content);
+        this.getWizardHeader().updateByContent(content);
         this.updateWizardStepForms(content, unchangedOnly);
         this.updateXDataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
@@ -2597,22 +2598,6 @@ export class ContentWizardPanel
 
         this.settingsWizardStepForm.update(content, unchangedOnly);
         this.scheduleWizardStepForm.update(content, unchangedOnly);
-    }
-
-    private updateWizardHeader(content: Content) {
-        this.updateThumbnailWithContent(content);
-
-        if (!this.getWizardHeader().isDisplayNameInputDirty()) {
-            this.getWizardHeader().setDisplayName(content.getDisplayName(), true);
-        }
-
-        if (!this.getWizardHeader().isNameInputDirty()) {
-            this.getWizardHeader().setName(content.getName().toString(), true);
-        }
-
-        // case when content was moved
-        this.getWizardHeader()
-            .setPath(content.getPath().getParentPath().isRoot() ? '/' : content.getPath().getParentPath().toString() + '/');
     }
 
     private openLiveEdit() {
