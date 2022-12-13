@@ -42,6 +42,8 @@ export class HtmlEditor {
 
     private editor: CKEDITOR.editor;
 
+    static SPECIAL_CHAR_NBSP = 'sp';
+
     private constructor(config: CKEDITOR.config, htmlEditorParams: HtmlEditorParams) {
         this.editorParams = htmlEditorParams;
 
@@ -1016,7 +1018,7 @@ class HtmlEditorConfigBuilder {
             ],
             removePlugins: this.getPluginsToRemove(),
             removeButtons: this.disabledTools?.join(),
-            extraPlugins: 'macro,image2,pasteModeSwitcher',
+            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp',
             extraAllowedContent: this.getExtraAllowedContent(),
             stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
             image2_disableResizer: true,
@@ -1113,7 +1115,8 @@ class HtmlEditorConfigBuilder {
             ['&phi;', 'phi'],
             ['&chi;', 'chi'],
             ['&psi;', 'psi'],
-            ['&omega;', 'omega']
+            ['&omega;', 'omega'],
+            [HtmlEditor.SPECIAL_CHAR_NBSP, 'Non-breaking space']
         ];
     }
 
