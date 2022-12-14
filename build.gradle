@@ -71,3 +71,10 @@ htmlSanityCheck {
 }
 
 build.enabled = false
+
+if ( hasProperty( 'env' ) )
+{
+    gradle.startParameter.getExcludedTaskNames().forEach( taskName -> {
+        gradle.includedBuild( 'lib-admin-ui' )?.task( ":$taskName" )?.resolveTask()?.enabled = false
+    } )
+}
