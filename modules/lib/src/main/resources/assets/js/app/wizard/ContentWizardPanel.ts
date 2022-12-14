@@ -76,7 +76,6 @@ import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEven
 import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {CycleButton} from '@enonic/lib-admin-ui/ui/button/CycleButton';
 import {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {FormItemSet} from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
 import {FieldSet} from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
 import {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
@@ -273,6 +272,8 @@ export class ContentWizardPanel
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     private isRename: boolean;
+
+    private contentAfterLayout: Content;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
@@ -838,7 +839,9 @@ export class ContentWizardPanel
         const contentClone: Content = newPersistedContent.clone();
 
         this.initFormContext(contentClone);
-        this.updateWizard(contentClone, true);
+        this.updateWizard(contentClone, true).then(() => {
+            this.updateContentAfterLayout();
+        });
         this.updateEditPermissionsButtonIcon(contentClone);
         this.resetLivePanel(contentClone).then(() => this.contextView.updateWidgetsVisibility());
 
@@ -971,7 +974,9 @@ export class ContentWizardPanel
                 if (viewedContent.equals(persistedContent) || this.skipValidation) {
 
                     // force update wizard with server bounced values to erase incorrect ones
-                    this.updateWizard(persistedContentCopy, false);
+                    this.updateWizard(persistedContentCopy, false).then(() => {
+                        this.updateContentAfterLayout();
+                    });
 
                     const liveFormPanel = this.getLivePanel();
                     if (liveFormPanel) {
@@ -1166,12 +1171,18 @@ export class ContentWizardPanel
         this.showFeedbackContentSaved(newPersistedContent);
     }
 
-    private updateWizard(content: Content, unchangedOnly: boolean = true) {
-        this.updateThumbnailWithContent(content);
+    private updateWizard(content: Content, unchangedOnly: boolean = true): Q.Promise<void> {
         this.getWizardHeader().updateByContent(content);
-        this.updateWizardStepForms(content, unchangedOnly);
-        this.updateXDataStepForms(content, unchangedOnly);
+        const p1: Q.Promise<void> = this.updateWizardStepForms(content, unchangedOnly);
+        const p2: Q.Promise<void> = this.updateXDataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
+
+        return Q.all([p1, p2]).thenResolve(null);
+    }
+
+    private updateContentAfterLayout(): void {
+        this.contentAfterLayout =
+            this.assembleViewedContent(this.getPersistedItem().newBuilderWithoutProperties(), true).build();
     }
 
     private removeXDataSteps(xDatas: XData[]) {
@@ -1831,46 +1842,6 @@ export class ContentWizardPanel
         return this.updateLiveEditModel(content);
     }
 
-    // sync persisted content extra data with xData
-    // when rendering form - we may add extra fields from xData;
-    // as this is intended action from XP, not user - it should be present in persisted content
-    private syncPersistedItemWithXData(xDataName: XDataName, xDataPropertyTree: PropertyTree) {
-        let persistedContent = this.getPersistedItem();
-        let extraData = persistedContent.getExtraDataByName(xDataName);
-        if (!extraData) { // ensure ExtraData object corresponds to each step form
-            this.enrichWithExtraData(persistedContent, xDataName, xDataPropertyTree);
-        } else {
-            let diff = extraData.getData().diff(xDataPropertyTree);
-            diff.added.forEach((property: Property) => {
-                extraData.getData().addProperty(property.getName(), property.getValue());
-            });
-        }
-    }
-
-    private enrichWithExtraData(content: Content, xDataName: XDataName, propertyTree?: PropertyTree): ExtraData {
-        let extraData = new ExtraData(xDataName, propertyTree ? propertyTree.copy() : new PropertyTree());
-        content.getAllExtraData().push(extraData);
-        return extraData;
-    }
-
-    private syncPersistedItemWithContentData(propertyTree: PropertyTree) {
-        const persistedContent: Content = this.getPersistedItem();
-        const persistedContentData: PropertyTree = persistedContent.getContentData();
-
-        const treeCopy: PropertyTree = propertyTree.copy();
-
-        persistedContentData.getRoot().syncEmptyArrays(treeCopy.getRoot());
-
-        const diff = persistedContentData.diff(treeCopy);
-        diff.added.forEach((property: Property) => {
-            persistedContentData.setPropertyByPath(property.getPath(), property.getValue());
-        });
-
-        if (diff.added && diff.added.length > 0) {
-            this.wizardActions.refreshSaveActionState();
-        }
-    }
-
     private isSplitEditModeActive(): boolean {
         return ResponsiveRanges._960_1200.isFitOrBigger(this.getEl().getWidth()) &&
                this.isEditorEnabled() && this.shouldOpenEditorByDefault();
@@ -1943,7 +1914,8 @@ export class ContentWizardPanel
                         if (this.isLocalizeInUrl()) {
                             this.onRendered(() => this.settingsWizardStepForm.updateInitialLanguage());
                         }
-                        this.syncPersistedItemWithContentData(content.getContentData());
+
+                        this.updateContentAfterLayout();
                         this.xDataWizardStepForms.resetState();
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
@@ -2154,10 +2126,7 @@ export class ContentWizardPanel
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
 
-        return xDataStepForm.layout(this.formContext, data, xDataForm).then(() => {
-            this.syncPersistedItemWithXData(xDataStepForm.getXDataName(), data);
-            return Q(null);
-        });
+        return xDataStepForm.layout(this.formContext, data, xDataForm);
     }
 
     private initLiveEditModel(content: Content): Q.Promise<LiveEditModel> {
@@ -2240,6 +2209,7 @@ export class ContentWizardPanel
         this.contentWizardStepForm.validate();
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => form.isEnabled() ? null : form.resetData());
         this.xDataWizardStepForms.validate();
+        this.updateContentAfterLayout();
         this.displayValidationErrors(!this.isValid());
 
         return Q.resolve(persistedItem);
@@ -2422,9 +2392,9 @@ export class ContentWizardPanel
 
     hasContentChanged(): boolean {
         const contentBuilder: ContentBuilder = this.getPersistedItem().newBuilderWithoutProperties();
-        const viewedContent = this.assembleViewedContent(contentBuilder).build();
+        const viewedContent: Content = this.assembleViewedContent(contentBuilder).build();
 
-        return !viewedContent.equals(this.getPersistedItem());
+        return !viewedContent.equals(this.contentAfterLayout);
     }
 
     assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false,
@@ -2438,18 +2408,18 @@ export class ContentWizardPanel
         viewedContentBuilder.setDisplayName(this.getWizardHeader().getDisplayName());
 
         if (this.contentWizardStepForm) {
-            if (!cleanFormRedundantData) {
-                viewedContentBuilder.setData(this.contentWizardStepForm.getData());
-            } else {
-                const data: PropertyTree = new PropertyTree(this.contentWizardStepForm.getData().getRoot()); // copy
-                viewedContentBuilder.setData(data);
-            }
+            const data: PropertyTree = cleanFormRedundantData ?
+                                       new PropertyTree(this.contentWizardStepForm.getData().getRoot()) :
+                                       this.contentWizardStepForm.getData();
+
+            viewedContentBuilder.setData(data);
         }
 
         const extraData: ExtraData[] = [];
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
-            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData()));
+            const data: PropertyTree = cleanFormRedundantData ? new PropertyTree(form.getData().getRoot()) : form.getData();
+            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), data));
         });
 
         viewedContentBuilder.setExtraData(extraData);
@@ -2457,7 +2427,7 @@ export class ContentWizardPanel
         this.settingsWizardStepForm.apply(viewedContentBuilder);
         this.scheduleWizardStepForm.apply(viewedContentBuilder);
 
-        viewedContentBuilder.setPage(this.assembleViewedPage());
+        viewedContentBuilder.setPage(this.assembleViewedPage()?.clone());
 
         return viewedContentBuilder;
     }
@@ -2557,7 +2527,9 @@ export class ContentWizardPanel
      * erases steps forms (meta)data and populates it with content's (meta)data.
      * @param content
      */
-    private updateXDataStepForms(content: Content, unchangedOnly: boolean = true) {
+    private updateXDataStepForms(content: Content, unchangedOnly: boolean = true): Q.Promise<void> {
+        const promises: Q.Promise<void>[] = [];
+
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             const xDataName: XDataName = new XDataName(form.getXDataNameAsString());
             const extraData: ExtraData = content.getExtraDataByName(xDataName);
@@ -2570,34 +2542,29 @@ export class ContentWizardPanel
             form.resetState(data);
 
             if (form.isEnabled()) {
-                form.update(data, unchangedOnly);
+                promises.push(form.update(data, unchangedOnly));
             } else {
                 form.resetData();
             }
-
-            const viewedData: PropertyTree = form.getData().copy();
-
-            if (!form.isOptional() || !extraData || extraData.getData().getRoot().getSize() > 0) {
-                this.syncPersistedItemWithXData(xDataName, form.isEnabled() ? viewedData : new PropertyTree());
-            }
-
         });
+
+        return Q.all(promises).thenResolve(null);
     }
 
-    private updateWizardStepForms(content: Content, unchangedOnly: boolean = true) {
-
+    private updateWizardStepForms(content: Content, unchangedOnly: boolean = true): Q.Promise<void> {
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
 
         content.getContentData().onChanged(this.dataChangedHandler);
 
-        this.contentWizardStepForm.update(content.getContentData(), unchangedOnly).then(() => {
+        const updatePromise: Q.Promise<void> = this.contentWizardStepForm.update(content.getContentData(), unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
-
-            this.syncPersistedItemWithContentData(content.getContentData());
+            return Q.resolve();
         });
 
         this.settingsWizardStepForm.update(content, unchangedOnly);
         this.scheduleWizardStepForm.update(content, unchangedOnly);
+
+        return updatePromise;
     }
 
     private openLiveEdit() {
