@@ -839,18 +839,20 @@ export class ContentWizardPanel
         const contentClone: Content = newPersistedContent.clone();
 
         this.initFormContext(contentClone);
-        this.updateWizard(contentClone, true).then(() => {
-            this.updateContentAfterLayout();
-        });
+        const p1: Q.Promise<void> = this.updateWizard(contentClone, true);
         this.updateEditPermissionsButtonIcon(contentClone);
-        this.resetLivePanel(contentClone).then(() => this.contextView.updateWidgetsVisibility());
+        const p2: Q.Promise<void> = this.resetLivePanel(contentClone).then(() => this.contextView.updateWidgetsVisibility());
 
         if (!this.isDisplayNameUpdated()) {
             this.getWizardHeader().resetBaseValues();
         }
 
+        Q.all([p1,p2]).then(() => {
+            this.updateContentAfterLayout();
+            this.updateButtonsState();
+        });
+
         this.wizardActions.setDeleteOnlyMode(viewedContent, false);
-        this.updateButtonsState();
     }
 
     private resetLivePanel(contentClone: Content): Q.Promise<void> {
