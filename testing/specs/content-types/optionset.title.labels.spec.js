@@ -141,10 +141,16 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await notificationDialog.waitForDialogLoaded();
             //4. Click on Ok button:
             await notificationDialog.clickOnOkButton();
+            await notificationDialog.waitForDialogClosed();
+            await studioUtils.saveScreenshot("optionset_save_btn_issue");
+            // 5. Verify that Save button gets disabled after unselecting the radio button
+            await contentWizard.waitForSaveButtonDisabled();
+            // 6. Update and save the content
+            await contentWizard.typeDisplayName(appConst.generateRandomName('test'));
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            await contentWizard.pause(1500);
             await multiSelectionOptionSet.clickOnOption("Option 1");
+            // 7. Verify that the input is cleared after saving the content
             let values = await longForm.getLongValues();
             assert.equal(values[0], "", "Long input should be cleared");
         });
