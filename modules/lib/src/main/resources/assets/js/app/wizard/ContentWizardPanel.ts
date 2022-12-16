@@ -837,6 +837,7 @@ export class ContentWizardPanel
     private doUpdateModifiedPersistedContent(viewedContent: Content, newPersistedContent: Content): void {
         this.setPersistedItem(newPersistedContent);
         const contentClone: Content = newPersistedContent.clone();
+        this.contentAfterLayout = newPersistedContent.clone();
 
         this.initFormContext(contentClone);
         const p1: Q.Promise<void> = this.updateWizard(contentClone, true);
@@ -848,7 +849,6 @@ export class ContentWizardPanel
         }
 
         Q.all([p1,p2]).then(() => {
-            this.updateContentAfterLayout();
             this.updateButtonsState();
         });
 
