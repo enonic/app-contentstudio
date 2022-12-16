@@ -109,6 +109,9 @@ export class PageComponentsView
         this.header.setHtml(i18n('field.components'));
 
         this.responsiveItem = ResponsiveManager.onAvailableSizeChanged(Body.get(), (item: ResponsiveItem) => {
+            if (!this.isVisible()) {
+                return;
+            }
             const smallSize = item.isInRangeOrSmaller(ResponsiveRanges._360_540);
             const compactSize = item.isInRangeOrSmaller(ResponsiveRanges._720_960);
             this.toggleClass('compact', compactSize);
