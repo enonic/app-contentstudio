@@ -36,6 +36,8 @@ export class InsertablesGrid
         return new GridOptionsBuilder()
             .setHideColumnHeaders(true)
             .setRowHeight(50)
+            .setWidth('100%')
+            .setRerenderOnResize(false)
             .build();
     }
 

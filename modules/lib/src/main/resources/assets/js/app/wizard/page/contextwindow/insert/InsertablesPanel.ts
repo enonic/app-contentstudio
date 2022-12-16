@@ -34,8 +34,6 @@ export class InsertablesPanel
 
     private insertablesGrid: InsertablesGrid;
 
-    private insertablesDataView: DataView<Insertable>;
-
     private hideContextWindowRequestListeners: { (): void; }[] = [];
 
     private pageView: PageView;
@@ -59,10 +57,10 @@ export class InsertablesPanel
         let topDescription = new PEl();
         topDescription.getEl().setInnerHtml(i18n('field.insertables'));
 
-        this.insertablesDataView = new DataView<Insertable>();
-        this.insertablesGrid = new InsertablesGrid(this.insertablesDataView, {draggableRows: true, rowClass: 'comp'});
+        const insertablesDataView: DataView<Insertable> = new DataView<Insertable>();
+        this.insertablesGrid = new InsertablesGrid(insertablesDataView, {draggableRows: true, rowClass: 'comp'});
 
-        this.insertablesDataView.setItems(Insertables.ALL, 'name');
+        insertablesDataView.setItems(Insertables.ALL, 'name');
 
         this.componentsView = new PageComponentsView(config.liveEditPage, config.saveAsTemplateAction);
 
@@ -72,7 +70,7 @@ export class InsertablesPanel
             this.pageView = event.getPageView();
             if (this.pageView && this.pageView.getLiveEditModel().getPageModel().getMode() === PageMode.FRAGMENT) {
                 this.destroyDraggables();
-                this.insertablesDataView.setItems(Insertables.ALLOWED_IN_FRAGMENT, 'name');
+                insertablesDataView.setItems(Insertables.ALLOWED_IN_FRAGMENT, 'name');
                 this.initializeDraggables();
             }
         });
