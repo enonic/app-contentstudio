@@ -122,9 +122,9 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             let longForm = new LongForm();
             let contentWizardPanel = new ContentWizardPanel();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
-            //1. not valid value has been typed:
-            await longForm.typeLong("aa");
-            //2. Verify that 'Save' button is disabled:
+            // 1. invalid value has been typed:
+            await longForm.typeLong('aa');
+            // 2. Verify that 'Save' button is disabled:
             await contentWizardPanel.waitForSaveButtonDisabled();
         });
 

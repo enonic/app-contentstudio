@@ -140,7 +140,7 @@ describe('Shortcut parameters specification', function () {
             //Click on 'Revert' button:
             await wizardVersionsWidget.clickOnRevertButton();
             await studioUtils.saveScreenshot("shortcut_parameter_version_reverted_1");
-            //TODO remove the row, when https://github.com/enonic/app-contentstudio/issues/4940 will be fixed
+            //TODO remove the row, when https://github.com/enonic/app-contentstudio/issues/4940 will be fixed ( the issue in backlog)
             await shortcutForm.clickOnParametersForm(0);
             await studioUtils.saveScreenshot("shortcut_parameter_version_reverted_2");
             let paramName = await shortcutForm.getParameterName();

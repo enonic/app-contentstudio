@@ -35,7 +35,7 @@ class NotificationDialog extends Page {
 
     async clickOnOkButton() {
         await this.clickOnElement(this.okButton);
-        await this.pause(300);
+        return await this.pause(400);
     }
 
     async getDialogText() {
