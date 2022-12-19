@@ -71,7 +71,7 @@ describe('tests for Sorted versions item', function () {
             //2. open Versions Panel:
             await contentBrowseDetailsPanel.openVersionHistory();
             //3. Click on 'Compare with current version' in Sorted-item:
-            await browseVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
+            await browseVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
             //4.Verify that the modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot("compare_versions_dlg_sorted_1");
@@ -134,7 +134,7 @@ describe('tests for Sorted versions item', function () {
             //2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
             //3. Click on 'Compare with current versions' button in the previous edit-item:
-            await browseVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await browseVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await compareContentVersionsDialog.waitForDialogOpened();
             //4. Click on the left dropdown handle:
             await compareContentVersionsDialog.clickOnLeftDropdownHandle();

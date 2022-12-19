@@ -31,7 +31,7 @@ describe('Content with image-selector, select images and verify that Outbound de
         it(`Precondition: new site should be added`,
             async () => {
                 let displayName = contentBuilder.generateRandomName('site');
-                SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
+                SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
                 await studioUtils.doAddSite(SITE);
             });
 
@@ -41,6 +41,7 @@ describe('Content with image-selector, select images and verify that Outbound de
                 let insertImageDialog = new InsertImageDialog();
                 let siteConfiguratorDialog = new SiteConfiguratorDialog();
                 let wizardDependenciesWidget = new WizardDependenciesWidget();
+                let contentWizard = new ContentWizard();
                 //1. Open existing site:
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
                 //2. Open Site Configurator:
@@ -53,7 +54,8 @@ describe('Content with image-selector, select images and verify that Outbound de
                 //site should be saved automatically!!!
                 await siteConfiguratorDialog.clickOnApplyButton();
                 await openWizardDependencyWidget();
-                studioUtils.saveScreenshot('site_configurator_wizard_dependencies');
+                await studioUtils.saveScreenshot('site_configurator_wizard_dependencies');
+                await contentWizard.waitForSaveButtonDisabled();
                 //4. Verify that 'Show outbound' button should be present on the widget, because the image was inserted in site configurator
                 await wizardDependenciesWidget.waitForOutboundButtonVisible();
 
