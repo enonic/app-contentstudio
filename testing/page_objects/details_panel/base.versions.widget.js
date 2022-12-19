@@ -245,7 +245,7 @@ class BaseVersionsWidget extends Page {
         return await this.getText(locator);
     }
 
-    async clickOnCompareWithCurrentVersionButton(index) {
+    async clickOnOnShowChangesButton(index) {
         try {
             //wait for the list of versions is loaded:
             await this.waitForElementDisplayed(this.versionsWidget + xpath.versionsList, appConst.mediumTimeout);
@@ -258,7 +258,7 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    async clickOnCompareWithCurrentVersionButtonByHeader(itemHeader, index) {
+    async clickOnShowChangesButtonByHeader(itemHeader, index) {
         try {
             let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
             let versionItems = await this.findElements(itemLocator);

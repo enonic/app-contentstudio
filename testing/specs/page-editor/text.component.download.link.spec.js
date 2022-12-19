@@ -129,7 +129,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             //2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
             //3. Open Compare versions dialog in the latest 'Moved' version item:
-            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
+            await wizardVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
             await compareContentVersionsDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot("moved_version_item_compare_versions");
             //4.Verify that left revert-menu is enabled in the dialog, because the previous version is Edited:
@@ -164,7 +164,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             //2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
             //3. Open Compare versions dialog in the latest 'Moved' version item:
-            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
+            await wizardVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
             await compareContentVersionsDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot("moved_version_item_compare_versions_2");
             //4.Verify that left revert-menu is enabled in the dialog, because the previous version is Moved:

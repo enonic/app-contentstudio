@@ -156,8 +156,8 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             //2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            //3. Click on 'Compare with current versions' button  in the previous edit-item:
-            await browseVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            //3. Click on 'Show changes' button  in the previous edit-item:
+            await browseVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             await compareContentVersionsDialog.waitForDialogOpened();
             //4. Click on the left dropdown handle:
             await compareContentVersionsDialog.clickOnLeftDropdownHandle();

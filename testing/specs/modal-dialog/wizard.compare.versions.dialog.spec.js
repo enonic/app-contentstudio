@@ -28,6 +28,28 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await studioUtils.doAddFolder(FOLDER);
         });
 
+    it("GIVEN Comparing Versions Dialog is opened WHEN the first 'Edited' option has been selected in the left dropdown THEN 'Versions are identical' message get visible",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let compareContentVersionsDialog = new CompareContentVersionsDialog();
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            //1. Open existing folder:
+            await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openDetailsPanel();
+            //2. Open Version panel:
+            await wizardDetailsPanel.openVersionHistory();
+            await wizardVersionsWidget.waitForVersionsLoaded();
+            //3. Click on 'show changes' icon in the first 'edited' item:
+            await wizardVersionsWidget.clickOnShowChangesButtonByHeader('Edited', 0);
+            await compareContentVersionsDialog.waitForDialogOpened();
+            // 4. Expand the left dropdown and click on the edited-option:
+            await compareContentVersionsDialog.expandLeftDropdownClickOnModifiedOption(0);
+            // 5. Verify that 'Versions are identical' message appears in the dialog:
+            let actualMessage = await compareContentVersionsDialog.waitForVersionsIdenticalMessage();
+            assert.equal(actualMessage, 'Versions are identical', "'Versions are identical' message should be displayed");
+        });
+
     it("Preconditions: existing folder should be modified(select a language and create new version item )",
         async () => {
             let contentWizard = new ContentWizard();
@@ -74,7 +96,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardDetailsPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             //3. Click on 'compare' icon in the Active version(the first item):
-            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
+            await wizardVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             //4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             //5. Right 'Revert' menu-button should be disabled:
@@ -96,7 +118,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardDetailsPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             //3. Click on 'compare' icon in the Active version(the first item):
-            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            await wizardVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             //4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             //5. Right 'Revert' menu-button should be enabled:
@@ -118,7 +140,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardDetailsPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
             //3. Open Compare Versions dialog(click in previous version):
-            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButton(1);
+            await wizardVersionsWidget.clickOnOnShowChangesButton(1);
             await compareContentVersionsDialog.waitForDialogOpened();
             //4. Click on left 'Revert' menu-button and expand the menu:
             await compareContentVersionsDialog.clickOnLeftRevertMenuButton();
@@ -137,7 +159,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await contentWizard.openDetailsPanel();
             await wizardDetailsPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButton(1);
+            await wizardVersionsWidget.clickOnOnShowChangesButton(1);
             await compareContentVersionsDialog.waitForDialogOpened();
             //2. 'Esc' key has been pressed:
             await contentWizard.pressEscKey();
@@ -156,7 +178,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await contentWizard.openDetailsPanel();
             await wizardDetailsPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButton(1);
+            await wizardVersionsWidget.clickOnOnShowChangesButton(1);
             await compareContentVersionsDialog.waitForDialogOpened();
             //2. 'Cancel button top' key been pressed:
             await compareContentVersionsDialog.clickOnCancelButtonTop();

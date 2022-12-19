@@ -12,7 +12,8 @@ const XPATH = {
     revertMenuButton: "//button[contains(@id,'Button') and descendant::li[contains(@id,'MenuItem') and text()='Revert']]",
     revertMenuItem: "//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and text()='Revert']",
     showEntireContent: "//div[contains(@id,'Checkbox') and child::label[text()='Show entire content']]",
-    listItemNameAndIconView: "//div[contains(@id,'NamesAndIconView') and not(descendant::h6[contains(.,'version')])]"
+    listItemNameAndIconView: "//div[contains(@id,'NamesAndIconView') and not(descendant::h6[contains(.,'version')])]",
+    contentPanel: "//div[contains(@id,'ModalDialogContentPanel')]",
 };
 
 class CompareContentVersionsDialog extends Page {
@@ -42,12 +43,22 @@ class CompareContentVersionsDialog extends Page {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
 
-    get currentVersionDropdownHandle() {
+    get newerVersionDropdownHandle() {
         return XPATH.container + XPATH.containerRight + lib.DROP_DOWN_HANDLE;
     }
 
     get showEntireContent() {
         return XPATH.container + XPATH.showEntireContent + "//label";
+    }
+
+    async expandLeftDropdownClickOnModifiedOption(index) {
+        let locator = XPATH.container + XPATH.containerLeft +
+                      "//div[contains(@id,'NamesAndIconView') and descendant::div[contains(@class,'version-modified')]]";
+        await this.clickOnElement(this.leftDropdownHandle);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let res = await this.findElements(locator);
+        await res[index].click();
+        return this.pause(500);
     }
 
     async clickOnLeftRevertMenuButton() {
@@ -163,6 +174,12 @@ class CompareContentVersionsDialog extends Page {
         let locator = XPATH.containerLeft + XPATH.listItemNameAndIconView + "//div[contains(@class, 'icon-checkmark')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.findElements(locator);
+    }
+
+    async waitForVersionsIdenticalMessage() {
+        let locator = XPATH.container + XPATH.contentPanel + "//div[contains(@class,'jsondiffpatch-delta empty')]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator + "//h3");
     }
 }
 
