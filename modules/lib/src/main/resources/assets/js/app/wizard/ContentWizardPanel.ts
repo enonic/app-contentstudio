@@ -373,7 +373,7 @@ export class ContentWizardPanel
             }
             this.missingOrStoppedAppKeys.push(event.getApplicationKey());
 
-            let message = i18n('notify.app.missing', event.getApplicationKey().toString());
+            let message: string = i18n('notify.app.missing', event.getApplicationKey().toString());
 
             if (this.isVisible()) {
                 showWarning(message);
