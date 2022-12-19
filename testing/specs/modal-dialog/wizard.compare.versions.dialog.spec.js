@@ -71,8 +71,8 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             //2. Open Version History panel:
             await wizardDetailsPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            //3. Click on 'compare' icon in the previous version:
-            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButton(1);
+            //3. Click on 'show changes' icon in the previous version:
+            await wizardVersionsWidget.clickOnOnShowChangesButton(1);
             //4. Verify that modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
             let type = await compareContentVersionsDialog.getTypeProperty();
