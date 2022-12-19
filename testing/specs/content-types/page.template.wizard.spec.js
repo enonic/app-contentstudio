@@ -14,7 +14,7 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 
 describe('page.template.wizard.spec tests for page template wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -28,27 +28,27 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.SIMPLE_SITE_APP]);
             await studioUtils.doAddSite(SITE);
-            //1. Open wizard for new page template
+            // 1. Open wizard for new page template
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
-            //2. Fill in the name input
+            // 2. Fill in the name input
             await contentWizard.typeDisplayName(TEMPLATE_NAME);
             await contentWizard.pause(500);
-            //3. Verify that red icon is displayed in the wizard(the content is not valid)
+            // 3. Verify that red icon is displayed in the wizard(the content is not valid)
             let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "Red icon should be displayed because Support is not selected");
-            //4. Save the not valid page template
+            assert.isTrue(result, 'Red icon should be displayed because Support is not selected');
+            // 4. Save the invalid page template
             await contentWizard.waitAndClickOnSave();
-            //5. Verify that red icon remains in the wizard after the saving
+            // 5. Verify that red icon remains in the wizard after the saving
             result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "Red icon should be displayed after saving the template, because Support is not selected");
-            //6. Select 'site' in support selector
+            assert.isTrue(result, 'Red icon should be displayed after saving the template, because Support is not selected');
+            // 6. Select 'site' in support selector
             await pageTemplateForm.filterOptionsAndSelectSupport(appConst.TEMPLATE_SUPPORT.SITE);
-            //7. Verify that the content gets valid now:
+            // 7. Verify that the content gets valid now:
             result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "Red icon should not be displayed, the template gets valid ");
-            //8. Verify that "Page Template" wizard's step is present:
-            await contentWizard.isWizardStepByTitlePresent("Page Template");
-            //Save the valid template
+            assert.isFalse(result, 'Red icon should not be displayed, the template gets valid');
+            // 8. Verify that "Page Template" wizard's step is present:
+            await contentWizard.isWizardStepByTitlePresent('Page Template');
+            // Save the valid template
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });
@@ -65,7 +65,7 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             await contentBrowsePanel.waitForMarkAsReadyButtonVisible();
         });
 
-    it("GIVEN the page-template is opened WHEN support selected option has been removed THEN the content gets not valid",
+    it("GIVEN the page-template is opened WHEN support selected option has been removed THEN the content gets invalid",
         async () => {
             let pageTemplateForm = new PageTemplateForm();
             let contentWizard = new ContentWizard();
@@ -75,16 +75,16 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             await pageTemplateForm.clickOnRemoveSupportIcon("Site");
             //3. Verify that the template is not valid now:
             let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "Red icon gets displayed in Wizard after removing the support option");
+            assert.isTrue(result, 'Red icon gets displayed in Wizard after removing the support option');
             //4. Click on Save button:
             await contentWizard.waitAndClickOnSave();
             //5. Verify that validation recording gets visible:
             let validationRecording = await pageTemplateForm.getFormValidationRecording();
-            assert.equal(validationRecording, appConst.requiredValidationMessage(1), "Min 1 valid occurrence(s) required");
+            assert.equal(validationRecording, appConst.requiredValidationMessage(1), 'Min 1 valid occurrence(s) required');
             let contentBrowsePanel = new ContentBrowsePanel();
             //6. Go to Browse Panel
             await studioUtils.doSwitchToContentBrowsePanel();
-            //7. Verify that he template is not valid in the grid:
+            //7. Verify that the template is invalid in the grid:
             let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(TEMPLATE_NAME);
             await studioUtils.saveScreenshot('template_support_selected');
             assert.isTrue(isDisplayed, 'red icon should be present near the content!');
@@ -95,21 +95,21 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             let pageTemplateForm = new PageTemplateForm();
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            //1. Open the not valid template:
+            // 1. Open the not valid template:
             await studioUtils.selectAndOpenContentInWizard(TEMPLATE_NAME);
-            //2. Open 'Versions widget' and revert the valid version(support is selected)
+            // 2. Open 'Versions widget' and revert the valid version(support is selected)
             await contentWizard.openVersionsHistoryPanel();
             await wizardVersionsWidget.clickAndExpandVersion(1);
             await wizardVersionsWidget.clickOnRevertButton();
             await contentWizard.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("template_reverted_support");
+            await studioUtils.saveScreenshot('template_reverted_support');
             //3. Verify that expected support option gets visible:
             let support = await pageTemplateForm.getSupportSelectedOptions();
-            assert.equal(support.length, 1, "Single item should be in support form");
-            assert.equal(support[0], "Site", "Site option should be selected in the selector");
+            assert.equal(support.length, 1, 'Single item should be in support form');
+            assert.equal(support[0], 'Site', 'Site option should be selected in the selector');
             //4. Verify that the template gets valid after revering the version
             let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "Red icon should not be displayed after reverting the valid version");
+            assert.isFalse(result, 'Red icon should not be displayed after reverting the valid version');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

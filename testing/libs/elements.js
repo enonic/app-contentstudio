@@ -12,8 +12,6 @@ module.exports = Object.freeze({
     DATE_PICKER_INPUT: "//div[contains(@id,'DatePicker') and contains(@class,'date-time-picker')]//input[contains(@id,'TextInput')]",
     CONTENT_SELECTOR: "//div[contains(@id,'ContentSelector')]",
     SELECTED_LOCALE: `//div[contains(@id,'LocaleSelectedOptionView')]`,
-    NAMES_VIEW_BY_NAME: "//div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'%s')]]",
-    NAMES_VIEW_BY_DISPLAY_NAME: "//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'%s')]]",
     SLICK_VIEW_PORT: `//div[contains(@class,'slick-viewport')]`,
     SLICK_ROW: "//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row')]",
     H6_DISPLAY_NAME: "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",

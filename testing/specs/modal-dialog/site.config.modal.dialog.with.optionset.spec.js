@@ -31,7 +31,6 @@ describe('Tests for site configurator modal dialog with multi-selection Option S
             async () => {
                 let siteFormPanel = new SiteFormPanel();
                 let siteConfiguratorDialog = new SiteConfiguratorDialog();
-                let contentWizard = new ContentWizard();
                 //1. Open existing site:
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
                 //2. Open Site Configurator:
