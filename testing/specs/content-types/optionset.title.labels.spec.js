@@ -122,32 +122,39 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             assert.equal(message, 'At least one option must be selected', "expected validation message should be displayed");
         });
 
-    //Verifies https://github.com/enonic/app-contentstudio/issues/3027
-    it("GIVEN 'Option 1' radio is selected and values are set in 2 inputs WHEN 'Option 1' has been unselected and saved THEN inputs in 'Option 1' should be cleared",
+    // Verifies https://github.com/enonic/app-contentstudio/issues/3027
+    // Option Set - text is not cleared in areas after resetting options #3027
+    it("GIVEN 'Option 1' radio is selected and values are set in 2 inputs WHEN 'Option 1' has been unselected and saved THEN inputs in 'Option 1' should be cleared after saving the content",
         async () => {
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
             let longForm = new LongForm();
             let notificationDialog = new NotificationDialog();
             //1. Open an existing option set content:
             let contentWizard = await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME1);
-            //2. Verify that all radio buttons are unselected:
-            await multiSelectionOptionSet.clickOnOption("Option 1");
+            //2. Click on Option 1:
+            await multiSelectionOptionSet.clickOnOption('Option 1');
             await multiSelectionOptionSet.clickOnAddLong();
             let values1 = await longForm.getLongValues();
-            assert.equal(values1[0], "");
+            assert.equal(values1[0], '');
+            // 3. Insert values in lon inputs:
             await longForm.typeLong(1, 0);
             await longForm.typeLong(2, 1);
-            await multiSelectionOptionSet.clickOnOption("Option 1");
+            // 4. Unselect the option 1:
+            await multiSelectionOptionSet.clickOnOption('Option 1');
+            // 5. Confirmation dialog should appear
             await notificationDialog.waitForDialogLoaded();
-            //4. Click on Ok button:
+            // 6. Click on Ok button and close the dialog :
             await notificationDialog.clickOnOkButton();
+            await notificationDialog.waitForDialogClosed();
+            // 7. Update and save the content
+            await contentWizard.typeDisplayName(appConst.generateRandomName('test'));
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            await contentWizard.pause(1500);
-            await multiSelectionOptionSet.clickOnOption("Option 1");
+            // 8. Verify that the inputs are cleared after saving the content
             let values = await longForm.getLongValues();
-            assert.equal(values[0], "", "Long input should be cleared");
+            assert.equal(values[0], '', 'Inputs should be cleared after saving the content');
         });
+
 
     //Verifies:https://github.com/enonic/lib-admin-ui/issues/1738
     //Title of a single-select option-set occurrence is not updated dynamically
@@ -158,7 +165,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             //1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
             //2. Select 'Option 1' :
-            await optionSetForm.selectOptionInSingleSelection("Option 1");
+            await optionSetForm.selectOptionInSingleSelection('Option 1');
             //3. Verify that the title is equal to text in 'Name' input
             await singleSelectionOptionSet.typeTextInOptionNameInput(SINGLE_SELECTION_NOTE1);
             let subtitle = await singleSelectionOptionSet.getSingleSelectionSubtitle();
