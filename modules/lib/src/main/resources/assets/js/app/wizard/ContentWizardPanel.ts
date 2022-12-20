@@ -851,17 +851,21 @@ export class ContentWizardPanel
         }
 
         Q.all([p1,p2]).then(() => {
-          //  this.updateContentAfterLayout();
-
-            const shadowForms: ShadowForms = new ShadowForms(this.contentType, this.formContext);
-            shadowForms.layout(this.getPersistedItem().clone()).then(() => {
-                const contentBuilder: ContentBuilder = this.getPersistedItem().newBuilderWithoutProperties();
-                contentBuilder.setPage(this.assembleViewedPage()?.clone());
-                shadowForms.populateWithFormsData(contentBuilder);
-                this.contentAfterLayout = contentBuilder.build();
+            return this.assemblePersistedContent().then((contentAfterLayout: Content) => {
+                this.contentAfterLayout = contentAfterLayout
                 this.updateButtonsState();
-            }).catch(DefaultErrorHandler.handle);
+                return Q.resolve();
+            });
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    private assemblePersistedContent(): Q.Promise<Content> {
+        const shadowForms: ShadowForms = new ShadowForms(this.contentType, this.formContext);
+        const contentAfterLayout: Content = this.getPersistedItem().clone();
+
+        return shadowForms.layout(contentAfterLayout).then(() => {
+            return contentAfterLayout;
+        })
     }
 
     private resetLivePanel(contentClone: Content): Q.Promise<void> {
