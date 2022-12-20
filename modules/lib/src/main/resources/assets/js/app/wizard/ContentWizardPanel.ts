@@ -852,7 +852,7 @@ export class ContentWizardPanel
 
         Q.all([p1,p2]).then(() => {
             return this.assemblePersistedContent().then((contentAfterLayout: Content) => {
-                this.contentAfterLayout = contentAfterLayout
+                this.contentAfterLayout = contentAfterLayout;
                 this.updateButtonsState();
                 return Q.resolve();
             });
@@ -865,7 +865,7 @@ export class ContentWizardPanel
 
         return shadowForms.layout(contentAfterLayout).then(() => {
             return contentAfterLayout;
-        })
+        });
     }
 
     private resetLivePanel(contentClone: Content): Q.Promise<void> {
