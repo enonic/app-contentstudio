@@ -861,7 +861,7 @@ export class ContentWizardPanel
 
     private assemblePersistedContent(): Q.Promise<Content> {
         const shadowForms: ShadowForms = new ShadowForms(this.contentType, this.formContext);
-        const contentAfterLayout: Content = this.getPersistedItem().clone();
+        const contentAfterLayout: Content = this.getPersistedItem().newBuilderWithoutProperties().build();
 
         return shadowForms.layout(contentAfterLayout).then(() => {
             return contentAfterLayout;
