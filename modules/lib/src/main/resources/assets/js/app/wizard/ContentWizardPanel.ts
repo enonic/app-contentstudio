@@ -144,6 +144,7 @@ import {ContentTabBarItem} from './ContentTabBarItem';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {ShadowForms} from './ShadowForms';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -831,16 +832,18 @@ export class ContentWizardPanel
             return;
         }
 
-        this.doUpdateModifiedPersistedContent(viewedContent, newPersistedContent);
+        this.setPersistedItem(newPersistedContent);
+        this.initFormContext(this.getPersistedItem());
+        this.doUpdateModifiedPersistedContent();
+        this.wizardActions.setDeleteOnlyMode(viewedContent, false);
     }
 
-    private doUpdateModifiedPersistedContent(viewedContent: Content, newPersistedContent: Content): void {
-        this.setPersistedItem(newPersistedContent);
-        const contentClone: Content = newPersistedContent.clone();
+    private doUpdateModifiedPersistedContent(): void {
+        const contentClone: Content = this.getPersistedItem().clone();
 
-        this.initFormContext(contentClone);
-        const p1: Q.Promise<void> = this.updateWizard(contentClone, true);
         this.updateEditPermissionsButtonIcon(contentClone);
+
+        const p1: Q.Promise<void> = this.updateWizard(contentClone, true);
         const p2: Q.Promise<void> = this.resetLivePanel(contentClone).then(() => this.contextView.updateWidgetsVisibility());
 
         if (!this.isDisplayNameUpdated()) {
@@ -848,11 +851,17 @@ export class ContentWizardPanel
         }
 
         Q.all([p1,p2]).then(() => {
-            this.updateContentAfterLayout();
-            this.updateButtonsState();
-        });
+          //  this.updateContentAfterLayout();
 
-        this.wizardActions.setDeleteOnlyMode(viewedContent, false);
+            const shadowForms: ShadowForms = new ShadowForms(this.contentType, this.formContext);
+            shadowForms.layout(this.getPersistedItem().clone()).then(() => {
+                const contentBuilder: ContentBuilder = this.getPersistedItem().newBuilderWithoutProperties();
+                contentBuilder.setPage(this.assembleViewedPage()?.clone());
+                shadowForms.populateWithFormsData(contentBuilder);
+                this.contentAfterLayout = contentBuilder.build();
+                this.updateButtonsState();
+            }).catch(DefaultErrorHandler.handle);
+        }).catch(DefaultErrorHandler.handle);
     }
 
     private resetLivePanel(contentClone: Content): Q.Promise<void> {
