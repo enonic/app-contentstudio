@@ -32,7 +32,9 @@ describe('browse.panel.mark.as.ready.single.content.spec - tests for Request Pub
             await contentBrowsePanel.openPublishMenuSelectItem("Publish...");
             //4. Verify that Publishing wizard is opened:
             await contentPublishDialog.waitForDialogOpened();
-            //5. Expand the menu and make the folder 'Ready to publishing'
+            // 5. Verify that Exclude items in progress button is displayed in the dialog:
+            await contentPublishDialog.waitForExcludeItemsInProgressButtonDisplayed();
+            // 6. Expand the menu and make the folder 'Ready to publishing'
             await contentPublishDialog.clickOnMarkAsReadyMenuItem();
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             let state = await contentPublishDialog.getWorkflowState(name);

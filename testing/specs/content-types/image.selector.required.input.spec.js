@@ -114,6 +114,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
             //browse panel - select the image and delete it
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
+            await deleteContentDialog.clickOnIgnoreInboundReferences();
             await deleteContentDialog.clickOnDeleteMenuItem();
             await deleteContentDialog.waitForDialogClosed();
         });

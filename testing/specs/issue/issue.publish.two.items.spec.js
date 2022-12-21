@@ -47,11 +47,17 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             let createIssueDialog = new CreateIssueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+            let contentPublishDialog = new ContentPublishDialog();
             //1. Do both folders 'Mark as Ready':
             await studioUtils.findContentAndClickCheckBox(folder1.displayName);
             await contentBrowsePanel.pause(500);
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
             await contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
+            // Publish wizard should be loaded automatically:
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
+            // Verify that Publish button is default action now
             await contentBrowsePanel.waitForPublishButtonVisible();
             //2. Open 'Create Issue' dialog and create new task:
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();

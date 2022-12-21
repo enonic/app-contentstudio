@@ -13,6 +13,7 @@ const MoveContentDialog = require('../../page_objects/browsepanel/move.content.d
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const TextComponent = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
+const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
 
 describe('Move Fragment specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -75,18 +76,26 @@ describe('Move Fragment specification', function () {
             //4. Click on 'Yes' button:
             await confirmationDialog.clickOnYesButton();
             //5. Verify the notification message - "You are about to move content out of its site which might make it unreachable. Are you sure?"
-            studioUtils.saveScreenshot('fragment_is_moved');
+            await studioUtils.saveScreenshot('fragment_is_moved');
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
             assert.equal(actualMessage, `Item \"text_component_1\" is moved.`, 'Expected notification message should appear');
         });
 
-    //Verifies -  https://github.com/enonic/app-contentstudio/issues/1472 - Site wizard does not load after deleting child fragment:
+    // Verifies -  https://github.com/enonic/app-contentstudio/issues/1472 - Site wizard does not load after deleting its child fragment:
     it(`WHEN existing text-fragment is deleted AND its parent site has been opened THEN wizard page should be loaded`,
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Select the fragment and delete it:
-            await studioUtils.doDeleteContentByDisplayName('text_component_1');
-            //2. Open fragment's parent site:
+            let deleteContentDialog = new DeleteContentDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Select the fragment and delete it:
+            await studioUtils.findAndSelectItemByDisplayName('text_component_1');
+            //Open Delete Content modal dialog:
+            await contentBrowsePanel.clickOnArchiveButton();
+            await deleteContentDialog.waitForDialogOpened();
+            await deleteContentDialog.clickOnIgnoreInboundReferences();
+            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.waitForDialogClosed();
+            // 2. Open fragment's parent site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.waitForOpened();
         });

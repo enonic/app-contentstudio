@@ -135,7 +135,7 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             assert.isTrue(isDropdownHandleDisplayed, "Delete menu should appear in the dialog");
 
             let status = await deleteContentDialog.getContentStatus(FOLDER1.displayName);
-            assert.equal(status, "Published", 'Published status should be displayed');
+            assert.equal(status, 'Published', 'Published status should be displayed');
         });
 
     it(`GIVEN 'published' folder is selected AND 'Delete dialog' is opened WHEN 'Delete' menu item has been pressed THEN the folder should be deleted`,

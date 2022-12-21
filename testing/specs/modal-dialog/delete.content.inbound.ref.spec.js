@@ -31,8 +31,9 @@ describe('Delete a content that has inbound references.', function () {
             await deleteContentDialog.waitForDialogOpened();
             //3. Verify that expected warning is displayed in the dialog:
             await studioUtils.saveScreenshot("delete_dialog_inbound_ref");
-            let warning = await deleteContentDialog.getInboundDependenciesWarning();
-            assert.equal(warning, appConst.DELETE_INBOUND_MESSAGE, 'expected warning should be displayed in thr dialog');
+           // 4. Verify that 'Show references' button is displayed in the dialog
+            await deleteContentDialog.waitForShowReferencesButtonDisplayed(appConst.TEST_IMAGES.WHALE);
+
         });
 
     it(`GIVEN existing image(target in the shortcut ) is selected AND Delete content dialog is opened WHEN 'Show Inbound' link has been clicked THEN expected inbound dependencies should be filtered in new browser tab`,
@@ -45,7 +46,7 @@ describe('Delete a content that has inbound references.', function () {
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             //3. Click on 'Show Inbound' link:
-            await deleteContentDialog.clickOnShowInboundLink(appConst.TEST_IMAGES.WHALE);
+            await deleteContentDialog.clickOnShowReferencesButton(appConst.TEST_IMAGES.WHALE);
             await studioUtils.doSwitchToNextTab();
             //4. Verify that expected shortcut should be filtered in the grid:
             await contentBrowsePanel.waitForGridLoaded(appConst.longTimeout);

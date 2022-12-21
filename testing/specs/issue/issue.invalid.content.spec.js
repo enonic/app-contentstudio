@@ -12,7 +12,7 @@ const IssueDetailsDialogItemsTab = require('../../page_objects/issue/issue.detai
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
 
-describe('issue.not.valid.content.spec: create a issue with invalid content', function () {
+describe('issue.invalid.content.spec: create a issue with invalid content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
@@ -61,7 +61,7 @@ describe('issue.not.valid.content.spec: create a issue with invalid content', fu
             assert.isFalse(result, 'Publish & Close button should be disabled(invalid child)');
         });
 
-    it(`GIVEN Items-tab has been clicked WHEN not valid content has been excluded THEN 'Publish...' button is getting enabled`,
+    it(`GIVEN Items-tab has been clicked WHEN invalid content has been excluded THEN 'Publish...' button is getting enabled`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -73,7 +73,7 @@ describe('issue.not.valid.content.spec: create a issue with invalid content', fu
             await issueDetailsDialog.waitForDialogOpened();
             //3. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            //4. Exclude the not valid content:
+            //4. Exclude the invalid content:
             await issueDetailsDialogItemsTab.excludeDependantItem('shortcut-imported');
             await issueDetailsDialogItemsTab.waitForNotificationMessage();
             //5.'Publish...' button gets enabled, because invalid child is excluded'

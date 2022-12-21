@@ -92,10 +92,10 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.clickOnExcludeInvalidItemsButton();
             await studioUtils.saveScreenshot("exclude_work_in_pr");
             //4. Exclude all 'work in progress' items:
-            await contentPublishDialog.clickOnExcludeWorkInProgressItemsButton();
-            //5. Verify that 'Exclude all' buttons get not visible:
+            await contentPublishDialog.clickOnExcludeItemsInProgressButton();
+            //5. Verify that 'Exclude items in progress' buttons get not visible:
             await contentPublishDialog.waitForExcludeInvalidItemsButtonNotDisplayed();
-            await contentPublishDialog.waitForExcludeWorkInProgressItemsButtonNotDisplayed();
+            await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
