@@ -48,20 +48,6 @@
         }
       ]
     },
-
-
-    {
-      "title": "Content Archive",
-      "document": "archive"
-    },
-    {
-      "title": "Projects",
-      "document": "projects"
-    },
-    {
-      "title": "Content Localisation",
-      "document": "layers"
-    },
     {
       "title": "Workflow",
       "document": "workflow"
