@@ -607,14 +607,6 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async clickOnArchiveAndDeleteNow() {
-        let contentDeleteDialog = new ContentDeleteDialog();
-        await this.clickOnArchiveButton();
-        await contentDeleteDialog.waitForDialogOpened();
-        await contentDeleteDialog.clickOnDeleteMenuItem();
-        return await contentDeleteDialog.waitForDialogClosed();
-    }
-
     //clicks on 'Publish...' button
     async clickOnPublishButton() {
         try {

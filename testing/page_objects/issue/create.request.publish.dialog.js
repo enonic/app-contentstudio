@@ -13,7 +13,7 @@ const xpath = {
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
     assigneesComboBox: "//div[contains(@id,'LoaderComboBox') and @name='principalSelector']",
-    invalidIcon: "//div[contains(@class,'state-icon invalid')]",
+    invalidIcon: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//span[contains(@class,'icon-state-invalid')]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToRequest:

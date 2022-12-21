@@ -18,7 +18,10 @@ const XPATH = {
     },
     inboundLink: `//a[contains(@class,'inbound-dependency')]`,
     getContentStatus(displayName) {
-        return `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//div[contains(@class,'status')][2]`
+        return `//div[contains(@id,'ArchiveItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`;
+    },
+    showReferencesButton(displayName) {
+        return `//div[contains(@id,'ArchiveItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/button[contains(@id,'ActionButton') and child::span[text()='Show references']]`;
     }
 };
 
@@ -47,6 +50,10 @@ class DeleteContentDialog extends Page {
 
     get showDependantItemsLink() {
         return XPATH.container + XPATH.showDependantItemsLink;
+    }
+
+    get ignoreInboundReferencesButton() {
+        return XPATH.container + lib.actionButton('Ignore inbound references');
     }
 
     async waitForDialogOpened() {
@@ -108,12 +115,17 @@ class DeleteContentDialog extends Page {
     //Expands the menu in 'Archive' button
     async clickOnArchiveMenuDropDownHandle() {
         await this.waitForArchiveMenuDropDownHandleDisplayed();
+        await this.waitForArchiveMenuDropDownHandleEnabled();
         await this.clickOnElement(this.archiveMenuDropDownHandle);
         return await this.pause(300);
     }
 
     waitForArchiveMenuDropDownHandleDisplayed() {
         return this.waitForElementDisplayed(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
+    }
+
+    waitForArchiveMenuDropDownHandleEnabled() {
+        return this.waitForElementEnabled(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
     }
 
     getInboundDependenciesWarning() {
@@ -127,6 +139,13 @@ class DeleteContentDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
         return await this.pause(3500);
+    }
+
+    async clickOnShowReferencesButton(itemDisplayName) {
+        let locator = XPATH.showReferencesButton(itemDisplayName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(3000);
     }
 
     async getNumberInArchiveButton() {
@@ -225,6 +244,21 @@ class DeleteContentDialog extends Page {
     getDependantNames() {
         let locator = XPATH.container + XPATH.dependantList + "//div[contains(@id,'DependantItemViewer')]" + lib.H6_DISPLAY_NAME;
         return this.getTextInDisplayedElements(locator);
+    }
+
+    async waitForShowReferencesButtonDisplayed(displayName) {
+        let locator = XPATH.showReferencesButton(displayName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    async clickOnIgnoreInboundReferences() {
+        await this.waitForIgnoreInboundReferencesButtonDisplayed();
+        await this.clickOnElement(this.ignoreInboundReferencesButton);
+        return await this.pause(500);
+    }
+
+    waitForIgnoreInboundReferencesButtonDisplayed() {
+        return this.waitForElementDisplayed(this.ignoreInboundReferencesButton, appConst.mediumTimeout);
     }
 }
 
