@@ -20,8 +20,8 @@ const XPATH = {
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependantItemViewer: "//div[contains(@id,'DependantItemViewer')]",
     markAsReadyDropdownHandle: "//button[contains(@id,'DropdownHandle')]",
-    excludeInvalidItems: "//h6[child::div[contains(@class,'state-icon invalid')]]//button[child::span[contains(.,'Exclude all')]]",
-    excludeWorkInProgressItems: "//h6[child::div[contains(@class,'state-icon in-progress')]]//button[child::span[contains(.,'Exclude all')]]",
+    excludeInvalidItems: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//button[child::span[contains(.,'Exclude invalid items')]]",
+    excludeItemsInProgressButton: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//button[child::span[contains(.,'Exclude items in progress')]]",
 
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
@@ -77,8 +77,8 @@ class ContentPublishDialog extends Page {
         return XPATH.container + XPATH.excludeInvalidItems;
     }
 
-    get excludeWorkInProgressItemsButton() {
-        return XPATH.container + XPATH.excludeWorkInProgressItems;
+    get excludeItemsInProgressButton() {
+        return XPATH.container + XPATH.excludeItemsInProgressButton;
     }
 
     waitForExcludeInvalidItemsButtonDisplayed() {
@@ -89,8 +89,8 @@ class ContentPublishDialog extends Page {
         return this.waitForElementNotDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
     }
 
-    waitForExcludeWorkInProgressItemsButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.excludeWorkInProgressItemsButton, appConst.mediumTimeout);
+    waitForExcludeItemsInProgressButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
     }
 
     async clickOnExcludeInvalidItemsButton() {
@@ -99,9 +99,9 @@ class ContentPublishDialog extends Page {
         return await this.pause(500);
     }
 
-    async clickOnExcludeWorkInProgressItemsButton() {
-        await this.waitForElementDisplayed(this.excludeWorkInProgressItemsButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.excludeWorkInProgressItemsButton);
+    async clickOnExcludeItemsInProgressButton() {
+        await this.waitForElementDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.excludeItemsInProgressButton);
         return await this.pause(500);
     }
 
@@ -275,15 +275,17 @@ class ContentPublishDialog extends Page {
 
     async waitForPublishNowButtonEnabled() {
         try {
-            return await this.waitForElementEnabled(this.publishNowButton, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.publishNowButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.publishNowButton, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot("publish_now_disabled");
-            throw new Error("Publish Wizard - 'Publish Now' button should be enabled " + err);
+            let screenshot = appConst.generateRandomName('publish_now_disabled');
+            await this.saveScreenshot(screenshot);
+            throw new Error("Publish Wizard - 'Publish Now' button should be enabled, screenshot: " + screenshot + ' ' + err);
         }
     }
 
     waitForPublishNowButtonDisabled() {
-        return this.waitForElementDisabled(this.publishNowButton, appConst.shortTimeout);
+        return this.waitForElementDisabled(this.publishNowButton, appConst.mediumTimeout);
     }
 
     async isPublishItemRemovable(displayName) {
