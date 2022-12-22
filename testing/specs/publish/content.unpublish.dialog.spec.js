@@ -65,8 +65,8 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             let subheader = await contentUnpublishDialog.getDialogSubheader();
             assert.equal(header, DIALOG_HEADER, "Expected header should be displayed");
             assert.isTrue(subheader.includes(DIALOG_SUBHEADER), "Expected subheader should be displayed");
-            //3. Verify that 'Show Dependent items' link should be displayed by default:
-            await contentUnpublishDialog.waitForShowDependentItemsLinkDisplayed();
+            //3. Verify that 'Hide Dependent items' link should be displayed by default:
+            await contentUnpublishDialog.waitForHideDependentItemsLinkDisplayed();
             //4. Press ESC key and verify that Unpublish dialog is closed:
             await contentBrowsePanel.pressEscKey();
             await contentUnpublishDialog.waitForDialogClosed();
@@ -98,7 +98,7 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             await contentUnpublishDialog.waitForDialogClosed();
         });
 
-    it("GIVEN published site is selected WHEN Unpublish dialog has been opened THEN 'Show dependant items' link should be displayed in the dialog",
+    it("GIVEN published site is selected WHEN Unpublish dialog has been opened THEN 'Hide dependant items' link should be displayed in the dialog",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentUnpublishDialog = new ContentUnpublishDialog();
@@ -112,15 +112,17 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             //3. the site's status should be 'published'
             let status = await contentUnpublishDialog.getItemStatus(SITE.displayName);
             assert.equal(status, "Published", "Published status should be displayed");
-            //4. Click on 'Show dependent items' link
-            await contentUnpublishDialog.clickOnShowDependentItemsLink();
+
             await studioUtils.saveScreenshot("unpublish_hide_dependent_items");
-            //5. Verify that 'Hide dependent items' link gets visible:
+            //4. Verify that 'Hide dependent items' link gets visible:
             await contentUnpublishDialog.waitForHideDependentItemsLinkDisplayed();
-            //6. Verify the child item in the dependent block:
+            //5. Verify the child item in the dependent block:
             let dependentItems = await contentUnpublishDialog.getDependentItemsPath();
             assert.equal(dependentItems.length, 1, "One item should be present in the dependent list");
             assert.isTrue(dependentItems[0].includes("_templates"), "Templates folder should be present in the dependent list");
+            //6. Click on 'Hide dependent items' link
+            await contentUnpublishDialog.clickOnHideDependentItemsLink();
+            await contentUnpublishDialog.waitForShowDependentItemsLinkDisplayed();
         });
 
     it("GIVEN published folder and site are selected WHEN Unpublish dialog has been opened THEN two items and one dependent item should be present in the dialog",
@@ -141,8 +143,8 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             //3. Verify the label in Unpublish button - 3 items should be unpublished (site, _templates, test-folder)
             let result = await contentUnpublishDialog.getNumberInUnpublishButton();
             assert.equal(result, 3, "3 items should be displayed in the 'Unpublish' button");
-            //4. Verify that 'Show dependent items' link is displayed in the dialog:
-            await contentUnpublishDialog.waitForShowDependentItemsLinkDisplayed();
+            //4. Verify that 'Hide dependent items' link is displayed in the dialog:
+            await contentUnpublishDialog.waitForHideDependentItemsLinkDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

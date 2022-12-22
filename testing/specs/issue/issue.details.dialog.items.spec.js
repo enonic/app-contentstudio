@@ -60,7 +60,7 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             assert.isTrue(result, "'Publish...' button should be displayed");
         });
 
-    it(`GIVEN Items-tab has been clicked WHEN 'Include Child Items' icon has been clicked THEN 'Show dependent items' link should appear`,
+    it(`GIVEN Items-tab has been clicked WHEN 'Include Child Items' icon has been clicked THEN List of items should be expanded AND 'Hide dependent items' link should appear`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let issueListDialog = new IssueListDialog();
@@ -73,15 +73,15 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 3. Click on 'Include Child' icon:
             await issueDetailsDialogItemsTab.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES);
-            // 4. waits for Show Dependent Items link:
-            await issueDetailsDialogItemsTab.waitForShowDependentItemsLinkDisplayed();
+            // 4. waits for Hide Dependent Items link gets visible, because the list of items should be expanded
+            await issueDetailsDialogItemsTab.waitForHideDependentItemsLinkDisplayed();
             let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '13', 'Number of items should be updated to 13');
-            let numberInShowDepItemsLink = await issueDetailsDialogItemsTab.getNumberInDependentItemsLink();
-            assert.equal(numberInShowDepItemsLink, '12', "Expected number should be present in the 'Show Dependent Items'-link")
+            let numberInHideDepItemsLink = await issueDetailsDialogItemsTab.getNumberInHideDependentItemsLink();
+            assert.equal(numberInHideDepItemsLink, '12', "Expected number should be present in the 'Hide Dependent Items'-link")
         });
 
-    it(`GIVEN existing task (child items were included) WHEN task details is opened THEN 'Show dependent items' link should be present`,
+    it(`GIVEN existing task (child items were included) WHEN task details is opened THEN 'Hide dependent items' link should be present`,
         async () => {
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -92,13 +92,13 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             await issueDetailsDialog.waitForDialogOpened();
             // 2. Click on Items tab
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            // `Show dependent items` link should be displayed
-            await issueDetailsDialogItemsTab.waitForShowDependentItemsLinkDisplayed();
+            // `Hide dependent items` link should be displayed
+            await issueDetailsDialogItemsTab.waitForHideDependentItemsLinkDisplayed();
             let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '13', 'Expected number of items should be displayed');
         });
 
-    it(`GIVEN existing task (child items were included) WHEN task details is opened  AND 'Show Dependent items' link has been clicked THEN 'hide dependent items' link should appear`,
+    it(`GIVEN task details is opened WHEN 'Hide Dependent items' link has been clicked THEN 'Show dependent items' link should appear`,
         async () => {
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -109,13 +109,13 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             await issueDetailsDialog.waitForDialogOpened();
             // 2. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            // 3. Click on 'Show Dependent Items' toggler:
-            await issueDetailsDialogItemsTab.clickOnShowDependentItems();
-            // 'Hide dependent items' link gets visible now
-            await issueDetailsDialogItemsTab.waitForHideDependentItemsLinkDisplayed();
+            // 3. Click on 'Hide Dependent Items' toggler:
+            await issueDetailsDialogItemsTab.clickOnHideDependentItems();
+            // 'Show dependent items' link gets visible now
+            await issueDetailsDialogItemsTab.waitForShowDependentItemsLinkDisplayed();
         });
 
-    it(`GIVEN existing issue (child items are included) WHEN task details is opened  AND 'Exclude child items' icon has been clicked THEN number of items to publish should be decreased `,
+    it(`GIVEN task details is opened WHEN 'Exclude child items' icon has been clicked THEN number of items to publish should be 1`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
