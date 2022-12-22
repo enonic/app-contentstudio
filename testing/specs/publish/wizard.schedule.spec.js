@@ -104,23 +104,23 @@ describe('Wizard page - verify schedule form', function () {
     it(`GIVEN existing published content is opened WHEN content has been unpublished THEN 'Schedule' form gets not visible`,
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Select and open the folder:
+            // 1. Select and open the folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            //2. Unpublish the folder:
+            // 2. Unpublish the folder:
             await studioUtils.doUnPublishInWizard();
-            //3. Verify the toolbar and status:
+            // 3. Verify the toolbar and status:
             let result = await contentWizard.waitForWizardStepByTitleNotVisible(SCHEDULE_STEP_TITLE);
             assert.isTrue(result, "Schedule menu item gets not visible in the step-navigator");
-            //4. 'Schedule' item gets  not visible in WizardStepNavigatorAndToolbar
+            // 4. 'Schedule' item gets  not visible in WizardStepNavigatorAndToolbar
             await contentWizard.waitForScheduleFormNotVisible();
             await studioUtils.saveScreenshot("check_schedule_form_unpublished");
-            //5. 'Unpublished' status should be displayed in the toolbar:
+            // 5. 'Unpublished' status should be displayed in the toolbar:
             let status = await contentWizard.getContentStatus();
             assert.equal(status, 'Unpublished', "'Unpublished' status should be displayed in the toolbar");
         });
 
-    //Verifies https://github.com/enonic/app-contentstudio/issues/941
-    //Incorrect status in version history for content with scheduled publishing #941
+    // Verifies https://github.com/enonic/app-contentstudio/issues/941
+    // Incorrect status in version history for content with scheduled publishing #941
     it("WHEN 'Online from' has been set in the future AND Publish button pressed THEN folder gets 'Publishing Scheduling'",
         async () => {
             let contentWizard = new ContentWizard();

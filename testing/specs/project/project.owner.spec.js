@@ -24,6 +24,7 @@ const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('project.owner.spec - ui-tests for user with Owner role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -223,19 +224,23 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             assert.equal(actualOwner, USER.displayName, "Expected Owner should be selected in Settings form");
         });
 
-    //Verify that 'Owner' can publish content:
+    // Verify that 'Owner' can publish content:
     it("GIVEN user with 'Owner' role is logged in WHEN existing folder has been marked as ready THEN 'Publish' menu item should be enabled for users with Owner role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             //2. The folder has been 'Marked as ready' in browse panel:
             await contentBrowsePanel.clickOnMarkAsReadyButton();
-            studioUtils.saveScreenshot('project_owner_6');
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
+            await studioUtils.saveScreenshot('project_owner_6');
             //3. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
-            studioUtils.saveScreenshot('project_owner_7');
+            await studioUtils.saveScreenshot('project_owner_7');
             //4. Verify that 'Create Issue' and 'Request Publishing' menu items are enabled for Owner role:
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);

@@ -93,6 +93,10 @@ class ContentPublishDialog extends Page {
         return this.waitForElementNotDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
     }
 
+    waitForExcludeItemsInProgressButtonDisplayed() {
+        return this.waitForElementDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+    }
+
     async clickOnExcludeInvalidItemsButton() {
         await this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
         await this.clickOnElement(this.excludeInvalidItemsButton);
