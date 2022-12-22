@@ -39,7 +39,7 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             //2. Click on the 'Publish Tree' menu item
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnShowDependentItems();
+            // Verify that Dependent Items list is expanded by default:
             //3. Get dependent items:
             let items1 = await contentPublishDialog.getDisplayNameInDependentItems();
             await contentPublishDialog.clickOnIncludeChildrenToogler();
@@ -47,7 +47,7 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             await contentPublishDialog.clickOnCancelTopButton();
             //5. Click on the 'Publish Tree' menu item and reopen the modal dialog:
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
-            await contentPublishDialog.clickOnShowDependentItems();
+            // Dependent items list should be expanded by default:
             //6. Get dependent items:
             let items2 = await contentPublishDialog.getDisplayNameInDependentItems();
             //7. Verify that dependent items are equal in both cases:
@@ -78,8 +78,8 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             //2. Verify that 'Publish Tree' is default action(click on it):
             await contentBrowsePanel.clickOnPublishTreeButton();
             await contentPublishDialog.waitForDialogOpened();
-            //3. Verify that 'Show dependent items' should be visible in the dialog:
-            await contentPublishDialog.waitForShowDependentItemsButtonDisplayed();
+            //3. Verify that 'Hide dependent items' should be visible in the dialog:
+            await contentPublishDialog.waitForHideDependentItemsButtonDisplayed();
             //4. Click on 'Publish Now' button:
             await contentPublishDialog.clickOnPublishNowButton();
             //5. Dialog should close

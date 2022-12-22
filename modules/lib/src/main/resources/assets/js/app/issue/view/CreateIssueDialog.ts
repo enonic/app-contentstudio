@@ -52,8 +52,9 @@ export class CreateIssueDialog
     protected initListeners() {
         super.initListeners();
 
-        const onItemsChanged = (items) => {
+        const onItemsChanged = () => {
             (this.createAction).updateLabel(this.getItemList().getItemCount());
+            this.setDependantListVisible(this.getItemList().hasActiveTogglers());
         };
         this.getItemList().onItemsAdded(onItemsChanged);
         this.getItemList().onItemsRemoved(onItemsChanged);
