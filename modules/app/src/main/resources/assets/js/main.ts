@@ -160,7 +160,7 @@ const faviconCache: { [url: string]: HTMLElement } = {};
 
 const iconUrlResolver = new ContentIconUrlResolver();
 
-let dataPreloaded: boolean;
+let dataPreloaded: boolean = false;
 
 function clearFavicon() {
     // save current favicon hrefs
@@ -324,9 +324,11 @@ const handleNoProjectsAvailable = () => {
     }).catch(DefaultErrorHandler.handle);
 };
 
+let connectionDetector: ConnectionDetector;
+
 async function startApplication() {
     const application: Application = getApplication();
-    const connectionDetector = startLostConnectionDetector();
+    connectionDetector = startLostConnectionDetector();
     Store.instance().set('application', application);
 
     startServerEventListeners(application);
@@ -349,7 +351,7 @@ async function startApplication() {
         .finally(() => {
             ProjectContext.get().whenInitialized(() => {
                 if (ContentAppHelper.isContentWizardUrl()) {
-                    startContentWizard(ContentAppHelper.createWizardParamsFromUrl(), connectionDetector);
+                    startContentWizard();
                 } else {
                     startContentBrowser();
                 }
@@ -358,7 +360,7 @@ async function startApplication() {
 
     AppHelper.preventDragRedirect();
 
-    const ContentDuplicateDialog = (await import('lib-contentstudio/app/duplicate/ContentDuplicateDialog')).ContentDuplicateDialog;
+    const {ContentDuplicateDialog} = await import('lib-contentstudio/app/duplicate/ContentDuplicateDialog');
     let contentDuplicateDialog = null;
 
     ContentDuplicatePromptEvent.on((event) => {
@@ -374,7 +376,7 @@ async function startApplication() {
             .open();
     });
 
-    const ContentDeleteDialog = (await import('lib-contentstudio/app/remove/ContentDeleteDialog')).ContentDeleteDialog;
+    const {ContentDeleteDialog} = await import('lib-contentstudio/app/remove/ContentDeleteDialog');
     let contentDeleteDialog = null;
 
     ContentDeletePromptEvent.on((event) => {
@@ -389,7 +391,7 @@ async function startApplication() {
             .open();
     });
 
-    const ContentPublishDialog = (await import('lib-contentstudio/app/publish/ContentPublishDialog')).ContentPublishDialog;
+    const {ContentPublishDialog} = await import('lib-contentstudio/app/publish/ContentPublishDialog');
     let contentPublishDialog = null;
 
     ContentPublishPromptEvent.on((event) => {
@@ -405,7 +407,7 @@ async function startApplication() {
             .open();
     });
 
-    const ContentUnpublishDialog = (await import('lib-contentstudio/app/publish/ContentUnpublishDialog')).ContentUnpublishDialog;
+    const {ContentUnpublishDialog} = await import('lib-contentstudio/app/publish/ContentUnpublishDialog');
     let contentUnpublishDialog = null;
 
     ContentUnpublishPromptEvent.on((event) => {
@@ -428,7 +430,7 @@ async function startApplication() {
 
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
-    const EditPermissionsDialog = (await import('lib-contentstudio/app/wizard/EditPermissionsDialog')).EditPermissionsDialog;
+    const {EditPermissionsDialog} = await import('lib-contentstudio/app/wizard/EditPermissionsDialog');
     let editPermissionsDialog = null;
 
     OpenEditPermissionsDialogEvent.on((event: OpenEditPermissionsDialogEvent) => {
@@ -454,12 +456,13 @@ const refreshTabOnContentUpdate = (content: Content) => {
     });
 };
 
-async function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: ConnectionDetector) {
-    const ContentWizardPanel = (await import('lib-contentstudio/app/wizard/ContentWizardPanel')).ContentWizardPanel;
-
+async function startContentWizard() {
     window['CKEDITOR'].config.language = CONFIG.getString('locale');
 
-    let wizard = new ContentWizardPanel(wizardParams, getTheme());
+    const {ContentWizardPanel} = await import('lib-contentstudio/app/wizard/ContentWizardPanel');
+
+    const wizardParams = ContentAppHelper.createWizardParamsFromUrl();
+    const wizard = new ContentWizardPanel(wizardParams, getTheme());
 
     wizard.onDataLoaded((content: Content) => {
         let contentType = wizard.getContentType();
@@ -489,7 +492,7 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
     });
 
     WindowDOM.get().onBeforeUnload(event => {
-        if (wizard.isContentDeleted() || !connectionDetector.isConnected() || !connectionDetector.isAuthenticated()) {
+        if (wizard.isContentDeleted() || !connectionDetector?.isConnected() || !connectionDetector?.isAuthenticated()) {
             return;
         }
         if (wizard.hasUnsavedChanges() && wizard.hasModifyPermissions()) {
@@ -501,7 +504,7 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
         }
     });
 
-    wizard.onClosed(event => window.close());
+    wizard.onClosed(() => window.close());
 
     EditContentEvent.on(ContentEventsProcessor.handleEdit);
     NewContentEvent.on(ContentEventsProcessor.handleNew);
@@ -581,9 +584,9 @@ async function startContentBrowser() {
         }
     });
 
-    const IssueListDialog = (await import('lib-contentstudio/app/issue/view/IssueListDialog')).IssueListDialog;
-    const SortContentDialog = (await import('lib-contentstudio/app/browse/sort/dialog/SortContentDialog')).SortContentDialog;
-    const MoveContentDialog = (await import('lib-contentstudio/app/move/MoveContentDialog')).MoveContentDialog;
+    const {IssueListDialog} = await import('lib-contentstudio/app/issue/view/IssueListDialog');
+    const {SortContentDialog} = await import('lib-contentstudio/app/browse/sort/dialog/SortContentDialog');
+    const {MoveContentDialog} = await import('lib-contentstudio/app/move/MoveContentDialog');
 
     IssueListDialog.get();
 

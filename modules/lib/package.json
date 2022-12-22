@@ -8,12 +8,15 @@
     "url": "https://github.com/enonic/app-contentstudio"
   },
   "scripts": {
-    "build:prod": "tsc",
-    "build:dev": "tsc --sourceMap --inlineSources",
-    "build:lib": "webpack --color",
-    "lint": "eslint src/**/*.ts",
-    "lint:quiet": "eslint src/**/*.ts --quiet",
-    "fix": "eslint --fix src/**/*.ts"
+    "build:prod": "run-p build:prod:js build:lib",
+    "build:prod:js": "tsc",
+    "build:dev": "run-p build:dev:types build:dev:js build:lib",
+    "build:dev:js": "swc src --out-dir build/tmp/src",
+    "build:dev:types": "tsc --skipLibCheck --emitDeclarationOnly --declaration",
+    "build:lib": "webpack --color --stats-error-details",
+    "typecheck": "tsc --pretty --skipLibCheck --noEmit",
+    "lint": "eslint **/*.ts --quiet --cache",
+    "fix": "eslint --fix **/*.ts --cache"
   },
   "dependencies": {
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
@@ -27,6 +30,9 @@
     "q": "^1.5.1"
   },
   "devDependencies": {
+    "@enonic/eslint-config": "^1.1.0",
+    "@swc/cli": "^0.1.57",
+    "@swc/core": "^1.3.24",
     "@types/ckeditor": "^4.9.10",
     "@types/core-js": "^2.5.5",
     "@types/hasher": "0.0.32",
@@ -36,10 +42,14 @@
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
     "@typescript-eslint/utils": "^5.48.0",
+    "circular-dependency-plugin": "^5.2.2",
     "eslint": "^8.31.0",
+    "mini-css-extract-plugin": "^2.7.2",
     "minimist": "^1.2.7",
+    "npm-run-all": "^4.1.5",
     "postcss-loader": "^7.0.2",
-    "terser": "^5.16.1",
+    "swc-loader": "^0.2.3",
+    "terser-webpack-plugin": "^5.3.6",
     "typescript": "^4.9.4"
   },
   "engines": {

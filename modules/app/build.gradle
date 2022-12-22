@@ -19,7 +19,7 @@ app {
 configurations {
     devResources {
         attributes {
-            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, 'dev-resources'))
+            attribute( LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named( LibraryElements, 'dev-resources' ) )
         }
     }
 }
@@ -48,7 +48,7 @@ dependencies {
     include "com.enonic.xp:lib-node:${xpVersion}"
     include project( ':lib-contentstudio' )
     include project( ':rest' )
-    devResources project(path: ':lib-contentstudio', configuration: 'devResources' )
+    devResources project( path: ':lib-contentstudio', configuration: 'devResources' )
     devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
@@ -72,20 +72,20 @@ node {
 }
 
 task lint( type: NpmTask, group: "verification", dependsOn: npmInstall ) {
-    args = [ 'run', 'lint:quiet' ]
-    inputs.files fileTree( dir: 'src', include: '**/*.ts' )
+    args = ['run', 'lint']
+    outputs.upToDateWhen { false }
 }
 
-check.dependsOn( lint )
+check.dependsOn lint
 
 task webpack( type: NpmTask, dependsOn: npmInstall ) {
-    environment = [ 'NODE_ENV': nodeEnvironment() ]
+    environment = ['NODE_ENV': nodeEnvironment()]
     description = 'Build UI resources (ts, css, etc).'
-    args = [ 'run', 'build' ]
-    inputs.dir ".xp/dev"
-    inputs.dir "./src/main"
+    args = ['run', 'build']
+    inputs.dir '.xp/dev'
+    inputs.dir 'src/main/resources/assets'
     inputs.file 'webpack.config.js'
-    outputs.dir "$buildDir/resources/main"
+    outputs.dir "$buildDir/build/resources/main/assets"
 }
 
 jar {
@@ -97,7 +97,8 @@ jar {
     exclude 'assets/page-editor/lib/jquery*.js'
     exclude 'assets/icons/*.txt'
 
-    if (isProd()) {
+    if ( isProd() )
+    {
         exclude 'assets/**/*.map'
     }
 
