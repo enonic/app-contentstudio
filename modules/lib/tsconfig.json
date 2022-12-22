@@ -2,11 +2,15 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es5",
+        "lib": [
+            "es2015",
+            "es2015.promise",
+            "dom"
+        ],
         "outDir": "build/resources/main/dev/lib-contentstudio/",
+        "moduleResolution": "node",
         "declaration": true,
         "declarationDir": "build/resources/main/dev/lib-contentstudio/",
-        "sourceMap": false,
-        "declarationMap": false,
         "allowSyntheticDefaultImports": true,
         "suppressImplicitAnyIndexErrors": true,
         "forceConsistentCasingInFileNames": true,
@@ -14,19 +18,12 @@
         "noImplicitReturns": false,
         "noImplicitThis": true,
         "strictNullChecks": false,
-        "moduleResolution": "node",
         "types": [
             "ckeditor",
             "core-js",
             "hasher",
             "jquery",
-            "jqueryui",
-            "q"
-        ],
-        "lib": [
-            "es2015",
-            "es2015.promise",
-            "dom"
+            "jqueryui"
         ]
     },
     "include": [

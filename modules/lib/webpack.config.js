@@ -3,6 +3,9 @@ const CircularDependencyPlugin = require('circular-dependency-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ProvidePlugin = require('webpack/lib/ProvidePlugin');
 const path = require('path');
+const fs = require('fs');
+
+const swcConfig = JSON.parse(fs.readFileSync('./.swcrc'));
 
 const MiniCssExtractPluginCleanup = require('./util/MiniCssExtractPluginCleanup');
 
@@ -27,8 +30,17 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
-                use: [{loader: 'ts-loader', options: {configFile: 'tsconfig.json'}}]
+                test: /\.ts$/,
+                use: [
+                    {
+                        loader: 'swc-loader',
+                        options: {
+                            ...swcConfig,
+                            sourceMaps: isProd ? false : 'inline',
+                            inlineSourcesContent: !isProd,
+                        },
+                    },
+                ],
             },
             {
                 test: /\.less$/,
@@ -58,11 +70,7 @@ module.exports = {
     optimization: {
         minimizer: [
             new TerserPlugin({
-                extractComments: false,
                 terserOptions: {
-                    compress: {
-                        drop_console: false
-                    },
                     keep_classnames: true,
                     keep_fnames: true
                 }
@@ -97,7 +105,6 @@ module.exports = {
             exclude: /a\.js|node_modules/,
             failOnError: true
         }),
-        //new ErrorLoggerPlugin({showColumn: false})
     ],
     mode: isProd ? 'production' : 'development',
     devtool: isProd ? false : 'source-map',

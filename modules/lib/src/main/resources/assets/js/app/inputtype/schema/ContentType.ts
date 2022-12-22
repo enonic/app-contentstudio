@@ -49,8 +49,8 @@ export class ContentTypeBuilder
     form: Form;
 
     constructor(source?: ContentType) {
+        super(source);
         if (source) {
-            super(source);
             this.form = source.getForm();
         }
     }

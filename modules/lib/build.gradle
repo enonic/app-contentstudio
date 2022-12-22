@@ -32,40 +32,49 @@ node {
     version = '18.12.1'
 }
 
-def resourcesDir = file( 'src/main/resources' )
-
 task lint( type: NpmTask, group: "verification", dependsOn: npmInstall ) {
-    args = [ 'run', 'lint:quiet' ]
-    inputs.files fileTree( dir: 'src', include: '**/*.ts' )
+    args = ['run', 'lint']
+    outputs.upToDateWhen { false }
 }
 
-check.dependsOn( lint )
+check.dependsOn lint
 
-task typescriptLib( type: NpmTask, dependsOn: npmInstall ) {
-    environment = [ 'NODE_ENV': nodeEnvironment() ]
-    description = 'Build library, that should be included to HTML.'
-    args = [ 'run', 'build:lib' ]
-    inputs.dir "$resourcesDir/assets"
-    outputs.dir "$buildDir/resources/main/assets"
-}
-
-task typescriptPkg( type: NpmTask, dependsOn: npmInstall ) {
-    def buildEnv = getEnvironmentShort()
-    environment = [ 'NODE_ENV': nodeEnvironment() ]
-    args = [ 'run', "build:$buildEnv" ]
+task typescript( type: NpmTask, dependsOn: npmInstall ) {
+    description = 'Build JS and DTS'
+    def buildEnv = isProd() ? 'prod' : 'dev'
+    environment = ['NODE_ENV': nodeEnvironment()]
+    args = ['run', "build:$buildEnv"]
     inputs.dir "$projectDir/src/main/resources/assets/"
+    outputs.dirs( "$buildDir/tmp/src/main/resources/assets/js/",
+                  "$buildDir/resources/main/assets/",
+                  "$buildDir/resources/main/dev/$archivesBaseName" )
+}
+
+task copyJS( type: Copy, dependsOn: typescript ) {
+    if ( !isProd() )
+    {
+        from "$buildDir/tmp/src/main/resources/assets/js/"
+        into "$buildDir/resources/main/dev/$archivesBaseName"
+        includeEmptyDirs false
+    }
+    inputs.dir "$buildDir/tmp/src/main/resources/assets/js/"
     outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
 }
 
-task copyPackage( type: NodeTask, dependsOn: typescriptPkg ) {
+task copyPackage( type: NodeTask, dependsOn: typescript ) {
     script = file( 'util/modify.js' )
-    args = [ "--out=$buildDir/resources/main/dev/$archivesBaseName" ]
+    args = ["--out=$buildDir/resources/main/dev/$archivesBaseName"]
+    inputs.file "./package.json"
+    outputs.file "$buildDir/resources/main/dev/$archivesBaseName/package.json"
 }
 
-task typescript {
-    dependsOn 'typescriptPkg'
-    dependsOn 'typescriptLib'
-    dependsOn 'copyPackage'
+task devJar( type: Jar ) {
+    archiveClassifier = 'dev-resources'
+    from sourceSets.main.output
+    include 'dev/**'
+    includeEmptyDirs false
+    dependsOn copyJS
+    dependsOn copyPackage
 }
 
 jar {
@@ -86,18 +95,9 @@ jar {
     exclude 'dev/**'
 
     includeEmptyDirs = false
-    dependsOn typescript
-}
 
-task devJar ( type: Jar ) {
-    archiveClassifier = 'dev-resources'
-    from sourceSets.main.output
-    include 'dev/**'
-    includeEmptyDirs = false
-    dependsOn typescript
+    dependsOn devJar
 }
-
-jar.dependsOn devJar
 
 artifacts {
     devResources devJar
