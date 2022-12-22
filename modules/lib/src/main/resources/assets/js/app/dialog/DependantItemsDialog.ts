@@ -105,7 +105,7 @@ export abstract class DependantItemsDialog
         this.dependantList.onItemsRemoved(() => this.onDependantsChanged());
         this.dependantList.onItemsAdded(() => this.onDependantsChanged());
 
-        this.onRendered(() => this.setDependantListVisible(this.showDependantList));
+        this.whenRendered(() => this.setDependantListVisible(this.showDependantList));
     }
 
     protected lazyLoadDependants(): void {
@@ -217,6 +217,10 @@ export abstract class DependantItemsDialog
         this.dependantList.clearItems(true);
         this.setDependantsContainerVisible(false);
         this.unlockControls();
+    }
+
+    protected setShowDependantList(value: boolean) {
+        this.showDependantList = value;
     }
 
     setAutoUpdateTitle(value: boolean) {

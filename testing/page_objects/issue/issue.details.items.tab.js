@@ -93,7 +93,7 @@ class IssueDetailsDialogItemsTab extends Page {
         })
     }
 
-    getNumberInDependentItemsLink() {
+    getNumberInShowDependentItemsLink() {
         return this.getText(this.showDependentItemsLink).then(result => {
             let startIndex = result.indexOf('(');
             let endIndex = result.indexOf(')');
@@ -103,6 +103,15 @@ class IssueDetailsDialogItemsTab extends Page {
         })
     }
 
+    getNumberInHideDependentItemsLink() {
+        return this.getText(this.hideDependentItemsLink).then(result => {
+            let startIndex = result.indexOf('(');
+            let endIndex = result.indexOf(')');
+            return result.substring(startIndex + 1, endIndex);
+        }).catch(err => {
+            throw new Error('Items Tab:error when getting number in the link : ' + err)
+        })
+    }
     getItemDisplayNames() {
         return this.getTextInElements(this.itemNamesToPublish).catch(err => {
             throw new Error('Items Tab:error when getting display names of items: ' + err)

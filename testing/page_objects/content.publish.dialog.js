@@ -218,6 +218,12 @@ class ContentPublishDialog extends Page {
         })
     }
 
+    waitForHideDependentItemsButtonDisplayed() {
+        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch(err => {
+            throw new Error("Hide dependent items link should be visible!" + err)
+        })
+    }
+
     waitForScheduleButtonDisplayed() {
         return this.waitForElementDisplayed(this.scheduleButton, appConst.shortTimeout).catch(err => {
             throw new Error("Schedule button should be visible!" + err);
