@@ -10,7 +10,6 @@ import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {Issue} from '../Issue';
 import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
 import {Router} from '../../Router';
-import {PublishDialogItemList} from '../../publish/PublishDialogItemList';
 import {ContentPublishDialogAction} from '../../publish/ContentPublishDialogAction';
 import {ContentPublishDialog} from '../../publish/ContentPublishDialog';
 import {PublishDialogDependantList} from '../../publish/PublishDialogDependantList';
@@ -60,6 +59,7 @@ import {ContentId} from '../../content/ContentId';
 import {PrincipalLoader} from '../../security/PrincipalLoader';
 import {TogglableStatusSelectionItem} from '../../dialog/DialogTogglableItemList';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {PublishDialogItemList} from '../../publish/PublishDialogItemList';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -425,8 +425,6 @@ export class IssueDetailsDialog
             this.appendChildToContentPanel(this.tabPanel);
             this.prependChildToFooter(this.commentTextArea);
 
-            this.updateItemsCountAndButtonLabels();
-
             if (this.issue) {
                 this.setIssue(this.issue);
             }
@@ -587,9 +585,7 @@ export class IssueDetailsDialog
                 this.saveOnLoaded = false;
             }
 
-            if (this.publishProcessor.containsInvalidDependants()) {
-                this.setDependantListVisible(true);
-            }
+            this.setDependantListVisible(this.getItemList().hasActiveTogglers());
 
             this.hideLoadMask();
         });
@@ -685,7 +681,7 @@ export class IssueDetailsDialog
         this.commentTextArea.setValue('', true);
         this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
         this.updatePublishScheduleForm();
-        this.updateLabels();
+        this.updateActionLabels();
 
         return this;
     }
@@ -696,6 +692,7 @@ export class IssueDetailsDialog
         if (ids.length === 0) {
             this.itemSelector.getComboBox().clearSelection(true, false);
             this.getItemList().clearItems();
+            this.updateItemsCountAndButtonLabels();
             return;
         }
 
@@ -758,8 +755,7 @@ export class IssueDetailsDialog
         return this.issue.getApprovers().join(ComboBox.VALUE_SEPARATOR);
     }
 
-    private updateLabels() {
-        this.updateItemsCount();
+    private updateActionLabels() {
         this.closeAction.setLabel(this.getCloseButtonLabel());
         this.reopenAction.setLabel(this.getReopenButtonLabel());
     }
@@ -778,10 +774,10 @@ export class IssueDetailsDialog
         return <IssueDetailsDialogButtonRow>super.getButtonRow();
     }
 
-    private initItemListTogglers(itemList: PublishDialogItemList): boolean {
+    private initItemListTogglers(itemList: IssueDialogItemList): boolean {
         // ignore event if there're changes as we're just setting loaded values on list
         return itemList.getItemViews().reduce((alreadyMade: boolean, itemView: TogglableStatusSelectionItem) => {
-            return itemView.toggleIncludeChildren(this.areChildrenIncludedInIssue(itemView.getContentId())) || alreadyMade;
+            return alreadyMade || itemView.toggleIncludeChildren(this.areChildrenIncludedInIssue(itemView.getContentId()));
         }, false);
     }
 
@@ -1051,15 +1047,15 @@ export class IssueDetailsDialog
     }
 
     protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
-        return new PublishDialogItemList();
+        return new IssueDialogItemList();
     }
 
     protected createDependantList(): PublishDialogDependantList {
         return new PublishDialogDependantList();
     }
 
-    protected getItemList(): PublishDialogItemList {
-        return <PublishDialogItemList>super.getItemList();
+    protected getItemList(): IssueDialogItemList {
+        return <IssueDialogItemList>super.getItemList();
     }
 
     protected getDependantList(): PublishDialogDependantList {
@@ -1078,7 +1074,6 @@ export class IssueDetailsDialog
         super.close();
 
         this.commentsList.clearItems();
-        this.updateItemsCountAndButtonLabels();
         this.resetCommentsTabButtons();
 
         Router.get().back();
@@ -1121,5 +1116,13 @@ export class IssueDetailsDialog
         if (!this.loadMask.isVisible() && this.isOpen() && this.isRendered()) {
             super.showLoadMask();
         }
+    }
+}
+
+export class IssueDialogItemList
+    extends PublishDialogItemList {
+
+    isVisible(): boolean {
+        return this.getItemViews().length > 0;
     }
 }

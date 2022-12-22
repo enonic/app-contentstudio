@@ -158,6 +158,9 @@ export class ContentPublishDialog
         if (noIdsIncluded) {
             // do reload dependencies manually if no children included to update buttons
             this.publishProcessor.reloadPublishDependencies(true);
+        } else if (include) {
+            // force expansion of the dependant list if at least one of the main items includes them
+            this.setShowDependantList(true);
         }
 
         return this;

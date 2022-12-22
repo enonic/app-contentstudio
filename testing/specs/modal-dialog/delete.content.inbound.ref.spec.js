@@ -31,12 +31,12 @@ describe('Delete a content that has inbound references.', function () {
             await deleteContentDialog.waitForDialogOpened();
             //3. Verify that expected warning is displayed in the dialog:
             await studioUtils.saveScreenshot("delete_dialog_inbound_ref");
-           // 4. Verify that 'Show references' button is displayed in the dialog
+            // 4. Verify that 'Show references' button is displayed in the dialog
             await deleteContentDialog.waitForShowReferencesButtonDisplayed(appConst.TEST_IMAGES.WHALE);
 
         });
 
-    it(`GIVEN existing image(target in the shortcut ) is selected AND Delete content dialog is opened WHEN 'Show Inbound' link has been clicked THEN expected inbound dependencies should be filtered in new browser tab`,
+    it(`GIVEN existing image(target in the shortcut ) is selected AND Delete content dialog is opened WHEN 'Show references' link has been clicked THEN expected inbound dependencies should be filtered in new browser tab`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
@@ -45,7 +45,26 @@ describe('Delete a content that has inbound references.', function () {
             //2. Delete button has been clicked:
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
-            //3. Click on 'Show Inbound' link:
+            //3. Click on 'Show references' link:
+            await deleteContentDialog.clickOnShowReferencesButton(appConst.TEST_IMAGES.WHALE);
+            await studioUtils.doSwitchToNextTab();
+            //4. Verify that expected shortcut should be filtered in the grid:
+            await contentBrowsePanel.waitForGridLoaded(appConst.longTimeout);
+            let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
+            await studioUtils.saveScreenshot("inbound_1");
+            assert.equal(displayNames[0], SHORTCUT.displayName, "Expected shortcut should be filtered in the grid");
+        });
+
+    it(`GIVEN existing image(target in the shortcut ) is selected AND Delete content dialog is opened WHEN 'Ignore inbound references' link has been clicked THEN expected inbound dependencies should be filtered in new browser tab`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let deleteContentDialog = new DeleteContentDialog();
+            //1.Click on the image, that was selected in the shortcut
+            await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.WHALE);
+            //2. Delete button has been clicked:
+            await contentBrowsePanel.clickOnArchiveButton();
+            await deleteContentDialog.waitForDialogOpened();
+            //3. Click on 'Show references' link:
             await deleteContentDialog.clickOnShowReferencesButton(appConst.TEST_IMAGES.WHALE);
             await studioUtils.doSwitchToNextTab();
             //4. Verify that expected shortcut should be filtered in the grid:

@@ -92,8 +92,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialog.waitForDialogOpened();
             //2. Go to 'Items' tab(IssueDetails dialog):
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            //3. Exclude a dependant item:
-            await issueDetailsDialogItemsTab.clickOnShowDependentItems();
+            //3. Exclude a dependant item: the list of the items should be exanded by default
             await issueDetailsDialogItemsTab.excludeDependantItem(TEST_CONTENT_NAME);
             //5. Click on Publish button, 'Publish Wizard' should be loaded:
             let contentPublishDialog = await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();

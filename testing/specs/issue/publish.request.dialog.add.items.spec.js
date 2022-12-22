@@ -8,6 +8,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('publish.request.dialog.add.items.spec - request publish dialog - check `Publish Now` button', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -23,6 +24,7 @@ describe('publish.request.dialog.add.items.spec - request publish dialog - check
             let contentWizard = new ContentWizard();
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
+            let contentPublishDialog = new ContentPublishDialog();
             let displayName1 = contentBuilder.generateRandomName('folder');
             let displayName2 = contentBuilder.generateRandomName('folder');
             TEST_FOLDER1 = contentBuilder.buildFolder(displayName1);
@@ -32,6 +34,9 @@ describe('publish.request.dialog.add.items.spec - request publish dialog - check
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(displayName2);
             await contentWizard.clickOnMarkAsReadyButton();
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
             // 3. Open publish menu in the wizard and create new publish request:
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await studioUtils.saveScreenshot('pub_req_step1');

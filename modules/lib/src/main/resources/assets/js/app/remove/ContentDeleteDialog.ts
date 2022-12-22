@@ -69,14 +69,11 @@ export class ContentDeleteDialog
             dialogSubName: i18n('dialog.archive.subname'),
             dependantsDescription: i18n('dialog.archive.dependants'),
             showDependantList: true,
-                processingLabel: `${i18n('field.progress.deleting')}...`,
-                buttonRow: new ContentDeleteDialogButtonRow(),
-                processHandler: () => {
-                    new ContentDeletePromptEvent([]).fire();
-                },
-                confirmation: {}
-            }
-        );
+            processingLabel: `${i18n('field.progress.deleting')}...`,
+            buttonRow: new ContentDeleteDialogButtonRow(),
+            processHandler: () => new ContentDeletePromptEvent([]).fire(),
+            confirmation: {}
+        });
     }
 
     protected initElements() {
