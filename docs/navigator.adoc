@@ -26,7 +26,7 @@ Action button on the right of the Toolbar is context-dependent and will have dif
 
  * If selected content is not published: *Publish*, opens the <<actions#publishing-wizard,Publishing wizard>> dialog
  * If selected content is published: *Unpublish*, <<actions#unpublish,Unpublish Wizard>> dialog for taking the content offline
- * If selected content is published but has child items that are not published: *Publish Tree, opens the <<actions#publishing-wizard,Publishing wizard>>
+ * If selected content is published but has child items that are not published: *Publish Tree*, opens the <<actions#publishing-wizard,Publishing wizard>>
 dialog with selected content and all descendants
  * If selected content has workflow state "In progress": *Mark as Ready*, to mark selected content as ready for publishing
  * If selected content is not published and current user doesn't have publishing permissions: *Request Publishing:*, opens the <<actions#unpublish,Unpublish Wizard>> dialog for taking the item offline;

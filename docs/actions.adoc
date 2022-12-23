@@ -76,8 +76,11 @@ button dropdown in the *Archive item(s)* dialog.
 
 IMPORTANT: Online content will instantly go offline after archiving or deleting.
 
-:imagesdir: actions/images
 image::dialog-archive.png[Archive item(s) dialog, 600]
+
+If any of the items in the dialog has an inbound dependency (is referenced by another content), a warning will be shown on top of the dialog and the action button will be disabled. User can either click "Ignore inbound references" link to ignore the warning and proceed with archiving/deletion, or click "Show references" link for every referenced item and remove the references (the dialog will be automatically refreshed).
+
+image::dialog-archive-references.png[Archive item(s) dialog, 600]
 
 
 == Duplicate
@@ -151,9 +154,9 @@ There are two ways to open this dialog in Content Studio:
 
 == Publish
 
-Publishing is a simple but important concept for working with content in Enonic XP. The basic concept of publishing is that it makes content viewable to others outside of Content Studio.
+Publishing is a simple but important concept for working with content in Enonic XP. The basic concept of publishing is that it makes content available online. Before a content item can be published, it has to be *marked as ready* for publishing.
 
-The `Publish` action will launch the *Publishing Wizard* dialog for the selected content.
+The `Publish` action will open the *Publishing Wizard* dialog for the selected content.
 
 There are three ways to open the *Publishing Wizard* dialog in Content Studio:
 
@@ -165,7 +168,7 @@ image::dialog-publish-button.png[]
 
 The Publish button in the toolbar has a dropdown menu with various actions for currently selected item(s).
 
- * <<workflow#ready_for_publishing,*Mark as ready*>> (only for content in progress) will mark selected item(s) as ready
+ * <<workflow#ready_for_publishing,*Mark as ready*>> (only for content in progress) will mark selected item(s) as ready. This action will automatically open the Publishing dialog.
  * *Publish* will open the Publishing dialog for the selected item(s)
  * <<#_publish-tree,*Publish Tree*>> will open the same dialog but will include all the selected items' children and dependencies
  * <<#_unpublish,*Unpublish*>> (available only for published item(s)) will open the *Unpublish* dialog
@@ -188,14 +191,13 @@ Only content in the *master* branch can be accessed by users outside of Content 
 Published content will have the status `Published` while content that has not yet been published will show either as `New`
 (if it has never been published) or `Unpublished` (if it was published and then unpublished).
 When changes to a published content are saved, the new version becomes the active version in the `draft` branch,
-but the active version in the `master` branch remains unchanged. The status of the new active version will be *modified* and this content
+but the active version in the `master` branch remains unchanged. The status of the new active version will be `Modified` and this content
 will have to be published again for the changes to go online. In other words, each publishing operations overwrites the active version in the
 `master` branch with the active version from the `draft` branch.
 
-A published content can either be instantly deleted or marked as deleted in the <<#_delete,*Delete*>> dialog.
+A content can either be archived or instantly deleted in the <<#archive,*Archive*>> dialog. In both cases the content will be taken offline (deleted from the `master` branch), if it's currently published.
 Upon instant deletion the content will be instantly removed from both the `draft` and the `master` branches, making it inaccessible online.
-However, items marked as deleted will be shown with status `Marked for deletion` in Content Studio but will remain visible online.
-Such items must either be published in order to delete them from both branches, or you can use "*Undo delete*" action to remove the "Marked for deletion" mark.
+Archived items will be moved under the special `/archive` node where they can be restored from.
 
 === Publishing wizard
 
@@ -228,19 +230,21 @@ then parents will be allowed to be excluded as well.
 
 === Validation
 
-Content Studio has a built-in validation which ensures that invalid items or items that are still "work in progress" cannot be published.
+Content Studio has a built-in validation which ensures that items to be published are valid, ready for publishing and are allowed to be published by current user.
 
-image::publishing-wizard-exclude.png[]
+image::dialog-publish-invalid.png[Invalid publication, 470px]
 
-If the list of items to be published contains invalid items or items that are in "In progress" workflow state, they will be shown on
-top of the list and validation notification will be shown on top of the dialog. The "Publish Now" button will then be disabled.
-If the problematic items don't have to be published, you can use "*Exclude all*" links to remove these items from the list.
+If the list of items to be published contains invalid items or items that are still in the "In progress" workflow state or items that current user is not allowed to publish, the warning section will be shown on top of the dialog, displaying all failed validation checks. The "Publish" button will then be disabled and "problematic" items will be shown on top of the list.
 
-In the case of "_Work in progress_" items, the Publishing Wizard will give you an option to mark all such items as "_Ready for Publishing_".
+User can use links next to each validation check to exclude these items from the publication. All the validation checks will be re-run on every change of the publication contents.
 
-image::publishing-wizard-mark-as-ready.png[]
+NOTE: Some items might be required for publication and cannot be excluded (like parent items, dependencies etc).
 
-Once all the problematic items are either removed or moved from "In progress" to "Ready", the "*Publish Now*" button will automatically become enabled.
+If all the checks have successfully passed, the "Publish" button will be enabled and the warning section will say that everything is ready for publishing.
+
+image::dialog-publish-valid.png[Valid publication, 470px]
+
+TIP: Use "Mark as ready" action in the "Publish" button's dropdown menu to mark all in-progress items as ready for publishing.
 
 === Scheduled publishing
 
