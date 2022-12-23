@@ -30,8 +30,8 @@ subprojects {
 
     repositories {
         mavenLocal()
-        mavenCentral()
         xp.enonicRepo('dev')
+        mavenCentral()
     }
 
     test {
