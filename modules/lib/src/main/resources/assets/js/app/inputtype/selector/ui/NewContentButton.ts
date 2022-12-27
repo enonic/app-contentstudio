@@ -9,6 +9,7 @@ import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAnd
 import * as Q from 'q';
 import {ContentHelper} from '../../../util/ContentHelper';
 import {ContentTypesHelper} from '../../../util/ContentTypesHelper';
+import {ContentServerEventsHandler} from '../../../event/ContentServerEventsHandler';
 
 export class NewContentButton
     extends ButtonEl {
@@ -19,7 +20,7 @@ export class NewContentButton
 
     private static newContentDialog: NewContentDialog;
 
-    private readonly content: ContentSummary;
+    private content: ContentSummary;
 
     private typeSelectedHandler: (contentType: ContentTypeSummary, parentContent?: ContentSummary) => void;
 
@@ -47,6 +48,7 @@ export class NewContentButton
     private initEventListeners(): void {
         this.typeSelectedHandler = this.handleTypeSelected.bind(this);
         this.onClicked(() => this.handleButtonClicked());
+        ContentServerEventsHandler.getInstance().onContentUpdated(this.handleContentUpdateEvent.bind(this));
     }
 
     private handleButtonClicked(): void {
@@ -101,6 +103,12 @@ export class NewContentButton
     private handleContentCreated(content: Content): void {
         this.notifyContentAdded(content);
         new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(content)]).setDisplayAsNew(true).fire();
+    }
+
+    private handleContentUpdateEvent(data: ContentSummaryAndCompareStatus[]): void {
+        const currentContent: ContentSummaryAndCompareStatus =
+            data.find((content: ContentSummaryAndCompareStatus) => content.getId() === this.content.getId());
+        this.content = currentContent?.getContentSummary() || this.content;
     }
 
     onContentAdded(listener: (content: ContentSummary) => void): void {
