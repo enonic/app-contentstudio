@@ -128,6 +128,10 @@ class DeleteContentDialog extends Page {
         return this.waitForElementEnabled(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
     }
 
+    waitForArchiveMenuDropDownHandleDisabled() {
+        return this.waitForElementDisabled(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
+    }
+
     getInboundDependenciesWarning() {
         let selector = XPATH.container + XPATH.inboundWarningPart2;
         return this.getText(selector);
@@ -178,6 +182,14 @@ class DeleteContentDialog extends Page {
 
     async isArchiveButtonDisplayed() {
         return this.isElementDisplayed(this.archiveButton);
+    }
+
+    async waitForArchiveButtonDisabled() {
+        return this.waitForElementDisabled(this.archiveButton, appConst.mediumTimeout);
+    }
+
+    async waitForArchiveButtonEnabled() {
+        return this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
     }
 
     async isArchiveMenuDropDownHandleDisplayed() {

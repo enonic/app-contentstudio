@@ -5,7 +5,6 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
-const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const SiteConfiguratorDialog = require('../../page_objects/wizardpanel/site_configurator/site.config.with.optionset.dialog');
