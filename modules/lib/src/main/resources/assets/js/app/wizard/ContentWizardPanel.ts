@@ -1287,48 +1287,11 @@ export class ContentWizardPanel
 
         const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
-        const deleteHandler = (event: ContentDeletedEvent) => {
-            if (!this.getPersistedItem()) {
-                return;
+        const deleteHandler = (items: ContentServerChangeItem[]) => {
+            if (items.some((item: ContentServerChangeItem) => item.getContentId().equals(this.getPersistedItem()?.getContentId()))) {
+                this.contentDeleted = true;
+                this.close();
             }
-
-            this.handleCUD();
-            this.getWizardHeader()?.refreshNameUniqueness();
-
-            event.getDeletedItems().filter((deletedItem) => {
-                return !!deletedItem && this.getPersistedItem().getPath().equals(deletedItem.getContentPath());
-            }).some((deletedItem) => {
-                if (deletedItem.isPending()) {
-                    this.wizardActions.setContentCanBePublished(true);
-                    this.updateContent(deletedItem.getCompareStatus());
-                } else {
-                    this.contentDeleted = true;
-                    this.close();
-                }
-
-                return true;
-            });
-
-            event.getUndeletedItems().filter((undeletedItem) => {
-                return !!undeletedItem && this.getPersistedItem().getPath().equals(undeletedItem.getContentPath());
-            }).some((undeletedItem) => {
-                this.updateContent(undeletedItem.getCompareStatus());
-                this.updatePublishStatusOnDataChange();
-
-                return true;
-            });
-
-            [].concat(event.getDeletedItems(), event.getUndeletedItems()).some(deletedItem => {
-                const defaultTemplate = this.defaultModels ? this.defaultModels.getPageTemplate() : null;
-                const pageTemplate = this.liveEditModel ? this.liveEditModel.getPageModel().getTemplate() : null;
-                const isDefaultTemplate = defaultTemplate && deletedItem.getContentId().equals(defaultTemplate.getKey());
-                const isPageTemplate = pageTemplate && deletedItem.getContentId().equals(pageTemplate.getKey());
-                if (isDefaultTemplate || isPageTemplate) {
-                    this.loadDefaultModelsAndUpdatePageModel().done();
-                    return true;
-                }
-            });
-
         };
 
         const publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
@@ -1510,7 +1473,6 @@ export class ContentWizardPanel
         };
 
         VersionContext.onActiveVersionChanged(versionChangeHandler);
-        ContentDeletedEvent.on(deleteHandler);
 
         serverEvents.onContentCreated(createdHandler);
         serverEvents.onContentMoved(movedHandler);
@@ -1522,10 +1484,10 @@ export class ContentWizardPanel
         serverEvents.onContentRenamed(contentRenamedHandler);
         serverEvents.onContentDeletedInOtherRepos(otherRepoDelete);
         serverEvents.onContentArchived(archivedHandler);
+        serverEvents.onContentDeleted(deleteHandler);
 
         this.onClosed(() => {
             VersionContext.unActiveVersionChanged(versionChangeHandler);
-            ContentDeletedEvent.un(deleteHandler);
 
             serverEvents.unContentCreated(createdHandler);
             serverEvents.unContentMoved(movedHandler);
@@ -1537,6 +1499,7 @@ export class ContentWizardPanel
             serverEvents.unContentRenamed(contentRenamedHandler);
             serverEvents.unContentDeletedInOtherRepos(otherRepoDelete);
             serverEvents.unContentArchived(archivedHandler);
+            serverEvents.unContentDeleted(deleteHandler);
         });
 
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
