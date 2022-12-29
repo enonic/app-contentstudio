@@ -37,7 +37,7 @@ class DeleteContentDialog extends Page {
     }
 
     get archiveButton() {
-        return XPATH.container + XPATH.archiveOrDeleteMenu + XPATH.archiveButton;
+        return XPATH.container + XPATH.archiveOrDeleteMenu + lib.actionButton('Archive');
     }
 
     get archiveMenuDropDownHandle() {
@@ -85,6 +85,7 @@ class DeleteContentDialog extends Page {
     async clickOnArchiveButton() {
         try {
             await this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
             await this.clickOnElement(this.archiveButton);
             return await this.pause(500);
         } catch (err) {
