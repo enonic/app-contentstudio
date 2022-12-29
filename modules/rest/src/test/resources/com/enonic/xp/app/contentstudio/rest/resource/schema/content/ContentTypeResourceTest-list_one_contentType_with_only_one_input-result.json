@@ -3,6 +3,7 @@
         {
             "abstract": false,
           "allowChildContent": true,
+          "allowChildContentType" : [ ],
           "createdTime": "2013-01-01T12:00:00Z",
           "creator": null,
           "deletable": false,

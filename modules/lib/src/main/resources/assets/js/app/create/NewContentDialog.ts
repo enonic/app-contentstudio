@@ -30,6 +30,8 @@ import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ContentPath} from '../content/ContentPath';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentTypesHelper} from '../util/ContentTypesHelper';
+import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
+import {ContentType} from '../inputtype/schema/ContentType';
 
 export class NewContentDialog
     extends ModalDialog {
@@ -257,9 +259,9 @@ export class NewContentDialog
 
     show() {
         this.updateDialogTitlePath();
-        this.resetFileInputWithUploader();
-
+        this.resetFileInput();
         super.show();
+        this.updateUploaderState();
 
         if (!this.fileInput.isVisible()) {
             Body.get().onKeyDown(this.keyDownHandler);
@@ -301,6 +303,26 @@ export class NewContentDialog
             .finally(() => this.handleTypesLoaded());
     }
 
+    private updateUploaderState(): void {
+        this.newContentUploader.reset();
+
+        if (!this.parentContent) {
+            this.toggleUploaderState(true);
+        } else if (this.isTemplateFolderSelected()) {
+            this.toggleUploaderState(false);
+        } else {
+            new GetContentTypeByNameRequest(this.parentContent.getType()).sendAndParse().then((type: ContentType) => {
+                this.toggleUploaderState(ContentTypesHelper.isMediaChildContentAllowed(type));
+            }).catch(DefaultErrorHandler.handle);
+        }
+    }
+
+    private toggleUploaderState(enabled: boolean): void {
+        this.newContentUploader.setVisible(enabled);
+        this.newContentUploader.setEnabled(enabled);
+        this.toggleClass('no-uploader-el', !enabled);
+    }
+
     private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
         return this.contentTypes ? Q.resolve(this.contentTypes) :
                ContentTypesHelper.getAvailableContentTypes(this.parentContent, this.allowedContentTypes);
@@ -318,7 +340,6 @@ export class NewContentDialog
 
     private handleTypesLoaded(): void {
         this.fileInput.enable();
-        this.toggleUploadersEnabled();
         this.hideLoadMask();
         this.mostPopularContentTypes.showIfNotEmpty();
         this.newContentUploader.focus();
@@ -334,21 +355,9 @@ export class NewContentDialog
         this.recentContentTypes.getItemsList().clearItems();
     }
 
-    private toggleUploadersEnabled() {
-        const uploaderEnabled: boolean = !this.isTemplateFolderSelected();
-        this.toggleClass('no-uploader-el', !uploaderEnabled);
-        this.newContentUploader.setEnabled(uploaderEnabled);
-    }
-
-    private resetFileInputWithUploader() {
-        this.addClass('no-uploader-el');
+    private resetFileInput() {
         this.fileInput.disable();
         this.fileInput.reset();
-        this.newContentUploader.setEnabled(false);
-        this.newContentUploader.reset();
-
-        const hideUploader: boolean = this.isTemplateFolderSelected();
-        this.newContentUploader.setVisible(!hideUploader);
     }
 
     private isTemplateFolderSelected(): boolean {
@@ -359,9 +368,9 @@ export class NewContentDialog
 export class NewContentDialogHeader
     extends DefaultModalDialogHeader {
 
-    private pathEl: PEl;
+    private readonly pathEl: PEl;
 
-    private titleWrapper: DivEl;
+    private readonly titleWrapper: DivEl;
 
     constructor(title: string, path: string) {
         super(title);
