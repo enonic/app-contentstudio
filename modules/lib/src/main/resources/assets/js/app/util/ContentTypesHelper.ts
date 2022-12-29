@@ -8,6 +8,7 @@ import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTyp
 import {AggregateContentTypesResult} from '../resource/AggregateContentTypesResult';
 import {AggregateContentTypesByPathRequest} from '../resource/AggregateContentTypesByPathRequest';
 import {ContentPath} from '../content/ContentPath';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 export class ContentTypesHelper {
 
@@ -39,5 +40,12 @@ export class ContentTypesHelper {
 
     static getAggregatedTypesByContent(parent?: ContentSummary): Q.Promise<AggregateContentTypesResult> {
         return new AggregateContentTypesByPathRequest(parent?.getPath() || ContentPath.getRoot()).sendAndParse();
+    }
+
+    static isMediaChildContentAllowed(type: ContentTypeSummary): boolean {
+        return type.isAllowChildContent() && (!type.getAllowedChildContentTypes() || type.getAllowedChildContentTypes().length === 0 ||
+               type.getAllowedChildContentTypes()
+                   .map((typeName: string) => new ContentTypeName(typeName))
+                   .some((type: ContentTypeName) => type.isMedia() || type.isDescendantOfMedia()));
     }
 }

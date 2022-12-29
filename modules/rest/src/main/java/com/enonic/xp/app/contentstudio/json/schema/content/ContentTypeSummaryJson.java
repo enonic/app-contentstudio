@@ -132,6 +132,11 @@ public class ContentTypeSummaryJson
         return contentType.allowChildContent();
     }
 
+    public List<String> getAllowChildContentType()
+    {
+        return this.contentType.getAllowChildContentType();
+    }
+
     @Override
     public String getCreator()
     {
