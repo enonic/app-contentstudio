@@ -49,7 +49,9 @@ describe('Delete a content that has inbound references.', function () {
             await deleteContentDialog.waitForDialogOpened();
             // 3. Click on 'Show references' link:
             await deleteContentDialog.clickOnShowReferencesButton(appConst.TEST_IMAGES.WHALE);
+            // switch to the new opened browser tab:
             await studioUtils.doSwitchToNextTab();
+            await studioUtils.saveScreenshot('show_ref_filtered');
             // 4. Verify that expected shortcut should be filtered in the grid:
             await contentBrowsePanel.waitForGridLoaded(appConst.longTimeout);
             let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
@@ -73,7 +75,7 @@ describe('Delete a content that has inbound references.', function () {
             await deleteContentDialog.waitForArchiveButtonEnabled();
         });
 
-    it(`GIVEN child item has inbound references WHEN Delete content dialog has been opened for the parent item WHEN 'Ignore inbound references' link should be displayed in the dialog`,
+    it(`GIVEN child item has inbound references WHEN Delete content dialog has been opened for the parent item THEN 'Ignore inbound references' link should be displayed in the dialog`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
@@ -85,9 +87,37 @@ describe('Delete a content that has inbound references.', function () {
             await studioUtils.saveScreenshot('parent_folder_ignore_inb_ref');
             // 3. 'Ignore inbound references' link should be displayed in the modal dialog:
             await deleteContentDialog.waitForIgnoreInboundReferencesButtonDisplayed();
-            // 4. Verify that Archive button gets enabled:
+            // 4. Verify that 'Archive' button should be disabled:
             await deleteContentDialog.waitForArchiveMenuDropDownHandleDisabled();
             await deleteContentDialog.waitForArchiveButtonDisabled();
+        });
+
+    it(`GIVEN 'Ignore inbound references' is displayed in Delete content dialog WHEN 'Show references' link has been clicked AND referenced content has been deleted THEN 'Archive' button gets enabled`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let deleteContentDialog = new DeleteContentDialog();
+            // 1.Click on the image, that was selected in the shortcut
+            await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.WHALE);
+            // 2. 'Archive...' button has been clicked:
+            await contentBrowsePanel.clickOnArchiveButton();
+            await deleteContentDialog.waitForDialogOpened();
+            // 3. Click on 'Show references' link:
+            await deleteContentDialog.clickOnShowReferencesButton(appConst.TEST_IMAGES.WHALE);
+            await studioUtils.doSwitchToNextTab();
+            // 4. Do delete the referenced content
+            await contentBrowsePanel.clickOnRowByName(SHORTCUT.displayName);
+            await contentBrowsePanel.clickOnArchiveButton();
+            await deleteContentDialog.waitForDialogOpened();
+            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.waitForDialogClosed();
+            await contentBrowsePanel.waitForNotificationMessage();
+            // 5. switch to the tab with 'Delete content' dialog
+            await studioUtils.doSwitchToPrevTab();
+            await studioUtils.saveScreenshot('ignore_inbound_ref_gets_not_visible');
+            // 6. Verify that 'Archive' button gets enabled, 'Ignore inbound references' gets not visible now:
+            await deleteContentDialog.waitForIgnoreInboundReferencesButtonNotDisplayed()
+            await deleteContentDialog.waitForArchiveMenuDropDownHandleEnabled();
+            await deleteContentDialog.waitForArchiveButtonEnabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

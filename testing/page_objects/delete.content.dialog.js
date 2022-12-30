@@ -3,8 +3,8 @@ const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'ContentDeleteDialog')]`,
+    inboundErrorStateEntry: "//div[contains(@id,'DialogErrorStateEntry')]/span[text()='Inbound references']",
     archiveOrDeleteMenu: `//div[contains(@id,'MenuButton')]`,
-    archiveButton: `//button/span[contains(.,'Archive')]`,
     deleteMenuItem: `//li[contains(@id,'MenuItem') and contains(.,'Delete')]`,
     cancelButton: `//button/span[text()='Cancel']`,
     itemToDeleteList: `//ul[contains(@id,'DeleteDialogItemList')]`,
@@ -147,9 +147,11 @@ class DeleteContentDialog extends Page {
     }
 
     async clickOnShowReferencesButton(itemDisplayName) {
-        let locator = XPATH.showReferencesButton(itemDisplayName);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
+        let buttonLocator = XPATH.showReferencesButton(itemDisplayName);
+        await this.waitForSpinnerNotVisible();
+        await this.waitForInboundReferencesEntryDisplayed();
+        await this.waitForElementDisplayed(buttonLocator, appConst.mediumTimeout);
+        await this.clickOnElement(buttonLocator);
         return await this.pause(3000);
     }
 
@@ -272,6 +274,14 @@ class DeleteContentDialog extends Page {
 
     waitForIgnoreInboundReferencesButtonDisplayed() {
         return this.waitForElementDisplayed(this.ignoreInboundReferencesButton, appConst.mediumTimeout);
+    }
+
+    waitForIgnoreInboundReferencesButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.ignoreInboundReferencesButton, appConst.mediumTimeout);
+    }
+
+    async waitForInboundReferencesEntryDisplayed() {
+        return await this.waitForElementDisplayed(XPATH.inboundErrorStateEntry, appConst.mediumTimeout)
     }
 }
 
