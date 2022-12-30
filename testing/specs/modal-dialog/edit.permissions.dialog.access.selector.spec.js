@@ -42,7 +42,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             await editPermissionsDialog.showAceMenuAndSelectItem(appConst.roleName.CONTENT_MANAGER_APP, appConst.permissions.CUSTOM);
             await editPermissionsDialog.pause(500);
             //4. Click on 'Create' permission-toggle and allow the operation:
-            studioUtils.saveScreenshot("edit_perm_dlg_custom_permissions");
+            await studioUtils.saveScreenshot("edit_perm_dlg_custom_permissions");
             await editPermissionsDialog.clickOnPermissionToggle(appConst.roleName.CONTENT_MANAGER_APP, appConst.permissionOperation.CREATE);
             //5. Click on 'Apply' button and close the modal dialog:
             await editPermissionsDialog.clickOnApplyButton();

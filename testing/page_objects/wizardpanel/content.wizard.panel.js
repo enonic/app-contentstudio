@@ -14,7 +14,6 @@ const ContentPublishDialog = require("../../page_objects/content.publish.dialog"
 const VersionsWidget = require('./details/wizard.versions.widget');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 const RenamePublishedContentDialog = require('./rename.content.dialog');
 const WizardLayersWidget = require('./details/wizard.layers.widget');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
@@ -67,6 +66,7 @@ const XPATH = {
     goToGridButton: "//div[contains(@class,'font-icon-default icon-tree-2')]",
     helpTextsButton: "//div[contains(@class,'help-text-button')]",
     pagePlaceholderInfoBlock1: "//div[contains(@id,'PagePlaceholderInfoBlock')]//div[contains(@class,'page-placeholder-info-line1')]",
+    showChangesButtonToolbar: "//a[contains(@class,'show-changes') and text()='Show changes']",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -126,6 +126,10 @@ class ContentWizardPanel extends Page {
 
     get thumbnailUploader() {
         return XPATH.container + XPATH.thumbnailUploader;
+    }
+
+    get showChangesToolbarButton() {
+        return XPATH.toolbar + XPATH.showChangesButtonToolbar;
     }
 
     get workflowIconAndValidation() {
@@ -1169,6 +1173,15 @@ class ContentWizardPanel extends Page {
     async waitForErrorMessageInLiveFormPanel(message) {
         let locator = `//div[contains(@id,'PagePlaceholderInfoBlock')]//div[contains(@class,'page-placeholder-info-line1') and contains(.,'${message}')]`;
         return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    waitForShowChangesButtonDisplayed() {
+        return this.waitForElementDisplayed(this.showChangesToolbarButton, appConst.mediumTimeout);
+    }
+
+    async clickOnShowChangesToolbarButton() {
+        await this.waitForShowChangesButtonDisplayed();
+        await this.clickOnElement(this.showChangesToolbarButton);
     }
 }
 

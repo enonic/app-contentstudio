@@ -3,8 +3,8 @@ const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'ContentDeleteDialog')]`,
+    inboundErrorStateEntry: "//div[contains(@id,'DialogErrorStateEntry')]/span[text()='Inbound references']",
     archiveOrDeleteMenu: `//div[contains(@id,'MenuButton')]`,
-    archiveButton: `//button/span[contains(.,'Archive')]`,
     deleteMenuItem: `//li[contains(@id,'MenuItem') and contains(.,'Delete')]`,
     cancelButton: `//button/span[text()='Cancel']`,
     itemToDeleteList: `//ul[contains(@id,'DeleteDialogItemList')]`,
@@ -37,7 +37,7 @@ class DeleteContentDialog extends Page {
     }
 
     get archiveButton() {
-        return XPATH.container + XPATH.archiveOrDeleteMenu + XPATH.archiveButton;
+        return XPATH.container + XPATH.archiveOrDeleteMenu + lib.actionButton('Archive');
     }
 
     get archiveMenuDropDownHandle() {
@@ -85,6 +85,7 @@ class DeleteContentDialog extends Page {
     async clickOnArchiveButton() {
         try {
             await this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
             await this.clickOnElement(this.archiveButton);
             return await this.pause(500);
         } catch (err) {
@@ -128,6 +129,10 @@ class DeleteContentDialog extends Page {
         return this.waitForElementEnabled(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
     }
 
+    waitForArchiveMenuDropDownHandleDisabled() {
+        return this.waitForElementDisabled(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
+    }
+
     getInboundDependenciesWarning() {
         let selector = XPATH.container + XPATH.inboundWarningPart2;
         return this.getText(selector);
@@ -142,9 +147,11 @@ class DeleteContentDialog extends Page {
     }
 
     async clickOnShowReferencesButton(itemDisplayName) {
-        let locator = XPATH.showReferencesButton(itemDisplayName);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
+        let buttonLocator = XPATH.showReferencesButton(itemDisplayName);
+        await this.waitForSpinnerNotVisible();
+        await this.waitForInboundReferencesEntryDisplayed();
+        await this.waitForElementDisplayed(buttonLocator, appConst.mediumTimeout);
+        await this.clickOnElement(buttonLocator);
         return await this.pause(3000);
     }
 
@@ -178,6 +185,14 @@ class DeleteContentDialog extends Page {
 
     async isArchiveButtonDisplayed() {
         return this.isElementDisplayed(this.archiveButton);
+    }
+
+    async waitForArchiveButtonDisabled() {
+        return this.waitForElementDisabled(this.archiveButton, appConst.mediumTimeout);
+    }
+
+    async waitForArchiveButtonEnabled() {
+        return this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
     }
 
     async isArchiveMenuDropDownHandleDisplayed() {
@@ -259,6 +274,14 @@ class DeleteContentDialog extends Page {
 
     waitForIgnoreInboundReferencesButtonDisplayed() {
         return this.waitForElementDisplayed(this.ignoreInboundReferencesButton, appConst.mediumTimeout);
+    }
+
+    waitForIgnoreInboundReferencesButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.ignoreInboundReferencesButton, appConst.mediumTimeout);
+    }
+
+    async waitForInboundReferencesEntryDisplayed() {
+        return await this.waitForElementDisplayed(XPATH.inboundErrorStateEntry, appConst.mediumTimeout)
     }
 }
 

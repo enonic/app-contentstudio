@@ -711,6 +711,10 @@ module.exports = {
         let tabs = await this.getBrowser().getWindowHandles();
         return await this.getBrowser().switchToWindow(tabs[tabs.length - 1]);
     },
+    async doSwitchToPrevTab(index) {
+        let tabs = await this.getBrowser().getWindowHandles();
+        return await this.getBrowser().switchToWindow(tabs[tabs.length - 2]);
+    },
     doCloseAllWindowTabsAndSwitchToHome: function () {
         return this.getBrowser().getWindowHandles().then(tabIds => {
             let result = Promise.resolve();

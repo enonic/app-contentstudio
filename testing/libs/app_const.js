@@ -99,6 +99,12 @@ module.exports = Object.freeze({
         RENAMED: "Renamed"
     },
 
+    COMPARE_VERSIONS_DLG_PROP: {
+        LANGUAGE: 'language',
+        MODIFIED_TIME: 'modifiedTime',
+        INHERIT_PERM: 'inheritPermissions',
+        WORKFLOW: 'workflow'
+    },
     ACCESS_WIDGET_HEADER: {
         RESTRICTED_ACCESS: "Restricted access to item",
         EVERYONE_CAN_READ: "Everyone can read this item"
