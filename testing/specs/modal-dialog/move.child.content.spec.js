@@ -15,7 +15,7 @@ describe('move.child.content.spec: Move a child content to another location then
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
-    let issueTitle = appConst.generateRandomName('task');
+
     let PARENT_FOLDER;
     let CHILD_FOLDER;
     let FOLDER;
