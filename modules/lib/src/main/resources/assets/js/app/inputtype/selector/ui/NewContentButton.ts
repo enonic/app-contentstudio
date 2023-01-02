@@ -61,14 +61,10 @@ export class NewContentButton
     }
 
     private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
-        return ContentTypesHelper.getAvailableContentTypes(this.content, this.allowedContentTypes);
+        return ContentTypesHelper.getAvailableContentTypes(this.content.getContentId(), this.allowedContentTypes);
     }
 
     private handleTypesLoaded(types: ContentTypeSummary[]): void {
-        if (!types || types.length === 0) {
-            return;
-        }
-
         if (types.length === 1) {
             this.handleTypeSelected(types[0], this.content);
         } else {

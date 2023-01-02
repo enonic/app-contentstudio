@@ -23,7 +23,7 @@
       @media screen and (max-width: 720px) {
         z-index: 1;
         position: absolute;
-        bottom: -7px;
+        bottom: 1px;
         left: 0;
         width: 100%;
 
@@ -169,12 +169,6 @@
   }
 
   &.no-uploader-el {
-    .dialog-buttons {
-      &::before {
-        content: '';
-      }
-    }
-
     .file-input {
       .uploader-el {
         pointer-events: none;
@@ -186,6 +180,33 @@
 
   > .dropzone-container {
     .dialog-dropzone-container();
+  }
+
+  &.empty {
+    .dialog-content {
+      .column-left, .column-right {
+        display: none;
+      }
+
+      .empty-view {
+        opacity: 0.6;
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+      }
+
+      @media screen and (max-width: 720px) {
+        height: 100%;
+      }
+    }
+
+    .dialog-buttons {
+      &::before {
+        content: '';
+      }
+    }
   }
 
   @media screen and (max-width: 720px) {

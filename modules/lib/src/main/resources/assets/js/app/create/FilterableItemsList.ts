@@ -3,25 +3,26 @@ import {NewContentDialogListItem} from './NewContentDialogListItem';
 import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeComparator} from '../inputtype/schema/ContentTypeComparator';
 
-export class FilterableItemsList extends NewContentDialogList {
+export class FilterableItemsList
+    extends NewContentDialogList {
 
     private contentTypes: ContentTypeSummary[];
 
-    createItems(contentTypes: ContentTypeSummary[]) {
+    createItems(contentTypes: ContentTypeSummary[]): void {
         this.contentTypes = contentTypes;
 
         this.setItems(this.getAllItems());
     }
 
-    filter(value?: string) {
+    filter(value?: string): void {
         if (!value) {
             this.setItems(this.getAllItems());
             return;
         }
 
-        const valueLowerCase = value.toLowerCase();
+        const valueLowerCase: string = value.toLowerCase();
 
-        const filteredItems = this.getAllItems().filter(
+        const filteredItems: NewContentDialogListItem[] = this.getAllItems().filter(
             (item: NewContentDialogListItem) => item.getSearchIndex().indexOf(valueLowerCase) > 0
         );
 
