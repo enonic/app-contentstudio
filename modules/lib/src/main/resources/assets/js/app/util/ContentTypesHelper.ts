@@ -9,20 +9,21 @@ import {AggregateContentTypesResult} from '../resource/AggregateContentTypesResu
 import {AggregateContentTypesByPathRequest} from '../resource/AggregateContentTypesByPathRequest';
 import {ContentPath} from '../content/ContentPath';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {ContentId} from '../content/ContentId';
 
 export class ContentTypesHelper {
 
-    static getAvailableContentTypes(parent?: ContentSummary, allowedContentTypes?: string[]): Q.Promise<ContentTypeSummary[]> {
-        return Q.all([this.fetchAvailableTypes(parent, allowedContentTypes), new IsAuthenticatedRequest().sendAndParse()]).spread(
+    static getAvailableContentTypes(contentId?: ContentId, allowedContentTypes?: string[]): Q.Promise<ContentTypeSummary[]> {
+        return Q.all([this.fetchAvailableTypes(contentId, allowedContentTypes), new IsAuthenticatedRequest().sendAndParse()]).spread(
             (types: ContentTypeSummary[], loginResult: LoginResult) => {
                 return ContentTypesHelper.filterContentTypes(types, loginResult);
             });
     }
 
-    private static fetchAvailableTypes(parent?: ContentSummary, allowedContentTypes?: string[]): Q.Promise<ContentTypeSummary[]> {
+    private static fetchAvailableTypes(contentId?: ContentId, allowedContentTypes?: string[]): Q.Promise<ContentTypeSummary[]> {
         return new GetContentTypeDescriptorsRequest()
             .setAllowedContentTypes(allowedContentTypes)
-            .setContentId(parent?.getContentId())
+            .setContentId(contentId)
             .sendAndParse();
     }
 
@@ -42,10 +43,15 @@ export class ContentTypesHelper {
         return new AggregateContentTypesByPathRequest(parent?.getPath() || ContentPath.getRoot()).sendAndParse();
     }
 
-    static isMediaChildContentAllowed(type: ContentTypeSummary): boolean {
-        return type.isAllowChildContent() && (!type.getAllowedChildContentTypes() || type.getAllowedChildContentTypes().length === 0 ||
-               type.getAllowedChildContentTypes()
+    static isMediaChildContentAllowedByType(type: ContentTypeSummary): boolean {
+        return type.isAllowChildContent() && ContentTypesHelper.isMediaChildContentAllowed(type.getAllowedChildContentTypes());
+    }
+
+    static isMediaChildContentAllowed(allowedTypes: string[]): boolean {
+        return !allowedTypes ||
+               allowedTypes.length === 0 ||
+               allowedTypes
                    .map((typeName: string) => new ContentTypeName(typeName))
-                   .some((type: ContentTypeName) => type.isMedia() || type.isDescendantOfMedia()));
+                   .some((type: ContentTypeName) => type.isMedia() || type.isDescendantOfMedia());
     }
 }

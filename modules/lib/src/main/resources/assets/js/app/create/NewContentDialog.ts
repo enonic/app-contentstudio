@@ -33,6 +33,8 @@ import {ContentTypesHelper} from '../util/ContentTypesHelper';
 import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
 import {ContentType} from '../inputtype/schema/ContentType';
 
+type TypesAndAggregations = [ContentTypeSummary[], AggregateContentTypesResult];
+
 export class NewContentDialog
     extends ModalDialog {
 
@@ -53,6 +55,8 @@ export class NewContentDialog
     private recentContentTypes: RecentItemsBlock;
 
     private contentTypes?: ContentTypeSummary[];
+
+    private emptyView?: Element;
 
     private keyDownHandler: (event: KeyboardEvent) => void;
 
@@ -78,7 +82,7 @@ export class NewContentDialog
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.fileInput.hide();
-            const mainSection = new SectionEl().setClass('column');
+            const mainSection = new SectionEl().setClass('column-left');
             this.appendChildToContentPanel(mainSection);
 
             this.mostPopularContentTypes.hide();
@@ -88,7 +92,7 @@ export class NewContentDialog
 
             mainSection.appendChildren(<Element>this.fileInput, <Element>contentTypesListDiv);
 
-            const sideBlock: AsideEl = new AsideEl();
+            const sideBlock: AsideEl = new AsideEl().setClass('column-right');
             sideBlock.appendChild(this.mostPopularContentTypes);
             sideBlock.appendChild(this.recentContentTypes);
             this.appendChildToContentPanel(sideBlock);
@@ -262,13 +266,6 @@ export class NewContentDialog
         this.resetFileInput();
         super.show();
         this.updateUploaderState();
-
-        if (!this.fileInput.isVisible()) {
-            Body.get().onKeyDown(this.keyDownHandler);
-        }
-
-        // CMS-3711: reload content types each time when dialog is show.
-        // It is slow but newly create content types are displayed.
         this.updateContentTypesLists();
     }
 
@@ -287,6 +284,7 @@ export class NewContentDialog
         this.newContentUploader.reset();
         this.typeSelectedHandler = null;
         this.contentTypes = null;
+        this.toggleEmptyView(false);
 
         if (this.isOpen()) {
             super.close();
@@ -296,25 +294,40 @@ export class NewContentDialog
     private updateContentTypesLists() {
         this.showLoadMask();
 
-        Q.all([this.loadContentTypes(), ContentTypesHelper.getAggregatedTypesByContent(this.parentContent)])
-            .spread((contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult) => this.updateLists(contentTypes,
-                aggregations))
-            .catch((DefaultErrorHandler.handle))
-            .finally(() => this.handleTypesLoaded());
+        this.loadTypesWithAggregations().then((result: TypesAndAggregations) => {
+            this.updateLists(result[0], result[1]);
+        }).catch((DefaultErrorHandler.handle)).finally(() => this.handleTypesLoaded());
+    }
+
+    private loadTypesWithAggregations(): Q.Promise<TypesAndAggregations> {
+        return Q.all([this.loadContentTypes(), ContentTypesHelper.getAggregatedTypesByContent(this.parentContent)])
+            .spread((contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult) => [contentTypes, aggregations]);
     }
 
     private updateUploaderState(): void {
         this.newContentUploader.reset();
 
-        if (!this.parentContent) {
-            this.toggleUploaderState(true);
-        } else if (this.isTemplateFolderSelected()) {
+        this.isUploaderToBeEnabled().then((enable: boolean) => {
+            this.toggleUploaderState(enable);
+        }).catch((e: Error) => {
+            DefaultErrorHandler.handle(e);
             this.toggleUploaderState(false);
-        } else {
-            new GetContentTypeByNameRequest(this.parentContent.getType()).sendAndParse().then((type: ContentType) => {
-                this.toggleUploaderState(ContentTypesHelper.isMediaChildContentAllowed(type));
-            }).catch(DefaultErrorHandler.handle);
+        });
+    }
+
+    private isUploaderToBeEnabled(): Q.Promise<boolean> {
+        if (!this.parentContent) {
+            return Q.resolve(true);
         }
+
+        if (this.isTemplateFolderSelected()) {
+            return Q.resolve(false);
+        }
+
+        return new GetContentTypeByNameRequest(this.parentContent.getType()).sendAndParse().then((type: ContentType) => {
+            return ContentTypesHelper.isMediaChildContentAllowedByType(type) &&
+                   ContentTypesHelper.isMediaChildContentAllowed(this.allowedContentTypes);
+        });
     }
 
     private toggleUploaderState(enabled: boolean): void {
@@ -325,11 +338,12 @@ export class NewContentDialog
 
     private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
         return this.contentTypes ? Q.resolve(this.contentTypes) :
-               ContentTypesHelper.getAvailableContentTypes(this.parentContent, this.allowedContentTypes);
+               ContentTypesHelper.getAvailableContentTypes(this.parentContent?.getContentId(), this.allowedContentTypes);
     }
 
     private updateLists(contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult): void {
         this.allContentTypes.createItems(contentTypes);
+        this.allContentTypes.setVisible(this.allContentTypes.getItemCount() > 0);
 
         const popularItemsCount = this.mostPopularContentTypes.getItemsList().createItems(contentTypes, aggregations);
         this.mostPopularContentTypes.setVisible(popularItemsCount > 0);
@@ -339,10 +353,27 @@ export class NewContentDialog
     }
 
     private handleTypesLoaded(): void {
-        this.fileInput.enable();
+        this.fileInput.setEnabled(this.allContentTypes.getItemCount() > 0);
         this.hideLoadMask();
         this.mostPopularContentTypes.showIfNotEmpty();
         this.newContentUploader.focus();
+
+        if (this.fileInput.isEnabled() && this.isOpen()) {
+            Body.get().onKeyDown(this.keyDownHandler);
+        }
+
+        this.toggleEmptyView(this.allContentTypes.getItemCount() === 0);
+    }
+
+    private toggleEmptyView(isEmpty: boolean): void {
+        this.toggleClass('empty', isEmpty);
+
+        if (isEmpty && !this.emptyView) {
+            this.emptyView = new DivEl('empty-view').setHtml(i18n('dialog.new.createNotAvailable'));
+            this.appendChildToContentPanel(this.emptyView);
+        }
+
+        this.emptyView?.setVisible(isEmpty);
     }
 
     private updateDialogTitlePath() {
