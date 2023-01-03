@@ -69,6 +69,7 @@ class BaseDetailsDialog extends Page {
 
     async clickOnCancelTopButton() {
         await this.waitForElementDisplayed(this.cancelTopButton, appConst.mediumTimeout);
+        await this.pause(500);
         await this.clickOnElement(this.cancelTopButton);
         return await this.pause(500);
     }
