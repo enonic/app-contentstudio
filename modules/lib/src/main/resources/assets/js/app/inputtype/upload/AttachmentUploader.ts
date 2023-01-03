@@ -234,6 +234,8 @@ export class AttachmentUploader
                 this.addFileNameToProperty(itemName);
             });
 
+            this.doRefresh();
+
             new ContentRequiresSaveEvent(this.context.content.getContentId()).fire();
         });
 
