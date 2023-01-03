@@ -1018,7 +1018,7 @@ class HtmlEditorConfigBuilder {
             ],
             removePlugins: this.getPluginsToRemove(),
             removeButtons: this.disabledTools?.join(),
-            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp',
+            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog',
             extraAllowedContent: this.getExtraAllowedContent(),
             stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
             image2_disableResizer: true,
