@@ -99,6 +99,12 @@ class CreateRequestPublishDialog extends Page {
         })
     }
 
+    waitForNextButtonDisabled() {
+        return this.waitForElementDisabled(this.nextButton, appConst.mediumTimeout).catch(err => {
+            throw new Error("Request Publishing dialog:  'Next' button should be disabled :" + err);
+        })
+    }
+
     async waitForInvalidIconDisplayed() {
         try {
             await this.waitForElementDisplayed(this.invalidIcon, appConst.mediumTimeout);
