@@ -102,7 +102,7 @@ export class ContentEventsProcessor {
                 .setProject(event.getProject())
                 .setLocalize(isLocalize)
                 .setContentId(contentSummary.getContentId())
-                .setDisplayAsNew(event.isDisplayAsNew());
+                .setDisplayAsNew(!!event.isDisplayAsNew && event.isDisplayAsNew());
 
             const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
 
