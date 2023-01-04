@@ -12,7 +12,7 @@ const appConst = require('../../libs/app_const');
 
 describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let folder1;
@@ -28,7 +28,7 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             await studioUtils.doAddFolder(folder2);
         });
 
-    //verifies - https://github.com/enonic/app-contentstudio/issues/1015  Duplicate button does not contain a number of content to duplicate
+    // verifies - https://github.com/enonic/app-contentstudio/issues/1015  Duplicate button does not contain a number of content to duplicate
     it(`GIVEN two folders are checked WHEN 'Duplicate Dialog' has been opened THEN expected number(2) should be present in the Duplicate button`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -37,9 +37,9 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
             //Click on Duplicate... button in the toolbar:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
-            studioUtils.saveScreenshot("2_folders_to_duplicate");
+            await studioUtils.saveScreenshot('2_folders_to_duplicate');
             let result = await contentDuplicateDialog.getTotalNumberItemsToDuplicate();
-            assert.equal(result, '2', "Expected number of content (2) should be present in the Duplicate button");
+            assert.equal(result, '2', 'Expected number of content (2) should be present in the Duplicate button');
         });
 
     it(`GIVEN two folders are checked AND 'Duplicate Dialog' is opened WHEN 'Duplicate' button on the modal dialog has been pressed THEN '2 items are duplicated' message should appear`,
@@ -50,11 +50,11 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
             //Click on Duplicate... button in the toolbar:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
-            studioUtils.saveScreenshot("folders_to_duplicate");
+            await studioUtils.saveScreenshot('folders_to_duplicate');
             //Click on Duplicate button in the dialog:
             await contentDuplicateDialog.clickOnDuplicateButton();
             let result = await contentBrowsePanel.waitForNotificationMessage();
-            studioUtils.saveScreenshot("folders_were_duplicated2");
+            await studioUtils.saveScreenshot('folders_were_duplicated2');
             assert.equal(result, '2 items are duplicated.', 'Expected notification message should be displayed');
         });
 
@@ -67,26 +67,27 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             let name = folder2.displayName + '-copy';
             await contentBrowsePanel.waitForContentDisplayed(name);
             let state = await contentBrowsePanel.getWorkflowStateByName(name);
-            //duplicated content should have the same state as the target content:
+            // duplicated content should have the same state as the target content:
             assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
-    it(`WHEN 'Published' folder has been duplicated THEN copy should be 'Ready for publishing'`,
+    // Duplicated content should always be created in state "In Progress" #5296
+    it(`WHEN 'Published' folder has been duplicated THEN copy should be 'Work in progress'`,
         async () => {
             let contentDuplicateDialog = new ContentDuplicateDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(folder1.displayName);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
-            //Publish the folder:
+            // Publish the folder:
             await studioUtils.doPublish();
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             await contentDuplicateDialog.clickOnDuplicateButton();
             await contentDuplicateDialog.waitForDialogClosed();
-            //Do filter the second copy of the folder:
+            // Do filter the second copy of the folder:
             await studioUtils.typeNameInFilterPanel(folder1.displayName + '-copy-2');
             let state = await contentBrowsePanel.getWorkflowStateByName(folder1.displayName + '-copy-2');
-            //duplicated folder should be 'Ready for publishing':
-            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content should be 'Ready for publishing'");
+            // duplicated folder should be 'Work in progress':
+            assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "The content should be 'Work in progress'");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
@@ -94,7 +95,7 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
