@@ -1,18 +1,18 @@
-import * as Q from 'q';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {PublishDialogItemList} from './PublishDialogItemList';
-import {PublishDialogDependantList} from './PublishDialogDependantList';
-import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
-import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
-import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDependenciesResult';
-import {EditContentEvent} from '../event/EditContentEvent';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {CompareStatus} from '../content/CompareStatus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {CompareStatus} from '../content/CompareStatus';
 import {ContentId} from '../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {EditContentEvent} from '../event/EditContentEvent';
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
+import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
+import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDependenciesResult';
+import {PublishDialogDependantList} from './PublishDialogDependantList';
+import {PublishDialogItemList} from './PublishDialogItemList';
 
 export class PublishProcessor {
 
@@ -227,32 +227,38 @@ export class PublishProcessor {
         return this.excludedIds.some((excludedId: ContentId) => this.itemsIncludeId(ids, excludedId));
     }
 
-    public getTotalInProgress(): number {
-        return this.getInProgressIdsWithoutInvalid().length;
+    public getInProgressCount(dependantOnly = false): number {
+        const ids = this.getInProgressIdsWithoutInvalid();
+        return dependantOnly ? ids.filter(id => this.itemsIncludeId(this.dependantIds, id)).length : ids.length;
     }
 
-    public getTotalInvalid(): number {
-        return this.getInvalidIds().length;
+    public getInvalidCount(dependantOnly = false): number {
+        const ids = this.getInvalidIds();
+        return dependantOnly ? ids.filter(id => this.itemsIncludeId(this.dependantIds, id)).length : ids.length;
     }
 
-    public getTotalNotPublishable(): number {
-        return this.getNotPublishableIds.length;
+    public getNotPublishableCount(dependantOnly = false): number {
+        const ids = this.getNotPublishableIds();
+        return dependantOnly ? ids.filter(id => this.itemsIncludeId(this.dependantIds, id)).length : ids.length;
     }
 
-    private getTotalExcludable(ids: ContentId[]): number {
-        return ids.filter((id: ContentId) => !this.itemsIncludeId(this.excludedIds, id)).length;
+    private getExcludableFromIdsCount(ids: ContentId[]): number {
+        return ids.filter(id => !this.itemsIncludeId(this.excludedIds, id) && this.itemsIncludeId(this.dependantIds, id)).length;
     }
 
-    public hasNotExcludedInProgress(): boolean {
-        return this.getTotalExcludable(this.getInProgressIdsWithoutInvalid()) < this.getTotalInProgress();
+    public canExcludeInProgress(): boolean {
+        const inProgressTotal = this.getInProgressCount(true);
+        return this.getExcludableFromIdsCount(this.getInProgressIdsWithoutInvalid()) === inProgressTotal && inProgressTotal > 0;
     }
 
-    public hasNotExcludedInvalid(): boolean {
-        return this.getTotalExcludable(this.getInvalidIds()) < this.getTotalInvalid();
+    public canExcludeInvalid(): boolean {
+        const invalidTotal = this.getInvalidCount(true);
+        return this.getExcludableFromIdsCount(this.getInvalidIds()) === invalidTotal && invalidTotal > 0;
     }
 
-    public hasNotExcludedNotPublishable(): boolean {
-        return this.getTotalExcludable(this.getNotPublishableIds()) < this.getTotalNotPublishable();
+    public canExcludeNotPublishable(): boolean {
+        const notPublishableTotal = this.getNotPublishableCount(true);
+        return this.getExcludableFromIdsCount(this.getNotPublishableIds()) === notPublishableTotal && notPublishableTotal > 0;
     }
 
     public reset(): void {
@@ -272,8 +278,12 @@ export class PublishProcessor {
         return this.itemList.getItemsIds();
     }
 
+    public countParent(): number {
+        return this.countToPublish(this.itemList.getItems());
+    }
+
     public countTotal(): number {
-        return this.countToPublish(this.itemList.getItems()) + this.dependantIds.length;
+        return this.countParent() + this.dependantIds.length;
     }
 
     public isAllPublishable(): boolean {
@@ -297,7 +307,7 @@ export class PublishProcessor {
     }
 
     public getInvalidIdsWithoutRequired(): ContentId[] {
-        return this.invalidIds.filter((id: ContentId) => !this.requiredIds.some((requiredId: ContentId) => requiredId.equals(id)));
+        return this.invalidIds.filter((id: ContentId) => !this.itemsIncludeId(this.requiredIds, id));
     }
 
     public setCheckPublishable(flag: boolean) {
@@ -328,13 +338,11 @@ export class PublishProcessor {
     }
 
     public getInProgressIdsWithoutInvalid(): ContentId[] {
-        return this.inProgressIds
-            .filter((id: ContentId) => !this.invalidIds.some((invalidId: ContentId) => invalidId.equals(id)));
+        return this.inProgressIds.filter((id: ContentId) => !this.itemsIncludeId(this.invalidIds, id));
     }
 
     public getInProgressIdsWithoutInvalidAndRequired(): ContentId[] {
-        return this.getInProgressIdsWithoutInvalid()
-            .filter((id: ContentId) => !this.requiredIds.some((requiredId: ContentId) => requiredId.equals(id)));
+        return this.getInProgressIdsWithoutInvalid().filter((id: ContentId) => !this.itemsIncludeId(this.requiredIds, id));
     }
 
     public getDependantIds(): ContentId[] {
@@ -382,7 +390,7 @@ export class PublishProcessor {
         this.dependantList.removeItems(itemsToRemove);
     }
 
-    public excludeItems(ids: ContentId[]) {
+    private excludeItems(ids: ContentId[]): void {
         if (ids.length === 0) {
             return;
         }
@@ -398,6 +406,21 @@ export class PublishProcessor {
 
         this.itemList.removeItemsByIds(ids);
         this.reloadDependenciesDebounced(true);
+    }
+
+    excludeInProgress(): void {
+        const inProgressDependantIds = this.getInProgressIdsWithoutInvalid().filter(id => this.itemsIncludeId(this.dependantIds, id));
+        this.excludeItems(inProgressDependantIds);
+    }
+
+    excludeInvalid(): void {
+        const invalidDependantIds = this.getInvalidIds().filter(id => this.itemsIncludeId(this.dependantIds, id));
+        this.excludeItems(invalidDependantIds);
+    }
+
+    excludeNotPublishable(): void {
+        const notPublishableDependantIds = this.getNotPublishableIds().filter(id => this.itemsIncludeId(this.dependantIds, id));
+        this.excludeItems(notPublishableDependantIds);
     }
 
     public getItemsTotalInProgress(): number {

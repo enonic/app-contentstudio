@@ -1,33 +1,33 @@
-import * as Q from 'q';
+import {PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
+import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
+import {MenuItem} from '@enonic/lib-admin-ui/ui/menu/MenuItem';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
+import * as Q from 'q';
+import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {PublishProcessor} from '../publish/PublishProcessor';
 import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
 import {Issue} from '../issue/Issue';
-import {PublishDialogItemList} from '../publish/PublishDialogItemList';
-import {PublishDialogDependantList} from '../publish/PublishDialogDependantList';
 import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
-import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
+import {PublishDialogDependantList} from '../publish/PublishDialogDependantList';
+import {PublishDialogItemList} from '../publish/PublishDialogItemList';
+import {PublishProcessor} from '../publish/PublishProcessor';
 import {PublishScheduleForm} from '../publish/PublishScheduleForm';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
+import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {ContentId} from '../content/ContentId';
-import {MenuItem} from '@enonic/lib-admin-ui/ui/menu/MenuItem';
-import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
 import {DialogErrorsStateBar} from './DialogErrorsStateBar';
 import {DialogErrorStateEntry} from './DialogErrorStateEntry';
 
@@ -113,7 +113,7 @@ export abstract class BasePublishDialog
                 label: i18n('dialog.publish.exclude.invalid'),
                 handler: () => {
                     this.stateBar.markChecking(true);
-                    this.publishProcessor.excludeItems(this.publishProcessor.getInvalidIds());
+                    this.publishProcessor.excludeInvalid();
                 },
             },
         });
@@ -125,7 +125,7 @@ export abstract class BasePublishDialog
                 label: i18n('dialog.publish.exclude.inProgress'),
                 handler: () => {
                     this.stateBar.markChecking(true);
-                    this.publishProcessor.excludeItems(this.publishProcessor.getInProgressIdsWithoutInvalid());
+                    this.publishProcessor.excludeInProgress();
                 },
             },
         });
@@ -136,7 +136,7 @@ export abstract class BasePublishDialog
                 label: i18n('dialog.publish.exclude.noPermissions'),
                 handler: () => {
                     this.stateBar.markChecking(true);
-                    this.publishProcessor.excludeItems(this.publishProcessor.getNotPublishableIds());
+                    this.publishProcessor.excludeNotPublishable();
                 },
             },
         });
@@ -233,14 +233,14 @@ export abstract class BasePublishDialog
         if ((!isNeedPublish || isAllPublishable) && isAllValid && !hasInProgress) {
             this.stateBar.reset();
         } else {
-            this.invalidErrorEntry.updateCount(this.publishProcessor.getTotalInvalid());
-            this.invalidErrorEntry.markNonInteractive(this.publishProcessor.hasNotExcludedInvalid());
+            this.invalidErrorEntry.updateCount(this.publishProcessor.getInvalidCount());
+            this.invalidErrorEntry.markNonInteractive(!this.publishProcessor.canExcludeInvalid());
 
-            this.inProgressErrorEntry.updateCount(this.publishProcessor.getTotalInProgress());
-            this.inProgressErrorEntry.markNonInteractive(this.publishProcessor.hasNotExcludedInProgress());
+            this.inProgressErrorEntry.updateCount(this.publishProcessor.getInProgressCount());
+            this.inProgressErrorEntry.markNonInteractive(!this.publishProcessor.canExcludeInProgress());
 
-            this.noPermissionsErrorEntry.updateCount(this.publishProcessor.getTotalNotPublishable());
-            this.noPermissionsErrorEntry.markNonInteractive(this.publishProcessor.hasNotExcludedNotPublishable());
+            this.noPermissionsErrorEntry.updateCount(this.publishProcessor.getNotPublishableCount());
+            this.noPermissionsErrorEntry.markNonInteractive(!this.publishProcessor.canExcludeNotPublishable());
         }
     }
 
