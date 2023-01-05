@@ -38,8 +38,6 @@ export class PageTemplateAndControllerSelector
 
     private autoOption: Option<PageTemplateOption>;
 
-    private preselectedValue: string;
-
     constructor() {
         const optionViewer = new PageTemplateAndSelectorViewer();
         super(
@@ -187,23 +185,10 @@ export class PageTemplateAndControllerSelector
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private handleReloaded(templateOptions: Option<PageTemplateOption>[], controllerOptions: Option<PageControllerOption>[]) {
-        const preselectedValue: string = this.getPreselectedValue();
+    private handleReloaded(templateOptions: Option<PageTemplateOption>[], controllerOptions: Option<PageControllerOption>[]): void {
         this.removeAllOptions();
         this.initOptionsList(templateOptions, controllerOptions);
-        if (preselectedValue) {
-            const isAlreadySelected: boolean = !!this.getSelectedOption() && this.getSelectedOption().getValue() === preselectedValue;
-            if (!isAlreadySelected) {
-                this.setValue(preselectedValue, true);
-            }
-        } else {
-            this.selectInitialOption();
-        }
-        this.preselectedValue = null;
-    }
-
-    private getPreselectedValue(): string {
-        return this.preselectedValue || this.getValue();
+        this.selectInitialOption();
     }
 
     private loadPageTemplates(): Q.Promise<Option<PageTemplateOption>[]> {
@@ -328,12 +313,11 @@ export class PageTemplateAndControllerSelector
         });
     }
 
-    private selectOptionByValue(key: string) {
-        let optionToSelect = this.getOptionByValue(key);
+    private selectOptionByValue(key: string): void {
+        const optionToSelect: Option<PageTemplateAndControllerOption> = this.getOptionByValue(key);
+
         if (optionToSelect) {
             this.selectOption(optionToSelect, true);
-        } else {
-            this.preselectedValue = key;
         }
     }
 }
