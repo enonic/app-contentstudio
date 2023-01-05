@@ -146,7 +146,7 @@ export class LiveFormPanel
     private contextWindow: ContextWindow;
     private contextWindowController: ContextWindowController;
 
-    private placeholderEl?: LiveEditPagePlaceholder;
+    private placeholder?: LiveEditPagePlaceholder;
     private insertablesPanel: InsertablesPanel;
     private inspectionsPanel: InspectionsPanel;
     private contentInspectionPanel: ContentInspectionPanel;
@@ -195,8 +195,10 @@ export class LiveFormPanel
     protected initElements(): void {
         if (!this.content.getPage()) {
             this.createLiveEditPagePlaceholder();
-            this.placeholderEl.loadControllers();
+            this.placeholder.loadControllers();
         }
+
+        this.initPageRequiredElements();
     }
 
     protected initPageRequiredElements(): void {
@@ -216,9 +218,9 @@ export class LiveFormPanel
     }
 
     private createLiveEditPagePlaceholder(): void {
-        this.placeholderEl = new LiveEditPagePlaceholder(this.content.getContentId(), this.contentType);
-        this.placeholderEl.setEnabled(this.modifyPermissions);
-        this.whenRendered(() => this.appendChild(this.placeholderEl));
+        this.placeholder = new LiveEditPagePlaceholder(this.content.getContentId(), this.contentType);
+        this.placeholder.setEnabled(this.modifyPermissions);
+        this.whenRendered(() => this.appendChild(this.placeholder));
         this.listenControllerSelected();
     }
 
@@ -352,7 +354,11 @@ export class LiveFormPanel
         summaryAndStatuses.some((summaryAndStatus: ContentSummaryAndCompareStatus) => {
             if (this.content.getContentId().equals(summaryAndStatus.getContentId())) {
                 this.saveAsTemplateAction?.setContentSummary(summaryAndStatuses[0].getContentSummary());
-                this.placeholderEl?.loadControllers();
+
+                if (this.placeholder && !this.placeholder.hasSelectedController()) {
+                    this.placeholder.loadControllers();
+                }
+
                 return true;
             }
         });
@@ -401,10 +407,8 @@ export class LiveFormPanel
     }
 
     private listenControllerSelected(): void {
-        this.placeholderEl.onControllerSelected(() => {
-            this.contentWizardPanel.saveChanges().catch((error: any) => {
-                DefaultErrorHandler.handle(error);
-            });
+        this.placeholder.onControllerSelected(() => {
+            this.contentWizardPanel.saveChanges().catch(DefaultErrorHandler.handle);
         });
     }
 
@@ -564,17 +568,13 @@ export class LiveFormPanel
         return this;
     }
 
-    public getPageModel(): PageModel {
-        return this.pageModel;
-    }
-
     public getPage(): Page {
         return this.pageModel?.getPage() || this.assemblePageFromSelectedController();
     }
 
     private assemblePageFromSelectedController(): Page {
-        if (this.placeholderEl?.hasSelectedController()) {
-            const descriptor: Descriptor = this.placeholderEl.getSelectedController();
+        if (this.placeholder?.hasSelectedController()) {
+            const descriptor: Descriptor = this.placeholder.getSelectedController();
             return new PageBuilder()
                 .setController(descriptor.getKey())
                 .setConfig(new PropertyTree())
@@ -594,10 +594,6 @@ export class LiveFormPanel
     }
 
     setModel(liveEditModel: LiveEditModel) {
-        if (!this.liveEditPageProxy) {
-            this.initPageRequiredElements();
-        }
-
         this.pageModel?.unPropertyChanged(this.propertyChangedHandler);
         this.pageModel?.unComponentPropertyChangedEvent(this.componentPropertyChangedHandler);
         this.liveEditModel?.getSiteModel()?.unApplicationRemoved(this.applicationRemovedHandler);
@@ -681,8 +677,8 @@ export class LiveFormPanel
         this.clearPreviewErrors();
 
         this.liveEditPageProxy.load();
-        this.placeholderEl?.hide();
-        this.placeholderEl?.deselectOptions();
+        this.placeholder?.hide();
+        this.placeholder?.deselectOptions();
 
         if (!this.frameContainer) {
             this.frameContainer = new Panel('frame-container');
@@ -1121,7 +1117,7 @@ export class LiveFormPanel
         this.modifyPermissions = modifyPermissions;
         this.insertablesPanel?.setModifyPermissions(modifyPermissions);
         this.liveEditPageProxy?.setModifyPermissions(modifyPermissions);
-        this.placeholderEl?.setEnabled(modifyPermissions);
+        this.placeholder?.setEnabled(modifyPermissions);
     }
 
     unloadPage(): void {
@@ -1132,13 +1128,13 @@ export class LiveFormPanel
         this.liveEditModel = null;
         this.pageModel = null;
 
-        if (this.placeholderEl) {
-            this.placeholderEl.deselectOptions();
-            this.placeholderEl.show();
-            this.placeholderEl.loadControllers();
+        if (this.placeholder) {
+            this.placeholder.deselectOptions();
+            this.placeholder.show();
+            this.placeholder.loadControllers();
         } else {
             this.createLiveEditPagePlaceholder();
-            this.placeholderEl.loadControllers();
+            this.placeholder.loadControllers();
         }
 
         ContentDeletedEvent.un(this.contentEventListener);
@@ -1146,29 +1142,11 @@ export class LiveFormPanel
     }
 
     setPageIsNotRenderable(): void {
-        if (!this.placeholderEl) {
+        if (!this.placeholder) {
             this.createLiveEditPagePlaceholder();
         }
 
-        this.placeholderEl.loadControllers().then((descriptors: Descriptor[]) => {
-            this.placeholderEl.setErrorTexts(i18n('field.preview.failed'), i18n('field.preview.failed.description'));
-
-            const controllerToSelect: Descriptor = this.getCurrentController(descriptors);
-
-            if (controllerToSelect) {
-                this.placeholderEl.selectController(controllerToSelect);
-            }
-        });
-    }
-
-    private getCurrentController(descriptors: Descriptor[]): Descriptor {
-        const currentControllerKey: DescriptorKey = this.contentWizardPanel.getPersistedItem().getPage().getController();
-
-        if (!currentControllerKey) {
-            return null;
-        }
-
-        return descriptors?.find((d: Descriptor) => d.getKey().equals(currentControllerKey));
+        this.placeholder.setPageIsNotRenderable();
     }
 
     isRenderable(): boolean {

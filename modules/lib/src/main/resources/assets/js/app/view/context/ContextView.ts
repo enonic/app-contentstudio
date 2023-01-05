@@ -548,7 +548,7 @@ export class ContextView
     }
 
     private updatePageEditorWidgetView(): void {
-        if (this.isPageRenderable) {
+        if (this.isPageRenderable || this.item?.getContentSummary()?.isPage()) {
             this.activatePageEditorWidget();
         } else if (this.isPageEditorWidgetPresent()) {
             this.deactivatePageEditorWidget();
