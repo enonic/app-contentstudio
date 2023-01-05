@@ -10,6 +10,7 @@ import {PageDescriptorDropdown} from './contextwindow/inspect/page/PageDescripto
 import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ContentType} from '../../inputtype/schema/ContentType';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class LiveEditPagePlaceholder
     extends DivEl {
@@ -45,15 +46,20 @@ export class LiveEditPagePlaceholder
     }
 
     private handleControllersLoaded(descriptors: Descriptor[]): void {
-        if (!this.pagePlaceholderInfoBlock) {
-            this.pagePlaceholderInfoBlock = new PagePlaceholderInfoBlock();
-            this.appendChild(this.pagePlaceholderInfoBlock);
-        }
+        this.initPagePlaceholderInfoBlock();
+        this.removeClass('page-not-renderable');
 
         if (descriptors.length > 0) {
             this.handleHasControllers();
         } else {
             this.handleNoControllers();
+        }
+    }
+
+    private initPagePlaceholderInfoBlock(): void {
+        if (!this.pagePlaceholderInfoBlock) {
+            this.pagePlaceholderInfoBlock = new PagePlaceholderInfoBlock();
+            this.appendChild(this.pagePlaceholderInfoBlock);
         }
     }
 
@@ -71,7 +77,7 @@ export class LiveEditPagePlaceholder
     private handleNoControllers(): void {
         this.removeClass('icon-insert-template');
         this.pagePlaceholderInfoBlock.setEmptyText();
-        this.controllerDropdown.hide();
+        this.controllerDropdown?.hide();
     }
 
     private createControllersRequest(): GetComponentDescriptorsRequest {
@@ -133,5 +139,14 @@ export class LiveEditPagePlaceholder
     setEnabled(value: boolean): void {
         this.controllerDropdown?.setEnabled(value);
         this.enabled = value;
+    }
+
+    setPageIsNotRenderable(): void {
+        this.initPagePlaceholderInfoBlock();
+        this.removeClass('icon-insert-template');
+        this.controllerDropdown?.hide();
+        this.controllerDropdown?.deselectOptions(true);
+        this.setErrorTexts(i18n('field.preview.failed'), i18n('field.preview.failed.description'));
+        this.addClass('page-not-renderable');
     }
 }

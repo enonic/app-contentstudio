@@ -42,7 +42,6 @@ import {ContentHelper} from '../util/ContentHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
-import {ContentDeletedEvent} from '../event/ContentDeletedEvent';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {XDataWizardStep} from './XDataWizardStep';
 import {Content, ContentBuilder} from '../content/Content';
@@ -139,7 +138,6 @@ import {UrlHelper} from '../util/UrlHelper';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {ContentSaveAction} from './action/ContentSaveAction';
 import {WorkflowState} from '../content/WorkflowState';
-import {Workflow} from '../content/Workflow';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {ContentTabBarItem} from './ContentTabBarItem';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
@@ -630,6 +628,7 @@ export class ContentWizardPanel
 
         if (this.livePanel) {
             this.splitPanel.onPanelResized(() => this.updateStickyToolbar());
+            this.contextView.appendContextWindow(this.getLivePanel().getContextWindow());
 
             this.contextSplitPanel.onModeChanged((mode: ContextPanelMode) => {
                 if (!this.isMinimized()) {
@@ -870,15 +869,20 @@ export class ContentWizardPanel
             return this.updateLiveEditModel(contentClone);
         }
 
+        if (this.getPersistedItem().getPage()) {
+            return this.updateLiveEditModel(contentClone).then(() => this.unloadPage());
+        }
+
         return this.unloadPage();
     }
 
     private unloadPage(): Q.Promise<void> {
         this.liveEditModel = null;
-        this.livePanel.unloadPage();
 
         if (this.getPersistedItem().getPage()) {
             this.getLivePanel().setPageIsNotRenderable();
+        } else {
+            this.livePanel.unloadPage();
         }
 
         return Q.resolve();
@@ -1201,19 +1205,6 @@ export class ContentWizardPanel
         this.settingsWizardStepForm.reset();
         this.scheduleWizardStepForm.reset();
         this.xDataWizardStepForms.reset();
-    }
-
-    private updateContent(compareStatus: CompareStatus): Q.Promise<void> {
-        const newContent = this.currentContent.clone();
-        newContent.setCompareStatus(compareStatus);
-
-        this.currentContent = newContent;
-        this.setPersistedContent(newContent);
-        this.getMainToolbar().setItem(newContent);
-        this.wizardActions.setContent(newContent).refreshState();
-        this.workflowStateManager.update();
-
-        return this.wizardActions.refreshPendingDeleteDecorations();
     }
 
     private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
@@ -1731,7 +1722,6 @@ export class ContentWizardPanel
             const showPanel: boolean = wasNotRenderable && this.isRenderable();
             this.getLivePanel().setModel(this.liveEditModel);
             this.getLivePanel().clearSelectionAndInspect(showPanel, false);
-            this.contextView.appendContextWindow(this.getLivePanel().getContextWindow());
             this.debouncedEditorRefresh(false);
 
             return Q(null);
@@ -1790,17 +1780,11 @@ export class ContentWizardPanel
             return Q(null);
         }
 
-        if (!this.isRenderable()) {
-            this.setupWizardLiveEdit();
-
-            if (this.getPersistedItem().getPage()) {
-                this.getLivePanel().setPageIsNotRenderable();
-            }
-
-            return Q.resolve();
-        }
-
         this.setupWizardLiveEdit();
+
+        if (!this.isRenderable() && this.getPersistedItem().getPage()) {
+            this.getLivePanel().setPageIsNotRenderable();
+        }
 
         return this.updateLiveEditModel(content);
     }
