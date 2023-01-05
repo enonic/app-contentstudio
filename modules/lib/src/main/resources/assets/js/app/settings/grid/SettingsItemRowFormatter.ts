@@ -1,20 +1,22 @@
-import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {FolderItemViewer} from '../browse/viewer/FolderItemViewer';
-import {SettingsViewItem} from '../view/SettingsViewItem';
-import {ProjectViewItem} from '../view/ProjectViewItem';
-import {FolderViewItem} from '../view/FolderViewItem';
-import {ProjectViewer} from '../wizard/viewer/ProjectViewer';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {FolderItemViewer} from '../browse/viewer/FolderItemViewer';
 import {Project} from '../data/project/Project';
+import {FolderViewItem} from '../view/FolderViewItem';
+import {ProjectViewItem} from '../view/ProjectViewItem';
+import {SettingsViewItem} from '../view/SettingsViewItem';
+import {ProjectViewer} from '../wizard/viewer/ProjectViewer';
 
 export class SettingsItemRowFormatter {
 
-    public static nameFormatter({}: any, {}: any, {}: any, {}: any, dataContext: TreeNode<SettingsViewItem>) {
-        return SettingsItemRowFormatter.getViewerForSettingsItem(dataContext).toString();
+    public static nameFormatter(_row: number, _cell: number, value: number, _columnDef: object,
+                                dataContext: TreeNode<SettingsViewItem>): string {
+        const viewer = SettingsItemRowFormatter.getViewerForSettingsItem(dataContext).toString();
+        return viewer ? viewer.toString() : '';
     }
 
-    private static getViewerForSettingsItem(dataContext: TreeNode<SettingsViewItem>): Viewer<any> {
+    private static getViewerForSettingsItem(dataContext: TreeNode<SettingsViewItem>): Viewer<any> | null {
         if (ObjectHelper.iFrameSafeInstanceOf(dataContext.getData(), ProjectViewItem)) {
             const viewer: Viewer<Project> = dataContext.getViewer('displayName') || new ProjectViewer();
             viewer.setObject((<ProjectViewItem>dataContext.getData()).getData());

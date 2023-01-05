@@ -1,23 +1,23 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ProgressBar} from '@enonic/lib-admin-ui/ui/ProgressBar';
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
-import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
-import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {ProgressBar} from '@enonic/lib-admin-ui/ui/ProgressBar';
-import {MediaTreeSelectorItem} from '../inputtype/ui/selector/media/MediaTreeSelectorItem';
 import {ContentSummaryListViewer} from '../content/ContentSummaryListViewer';
+import {MediaTreeSelectorItem} from '../inputtype/ui/selector/media/MediaTreeSelectorItem';
+import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
+import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 
 export class ContentRowFormatter {
 
-    public static nameFormatter(_row: number, _cell: number, _value: any, _columnDef: any,
-                                node: TreeNode<ContentSummaryAndCompareStatus>) {
+    public static nameFormatter(_row: number, _cell: number, _value: unknown, _columnDef: unknown,
+                                node: TreeNode<ContentSummaryAndCompareStatus>): string {
         const data = node.getData();
         if (data.getContentSummary() || data.getUploadItem()) {
-            let viewer = <ContentSummaryAndCompareStatusViewer> node.getViewer('name');
+            let viewer = <ContentSummaryAndCompareStatusViewer>node.getViewer('name');
             if (!viewer) {
                 viewer = new ContentSummaryListViewer();
                 node.setViewer('name', viewer);
@@ -30,8 +30,8 @@ export class ContentRowFormatter {
         return '';
     }
 
-    public static orderFormatter(_row: number, _cell: number, value: any, _columnDef: any,
-                                 node: TreeNode<ContentSummaryAndCompareStatus>) {
+    public static orderFormatter(_row: number, _cell: number, value: string, _columnDef: object,
+                                 node: TreeNode<ContentSummaryAndCompareStatus>): string {
         let wrapper = new SpanEl();
 
         if (!StringHelper.isBlank(value)) {
@@ -60,11 +60,12 @@ export class ContentRowFormatter {
         return wrapper.toString();
     }
 
-    public static statusFormatter({}: any, {}: any, {}: any, {}: any, dataContext: TreeNode<ContentSummaryAndCompareStatus>) {
+    public static statusFormatter(_row: number, _cell: number, value: number, _columnDef: object,
+                                  dataContext: TreeNode<ContentSummaryAndCompareStatus>): string {
         return ContentRowFormatter.doStatusFormat(dataContext.getData());
     }
 
-    public static statusSelectorFormatter({}: any, {}: any, value: ContentTreeSelectorItem, {}: any, {}: any) {
+    public static statusSelectorFormatter(_row: number, _cell: number, value: ContentTreeSelectorItem): string {
 
         if (ObjectHelper.iFrameSafeInstanceOf(value, ContentAndStatusTreeSelectorItem) ||
             ObjectHelper.iFrameSafeInstanceOf(value, MediaTreeSelectorItem)) {

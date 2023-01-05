@@ -17,18 +17,33 @@ def applyResourcesTaskDependencies()
 {
     def libAdminDevJarTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':devJar' )
     def libAdminBuildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
+    def libAdminCleanTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':clean' )
 
-    if ( hasTask( 'copyDevResources' ) ) {
+    if ( hasTask( 'copyDevResources' ) )
+    {
         copyDevResources.dependsOn libAdminDevJarTask
     }
 
     build.dependsOn += libAdminBuildTask
+
+    if ( hasTask( 'clean' ) )
+    {
+        clean.dependsOn += libAdminCleanTask
+    }
+}
+
+def excludeTasks()
+{
+    gradle.startParameter.getExcludedTaskNames().forEach( taskName -> {
+        gradle.includedBuild( 'lib-admin-ui' ).task( ":$taskName" )?.resolveTask()?.enabled = false
+    } )
 }
 
 if ( hasLibAdminUi() )
 {
     afterEvaluate {
         applyResourcesTaskDependencies()
+        excludeTasks()
     }
 }
 
