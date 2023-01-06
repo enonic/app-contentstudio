@@ -12,17 +12,16 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 const appConst = require('../../libs/app_const');
 
-
 describe('duplicate.inherited.content.spec - tests for duplicating of inherited content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const SITE_NAME = studioUtils.generateRandomName('site');
     const EXPECTED_ORDER = `Sorted by "Modified date" in descending order`;
 
-    it("Precondition 1 - new layer in Default project should be added by SU",
+    it('Precondition 1 - new layer in Default project should be added by SU',
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await studioUtils.closeProjectSelectionDialog();
@@ -40,8 +39,8 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             await studioUtils.doAddSite(site, true);
         });
 
-    //Verifies Copy of inherited content should not be created as 'inherited' #8269
-    //https://github.com/enonic/xp/issues/8269
+    // Verifies Copy of inherited content should not be created as 'inherited' #8269
+    // https://github.com/enonic/xp/issues/8269
     it("GIVEN layer's context is selected WHEN inherited site has been duplicated THEN the local copy of the site should not be created as 'inherited'",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -51,22 +50,22 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             let contentDuplicateDialog = await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             await contentDuplicateDialog.clickOnDuplicateButton();
             await contentDuplicateDialog.waitForDialogClosed();
-            //3. Verify that the copy of the site should not be displayed as 'inherited':
+            // 3. Verify that the copy of the site should not be displayed as 'inherited':
             await studioUtils.findAndSelectItem(SITE_NAME + "-copy");
-            await studioUtils.saveScreenshot("inherited_site_copy");
-            let isInherited = await contentBrowsePanel.isContentInherited(SITE_NAME + "-copy");
-            assert.isFalse(isInherited, "Copy of inherited site should not be with gray mask");
+            await studioUtils.saveScreenshot('inherited_site_copy');
+            let isInherited = await contentBrowsePanel.isContentInherited(SITE_NAME + '-copy');
+            assert.isFalse(isInherited, 'Copy of inherited site should not be with gray mask');
         });
 
-    //Verifies #2576 'Inherited icon and Reset button should not be displayed in duplicated content'
+    // Verifies #2576 'Inherited icon and Reset button should not be displayed in duplicated content'
     it("GIVEN copy of the inherited site is selected WHEN the site has been opened THEN 'Reset' button should not be displayed in the wizard toolbar",
         async () => {
-            //1. Select the layer's context:
+            // 1. Select the layer's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
-            //2. Open the site
-            let contentWizard = await studioUtils.openContentAndSwitchToTabByDisplayName(SITE_NAME + "-copy", SITE_NAME);
-            await studioUtils.saveScreenshot("inherited_site_copy_wizard");
-            //3. Verify that 'Reset' button is not displayed:
+            // 2. Open the site
+            let contentWizard = await studioUtils.openContentAndSwitchToTabByDisplayName(SITE_NAME + '-copy', SITE_NAME);
+            await studioUtils.saveScreenshot('inherited_site_copy_wizard');
+            // 3. Verify that 'Reset' button is not displayed:
             await contentWizard.waitForResetButtonNotDisplayed();
         });
 
@@ -74,35 +73,19 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();
-            //1. Select the layer's context:
+            // 1. Select the layer's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
-            //2. Select the duplicate of inherited site and open Sort Content dialog:
-            await studioUtils.findAndSelectItem(SITE_NAME + "-copy");
+            // 2. Select the duplicate of inherited site and open Sort Content dialog:
+            await studioUtils.findAndSelectItem(SITE_NAME + '-copy');
             await contentBrowsePanel.clickOnSortButton();
             await sortContentDialog.waitForDialogVisible();
-            await studioUtils.saveScreenshot("inherited_site_order");
-            //3. Verify that 'Default' order is selected :
+            await studioUtils.saveScreenshot('inherited_site_order');
+            // 3. Verify that 'Default' order is selected :
             let actualOrder = await sortContentDialog.getSelectedOrder();
             assert.equal(actualOrder, EXPECTED_ORDER, "'Modified date' order should be selected in the modal dialog");
         });
 
-    //Layers widget in CS+ only
-    it.skip(
-        "GIVEN the local copy of inherited site is selected WHEN Layers widget has been opened THEN only one item with button 'Edit' should be present in the widget",
-        async () => {
-            //1. Select the layer's context:
-            await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
-            //2. Select the local copy of inherited site and open Layers widget:
-            await studioUtils.findAndSelectItem(SITE_NAME + "-copy");
-            let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
-            await studioUtils.saveScreenshot("layers_widget_local_copy_of_site");
-            //3.Verify that only one item with button 'Open' should be present in the widget:
-            let layers = await browseLayersWidget.getLayersName();
-            assert.equal(layers.length, 1, "Only one item should be present in the widget");
-            await browseLayersWidget.waitForEditButtonEnabled(LAYER_DISPLAY_NAME);
-        });
-
-    it("Post conditions: the layer should be deleted",
+    it('Post conditions: the layer should be deleted',
         async () => {
             await studioUtils.openSettingsPanel();
             await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
@@ -113,7 +96,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

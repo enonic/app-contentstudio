@@ -134,17 +134,17 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_WITH_IMAGES_NAME_2);
-            //Click on 'Publish...' button (open Publish Wizard)
+            // Click on 'Publish...' button (open Publish Wizard)
             await contentBrowsePanel.clickOnPublishButton();
-            //'Include children' has been clicked
+            // 'Include children' has been clicked
             await contentPublishDialog.clickOnIncludeChildrenToogler();
-            //'Show Dependent items' has been clicked
+            // 'Show Dependent items' has been clicked
             await contentPublishDialog.clickOnShowDependentItems();
-            //Hide dependant items gets visible.
-            await contentPublishDialog.waitForHideDependentItemsDisplayed();
-            //child item should be removable.
+            // 'Hide dependant items' gets visible.
+            await contentPublishDialog.waitForHideDependentItemsButtonDisplayed();
+            // child item should be removable.
             let isRemovable = await contentPublishDialog.isPublishItemRemovable(appConst.TEST_IMAGES.BRO);
-            assert.isTrue(isRemovable, "Child item should be removable");
+            assert.isTrue(isRemovable, 'Child item should be removable');
         });
 
     it(`GIVEN 'Content Publish' dialog is opened WHEN cancel button on the bottom has been clicked THEN dialog is closing`,

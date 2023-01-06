@@ -110,18 +110,6 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             assert.isFalse(isInherited, "Updated content gets localized");
         });
 
-    it.skip(
-        "GIVEN localized site is selected WHEN Layers widget has been opened THEN the second item in the widget should contain button 'Edit'",
-        async () => {
-            //1.  layer's context should be selected automatically:
-            //2. Open Layers widget:
-            await studioUtils.findAndSelectItem(SITE_NAME);
-            studioUtils.saveScreenshot("site_widget_after_localizing");
-            let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
-            //3.Verify that the layer-item is expanded and 'Edit' button should be enabled in the item.
-            await browseLayersWidget.waitForEditButtonEnabled(LAYER_DISPLAY_NAME);
-        });
-
     it("Post conditions - the layer should be deleted",
         async () => {
             await studioUtils.openSettingsPanel();
