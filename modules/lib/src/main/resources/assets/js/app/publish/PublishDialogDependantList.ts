@@ -1,14 +1,13 @@
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {CompareStatusChecker} from '../content/CompareStatus';
+import {ContentId} from '../content/ContentId';
+import {ContentIds} from '../content/ContentIds';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {StatusSelectionItem} from '../dialog/StatusSelectionItem';
-import {ContentIds} from '../content/ContentIds';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {CompareStatusChecker} from '../content/CompareStatus';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
-import {ContentId} from '../content/ContentId';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 
 export class PublishDialogDependantList
     extends DialogDependantList {
@@ -63,12 +62,6 @@ export class PublishDialogDependantList
     }
 
     private initListItemListeners(item: ContentSummaryAndCompareStatus, view: Element) {
-        view.onClicked((event) => {
-            if (!new ElementHelper(<HTMLElement>event.target).hasClass('remove')) {
-                this.notifyItemClicked(item);
-            }
-        });
-
         const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
         const permissionsUpdatedHandler = (contentIds: ContentIds) => {
