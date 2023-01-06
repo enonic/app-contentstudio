@@ -1,65 +1,64 @@
-import * as Q from 'q';
-import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
-import {Issue} from '../Issue';
-import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
-import {Router} from '../../Router';
-import {ContentPublishDialogAction} from '../../publish/ContentPublishDialogAction';
-import {ContentPublishDialog} from '../../publish/ContentPublishDialog';
-import {PublishDialogDependantList} from '../../publish/PublishDialogDependantList';
-import {UpdateIssueRequest} from '../resource/UpdateIssueRequest';
-import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
-import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
-import {PublishRequest} from '../PublishRequest';
-import {PublishRequestItem} from '../PublishRequestItem';
-import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
-import {IssueDetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
-import {PublishProcessor} from '../../publish/PublishProcessor';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
-import {IssueCommentsList} from './IssueCommentsList';
-import {IssueCommentTextArea} from './IssueCommentTextArea';
-import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
-import {IssueDetailsDialogHeader} from './IssueDetailsDialogHeader';
-import {PublishContentRequest} from '../../resource/PublishContentRequest';
-import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
-import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {IssueType} from '../IssueType';
-import {PublishScheduleForm} from '../../publish/PublishScheduleForm';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
+import {ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
-import {TabBar} from '@enonic/lib-admin-ui/ui/tab/TabBar';
-import {TabBarItem, TabBarItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {LocalDateTime} from '@enonic/lib-admin-ui/util/LocalDateTime';
-import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {IssueComment} from '../IssueComment';
-import {ContentId} from '../../content/ContentId';
-import {PrincipalLoader} from '../../security/PrincipalLoader';
-import {TogglableStatusSelectionItem} from '../../dialog/DialogTogglableItemList';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {TabBar} from '@enonic/lib-admin-ui/ui/tab/TabBar';
+import {TabBarItem, TabBarItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
+import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {LocalDateTime} from '@enonic/lib-admin-ui/util/LocalDateTime';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import * as Q from 'q';
+import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
+import {ContentId} from '../../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
+import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {ContentPublishDialog} from '../../publish/ContentPublishDialog';
+import {ContentPublishDialogAction} from '../../publish/ContentPublishDialogAction';
+import {PublishDialogDependantList} from '../../publish/PublishDialogDependantList';
 import {PublishDialogItemList} from '../../publish/PublishDialogItemList';
+import {PublishProcessor} from '../../publish/PublishProcessor';
+import {PublishScheduleForm} from '../../publish/PublishScheduleForm';
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import {PublishContentRequest} from '../../resource/PublishContentRequest';
+import {Router} from '../../Router';
+import {PrincipalLoader} from '../../security/PrincipalLoader';
+import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
+import {Issue} from '../Issue';
+import {IssueComment} from '../IssueComment';
+import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
+import {IssueType} from '../IssueType';
+import {PublishRequest} from '../PublishRequest';
+import {PublishRequestItem} from '../PublishRequestItem';
+import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
+import {UpdateIssueRequest} from '../resource/UpdateIssueRequest';
+import {IssueCommentsList} from './IssueCommentsList';
+import {IssueCommentTextArea} from './IssueCommentTextArea';
+import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
+import {IssueDetailsDialogHeader} from './IssueDetailsDialogHeader';
+import {IssueDetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -775,9 +774,9 @@ export class IssueDetailsDialog
     }
 
     private initItemListTogglers(itemList: IssueDialogItemList): boolean {
-        // ignore event if there're changes as we're just setting loaded values on list
-        return itemList.getItemViews().reduce((alreadyMade: boolean, itemView: TogglableStatusSelectionItem) => {
-            return alreadyMade || itemView.toggleIncludeChildren(this.areChildrenIncludedInIssue(itemView.getContentId()));
+        return itemList.getItemViews().reduce((wasAnyIncluded, itemView) => {
+            const isIncluded = itemView.toggleIncludeChildren(this.areChildrenIncludedInIssue(itemView.getContentId()));
+            return isIncluded || wasAnyIncluded;
         }, false);
     }
 
