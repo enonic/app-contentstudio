@@ -1,19 +1,19 @@
-import * as Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {DialogItemList} from './DependantItemsDialog';
-import {StatusSelectionItem} from './StatusSelectionItem';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {ContentId} from '../content/ContentId';
+import {ContentIds} from '../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
-import {ContentIds} from '../content/ContentIds';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
-import {ContentId} from '../content/ContentId';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
+import {DialogItemList} from './DependantItemsDialog';
+import {StatusSelectionItem} from './StatusSelectionItem';
 
 export class DialogTogglableItemList
     extends DialogItemList {
@@ -276,7 +276,7 @@ export class TogglableStatusSelectionItem
     }
 
     toggleIncludeChildren(condition?: boolean, silent?: boolean): boolean {
-        return this.toggler?.toggle(condition, silent);
+        return !!this.toggler?.toggle(condition, silent);
     }
 
     getContentId(): ContentId {
