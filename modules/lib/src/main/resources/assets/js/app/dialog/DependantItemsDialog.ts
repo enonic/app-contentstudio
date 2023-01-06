@@ -427,7 +427,7 @@ export class DialogDependantList
         dependantViewer.onClicked((event) => {
             const el = new ElementHelper(<HTMLElement>event.target);
             if (!(el.hasClass('remove'))) {
-                this.notifyItemClicked(item); //
+                this.notifyItemClicked(item);
             }
         });
 
