@@ -22,6 +22,7 @@ const XPATH = {
     markAsReadyDropdownHandle: "//button[contains(@id,'DropdownHandle')]",
     excludeInvalidItems: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//button[child::span[contains(.,'Exclude invalid items')]]",
     excludeItemsInProgressButton: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//button[child::span[contains(.,'Exclude items in progress')]]",
+    inProgressErrorEntry: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//span[contains(@class,'entry-text') and text()='In progress']",
 
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
@@ -110,8 +111,13 @@ class ContentPublishDialog extends Page {
     }
 
     async clickOnMarkAsReadyDropdownHandle() {
-        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.longTimeout);
+        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.mediumTimeout);
         return await this.clickOnElement(this.markAsReadyDropdownHandle);
+    }
+
+    async markAsReadyDropdownHandleEnabled() {
+        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.mediumTimeout);
+        return await this.waitForElementEnabled(this.markAsReadyDropdownHandle, appConst.mediumTimeout);
     }
 
     async clickOnMarkAsReadyMenuItem() {
@@ -159,7 +165,7 @@ class ContentPublishDialog extends Page {
         return this.isElementDisplayed(this.includeChildrenToogler);
     }
 
-    //Click on icon-calendar:
+    // Click on icon-calendar:
     async clickOnAddScheduleIcon() {
         try {
             await this.waitForElementDisplayed(this.addScheduleIcon, appConst.shortTimeout);
@@ -171,7 +177,7 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    //Verifies that schedule button is enabled then clicks on it:
+    // Verifies that schedule button is enabled then clicks on it:
     async clickOnScheduleButton() {
         try {
             await this.waitForScheduleButtonEnabled();
@@ -196,8 +202,9 @@ class ContentPublishDialog extends Page {
             await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.shortTimeout);
             return await this.clickOnElement(this.showDependentItemsLink);
         } catch (err) {
-            this.saveScreenshot('err_publish_dialog_show_dependent_button');
-            throw new Error('Error when clicking on Show dependent items  ' + err);
+            let screenshot = appConst.generateRandomName('err_publish_dlg_show_dependent_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error when clicking on Show dependent items, screenshot  ' + screenshot + ' ' + err);
         }
     }
 
@@ -207,7 +214,7 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.includeChildrenToogler);
             return await this.pause(700);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_include_children"));
+            await this.saveScreenshot(appConst.generateRandomName('err_include_children'));
             throw new Error('Error when clicking on Include Children toggler ' + err);
         }
     }
@@ -220,19 +227,19 @@ class ContentPublishDialog extends Page {
 
     waitForHideDependentItemsButtonDisplayed() {
         return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch(err => {
-            throw new Error("Hide dependent items link should be visible!" + err)
+            throw new Error("'Hide dependent items' link should be visible!" + err)
         })
     }
 
     waitForScheduleButtonDisplayed() {
         return this.waitForElementDisplayed(this.scheduleButton, appConst.shortTimeout).catch(err => {
-            throw new Error("Schedule button should be visible!" + err);
+            throw new Error("'Schedule' button should be visible!" + err);
         })
     }
 
-    waitForHideDependentItemsDisplayed() {
-        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch(err => {
-            throw new Error("Hide dependent items link should be visible!" + err)
+    waitForHideDependentItemsButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch(err => {
+            throw new Error("'Hide dependent items' link should not be visible!" + err)
         })
     }
 
@@ -269,13 +276,13 @@ class ContentPublishDialog extends Page {
 
     waitForAddScheduleIconDisplayed() {
         return this.waitForElementDisplayed(this.addScheduleIcon, appConst.shortTimeout).catch(err => {
-            throw new Error("`Add Schedule` button is not displayed " + err);
+            throw new Error("'Add Schedule' button is not displayed " + err);
         })
     }
 
     waitForAddScheduleIconNotDisplayed() {
         return this.waitForElementNotDisplayed(this.addScheduleIcon, appConst.shortTimeout).catch(err => {
-            throw new Error("`Add Schedule` button should not be displayed " + err);
+            throw new Error("'Add Schedule' button should not be displayed " + err);
         })
     }
 
@@ -301,8 +308,8 @@ class ContentPublishDialog extends Page {
     async isPublishItemRemovable(displayName) {
         let selector = XPATH.itemToPublish(displayName);
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        let attr = await this.getAttribute(selector, "class");
-        return attr.includes("removable");
+        let attr = await this.getAttribute(selector, 'class');
+        return attr.includes('removable');
     }
 
     clickOnCancelTopButton() {
@@ -320,11 +327,11 @@ class ContentPublishDialog extends Page {
         let number = await this.getText(selector);
         let startIndex = number.indexOf('(');
         if (startIndex == -1) {
-            throw new Error("Content Publish Dialog - error when get a number in  `Publish now` button  ");
+            throw new Error("Content Publish Dialog - error when get a number in  'Publish now' button  ");
         }
         let endIndex = number.indexOf(')');
         if (endIndex == -1) {
-            throw new Error("Content Publish Dialog - error when get a number in  `Publish now` button ");
+            throw new Error("Content Publish Dialog - error when get a number in  'Publish now' button ");
         }
         return number.substring(startIndex + 1, endIndex);
     }
@@ -369,6 +376,13 @@ class ContentPublishDialog extends Page {
     waitForScheduleFormNotDisplayed() {
         let locator = XPATH.container + XPATH.publishScheduleForm + "//a[contains(@class,'icon-close')]";
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    async getInProgressEntryText() {
+        let locator = XPATH.container + XPATH.inProgressErrorEntry;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let res = await this.getAttribute(locator, 'data-count');
+        return res;
     }
 }
 

@@ -711,7 +711,7 @@ module.exports = {
         let tabs = await this.getBrowser().getWindowHandles();
         return await this.getBrowser().switchToWindow(tabs[tabs.length - 1]);
     },
-    async doSwitchToPrevTab(index) {
+    async doSwitchToPrevTab() {
         let tabs = await this.getBrowser().getWindowHandles();
         return await this.getBrowser().switchToWindow(tabs[tabs.length - 2]);
     },

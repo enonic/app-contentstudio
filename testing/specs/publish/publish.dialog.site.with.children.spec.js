@@ -39,17 +39,17 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Select an existing folder with invalid child and open Publish wizard:
+            // 1. Select an existing folder with invalid child and open Publish wizard:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
-            //2. Click on 'Include children' button
+            // 2. Click on 'Include children' button
             await contentPublishDialog.clickOnIncludeChildrenToogler();
-            //3. Verify that dependent items are expanded, because a not valid item is present:
-            await contentPublishDialog.waitForHideDependentItemsDisplayed();
-            //4. Verify that "Exclude invalid items" button gets visible
+            // 3. Verify that dependent items are expanded:
+            await contentPublishDialog.waitForHideDependentItemsButtonDisplayed();
+            // 4. Verify that "Exclude invalid items" button gets visible
             await contentPublishDialog.waitForExcludeInvalidItemsButtonDisplayed();
-            //5. Verify that 'Publish Now' button is disabled in the dialog:
+            // 5. Verify that 'Publish Now' button is disabled in the dialog:
             await contentPublishDialog.waitForPublishNowButtonDisabled();
         });
 
