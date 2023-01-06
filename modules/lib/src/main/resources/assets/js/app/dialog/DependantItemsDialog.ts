@@ -1,23 +1,23 @@
-import * as Q from 'q';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {StatusSelectionItem} from './StatusSelectionItem';
-import {DependantItemViewer} from './DependantItemViewer';
-import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
-import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
-import {ContentId} from '../content/ContentId';
+import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
+import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {ContentId} from '../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
+import {DependantItemViewer} from './DependantItemViewer';
+import {StatusSelectionItem} from './StatusSelectionItem';
 
 export interface DependantItemsDialogConfig
     extends ModalDialogWithConfirmationConfig {
@@ -427,7 +427,7 @@ export class DialogDependantList
         dependantViewer.onClicked((event) => {
             const el = new ElementHelper(<HTMLElement>event.target);
             if (!(el.hasClass('remove'))) {
-                this.notifyItemClicked(item);
+                this.notifyItemClicked(item); //
             }
         });
 
