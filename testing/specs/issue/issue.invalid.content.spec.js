@@ -14,11 +14,40 @@ const appConst = require('../../libs/app_const');
 
 describe('issue.invalid.content.spec: create a issue with invalid content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
+
+    let ISSUE_TITLE_1 = appConst.generateRandomName('issue');
     let ISSUE_TITLE = appConst.generateRandomName('issue');
-    const TEST_CONTENT_NAME = "circles";
+    const TEST_CONTENT_NAME = 'circles';
+
+    // Verifies https://github.com/enonic/app-contentstudio/issues/5617
+    // Issue Details Dialog - list of dependent items should be expanded by default #5617
+    it(`GIVEN existing folder with all valid child items is selected WHEN new issue has been created THEN dependent items should be expanded in the 'Items' tab`,
+        async () => {
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let createIssueDialog = new CreateIssueDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+            // 1. Select the existing folder with child items:
+            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
+            await contentBrowsePanel.waitForPublishButtonVisible();
+            // 2. open 'Create Issue' dialog
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+            await createIssueDialog.typeTitle(ISSUE_TITLE_1);
+            await createIssueDialog.clickOnIncludeChildrenToggler(appConst.TEST_FOLDER_WITH_IMAGES);
+            // 3. click on 'create issue' button:
+            await createIssueDialog.clickOnCreateIssueButton();
+            // 4. Go to 'Items' tab
+            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.clickOnItemsTabBarItem()
+            await studioUtils.saveScreenshot('issue_details_items_dependents_1');
+            //await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.pause(1000);
+            // 5. Verify that 'dependent list' is expanded on the dialog:
+            await issueDetailsDialogItemsTab.waitForHideDependentItemsLinkDisplayed();
+        });
 
     it(`GIVEN existing folder with one not valid child is selected WHEN 'Create Issue' menu item has been selected and issue created THEN '10' number should be in 'Items' on IssueDetailsDialog`,
         async () => {
@@ -40,7 +69,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialog.pause(1000);
             // 4. 12 items should be in the issue-details dialog:
             let result = await issueDetailsDialog.getNumberOfItems();
-            assert.equal(result, '12', '12 items should be displayed in the `Items`link');
+            assert.equal(result, '12', "12 items should be displayed in the 'Items' link");
         });
 
     it(`GIVEN issue with not valid item is clicked WHEN Items-tab has been clicked THEN 'Publish & Close Issue' button should be disabled, because invalid child is present`,
@@ -66,17 +95,17 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            //1. Open Issues List dialog:
+            // 1. Open Issues List dialog:
             await studioUtils.openIssuesListDialog();
-            //2. Click on the issue and open Issue Details dialog:
+            // 2. Click on the issue and open Issue Details dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogOpened();
-            //3. Go to 'Items' tab:
+            // 3. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            //4. Exclude the invalid content:
+            // 4. Exclude the invalid content:
             await issueDetailsDialogItemsTab.excludeDependantItem('shortcut-imported');
             await issueDetailsDialogItemsTab.waitForNotificationMessage();
-            //5.'Publish...' button gets enabled, because invalid child is excluded'
+            // 5.'Publish...' button gets enabled, because invalid child is excluded'
             await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
         });
 
@@ -86,28 +115,28 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            //1. Open Issues Details dialog dialog:
+            // 1. Open Issues Details dialog dialog:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogOpened();
-            //2. Go to 'Items' tab(IssueDetails dialog):
+            // 2. Go to 'Items' tab(IssueDetails dialog):
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            //3. Exclude a dependant item: the list of the items should be exanded by default
+            // 3. Exclude a dependant item: the list of the items should be exanded by default
             await issueDetailsDialogItemsTab.excludeDependantItem(TEST_CONTENT_NAME);
-            //5. Click on Publish button, 'Publish Wizard' should be loaded:
+            // 5. Click on Publish button, 'Publish Wizard' should be loaded:
             let contentPublishDialog = await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
             await contentPublishDialog.clickOnShowDependentItems();
-            //6. Verify that removed dependant item is not present in the list in Content Publish dialog:
+            // 6. Verify that removed dependant item is not present in the list in Content Publish dialog:
             let result = await contentPublishDialog.getDisplayNameInDependentItems();
-            //returns a truthy value for at least one element in the array contains the name. Otherwise, false.
+            // returns a truthy value for at least one element in the array contains the name. Otherwise, false.
             let isPresent = result.some(el => el.includes(TEST_CONTENT_NAME));
-            assert.isFalse(isPresent, "removed content should not be present in Publishing Wizard");
+            assert.isFalse(isPresent, 'Removed content should not be present in Publishing Wizard');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
