@@ -81,6 +81,14 @@ module.exports = Object.freeze({
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     TAB_TITLE_PART: "/ Content",
     CONTENT_STUDIO_TITLE: "Content Studio",
+    TEST_DATA: {
+        TEST_FOLDER_IMAGES_1_DISPLAY_NAME: "All Content types images",
+        TEST_FOLDER_IMAGES_1_NAME: "all-content-types-images",
+        FOLDER_WITH_IMAGES_2_DISPLAY_NAME: "Images for simple page",
+        FOLDER_WITH_IMAGES_2_NAME: "imagearchive",
+        TEST_FOLDER_DISPLAY_NAME: "folder for selenium tests",
+        TEST_FOLDER_NAME: "selenium-tests-folder",
+    },
     TEST_APPS_NAME: {
         SIMPLE_SITE_APP: 'Simple Site App',
         APP_WITH_CONFIG_OPTION_SET: "Simple Test Selenium App",

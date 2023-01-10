@@ -103,15 +103,20 @@ class IssueDetailsDialogItemsTab extends Page {
         })
     }
 
-    getNumberInHideDependentItemsLink() {
-        return this.getText(this.hideDependentItemsLink).then(result => {
+    async getNumberInHideDependentItemsLink() {
+        try {
+            await this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.mediumTimeout);
+            let result = await this.getText(this.hideDependentItemsLink);
             let startIndex = result.indexOf('(');
             let endIndex = result.indexOf(')');
             return result.substring(startIndex + 1, endIndex);
-        }).catch(err => {
-            throw new Error('Items Tab:error when getting number in the link : ' + err)
-        })
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('issue_det_items');
+            await this.saveScreenshot(screenshot)
+            throw new Error('Items Tab:error when getting number in the link, screenshot : ' + screenshot + ' ' + err)
+        }
     }
+
     getItemDisplayNames() {
         return this.getTextInElements(this.itemNamesToPublish).catch(err => {
             throw new Error('Items Tab:error when getting display names of items: ' + err)
@@ -213,6 +218,13 @@ class IssueDetailsDialogItemsTab extends Page {
     async getDisplayNameInDependentItems() {
         let locator = xpath.container + xpath.dependantList + xpath.dependantItemViewer + lib.H6_DISPLAY_NAME;
         return this.getTextInElements(locator);
+    }
+
+    async waitForIncludeChildrenIsOn(contentName) {
+        let locator = xpath.container + xpath.selectionItemByDisplayName(contentName) + lib.INCLUDE_CHILDREN_TOGGLER;
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        let result = await this.getAttribute(locator, 'class');
+        return result.includes('include-children-toggler on');
     }
 }
 
