@@ -132,7 +132,7 @@ CKEDITOR.plugins.add('macro', {
         }
 
         function isSameElementSelected() {
-            return editor.elementPath().lastElement.equals(selectedElement);
+            return editor.elementPath()?.lastElement.equals(selectedElement);
         }
 
         function triggerRefresh() {

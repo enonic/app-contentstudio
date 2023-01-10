@@ -169,7 +169,7 @@ export class ComponentView<COMPONENT extends Component>
         this.initKeyBoardBindings();
     }
 
-    private initListeners() {
+    protected initListeners() {
         this.propertyChangedListener = () => this.refreshEmptyState();
         this.resetListener = () => {
             // recreate the component view from scratch
@@ -186,6 +186,12 @@ export class ComponentView<COMPONENT extends Component>
         this.onRemoved(event => {
             if (this.component) {
                 this.unregisterComponentListeners(this.component);
+            }
+        });
+
+        this.onAdded(() => {
+            if (this.component) {
+                this.registerComponentListeners(this.component);
             }
         });
     }

@@ -146,11 +146,11 @@ export class ItemView
 
     protected liveEditModel: LiveEditModel;
 
+    protected placeholder?: ItemViewPlaceholder;
+
     private itemViewIdProducer: ItemViewIdProducer;
 
     private itemViewFactory: ItemViewFactory;
-
-    private placeholder: ItemViewPlaceholder;
 
     private type: ItemType;
 
@@ -651,7 +651,7 @@ export class ItemView
 
         const contextMenu = this.getCurrentContextMenu();
         const targetInContextMenu = !!contextMenu && contextMenu.getHTMLElement().contains(<Node>event.target);
-        const placeholderIsTarget = event.target === this.placeholder.getHTMLElement();
+        const placeholderIsTarget = event.target === this.placeholder?.getHTMLElement();
 
         if (!this.isSelected() || rightClicked) {
             let selectedView = SelectedHighlighter.get().getSelectedView();
@@ -891,15 +891,11 @@ export class ItemView
     }
 
     private selectPlaceholder() {
-        if (this.placeholder) {
-            this.placeholder.select();
-        }
+        this.placeholder?.select();
     }
 
     private deselectPlaceholder() {
-        if (this.placeholder) {
-            this.placeholder.deselect();
-        }
+        this.placeholder?.deselect();
     }
 
     showRenderingError(url: string, errorMessage?: string) {

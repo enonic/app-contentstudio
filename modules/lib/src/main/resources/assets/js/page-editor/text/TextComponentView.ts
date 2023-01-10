@@ -2,12 +2,11 @@ import * as $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
 import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {TextItemType} from './TextItemType';
 import {TextPlaceholder} from './TextPlaceholder';
 import {TextComponentViewer} from './TextComponentViewer';
-import {LiveEditPageDialogCreatedEvent} from '../LiveEditPageDialogCreatedEvent';
+import {LiveEditPageDialogCreatedEvent, LiveEditPageDialogCreatedEventHandler} from '../LiveEditPageDialogCreatedEvent';
 import {Highlighter} from '../Highlighter';
 import {ItemView} from '../ItemView';
 import {PageViewController} from '../PageViewController';
@@ -20,7 +19,6 @@ import {HtmlEditor, HtmlEditorCursorPosition} from '../../app/inputtype/ui/text/
 import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {SectionEl} from '@enonic/lib-admin-ui/dom/SectionEl';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import * as Q from 'q';
@@ -31,6 +29,8 @@ import {SelectedHighlighter} from '../SelectedHighlighter';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {CreateHtmlAreaDialogEvent} from '../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder<TextComponent> {
@@ -43,15 +43,11 @@ export class TextComponentViewBuilder
 export class TextComponentView
     extends ComponentView<TextComponent> {
 
-    private rootElement: Element;
-
     private htmlAreaEditor: HtmlEditor;
 
-    private isInitializingEditor: boolean;
+    private isInitializingEditor: boolean = false;
 
     private focusOnInit: boolean;
-
-    private editorContainer: DivEl;
 
     private editorReadyListeners: { (): void; }[] = [];
 
@@ -64,7 +60,7 @@ export class TextComponentView
     // special handling for click to allow dblclick event without triggering 2 clicks before it
     public static DBL_CLICK_TIMEOUT: number = 250;
     private singleClickTimer: number;
-    private lastClicked: number;
+    private lastClicked: number = 0;
 
     private modalDialog: ModalDialog;
     private currentDialogConfig: any;
@@ -74,23 +70,21 @@ export class TextComponentView
     private winBlurred: boolean;
 
     constructor(builder: TextComponentViewBuilder) {
-        super(builder.setPlaceholder(new TextPlaceholder()).setViewer(new TextComponentViewer()).setComponent(builder.component));
+        super(builder.setViewer(new TextComponentViewer()).setComponent(builder.component));
+
+        this.liveEditModel = builder.parentRegionView.getLiveEditModel();
 
         this.addTextContextMenuActions();
-        this.lastClicked = 0;
-        this.liveEditModel = builder.parentRegionView.getLiveEditModel();
-        this.isInitializingEditor = false;
-
         this.addClassEx('text-view');
+        this.setContentEditable(true);
+        this.setTextDir();
 
-        this.initializeRootElement();
+        this.checkIsSourceCodeEditable();
+        this.fetchStylesAndInitEditor();
+    }
 
-        this.rootElement.getHTMLElement().onpaste = this.handlePasteEvent.bind(this);
-
-        this.authRequest = HTMLAreaHelper.isSourceCodeEditable().then((value: boolean) => {
-            this.editableSourceCode = value;
-            return Q(null);
-        });
+    protected initListeners() {
+        super.initListeners();
 
         this.onAdded(() => { // is triggered on item insert or move
             if (!this.initOnAdd) {
@@ -104,16 +98,21 @@ export class TextComponentView
             this.destroyEditor();
         });
 
-        const handleDialogCreated = (event) => {
+        const handleDialogCreated: LiveEditPageDialogCreatedEventHandler = (event: LiveEditPageDialogCreatedEvent) => {
             if (this.currentDialogConfig === event.getConfig()) {
-                this.modalDialog = event.getModalDialog();
+                this.modalDialog = <ModalDialog>event.getModalDialog();
             }
         };
 
-        this.setTextDir();
         this.bindWindowFocusEvents();
-
         LiveEditPageDialogCreatedEvent.on(handleDialogCreated.bind(this));
+    }
+
+    private checkIsSourceCodeEditable(): void {
+        this.authRequest = HTMLAreaHelper.isSourceCodeEditable().then((value: boolean) => {
+            this.editableSourceCode = value;
+            return Q(null);
+        });
     }
 
     private setTextDir(): void {
@@ -142,8 +141,8 @@ export class TextComponentView
         new ItemViewSelectedEvent({itemView: this, position: null}).fire();
     }
 
-    private bindWindowFocusEvents() {
-        const win = WindowDOM.get();
+    private bindWindowFocusEvents(): void {
+        const win: WindowDOM = WindowDOM.get();
 
         win.onBlur((e: FocusEvent) => {
             if (e.target === win.getHTMLElement()) {
@@ -158,21 +157,15 @@ export class TextComponentView
         });
     }
 
-    private initialize() {
+    private initialize(): void {
         this.focusOnInit = true;
         this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
         if (!this.isEditorPresentOrInitializing()) {
             this.initEditor();
         } else if (this.htmlAreaEditor) {
-            this.reInitEditor(); // on added, inline editor losses its root element of the editable area
+            this.destroyEditor(); // on added, inline editor losses its root element of the editable area
         }
         this.unhighlight();
-    }
-
-    private reInitEditor() {
-        this.destroyEditor();
-        this.editorContainer.remove();
-        this.editorContainer = null;
     }
 
     private getContent(): ContentSummary {
@@ -185,16 +178,6 @@ export class TextComponentView
 
     private getApplicationKeys(): ApplicationKey[] {
         return this.liveEditModel.getSiteModel().getSite().getApplicationKeys();
-    }
-
-    private isAllTextSelected(): boolean {
-        return this.rootElement.getHTMLElement().innerText.trim() === window['getSelection']().toString();
-    }
-
-    private handlePasteEvent() {
-        if (this.isAllTextSelected()) {
-            this.rootElement.getHTMLElement().innerHTML = '';
-        }
     }
 
     highlight() {
@@ -213,23 +196,11 @@ export class TextComponentView
         return DragAndDrop.get().isDragging();
     }
 
-    private initializeRootElement() {
-        for (let i = 0; i < this.getChildren().length; i++) {
-            let child = this.getChildren()[i];
-            if (child.getEl().getTagName().toUpperCase() === 'SECTION') {
-                this.rootElement = child;
-                // convert image urls in text component for web
-                StylesRequest.fetchStyles(this.getContent().getId()).then(() =>
-                    child.setHtml(HTMLAreaHelper.convertRenderSrcToPreviewSrc(child.getHtml(), this.getContent().getId()), false)
-                );
-                break;
-            }
-        }
-        if (!this.rootElement) {
-            // create it in case of new component
-            this.rootElement = new SectionEl();
-            this.prependChild(this.rootElement);
-        }
+    private fetchStylesAndInitEditor(): void {
+        // convert image urls in text component for web
+        StylesRequest.fetchStyles(this.getContent().getId()).then(() => {
+            this.initEditor();
+        }).catch(DefaultErrorHandler.handle);
     }
 
     private doHandleDbClick(event: MouseEvent): void {
@@ -314,6 +285,9 @@ export class TextComponentView
             return;
         }
 
+        this.toggleClass('edit-mode', edit);
+        this.setDraggable(!edit);
+
         if (!edit) {
             if (this.isEditorReady()) {
                 this.processEditorValue();
@@ -322,9 +296,6 @@ export class TextComponentView
 
             this.deselect();
         }
-
-        this.toggleClass('edit-mode', edit);
-        this.setDraggable(!edit);
 
         if (edit) {
             SelectedHighlighter.get().hide();
@@ -336,7 +307,7 @@ export class TextComponentView
                 if (this.isEditorReady()) {
                     this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
                 }
-                this.rootElement.setHtml(TextComponentView.DEFAULT_TEXT, false);
+                this.setHtml(TextComponentView.DEFAULT_TEXT, false);
             }
         }
     }
@@ -423,34 +394,25 @@ export class TextComponentView
     }
 
     private initEditor(): void {
-        if (this.authRequest.isFulfilled()) {
-            this.doInitEditor();
-        } else {
-            this.authRequest.then(() => {
-                if (!this.isEditorPresentOrInitializing()) {
-                    this.doInitEditor();
-                }
-            });
-        }
+        this.authRequest.then(() => {
+            if (!this.isEditorPresentOrInitializing()) {
+                this.doInitEditor();
+            }
+        });
     }
 
-    private doInitEditor() {
+    private doInitEditor(): void {
         this.isInitializingEditor = true;
-        const id = this.getId().replace(/\./g, '_');
+        const id: string = this.getId().replace(/\./g, '_');
 
         this.addClass(id);
 
-        if (!this.editorContainer) {
-            this.editorContainer = this.createEditorContainer();
-            this.appendChild(this.editorContainer);
-        }
-
-        const createDialogHandler = event => {
+        const createDialogHandler: (event: CreateHtmlAreaDialogEvent) => void = event => {
             this.currentDialogConfig = event.getConfig();
         };
 
         const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
-            .setEditorContainerId(this.getId() + '_editor')
+            .setEditorContainerId(this.getId())
             .setAssetsUri(CONFIG.getString('assetsUri'))
             .setInline(true)
             .setCreateDialogHandler(createDialogHandler)
@@ -477,23 +439,16 @@ export class TextComponentView
         });
     }
 
-    private createEditorContainer(): Element {
-        const editorContainer: Element = new DivEl('').setContentEditable(true);
-        editorContainer.getEl().setAttribute('id', this.getId() + '_editor');
-
-        return editorContainer;
-    }
-
     private handleEditorCreated() {
-        if (this.component.getText()) {
-            this.htmlAreaEditor.setData(HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText(), this.getContent().getId()));
-        } else {
-            this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
-        }
+        const data: string = this.component.getText() ?
+                             HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText(), this.getContent().getId()) :
+                             TextComponentView.DEFAULT_TEXT;
+        this.htmlAreaEditor.setData(data);
 
         if (this.focusOnInit && this.isAdded()) {
             this.forceEditorFocus();
         }
+
         this.focusOnInit = false;
         this.isInitializingEditor = false;
         this.notifyEditorReady();
@@ -504,8 +459,8 @@ export class TextComponentView
         this.startPageTextEditMode();
     }
 
-    private isEditorReady() {
-        return this.htmlAreaEditor && this.htmlAreaEditor.isReady();
+    private isEditorReady(): boolean {
+        return this.htmlAreaEditor?.isReady();
     }
 
     private focusEditor(): void {
@@ -531,16 +486,9 @@ export class TextComponentView
             return;
         }
 
-        if (this.isEditorEmpty()) {
-            this.component.setText(TextComponentView.DEFAULT_TEXT);
-            // copy editor content over to the root html element
-            this.rootElement.getHTMLElement().innerHTML = TextComponentView.DEFAULT_TEXT;
-        } else {
-            // copy editor raw content (without any processing!) over to the root html element
-            this.rootElement.getHTMLElement().innerHTML = this.htmlAreaEditor.getRawData();
-            // but save processed text to the component
-            this.component.setText(HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData()));
-        }
+        const text: string = this.isEditorEmpty() ? TextComponentView.DEFAULT_TEXT :
+                             HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData());
+        this.component.setText(text);
     }
 
     private isEditorEmpty(): boolean {
@@ -574,7 +522,8 @@ export class TextComponentView
         if (!this.isEditMode()) {
             return false;
         }
-        return this.rootElement.giveFocus();
+
+        return super.giveFocus();
     }
 
     private addTextContextMenuActions() {
@@ -598,7 +547,7 @@ export class TextComponentView
             return this.htmlAreaEditor.extractText();
         }
 
-        return this.rootElement.getHTMLElement().textContent.trim();
+        return this.getHTMLElement().textContent.trim();
     }
 
     scrollComponentIntoView() {
@@ -635,5 +584,26 @@ export class TextComponentView
         }
 
         return LangDirection.AUTO;
+    }
+
+    refreshEmptyState(): TextComponentView {
+        super.refreshEmptyState();
+        this.togglePlaceholder();
+
+        return this;
+    }
+
+    private togglePlaceholder(): void {
+        if (this.isEmpty() && !this.isEditMode()) {
+            if (!this.placeholder) {
+                this.placeholder = new TextPlaceholder();
+            }
+
+            if (!this.contains(this.placeholder)) {
+                this.appendChild(this.placeholder);
+            }
+        } else if (this.placeholder && this.contains(this.placeholder)) {
+            this.removeChild(this.placeholder);
+        }
     }
 }
