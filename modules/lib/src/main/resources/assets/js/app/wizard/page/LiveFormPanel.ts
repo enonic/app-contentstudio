@@ -444,10 +444,10 @@ export class LiveFormPanel
                 const itemView = this.pageView.getSelectedView();
                 if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
                     const persistedContent = this.contentWizardPanel.getPersistedItem();
-                    const viewedPage: Page = this.getPage().clone();
-                    const savedPage: Page = persistedContent.getPage().clone();
+                    const viewedPage: Page = this.getPage()?.clone();
+                    const savedPage: Page = persistedContent.getPage()?.clone();
 
-                    if (!viewedPage.equals(savedPage)) {
+                    if (!ObjectHelper.equals(viewedPage, savedPage)) {
                         this.contentWizardPanel.setMarkedAsReady(false);
                     }
 
