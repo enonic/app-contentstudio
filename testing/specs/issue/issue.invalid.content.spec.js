@@ -19,8 +19,49 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
     }
 
     let ISSUE_TITLE_1 = appConst.generateRandomName('issue');
+    let ISSUE_TITLE_2 = appConst.generateRandomName('issue');
     let ISSUE_TITLE = appConst.generateRandomName('issue');
     const TEST_CONTENT_NAME = 'circles';
+
+    // Verifies https://github.com/enonic/app-contentstudio/issues/5679
+    // Issues lose "Include child items" flag on save #5679
+    it("GIVEN Create Issue dialog is opened with 2 parent folders WHEN 'Include children' icons have been clicked AND 'Create Issue' button has been pressed THEN all child items should be included in the 'Items' tab",
+        async () => {
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let createIssueDialog = new CreateIssueDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+            // 1. Select checkboxes for 2 existing folder with child items:
+            await studioUtils.findContentAndClickCheckBox(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await studioUtils.findContentAndClickCheckBox(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
+            await contentBrowsePanel.waitForPublishButtonVisible();
+            // 2. open 'Create Issue' dialog:
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+            await createIssueDialog.typeTitle(ISSUE_TITLE_2);
+            // 3. Click on both 'include children items' icons:
+            await createIssueDialog.clickOnIncludeChildrenToggler(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await createIssueDialog.clickOnIncludeChildrenToggler(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
+            // 4. click on 'create issue' button:
+            await createIssueDialog.clickOnCreateIssueButton();
+            // 5. Go to 'Items' tab
+            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.clickOnItemsTabBarItem()
+            await studioUtils.saveScreenshot('issue_details_items_2_parent_selected');
+            await issueDetailsDialog.pause(1000);
+            // 6. Verify that 'dependent list' is expanded in the dialog:
+            await issueDetailsDialogItemsTab.waitForHideDependentItemsLinkDisplayed();
+            // 7. Verify that expected number of items is displayed in the Items tab-link:
+            let result = await issueDetailsDialog.getNumberOfItems();
+            assert.equal(result, '24', "24 items should be displayed in the 'Items' link");
+            // 8. Verify that 'Hide dependent items link' is expanded and expected number of items is displayed
+            let actualNumber = await issueDetailsDialogItemsTab.getNumberInHideDependentItemsLink();
+            assert.equal(actualNumber, '22', "22 items should be present in 'Hide dependent items link'");
+            // 9. Publish button should be enabled, because all items are valid
+            await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
+            // 10. Verify that both togglers are 'switched on' in the Items tab
+            await issueDetailsDialogItemsTab.waitForIncludeChildrenIsOn(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await issueDetailsDialogItemsTab.waitForIncludeChildrenIsOn(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
+        });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/5617
     // Issue Details Dialog - list of dependent items should be expanded by default #5617
