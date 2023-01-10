@@ -3,6 +3,52 @@
 
 TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.com/docs/content-studio/3.x/release[here]
 
+== Content Studio 4 Update 4
+
+IMPORTANT: Content Studio 4.4.x requires XP 7.11.0 or higher.
+
+Content Studio 4.4.0 introduces validation checks in the Archive and Publish dialogs, enables creation of a new content directly from Content Selector and simplifies visualisation of changes done to a published content.
+
+
+=== Publishing dialog improvements
+
+:imagesdir: actions/images
+
+If the list of items to be published contains invalid items or items that are still in the "In progress" workflow state or items that current user is not allowed to publish, the warning section will be shown on top of the dialog, displaying all failed validation checks. The "Publish" button will then be disabled and "problematic" items will be shown on top of the list.
+
+image::dialog-publish-invalid.png[Invalid publication, 470px]
+
+User can use links next to each validation check to exclude these items from the publication. All the validation checks will be re-run on every change of the publication contents.
+
+If all the checks have successfully passed, the "Publish" button will be enabled and the warning section will say that everything is ready for publishing.
+
+image::dialog-publish-valid.png[Valid publication, 470px]
+
+=== Archive/Delete dialog improvements
+
+If any of the items in the Archive/Delete dialog has an inbound dependency (is referenced by another content), a warning will be shown on top of the dialog and the action button will be disabled. User can either click "Ignore inbound references" link to ignore the warning and proceed with archiving/deletion, or click "Show references" link for every referenced item and remove the references (the dialog will be automatically refreshed).
+
+image::dialog-archive-references.png[Archive item(s) dialog, 600]
+
+:imagesdir: release/images
+
+=== "Show changes" link for modified content
+
+Previously, to display modifications of a published content user had to use the "Version History" widget and compare versions.
+With the new "Show changes" shortcut link displayed in the Content Navigator's and the Content Wizard's toolbars such comparison can be done in one click.
+
+image::cs44-show-changes.png[Show changes link, 600]
+
+=== Add new content from Content Selector
+
+Content Selector inputs got `[+]` icon next to the selector dropdown which enables adding a new content to the selector without having to go back to the Content Navigator. If the Content Selector is configured (via `allowContentType` config) in such a way that it allows only one content-type, `[+]` icon will instantly create a new content of this type and open a new Content wizard tab. Otherwise, user will be asked to select a content type from the "New Content" modal dialog.
+
+image::cs44-content-selector.png[Content Selector, 400]
+
+=== Improved workflow
+
+Marking content as ready will now automatically open the Publishing wizard for this content.
+
 == Content Studio 4 Update 3
 
 IMPORTANT: Content Studio 4.3.x requires XP 7.11.0 or higher.
@@ -12,9 +58,9 @@ wizard for creating a New content project, RTL support in text inputs and abilit
 
 === Insert Link dialog improvements
 
-The <<editor/rich-text-editor#insertedit_link,Insert Link dialog>> in the HTML editor has been completely revamped to support relative URLs, parameters/anchor for internal URLs and advanced handling of media links.
-
 :imagesdir: editor/images
+
+The <<editor/rich-text-editor#insertedit_link,Insert Link dialog>> in the HTML editor has been completely revamped to support relative URLs, parameters/anchor for internal URLs and advanced handling of media links.
 
 Here's what's new:
 

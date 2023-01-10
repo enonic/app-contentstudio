@@ -40,8 +40,8 @@ For content `In progress` default action in the action menu is *MARK AS READY*.
 
 When work on the content is finished and the content is ready for publishing,
 user can mark it as ready by using *MARK AS READY* action in the Content Wizard or
-Content Navigator. This will mark the content as *READY* and take it to the
-next stage of the Workflow process.
+Content Navigator. This will mark the content as *READY* and automatically open the Publishing wizard
+for publishing the content.
 
 
 == Ready for Publishing
