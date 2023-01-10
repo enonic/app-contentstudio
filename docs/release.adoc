@@ -49,6 +49,13 @@ image::cs44-content-selector.png[Content Selector, 400]
 
 Marking content as ready will now automatically open the Publishing wizard for this content.
 
+=== Improvements in HTML Area
+
+* Shortcut for adding non-breaking space (`Alt-Space` on Windows, `⌘ + Space` on Mac)
+* Greek characters in "Special char" dialog
+* "More colors" option in the "TextColor" tool
+
+
 == Content Studio 4 Update 3
 
 IMPORTANT: Content Studio 4.3.x requires XP 7.11.0 or higher.
