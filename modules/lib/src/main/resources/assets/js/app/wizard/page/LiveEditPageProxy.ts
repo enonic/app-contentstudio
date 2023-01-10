@@ -133,6 +133,12 @@ export class LiveEditPageProxy {
 
     private modifyPermissions: boolean = false;
 
+    private isLiveEditInitialized: boolean = false;
+
+    private contentRenderingListener: (e: CustomEvent) => void;
+
+    private contentRenderedListener: (e: CustomEvent) => void;
+
     constructor(contentId: ContentId) {
         this.contentId = contentId;
 
@@ -372,40 +378,102 @@ export class LiveEditPageProxy {
             console.debug('LiveEditPageProxy.handleIframeLoadedEvent at ' + new Date().toISOString());
         }
 
+        console.info('IframeLoaded: ' + new Date().toISOString());
+
+        this.isLiveEditInitialized = false;
+
+        // waiting 100 ms for the rendering event from the page (500 ms for background page)
+        let timer = this.scheduleLiveEditInit(liveEditWindow, document.hidden ? 500 : 100);
+
         if (liveEditWindow) {
+            this.contentRenderingListener = this.createContentRenderingListener(liveEditWindow, timer);
+            // UI event saying that rendering has started and CS must wait for it to finish
+            liveEditWindow.addEventListener('ContentRendering', this.contentRenderingListener);
 
-            if (this.liveEditWindow) {
-                this.stopListening(this.liveEditWindow);
-            }
-
-            this.liveEditWindow = liveEditWindow;
-            const liveEditGlobal: GlobalLibAdmin = liveEditWindow[GLOBAL];
-            const liveEditStore: Store = liveEditGlobal ? liveEditGlobal.store : null;
-            const livejq = (liveEditStore && liveEditStore.has('$')) ? liveEditStore.get('$') : liveEditWindow['$'];
-            if (livejq) {
-
-                this.livejq = <JQueryStatic>livejq;
-
-                this.listenToPage(this.liveEditWindow);
-
-                if (BrowserHelper.isIE()) {
-                    this.resetObjectsAfterFrameReloadForIE();
-                    this.disableLinksInLiveEditForIE();
-                }
-                if (LiveEditPageProxy.debug) {
-                    console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
-                }
-                new InitializeLiveEditEvent(this.liveEditModel, this.modifyPermissions).fire(this.liveEditWindow);
-            } else {
-                if (LiveEditPageProxy.debug) {
-                    console.debug('LiveEditPageProxy.handleIframeLoadedEvent: notify live edit ready at ' + new Date().toISOString());
-                }
-                this.notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
-            }
+            this.contentRenderedListener = this.createContentRenderedListener(liveEditWindow, timer);
+            // UI event saying that rendering has finished and CS can start initializing page editor
+            liveEditWindow.addEventListener('ContentRendered', this.contentRenderedListener);
         }
 
         // Notify loaded no matter the result
         this.notifyLoaded();
+    }
+
+    private createContentRenderingListener(liveEditWindow: Window, timer: number) {
+        let isStarted = false;
+        return (e: CustomEvent) => {
+            if (isStarted) {
+                return;
+            }
+            console.info('ContentRendering: ' + new Date().toISOString());
+            isStarted = true;
+            if (timer) {
+                clearTimeout(timer);
+                let timeout = parseInt(e.detail?.timeout);
+                if (timeout) {
+                    // reschedule initialization in 'timeout' ms
+                    timer = this.scheduleLiveEditInit(liveEditWindow, timeout);
+                }
+            }
+        };
+    }
+
+    private createContentRenderedListener(liveEditWindow: Window, timer: number) {
+        let isFinished = false;
+        return (e: CustomEvent) => {
+            if (isFinished) {
+                return;
+            }
+            console.info('ContentRendered: ' + new Date().toISOString());
+            isFinished = true;
+            if (timer) {
+                clearTimeout(timer);
+            }
+            if (!this.isLiveEditInitialized) {
+                this.initLiveEditWindow(liveEditWindow);
+            }
+        };
+    }
+
+    private scheduleLiveEditInit(liveEditWindow: Window, msec: number): number {
+        return setTimeout(() => {
+            if (!this.isLiveEditInitialized) {
+                this.initLiveEditWindow(liveEditWindow);
+            }
+        }, msec);
+    }
+
+    private initLiveEditWindow(liveEditWindow: Window) {
+        console.info('initLiveEditWindow: ' + new Date().toISOString());
+        if (this.liveEditWindow) {
+            this.stopListening(this.liveEditWindow);
+        }
+
+        this.liveEditWindow = liveEditWindow;
+        const liveEditGlobal: GlobalLibAdmin = liveEditWindow[GLOBAL];
+        const liveEditStore: Store = liveEditGlobal ? liveEditGlobal.store : null;
+        const livejq = (liveEditStore && liveEditStore.has('$')) ? liveEditStore.get('$') : liveEditWindow['$'];
+        if (livejq) {
+
+            this.livejq = <JQueryStatic>livejq;
+
+            this.listenToPage(this.liveEditWindow);
+
+            if (BrowserHelper.isIE()) {
+                this.resetObjectsAfterFrameReloadForIE();
+                this.disableLinksInLiveEditForIE();
+            }
+            if (LiveEditPageProxy.debug) {
+                console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
+            }
+            new InitializeLiveEditEvent(this.liveEditModel, this.modifyPermissions).fire(this.liveEditWindow);
+        } else {
+            if (LiveEditPageProxy.debug) {
+                console.debug('LiveEditPageProxy.handleIframeLoadedEvent: notify live edit ready at ' + new Date().toISOString());
+            }
+            this.notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
+        }
+        this.isLiveEditInitialized = true;
     }
 
     public loadComponent(componentView: ComponentView<Component>, componentUrl: string,
@@ -461,6 +529,10 @@ export class LiveEditPageProxy {
     }
 
     public stopListening(contextWindow: any) {
+
+        this.liveEditWindow.removeEventListener('ContentRendering', this.contentRenderingListener);
+
+        this.liveEditWindow.removeEventListener('ContentRendered', this.contentRenderedListener);
 
         ComponentViewDragStartedEvent.un(null, contextWindow);
 
