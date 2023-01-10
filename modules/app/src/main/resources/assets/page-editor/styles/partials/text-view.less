@@ -51,26 +51,23 @@
     font-weight: inherit;
   }
   // end of cke style enforcing
+  padding: 5px;
 
-  &.empty .@{_CLS_PREFIX}text-placeholder {
-    margin-bottom: 0;
-    margin-top: 0;
-  }
-
-  &.empty > section {
-    display: none;
-  }
-
-  .cke_editable {
-    cursor: auto;
-    display: none;
-    padding: 5px;
+  &.empty:not(.edit-mode) {
+    > *:not(.@{_CLS_PREFIX}item-placeholder) {
+      height: 0;
+      margin: 0;
+    }
   }
 
   &.edit-mode {
     min-height: 0;
+    cursor: text;
+    display: block;
+    .input-border();
+    .input-glow();
 
-    .cke_editable {
+    &.cke_editable {
       display: block;
       box-sizing: border-box;
       outline: none;
@@ -97,27 +94,12 @@
     }
 
     .input-border(@admin-medium-gray-border);
-
-    section {
-      display: none !important;
-    }
-
-    > .@{_CLS_PREFIX}text-placeholder {
-      display: none;
-    }
-
-    > section {
-      cursor: text;
-      display: block;
-      .input-border();
-      .input-glow();
-    }
   }
 
-  & > section {
-    padding: 5px;
+  &:not(.edit-mode) {
     outline: 0 none;
     box-sizing: content-box;
+    cursor: move;
 
     & > *:first-child {
       margin-top: 0;
@@ -128,6 +110,10 @@
     }
 
     .figure-mixin();
+
+    &.empty {
+      padding: 0px;
+    }
   }
 }
 
