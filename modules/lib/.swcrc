@@ -12,16 +12,7 @@
         },
         "target": "es5",
         "keepClassNames": true,
-        "loose": true,
-        "minify": {
-            "compress": {
-                "keep_classnames": true
-            },
-            "mangle": {
-                "keepClassNames": true,
-                "keepFnNames": true
-            }
-        }
+        "loose": true
     },
     "exclude": [
         ".*\\.d\\.ts$",
