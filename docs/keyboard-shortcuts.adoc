@@ -171,4 +171,7 @@ NOTE: Press F2 to reveal all available shortcuts for a view.
 |Focus to element
 2+^|`Alt + F11`
 
+|Insert non-breaking space
+2+^|`Ctrl + Space`
+
 |===
