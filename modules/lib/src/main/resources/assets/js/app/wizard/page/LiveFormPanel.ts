@@ -318,6 +318,7 @@ export class LiveFormPanel
                 const newValue = event.getNewValue();
 
                 if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER && !ObjectHelper.objectEquals(oldValue, newValue)) {
+                    this.contentWizardPanel.setMarkedAsReady(false);
                     this.contentWizardPanel.saveChanges().catch((error: any) => {
                         DefaultErrorHandler.handle(error);
                     });
@@ -331,6 +332,7 @@ export class LiveFormPanel
                           !this.pageModel.hasController())) {
                         this.pageInspectionPanel.refreshInspectionHandler();
                         this.lockPageAfterProxyLoad = true;
+                        this.contentWizardPanel.setMarkedAsReady(false);
                         this.contentWizardPanel.saveChanges().catch((error: any) => {
                             DefaultErrorHandler.handle(error);
                         });
@@ -408,6 +410,7 @@ export class LiveFormPanel
 
     private listenControllerSelected(): void {
         this.placeholder.onControllerSelected(() => {
+            this.contentWizardPanel.setMarkedAsReady(false);
             this.contentWizardPanel.saveChanges().catch(DefaultErrorHandler.handle);
         });
     }
