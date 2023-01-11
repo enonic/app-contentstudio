@@ -933,6 +933,7 @@ export class ContentWizardPanel
     private handleSiteConfigApply() {
         let siteConfigApplyHandler = (event: ContentRequiresSaveEvent) => {
             if (this.isCurrentContentId(event.getContentId())) {
+                this.setMarkedAsReady(false);
                 this.saveChanges();
             }
         };
