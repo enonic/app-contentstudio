@@ -15,7 +15,7 @@ CKEDITOR.plugins.add( 'nbsp',
 				editor.insertHtml( '&nbsp;', 'text' );
 			}
 		});
-		editor.setKeystroke( CKEDITOR.ALT + 32 /* space */, 'insertNbsp' );
+		editor.setKeystroke( CKEDITOR.CTRL + 32 /* space */, 'insertNbsp' );
 	}
 
 } );
