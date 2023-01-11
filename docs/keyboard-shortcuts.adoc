@@ -172,7 +172,6 @@ NOTE: Press F2 to reveal all available shortcuts for a view.
 2+^|`Alt + F11`
 
 |Insert non-breaking space
-^|`⌘ + Space`
-^|`Alt + Space`
+2+^|`Ctrl + Space`
 
 |===

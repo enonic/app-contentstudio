@@ -691,6 +691,7 @@ export class HtmlEditor {
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 55, 'p'); // apply the 'Normal' format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 56, 'div'); // apply the 'Normal (DIV)' format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 57, 'address'); // apply the 'Address' format
+            this.editor.setKeystroke(CKEDITOR.CTRL + 32, 'insertNbsp');
         });
 
         this.editor.on('key', function (evt: eventInfo) { // stopping select all from propagating

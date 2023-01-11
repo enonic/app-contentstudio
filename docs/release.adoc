@@ -51,7 +51,7 @@ Marking content as ready will now automatically open the Publishing wizard for t
 
 === Improvements in HTML Area
 
-* Shortcut for adding non-breaking space (`Alt-Space` on Windows, `⌘ + Space` on Mac)
+* Shortcut for adding non-breaking space (`Ctrl-Space`)
 * Greek characters in "Special char" dialog
 * "More colors" option in the "TextColor" tool
 
