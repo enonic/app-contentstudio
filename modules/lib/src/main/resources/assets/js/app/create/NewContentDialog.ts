@@ -58,6 +58,8 @@ export class NewContentDialog
 
     private typeSelectedHandler?: (contentType: ContentTypeSummary, parentContent: ContentSummary) => void;
 
+    private uploadHandler?: (items: UploadItem<Content>[]) => void;
+
     protected header: NewContentDialogHeader;
 
     constructor() {
@@ -144,10 +146,16 @@ export class NewContentDialog
     private initFileInputEvents() {
         this.newContentUploader.onUploadStarted(this.closeAndFireEventFromMediaUpload.bind(this));
         this.newContentUploader.onUploadStarted((event: UploadStartedEvent<Content>) => {
-            const names = event.getUploadItems().map((uploadItem: UploadItem<Content>) => {
+            const names: string[] = event.getUploadItems().map((uploadItem: UploadItem<Content>) => {
                 return uploadItem.getName();
             });
             this.fileInput.setText(names.join(', '));
+
+            if (this.uploadHandler) {
+                this.uploadHandler(event.getUploadItems());
+            }
+
+            this.uploadHandler = null;
         });
 
         this.fileInput.onValueChanged(() => {
@@ -217,6 +225,11 @@ export class NewContentDialog
 
     setContentTypes(types: ContentTypeSummary[]): NewContentDialog {
         this.contentTypes = types;
+        return this;
+    }
+
+    setUploadHandler(handler: (items: UploadItem<Content>[]) => void): NewContentDialog {
+        this.uploadHandler = handler;
         return this;
     }
 
