@@ -292,10 +292,9 @@ module.exports = {
         await this.doCloseWizardAndSwitchToGrid();
         return await this.getBrowser().pause(1000);
     },
-    doCloseWizardAndSwitchToGrid: function () {
-        return this.doCloseCurrentBrowserTab().then(() => {
-            return this.doSwitchToContentBrowsePanel();
-        });
+    async doCloseWizardAndSwitchToGrid() {
+        await this.doCloseCurrentBrowserTab();
+        return await this.doSwitchToContentBrowsePanel();
     },
     async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
