@@ -1,35 +1,18 @@
 apply plugin: 'maven-publish'
 
-group='com.enonic.lib'
+group = 'com.enonic.lib'
 archivesBaseName = 'lib-contentstudio'
 
 configurations {
     devResources {
         attributes {
-            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, 'dev-resources'))
+            attribute( LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named( LibraryElements, 'dev-resources' ) )
         }
     }
 }
 
 dependencies {
     devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-}
-
-task copyDevResources {
-    doLast {
-        copy {
-            from configurations.devResources.files.collect { zipTree( it ) }
-            include 'dev/**'
-            into '.xp'
-        }
-    }
-}
-
-npmInstall.dependsOn copyDevResources
-
-node {
-    download = true
-    version = '18.12.1'
 }
 
 task lint( type: NpmTask, group: "verification", dependsOn: npmInstall ) {
@@ -103,5 +86,4 @@ artifacts {
     devResources devJar
 }
 
-components.java.addVariantsFromConfiguration( configurations.devResources )  {
-}
+components.java.addVariantsFromConfiguration( configurations.devResources ) {}
