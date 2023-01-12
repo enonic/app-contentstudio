@@ -52,24 +52,10 @@ dependencies {
     devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
-task copyDevResources {
-    doLast {
-        copy {
-            from configurations.devResources.files.collect { zipTree( it ) }
-            include 'dev/**'
-            into '.xp'
-        }
-    }
-
-    dependsOn ':lib-contentstudio:devJar'
+afterEvaluate {
+    copyDevResources.dependsOn ':lib-contentstudio:devJar'
 }
 
-npmInstall.dependsOn copyDevResources
-
-node {
-    version = '18.12.1'
-    download = true
-}
 
 task lint( type: NpmTask, group: "verification", dependsOn: npmInstall ) {
     args = ['run', 'lint']
