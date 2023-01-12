@@ -8,8 +8,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
 const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
-const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 
 describe('add.new.in.selector.spec ui-tests for adding a new content directly from Content Selector', function () {
@@ -35,14 +33,19 @@ describe('add.new.in.selector.spec ui-tests for adding a new content directly fr
             await newContentDialog.waitForOpened();
             await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(NEW_CONTENT_NAME);
+            // 3. Save the target-folder
             await contentWizard.waitAndClickOnSave();
-            // 3. Switch to shortcut-wizard:
+            // 4. Switch to shortcut-wizard:
             await studioUtils.doSwitchToPrevTab();
-            // 4. Verify that 'Add new' button gets not visible:
+            // 5. Verify that 'Add new' button gets not visible:
             await shortcutForm.waitForAddNewContentButtonNotDisplayed();
-            // 5. Verify that created folder is displayed in the elected option in shortcut-wizard:
+            // 6. Verify that created folder is displayed in the elected option in shortcut-wizard:
             let actualTarget = await shortcutForm.getSelectedTargetDisplayName();
             assert.equal(actualTarget, NEW_CONTENT_NAME, 'Expected folder-name should be displayed');
+            // 7. Save the shortcut with the selected target:
+            await contentWizard.waitAndClickOnSave();
+            await studioUtils.saveScreenshot('sh_saved');
+            await contentWizard.waitForNotificationMessage();
         });
 
     it(`GIVEN existing shortcut is opened THEN the selected target has been removed THEN 'Add new' button gets visible again`,
@@ -53,6 +56,7 @@ describe('add.new.in.selector.spec ui-tests for adding a new content directly fr
             await studioUtils.selectAndOpenContentInWizard(SHORTCUT_NAME);
             // 2. Remove the selected option in target selector:
             await shortcutForm.clickOnRemoveTargetIcon();
+            await studioUtils.saveScreenshot('sh_target_removed_add_new');
             // 3. Verify that 'Add new' button gets visible again:
             await shortcutForm.waitForAddNewContentButtonDisplayed();
         });
