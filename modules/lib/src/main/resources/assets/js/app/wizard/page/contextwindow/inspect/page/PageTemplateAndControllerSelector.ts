@@ -278,8 +278,10 @@ export class PageTemplateAndControllerSelector
     private selectInitialOption() {
         const pageModel: PageModel = this.liveEditModel.getPageModel();
 
-        if (pageModel.hasController() && pageModel.getController().getKey().toString() !== this.getValue()) {
-            this.selectOptionByValue(pageModel.getController().getKey().toString());
+        if (pageModel.hasController()) {
+            if (pageModel.getController().getKey().toString() !== this.getValue()) {
+                this.selectOptionByValue(pageModel.getController().getKey().toString());
+            }
         } else if (pageModel.hasTemplate()) {
             this.selectOptionByValue(pageModel.getTemplateKey().toString());
         } else if (this.autoOption) {
