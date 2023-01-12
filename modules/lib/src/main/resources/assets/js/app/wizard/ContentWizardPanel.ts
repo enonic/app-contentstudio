@@ -143,6 +143,7 @@ import {ContentTabBarItem} from './ContentTabBarItem';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1556,7 +1557,7 @@ export class ContentWizardPanel
         }
 
         this.fetchPersistedContent().then((content: Content) => {
-            return this.checkIfRenderable().then(() => this.updateModifiedPersistedContent(content));
+            return this.checkIfRenderable(content).then(() => this.updateModifiedPersistedContent(content));
         }).catch(DefaultErrorHandler.handle).done();
     }
 
@@ -2573,8 +2574,8 @@ export class ContentWizardPanel
         }
     }
 
-    private checkIfRenderable(): Q.Promise<Boolean> {
-        return new IsRenderableRequest(this.getPersistedItem(), RenderingMode.EDIT).sendAndParse().then((renderable: boolean) => {
+    private checkIfRenderable(item?: ContentSummary): Q.Promise<Boolean> {
+        return new IsRenderableRequest(item || this.getPersistedItem(), RenderingMode.EDIT).sendAndParse().then((renderable: boolean) => {
             this.renderable = renderable;
             this.contextView.setIsPageRenderable(renderable);
 

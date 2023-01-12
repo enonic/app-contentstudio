@@ -53,7 +53,6 @@ export class FragmentComponentView
     private loaded: boolean = false;
 
     constructor(builder: FragmentComponentViewBuilder) {
-
         super(<FragmentComponentViewBuilder>builder.setViewer(new FragmentComponentViewer()).setInspectActionRequired(true));
 
         this.liveEditModel = builder.parentRegionView.getLiveEditModel();
@@ -71,11 +70,7 @@ export class FragmentComponentView
         });
         this.loadFragmentContent();
 
-        if (this.isTextComponent(this)) {
-            this.doParseFragmentComponents(this, TextItemType.get());
-        } else {
-            this.parseFragmentComponents(this);
-        }
+        this.parseFragmentComponents(this);
 
         this.disableLinks();
 
@@ -229,11 +224,11 @@ export class FragmentComponentView
         }
     }
 
-    private parseFragmentComponents(parentElement: Element, parentType?: ItemType) {
-        parentElement.getChildren().forEach((childElement: Element) => this.doParseFragmentComponents(childElement, parentType));
+    private parseFragmentComponents(parentElement: Element) {
+        parentElement.getChildren().forEach((childElement: Element) => this.doParseFragmentComponents(childElement));
     }
 
-    private doParseFragmentComponents(element: Element, parentType?: ItemType) {
+    private doParseFragmentComponents(element: Element) {
         const itemType = ItemType.fromElement(element);
         if (itemType) {
             // remove component-type attributes to avoid inner components of fragment to be affected by d&d sorting
@@ -244,10 +239,10 @@ export class FragmentComponentView
             }
         }
 
-        if (this.isTextComponentSection(element, parentType)) {
+        if (TextItemType.get().equals(itemType)) {
             this.convertTextComponentImageUrls(element);
         } else {
-            this.parseFragmentComponents(element, itemType);
+            this.parseFragmentComponents(element);
         }
     }
 
