@@ -16,7 +16,7 @@ const appConst = require('../../libs/app_const');
 
 describe('versions.widget.check.status.spec - check content status in Versions Panel`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let FOLDER;
@@ -34,7 +34,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await studioUtils.openDialogAndPublishSelectedContent();
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
             let expectedMessage = appConst.itemPublishedNotificationMessage(FOLDER.displayName);
-            assert.equal(actualMessage, expectedMessage, "Item is published - message should appear");
+            assert.equal(actualMessage, expectedMessage, "'Item is published' - message should appear");
             //2. Verify the default action gets 'Unpublish' in Publish menu:
             await contentBrowsePanel.waitForUnPublishButtonVisible();
             //3. Verify that 'publish menu' is available:
@@ -45,7 +45,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await browseVersionsWidget.waitForVersionsLoaded();
             //5. Verify that 'Published' list-item appears in the widget:
             let result = await browseVersionsWidget.countPublishedItems();
-            assert.equal(result, 1, "Published version item should appear in the widget")
+            assert.equal(result, 1, "'Published' version item should appear in the widget")
             let status = await browseVersionsWidget.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "'Published' status should be in the top version item");
         });
@@ -69,26 +69,26 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, "'Modified' status should be in the top version item");
         });
 
-    //Verifies issue https://github.com/enonic/app-contentstudio/issues/1552  'This version is active' button should be shown for any active version
+    // Verifies issue https://github.com/enonic/app-contentstudio/issues/1552  'This version is active' button should be shown for any active version
     it(`GIVEN existing folder(Published) is selected WHEN Version Panel has been opened THEN 'This version is active' button should be in the top version only`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            //1. Select the folder:
+            // 1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            //2.Open version panel:
+            // 2.Open version panel:
             await contentBrowsePanel.openDetailsPanel();
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
-            //3. Click on latest version-item:
+            // 3. Click on latest version-item:
             await browseVersionsWidget.clickAndExpandVersion(0);
-            await studioUtils.saveScreenshot("verify_active_button_in_versions_1");
-            //4. Verify 'Active version' label should be present in the top item:
+            await studioUtils.saveScreenshot('verify_active_button_in_versions_1');
+            // 4. Verify 'Active version' label should be present in the top item:
             await browseVersionsWidget.waitForActiveVersionButtonDisplayed();
             await browseVersionsWidget.clickAndExpandVersion(2);
-            await studioUtils.saveScreenshot("verify_active_button_in_versions_2");
-            //5. Verify 'Active version' button should not be present in the previous versions:
+            await studioUtils.saveScreenshot('verify_active_button_in_versions_2');
+            // 5. Verify 'Active version' button should not be present in the previous versions:
             await browseVersionsWidget.waitForActiveVersionButtonNotDisplayed();
         });
 
@@ -99,11 +99,12 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             let browseVersionsWidget = new BrowseVersionsWidget();
             let contentSettingsForm = new ContentSettingsForm();
             let contentWizard = new ContentWizard();
-            //1. open the folder and remove the language:
+            // 1. open the folder and remove the language:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentSettingsForm.clickOnRemoveLanguage();
-            await contentWizard.hotKeySaveAndCloseWizard();
-            //2. Open version panel and verify status in the latest version-item:
+            await contentWizard.waitAndClickOnSave();
+            await studioUtils.doCloseWizardAndSwitchToGrid();
+            // 2. Open version panel and verify status in the latest version-item:
             await contentBrowsePanel.openDetailsPanel();
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
@@ -135,7 +136,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
