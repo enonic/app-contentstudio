@@ -26,6 +26,10 @@ class ShortcutForm extends Page {
         return xpath.stepForm + lib.FORM_VIEW + lib.CONTENT_SELECTOR + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
+    get addNewContentButton() {
+        return xpath.stepForm + lib.CONTENT_SELECTOR + lib.ADD_NEW_CONTENT_BUTTON;
+    }
+
     get removeTargetIcon() {
         return xpath.stepForm + lib.CONTENT_SELECTED_OPTION_VIEW + lib.REMOVE_ICON;
     }
@@ -45,6 +49,31 @@ class ShortcutForm extends Page {
     get helpTextInParametersForm() {
         return lib.CONTENT_WIZARD_STEP_FORM +
                "//div[contains(@id,'FormItemSetView') and descendant::h5[text()='Parameters']]//div[contains(@class,'help-text')]/p";
+    }
+
+    async waitForAddNewContentButtonDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.addNewContentButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_add_new_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Add new button is not displayed, screenshot:' + screenshot + ' ' + err);
+        }
+    }
+
+    async waitForAddNewContentButtonNotDisplayed() {
+        try {
+            await this.waitForElementNotDisplayed(this.addNewContentButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_add_new_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Add new button should not be displayed, screenshot:' + screenshot + ' ' + err);
+        }
+    }
+
+    async clickOnAddNewContentButton() {
+        await this.waitForAddNewContentButtonDisplayed();
+        return await this.clickOnElement(this.addNewContentButton);
     }
 
     waitForParametersFormVisible() {
@@ -83,7 +112,7 @@ class ShortcutForm extends Page {
         });
     }
 
-    waitForAddParametersButtonVisible() {
+    waitForAddParametersButtonDisplayed() {
         return this.waitForElementDisplayed(this.addParametersButton, appConst.mediumTimeout);
     }
 
@@ -157,7 +186,7 @@ class ShortcutForm extends Page {
 
     async clickOnAddParametersButton() {
         try {
-            await this.waitForAddParametersButtonVisible();
+            await this.waitForAddParametersButtonDisplayed();
             return await this.clickOnElement(this.addParametersButton);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_short"));

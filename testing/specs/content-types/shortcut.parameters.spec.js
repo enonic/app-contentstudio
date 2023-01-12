@@ -15,28 +15,28 @@ const ConfirmationMask = require('../../page_objects/confirmation.mask');
 
 describe('Shortcut parameters specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const PARAM_NAME = "param 1";
-    const PARAM_VALUE = "value 1";
+    const PARAM_NAME = 'param 1';
+    const PARAM_VALUE = 'value 1';
     const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');
 
     it(`WHEN wizard for new shortcut is opened THEN 'Add Parameter' button should be present`,
         async () => {
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
-            //1. Open the wizard:
+            // 1. Open the wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
-            let result = await shortcutForm.waitForAddParametersButtonVisible();
-            assert.isTrue(result, "Add Parameters button should be visible");
-            //2. Verify that the help text in Parameters form is not visible by default:
+            let result = await shortcutForm.waitForAddParametersButtonDisplayed();
+            assert.isTrue(result, "'Add Parameters' button should be visible");
+            // 2. Verify that the help text in Parameters form is not visible by default:
             await shortcutForm.waitForHelpTextInParametersFormNotDisplayed();
-            //3. Click on show/hide Help Texts toggler:
+            // 3. Click on show/hide Help Texts toggler:
             await contentWizard.clickOnHelpTextsToggler();
-            //4. Verify that expected help text gets visible in the shortcut form:
+            // 4. Verify that expected help text gets visible in the shortcut form:
             let actualHelpText = await shortcutForm.getHelpTextsInParametersForm();
-            assert.equal(actualHelpText[0], "HTTP Parameters", "Expected help message should be displayed");
+            assert.equal(actualHelpText[0], 'HTTP Parameters', 'Expected help message should be displayed');
         });
 
     it(`GIVEN required data is typed in the wizard AND 'Add Parameters' button has been clicked WHEN 'Save' button has been pressed THEN the shortcut gets not valid because parameter's inputs are empty`,
@@ -45,12 +45,12 @@ describe('Shortcut parameters specification', function () {
             let contentWizard = new ContentWizard();
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('shortcut'));
-            //select the target:
+            // select the target:
             await shortcutForm.filterOptionsAndSelectTarget('whale');
-            //Click on Add Parameter button:
+            // Click on Add Parameter button:
             await shortcutForm.clickOnAddParametersButton();
             await contentWizard.waitAndClickOnSave();
-            await studioUtils.saveScreenshot("shortcut_parameter_added_empty");
+            await studioUtils.saveScreenshot('shortcut_parameter_added_empty');
             // "red icon" should appear, because the content gets not valid:
             await contentWizard.waitUntilInvalidIconAppears();
         });
@@ -63,19 +63,18 @@ describe('Shortcut parameters specification', function () {
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
             await contentWizard.typeDisplayName(SHORTCUT_NAME);
             await shortcutForm.filterOptionsAndSelectTarget('whale');
-            //2. Click on Add Parameter button:
+            // 2. Click on Add Parameter button:
             await shortcutForm.clickOnAddParametersButton();
-            //"Add Parameters" button remains visible"
-            await shortcutForm.waitForAddParametersButtonVisible();
-
-            //'Collapse bottom' link gets visible:
+            // 3. 'Add Parameters' button remains visible"
+            await shortcutForm.waitForAddParametersButtonDisplayed();
+            // 4. 'Collapse bottom' link gets visible:
             await shortcutForm.waitForCollapseBottomLinkVisible();
-            //"Add Parameters" button should be visible
+            // 5. 'Add Parameters' button should be visible
             await shortcutForm.waitForParametersFormVisible();
-            //Save this shortcut with the parameter:
+            // 6. Save this shortcut with the parameter:
             await shortcutForm.typeParameterName(PARAM_NAME);
             await shortcutForm.typeParameterValue(PARAM_VALUE);
-            await studioUtils.saveScreenshot("shortcut_parameter_saved");
+            await studioUtils.saveScreenshot('shortcut_parameter_saved');
             await contentWizard.waitAndClickOnSave();
         });
 
@@ -92,15 +91,15 @@ describe('Shortcut parameters specification', function () {
     it("GIVEN existing shortcut with parameters is opened WHEN 'Collapse' link has been clicked THEN 'Expand' link gets visible",
         async () => {
             let shortcutForm = new ShortcutForm();
-            //1. Open existing shortcut content:
+            // 1. Open existing shortcut content:
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
-            //2. Click on 'Collapse' link and collapse parameters form:
+            // 2. Click on 'Collapse' link and collapse parameters form:
             await shortcutForm.clickOnCollapseBottomLink();
-            //3. Verify that 'Expand' link gets visible now:
+            // 3. Verify that 'Expand' link gets visible now:
             await shortcutForm.waitForExpandLinkVisible();
-            //4. Click on 'Add' button:
+            // 4. Click on 'Add' button:
             await shortcutForm.clickOnAddParametersButton();
-            //5. Verify that 'Collapse all' link gets visible:
+            // 5. Verify that 'Collapse all' link gets visible:
             await shortcutForm.waitForCollapseTopLinkVisible();
         });
 
@@ -109,18 +108,18 @@ describe('Shortcut parameters specification', function () {
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
             let confirmationMask = new ConfirmationMask();
-            //1. Open existing shortcut(parameter is added)
+            // 1. Open existing shortcut(parameter is added)
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
-            //2. Expand the menu and click on Delete menu item the parameter and confirm it:
+            // 2. Expand the menu and click on Delete menu item the parameter and confirm it:
             await shortcutForm.expandParameterMenuAndClickOnDelete(0);
-            await confirmationMask.clickOnConfirmButton("Delete Parameters");
-            //3. Save the content:
+            await confirmationMask.clickOnConfirmButton('Delete Parameters');
+            // 3. Save the content:
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot("shortcut_parameter_removed");
-            //4. "parameters form" gets not visible:
+            await studioUtils.saveScreenshot('shortcut_parameter_removed');
+            // 4. 'parameters form' gets not visible:
             await shortcutForm.waitForParametersFormNotVisible();
-            //5. Add Parameters button should be visible:
-            await shortcutForm.waitForAddParametersButtonVisible();
+            // 5. Add Parameters button should be visible:
+            await shortcutForm.waitForAddParametersButtonDisplayed();
         });
 
     it(`GIVEN existing shortcut is opened(parameter is removed) WHEN revert the previous version THEN expected parameter should appear`,
@@ -134,25 +133,25 @@ describe('Shortcut parameters specification', function () {
             await contentWizard.openDetailsPanel();
             await wizardDetailsPanel.openVersionHistory();
             await wizardVersionsWidget.waitForVersionsLoaded();
-            //Expand the previous version:
+            // Expand the previous version:
             await wizardVersionsWidget.clickAndExpandVersion(1);
-            await studioUtils.saveScreenshot("shortcut_version_selected");
-            //Click on 'Revert' button:
+            await studioUtils.saveScreenshot('shortcut_version_selected');
+            // Click on 'Revert' button:
             await wizardVersionsWidget.clickOnRevertButton();
-            await studioUtils.saveScreenshot("shortcut_parameter_version_reverted_1");
+            await studioUtils.saveScreenshot('shortcut_parameter_version_reverted_1');
             //TODO remove the row, when https://github.com/enonic/app-contentstudio/issues/4940 will be fixed ( the issue in backlog)
             await shortcutForm.clickOnParametersForm(0);
-            await studioUtils.saveScreenshot("shortcut_parameter_version_reverted_2");
+            await studioUtils.saveScreenshot('shortcut_parameter_version_reverted_2');
             let paramName = await shortcutForm.getParameterName();
-            assert.equal(paramName, PARAM_NAME, "Expected parameter should appear");
+            assert.equal(paramName, PARAM_NAME, 'Expected parameter should appear');
             let value = await shortcutForm.getParameterValue();
-            assert.equal(value, PARAM_VALUE, "Expected value of the parameter should be present");
+            assert.equal(value, PARAM_VALUE, 'Expected value of the parameter should be present');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
