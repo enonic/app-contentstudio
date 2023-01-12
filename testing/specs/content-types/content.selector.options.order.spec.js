@@ -12,14 +12,14 @@ const appConst = require('../../libs/app_const');
 
 describe('content.selector.options.order.spec:  tests for checking of order of selected options in content selector', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTENT_NAME = contentBuilder.generateRandomName("selector");
-    const OPTION_1 = appConst.TEST_FOLDER_WITH_IMAGES;//All Content types images
-    const OPTION_2 = appConst.TEST_FOLDER_2_DISPLAY_NAME;//folder for selenium tests
-    const OPTION_3 = appConst.TEST_FOLDER_WITH_IMAGES_2;//Images for simple page
+    const CONTENT_NAME = contentBuilder.generateRandomName('selector');
+    const OPTION_1 = appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME; // All Content types images
+    const OPTION_2 = appConst.TEST_DATA.TEST_FOLDER_DISPLAY_NAME; // folder for selenium tests
+    const OPTION_3 = appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME; // Images for simple page
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -32,49 +32,51 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
         async () => {
             let contentWizard = new ContentWizard();
             let contentSelectorForm = new ContentSelectorForm();
-            //1. Wizard for Custom-Selector content is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, "content-selector2_8");
+            // 1. Wizard for Custom-Selector content is opened:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_2_8);
             await contentWizard.typeDisplayName(CONTENT_NAME);
-            //2. 3 options have been selected:
+            // 2. 3 options have been selected:
             await contentSelectorForm.selectOption(OPTION_1);
             await contentSelectorForm.selectOption(OPTION_2);
             await contentSelectorForm.selectOption(OPTION_3);
             await contentWizard.waitAndClickOnSave();
-            //3. Verify that options are saved:
+            // 3. Verify that options are saved:
             let options = await contentSelectorForm.getSelectedOptions();
-            studioUtils.saveScreenshot("content_selector_3_options");
-            assert.equal(options[0], OPTION_1, "Expected option should be selected");
-            assert.equal(options[1], OPTION_2, "Expected option should be selected");
-            assert.equal(options[2], OPTION_3, "Expected option should be selected");
+            await studioUtils.saveScreenshot('content_selector_3_options');
+            assert.equal(options[0], OPTION_1, 'Expected option should be selected');
+            assert.equal(options[1], OPTION_2, 'Expected option should be selected');
+            assert.equal(options[2], OPTION_3, 'Expected option should be selected');
+            // 4. Verify that 'Add new' icon remains visible in the selector:
+            await contentSelectorForm.waitForAddNewContentButtonDisplayed();
         });
 
-    //Verifies https://github.com/enonic/lib-admin-ui/issues/920
-    //Incorrect order of selected options in Content Selector #920
+    // Verifies https://github.com/enonic/lib-admin-ui/issues/920
+    // Incorrect order of selected options in Content Selector #920
     it(`GIVEN options have been sorted alphabetically in descending order WHEN page has been saved and refreshed THEN order of selected options should not be changed`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentSelectorForm = new ContentSelectorForm();
-            //1. Open existing content-selector:
+            // 1. Open existing content-selector:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-            //2. Change the sorting -  they should be sorted alphabetically in descending order:
+            // 2. Change the sorting -  they should be sorted alphabetically in descending order:
             await contentSelectorForm.swapOptions(OPTION_3, OPTION_1);
             await contentSelectorForm.swapOptions(OPTION_2, OPTION_1);
-            //3. Save and refresh the page
+            // 3. Save and refresh the page
             await contentWizard.waitAndClickOnSave();
             await contentWizard.refresh();
             await contentWizard.pause(2000);
-            //4. Verify that order is not changed after refreshing the page :
+            // 4. Verify that order is not changed after refreshing the page :
             let options = await contentSelectorForm.getSelectedOptions();
-            studioUtils.saveScreenshot("content_selector_swapped_options");
-            assert.equal(options[0], OPTION_3, "Order of selected Options should not be changed");
-            assert.equal(options[1], OPTION_2, "Order of selected Options should not be changed");
-            assert.equal(options[2], OPTION_1, "Order of selected Options should not be changed");
+            await studioUtils.saveScreenshot('content_selector_swapped_options');
+            assert.equal(options[0], OPTION_3, 'Order of selected Options should not be changed');
+            assert.equal(options[1], OPTION_2, 'Order of selected Options should not be changed');
+            assert.equal(options[2], OPTION_1, 'Order of selected Options should not be changed');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

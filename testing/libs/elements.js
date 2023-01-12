@@ -32,6 +32,7 @@ module.exports = Object.freeze({
     INPUT_VALIDATION_VIEW: "//div[contains(@id,'InputViewValidationViewer')]",
     OCCURRENCE_ERROR_BLOCK: "//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]",
     OCCURRENCE_VIEW: "//div[contains(@id,'InputOccurrenceView')]",
+    ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton') and @title='Add new']",
     tabBarItemByName: function (name) {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },

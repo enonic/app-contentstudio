@@ -57,54 +57,54 @@ module.exports = Object.freeze({
     ISSUE_CREATED_MESSAGE: "A new issue is successfully created.",
     PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
     ISSUE_OPENED_MESSAGE: 'The issue is Open.',
-    TWO_ITEMS_PUBLISHED: "2 items are published.",
-    TWO_ITEMS_UNPUBLISHED: "2 items are unpublished",
+    TWO_ITEMS_PUBLISHED: '2 items are published.',
+    TWO_ITEMS_UNPUBLISHED: '2 items are unpublished',
     ITEM_IS_UNDELETED_MESSAGE: "Item is undeleted",
-    CONTENT_RENAMED: "Content has been renamed",
-    TEST_FOLDER_WITH_IMAGES: "All Content types images",
-    TEST_FOLDER_WITH_IMAGES_NAME: "all-content-types-images",
-    TEST_FOLDER_WITH_IMAGES_2: "Images for simple page",
-    TEST_FOLDER_WITH_IMAGES_NAME_2: "imagearchive",
-    TEST_FOLDER_2_DISPLAY_NAME: "folder for selenium tests",
-    TEST_FOLDER_2_NAME: "selenium-tests-folder",
+    CONTENT_RENAMED: 'Content has been renamed',
+    TEST_FOLDER_WITH_IMAGES: 'All Content types images',
+    TEST_FOLDER_WITH_IMAGES_NAME: 'all-content-types-images',
+    TEST_FOLDER_WITH_IMAGES_2: 'Images for simple page',
+    TEST_FOLDER_WITH_IMAGES_NAME_2: 'imagearchive',
+    TEST_FOLDER_2_DISPLAY_NAME: 'folder for selenium tests',
+    TEST_FOLDER_2_NAME: 'selenium-tests-folder',
     TEST_FOLDER_NAME: 'all-content-types-images',
     APP_CONTENT_TYPES: 'All Content Types App',
     SIMPLE_SITE_APP: 'Simple Site App',
-    MY_FIRST_APP: "My First App",
-    FIRST_SELENIUM_APP: "First Selenium App",
+    MY_FIRST_APP: 'My First App',
+    FIRST_SELENIUM_APP: 'First Selenium App',
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
     YOUR_COMMENT_ADDED: 'Your comment is added to the issue.',
     LOCALIZED_MESSAGE_1: 'Language was copied from current project.',
-    LOCALIZED_MESSAGE_2: "Inherited content was localized",
+    LOCALIZED_MESSAGE_2: 'Inherited content was localized',
     CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     TAB_TITLE_PART: "/ Content",
-    CONTENT_STUDIO_TITLE: "Content Studio",
+    CONTENT_STUDIO_TITLE: 'Content Studio',
     TEST_DATA: {
-        TEST_FOLDER_IMAGES_1_DISPLAY_NAME: "All Content types images",
-        TEST_FOLDER_IMAGES_1_NAME: "all-content-types-images",
-        FOLDER_WITH_IMAGES_2_DISPLAY_NAME: "Images for simple page",
-        FOLDER_WITH_IMAGES_2_NAME: "imagearchive",
+        TEST_FOLDER_IMAGES_1_DISPLAY_NAME: 'All Content types images',
+        TEST_FOLDER_IMAGES_1_NAME: 'all-content-types-images',
+        FOLDER_WITH_IMAGES_2_DISPLAY_NAME: 'Images for simple page',
+        FOLDER_WITH_IMAGES_2_NAME: 'imagearchive',
         TEST_FOLDER_DISPLAY_NAME: "folder for selenium tests",
-        TEST_FOLDER_NAME: "selenium-tests-folder",
+        TEST_FOLDER_NAME: 'selenium-tests-folder',
     },
     TEST_APPS_NAME: {
         SIMPLE_SITE_APP: 'Simple Site App',
-        APP_WITH_CONFIG_OPTION_SET: "Simple Test Selenium App",
+        APP_WITH_CONFIG_OPTION_SET: 'Simple Test Selenium App',
         APP_WITH_METADATA_MIXIN: 'Third Selenium App',
     },
 
     VERSIONS_ITEM_HEADER: {
         PERMISSIONS_UPDATED: 'Permissions updated',
-        CREATED: "Created",
-        EDITED: "Edited",
-        MARKED_AS_READY: "Marked as Ready",
-        SORTED: "Sorted",
-        PUBLISHED: "Published",
-        CHANGED: "Changed",
-        MOVED: "Moved",
-        RENAMED: "Renamed"
+        CREATED: 'Created',
+        EDITED: 'Edited',
+        MARKED_AS_READY: 'Marked as Ready',
+        SORTED: 'Sorted',
+        PUBLISHED: 'Published',
+        CHANGED: 'Changed',
+        MOVED: 'Moved',
+        RENAMED: 'Renamed'
     },
 
     COMPARE_VERSIONS_DLG_PROP: {
@@ -114,26 +114,26 @@ module.exports = Object.freeze({
         WORKFLOW: 'workflow'
     },
     ACCESS_WIDGET_HEADER: {
-        RESTRICTED_ACCESS: "Restricted access to item",
-        EVERYONE_CAN_READ: "Everyone can read this item"
+        RESTRICTED_ACCESS: 'Restricted access to item',
+        EVERYONE_CAN_READ: 'Everyone can read this item'
     },
     PROJECT_SYNC: {
-        STARTED: "Content synchronisation job has started",
-        FINISHED: "Content synchronisation job has finished"
+        STARTED: 'Content synchronisation job has started',
+        FINISHED: 'Content synchronisation job has finished'
     },
     PASSWORD: {
-        MEDIUM: "password123",
-        STRONG: "password123=",
-        WEAK: "password"
+        MEDIUM: 'password123',
+        STRONG: 'password123=',
+        WEAK: 'password'
     },
     LAST_MODIFIED_ENTRY: {
-        WEEK: "week",
-        DAY: "day",
-        HOUR: "hour"
+        WEEK: 'week',
+        DAY: 'day',
+        HOUR: 'hour'
     },
 
     VALIDATION_MESSAGE: {
-        TEXT_IS_TOO_LONG: "Text is too long",
+        TEXT_IS_TOO_LONG: 'Text is too long',
         INVALID_VALUE_ENTERED: "Invalid value entered",
         SCHEDULE_FORM_ONLINE_PAST: "Online to cannot be in the past",
         SCHEDULE_FORM_ONLINE_FROM_EMPTY: "Online to cannot be set without Online from",
@@ -143,13 +143,13 @@ module.exports = Object.freeze({
         PROJECT_IS_OCCUPIED: "Project identifier is occupied",
     },
     ISSUES: {
-        TASK_CLOSED: "Task is closed",
-        COMMENT_ADDED: "Your comment is added to the task.",
+        TASK_CLOSED: 'Task is closed',
+        COMMENT_ADDED: 'Your comment is added to the task.',
     },
     PROJECT_ACCESS_MODE: {
-        PRIVATE: "Private",
-        PUBLIC: "Public",
-        CUSTOM: "Custom"
+        PRIVATE: 'Private',
+        PUBLIC: 'Public',
+        CUSTOM: 'Custom'
     },
     //waitForTimeout
     mediumTimeout: 4000,
@@ -168,13 +168,13 @@ module.exports = Object.freeze({
         OPEN_FILE: 'Open file',
         LINK_TO_PAGE: 'Link to page (treat media as regular content)',
     },
-    IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
+    IMAGE_STYLE_ORIGINAL: 'Original (no image processing)',
     WIDGET_SELECTOR_OPTIONS: {
         VERSION_HISTORY: 'Version history',
         DEPENDENCIES: 'Dependencies',
         LAYERS: 'Layers',
         EMULATOR: 'Emulator',
-        DETAILS: "Details"
+        DETAILS: 'Details'
     },
     EMULATOR_RESOLUTION: {
         MEDIUM_PHONE: 'Medium Phone',
@@ -217,31 +217,31 @@ module.exports = Object.freeze({
         ELEPHANT: 'elephant',
         ENTERPRISE: 'enterprise',
         GEEK: 'geek',
-        TELK: "telk"
+        TELK: 'telk'
     },
     COMPONENT_VIEW_MENU_ITEMS: {
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
-        SAVE_AS_TEMPLATE: "Save as Template",
+        SAVE_AS_TEMPLATE: 'Save as Template',
         DETACH_FROM_FRAGMENT: 'Detach from fragment',
         INSPECT: 'Inspect',
         REMOVE: 'Remove',
         DUPLICATE: 'Duplicate',
         EDIT: 'Edit',
-        SELECT_PARENT: "Select parent",
+        SELECT_PARENT: 'Select parent',
         RESET: 'Reset'
     },
     PROJECTS: {
-        ROOT_FOLDER: "Projects",
-        ROOT_FOLDER_DESCRIPTION: "Manage projects and layers",
-        DEFAULT_PROJECT_NAME: "Default"
+        ROOT_FOLDER: 'Projects',
+        ROOT_FOLDER_DESCRIPTION: 'Manage projects and layers',
+        DEFAULT_PROJECT_NAME: 'Default'
     },
     PROJECT_ROLES: {
-        CONTRIBUTOR: "Contributor",
-        AUTHOR: "Author",
-        EDITOR: "Editor",
-        OWNER: "Owner",
-        VIEWER: "Viewer"
+        CONTRIBUTOR: 'Contributor',
+        AUTHOR: 'Author',
+        EDITOR: 'Editor',
+        OWNER: 'Owner',
+        VIEWER: 'Viewer'
     },
     SHOW_ISSUES_BUTTON_LABEL: {
         NO_OPEN_ISSUES: 'No open issues',
@@ -252,7 +252,7 @@ module.exports = Object.freeze({
         EN: 'English (en)',
         NORSK_NORGE: 'norsk (Norge) (no-NO)',
         NORSK_NO: 'norsk (no)',
-        DEUTSCH_DE: "Deutsch (de)"
+        DEUTSCH_DE: 'Deutsch (de)'
     },
     RADIO_OPTION: {
         OPTION_A: "option A",
@@ -265,16 +265,16 @@ module.exports = Object.freeze({
         SITE: 'Site',
         PAGE_TEMPLATE: `Page Template`,
         HTML_AREA_0_1: `htmlarea0_1`,
-        HTML_AREA_2_4: `htmlarea2_4`,
+        HTML_AREA_2_4: 'htmlarea2_4',
         IMG_SELECTOR_0_0: 'imageselector0_0',
         IMG_SELECTOR_0_1: 'imageselector0_1',
         IMG_SELECTOR_1_1: 'imageselector1_1',
         IMG_SELECTOR_2_4: 'imageselector2_4',
         DOUBLE_MIN_MAX: 'double_max',
         DOUBLE_DEFAULT_2_4: 'double2_4_def',
-        DOUBLE_0_1: "double0_1",
+        DOUBLE_0_1: 'double0_1',
         DOUBLE_1_1_X_DATA: "double1_1",
-        DOUBLE_2_4: "double2_4",
+        DOUBLE_2_4: 'double2_4',
         LONG_MIN_MAX: 'long_max',
         TEXTAREA_MAX_LENGTH: 'textarea_conf',
         TEXTLINE_MAX_LENGTH: 'textline_conf',
@@ -284,55 +284,56 @@ module.exports = Object.freeze({
         TEXTLINE_1_1: 'textline1_1',
         GEOPOINT_0_0: 'geopoint0_0',
         GEOPOINT_1_1: 'geopoint1_1',
-        TIME_0_1: "time0_1",
+        TIME_0_1: 'time0_1',
         DATE_TIME_NOW_CONFIG: 'datetime now',
         DATE_TIME_1_1: 'datetime1_1',
         DATE_1_1: 'date1_1',
         ATTACHMENTS_1_1: 'attachment1_1',
         ATTACHMENTS_0_0: 'attachment0_0',
-        LONG_0_1: "long0_1",
-        LONG_1_1: "long1_1",
-        LONG_2_4: "long2_4",
-        TEXT_AREA_1_1: "textarea1_1",
-        TEXT_AREA_0_1: "textarea0_1",
-        TEXT_AREA_2_4: "textarea2_4",
-        CHECKBOX_0_1: "checkbox",
-        CHECKBOX_1_1: "checkbox_req",
-        FIELDSET: "fieldset",
-        COMBOBOX_0_0: "combobox0_0",
-        COMBOBOX_1_1: "combobox1_1",
-        COMBOBOX_2_4: "combobox2_4",
-        RADIOBUTTON_1_1: "radiobutton1_1",
-        RADIOBUTTON_0_1: "radiobutton0_1",
+        LONG_0_1: 'long0_1',
+        LONG_1_1: 'long1_1',
+        LONG_2_4: 'long2_4',
+        TEXT_AREA_1_1: 'textarea1_1',
+        TEXT_AREA_0_1: 'textarea0_1',
+        TEXT_AREA_2_4: 'textarea2_4',
+        CHECKBOX_0_1: 'checkbox',
+        CHECKBOX_1_1: 'checkbox_req',
+        FIELDSET: 'fieldset',
+        COMBOBOX_0_0: 'combobox0_0',
+        COMBOBOX_1_1: 'combobox1_1',
+        COMBOBOX_2_4: 'combobox2_4',
+        RADIOBUTTON_1_1: 'radiobutton1_1',
+        RADIOBUTTON_0_1: 'radiobutton0_1',
         TAG_2_5: "tag2_5",
         TAG_0_5: "tag0_5",
         CUSTOM_SELECTOR_0_2: 'custom-selector0_2',
         CUSTOM_SELECTOR_1_1: 'custom-selector1_1',
+        CONTENT_SELECTOR_2_8: 'content-selector2_8',
         EXPANDED_SINGLE_SELECTION_OPTION_SET: 'optionset-single-selection',
         OPTION_SET: 'optionset',
         OPTION_SET_0_2: 'optionset0_2',
         ITEM_SET_0_0: 'item-set0_0',
-        SET_IN_SET: "set-in-set",
+        SET_IN_SET: 'set-in-set',
         ARTICLE: 'article',
-        CUSTOM_REL_0_1: "custom-relationship0_1",
+        CUSTOM_REL_0_1: 'custom-relationship0_1',
         CUSTOM_RELATIONSHIP: 'custom-relationship2_4',
         OPTION_SET_HELP_TEXT: 'optionset_help',
-        PERSON: "Person",
-        LOCALE_CODE: "Locale Code",
+        PERSON: 'Person',
+        LOCALE_CODE: 'Locale Code',
     },
     permissions: {
-        FULL_ACCESS: `Full Access`,
-        CUSTOM: `Custom...`,
-        CAN_PUBLISH: `Can Publish`,
-        CAN_READ: `Can Read`,
+        FULL_ACCESS: 'Full Access',
+        CUSTOM: 'Custom...',
+        CAN_PUBLISH: 'Can Publish',
+        CAN_READ: 'Can Read',
     },
     permissionOperation: {
         READ: 'Read',
         CREATE: `Create`,
         MODIFY: 'Modify',
-        DELETE: `Delete`,
-        PUBLISH: `Publish`,
-        READ_PERMISSIONS: `Read Permissions`,
+        DELETE: 'Delete',
+        PUBLISH: 'Publish',
+        READ_PERMISSIONS: 'Read Permissions',
         WRITE_PERMISSIONS: 'Write Permissions',
     },
     roleName: {
@@ -350,13 +351,13 @@ module.exports = Object.freeze({
     sortMenuItem: {
         DISPLAY_NAME: 'Display name',
         MANUALLY_SORTED: 'Manually sorted',
-        MODIFIED_DATE: "Modified date",
-        CREATED_DATE: "Created date",
+        MODIFIED_DATE: 'Modified date',
+        CREATED_DATE: 'Created date',
         PUBLISHED_DATE: "Published date",
     },
     SORT_ORDER: {
-        ASCENDING: "ascending",
-        DESCENDING: "descending"
+        ASCENDING: 'ascending',
+        DESCENDING: 'descending'
     },
 
     CONTENT_STATUS: {
@@ -369,24 +370,24 @@ module.exports = Object.freeze({
         PUBLISHING_SCHEDULED: 'Publishing Scheduled'
     },
     PUBLISH_MENU: {
-        REQUEST_PUBLISH: "Request Publishing...",
-        PUBLISH: "Publish...",
-        PUBLISH_TREE: "Publish Tree...",
-        MARK_AS_READY: "Mark as ready",
-        UNPUBLISH: "Unpublish...",
-        CREATE_ISSUE: "Create Issue..."
+        REQUEST_PUBLISH: 'Request Publishing...',
+        PUBLISH: 'Publish...',
+        PUBLISH_TREE: 'Publish Tree...',
+        MARK_AS_READY: 'Mark as ready',
+        UNPUBLISH: 'Unpublish...',
+        CREATE_ISSUE: 'Create Issue...'
     },
     GRID_CONTEXT_MENU: {
-        NEW: "New",
-        EDIT: "Edit",
-        ARCHIVE: "Archive...",
-        DUPLICATE: "Duplicate...",
-        MOVE: "Move...",
-        SORT: "Sort...",
-        RESTORE: "Restore...",
-        PREVIEW: "Preview",
-        PUBLISH: "Publish...",
-        UNPUBLISH: "Unpublish..."
+        NEW: 'New',
+        EDIT: 'Edit',
+        ARCHIVE: 'Archive...',
+        DUPLICATE: 'Duplicate...',
+        MOVE: 'Move...',
+        SORT: 'Sort...',
+        RESTORE: 'Restore...',
+        PREVIEW: 'Preview',
+        PUBLISH: 'Publish...',
+        UNPUBLISH: 'Unpublish...'
     },
     WORKFLOW_STATE: {
         WORK_IN_PROGRESS: 'Work in progress',
@@ -394,12 +395,12 @@ module.exports = Object.freeze({
         PUBLISHED: 'Published'
     },
     FILTER_PANEL_AGGREGATION_BLOCK: {
-        CONTENT_TYPES: "Content Types",
-        WORKFLOW: "Workflow",
-        LAST_MODIFIED: "Last Modified",
-        LAST_MODIFIED_BY: "Last Modified by",
-        OWNER: "Owner",
-        LANGUAGE: "Language",
+        CONTENT_TYPES: 'Content Types',
+        WORKFLOW: 'Workflow',
+        LAST_MODIFIED: 'Last Modified',
+        LAST_MODIFIED_BY: 'Last Modified by',
+        OWNER: 'Owner',
+        LANGUAGE: 'Language',
 
     },
     ISSUE_LIST_TYPE_FILTER: {
