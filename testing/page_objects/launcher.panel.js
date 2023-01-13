@@ -1,12 +1,12 @@
 /**
- * Created by on 6/26/2017.
+ * Created on 6/26/2017.
  */
 const Page = require('./page');
 const appConst = require('../libs/app_const');
 const XPATH = {
     container: `//div[contains(@class,'launcher-panel')]`,
     userName: "//div[@class='user-info']//p",
-    activeLink: "//div[@class='app-row active']//p[@class='app-name']",
+    activeLink: "//div[@class='app-row active']",
     launcherToggler: "//button[contains(@class,'launcher-button')]"
 };
 
@@ -79,7 +79,7 @@ class LauncherPanel extends Page {
         await this.getBrowser().waitUntil(async () => {
             let atr = await this.getAttribute(XPATH.container, 'class');
             return !atr.includes('visible');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Launcher Panel is not hidden: "});
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Launcher Panel is not hidden: '});
     }
 
     async isPanelOpened() {
@@ -104,10 +104,10 @@ class LauncherPanel extends Page {
         return await this.getText(this.userName);
     }
 
-    async getActiveLink() {
+    async getActiveRowId() {
         let locator = XPATH.container + XPATH.activeLink;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
+        return await this.getAttribute(locator, 'id');
     }
 
     async clickOnLauncherToggler() {

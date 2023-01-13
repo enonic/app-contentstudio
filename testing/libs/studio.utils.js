@@ -609,7 +609,7 @@ module.exports = {
         let result = await launcherPanel.isDisplayed(2000);
         console.log("Launcher Panel is opened, click on the `Content Studio` link...");
         if (result) {
-            await launcherPanel.clickOnContentStudioLink(userName, password);
+            await launcherPanel.clickOnContentStudioLink();
         } else {
             console.log("Login Page is opened, type a password and name...");
             return await this.doLoginAndClickOnContentStudio(userName, password);
