@@ -55,12 +55,16 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
             console.debug('AttachmentsWidgetItemView.layout');
         }
 
+        this.showLoadMask();
+
         return super.layout().then(() => {
             if (this.content != null) {
                 return this.layoutAttachments();
             } else {
                 this.removeChildren();
             }
+        }).finally(() => {
+            this.hideLoadMask();
         });
     }
 

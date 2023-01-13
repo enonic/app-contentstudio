@@ -646,4 +646,8 @@ export class ContextView
         this.contextWindow = contextWindow;
         this.pageEditorWidgetItemView?.appendContextWindow(this.contextWindow);
     }
+
+    isVisible(): boolean {
+        return super.isVisible() && this.getEl().getWidth() > 0;
+    }
 }

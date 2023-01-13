@@ -123,7 +123,11 @@ export class UserAccessWidgetItemView
             console.debug('UserAccessWidgetItemView.layout');
         }
 
-        return super.layout().then(this.layoutUserAccess.bind(this));
+        this.showLoadMask();
+
+        return super.layout().then(this.layoutUserAccess.bind(this)).finally(() => {
+            this.hideLoadMask();
+        });
     }
 
     private layoutUserAccess(): Q.Promise<any> {

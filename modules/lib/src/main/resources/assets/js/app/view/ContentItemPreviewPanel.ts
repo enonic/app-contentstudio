@@ -57,9 +57,9 @@ export class ContentItemPreviewPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.wrapper.appendChild(this.image);
-            this.wrapper.appendChild(this.noSelectionMessage);
-            this.wrapper.appendChild(this.previewMessage);
+            this.wrapper.appendChildren(this.image, this.noSelectionMessage, this.previewMessage);
+            this.mask.addClass('content-item-preview-panel-load-mask');
+
             return rendered;
         });
     }
@@ -67,18 +67,18 @@ export class ContentItemPreviewPanel
     private initElements() {
         this.image = new ImgEl();
 
-        const selectorText = new SpanEl();
+        const selectorText: SpanEl = new SpanEl();
         selectorText.setHtml(i18n('panel.noselection'));
         this.noSelectionMessage = new DivEl('no-selection-message');
         this.noSelectionMessage.appendChild(selectorText);
 
-        const previewText = new SpanEl();
+        const previewText: SpanEl = new SpanEl();
         previewText.setHtml(i18n('field.preview.notAvailable'));
         this.previewMessage = new DivEl('no-preview-message');
         this.previewMessage.appendChild(previewText);
     }
 
-    public setItem(item: ViewItem, force: boolean = false) {
+    public setItem(item: ViewItem) {
         this.debouncedSetItem(item);
     }
 

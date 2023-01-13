@@ -7,6 +7,7 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {WidgetHelper} from '../../util/WidgetHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {WidgetInjectionResult} from '../../util/WidgetInjectionResult';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 
 export class WidgetItemView
     extends DivEl {
@@ -14,6 +15,8 @@ export class WidgetItemView
     public static debug: boolean = false;
 
     private injectedNodes: HTMLElement[] = [];
+
+    private loadMask?: LoadMask;
 
     constructor(className?: string) {
         super('widget-item-view' + (className ? ' ' + className : ''));
@@ -76,5 +79,22 @@ export class WidgetItemView
         const documentHead = document.getElementsByTagName('head')[0];
         this.injectedNodes.forEach((injectedNode: HTMLElement) => documentHead.removeChild(injectedNode));
         this.injectedNodes = [];
+    }
+
+    protected showLoadMask(): void {
+        if (!this.loadMask) {
+            this.loadMask = new LoadMask(this);
+        }
+
+        this.appendChild(this.loadMask);
+        this.loadMask.show();
+    }
+
+    protected hideLoadMask(): void {
+        this.loadMask?.hide();
+
+        if (this.hasChild(this.loadMask)) {
+            this.removeChild(this.loadMask);
+        }
     }
 }
