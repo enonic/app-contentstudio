@@ -59,10 +59,18 @@ export class PageTemplateWidgetItemView
             }
             this.content = content;
 
-            return this.loadPageTemplate().then(() => this.layout());
+            return this.loadAndLayout();
         }
 
         return Q<any>(null);
+    }
+
+    private loadAndLayout(): Q.Promise<void> {
+        this.showLoadMask();
+
+        return this.loadPageTemplate().then(() => this.layout()).finally(() => {
+            this.hideLoadMask();
+        });
     }
 
     private initListeners() {
@@ -91,7 +99,7 @@ export class PageTemplateWidgetItemView
             if (contentSummary) {
                 this.setContentAndUpdateView(contentSummary);
             } else if (contents.some(content => content.getContentSummary().isPageTemplate())) {
-                this.loadPageTemplate().then(() => this.layout());
+                this.loadAndLayout();
             }
         };
 
@@ -106,7 +114,7 @@ export class PageTemplateWidgetItemView
             });
 
             if (isPageTemplateDeleted) {
-                this.loadPageTemplate().then(() => this.layout());
+                this.loadAndLayout();
             }
         };
 
