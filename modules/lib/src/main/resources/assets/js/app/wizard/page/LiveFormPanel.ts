@@ -236,7 +236,7 @@ export class LiveFormPanel
         ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentPermissionsUpdatedHandler);
 
         this.applicationRemovedHandler = (event: ApplicationRemovedEvent) => {
-            const currentController: Descriptor = this.pageModel.getController();
+            const currentController: Descriptor = this.pageModel?.getController();
             const removedApp: ApplicationKey = event.getApplicationKey();
 
             if (currentController && removedApp.equals(currentController.getKey().getApplicationKey())) {

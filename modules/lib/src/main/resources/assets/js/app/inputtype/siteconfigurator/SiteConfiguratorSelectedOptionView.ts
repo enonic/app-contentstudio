@@ -19,6 +19,7 @@ import {ApplicationAddedEvent} from '../../site/ApplicationAddedEvent';
 import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
+import {SiteConfiguratorFormView} from './SiteConfiguratorFormView';
 
 export interface SiteConfiguratorSelectedOptionViewParams {
     option: Option<Application>,
@@ -32,7 +33,7 @@ export class SiteConfiguratorSelectedOptionView
 
     private readonly application: Application;
 
-    private formView: FormView;
+    private formView: SiteConfiguratorFormView;
 
     private siteConfig: ApplicationConfig;
 
@@ -48,7 +49,7 @@ export class SiteConfiguratorSelectedOptionView
 
     private configureDialog: SiteConfiguratorDialog;
 
-    private formViewStateOnDialogOpen: FormView;
+    private formViewStateOnDialogOpen: SiteConfiguratorFormView;
 
     private namesAndIconView: NamesAndIconView;
 
@@ -193,7 +194,7 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     private saveOnFirstTimeRendered(): void {
-        if (this.isConfigChanged()) {
+        if (this.isConfigChanged() || !!this.formView?.getTotalFormItems()) {
             this.applyTemporaryConfig(this.tempSiteConfig);
             new ApplicationAddedEvent(this.siteConfig).fire();
         } else if (!this.configureDialog) {
@@ -205,7 +206,7 @@ export class SiteConfiguratorSelectedOptionView
         return this.tempSiteConfig && !this.tempSiteConfig.equals(this.siteConfig);
     }
 
-    private revertFormViewToGivenState(formViewStateToRevertTo: FormView) {
+    private revertFormViewToGivenState(formViewStateToRevertTo: SiteConfiguratorFormView) {
         this.unbindValidationEvent(this.formView);
 
         if (this.formView) {
@@ -236,11 +237,11 @@ export class SiteConfiguratorSelectedOptionView
         return ApplicationConfig.create().setConfig(propSet).setApplicationKey(this.siteConfig.getApplicationKey()).build();
     }
 
-    private createFormView(siteConfig: ApplicationConfig): FormView {
+    private createFormView(siteConfig: ApplicationConfig): SiteConfiguratorFormView {
         const context: ContentFormContext =
             <ContentFormContext>this.formContext.cloneBuilder().setFormState(new FormState(this.isNew)).build();
-        const formView: FormView =
-            <FormView>new FormView(context, this.application.getForm(), siteConfig.getConfig()).addClass('site-form');
+        const formView: SiteConfiguratorFormView =
+            <SiteConfiguratorFormView>new SiteConfiguratorFormView(context, this.application.getForm(), siteConfig.getConfig()).addClass('site-form');
 
         formView.onLayoutFinished(() => {
             formView.displayValidationErrors(true);
