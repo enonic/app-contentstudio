@@ -130,6 +130,8 @@ export class WidgetView
         const isValidForContent = !this.isInternal() || !!content;
 
         if (this.isActive() && isValidForContent) {
+            this.content = content;
+
             if (this.isUrlBased()) {
                 this.contextView.showLoadMask();
                 promises = promises.concat(this.updateCustomWidgetItemViews());
