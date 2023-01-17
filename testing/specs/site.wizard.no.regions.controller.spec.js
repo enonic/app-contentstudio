@@ -11,22 +11,22 @@ const appConst = require('../libs/app_const');
 
 describe('site.wizard.no.regions.controller.spec: checks Save button after selecting a template with `no region` ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
 
-    //verifies https://github.com/enonic/app-contentstudio/issues/210
-    //"Save" button doesn't get disabled after save when assigning a template with no regions to a site
+    // verifies https://github.com/enonic/app-contentstudio/issues/210
+    // "Save" button doesn't get disabled after save when assigning a template with no regions to a site
     it(`GIVEN new site wizard is opened AND name has been typed WHEN controller with 'no regions' has been selected THEN Save button gets disabled`,
         async () => {
             let contentWizard = new ContentWizard();
             let siteFormPanel = new SiteFormPanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.SIMPLE_SITE_APP]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(SITE.displayName);
-            await siteFormPanel.addApplications([appConst.SIMPLE_SITE_APP]);
+            await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             //site should be automatically saved after selecting the controller
             await contentWizard.selectPageDescriptor("no regions");
             // Save button gets disabled after selecting 'no regions':
@@ -36,7 +36,7 @@ describe('site.wizard.no.regions.controller.spec: checks Save button after selec
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

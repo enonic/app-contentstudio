@@ -10,7 +10,7 @@ const appConst = require('../../libs/app_const');
 
 describe('publish.dialog.site.with.children.spec - Select a site with not valid child and try to publish it', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -22,7 +22,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.SIMPLE_SITE_APP]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await studioUtils.doAddSite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
@@ -87,10 +87,10 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.waitForDialogOpened();
             //2. Click on Include children button
             await contentPublishDialog.clickOnIncludeChildrenToogler();
-            await studioUtils.saveScreenshot("include_children_clicked");
+            await studioUtils.saveScreenshot('include_children_clicked');
             //3. Exclude all invalid items:
             await contentPublishDialog.clickOnExcludeInvalidItemsButton();
-            await studioUtils.saveScreenshot("exclude_work_in_pr");
+            await studioUtils.saveScreenshot('exclude_work_in_pr');
             //4. Exclude all 'work in progress' items:
             await contentPublishDialog.clickOnExcludeItemsInProgressButton();
             //5. Verify that 'Exclude items in progress' buttons get not visible:
@@ -101,7 +101,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
