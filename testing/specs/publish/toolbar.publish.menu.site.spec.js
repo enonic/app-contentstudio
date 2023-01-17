@@ -10,7 +10,7 @@ const appConst = require('../../libs/app_const');
 
 describe('toolbar.publish.menu.site.spec - publishes a site and checks publish menu items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -20,16 +20,16 @@ describe('toolbar.publish.menu.site.spec - publishes a site and checks publish m
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.SIMPLE_SITE_APP]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             //1. add new site
             await studioUtils.doAddSite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
-            //2.  the site has been published:
+            // 2.  the site has been published:
             await studioUtils.doPublish();
-            //'Publish Tree button should appear on the toolbar' ( exception will be thrown after the timeout)
+            // 'Publish Tree' button should appear on the toolbar' ( exception will be thrown after the timeout)
             await contentBrowsePanel.waitForPublishTreeButtonVisible();
-            //3. 'Publish Tree' menu item has been clicked and the action confirmed
+            // 3. 'Publish Tree' menu item has been clicked and the action confirmed
             await studioUtils.doPublishTree();
             //'Unpublish button should appear on the toolbar' ( exception will be thrown after the timeout)
             await contentBrowsePanel.waitForUnPublishButtonVisible();
@@ -39,7 +39,7 @@ describe('toolbar.publish.menu.site.spec - publishes a site and checks publish m
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

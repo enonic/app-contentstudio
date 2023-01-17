@@ -69,9 +69,7 @@ module.exports = Object.freeze({
     TEST_FOLDER_2_NAME: 'selenium-tests-folder',
     TEST_FOLDER_NAME: 'all-content-types-images',
     APP_CONTENT_TYPES: 'All Content Types App',
-    SIMPLE_SITE_APP: 'Simple Site App',
     MY_FIRST_APP: 'My First App',
-    FIRST_SELENIUM_APP: 'First Selenium App',
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
     YOUR_COMMENT_ADDED: 'Your comment is added to the issue.',
@@ -93,6 +91,7 @@ module.exports = Object.freeze({
         SIMPLE_SITE_APP: 'Simple Site App',
         APP_WITH_CONFIG_OPTION_SET: 'Simple Test Selenium App',
         APP_WITH_METADATA_MIXIN: 'Third Selenium App',
+        FIRST_SELENIUM_APP: 'First Selenium App',
     },
 
     VERSIONS_ITEM_HEADER: {
@@ -359,7 +358,11 @@ module.exports = Object.freeze({
         ASCENDING: 'ascending',
         DESCENDING: 'descending'
     },
-
+    STATUS_WIDGET: {
+        NEW: 'NEW',
+        PUBLISHED: 'PUBLISHED',
+        MODIFIED: 'MODIFIED',
+    },
     CONTENT_STATUS: {
         NEW: 'New',
         PUBLISHED: 'Published',

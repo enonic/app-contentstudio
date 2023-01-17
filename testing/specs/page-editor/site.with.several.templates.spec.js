@@ -29,22 +29,20 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
     it(`Precondition 1: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.SIMPLE_SITE_APP]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN existing site is opened WHEN a controller is not selected THEN button 'Show Page Editor' should be present in the wizard toolbar`,
         async () => {
             let contentWizard = new ContentWizard();
-            let pageInspectionPanel = new PageInspectionPanel();
-            let confirmationDialog = new ConfirmationDialog();
-            //1. Open the existing site(no page controller is selected):
+            // 1. Open the existing site(no page controller is selected):
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            //2. Verify that 'Hide Page Editor' button is displayed
+            // 2. Verify that 'Hide Page Editor' button is displayed
             await contentWizard.waitForHidePageEditorTogglerButtonDisplayed();
-            //3. Verify that 'Show Component View' is not visible now
+            // 3. Verify that 'Show Component View' is not visible now
             await contentWizard.waitForShowComponentVewTogglerNotVisible();
-            //4. Verify that 'Show Context Window' button is visible:
+            // 4. Verify that 'Show Context Window' button is visible:
             await contentWizard.waitForShowContextPanelButtonDisplayed();
         });
 
@@ -69,21 +67,19 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
     it(`GIVEN existing site with a template is opened(shader should be applied) WHEN Customize menu item has been clicked THEN shader gets not displayed`,
         async () => {
             let contentWizard = new ContentWizard();
-            let pageInspectionPanel = new PageInspectionPanel();
-            let confirmationDialog = new ConfirmationDialog();
-            //1. Open the site:
+            // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.pause(1000);
-            //2. Verify that LiveEdit is locked:
+            // 3. Verify that LiveEdit is locked:
             let isLocked = await contentWizard.isLiveEditLocked();
-            assert.isTrue(isLocked, "Page editor should be locked");
+            assert.isTrue(isLocked, 'Page editor should be locked');
             await contentWizard.switchToParentFrame();
-            //3. Unlock the LiveEdit
+            // 4. Unlock the LiveEdit
             await contentWizard.doUnlockLiveEditor();
-            //2. Verify that LiveEdit is unlocked:
+            // 5. Verify that LiveEdit is unlocked:
             await contentWizard.switchToParentFrame();
             isLocked = await contentWizard.isLiveEditLocked();
-            assert.isFalse(isLocked, "Page editor should not be locked");
+            assert.isFalse(isLocked, 'Page editor should not be locked');
         });
 
     it(`GIVEN site is opened AND Inspection Panel is opened WHEN the second template has been selected in the Inspect Panel THEN site should be saved automatically AND 'Saved' button should appear`,
@@ -91,28 +87,28 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
             let confirmationDialog = new ConfirmationDialog();
-            //1. Open the site:
+            // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToParentFrame();
-            //2. Select the controller:
+            // 2. Select the controller:
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE1.displayName);
-            //3. Confirmation dialog appears:
+            // 3. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
-            //4. Confirm it:
+            // 4. Confirm it:
             await confirmationDialog.clickOnYesButton();
-            //5. Verify the notification message(the content is saved automatically)
+            // 5. Verify the notification message(the content is saved automatically)
             let notificationMessage = await contentWizard.waitForNotificationMessage();
             let expectedMessage = appConst.itemSavedNotificationMessage(SITE.displayName);
             assert.equal(notificationMessage, expectedMessage, "'Item is saved' - this message should appear");
-            //6. Verify -  'Save' button gets disabled in the wizard-toolbar
+            // 6. Verify -  'Save' button gets disabled in the wizard-toolbar
             await contentWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

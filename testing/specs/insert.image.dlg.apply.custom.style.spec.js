@@ -13,7 +13,7 @@ const appConst = require('../libs/app_const');
 
 describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an image', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -24,7 +24,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.SIMPLE_SITE_APP]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -32,18 +32,18 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            //1. Open new wizard with html-area:
+            // 1. Open new wizard with html-area:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            //2. Open 'Insert Image' dialog:
+            // 2. Open 'Insert Image' dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
-            //3. Select the image:
+            // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
-            //4. Click on dropdown handle and verify style-options
+            // 4. Click on dropdown handle and verify style-options
             let actualOptions = await insertImageDialog.getStyleSelectorOptions();
             studioUtils.saveScreenshot('image_dialog_custom_style_options');
-            assert.equal(actualOptions[2], "Cinema", "Cinema should be present in options list");
-            assert.equal(actualOptions[3], "Tall", "Tall option should be present in options list");
+            assert.equal(actualOptions[2], 'Cinema', "Cinema should be present in options list");
+            assert.equal(actualOptions[3], 'Tall', "Tall option should be present in options list");
             assert.equal(actualOptions.length, 7, "Expected number of options be present in options list");
         });
 
@@ -52,16 +52,16 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            //1. Open new wizard with html-area and open Insert Image dialog:
+            // 1. Open new wizard with html-area and open Insert Image dialog:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await contentWizard.typeDisplayName(HTML_AREA_CONTENT_NAME);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
-            //3. Select the image:
+            // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
-            //4. Type the 'Cinema' in filter input and click on the option:
+            // 4. Type the 'Cinema' in filter input and click on the option:
             await insertImageDialog.doFilterStyleAndClickOnOption("Cinema");
-            //5. Verify that 'Custom Width' checkbox is enabled
+            // 5. Verify that 'Custom Width' checkbox is enabled
             await insertImageDialog.waitForCustomWidthCheckBoxEnabled();
             //checkbox should be unselected
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
@@ -75,13 +75,13 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            //1. Open existing content:
+            // 1. Open existing content:
             await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT_NAME);
             await htmlAreaForm.pause(2000);
-            //2. Do double-click in htmlArea and open InsertImage dialog:
+            // 2. Do double-click in htmlArea and open InsertImage dialog:
             await htmlAreaForm.doubleClickOnHtmlArea();
             await insertImageDialog.waitForDialogVisible();
-            //3. Verify the selected style option:
+            // 3. Verify the selected style option:
             let actualStyle = await insertImageDialog.getSelectedStyleName();
             // Cinema style should be selected in the dialog
             await studioUtils.saveScreenshot('image_dialog_custom_style_should_be_cinema');
@@ -91,7 +91,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

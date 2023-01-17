@@ -20,18 +20,18 @@ const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form
 
 describe('fragment.layout.inspect.panel.spec - Select a site with not valid child and try to publish it', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    let FRAGMENT_LAYOUT_DESCRIPTION = "layout";
-    const MAIN_REGION_CONTROLLER = "main region";
-    const MAIN_COMPONENT_NAME = "main";
+    let FRAGMENT_LAYOUT_DESCRIPTION = 'layout';
+    const MAIN_REGION_CONTROLLER = 'main region';
+    const MAIN_COMPONENT_NAME = 'main';
     const SITE_1_NAME = contentBuilder.generateRandomName('site');
     const SITE_2_NAME = contentBuilder.generateRandomName('site');
-    const LAYOUT_2_COL = "25/75";
+    const LAYOUT_2_COL = '25/75';
     const LAYOUT_3_COL = '3-col';
-    const FRAGMENT_2_COL_GENERATED_NAME = "fragment-25-75";
+    const FRAGMENT_2_COL_GENERATED_NAME = 'fragment-25-75';
     //Verifies:
     // 1)"Descriptor dropdowns in the Inspection panel is not updated after content path has changed #1095"
     // 2) Page Component View - incorrect description of a fragment. https://github.com/enonic/app-contentstudio/issues/1534
@@ -44,12 +44,12 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
             let contentWizardPanel = new ContentWizardPanel();
             //1. Open new site-wizard, select an application and controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
-            await siteFormPanel.addApplications([appConst.SIMPLE_SITE_APP]);
+            await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
             //2. Open Component View and insert the layout:
             await contentWizardPanel.clickOnShowComponentViewToggler();
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
-            await pageComponentView.selectMenuItem(["Insert", "Layout"]);
+            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_2_COL);
             await pageComponentView.pause(500);
             //3. Verify that the site is automatically saved after selecting a layout in the dropdown:
@@ -65,10 +65,10 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
             await contentWizardPanel.waitForSpinnerNotVisible();
             // wait for the description is refreshing:
             await contentWizardPanel.pause(4000);
-            await studioUtils.saveScreenshot("fragment_path_updated");
+            await studioUtils.saveScreenshot('fragment_path_updated');
             //6. Fragment Inspection Panel should be loaded automatically in the site wizard. Verify that path is updated in the dropdown:
             let actualPath = await fragmentInspectionPanel.getSelectedOptionPath();
-            assert.include(actualPath, SITE_1_NAME, "Path should be updated in Fragment Inspection Panel");
+            assert.include(actualPath, SITE_1_NAME, 'Path should be updated in Fragment Inspection Panel');
             //7. Verify that expected description should be in the fragment 'component item'
             let actualDescription = await pageComponentView.getComponentDescription(LAYOUT_2_COL);
             assert.equal(actualDescription, FRAGMENT_LAYOUT_DESCRIPTION, "Expected description should be present in 'component item'")
@@ -85,7 +85,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
             //2. Open Component View and insert the layout:
             await contentWizardPanel.clickOnShowComponentViewToggler();
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
-            await pageComponentView.selectMenuItem(["Insert", "Layout"]);
+            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
             //3. Verify that the site is automatically saved after selecting a layout in the dropdown:
             await contentWizardPanel.waitForNotificationMessage();
@@ -96,12 +96,12 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
             await contentWizardPanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
             //5. Fragment Inspection Panel should be loaded automatically. Verify that path is updated in the dropdown:
             await fragmentInspectionPanel.clickOnFragmentDropdownHandle();
-            await studioUtils.saveScreenshot("fragment_inspect_panel_options");
+            await studioUtils.saveScreenshot('fragment_inspect_panel_options');
             let actualOptions = await fragmentInspectionPanel.getFragmentDropdownOptions();
             //6. Verify that options in the dropdown list are refreshed:
-            assert.equal(actualOptions.length, 2, "Two options should be present in the dropdown list");
-            assert.isTrue(actualOptions.includes(LAYOUT_2_COL), "The first layout should be present in the dropdown options");
-            assert.isTrue(actualOptions.includes(LAYOUT_3_COL), "The first layout should be present in the dropdown options");
+            assert.equal(actualOptions.length, 2, 'Two options should be present in the dropdown list');
+            assert.isTrue(actualOptions.includes(LAYOUT_2_COL), 'The first layout should be present in the dropdown options');
+            assert.isTrue(actualOptions.includes(LAYOUT_3_COL), 'The first layout should be present in the dropdown options');
         });
 
     it("GIVEN 'Page Components View' is opened WHEN a fragment has been selected AND 'Edit' button in Inspect Panel has been clicked THEN the fragment should be opened in new browser tab",
@@ -119,10 +119,10 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
             await fragmentInspectionPanel.clickOnEditFragmentButton();
             await studioUtils.doSwitchToNextTab();
             //Verify the wizard-step:
-            await contentWizard.waitForWizardStepPresent("Fragment");
+            await contentWizard.waitForWizardStepPresent('Fragment');
             //Verify the display name
             let displayName = await contentWizard.getDisplayName();
-            assert.equal(displayName, LAYOUT_2_COL, "Expected display name should be present");
+            assert.equal(displayName, LAYOUT_2_COL, 'Expected display name should be present');
             //Verify 'Preview' button:
             await contentWizard.waitForPreviewButtonDisplayed();
         });
@@ -208,7 +208,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
             //1. Open new site-wizard, select an application and controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizardPanel.typeDisplayName(SITE_2_NAME);
-            await siteFormPanel.addApplications([appConst.SIMPLE_SITE_APP]);
+            await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
             await wizardDetailsPanel.waitForDetailsPanelLoaded();
             //2. Open Component View and insert the layout:
@@ -231,7 +231,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

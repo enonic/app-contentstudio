@@ -51,6 +51,15 @@ class BaseDetailsPanel extends Page {
         }
     }
 
+    async selectItemInWidgetSelector(itemName) {
+        await this.clickOnWidgetSelectorDropdownHandle();
+        let versionHistoryOption = this.widgetSelectorDropdown + lib.itemByDisplayName(itemName);
+        await this.waitForElementDisplayed(versionHistoryOption, appConst.mediumTimeout);
+        let elements = await this.getDisplayedElements(versionHistoryOption);
+        await elements[0].click();
+        return await this.pause(500);
+    }
+
     getWidgetSelectorDropdownOptions() {
         let locator = this.widgetSelectorDropdown + lib.H6_DISPLAY_NAME;
         return this.getTextInDisplayedElements(locator);
