@@ -20,6 +20,7 @@ const XPATH = {
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependantItemViewer: "//div[contains(@id,'DependantItemViewer')]",
     markAsReadyDropdownHandle: "//button[contains(@id,'DropdownHandle')]",
+    readyForPublishingText: "//span[contains(@class,'entry-text') and text()='Content is ready for publishing']",
     excludeInvalidItems: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//button[child::span[contains(.,'Exclude invalid items')]]",
     excludeItemsInProgressButton: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//button[child::span[contains(.,'Exclude items in progress')]]",
     inProgressErrorEntry: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//span[contains(@class,'entry-text') and text()='In progress']",
@@ -383,6 +384,11 @@ class ContentPublishDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let res = await this.getAttribute(locator, 'data-count');
         return res;
+    }
+
+    async waitForReadyForPublishingTextDisplayed() {
+        let locator = XPATH.container + XPATH.readyForPublishingText;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 }
 
