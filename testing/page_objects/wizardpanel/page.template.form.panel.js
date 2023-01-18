@@ -31,7 +31,7 @@ class PageTemplateForm extends Page {
         await this.typeTextInInput(this.supportOptionsFilterInput, contentTypeDisplayName);
         let loaderComboBox = new LoaderComboBox();
         await loaderComboBox.selectOption(contentTypeDisplayName);
-        return this.pause(500);
+        return await this.pause(500);
     }
 
     async clickOnRemoveSupportIcon(displayName) {
