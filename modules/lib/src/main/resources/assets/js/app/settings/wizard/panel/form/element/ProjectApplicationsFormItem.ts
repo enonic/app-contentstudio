@@ -1,6 +1,8 @@
 import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
 import {ProjectApplicationsComboBox} from './ProjectApplicationsComboBox';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ProjectViewItem} from '../../../../view/ProjectViewItem';
+import * as Q from 'q';
 
 export class ProjectApplicationsFormItem
     extends ProjectFormItem {
@@ -17,6 +19,10 @@ export class ProjectApplicationsFormItem
 
     getComboBox(): ProjectApplicationsComboBox {
         return <ProjectApplicationsComboBox>this.getInput();
+    }
+
+    layout(item: ProjectViewItem): Q.Promise<void> {
+        return this.getComboBox().layout(item);
     }
 }
 

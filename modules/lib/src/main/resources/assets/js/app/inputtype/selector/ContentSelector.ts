@@ -60,7 +60,11 @@ export class ContentSelector
     }
 
     private initEventsListeners() {
-        const contentId: string = this.context.content.getId();
+        const contentId: string = this.context.content?.getId();
+
+        if (!contentId) {
+            return;
+        }
 
         ContentServerEventsHandler.getInstance().onContentRenamed((data: ContentSummaryAndCompareStatus[]) => {
             const isCurrentContentRenamed: boolean = data.some((item: ContentSummaryAndCompareStatus) => item.getId() === contentId);

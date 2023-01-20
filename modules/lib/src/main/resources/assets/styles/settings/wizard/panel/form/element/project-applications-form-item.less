@@ -16,6 +16,18 @@
     padding: 10px !important;
     margin-bottom: 10px;
 
+    &.invalid {
+      background-color: @admin-input-red;
+
+      .names-and-icon-view .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}sub-name {
+        color: @admin-shadow-gray;
+      }
+
+      &:hover {
+        background-color: @admin-input-red;
+      }
+    }
+
     &:hover {
       background-color: @admin-bg-toolbar;
     }

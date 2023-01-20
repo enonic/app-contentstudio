@@ -2,11 +2,11 @@ import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {ProjectApplicationSelectedOptionView} from './ProjectApplicationSelectedOptionView';
-import {ProjectApplication} from './ProjectApplication';
 import {BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {Application} from '@enonic/lib-admin-ui/application/Application';
 
 export class ProjectApplicationsSelectedOptionsView
-    extends BaseSelectedOptionsView<ProjectApplication> {
+    extends BaseSelectedOptionsView<Application> {
 
     constructor() {
         super('project-application-selected-options-view');
@@ -14,12 +14,12 @@ export class ProjectApplicationsSelectedOptionsView
         this.setEditable(false);
     }
 
-    createSelectedOption(option: Option<ProjectApplication>): SelectedOption<ProjectApplication> {
-        const builder: BaseSelectedOptionViewBuilder<ProjectApplication> = new BaseSelectedOptionViewBuilder<ProjectApplication>()
+    createSelectedOption(option: Option<Application>): SelectedOption<Application> {
+        const builder: BaseSelectedOptionViewBuilder<Application> = new BaseSelectedOptionViewBuilder<Application>()
             .setOption(option)
-            .setEditable(false)
+            .setEditable(option.getDisplayValue().getForm()?.getFormItems().length > 0)
             .setRemovable(true);
 
-        return new SelectedOption<ProjectApplication>(new ProjectApplicationSelectedOptionView(builder), this.count());
+        return new SelectedOption<Application>(new ProjectApplicationSelectedOptionView(builder), this.count());
     }
 }

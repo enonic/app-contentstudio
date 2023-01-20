@@ -5,11 +5,8 @@ import * as Q from 'q';
 import {SettingsType} from '../../../data/type/SettingsType';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectApplicationsFormItem} from './element/ProjectApplicationsFormItem';
-import {ProjectApplication, ProjectApplicationBuilder} from './element/ProjectApplication';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {ProjectApplicationsGetByKeysRequest} from '../../../resource/applications/ProjectApplicationsGetByKeysRequest';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ProjectApplication} from './element/ProjectApplication';
 
 export class ProjectApplicationsWizardStepForm
     extends ProjectWizardStepForm {
@@ -30,46 +27,21 @@ export class ProjectApplicationsWizardStepForm
     }
 
     protected initListeners() {
-        this.applicationsFormItem.getComboBox().onValueChanged(() => {
+        this.applicationsFormItem.getComboBox().onDataChanged(() => {
             this.notifyDataChanged();
         });
     }
 
     layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
-            return Q(null);
+            return Q.resolve();
         }
 
-        const appKeys: ApplicationKey[] = item.getSiteConfigs()?.map((config: ApplicationConfig) => config.getApplicationKey());
-
-        if (appKeys?.length > 0) {
-            return this.fetchApps(appKeys).then((apps: ProjectApplication[]) => {
-                appKeys.forEach((appKey: ApplicationKey) => {
-                    const app: ProjectApplication =
-                        apps.find((app: ProjectApplication) => app.getName() === appKey.getName()) || this.generateNotAvailableApp(appKey);
-                    this.applicationsFormItem.getComboBox().select(app, false, true);
-                });
-            }).catch(DefaultErrorHandler.handle);
-        }
-
-        return Q(null);
+        return this.applicationsFormItem.layout(item);
     }
 
-    private fetchApps(keys: ApplicationKey[]): Q.Promise<ProjectApplication[]> {
-        return new ProjectApplicationsGetByKeysRequest(keys).sendAndParse();
-    }
-
-    private generateNotAvailableApp(key: ApplicationKey): ProjectApplication {
-        const builder: ProjectApplicationBuilder = ProjectApplication.create();
-
-        builder.applicationKey = key;
-        builder.displayName = key.toString();
-
-        return builder.build();
-    }
-
-    getApplications(): ProjectApplication[] {
-        return this.applicationsFormItem?.getComboBox().getSelectedDisplayValues() || [];
+    getApplicationConfigs(): ApplicationConfig[] {
+        return this.applicationsFormItem?.getComboBox().getSelectedApplications().map((app: ProjectApplication) => app.getConfig()) || [];
     }
 
 }

@@ -1,59 +1,23 @@
-import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ProjectApplicationJson} from '../../../../resource/json/applications/ProjectApplicationJson';
+import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 
-export class ProjectApplication
-    extends Application {
+export class ProjectApplication {
 
-    private readonly icon: string;
+    private readonly application: Application;
 
-    constructor(builder: ProjectApplicationBuilder) {
-        super(builder);
+    private readonly config: ApplicationConfig;
 
-        this.icon = builder.icon;
+    constructor(application: Application, config: ApplicationConfig) {
+       this.application = application;
+       this.config = config;
     }
 
-    getIcon(): string {
-        return this.icon;
+    getApplication(): Application {
+        return this.application;
     }
 
-    static fromJson(json: ProjectApplicationJson): ProjectApplication {
-        return new ProjectApplicationBuilder().fromJson(json).build();
+    getConfig(): ApplicationConfig {
+        return this.config;
     }
 
-    static fromJsonArray(jsonArray: ProjectApplicationJson[]): ProjectApplication[] {
-        const array: ProjectApplication[] = [];
-        jsonArray.forEach((json: ProjectApplicationJson) => {
-            array.push(ProjectApplication.fromJson(json));
-        });
-        return array;
-    }
-
-    static create(): ProjectApplicationBuilder {
-        return new ProjectApplicationBuilder();
-    }
-}
-
-export class ProjectApplicationBuilder
-    extends ApplicationBuilder {
-
-    icon: string;
-
-    setIcon(value: string): ProjectApplicationBuilder {
-        this.icon = value;
-        return this;
-    }
-
-    fromJson(json: ProjectApplicationJson): ProjectApplicationBuilder {
-        super.fromJson(json);
-
-        this.icon = json.icon;
-        this.state = ObjectHelper.isDefined(json.started) ? (json.started ? Application.STATE_STARTED : Application.STATE_STOPPED) : null;
-
-        return this;
-    }
-
-    build(): ProjectApplication {
-        return new ProjectApplication(this);
-    }
 }

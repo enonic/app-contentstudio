@@ -25,9 +25,10 @@ import {ProjectIdDialogStepData} from './data/ProjectIdDialogStepData';
 import {UpdateProjectLanguageRequest} from '../../../resource/UpdateProjectLanguageRequest';
 import {UpdateProjectPermissionsRequest} from '../../../resource/UpdateProjectPermissionsRequest';
 import {ProjectReadAccessType} from '../../../data/project/ProjectReadAccessType';
-import {ProjectApplication} from '../../../wizard/panel/form/element/ProjectApplication';
 import {ProjectApplicationsDialogStep} from './step/ProjectApplicationsDialogStep';
 import {ProjectContext} from '../../../../project/ProjectContext';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {ProjectApplication} from '../../../wizard/panel/form/element/ProjectApplication';
 
 export class ProjectWizardDialog
     extends MultiStepDialog {
@@ -161,7 +162,7 @@ export class ProjectWizardDialog
             .setDescription(idData.getDescription())
             .setName(idData.getName())
             .setDisplayName(idData.getDisplayName())
-            .setApplications(this.getProjectApplications()?.map((app: ProjectApplication) => app.getApplicationKey().toString()));
+            .setApplicationConfigs(this.getApplicationsConfigs());
     }
 
     private updateLocale(projectName: string): Q.Promise<void> {
@@ -242,7 +243,11 @@ export class ProjectWizardDialog
     }
 
     private getProjectApplications(): ProjectApplication[] {
-        return this.getProjectApplicationsStep()?.getData().getApplications();
+        return this.getProjectApplicationsStep()?.getData().getProjectApplications();
+    }
+
+    private getApplicationsConfigs(): ApplicationConfig[] {
+        return this.getProjectApplications().map((app: ProjectApplication) => app.getConfig());
     }
 
     private getProjectApplicationsStep(): ProjectApplicationsDialogStep {

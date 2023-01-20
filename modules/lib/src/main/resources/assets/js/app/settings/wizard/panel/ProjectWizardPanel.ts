@@ -30,9 +30,7 @@ import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
 import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {ProjectApplicationsWizardStepForm} from './form/ProjectApplicationsWizardStepForm';
-import {ProjectApplication} from './form/element/ProjectApplication';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {ProjectSteps} from '../../dialog/project/create/ProjectSteps';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
@@ -293,9 +291,7 @@ export class ProjectWizardPanel
     private getNewProjectInstance(projectPrototype: Project, language: string): Project {
         const permissions: ProjectPermissions = this.rolesWizardStepForm?.getPermissions();
         const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
-        const configs: ApplicationConfig[] = this.applicationsWizardStepForm?.getApplications().map(
-            (app: ProjectApplication) => ApplicationConfig.create().setApplicationKey(app.getApplicationKey()).setConfig(
-                new PropertySet()).build());
+        const configs: ApplicationConfig[] = this.applicationsWizardStepForm?.getApplicationConfigs();
 
         return new ProjectBuilder(projectPrototype)
             .setLanguage(language)
@@ -399,8 +395,7 @@ export class ProjectWizardPanel
             .setDescription(this.projectWizardStepForm.getDescription().trim())
             .setName(this.projectWizardStepForm.getProjectName())
             .setDisplayName(this.getDisplayName())
-            .setApplications(
-                this.applicationsWizardStepForm?.getApplications().map((app: ProjectApplication) => app.getApplicationKey().toString()));
+            .setApplicationConfigs(this.applicationsWizardStepForm?.getApplicationConfigs());
     }
 
     doRender(): Q.Promise<boolean> {
@@ -440,13 +435,10 @@ export class ProjectWizardPanel
             return true;
         }
 
-        const selectedApps: ProjectApplication[] = this.applicationsWizardStepForm?.getApplications() || [];
-        const appsAsConfigs: ApplicationConfig[] = selectedApps.map(
-            (app: ProjectApplication) => ApplicationConfig.create().setApplicationKey(app.getApplicationKey()).setConfig(
-                new PropertySet()).build());
+        const selectedAppsConfigs: ApplicationConfig[] = this.applicationsWizardStepForm?.getApplicationConfigs() || [];
         const persistedSiteConfigs: ApplicationConfig[] = this.getPersistedItem().getSiteConfigs() || [];
 
-        return !ObjectHelper.arrayEquals(persistedSiteConfigs, appsAsConfigs);
+        return !ObjectHelper.arrayEquals(persistedSiteConfigs, selectedAppsConfigs);
     }
 
     protected initElements() {

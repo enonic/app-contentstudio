@@ -1,32 +1,32 @@
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
-import {ProjectApplication} from './ProjectApplication';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {Application} from '@enonic/lib-admin-ui/application/Application';
 
 export class ProjectApplicationViewer
-    extends NamesAndIconViewer<ProjectApplication> {
+    extends NamesAndIconViewer<Application> {
 
     constructor() {
         super('project-application-viewer');
     }
 
-    resolveDisplayName(application: ProjectApplication): string {
+    resolveDisplayName(application: Application): string {
         return application.getDisplayName();
     }
 
-    resolveSubName(application: ProjectApplication): string {
+    resolveSubName(application: Application): string {
         return application.getDescription() || application.getName();
     }
 
-    resolveIconEl(application: ProjectApplication): Element {
-        if (application.getIcon()) {
-            return new ImgEl(application.getIcon());
+    resolveIconEl(application: Application): Element {
+        if (application.getIconUrl()) {
+            return new ImgEl(application.getIconUrl());
         }
 
         return null;
     }
 
-    resolveIconUrl(application: ProjectApplication): string {
+    resolveIconUrl(application: Application): string {
         if (application.getIconUrl()) {
             return application.getIconUrl();
         }
@@ -34,7 +34,7 @@ export class ProjectApplicationViewer
         return null;
     }
 
-    resolveIconClass(_object: ProjectApplication): string {
+    resolveIconClass(_object: Application): string {
         return 'icon-application';
     }
 }

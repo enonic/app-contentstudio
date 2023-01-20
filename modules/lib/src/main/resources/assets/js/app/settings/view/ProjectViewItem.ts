@@ -100,7 +100,7 @@ export class ProjectViewItem
             return false;
         }
 
-        return ObjectHelper.objectEquals(this.data, other.data);
+        return ObjectHelper.equals(this.data, other.data);
     }
 
 }

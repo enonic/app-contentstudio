@@ -3,6 +3,7 @@ import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ProjectJson} from './json/ProjectJson';
 import {Project} from '../data/project/Project';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 
 export abstract class ProjectCreateUpdateRequest
     extends ProjectResourceRequest<Project> {
@@ -13,7 +14,7 @@ export abstract class ProjectCreateUpdateRequest
 
     protected description: string;
 
-    protected applications: string[];
+    protected applicationConfigs: ApplicationConfig[] = [];
 
     protected constructor() {
         super();
@@ -35,8 +36,8 @@ export abstract class ProjectCreateUpdateRequest
         return this;
     }
 
-    setApplications(value: string[]): ProjectCreateUpdateRequest {
-        this.applications = value || [];
+    setApplicationConfigs(value: ApplicationConfig[]): ProjectCreateUpdateRequest {
+        this.applicationConfigs = value || [];
         return this;
     }
 
@@ -45,7 +46,7 @@ export abstract class ProjectCreateUpdateRequest
             name: this.name,
             displayName: this.displayName,
             description: this.description,
-            applications: this.applications
+            applicationConfigs: this.applicationConfigs.map((config: ApplicationConfig) => config.toJson())
         };
     }
 

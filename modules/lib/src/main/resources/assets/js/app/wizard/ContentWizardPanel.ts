@@ -144,6 +144,7 @@ import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ContentSummary} from '../content/ContentSummary';
+import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
