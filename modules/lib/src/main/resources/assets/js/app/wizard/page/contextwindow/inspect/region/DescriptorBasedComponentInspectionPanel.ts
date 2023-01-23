@@ -68,14 +68,12 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.initSelectorListeners();
 
         this.onRemoved(() => {
-            if (this.formView) {
-                this.formView.reset();
-            }
+            this.formView?.reset();
         });
 
         this.onAdded(() => {
             // a hack to make form changes persisted during switching between docked <=> floating panels
-            if (this.formView && this.formView.isRendered()) {
+            if (this.formView?.isRendered()) {
                 this.formView.reset();
             }
         });
