@@ -20,10 +20,10 @@ import {NotificationMessage} from '@enonic/lib-admin-ui/notify/NotificationMessa
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {ContentPath} from '../../../content/ContentPath';
-import eventInfo = CKEDITOR.eventInfo;
-import widget = CKEDITOR.plugins.widget;
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
 import {HTMLAreaHelper} from './HTMLAreaHelper';
+import eventInfo = CKEDITOR.eventInfo;
+import widget = CKEDITOR.plugins.widget;
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -831,6 +831,10 @@ export class HtmlEditor {
 
     public static setData(id: string, data: string, callback?: () => void) {
         CKEDITOR.instances[id].setData(data, !!callback ? {callback: callback} : null);
+    }
+
+    public static setReadOnly(id: string, value: boolean): void {
+        CKEDITOR.instances[id]?.setReadOnly(value);
     }
 
     public static focus(id: string) {

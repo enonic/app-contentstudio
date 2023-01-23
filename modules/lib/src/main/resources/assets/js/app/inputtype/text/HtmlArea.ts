@@ -25,7 +25,6 @@ import {StylesRequest} from '../ui/text/styles/StylesRequest';
 import {BaseInputTypeNotManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeNotManagingAdd';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {SelectorOnBlurEvent} from '@enonic/lib-admin-ui/ui/selector/SelectorOnBlurEvent';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
@@ -34,6 +33,7 @@ import {ContentSummary} from '../../content/ContentSummary';
 import {ContentPath} from '../../content/ContentPath';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
@@ -53,6 +53,8 @@ export class HtmlArea
     private enabledTools: string[];
     private disabledTools: string[];
     private allowHeadingsConfig: string;
+
+    private enabled: boolean = true;
 
     constructor(config: ContentInputTypeViewContext) {
         super(config);
@@ -179,11 +181,21 @@ export class HtmlArea
     }
 
     setEnabledInputOccurrenceElement(occurrence: Element, enable: boolean) {
-        occurrence.getChildren().forEach((child) => {
-            if (ObjectHelper.iFrameSafeInstanceOf(child, TextArea)) {
-                (<TextArea>child).setEnabled(enable);
-            }
-        });
+        // no api in cke to enable/disable editor, no api to change tab index for a single editor
+    }
+
+    setEnabled(enable: boolean) {
+        this.enabled = enable;
+
+        super.setEnabled(enable);
+
+        this.editors.forEach((editorInfo: HtmlAreaOccurrenceInfo) => this.setEditorEnabled(editorInfo, enable));
+    }
+
+    private setEditorEnabled(editorInfo: HtmlAreaOccurrenceInfo, enable: boolean): void {
+        HtmlEditor.setReadOnly(editorInfo.id, !enable);
+        const iframe: HTMLIFrameElement = editorInfo.textAreaWrapper.getHTMLElement().querySelector('iframe');
+        iframe?.setAttribute('tabindex', enable? '0' : '-1');
     }
 
     private initEditor(id: string, property: Property, textAreaWrapper: Element): Q.Promise<HtmlEditor> {
@@ -193,7 +205,6 @@ export class HtmlArea
             this.scrollToSelected(textAreaWrapper, e);
 
             AppHelper.dispatchCustomEvent('focusin', this);
-            new SelectorOnBlurEvent(this).fire();
         };
 
         const editorValueChangedHandler = () => {
@@ -213,7 +224,7 @@ export class HtmlArea
         };
 
         const keydownHandler = (e: KeyboardEvent) => {
-            if ((e.metaKey || e.ctrlKey) && e.keyCode === 83) {  // Cmd-S or Ctrl-S
+            if ((KeyHelper.isMetaKey(e) || KeyHelper.isControlKey(e)) && e.key === 's') {  // Cmd-S or Ctrl-S
                 e.preventDefault();
 
                 // as editor resides in a frame - propagate event via wrapping element
@@ -228,7 +239,7 @@ export class HtmlArea
                     keyCode: e.keyCode,
                     charCode: e.charCode
                 });
-            } else if ((e.altKey) && e.keyCode === 9) { // alt+tab for OSX
+            } else if (KeyHelper.isAltKey(e) && KeyHelper.isTabKey(e)) { // alt+tab for OSX
                 e.preventDefault();
                 // the one that event is triggered from
                 const htmlAreaIframe = $(textAreaWrapper.getHTMLElement()).find('iframe').get(0);
@@ -271,6 +282,11 @@ export class HtmlArea
 
         const editorReadyHandler = () => {
             this.setEditorContent(<TextArea>textAreaWrapper.getFirstChild(), property);
+            const editor: HtmlAreaOccurrenceInfo = this.editors.find((editor: HtmlAreaOccurrenceInfo) => editor.id === id);
+
+            if (editor && !this.enabled) {
+                this.setEditorEnabled(editor, false);
+            }
         };
 
         const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
