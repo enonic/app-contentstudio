@@ -8,7 +8,10 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const MultiSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/multi.selection.option.set');
+// Multi selection set with HtmlArea:
+const MultiSelectionSetView = require('../../page_objects/wizardpanel/optionset/multi.selection.set.view');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
 
 describe('optionset.multi.selection.checkbox.spec: tests for option set with multi selection checkboxes', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -24,6 +27,27 @@ describe('optionset.multi.selection.checkbox.spec: tests for option set with mul
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
+        });
+
+    // Verifies https://github.com/enonic/app-contentstudio/issues/5757
+    // Option Set wizard - Html Area is disabled in selected options #5757
+    it(`GIVEN wizard for option set with HtmlArea is opened WHEN an image has been inserted in the HtmlArea THEN Insert Image dialog should be closed`,
+        async () => {
+            let multiSelectionSetView = new MultiSelectionSetView();
+            let insertImageDialog = new InsertImageDialog();
+            // 1. Open new wizard for option-set content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
+            // 2. select the option with HtmlArea:
+            await multiSelectionSetView.clickOnOption('Option 3');
+            // 3. Open Insert Image dialog:
+            await multiSelectionSetView.showToolbarAndClickOnInsertImageButton();
+            await insertImageDialog.waitForDialogVisible();
+            // 4. Select an image:
+            await insertImageDialog.filterAndSelectImage(appConst.TEST_IMAGES.BOOK);
+            // 5. Click on 'Insert' button in the dialog:
+            await insertImageDialog.clickOnInsertButton();
+            // 6. Verify that the dialog closes:
+            await insertImageDialog.waitForDialogClosed();
         });
 
     it(`GIVEN wizard for option set with multi selection minimum="0" maximum="2" is opened WHEN 2 checkboxes have been clicked THEN the third checkbox should be disabled`,
