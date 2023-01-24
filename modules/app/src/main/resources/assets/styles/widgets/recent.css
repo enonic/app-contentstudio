@@ -3,6 +3,7 @@
   grid-template-columns: 60%  minmax(50px, 1fr);
   row-gap: 5px;
   column-gap: 15px;
+  padding: 0 10px;
 }
 
 .grid-item {

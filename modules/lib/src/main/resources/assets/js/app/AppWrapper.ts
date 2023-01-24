@@ -12,7 +12,7 @@ import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/appli
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
-import {Widget, WidgetBuilder, WidgetDescriptorKey} from '@enonic/lib-admin-ui/content/Widget';
+import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
 import {UriHelper} from './rendering/UriHelper';
 import {WidgetHelper} from './util/WidgetHelper';
 import {ContentAppContainer} from './ContentAppContainer';
@@ -86,16 +86,12 @@ export class AppWrapper
     }
 
     private createStudioWidget(): Widget {
-        const studioWidgetBuilder: WidgetBuilder = Widget.create();
-
-        studioWidgetBuilder.widgetDescriptorKey = WidgetDescriptorKey.fromString(`${CONFIG.get('appId')}:main`);
-        studioWidgetBuilder.displayName = i18n('app.admin.widget.main');
-        studioWidgetBuilder.url = UrlAction.BROWSE;
-        studioWidgetBuilder.config = {
-            context: 'project'
-        };
-
-        return studioWidgetBuilder.build();
+        return Widget.create()
+            .setWidgetDescriptorKey(`${CONFIG.get('appId')}:main`)
+            .setDisplayName(i18n('app.admin.widget.main'))
+            .setUrl(UrlAction.BROWSE)
+            .setConfig(new WidgetConfig().setContext('project'))
+            .build();
     }
 
     private createStudioWidgetEl(): Element {
@@ -132,7 +128,7 @@ export class AppWrapper
             this.fetchAndAppendWidget(widget);
         }
 
-        const isProjectSelectorShown: boolean = widget.getConfig()['context'] === 'project';
+        const isProjectSelectorShown: boolean = widget.getContext() === 'project';
 
         if (isProjectSelectorShown) {
             this.appBar.showProjectSelector();
