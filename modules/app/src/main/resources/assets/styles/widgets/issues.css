@@ -3,6 +3,7 @@
   grid-template-columns: auto 20%;
   row-gap: 10px;
   column-gap: 5px;
+  padding: 0 10px;
 }
 
 .issues-container .issue {

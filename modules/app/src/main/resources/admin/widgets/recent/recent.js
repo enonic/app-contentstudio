@@ -11,7 +11,7 @@ const baseToolUri = adminLib.getToolUrl(app.name, 'main');
 const currentUser = authLib.getUser();
 
 const handleGet = (req) => {
-    const showLast = req.params.showLast || 5;
+    const showLast = req.params.showLast || 10;
     const lastModifiedItems = getLastModifiedContentInAllRepos(showLast);
     const filteredItems = filterSameItemsInOtherRepos(lastModifiedItems);
     const sortedByDateItems = sortItemsByDate(filteredItems);

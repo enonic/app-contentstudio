@@ -1,34 +1,28 @@
-.widget-stats-container {
-  display: grid;
-  grid-template-columns: 50% 50%;
-  grid-column-gap: 20px;
+#widget-stats .widget-header {
+  color: white;
 }
 
-.widget-stats-header {
-  margin: 0.75em 0 0.75em 0.3em;
-  font-size: 14px;
-  letter-spacing: 1px;
-  color: white;
+.widget-stats-container {
+  display: grid;
+  grid-template-columns: repeat(2, 45%);
+  gap: 14px 20px;
+  max-width: 360px;
 }
 
 .widget-stats-container .widget-stats-container-section {
-  flex-basis: 50%;
   text-align: center;
+  width: 85px;
+  margin: 0 auto;
 }
 
 .widget-stats-container .widget-stats-value {
+  font-size: 2.5em;
   color: white;
-  margin-bottom: 0.2em;
-  margin-top: 0.5em;
+  margin: 0.2em 0;
+  height: 35px;
 }
 
 .widget-stats-container .widget-stats-label {
+  font-size: 1.1em;
   color: #eee;
-  font-size: 14px;
-}
-
-@media screen and (min-width: 769px) {
-  .widget-stats-container {
-    grid-template-columns: 120px 120px;
-  }
 }
