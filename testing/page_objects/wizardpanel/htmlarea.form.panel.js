@@ -113,7 +113,6 @@ class HtmlAreaForm extends OccurrencesFormView {
             await this.switchToFrame(frameLocator);
             await this.pause(500);
             await this.doDoubleClick(`//body//p[contains(.,'${text}')]`);
-            //await this.doDoubleClick(`//body`);
             await this.switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {

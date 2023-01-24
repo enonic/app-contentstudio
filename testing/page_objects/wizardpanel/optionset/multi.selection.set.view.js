@@ -104,7 +104,17 @@ class MultiSelectionOptionSet extends Page {
 
     async typeTextInHtmlAreaInOption3(index, text) {
         let htmlAreaForm = new HtmlAreaForm();
-        return await htmlAreaForm.insertTextInHtmlArea(index, text)
+        return await htmlAreaForm.insertTextInHtmlArea(index, text);
+    }
+
+    async showToolbarInHtmlArea(index) {
+        let htmlAreaForm = new HtmlAreaForm();
+        return await htmlAreaForm.showToolbar(index);
+    }
+
+    async showToolbarAndClickOnInsertImageButton() {
+        let htmlAreaForm = new HtmlAreaForm();
+        return await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
     }
 }
 
