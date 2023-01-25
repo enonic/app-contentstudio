@@ -132,7 +132,8 @@ export class AttachmentUploader
             deferred: true,
             attachmentRemoveCallback: this.removeItemCallback.bind(this),
             getTotalAllowedToUpload: this.getTotalAllowedToUpload.bind(this),
-            hasUploadButton: false
+            hasUploadButton: false,
+            project: this.context.project
         };
     }
 
@@ -188,6 +189,7 @@ export class AttachmentUploader
     private deleteAttachment(itemName: string): Q.Promise<Content> {
         return new DeleteAttachmentRequest()
             .setContentId(this.context.content.getContentId())
+            .setRequestProject(this.context.project)
             .addAttachmentName(itemName)
             .sendAndParse();
     }

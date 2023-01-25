@@ -2485,7 +2485,6 @@ export class ContentWizardPanel
 
         this.formContext
             .setSite(this.site)
-            .setParentContent(this.parentContent)
             .setPersistedContent(content);
         this.formContext.setFormState(this.formState);
         this.formContext.setShowEmptyFormItemSetOccurrences(this.isItemPersisted());

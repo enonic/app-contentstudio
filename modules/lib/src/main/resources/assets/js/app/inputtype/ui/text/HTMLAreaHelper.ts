@@ -10,14 +10,15 @@ import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
 import {ContentId} from '../../../content/ContentId';
 import {HtmlAreaSanitizer} from './HtmlAreaSanitizer';
+import {Project} from '../../../settings/data/project/Project';
 
 export class HTMLAreaHelper {
 
-    private static getConvertedImageSrc(imgSrc: string, contentId: string): string {
+    private static getConvertedImageSrc(imgSrc: string, contentId: string, project?: Project): string {
         const imageId = HTMLAreaHelper.extractImageIdFromImgSrc(imgSrc);
         const styleParameter = '?style=';
 
-        const imageUrlResolver = new ImageUrlResolver()
+        const imageUrlResolver: ImageUrlResolver = new ImageUrlResolver(null, project)
             .setContentId(new ContentId(imageId))
             .setTimestamp(new Date())
             .setScaleWidth(true);
@@ -60,7 +61,7 @@ export class HTMLAreaHelper {
         return imgSrc.replace(prefix, StringHelper.EMPTY_STRING);
     }
 
-    public static convertRenderSrcToPreviewSrc(value: string, contentId: string): string {
+    public static convertRenderSrcToPreviewSrc(value: string, contentId: string, project?: Project): string {
         if (!value) {
             return '';
         }
@@ -74,7 +75,7 @@ export class HTMLAreaHelper {
                 if (imgSrc.indexOf(ImageUrlResolver.URL_PREFIX_RENDER) === 0 ||
                     imgSrc.indexOf(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL) === 0) {
                     processedContent =
-                        processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc, contentId));
+                        processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc, contentId, project));
                 }
             });
 

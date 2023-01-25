@@ -10,13 +10,13 @@ export class UrlHelper {
         return UriHelper.getAdminUri(UriHelper.joinPath('rest-v2', 'cs', UriHelper.relativePath(path)));
     }
 
-    static getCMSPath(contentRootPath?: string): string {
-        const requestProject: Project = ProjectContext.get().getProject();
+    static getCMSPath(contentRootPath?: string, project?: Project): string {
+        const requestProject: Project = project || ProjectContext.get().getProject();
         return `cms/${requestProject.getName()}${contentRootPath ? `/${contentRootPath}` : ''}`;
     }
 
-    static getCMSPathForContentRoot(): string {
-        return UrlHelper.getCMSPath('content');
+    static getCMSPathForContentRoot(project?: Project): string {
+        return UrlHelper.getCMSPath('content', project);
     }
 
     static getCMSPathWithProject(projectName: string, contentRootPath?: string): string {

@@ -17,6 +17,7 @@ import {ContentTypeComparator} from './ContentTypeComparator';
 import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
+import {ContentId} from '../../content/ContentId';
 
 export class ContentTypeFilter
     extends BaseInputTypeManagingAdd {
@@ -51,12 +52,13 @@ export class ContentTypeFilter
 
     private createLoader(): BaseLoader<ContentTypeSummary> {
         let loader: BaseLoader<ContentTypeSummary>;
-        if (this.context.formContext.getContentTypeName().isPageTemplate()) {
-            let contentId = this.context.site.getContentId();
-            loader = new PageTemplateContentTypeLoader(contentId);
+
+        if (this.context.formContext.getContentTypeName()?.isPageTemplate()) {
+            const contentId: ContentId = this.context.site?.getContentId();
+            loader = new PageTemplateContentTypeLoader(contentId, this.context.project);
         } else {
-            let contentId = this.isContextDependent && (this.context.content ? this.context.content.getContentId() : null);
-            loader = new ContentTypeSummaryLoader(contentId);
+            const contentId: ContentId = this.isContextDependent ? this.context.content?.getContentId() : null;
+            loader = new ContentTypeSummaryLoader(contentId, this.context.project);
         }
 
         loader.setComparator(new ContentTypeComparator());
@@ -65,7 +67,7 @@ export class ContentTypeFilter
     }
 
     private createComboBox(): ContentTypeComboBox {
-        const loader = this.createLoader();
+        const loader: PageTemplateContentTypeLoader | ContentTypeSummaryLoader = this.createLoader();
         const comboBox: ContentTypeComboBox = <ContentTypeComboBox>ContentTypeComboBox.create()
             .setLoader(loader)
             .setMaximumOccurrences(this.getInput().getOccurrences().getMaximum())

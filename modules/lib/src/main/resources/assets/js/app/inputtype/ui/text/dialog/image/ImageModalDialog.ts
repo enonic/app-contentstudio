@@ -47,7 +47,10 @@ import {LinkEl} from '@enonic/lib-admin-ui/dom/LinkEl';
 import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {Project} from '../../../../../settings/data/project/Project';
+import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import eventInfo = CKEDITOR.eventInfo;
+import {ContentPath} from '../../../../../content/ContentPath';
 
 export class ImageModalDialog
     extends OverrideNativeDialog {
@@ -57,7 +60,7 @@ export class ImageModalDialog
     private imageAltTextField: FormItem;
     private imageUploaderEl: ImageUploaderEl;
     private presetImageEl: HTMLElement;
-    private content: ContentSummary;
+    private content?: ContentSummary;
     private imageSelector: ImageContentComboBox;
     private progress: ProgressBar;
     private error: DivEl;
@@ -72,11 +75,12 @@ export class ImageModalDialog
 
     static readonly defaultStyles: any = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS];
 
-    constructor(config: eventInfo, content: ContentSummary) {
+    constructor(config: eventInfo, content: ContentSummary, project?: Project) {
         super(<ImageModalDialogConfig>{
             editor: config.editor,
             dialog: config.data,
             content: content,
+            project: project,
             editorWidth: config.editor.element.$.clientWidth || config.editor.element.getParent().$.clientWidth,
             title: i18n('dialog.image.title'),
             class: 'image-modal-dialog',
@@ -86,7 +90,9 @@ export class ImageModalDialog
             }
         });
 
-        StylesRequest.fetchStyles(content.getId());
+        if (this.content) {
+            StylesRequest.fetchStyles(content.getId());
+        }
     }
 
     protected initElements() {
@@ -107,7 +113,7 @@ export class ImageModalDialog
 
         this.onRendered(() => {
             this.imageUploaderEl.setParams({
-                parent: this.content.getContentId().toString()
+                parent: this.content?.getContentId().toString() || ContentPath.getRoot().toString()
             });
         });
 
@@ -168,16 +174,17 @@ export class ImageModalDialog
     private presetImage(presetStyles: string) {
         const imageId: string = this.extractImageId();
 
-        new GetContentByIdRequest(new ContentId(imageId)).sendAndParse().then((imageContent: Content) => {
-            this.imageSelector.setValue(imageContent.getId());
-            this.imageSelector.getComboBox().onValueLoaded((options: Option<MediaTreeSelectorItem>[]) => {
-                if (options.length === 1 && options[0].getId() === imageContent.getId()) {
-                    this.imageSelector.show();
-                }
-            });
-            this.previewImage(imageContent, presetStyles);
-            this.imageSelectorFormItem.addClass('selected-item-preview');
-        }).catch((reason: any) => {
+        new GetContentByIdRequest(new ContentId(imageId)).setRequestProject(this.config.project).sendAndParse().then(
+            (imageContent: Content) => {
+                this.imageSelector.setValue(imageContent.getId());
+                this.imageSelector.getComboBox().onValueLoaded((options: Option<MediaTreeSelectorItem>[]) => {
+                    if (options.length === 1 && options[0].getId() === imageContent.getId()) {
+                        this.imageSelector.show();
+                    }
+                });
+                this.previewImage(imageContent, presetStyles);
+                this.imageSelectorFormItem.addClass('selected-item-preview');
+            }).catch((reason: any) => {
             this.presetImageEl = null;
             this.imageSelector.show();
             DefaultErrorHandler.handle(reason);
@@ -222,11 +229,11 @@ export class ImageModalDialog
     }
 
     private createImageSelector(id: string): FormItem {
-
         const imageSelector = (ImageContentComboBox.create()
+            .setProject(this.config.project)
             .setMaximumOccurrences(1))
             .setContent(this.content)
-            .setSelectedOptionsView(new ContentSelectedOptionsView())
+            .setSelectedOptionsView(new ContentSelectedOptionsView() as SelectedOptionsView<any>)
             .build();
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id, i18n('dialog.image.formitem.image')).setValidator(
@@ -250,7 +257,8 @@ export class ImageModalDialog
             this.previewImage(imageSelectorItem.getContent());
             formItem.addClass('selected-item-preview');
 
-            new GetContentByIdRequest(imageSelectorItem.getContent().getContentId()).sendAndParse().then((content: Content) => {
+            new GetContentByIdRequest(imageSelectorItem.getContent().getContentId()).setRequestProject(
+                this.config.project).sendAndParse().then((content: Content) => {
                 this.setAltTextFieldValue(ImageHelper.getImageAltText(content));
                 this.setCaptionFieldValue(ImageHelper.getImageCaption(content));
             }).catch(DefaultErrorHandler.handle).done();
@@ -289,7 +297,7 @@ export class ImageModalDialog
             head.appendChild(linkEl.getHTMLElement());
         };
         const injectCssIntoFrame = (head) => {
-            Styles.getCssPaths(this.content.getId()).forEach(cssPath => appendStylesheet(head, cssPath));
+            Styles.getCssPaths(this.content?.getId()).forEach(cssPath => appendStylesheet(head, cssPath));
         };
 
         this.previewFrame = new IFrameEl('preview-frame');
@@ -341,7 +349,7 @@ export class ImageModalDialog
         const onImageFirstLoad = () => {
             this.imagePreviewContainer.removeClass('upload');
 
-            this.imageToolbar = new ImageDialogToolbar(this.figure, this.content.getId());
+            this.imageToolbar = new ImageDialogToolbar(this.figure, this.content?.getId());
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
             this.imageToolbar.onPreviewSizeChanged(() => setTimeout(() => this.adjustPreviewFrameHeight(), 100));
 
@@ -375,7 +383,7 @@ export class ImageModalDialog
 
     private createImageUrlResolver(imageContent: ContentSummary, size?: number, style?: Style): ImageUrlResolver {
         const isOriginalImage = style ? StyleHelper.isOriginalImage(style.getName()) : false;
-        const imgUrlResolver = new ImageUrlResolver()
+        const imgUrlResolver = new ImageUrlResolver(null, this.config.project)
             .setContentId(imageContent.getContentId())
             .setTimestamp(imageContent.getModifiedTime())
             .setScaleWidth(true);
@@ -447,14 +455,15 @@ export class ImageModalDialog
     }
 
     private createImageUploader(): ImageUploaderEl {
-        const uploader = new ImageUploaderEl({
+        const uploader: ImageUploaderEl = new ImageUploaderEl({
             operation: MediaUploaderElOperation.create,
             name: 'image-selector-upload-dialog',
             showResult: false,
             allowMultiSelection: false,
             deferred: true,
             showCancel: false,
-            selfIsDropzone: false
+            selfIsDropzone: false,
+            project: this.config.project
         });
 
         this.dropzoneContainer = new DropzoneContainer(true);
@@ -613,14 +622,15 @@ export class ImageModalDialog
 
 export interface ImageModalDialogConfig
     extends HtmlAreaModalDialogConfig {
-    content: ContentSummary;
+    content?: ContentSummary;
+    project?: Project;
     editorWidth: number;
 }
 
 export class ImageDialogToolbar
     extends Toolbar {
 
-    private contentId: string;
+    private contentId?: string;
 
     private previewEl: FigureEl;
 

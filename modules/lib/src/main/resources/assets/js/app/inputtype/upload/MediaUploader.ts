@@ -111,7 +111,7 @@ export class MediaUploader
 
         this.appendChild(this.uploaderWrapper);
 
-        if (this.config.formContext.getContentTypeName().isVectorMedia()) {
+        if (this.config.formContext.getContentTypeName()?.isVectorMedia()) {
             this.createVectorMediaWrapper();
         }
 
@@ -163,7 +163,7 @@ export class MediaUploader
     }
 
     private resolveImageUrl(contentId: ContentId): string {
-        return new ImageUrlResolver()
+        return new ImageUrlResolver(null, this.config.project)
                     .setContentId(contentId)
                     .setTimestamp(new Date())
                     .resolveForPreview();
@@ -235,7 +235,8 @@ export class MediaUploader
             allowMultiSelection: false,
             hideDefaultDropZone: hideDropZone != null ? hideDropZone : true,
             deferred: true,
-            hasUploadButton: false
+            hasUploadButton: false,
+            project: this.config.project
         });
     }
 

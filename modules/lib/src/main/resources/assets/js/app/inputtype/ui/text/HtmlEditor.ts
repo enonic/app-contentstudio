@@ -12,7 +12,6 @@ import {HtmlEditorParams} from './HtmlEditorParams';
 import {Styles} from './styles/Styles';
 import {StyleHelper} from './styles/StyleHelper';
 import {StylesRequest} from './styles/StylesRequest';
-import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
 import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
@@ -20,10 +19,11 @@ import {NotificationMessage} from '@enonic/lib-admin-ui/notify/NotificationMessa
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {ContentPath} from '../../../content/ContentPath';
-import eventInfo = CKEDITOR.eventInfo;
-import widget = CKEDITOR.plugins.widget;
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
 import {HTMLAreaHelper} from './HTMLAreaHelper';
+import {CreateHtmlAreaDialogEventGenerator} from './CreateHtmlAreaDialogEventGenerator';
+import eventInfo = CKEDITOR.eventInfo;
+import widget = CKEDITOR.plugins.widget;
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -38,7 +38,7 @@ export interface HtmlEditorCursorPosition {
  */
 export class HtmlEditor {
 
-    private editorParams: HtmlEditorParams;
+    private readonly editorParams: HtmlEditorParams;
 
     private editor: CKEDITOR.editor;
 
@@ -307,7 +307,7 @@ export class HtmlEditor {
             } else {
                 const mediaContent = JSON.parse(response[0]);
 
-                const imgUrl = new ImageUrlResolver()
+                const imgUrl = new ImageUrlResolver(null, this.editorParams.getProject())
                     .setContentId(mediaContent.id)
                     .setScaleWidth(true)
                     .resolveForPreview();
@@ -572,7 +572,7 @@ export class HtmlEditor {
     private setupDialogsToOpen() {
         this.editor.addCommand('openMacroDialog', {
             exec: (editor, data: any) => {
-                this.notifyMacroDialog({editor: editor, macro: data});
+                new CreateHtmlAreaDialogEventGenerator(this.editorParams).generateMacroEventAndFire({editor: editor, macro: data});
                 return true;
             }
         });
@@ -590,7 +590,7 @@ export class HtmlEditor {
                     cursorPosition: this.getCursorPosition()
                 };
 
-                this.notifyFullscreenDialog(config);
+                new CreateHtmlAreaDialogEventGenerator(this.editorParams).generateFullScreenEventAndFire(config);
                 return true;
             }
         });
@@ -603,37 +603,7 @@ export class HtmlEditor {
         });
 
         this.editor.on('dialogShow', (dialogShowEvent: eventInfo) => {
-            switch (dialogShowEvent.data.getName()) {
-            case 'anchor':
-                this.notifyAnchorDialog(dialogShowEvent);
-                break;
-            case 'sourcedialog':
-                this.notifyCodeDialog(dialogShowEvent);
-                break;
-            case 'specialchar':
-                dialogShowEvent.data.hide();
-                this.notifySpecialCharDialog(dialogShowEvent);
-                break;
-            case 'find':
-                this.notifySearchReplaceDialog(dialogShowEvent);
-                break;
-            case 'link':
-                this.notifyLinkDialog(dialogShowEvent);
-                break;
-            case 'image2':
-                this.notifyImageDialog(dialogShowEvent);
-                break;
-            case 'numberedListStyle':
-                this.notifyNumberedListDialog(dialogShowEvent);
-                break;
-            case 'bulletedListStyle':
-                this.notifyBulletedListDialog(dialogShowEvent);
-                break;
-            case 'table':
-            case 'tableProperties':
-                this.notifyTableDialog(dialogShowEvent);
-                break;
-            }
+            new CreateHtmlAreaDialogEventGenerator(this.editorParams).generateFromEventInfoAndFire(dialogShowEvent);
         });
     }
 
@@ -733,82 +703,6 @@ export class HtmlEditor {
             this.editor.removeMenuItem('tablecell_properties');
             this.editor.removeMenuItem('paste');
         });
-    }
-
-    private notifyLinkDialog(config: any) {
-        const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
-            HtmlAreaDialogType.LINK).setContent(this.editorParams.getContent()).build();
-        this.publishCreateDialogEvent(event);
-    }
-
-    private notifyImageDialog(config: any) {
-        const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
-            HtmlAreaDialogType.IMAGE).setContent(this.editorParams.getContent()).build();
-        this.publishCreateDialogEvent(event);
-    }
-
-    private notifyAnchorDialog(config: any) {
-        const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
-            HtmlAreaDialogType.ANCHOR).build();
-        this.publishCreateDialogEvent(event);
-    }
-
-    private notifyMacroDialog(config: any) {
-        const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
-            HtmlAreaDialogType.MACRO).setContentPath(this.editorParams.getContentPath()).setApplicationKeys(
-            this.editorParams.getApplicationKeys()).setContent(
-            this.editorParams.getContent()).setApplicationKeys(this.editorParams.getApplicationKeys()).build();
-        this.publishCreateDialogEvent(event);
-    }
-
-    private notifySearchReplaceDialog(config: any) {
-        const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
-            HtmlAreaDialogType.SEARCHREPLACE).build();
-        this.publishCreateDialogEvent(event);
-    }
-
-    private notifyCodeDialog(config: any) {
-        const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
-            HtmlAreaDialogType.CODE).build();
-        this.publishCreateDialogEvent(event);
-    }
-
-    private notifySpecialCharDialog(config: any) {
-        const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
-            HtmlAreaDialogType.SPECIALCHAR).build();
-        this.publishCreateDialogEvent(event);
-    }
-
-    private notifyFullscreenDialog(config: any) {
-        const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
-            HtmlAreaDialogType.FULLSCREEN).build();
-        this.publishCreateDialogEvent(event);
-    }
-
-    private notifyTableDialog(config: any) {
-        const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
-            HtmlAreaDialogType.TABLE).build();
-        this.publishCreateDialogEvent(event);
-    }
-
-    private notifyNumberedListDialog(config: any) {
-        const event: CreateHtmlAreaDialogEvent = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
-            HtmlAreaDialogType.NUMBERED_LIST).build();
-        this.publishCreateDialogEvent(event);
-    }
-
-    private notifyBulletedListDialog(config: any) {
-        const event: CreateHtmlAreaDialogEvent = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
-            HtmlAreaDialogType.BULLETED_LIST).build();
-        this.publishCreateDialogEvent(event);
-    }
-
-    private publishCreateDialogEvent(event: CreateHtmlAreaDialogEvent) {
-        if (this.editorParams.hasCreateDialogListener()) {
-            this.editorParams.getCreateDialogListener()(event);
-        }
-
-        event.fire();
     }
 
     public static create(htmlEditorParams: HtmlEditorParams): Q.Promise<HtmlEditor> {
@@ -1041,7 +935,7 @@ class HtmlEditorConfigBuilder {
 
         const deferred = Q.defer<CKEDITOR.config>();
 
-        if (!this.editorParams.isCustomStylesToBeUsed()) {
+        if (!this.editorParams.isCustomStylesToBeUsed() || !this.editorParams.getContent()) {
             //inline mode
             return Q(config);
         }
@@ -1122,7 +1016,8 @@ class HtmlEditorConfigBuilder {
     }
 
     private getUploadUrl(): string {
-        return UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPathForContentRoot()}/${ContentResourceRequest.CONTENT_PATH}/createMedia`);
+        return UrlHelper.getCmsRestUri(
+            `${UrlHelper.getCMSPathForContentRoot(this.editorParams.getProject())}/${ContentResourceRequest.CONTENT_PATH}/createMedia`);
     }
 
     private includeTool(tool: string) {

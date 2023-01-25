@@ -31,16 +31,15 @@ import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ContentSummary} from '../../content/ContentSummary';
-import {ContentPath} from '../../content/ContentPath';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
 
+    protected context: ContentInputTypeViewContext;
     private editors: HtmlAreaOccurrenceInfo[];
     private content: ContentSummary;
-    private contentPath: ContentPath;
     private applicationKeys: ApplicationKey[];
 
     private focusListeners: { (event: FocusEvent): void }[] = [];
@@ -59,7 +58,6 @@ export class HtmlArea
 
         this.addClass('html-area');
         this.editors = [];
-        this.contentPath = config.contentPath;
         this.content = config.content;
         this.applicationKeys = config.site ? config.site.getApplicationKeys() : [];
         this.processInputConfig();
@@ -116,7 +114,10 @@ export class HtmlArea
         }
 
         const textAreaEl: TextArea = new TextArea(this.getInput().getName() + '-' + index);
-        StylesRequest.fetchStyles(this.content.getId());
+
+        if (this.content) {
+            StylesRequest.fetchStyles(this.content.getId());
+        }
 
         const editorId = textAreaEl.getId();
 
@@ -284,7 +285,6 @@ export class HtmlArea
             .setNodeChangeHandler(editorValueChangedHandler)
             .setEditorLoadedHandler(editorLoadedHandler)
             .setEditorReadyHandler(editorReadyHandler)
-            .setContentPath(this.contentPath)
             .setContent(this.content)
             .setApplicationKeys(this.applicationKeys)
             .setEnabledTools(this.enabledTools)
@@ -293,6 +293,7 @@ export class HtmlArea
             .setEditableSourceCode(this.editableSourceCode)
             .setCustomStylesToBeUsed(true)
             .setLangDirection(this.getLangDirection())
+            .setProject(this.context.project)
             .build();
 
         return HtmlEditor.create(htmlEditorParams);
@@ -435,7 +436,8 @@ export class HtmlArea
     private setEditorContent(textArea: TextArea, property: Property): void {
         const editorId: string = textArea.getId();
         const content: string = property.hasNonNullValue() ?
-                                HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId()) : '';
+                                HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content?.getId(),
+                                    this.context.project) : '';
 
         if (HtmlEditor.exists(editorId)) {
             const currentData: string = HtmlEditor.getData(editorId);

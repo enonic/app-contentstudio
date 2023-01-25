@@ -2,28 +2,29 @@ import * as Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {Attachment} from '../../../attachment/Attachment';
+import {Project} from '../../../settings/data/project/Project';
 
 export class AttachmentItem
     extends DivEl {
 
-    private link: AEl;
+    private readonly link: AEl;
 
     private removeEl: DivEl;
 
-    private value: string;
+    private readonly value: string;
 
-    private dataBlock: DivEl;
+    private readonly dataBlock: DivEl;
 
-    private errorBlock: DivEl;
+    private readonly errorBlock: DivEl;
 
-    constructor(contentId: string, value: string, contentRootPath?: string) {
+    constructor(contentId: string, value: string, contentRootPath?: string, project?: Project) {
         super('attachment-item');
 
         this.value = value;
         this.dataBlock = new DivEl('data-block');
         this.errorBlock = new DivEl('error-block');
 
-        this.link = new AEl().setUrl(Attachment.getUrl(contentId, value, contentRootPath));
+        this.link = new AEl().setUrl(Attachment.getUrl(contentId, value, contentRootPath, project));
         this.link.setHtml(value);
 
         this.initRemoveButton();

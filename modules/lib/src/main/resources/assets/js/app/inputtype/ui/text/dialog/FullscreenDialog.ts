@@ -78,7 +78,6 @@ export class FullscreenDialog
             .setCreateDialogHandler(this.editorParams.getCreateDialogListener())
             .setKeydownHandler(this.editorParams.getKeydownHandler())
             .setEditorReadyHandler(this.editorReadyHandler.bind(this))
-            .setContentPath(this.editorParams.getContentPath())
             .setContent(this.editorParams.getContent())
             .setApplicationKeys(this.editorParams.getApplicationKeys())
             .setEnabledTools(this.editorParams.getEnabledTools())

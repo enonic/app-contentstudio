@@ -105,7 +105,7 @@ export class ContentSelector
     }
 
     protected getDefaultAllowPath(): string {
-        return this.context.content.getPath().hasParentContent() ? '${site}' : '';
+        return this.context.content?.getPath().hasParentContent() ? '${site}' : '';
     }
 
     public getContentComboBox(): ContentComboBox<ContentTreeSelectorItem> {
@@ -210,7 +210,8 @@ export class ContentSelector
             .setAllowedContentPaths(this.allowedContentPaths)
             .setContentTypeNames(this.allowedContentTypes)
             .setRelationshipType(this.relationshipType)
-            .setContent(this.context.content);
+            .setContent(this.context.content)
+            .setProject(this.context.project);
     }
 
     protected doCreateContentComboBoxBuilder(): ContentComboBoxBuilder<ContentTreeSelectorItem> {

@@ -14,6 +14,8 @@ import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {NumberedListModalDialog} from './NumberedListModalDialog';
 import {BulletedListModalDialog} from './BulletedListModalDialog';
+import {CreateHtmlAreaContentDialogEvent} from '../CreateHtmlAreaContentDialogEvent';
+import {CreateHtmlAreaMacroDialogEvent} from '../CreateHtmlAreaMacroDialogEvent';
 
 export class HTMLAreaDialogHandler {
 
@@ -22,86 +24,85 @@ export class HTMLAreaDialogHandler {
 
         switch (event.getType()) {
         case HtmlAreaDialogType.ANCHOR:
-            modalDialog = this.openAnchorDialog(event.getConfig());
+            modalDialog = this.openAnchorDialog(event);
             break;
         case HtmlAreaDialogType.IMAGE:
-            modalDialog = this.openImageDialog(event.getConfig(), event.getContent());
+            modalDialog = this.openImageDialog(event as CreateHtmlAreaContentDialogEvent);
             break;
         case HtmlAreaDialogType.LINK:
-            modalDialog = this.openLinkDialog(event.getConfig(), event.getContent());
+            modalDialog = this.openLinkDialog(event as CreateHtmlAreaContentDialogEvent);
             break;
         case HtmlAreaDialogType.MACRO:
-            modalDialog = this.openMacroDialog(event.getConfig(), event.getContent(), event.getApplicationKeys());
+            modalDialog = this.openMacroDialog(event as CreateHtmlAreaMacroDialogEvent);
             break;
         case HtmlAreaDialogType.SEARCHREPLACE:
-            modalDialog = this.openSearchReplaceDialog(event.getConfig());
+            modalDialog = this.openSearchReplaceDialog(event);
             break;
         case HtmlAreaDialogType.CODE:
-            modalDialog = this.openCodeDialog(event.getConfig());
+            modalDialog = this.openCodeDialog(event);
             break;
         case HtmlAreaDialogType.SPECIALCHAR:
-            modalDialog = this.openSpecialCharDialog(event.getConfig());
+            modalDialog = this.openSpecialCharDialog(event);
             break;
         case HtmlAreaDialogType.FULLSCREEN:
-            modalDialog = this.openFullscreenDialog(event.getConfig());
+            modalDialog = this.openFullscreenDialog(event);
             break;
         case HtmlAreaDialogType.TABLE:
-            modalDialog = this.openTableDialog(event.getConfig());
+            modalDialog = this.openTableDialog(event);
             break;
         case HtmlAreaDialogType.NUMBERED_LIST:
-            modalDialog = this.openNumberedListDialog(event.getConfig());
+            modalDialog = this.openNumberedListDialog(event);
             break;
         case HtmlAreaDialogType.BULLETED_LIST:
-            modalDialog = this.openBulletedListDialog(event.getConfig());
+            modalDialog = this.openBulletedListDialog(event);
             break;
         }
 
         return modalDialog;
     }
 
-    private static openLinkDialog(config: eventInfo, content: ContentSummary): ModalDialog {
-        return this.openDialog(new LinkModalDialog(config, content));
+    private static openLinkDialog(event: CreateHtmlAreaContentDialogEvent): ModalDialog {
+        return this.openDialog(new LinkModalDialog(event.getConfig(), event.getContent(), event.getProject()));
     }
 
-    private static openImageDialog(config: eventInfo, content: ContentSummary): ModalDialog {
-        return this.openDialog(new ImageModalDialog(config, content));
+    private static openImageDialog(event: CreateHtmlAreaContentDialogEvent): ModalDialog {
+        return this.openDialog(new ImageModalDialog(event.getConfig(), event.getContent(), event.getProject()));
     }
 
-    private static openAnchorDialog(config: eventInfo): ModalDialog {
-        return this.openDialog(new AnchorModalDialog(config));
+    private static openAnchorDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
+        return this.openDialog(new AnchorModalDialog(event.getConfig()));
     }
 
-    private static openMacroDialog(config: any, content: ContentSummary,
-                                   applicationKeys: ApplicationKey[]): ModalDialog {
-        return this.openDialog(new MacroModalDialog(config, content, applicationKeys));
+    private static openMacroDialog(event: CreateHtmlAreaMacroDialogEvent): ModalDialog {
+        return this.openDialog(new MacroModalDialog(event.getConfig(), event.getContent(), event.getApplicationKeys()));
     }
 
-    private static openCodeDialog(config: eventInfo): ModalDialog {
-        return this.openDialog(new CodeDialog(config));
+    private static openCodeDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
+        return this.openDialog(new CodeDialog(event.getConfig()));
     }
 
-    private static openSearchReplaceDialog(config: eventInfo): ModalDialog {
-        return this.openDialog(new FindAndReplaceDialog(config));
+    private static openSearchReplaceDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
+        return this.openDialog(new FindAndReplaceDialog(event.getConfig()));
     }
 
-    private static openSpecialCharDialog(config: eventInfo): ModalDialog {
-        return this.openDialog(new SpecialCharDialog(config));
+    private static openSpecialCharDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
+        return this.openDialog(new SpecialCharDialog(event.getConfig()));
     }
 
-    private static openFullscreenDialog(config: any): ModalDialog {
-        return this.openDialog(new FullscreenDialog(config));
+    private static openFullscreenDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
+        return this.openDialog(new FullscreenDialog(event.getConfig()));
     }
 
-    private static openTableDialog(config: eventInfo): ModalDialog {
-        return this.openDialog(new TableDialog(config));
+    private static openTableDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
+        return this.openDialog(new TableDialog(event.getConfig()));
     }
 
-    private static openNumberedListDialog(config: eventInfo): ModalDialog {
-        return this.openDialog(new NumberedListModalDialog(config));
+    private static openNumberedListDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
+        return this.openDialog(new NumberedListModalDialog(event.getConfig()));
     }
 
-    private static openBulletedListDialog(config: eventInfo): ModalDialog {
-        return this.openDialog(new BulletedListModalDialog(config));
+    private static openBulletedListDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
+        return this.openDialog(new BulletedListModalDialog(event.getConfig()));
     }
 
     private static openDialog(dialog: ModalDialog): ModalDialog {

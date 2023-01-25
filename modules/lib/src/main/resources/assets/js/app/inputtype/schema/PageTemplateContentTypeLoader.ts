@@ -7,15 +7,20 @@ import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesReques
 import {Site} from '../../content/Site';
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import {ContentId} from '../../content/ContentId';
+import {Project} from '../../settings/data/project/Project';
 
 export class PageTemplateContentTypeLoader
     extends BaseLoader<ContentTypeSummary> {
 
     private contentId: ContentId;
 
-    constructor(contentId: ContentId) {
+    private project?: Project;
+
+    constructor(contentId: ContentId, project?: Project) {
         super(new GetAllContentTypesRequest());
+
         this.contentId = contentId;
+        this.project = project;
     }
 
     filterFn(contentType: ContentTypeSummary) {
@@ -26,7 +31,7 @@ export class PageTemplateContentTypeLoader
 
     sendRequest(): Q.Promise<ContentTypeSummary[]> {
         return new GetAllContentTypesRequest().sendAndParse().then((contentTypeArray: ContentTypeSummary[]) => {
-            return new GetNearestSiteRequest(this.contentId).sendAndParse().then(
+            return new GetNearestSiteRequest(this.contentId).setRequestProject(this.project).sendAndParse().then(
                 (parentSite: Site) => {
                     let typesAllowedEverywhere: { [key: string]: ContentTypeName } = {};
                     [ContentTypeName.UNSTRUCTURED, ContentTypeName.FOLDER, ContentTypeName.SITE,

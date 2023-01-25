@@ -20,8 +20,7 @@ exports.renderTemplate = function (path, params) {
         let securityPolicy = app.config['contentSecurityPolicy.header'];
 
         if (!securityPolicy) {
-            const baseSecurityPolicy = 'default-src \'self\'; connect-src \'self\' ws: wss:; script-src \'self\' \'unsafe-eval\'{0}; object-src \'none\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:';
-            securityPolicy = baseSecurityPolicy.replace('{0}', isBrowseMode ? '' : ' \'unsafe-inline\'');
+            securityPolicy = 'default-src \'self\'; connect-src \'self\' ws: wss:; script-src \'self\' \'unsafe-eval\' \'unsafe-inline\'; object-src \'none\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:';
         }
         response.headers = {
             'Content-Security-Policy': securityPolicy

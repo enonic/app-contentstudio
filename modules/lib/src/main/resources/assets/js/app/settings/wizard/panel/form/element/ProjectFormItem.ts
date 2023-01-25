@@ -30,7 +30,7 @@ export class ProjectFormItemBuilder extends FormItemBuilder {
 
     helpText: string;
 
-    setHelpText(value: string): ProjectFormItemBuilder {
+    setHelpText(value: string): this {
         this.helpText = value;
 
         return this;

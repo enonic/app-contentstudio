@@ -3,7 +3,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ProjectCreateRequest} from '../../resource/ProjectCreateRequest';
 import {ProjectUpdateRequest} from '../../resource/ProjectUpdateRequest';
 import {ProjectDeleteRequest} from '../../resource/ProjectDeleteRequest';
 import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
@@ -115,7 +114,7 @@ export class ProjectWizardPanel
 
         stepForms.push(this.projectWizardStepForm, this.readAccessWizardStepForm);
 
-        const isDefaultProject: boolean = !!persistedItem && persistedItem.isDefaultProject();
+        const isDefaultProject: boolean = persistedItem?.isDefaultProject();
 
         if (!isDefaultProject) {
             stepForms.push(this.rolesWizardStepForm = new ProjectRolesWizardStepForm());
@@ -129,11 +128,7 @@ export class ProjectWizardPanel
     }
 
     protected isNewItemChanged(): boolean {
-        return !StringHelper.isBlank(this.projectWizardStepForm.getProjectName()) ||
-               !StringHelper.isBlank(this.projectWizardStepForm.getDescription()) ||
-               (this.rolesWizardStepForm && !this.rolesWizardStepForm.getPermissions().isEmpty()) ||
-               !this.readAccessWizardStepForm.isEmpty() ||
-               super.isNewItemChanged();
+        throw new Error('Project creation is done via Project Wizard Dialog');
     }
 
     protected isPersistedItemChanged(): boolean {
@@ -142,33 +137,11 @@ export class ProjectWizardPanel
     }
 
     postPersistNewItem(item: ProjectViewItem): Q.Promise<ProjectViewItem> {
-        return super.postPersistNewItem(item).then(() => {
-            this.projectWizardStepForm.disableProjectNameHelpText();
-            const parentProject = item.getData().getParent();
-            if (parentProject) {
-                this.projectWizardStepForm.disableParentProjectHelpText();
-                this.projectWizardStepForm.disableParentProjectInput();
-            }
-
-            this.projectWizardStepForm.disableProjectNameInput();
-
-            return Q(item);
-        });
+        throw new Error('Project creation is done via Project Wizard Dialog');
     }
 
     persistNewItem(): Q.Promise<ProjectViewItem> {
-        return this.doPersistNewItem().then((project: Project) => {
-            const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
-
-            showFeedback(this.getSuccessfulCreateMessage(item.getName()));
-            return item;
-        });
-    }
-
-    private doPersistNewItem(): Q.Promise<Project> {
-        return this.produceCreateItemRequest().sendAndParse().then((project: Project) => {
-            return this.updateLanguageAndPermissionsIfNeeded(project, true);
-        });
+        throw new Error('Project creation is done via Project Wizard Dialog');
     }
 
     updatePersistedItem(): Q.Promise<ProjectViewItem> {
@@ -301,14 +274,6 @@ export class ProjectWizardPanel
             .build();
     }
 
-    private updateAccessAndPermissionsForNewProject(project: Project, language: string): Q.Promise<Project> {
-        this.updatePermissionsIfNeeded(project);
-
-        const result = Q.defer<Project>();
-        result.resolve(this.getNewProjectInstance(project, language));
-        return result.promise;
-    }
-
     private updateAccessAndPermissionsForExistingProject(project: Project, language: string): Q.Promise<Project> {
         return this.updatePermissionsIfNeeded(project).then(() => {
             const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
@@ -354,16 +319,12 @@ export class ProjectWizardPanel
         return this.updateProjectPermissions(project.getName(), permissions, readAccess);
     }
 
-    private updateLanguageAndPermissionsIfNeeded(project: Project, isCreation: boolean): Q.Promise<Project> {
+    private updateLanguageAndPermissionsIfNeeded(project: Project): Q.Promise<Project> {
         const languagePromise: Q.Promise<string> =
             this.isLanguageChanged() ?
             this.updateProjectLanguage(project.getName(), this.readAccessWizardStepForm.getLanguage()) : Q(project.getLanguage());
 
         return languagePromise.then((language: string) => {
-            if (isCreation) {
-                return this.updateAccessAndPermissionsForNewProject(project, language);
-            }
-
             return this.updateAccessAndPermissionsForExistingProject(project, language);
         });
     }
@@ -373,17 +334,8 @@ export class ProjectWizardPanel
                                                    this.produceUpdateItemRequest().sendAndParse() : Q(this.getPersistedItem().getData());
 
         return projectPromise.then((project: Project) => {
-            return this.updateLanguageAndPermissionsIfNeeded(project, false).then();
+            return this.updateLanguageAndPermissionsIfNeeded(project).then();
         });
-    }
-
-    private produceCreateItemRequest(): ProjectCreateRequest {
-        return <ProjectCreateRequest>new ProjectCreateRequest()
-            .setParent(this.projectWizardStepForm.getParentProject())
-            .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
-            .setDescription(this.projectWizardStepForm.getDescription())
-            .setName(this.projectWizardStepForm.getProjectName())
-            .setDisplayName(this.getDisplayName());
     }
 
     private getDisplayName(): string {

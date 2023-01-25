@@ -1,4 +1,4 @@
-import {BaseSelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import * as Q from 'q';
 import {ProjectSelectedApplicationViewer} from './ProjectSelectedApplicationViewer';
 import {Application} from '@enonic/lib-admin-ui/application/Application';
@@ -11,6 +11,8 @@ import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationCon
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
 import {ProjectApplication} from './ProjectApplication';
+import {ContentFormContext} from '../../../../../ContentFormContext';
+import {Project} from '../../../../data/project/Project';
 
 export class ProjectApplicationSelectedOptionView
     extends BaseSelectedOptionView<Application> {
@@ -23,7 +25,15 @@ export class ProjectApplicationSelectedOptionView
 
     private formView?: FormView;
 
+    private project?: Project;
+
     private dataChangedHandler?: () => void;
+
+    constructor(builder: ProjectApplicationSelectedOptionViewBuilder) {
+        super(builder);
+
+        this.project = builder.project;
+    }
 
     doRender(): Q.Promise<boolean> {
         this.projectApplicationViewer = new ProjectSelectedApplicationViewer();
@@ -110,7 +120,7 @@ export class ProjectApplicationSelectedOptionView
         const app: Application = this.getOption().getDisplayValue();
         const isNew: boolean = !this.currentConfigSet;
         const propSet: PropertySet = new PropertyTree(isNew ? new PropertySet() : this.currentConfigSet).getRoot();
-        const context: FormContext = FormContext.create().setFormState(new FormState(isNew)).build();
+        const context: FormContext = ContentFormContext.create().setProject(this.project).setFormState(new FormState(isNew)).build();
         const formView: FormView = new FormViewWrapper(context, app.getForm(), propSet);
 
         formView.onLayoutFinished(() => {
@@ -127,6 +137,16 @@ export class ProjectApplicationSelectedOptionView
         });
 
         return formView;
+    }
+}
+
+export class ProjectApplicationSelectedOptionViewBuilder extends BaseSelectedOptionViewBuilder<Application> {
+
+    project?: Project;
+
+    setProject(value: Project): this {
+        this.project = value;
+        return this;
     }
 }
 

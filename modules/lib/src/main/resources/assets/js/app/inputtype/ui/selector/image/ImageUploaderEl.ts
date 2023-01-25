@@ -138,7 +138,7 @@ export class ImageUploaderEl
     }
 
     private resolveImageUrl(contentId: ContentId): string {
-        return new ImageUrlResolver()
+        return new ImageUrlResolver(null, this.config.project)
                     .setContentId(contentId)
                     .disableCropping()
                     .setTimestamp(new Date())

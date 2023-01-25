@@ -7,6 +7,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectApplicationsFormItem} from './element/ProjectApplicationsFormItem';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ProjectApplication} from './element/ProjectApplication';
+import {ProjectApplicationsFormParams} from './element/ProjectApplicationsFormParams';
 
 export class ProjectApplicationsWizardStepForm
     extends ProjectWizardStepForm {
@@ -18,7 +19,7 @@ export class ProjectApplicationsWizardStepForm
     }
 
     private createApplicationsFormItem(): ProjectApplicationsFormItem {
-        this.applicationsFormItem = new ProjectApplicationsFormItem();
+        this.applicationsFormItem = new ProjectApplicationsFormItem(new ProjectApplicationsFormParams(this.item?.getData(), true));
         return this.applicationsFormItem;
     }
 

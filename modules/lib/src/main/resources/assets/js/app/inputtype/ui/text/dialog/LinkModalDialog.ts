@@ -46,10 +46,13 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import eventInfo = CKEDITOR.eventInfo;
+import {Project} from '../../../../settings/data/project/Project';
+import {ContentPath} from '../../../../content/ContentPath';
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
-    contentId: ContentId;
+    contentId?: ContentId;
+    project?: Project;
 }
 
 enum MediaContentRadioAction {
@@ -86,8 +89,8 @@ export class LinkModalDialog
     private paramsFormItem: FormItem;
     private protocolsDropdownButton: MenuButton;
 
-    private contentId: ContentId;
-    private parentSitePath: string;
+    private contentId?: ContentId;
+    private parentSitePath?: string;
 
     private tabNames: any;
 
@@ -105,14 +108,15 @@ export class LinkModalDialog
 
     private readonly urlProtocols: UrlProtocol[];
 
-    constructor(config: eventInfo, content: ContentSummary) {
+    constructor(config: eventInfo, content: ContentSummary, project?: Project) {
         super(<LinkModalDialogConfig>{
             editor: config.editor,
             dialog: config.data,
             title: i18n('dialog.link.title'),
             class: 'link-modal-dialog',
-            contentId: content.getContentId(),
+            contentId: content?.getContentId(),
             allowOverflow: true,
+            project: project,
             confirmation: {
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
@@ -147,15 +151,11 @@ export class LinkModalDialog
     }
 
     doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered) => {
+        return super.doRender().then((rendered: boolean) => {
             this.addAction(this.submitAction);
             this.addCancelButtonToBottom();
 
-            return new GetNearestSiteRequest(this.contentId).sendAndParse().then((parentSite: Site) => {
-                    if (parentSite) {
-                        this.parentSitePath = parentSite.getPath().toString();
-                    }
-
+            return this.fetchParentSite().then(() => {
                     this.appendChildToContentPanel(this.dockedPanel = this.createDockedPanel());
 
                     if (this.isNothingSelected()) {
@@ -171,6 +171,20 @@ export class LinkModalDialog
                     return rendered;
                 }
             );
+        });
+    }
+
+    private fetchParentSite(): Q.Promise<void> {
+        if (!this.contentId) {
+            return Q.resolve();
+        }
+
+        return new GetNearestSiteRequest(this.contentId).sendAndParse().then((parentSite: Site) => {
+            if (parentSite) {
+                this.parentSitePath = parentSite.getPath().toString();
+            }
+
+            return Q.resolve();
         });
     }
 
@@ -833,6 +847,7 @@ export class LinkModalDialog
     private createContentSelectorBuilder(): ContentSummaryOptionDataLoaderBuilder {
         return ContentSummaryOptionDataLoader
             .create()
+            .setProject(this.config.project)
             .setAllowedContentPaths([this.parentSitePath || '']);
     }
 
@@ -889,13 +904,14 @@ export class LinkModalDialog
     private createMediaUploader(contentSelector: ContentComboBox<ContentTreeSelectorItem>): MediaUploaderEl {
         const mediaUploader: MediaUploaderEl = new MediaUploaderEl({
             params: {
-                parent: this.contentId.toString()
+                parent: this.contentId?.toString() || ContentPath.getRoot().toString()
             },
             operation: MediaUploaderElOperation.create,
             name: 'media-selector-upload-el',
             showCancel: false,
             showResult: false,
-            allowMultiSelection: false
+            allowMultiSelection: false,
+            project: this.config.project
         });
 
         mediaUploader.onUploadStarted((event: UploadStartedEvent<Content>) => {

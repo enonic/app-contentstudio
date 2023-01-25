@@ -12,16 +12,16 @@ import {GetApplicationsRequest} from '../../../../../resource/GetApplicationsReq
 import {ProjectApplicationSelectedOptionView} from './ProjectApplicationSelectedOptionView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
-import {App} from '../../../../../App';
 import {ProjectApplication} from './ProjectApplication';
+import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
 
 export class ProjectApplicationsComboBox
     extends RichComboBox<Application> {
 
     private dataChangedListeners: { (): void }[] = [];
 
-    constructor() {
-        super(new ProjectApplicationsComboBoxBuilder());
+    constructor(params?: ProjectApplicationsFormParams) {
+        super(new ProjectApplicationsComboBoxBuilder(params));
 
         this.initListeners();
     }
@@ -135,6 +135,10 @@ export class ProjectApplicationsComboBox
         });
     }
 
+    getSelectedOptionView(): ProjectApplicationsSelectedOptionsView {
+        return super.getSelectedOptionView() as ProjectApplicationsSelectedOptionsView;
+    }
+
 }
 
 export class ProjectApplicationsComboBoxBuilder extends RichComboBoxBuilder<Application> {
@@ -145,11 +149,17 @@ export class ProjectApplicationsComboBoxBuilder extends RichComboBoxBuilder<Appl
 
     loader: ProjectApplicationsLoader = new ProjectApplicationsLoader();
 
-    selectedOptionsView: ProjectApplicationsSelectedOptionsView = new ProjectApplicationsSelectedOptionsView();
+    selectedOptionsView: ProjectApplicationsSelectedOptionsView;
 
     optionDisplayValueViewer: ApplicationViewer = new ApplicationViewer();
 
     delayedInputValueChangedHandling: number = 500;
 
     displayMissingSelectedOptions: boolean = true;
+
+    constructor(params?: ProjectApplicationsFormParams) {
+        super();
+
+        this.selectedOptionsView = new ProjectApplicationsSelectedOptionsView(params);
+    }
 }
