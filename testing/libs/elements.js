@@ -19,6 +19,7 @@ module.exports = Object.freeze({
     RICH_TEXT_EDITOR: `//div[contains(@id,'TextComponentView') and contains(@class,'editor-focused')]`,
     TEXT_AREA: "//textarea[contains(@id,'TextArea')]",
     DROP_DOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
+    DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
     GRID_CANVAS: `//div[contains(@class,'grid-canvas')]`,
     DIV_GRID: "//div[contains(@id,'Grid') and contains(@class,'grid no-header')]",
     SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,

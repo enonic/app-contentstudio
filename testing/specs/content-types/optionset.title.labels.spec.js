@@ -159,12 +159,11 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
     // Title of a single-select option-set occurrence is not updated dynamically
     it(`GIVEN wizard for new option set is opened WHEN text in name input is updated THEN title of the single select should be updated dynamically`,
         async () => {
-            let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             // 1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
             // 2. Select 'Option 1' :
-            await optionSetForm.selectOptionInSingleSelection('Option 1');
+            await singleSelectionOptionSet.selectOption('Option 1');
             // 3. Verify that the title is equal to text in 'Name' input
             await singleSelectionOptionSet.typeTextInOptionNameInput(SINGLE_SELECTION_NOTE1);
             let subtitle = await singleSelectionOptionSet.getSingleSelectionSubtitle();
