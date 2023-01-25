@@ -7,13 +7,12 @@ const appConst = require('../../../libs/app_const');
 
 const xpath = {
     singleSelectionView: "//div[contains(@id,'FormOptionSetOccurrenceView') and contains(@class,'single-selection')]",
-    dropDownDiv: "//div[contains(@id,'Dropdown')]",
 };
 
 class OptionSetFormView extends Page {
 
     get dropDownHandleInSingleSelection() {
-        return xpath.singleSelectionView + xpath.dropDownDiv + lib.DROP_DOWN_HANDLE;
+        return xpath.singleSelectionView + lib.DROPDOWN_DIV + lib.DROP_DOWN_HANDLE;
     }
 
     async selectOptionInSingleSelection(option) {

@@ -175,6 +175,10 @@ module.exports = Object.freeze({
         EMULATOR: 'Emulator',
         DETAILS: 'Details'
     },
+    CONTROLLER_NAME: {
+        DEFAULT: 'default',
+        MAIN_REGION: 'main region',
+    },
     EMULATOR_RESOLUTION: {
         MEDIUM_PHONE: 'Medium Phone',
         LARGE_PHONE: 'Large Phone',
