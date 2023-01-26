@@ -34,6 +34,10 @@ export class SiteConfiguratorDialog
     }
 
     private destroyCkeInstancesInDialog() {
+        if (!window.CKEDITOR) {
+            return;
+        }
+
         const ckeInstances: { [id: string]: CKEDITOR.editor } = CKEDITOR.instances;
         const dialogElement: HTMLElement = this.getHTMLElement();
 

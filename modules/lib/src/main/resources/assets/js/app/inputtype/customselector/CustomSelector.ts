@@ -29,9 +29,11 @@ export class CustomSelector
 
     public static debug: boolean = false;
 
+    protected context: ContentInputTypeViewContext;
+
     private requestPath: string;
 
-    private content: ContentSummary;
+    private content?: ContentSummary;
 
     private comboBox: RichComboBox<CustomSelectorItem>;
 
@@ -44,7 +46,9 @@ export class CustomSelector
             console.debug('CustomSelector: config', context.inputConfig);
         }
 
-        this.subscribeToContentUpdates();
+        if (this.content) {
+            this.subscribeToContentUpdates();
+        }
     }
 
     private subscribeToContentUpdates() {
@@ -77,7 +81,7 @@ export class CustomSelector
             return prev;
         }, {});
 
-        this.content = (<ContentInputTypeViewContext>this.context).content;
+        this.content = this.context.content;
 
         if (serviceUrl) {
             this.requestPath = `${CustomSelector.getServiceUrlPrefix()}/${UriHelper.appendUrlParams(serviceUrl, params)}`;
@@ -126,8 +130,8 @@ export class CustomSelector
     }
 
     private getRequestPath(): string {
-        const contentId: string = `/${this.content.getId()}`;
-        const projectId: string = ProjectContext.get().getProject().getName();
+        const contentId: string = `/${this.content?.getId() || 'undefined'}`;
+        const projectId: string = this.context.project?.getName() || ProjectContext.get().getProject().getName();
         return StringHelper.format(this.requestPath, projectId, contentId);
     }
 

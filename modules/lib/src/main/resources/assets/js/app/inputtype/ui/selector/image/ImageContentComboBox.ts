@@ -62,6 +62,7 @@ export class ImageContentComboBox
     protected createLoaderBuilder(builder: ImageContentComboBoxBuilder): ContentSummaryOptionDataLoaderBuilder {
         return super.createLoaderBuilder(builder)
             .setContent(builder.content)
+            .setProject(builder.project)
             .setContentTypeNames([ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()]);
     }
 
@@ -162,51 +163,6 @@ export class ImageContentComboBoxBuilder
 
     setContent(value: ContentSummary): ImageContentComboBoxBuilder {
         this.content = value;
-        return this;
-    }
-
-    setValue(value: string): ImageContentComboBoxBuilder {
-        super.setValue(value);
-        return this;
-    }
-
-    setMaximumOccurrences(value: number): ImageContentComboBoxBuilder {
-        super.setMaximumOccurrences(value);
-        return this;
-    }
-
-    setLoader(value: ImageOptionDataLoader): ImageContentComboBoxBuilder {
-        super.setLoader(value);
-        return this;
-    }
-
-    setMinWidth(value: number): ImageContentComboBoxBuilder {
-        super.setMinWidth(value);
-        return this;
-    }
-
-    setSelectedOptionsView(value: SelectedOptionsView<any>): ImageContentComboBoxBuilder {
-        super.setSelectedOptionsView(value);
-        return this;
-    }
-
-    setOptionDisplayValueViewer(value: ImageSelectorViewer): ImageContentComboBoxBuilder {
-        super.setOptionDisplayValueViewer(value);
-        return this;
-    }
-
-    setOptionDataHelper(value: OptionDataHelper<MediaTreeSelectorItem>): ImageContentComboBoxBuilder {
-        super.setOptionDataHelper(value);
-        return this;
-    }
-
-    setTreegridDropdownEnabled(value: boolean): ImageContentComboBoxBuilder {
-        super.setTreegridDropdownEnabled(value);
-        return this;
-    }
-
-    setTreeModeTogglerAllowed(value: boolean): ImageContentComboBoxBuilder {
-        super.setTreeModeTogglerAllowed(value);
         return this;
     }
 

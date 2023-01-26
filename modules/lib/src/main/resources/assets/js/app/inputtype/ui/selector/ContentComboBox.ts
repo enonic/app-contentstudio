@@ -34,6 +34,7 @@ import {Grid} from '@enonic/lib-admin-ui/ui/grid/Grid';
 import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentId} from '../../../content/ContentId';
 import {OptionDataLoader} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
+import {Project} from '../../../settings/data/project/Project';
 
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
@@ -147,13 +148,16 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
         if (builder.isRequestMissingOptions) {
             builder.setRequestMissingOptions((missingOptionIds: string[]) => {
-                return new ContentsExistRequest(missingOptionIds).sendAndParse().then(result => result.getContentsExistMap());
+                return new ContentsExistRequest(missingOptionIds)
+                    .setRequestProject(builder.project)
+                    .sendAndParse()
+                    .then(result => result.getContentsExistMap());
             });
         }
     }
 
     protected createLoader(builder: ContentComboBoxBuilder<ITEM_TYPE>): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
-        return this.createLoaderBuilder(builder).build();
+        return this.createLoaderBuilder(builder).setProject(builder.project).build();
     }
 
     protected createLoaderBuilder(builder: ContentComboBoxBuilder<ITEM_TYPE>): ContentSummaryOptionDataLoaderBuilder {
@@ -407,78 +411,85 @@ export class ContentComboBoxBuilder<ITEM_TYPE extends ContentTreeSelectorItem>
 
     isRequestMissingOptions: boolean = true;
 
-    setTreegridDropdownEnabled(value: boolean): ContentComboBoxBuilder<ITEM_TYPE> {
+    project: Project;
+
+    setTreegridDropdownEnabled(value: boolean): this {
         this.treegridDropdownEnabled = value;
         return this;
     }
 
-    setTreeModeTogglerAllowed(value: boolean): ContentComboBoxBuilder<ITEM_TYPE> {
+    setTreeModeTogglerAllowed(value: boolean): this {
         this.treeModeTogglerAllowed = value;
         return this;
     }
 
-    setMaximumOccurrences(maximumOccurrences: number): ContentComboBoxBuilder<ITEM_TYPE> {
+    setMaximumOccurrences(maximumOccurrences: number): this {
         super.setMaximumOccurrences(maximumOccurrences);
         return this;
     }
 
-    setComboBoxName(value: string): ContentComboBoxBuilder<ITEM_TYPE> {
+    setComboBoxName(value: string): this {
         super.setComboBoxName(value);
         return this;
     }
 
-    setSelectedOptionsView(selectedOptionsView: SelectedOptionsView<ITEM_TYPE>): ContentComboBoxBuilder<ITEM_TYPE> {
+    setSelectedOptionsView(selectedOptionsView: SelectedOptionsView<ITEM_TYPE>): this {
         super.setSelectedOptionsView(selectedOptionsView);
         return this;
     }
 
-    setLoader(loader: OptionDataLoader<ITEM_TYPE>): ContentComboBoxBuilder<ITEM_TYPE> {
+    setLoader(loader: OptionDataLoader<ITEM_TYPE>): this {
         super.setLoader(loader);
         return this;
     }
 
-    setMinWidth(value: number): ContentComboBoxBuilder<ITEM_TYPE> {
+    setMinWidth(value: number): this {
         super.setMinWidth(value);
         return this;
     }
 
-    setValue(value: string): ContentComboBoxBuilder<ITEM_TYPE> {
+    setValue(value: string): this {
         super.setValue(value);
         return this;
     }
 
-    setDelayedInputValueChangedHandling(value: number): ContentComboBoxBuilder<ITEM_TYPE> {
+    setDelayedInputValueChangedHandling(value: number): this {
         super.setDelayedInputValueChangedHandling(value ? value : 750);
         return this;
     }
 
-    setDisplayMissingSelectedOptions(value: boolean): ContentComboBoxBuilder<ITEM_TYPE> {
+    setDisplayMissingSelectedOptions(value: boolean): this {
         super.setDisplayMissingSelectedOptions(value);
         return this;
     }
 
-    setRemoveMissingSelectedOptions(value: boolean): ContentComboBoxBuilder<ITEM_TYPE> {
+    setRemoveMissingSelectedOptions(value: boolean): this {
         super.setRemoveMissingSelectedOptions(value);
         return this;
     }
 
-    setSkipAutoDropShowOnValueChange(value: boolean): ContentComboBoxBuilder<ITEM_TYPE> {
+    setSkipAutoDropShowOnValueChange(value: boolean): this {
         super.setSkipAutoDropShowOnValueChange(value);
         return this;
     }
 
-    setOptionDisplayValueViewer(value: Viewer<any>): ContentComboBoxBuilder<ITEM_TYPE> {
+    setOptionDisplayValueViewer(value: Viewer<any>): this {
         super.setOptionDisplayValueViewer(value ? value : new ContentSummaryViewer());
         return this;
     }
 
-    setOptionDataHelper(value: OptionDataHelper<ITEM_TYPE>): ContentComboBoxBuilder<ITEM_TYPE> {
+    setOptionDataHelper(value: OptionDataHelper<ITEM_TYPE>): this {
         super.setOptionDataHelper(value);
         return this;
     }
 
-    setHideComboBoxWhenMaxReached(value: boolean): ContentComboBoxBuilder<ITEM_TYPE> {
+    setHideComboBoxWhenMaxReached(value: boolean): this {
         super.setHideComboBoxWhenMaxReached(value);
+        return this;
+    }
+
+    setProject(value: Project): this {
+        this.project = value;
         return this;
     }
 

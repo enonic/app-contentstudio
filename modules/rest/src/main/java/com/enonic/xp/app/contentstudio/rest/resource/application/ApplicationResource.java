@@ -1,10 +1,12 @@
 package com.enonic.xp.app.contentstudio.rest.resource.application;
 
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -25,6 +27,7 @@ import com.enonic.xp.app.ApplicationService;
 import com.enonic.xp.app.Applications;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.application.json.ApplicationJson;
+import com.enonic.xp.app.contentstudio.rest.resource.application.json.ApplicationKeysJson;
 import com.enonic.xp.app.contentstudio.rest.resource.application.json.ListApplicationJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
@@ -72,7 +75,11 @@ public final class ApplicationResource
     @GET
     public ApplicationJson getByKey( @QueryParam("applicationKey") String applicationKey )
     {
-        final ApplicationKey appKey = ApplicationKey.from( applicationKey );
+        return doGetByKey( ApplicationKey.from( applicationKey ) );
+    }
+
+    private ApplicationJson doGetByKey( final ApplicationKey appKey )
+    {
         final Application application = this.applicationService.getInstalledApplication( appKey );
 
         if ( application == null )
@@ -80,21 +87,43 @@ public final class ApplicationResource
             throw new ApplicationNotFoundException( appKey );
         }
 
+        return applicationToJson( application );
+    }
+
+    private ApplicationJson applicationToJson( final Application application )
+    {
+        final ApplicationKey appKey = application.getKey();
         final boolean local = this.applicationService.isLocalApplication( appKey );
         final SiteDescriptor siteDescriptor = this.siteService.getDescriptor( appKey );
         final IdProviderDescriptor idProviderDescriptor = this.idProviderDescriptorService.getDescriptor( appKey );
         final ApplicationDescriptor appDescriptor = applicationDescriptorService.get( appKey );
 
-        return ApplicationJson.create().
-            setApplication( application ).
-            setLocal( local ).
-            setApplicationDescriptor( appDescriptor ).
-            setSiteDescriptor( siteDescriptor ).
-            setIdProviderDescriptor( idProviderDescriptor ).
-            setIconUrlResolver( this.iconUrlResolver ).
-            setLocaleMessageResolver( new LocaleMessageResolver( this.localeService, appKey ) ).
-            setInlineMixinResolver( new InlineMixinResolver( this.mixinService ) ).
-            build();
+        return ApplicationJson.create()
+            .setApplication( application )
+            .setLocal( local )
+            .setApplicationDescriptor( appDescriptor )
+            .setSiteDescriptor( siteDescriptor )
+            .setIdProviderDescriptor( idProviderDescriptor )
+            .setIconUrlResolver( this.iconUrlResolver )
+            .setLocaleMessageResolver( new LocaleMessageResolver( this.localeService, appKey ) )
+            .setInlineMixinResolver( new InlineMixinResolver( this.mixinService ) )
+            .build();
+    }
+
+    @POST
+    @Path("getApplicationsByKeys")
+    public ListApplicationJson getByKeys( final ApplicationKeysJson params )
+    {
+        final ListApplicationJson listJson = new ListApplicationJson();
+
+        params.getApplicationKeys()
+            .stream()
+            .map( this.applicationService::getInstalledApplication )
+            .filter( Objects::nonNull )
+            .map( this::applicationToJson )
+            .forEach( listJson::add );
+
+        return listJson;
     }
 
     @GET
@@ -119,16 +148,16 @@ public final class ApplicationResource
                 final boolean localApplication = this.applicationService.isLocalApplication( applicationKey );
                 final ApplicationDescriptor appDescriptor = this.applicationDescriptorService.get( applicationKey );
 
-                json.add( ApplicationJson.create().
-                    setApplication( application ).
-                    setLocal( localApplication ).
-                    setApplicationDescriptor( appDescriptor ).
-                    setSiteDescriptor( siteDescriptor ).
-                    setIdProviderDescriptor( idProviderDescriptor ).
-                    setIconUrlResolver( this.iconUrlResolver ).
-                    setLocaleMessageResolver( new LocaleMessageResolver( this.localeService, applicationKey ) ).
-                    setInlineMixinResolver( new InlineMixinResolver( this.mixinService ) ).
-                    build() );
+                json.add( ApplicationJson.create()
+                              .setApplication( application )
+                              .setLocal( localApplication )
+                              .setApplicationDescriptor( appDescriptor )
+                              .setSiteDescriptor( siteDescriptor )
+                              .setIdProviderDescriptor( idProviderDescriptor )
+                              .setIconUrlResolver( this.iconUrlResolver )
+                              .setLocaleMessageResolver( new LocaleMessageResolver( this.localeService, applicationKey ) )
+                              .setInlineMixinResolver( new InlineMixinResolver( this.mixinService ) )
+                              .build() );
             }
         }
         return json;
@@ -172,9 +201,8 @@ public final class ApplicationResource
 
     private Applications sortApplications( final Applications applications )
     {
-        return Applications.from( applications.stream().
-            sorted( Comparator.comparing( Application::getDisplayName ) ).
-            collect( Collectors.toList() ) );
+        return Applications.from(
+            applications.stream().sorted( Comparator.comparing( Application::getDisplayName ) ).collect( Collectors.toList() ) );
     }
 
     private Applications filterApplications( final Applications applications, final String query )
@@ -182,15 +210,16 @@ public final class ApplicationResource
         if ( !nullToEmpty( query ).isBlank() )
         {
             final String queryLowercase = query.toLowerCase();
-            return Applications.from( applications.stream().
-                filter( application -> nullToEmpty( application.getDisplayName() ).toLowerCase().contains( queryLowercase ) ||
-                    nullToEmpty( application.getMaxSystemVersion() ).toLowerCase().contains( queryLowercase ) ||
-                    nullToEmpty( application.getMinSystemVersion() ).toLowerCase().contains( queryLowercase ) ||
-                    nullToEmpty( application.getSystemVersion() ).toLowerCase().contains( queryLowercase ) ||
-                    nullToEmpty( application.getUrl() ).toLowerCase().contains( queryLowercase ) ||
-                    nullToEmpty( application.getVendorName() ).toLowerCase().contains( queryLowercase ) ||
-                    nullToEmpty( application.getVendorUrl() ).toLowerCase().contains( queryLowercase ) ).
-                collect( Collectors.toList() ) );
+            return Applications.from( applications.stream()
+                                          .filter( application -> nullToEmpty( application.getDisplayName() ).toLowerCase()
+                                              .contains( queryLowercase ) ||
+                                              nullToEmpty( application.getMaxSystemVersion() ).toLowerCase().contains( queryLowercase ) ||
+                                              nullToEmpty( application.getMinSystemVersion() ).toLowerCase().contains( queryLowercase ) ||
+                                              nullToEmpty( application.getSystemVersion() ).toLowerCase().contains( queryLowercase ) ||
+                                              nullToEmpty( application.getUrl() ).toLowerCase().contains( queryLowercase ) ||
+                                              nullToEmpty( application.getVendorName() ).toLowerCase().contains( queryLowercase ) ||
+                                              nullToEmpty( application.getVendorUrl() ).toLowerCase().contains( queryLowercase ) )
+                                          .collect( Collectors.toList() ) );
         }
 
         return applications;

@@ -15,17 +15,17 @@ export abstract class CmsProjectBasedResourceRequest<PARSED_TYPE>
             UrlHelper.getCMSPathWithProject(this.projectName, this.contentRootPath)).build();
     }
 
-    setRequestProject(value: Project): CmsProjectBasedResourceRequest<PARSED_TYPE> {
+    setRequestProject(value: Project): this {
         this.projectName = value?.getName();
         return this;
     }
 
-    setRequestProjectName(value: string): CmsProjectBasedResourceRequest<PARSED_TYPE> {
+    setRequestProjectName(value: string): this {
         this.projectName = value;
         return this;
     }
 
-    setContentRootPath(value: string) {
+    setContentRootPath(value: string): this {
         this.contentRootPath = value;
         return this;
     }

@@ -3,12 +3,13 @@ import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTyp
 import {GetContentTypesByContentRequest} from '../../resource/GetContentTypesByContentRequest';
 import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
 import {ContentId} from '../../content/ContentId';
+import {Project} from '../../settings/data/project/Project';
 
 export class ContentTypeSummaryLoader
     extends BaseLoader<ContentTypeSummary> {
 
-    constructor(contentId: ContentId) {
-        super(contentId ? new GetContentTypesByContentRequest(contentId) : new GetAllContentTypesRequest());
+    constructor(contentId: ContentId, project?: Project) {
+        super(contentId ? new GetContentTypesByContentRequest(contentId).setRequestProject(project) : new GetAllContentTypesRequest());
     }
 
     filterFn(contentType: ContentTypeSummary) {

@@ -17,6 +17,7 @@ import {MacrosLoader} from '../../../../macro/resource/MacrosLoader';
 import {GetMacrosRequest} from '../../../../macro/resource/GetMacrosRequest';
 import {MacroComboBox} from '../../../../macro/MacroComboBox';
 import * as DOMPurify from 'dompurify';
+import {MacroDialogParams} from '../HtmlEditor';
 
 export interface MacroModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -40,7 +41,7 @@ export class MacroModalDialog
 
     protected config: MacroModalDialogConfig;
 
-    constructor(config: any, content: ContentSummary, applicationKeys: ApplicationKey[]) {
+    constructor(config: MacroDialogParams, content: ContentSummary, applicationKeys: ApplicationKey[]) {
         super(<MacroModalDialogConfig>{
             editor: config.editor,
             title: i18n('dialog.macro.title'),

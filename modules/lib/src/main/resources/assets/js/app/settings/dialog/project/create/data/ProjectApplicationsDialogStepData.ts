@@ -5,12 +5,12 @@ export class ProjectApplicationsDialogStepData extends ProjectDialogStepData {
 
     private applications: ProjectApplication[];
 
-    setApplications(value: ProjectApplication[]): ProjectApplicationsDialogStepData {
+    setProjectApplications(value: ProjectApplication[]): ProjectApplicationsDialogStepData {
         this.applications = value || [];
         return this;
     }
 
-    getApplications(): ProjectApplication[] {
+    getProjectApplications(): ProjectApplication[] {
         return this.applications;
     }
 }

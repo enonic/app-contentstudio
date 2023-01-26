@@ -1,25 +1,31 @@
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ProjectApplicationSelectedOptionView} from './ProjectApplicationSelectedOptionView';
-import {ProjectApplication} from './ProjectApplication';
-import {BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {ProjectApplicationSelectedOptionView, ProjectApplicationSelectedOptionViewBuilder} from './ProjectApplicationSelectedOptionView';
+import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
 
 export class ProjectApplicationsSelectedOptionsView
-    extends BaseSelectedOptionsView<ProjectApplication> {
+    extends BaseSelectedOptionsView<Application> {
 
-    constructor() {
+    private readonly params?: ProjectApplicationsFormParams;
+
+    constructor(params?: ProjectApplicationsFormParams) {
         super('project-application-selected-options-view');
 
+        this.params = params;
         this.setEditable(false);
+        this.setOccurrencesSortable(true);
     }
 
-    createSelectedOption(option: Option<ProjectApplication>): SelectedOption<ProjectApplication> {
-        const builder: BaseSelectedOptionViewBuilder<ProjectApplication> = new BaseSelectedOptionViewBuilder<ProjectApplication>()
-            .setOption(option)
-            .setEditable(false)
-            .setRemovable(true);
 
-        return new SelectedOption<ProjectApplication>(new ProjectApplicationSelectedOptionView(builder), this.count());
+    createSelectedOption(option: Option<Application>): SelectedOption<Application> {
+        const builder: ProjectApplicationSelectedOptionViewBuilder = new ProjectApplicationSelectedOptionViewBuilder()
+            .setProject(this.params?.getProject())
+            .setOption(option)
+            .setEditable(this.params?.isConfigEditable() && option.getDisplayValue().getForm()?.getFormItems().length > 0)
+            .setRemovable(true) as ProjectApplicationSelectedOptionViewBuilder;
+
+        return new SelectedOption<Application>(new ProjectApplicationSelectedOptionView(builder), this.count());
     }
 }

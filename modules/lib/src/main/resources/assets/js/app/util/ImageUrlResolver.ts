@@ -3,6 +3,7 @@ import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
 import {UrlHelper} from './UrlHelper';
 import {ContentId} from '../content/ContentId';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
+import {Project} from '../settings/data/project/Project';
 
 export class ImageUrlResolver
     extends IconUrlResolver {
@@ -30,10 +31,13 @@ export class ImageUrlResolver
 
     private readonly contentRootPath: string;
 
-    constructor(contentRootPath?: string) {
+    private readonly project: Project;
+
+    constructor(contentRootPath?: string, project?: Project) {
         super();
 
         this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
+        this.project = project;
     }
 
     setContentId(value: ContentId): ImageUrlResolver {
@@ -96,7 +100,7 @@ export class ImageUrlResolver
 
     resolveForPreview(): string {
         let url: string = this.getBaseUrl(
-            UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(this.contentRootPath)}/${ImageUrlResolver.URL_PREFIX_PREVIEW}`));
+            UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(this.contentRootPath, this.project)}/${ImageUrlResolver.URL_PREFIX_PREVIEW}`));
 
         if (this.timeStamp) {
             url = this.appendParam('ts', '' + this.timeStamp.getTime(), url);

@@ -425,7 +425,6 @@ export class TextComponentView
             .setFixedToolbarContainer(PageViewController.get().getEditorToolbarContainerId())
             .setContent(this.getContent())
             .setEditableSourceCode(this.editableSourceCode)
-            .setContentPath(this.getContentPath())
             .setApplicationKeys(this.getApplicationKeys())
             .setLangDirection(this.getLangDirection())
             .build();

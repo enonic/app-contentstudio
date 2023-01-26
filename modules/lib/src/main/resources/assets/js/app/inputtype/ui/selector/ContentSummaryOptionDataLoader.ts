@@ -17,13 +17,16 @@ import {ContentId} from '../../../content/ContentId';
 import {ContentSummaryJson} from '../../../content/ContentSummaryJson';
 import {ContentSelectorRequest} from '../../../resource/ContentSelectorRequest';
 import {ListByIdSelectorRequest} from '../../../resource/ListByIdSelectorRequest';
+import {Project} from '../../../settings/data/project/Project';
 
 export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem>
     extends OptionDataLoader<DATA> {
 
-    private treeRequest: ContentTreeSelectorQueryRequest<DATA> | ListByIdSelectorRequest<DATA>;
+    protected readonly project?: Project;
 
-    private flatRequest: ContentSelectorQueryRequest<ContentSummaryJson, ContentSummary>;
+    private readonly treeRequest: ContentTreeSelectorQueryRequest<DATA> | ListByIdSelectorRequest<DATA>;
+
+    private readonly flatRequest: ContentSelectorQueryRequest<ContentSummaryJson, ContentSummary>;
 
     private isTreeLoadMode: boolean;
 
@@ -31,15 +34,17 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     private loadModeChangedListeners: { (isTreeMode: boolean): void }[] = [];
 
-    private smartTreeMode: boolean;
+    private readonly smartTreeMode: boolean;
 
     constructor(builder?: ContentSummaryOptionDataLoaderBuilder) {
         super();
 
+        this.project = builder?.project;
         this.smartTreeMode = builder ? builder.smartTreeMode : true;
 
-        this.flatRequest = new ContentSelectorQueryRequest();
-        this.treeRequest = this.smartTreeMode ? new ContentTreeSelectorQueryRequest<DATA>() : new ListByIdSelectorRequest<DATA>();
+        this.flatRequest = new ContentSelectorQueryRequest().setRequestProject(this.project);
+        this.treeRequest = this.smartTreeMode ? new ContentTreeSelectorQueryRequest<DATA>().setRequestProject(this.project) :
+                           new ListByIdSelectorRequest<DATA>().setRequestProject(this.project);
 
         if (builder) {
             this.initRequests(builder);
@@ -75,7 +80,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     protected sendPreLoadRequest(ids: string): Q.Promise<DATA[]> {
         const contentIds = ids.split(';').map((id) => new ContentId(id));
-        return new GetContentSummaryByIds(contentIds).sendAndParse().then(((contents: ContentSummary[]) => {
+        return new GetContentSummaryByIds(contentIds).setRequestProject(this.project).sendAndParse().then(((contents: ContentSummary[]) => {
             return <DATA[]>contents.map(content => new ContentTreeSelectorItem(content));
         }));
     }
@@ -184,7 +189,8 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     }
 
     private loadStatuses(contents: DATA[]): Q.Promise<DATA[]> {
-        return CompareContentRequest.fromContentSummaries(contents.map(item => item.getContent())).sendAndParse().then(
+        return CompareContentRequest.fromContentSummaries(contents.map(item => item.getContent())).setRequestProject(
+            this.project).sendAndParse().then(
             (compareResults: CompareContentResults) => {
 
                 return contents.map(item => {
@@ -240,6 +246,8 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     smartTreeMode: boolean = true;
 
+    project: Project;
+
     public setContentTypeNames(contentTypeNames: string[]): ContentSummaryOptionDataLoaderBuilder {
         this.contentTypeNames = contentTypeNames;
         return this;
@@ -262,6 +270,11 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     public setSmartTreeMode(smartTreeMode: boolean): ContentSummaryOptionDataLoaderBuilder {
         this.smartTreeMode = smartTreeMode;
+        return this;
+    }
+
+    public setProject(project: Project): ContentSummaryOptionDataLoaderBuilder {
+        this.project = project;
         return this;
     }
 

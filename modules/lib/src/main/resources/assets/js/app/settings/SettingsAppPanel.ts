@@ -1,11 +1,9 @@
 import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {NavigatedAppPanel} from '@enonic/lib-admin-ui/app/NavigatedAppPanel';
 import {SettingsBrowsePanel} from './browse/SettingsBrowsePanel';
-import {NewProjectEvent} from './event/NewProjectEvent';
 import {AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
 import {AppBarTabMenuItem, AppBarTabMenuItemBuilder} from '@enonic/lib-admin-ui/app/bar/AppBarTabMenuItem';
 import {ProjectWizardPanel} from './wizard/panel/ProjectWizardPanel';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {TabMenuItem} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
 import {EditSettingsItemEvent} from './event/EditSettingsItemEvent';
 import {SettingsDataItemWizardPanel} from './wizard/panel/SettingsDataItemWizardPanel';
@@ -20,7 +18,6 @@ import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
 import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
 import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
-import {SettingsTypes} from './data/type/SettingsTypes';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {ContentAppBar} from '../bar/ContentAppBar';
 
@@ -42,10 +39,6 @@ export class SettingsAppPanel
     protected handleGlobalEvents() {
         super.handleGlobalEvents();
 
-        NewProjectEvent.on((event: NewProjectEvent) => {
-            this.handleNewProject(event);
-        });
-
         EditSettingsItemEvent.on((event: EditSettingsItemEvent) => {
             this.handleItemEdit(event.getItems());
         });
@@ -63,7 +56,6 @@ export class SettingsAppPanel
             ProjectSelectionDialog.get().setUpdateOnOpen(true);
             this.handleItemDeleted(event.getProjectName());
         });
-
 
         ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
             if (!this.browsePanel) {
@@ -100,46 +92,6 @@ export class SettingsAppPanel
         }
 
         return null;
-    }
-
-    private handleNewProject(event: NewProjectEvent) {
-        const tabId: AppBarTabId = AppBarTabId.forNew(event.getProjectType().getName());
-        const tabMenuItem: AppBarTabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
-
-        if (tabMenuItem != null) {
-            this.selectPanel(tabMenuItem);
-        } else {
-            const parentProject: Project = event.getParentProject();
-            const isLayer: boolean = event.getProjectType().equals(SettingsTypes.get().getLayer());
-            const unnamedTabMenuText: string = NamePrettyfier.prettifyUnnamed(
-                isLayer ? i18n('settings.items.type.layer') : i18n('settings.items.type.project')
-            );
-            const wizard: ProjectWizardPanel = new ProjectWizardPanel({
-                tabId,
-                type: event.getProjectType()
-            });
-
-            if (isLayer) {
-                wizard.setParentProject(parentProject);
-            }
-
-            const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
-                .setLabel(unnamedTabMenuText)
-                .setTabId(wizard.getTabId())
-                .setCloseAction(wizard.getCloseAction())
-                .build();
-
-            this.addWizardPanel(newTabMenuItem, wizard);
-
-            wizard.onWizardHeaderNameUpdated((name: string) => {
-                newTabMenuItem.setLabel(!!name ? name : unnamedTabMenuText);
-            });
-
-            wizard.onNewItemSaved((item: SettingsViewItem) => {
-                newTabMenuItem.setTabId(AppBarTabId.forEdit(item.getId()));
-                newTabMenuItem.setLabel(item.getDisplayName());
-            });
-        }
     }
 
     private handleItemEdit(items: SettingsViewItem[]) {

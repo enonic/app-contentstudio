@@ -54,6 +54,8 @@ import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
 import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
 import {Descriptor} from '../../page/Descriptor';
 import {ContentId} from '../../content/ContentId';
+import {CreateHtmlAreaMacroDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaMacroDialogEvent';
+import {CreateHtmlAreaContentDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
 
 export class LiveEditPageProxy {
 
@@ -570,6 +572,10 @@ export class LiveEditPageProxy {
         LiveEditPageInitializationErrorEvent.on(this.notifyLiveEditPageInitializationError.bind(this), contextWindow);
 
         CreateHtmlAreaDialogEvent.on(this.notifyLiveEditPageDialogCreate.bind(this), contextWindow);
+
+        CreateHtmlAreaMacroDialogEvent.on(this.notifyLiveEditPageDialogCreate.bind(this), contextWindow);
+
+        CreateHtmlAreaContentDialogEvent.on(this.notifyLiveEditPageDialogCreate.bind(this), contextWindow);
     }
 
     onLoaded(listener: { (): void; }) {

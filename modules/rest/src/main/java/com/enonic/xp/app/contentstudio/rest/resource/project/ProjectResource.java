@@ -235,10 +235,7 @@ public final class ProjectResource
             .parent( json.getParent() )
             .forceInitialization( true );
 
-        if ( json.getApplicationKeys() != null )
-        {
-            json.getApplicationKeys().stream().forEach( key -> paramsBuilder.addSiteConfig( appKeyToSiteConfig( key ) ) );
-        }
+        json.getApplicationConfigs().stream().forEach( paramsBuilder::addSiteConfig );
 
         if ( json.getReadAccess() != null && ProjectReadAccessType.PUBLIC.equals( json.getReadAccess().getType() ) )
         {
@@ -264,11 +261,7 @@ public final class ProjectResource
             .displayName( json.getDisplayName() )
             .description( json.getDescription() );
 
-
-        if ( json.getApplicationKeys() != null )
-        {
-            json.getApplicationKeys().stream().forEach( key -> paramsBuilder.addSiteConfig( appKeyToSiteConfig( key ) ) );
-        }
+        json.getApplicationConfigs().stream().forEach( paramsBuilder::addSiteConfig );
 
         return paramsBuilder.build();
     }
