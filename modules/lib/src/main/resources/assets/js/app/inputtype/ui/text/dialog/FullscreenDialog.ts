@@ -4,7 +4,7 @@ import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 import {HtmlEditorParams} from '../HtmlEditorParams';
-import {HtmlEditor, HtmlEditorCursorPosition} from '../HtmlEditor';
+import {FullScreenDialogParams, HtmlEditor, HtmlEditorCursorPosition} from '../HtmlEditor';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export interface FullscreenDialogConfig
@@ -24,7 +24,7 @@ export class FullscreenDialog
 
     protected config: FullscreenDialogConfig;
 
-    constructor(config: any) {
+    constructor(config: FullScreenDialogParams) {
         super(<FullscreenDialogConfig>{
             editor: config.editor,
             editorParams: config.editorParams,
@@ -78,7 +78,6 @@ export class FullscreenDialog
             .setCreateDialogHandler(this.editorParams.getCreateDialogListener())
             .setKeydownHandler(this.editorParams.getKeydownHandler())
             .setEditorReadyHandler(this.editorReadyHandler.bind(this))
-            .setContentPath(this.editorParams.getContentPath())
             .setContent(this.editorParams.getContent())
             .setApplicationKeys(this.editorParams.getApplicationKeys())
             .setEnabledTools(this.editorParams.getEnabledTools())

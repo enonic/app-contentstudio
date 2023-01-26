@@ -99,6 +99,7 @@ import {ContentType} from '../../inputtype/schema/ContentType';
 import {ApplicationRemovedEvent} from '../../site/ApplicationRemovedEvent';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {DescriptorKey} from '../../page/DescriptorKey';
+import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 
 export interface LiveFormPanelConfig {
 
@@ -913,7 +914,7 @@ export class LiveFormPanel
         });
 
         this.liveEditPageProxy.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {
-            let modalDialog = HTMLAreaDialogHandler.createAndOpenDialog(event);
+            const modalDialog: ModalDialog = HTMLAreaDialogHandler.createAndOpenDialog(event);
             this.liveEditPageProxy.notifyLiveEditPageDialogCreated(modalDialog, event.getConfig());
         });
     }

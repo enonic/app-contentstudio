@@ -11,6 +11,7 @@ import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
+import {Project} from '../../../settings/data/project/Project';
 
 export enum MediaUploaderElOperation {
     create,
@@ -21,10 +22,14 @@ export interface MediaUploaderElConfig
     extends UploaderElConfig {
 
     operation: MediaUploaderElOperation;
+
+    project?: Project;
 }
 
 export class MediaUploaderEl
     extends UploaderEl<Content> {
+
+    protected config: MediaUploaderElConfig;
 
     private fileName: string;
 
@@ -44,7 +49,7 @@ export class MediaUploaderEl
     }
 
     protected beforeSubmit() {
-        this.uploader.setEndpoint(UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/${this.config.url}`));
+        this.uploader.setEndpoint(UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(null, this.config.project)}/${this.config.url}`));
     }
 
     private initImageDropHandler() {
@@ -108,8 +113,12 @@ export class MediaUploaderEl
         const uploadItem = new UploadItem<Content>(<any>{name: name});
         this.notifyFileUploadStarted([uploadItem]);
 
-        new CreateMediaFromUrlRequest().setName(name).setUrl(imgSrc).setParent(parent).sendAndParse().then(
-            (content: Content) => {
+        new CreateMediaFromUrlRequest()
+            .setRequestProject(this.config.project)
+            .setName(name)
+            .setUrl(imgSrc)
+            .setParent(parent)
+            .sendAndParse().then((content: Content) => {
                 uploadItem.setModel(<any>content);
                 this.notifyFileUploaded(uploadItem);
             }).catch((reason: any) => {
@@ -162,7 +171,8 @@ export class MediaUploaderEl
     }
 
     createResultItem(value: string): Element {
-        const path: string = `${UrlHelper.getCMSPathForContentRoot()}/${ContentResourceRequest.CONTENT_PATH}/media/${value}`;
+        const path: string =
+            `${UrlHelper.getCMSPathForContentRoot(this.config.project)}/${ContentResourceRequest.CONTENT_PATH}/media/${value}`;
         this.link = new AEl().setUrl(UrlHelper.getCmsRestUri(path), '_blank');
         this.link.setHtml(this.fileName != null && this.fileName !== '' ? this.fileName : value);
 

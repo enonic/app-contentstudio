@@ -4,12 +4,13 @@ import {CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
 import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentPath} from '../../../content/ContentPath';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
+import {Project} from '../../../settings/data/project/Project';
 
 export class HtmlEditorParams {
 
-    private readonly content: ContentSummary; // used for image dialog
-    private readonly contentPath: ContentPath; // used for macro dialog
+    private readonly content?: ContentSummary; // used for image dialog
     private readonly applicationKeys: ApplicationKey[]; // used for macro dialog
+    private readonly project?: Project; // used to set correct requests paths in dialogs
 
     private readonly assetsUri: string;
     private readonly editorContainerId: string;
@@ -32,13 +33,14 @@ export class HtmlEditorParams {
     private readonly langDirection: LangDirection;
 
     constructor(builder: HtmlEditorParamsBuilder) {
-        if (!builder.assetsUri || !builder.editorContainerId || !builder.content) {
+        if (!builder.assetsUri || !builder.editorContainerId) {
             throw new Error('some required fields are missing for Html Editor');
         }
 
         this.content = builder.content;
-        this.contentPath = builder.contentPath;
         this.applicationKeys = builder.applicationKeys;
+        this.project = builder.project;
+
         this.assetsUri = builder.assetsUri;
         this.editorContainerId = builder.editorContainerId;
         this.focusHandler = builder.focusHandler;
@@ -60,18 +62,8 @@ export class HtmlEditorParams {
         this.langDirection = builder.langDirection;
     }
 
-    private checkRequiredFieldsAreSet(htmlEditorParams: HtmlEditorParams) {
-        if (!htmlEditorParams.getAssetsUri() || !htmlEditorParams.getEditorContainerId() || !htmlEditorParams.getContent()) {
-            throw new Error('some required fields are missing for Html Editor');
-        }
-    }
-
     getContent(): ContentSummary {
         return this.content;
-    }
-
-    getContentPath(): ContentPath {
-        return this.contentPath;
     }
 
     getApplicationKeys(): ApplicationKey[] {
@@ -186,6 +178,10 @@ export class HtmlEditorParams {
         return this.langDirection;
     }
 
+    getProject(): Project {
+        return this.project;
+    }
+
     public static create(): HtmlEditorParamsBuilder {
         return new HtmlEditorParamsBuilder();
     }
@@ -194,8 +190,6 @@ export class HtmlEditorParams {
 export class HtmlEditorParamsBuilder {
 
     content: ContentSummary; // used for image dialog
-
-    contentPath: ContentPath; // used for macro dialog
 
     applicationKeys: ApplicationKey[]; // used for macro dialog
 
@@ -236,6 +230,8 @@ export class HtmlEditorParamsBuilder {
     allowedHeadings: string;
 
     langDirection: LangDirection = LangDirection.AUTO;
+
+    project: Project;
 
     setEditableSourceCode(value: boolean): HtmlEditorParamsBuilder {
         this.editableSourceCode = value;
@@ -315,11 +311,6 @@ export class HtmlEditorParamsBuilder {
         return this;
     }
 
-    setContentPath(contentPath: ContentPath): HtmlEditorParamsBuilder {
-        this.contentPath = contentPath;
-        return this;
-    }
-
     setApplicationKeys(applicationKeys: ApplicationKey[]): HtmlEditorParamsBuilder {
         this.applicationKeys = applicationKeys;
         return this;
@@ -347,6 +338,11 @@ export class HtmlEditorParamsBuilder {
 
     setLangDirection(value: LangDirection): HtmlEditorParamsBuilder {
         this.langDirection = value;
+        return this;
+    }
+
+    setProject(value: Project): HtmlEditorParamsBuilder {
+        this.project = value;
         return this;
     }
 

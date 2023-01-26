@@ -27,8 +27,7 @@ export class CompareContentRequest
             ids.push(contentSummary.getContentId().toString());
         });
 
-        return <CompareContentRequest>(new CompareContentRequest(ids).setContentRootPath(contentRootPath).setRequestProjectName(
-            projectName));
+        return new CompareContentRequest(ids).setContentRootPath(contentRootPath).setRequestProjectName(projectName);
     }
 
     getParams(): Object {

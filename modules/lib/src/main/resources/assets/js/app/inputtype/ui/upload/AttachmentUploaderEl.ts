@@ -8,6 +8,7 @@ import * as Q from 'q';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ContentPath} from '../../../content/ContentPath';
+import {Project} from '../../../settings/data/project/Project';
 
 export interface AttachmentUploaderElConfig
     extends UploaderElConfig {
@@ -15,10 +16,14 @@ export interface AttachmentUploaderElConfig
     contentId: string;
 
     attachmentRemoveCallback: (value: any) => void;
+
+    project?: Project;
 }
 
 export class AttachmentUploaderEl
     extends UploaderEl<Attachment> {
+
+    protected config: AttachmentUploaderElConfig;
 
     private readonly contentId: string;
 
@@ -46,7 +51,8 @@ export class AttachmentUploaderEl
     }
 
     protected beforeSubmit() {
-        this.uploader.setEndpoint(UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(ContentPath.CONTENT_ROOT)}/${this.config.url}`));
+        this.uploader.setEndpoint(
+            UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(ContentPath.CONTENT_ROOT, this.config.project)}/${this.config.url}`));
     }
 
     protected doSetValue(value: string): AttachmentUploaderEl {
@@ -107,7 +113,7 @@ export class AttachmentUploaderEl
     }
 
     createResultItem(value: string): AttachmentItem {
-        const attachmentItem: AttachmentItem = new AttachmentItem(this.contentId, value);
+        const attachmentItem: AttachmentItem = new AttachmentItem(this.contentId, value, null, this.config.project);
         this.attachedItems.push(attachmentItem);
 
         attachmentItem.onRemoveClicked(this.removeCallback);

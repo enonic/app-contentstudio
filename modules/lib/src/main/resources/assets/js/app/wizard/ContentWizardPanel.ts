@@ -144,6 +144,7 @@ import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ContentSummary} from '../content/ContentSummary';
+import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1057,20 +1058,6 @@ export class ContentWizardPanel
         super.close(checkCanClose);
     }
 
-    private fetchApplication(key: ApplicationKey): Q.Promise<Application> {
-        let deferred = Q.defer<Application>();
-        new GetApplicationRequest(key).sendAndParse().then((app) => {
-            if (app.getState() === Application.STATE_STOPPED) {
-                this.missingOrStoppedAppKeys.push(key);
-            }
-            deferred.resolve(app);
-        }).catch((reason) => {
-            this.missingOrStoppedAppKeys.push(key);
-            deferred.resolve(null);
-        }).done();
-        return deferred.promise;
-    }
-
     private checkIfAppsHaveDescriptors(applicationKeys: ApplicationKey[]): Q.Promise<boolean> {
         if (!applicationKeys.length) {
             return Q<boolean>(false);
@@ -1893,7 +1880,13 @@ export class ContentWizardPanel
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(content).then(() => {
                 this.contextView.updateWidgetsVisibility();
-                this.fetchMissingOrStoppedAppKeys().then(this.missingOrStoppedAppKeys.length && this.handleAppChange.bind(this));
+                this.fetchMissingOrStoppedAppKeys().then((missingApps: ApplicationKey[]) => {
+                    this.missingOrStoppedAppKeys = missingApps;
+
+                    if (missingApps.length > 0) {
+                        this.handleAppChange();
+                    }
+                }).catch(DefaultErrorHandler.handle);
 
                 return this.createWizardStepForms().then(() => {
                     const steps: ContentWizardStep[] = this.createSteps();
@@ -1957,13 +1950,19 @@ export class ContentWizardPanel
         return added;
     }
 
-    private fetchMissingOrStoppedAppKeys(): Q.Promise<void> {
-        this.missingOrStoppedAppKeys = [];
+    private fetchMissingOrStoppedAppKeys(): Q.Promise<ApplicationKey[]> {
+        const applicationKeys: ApplicationKey[] = this.site?.getApplicationKeys() || [];
 
-        const applicationKeys = this.site ? this.site.getApplicationKeys() : [];
-        const applicationPromises = applicationKeys.map((key: ApplicationKey) => this.fetchApplication(key));
+        if (applicationKeys.length === 0) {
+            return Q.resolve([]);
+        }
 
-        return Q.all(applicationPromises).thenResolve(null);
+        return new GetApplicationsRequest(applicationKeys).sendAndParse().then((applications: Application[]) => {
+            return applicationKeys.filter((key: ApplicationKey) => {
+                const app: Application = applications.find((a: Application) => a.getApplicationKey().equals(key));
+                return !app || app.getState() === Application.STATE_STOPPED;
+            });
+        });
     }
 
     private layoutWizardStepForms(content: Content): Q.Promise<void> {
@@ -2484,7 +2483,6 @@ export class ContentWizardPanel
 
         this.formContext
             .setSite(this.site)
-            .setParentContent(this.parentContent)
             .setPersistedContent(content);
         this.formContext.setFormState(this.formState);
         this.formContext.setShowEmptyFormItemSetOccurrences(this.isItemPersisted());

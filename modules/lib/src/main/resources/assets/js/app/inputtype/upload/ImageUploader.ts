@@ -46,7 +46,8 @@ export class ImageUploader
             operation: MediaUploaderElOperation.update,
             name: config.input.getName(),
             hideDefaultDropZone: true,
-            selfIsDropzone: false
+            selfIsDropzone: false,
+            project: config.project
         });
 
         this.imageUploader.getUploadButton().hide();
@@ -166,6 +167,7 @@ export class ImageUploader
         if ((!unchangedOnly || !this.imageUploader.isDirty()) && this.getContext().content.getContentId()) {
 
             return new GetContentByIdRequest(this.getContext().content.getContentId())
+                .setRequestProject((<ContentInputTypeViewContext>this.context).project)
                 .sendAndParse().then((content: Content) => {
 
                     this.imageUploader.setOriginalDimensions(

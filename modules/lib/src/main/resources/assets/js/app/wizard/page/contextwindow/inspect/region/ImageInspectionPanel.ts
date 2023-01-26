@@ -20,6 +20,7 @@ import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSumm
 import {ContentSummary, ContentSummaryBuilder} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
 import {ContentPath} from '../../../../../content/ContentPath';
+import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {
@@ -42,7 +43,7 @@ export class ImageInspectionPanel
         this.imageSelector = ImageContentComboBox
             .create()
             .setMaximumOccurrences(1)
-            .setSelectedOptionsView(new ContentSelectedOptionsView())
+            .setSelectedOptionsView(new ContentSelectedOptionsView() as SelectedOptionsView<any>)
             .build();
 
         this.imageSelectorForm = new ImageSelectorForm(this.imageSelector, i18n('field.image'));

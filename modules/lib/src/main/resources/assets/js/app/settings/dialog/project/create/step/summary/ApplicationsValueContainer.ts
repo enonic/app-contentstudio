@@ -1,6 +1,6 @@
 import {SummaryValueContainer} from './SummaryValueContainer';
-import {ProjectApplication} from '../../../../../wizard/panel/form/element/ProjectApplication';
 import {ProjectApplicationViewer} from '../../../../../wizard/panel/form/element/ProjectApplicationViewer';
+import {ProjectApplication} from '../../../../../wizard/panel/form/element/ProjectApplication';
 
 export class ApplicationsValueContainer
     extends SummaryValueContainer {
@@ -12,9 +12,9 @@ export class ApplicationsValueContainer
     updateValue(applications: ProjectApplication[]): ApplicationsValueContainer {
         this.removeChildren();
 
-        applications.forEach((application: ProjectApplication) => {
+        applications.forEach((projectApplication: ProjectApplication) => {
             const viewer: ProjectApplicationViewer = new ProjectApplicationViewer();
-            viewer.setObject(application);
+            viewer.setObject(projectApplication.getApplication());
             this.appendChild(viewer);
         });
 

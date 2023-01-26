@@ -7,17 +7,18 @@ import {FormContext, FormContextBuilder} from '@enonic/lib-admin-ui/form/FormCon
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentId} from './content/ContentId';
 import {ContentPath} from './content/ContentPath';
+import {Project} from './settings/data/project/Project';
 
 export class ContentFormContext
     extends FormContext {
 
-    private site: Site;
+    private site?: Site;
 
-    private parentContent: Content;
+    private persistedContent?: Content;
 
-    private persistedContent: Content;
+    private contentTypeName?: ContentTypeName;
 
-    private contentTypeName: ContentTypeName;
+    private project?: Project;
 
     private contentUpdatedListeners: { (content: Content): void }[] = [];
 
@@ -25,9 +26,9 @@ export class ContentFormContext
         super(builder);
 
         this.site = builder.site;
-        this.parentContent = builder.parentContent;
         this.persistedContent = builder.persistedContent;
         this.contentTypeName = builder.contentTypeName;
+        this.project = builder.project;
     }
 
     getSite(): Site {
@@ -47,20 +48,6 @@ export class ContentFormContext
         return this.persistedContent != null ? this.persistedContent.getPath() : null;
     }
 
-    getParentContentPath(): ContentPath {
-
-        if (this.parentContent == null) {
-            return ContentPath.getRoot();
-        }
-
-        return this.parentContent.getPath();
-    }
-
-    setParentContent(content: Content): ContentFormContext {
-        this.parentContent = content;
-        return this;
-    }
-
     getPersistedContent(): Content {
         return this.persistedContent;
     }
@@ -75,6 +62,10 @@ export class ContentFormContext
         return this.contentTypeName;
     }
 
+    getProject(): Project {
+        return this.project;
+    }
+
     createInputTypeViewContext(inputTypeConfig: any, parentPropertyPath: PropertyPath, input: Input): ContentInputTypeViewContext {
         const viewContext = <ContentInputTypeViewContext> {
             formContext: this,
@@ -83,8 +74,7 @@ export class ContentFormContext
             parentDataPath: parentPropertyPath,
             site: this.getSite(),
             content: this.getPersistedContent(),
-            contentPath: this.getContentPath(),
-            parentContentPath: this.getParentContentPath()
+            project: this.getProject()
         };
 
         this.contentUpdatedListeners.push(content => {
@@ -97,9 +87,9 @@ export class ContentFormContext
     cloneBuilder(): ContentFormContextBuilder {
         return <ContentFormContextBuilder>ContentFormContext.create()
             .setSite(this.site)
-            .setParentContent(this.parentContent)
             .setPersistedContent(this.persistedContent)
             .setContentTypeName(this.contentTypeName)
+            .setProject(this.project)
             .setFormState(this.getFormState())
             .setShowEmptyFormItemSetOccurrences(this.getShowEmptyFormItemSetOccurrences())
             .setValidationErrors(this.getValidationErrors());
@@ -115,19 +105,14 @@ export class ContentFormContextBuilder
 
     site: Site;
 
-    parentContent: Content;
-
     persistedContent: Content;
 
     contentTypeName: ContentTypeName;
 
+    project: Project;
+
     public setSite(value: Site): ContentFormContextBuilder {
         this.site = value;
-        return this;
-    }
-
-    public setParentContent(value: Content): ContentFormContextBuilder {
-        this.parentContent = value;
         return this;
     }
 
@@ -138,6 +123,11 @@ export class ContentFormContextBuilder
 
     public setContentTypeName(value: ContentTypeName): ContentFormContextBuilder {
         this.contentTypeName = value;
+        return this;
+    }
+
+    public setProject(value: Project): ContentFormContextBuilder {
+        this.project = value;
         return this;
     }
 

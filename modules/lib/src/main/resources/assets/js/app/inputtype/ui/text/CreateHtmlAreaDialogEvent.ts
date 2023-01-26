@@ -1,37 +1,33 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {ContentSummary} from '../../../content/ContentSummary';
-import {ContentPath} from '../../../content/ContentPath';
+import {Project} from '../../../settings/data/project/Project';
+import eventInfo = CKEDITOR.eventInfo;
+import {FullScreenDialogParams, MacroDialogParams} from './HtmlEditor';
 
 export enum HtmlAreaDialogType {
     ANCHOR, IMAGE, LINK, MACRO, SEARCHREPLACE, CODE, SPECIALCHAR, FULLSCREEN, TABLE, NUMBERED_LIST, BULLETED_LIST
 }
 
+export type HtmlAreaDialogConfig = eventInfo | MacroDialogParams | FullScreenDialogParams;
+
 export class CreateHtmlAreaDialogEvent
     extends Event {
 
-    private readonly config: any;
+    private readonly config: HtmlAreaDialogConfig;
 
     private readonly type: HtmlAreaDialogType;
 
-    private readonly content: ContentSummary;
-
-    private readonly contentPath: ContentPath;
-
-    private readonly applicationKeys: ApplicationKey[];
+    private readonly project?: Project;
 
     constructor(builder: CreateHtmlAreaDialogEventBuilder) {
         super();
 
         this.config = builder.config;
         this.type = builder.type;
-        this.content = builder.content;
-        this.contentPath = builder.contentPath;
-        this.applicationKeys = builder.applicationKeys;
+        this.project = builder.project;
     }
 
-    getConfig(): any {
+    getConfig(): HtmlAreaDialogConfig {
         return this.config;
     }
 
@@ -39,16 +35,8 @@ export class CreateHtmlAreaDialogEvent
         return this.type;
     }
 
-    getContent(): ContentSummary {
-        return this.content;
-    }
-
-    getContentPath(): ContentPath {
-        return this.contentPath;
-    }
-
-    getApplicationKeys(): ApplicationKey[] {
-        return this.applicationKeys;
+    getProject(): Project {
+        return this.project;
     }
 
     static create(): CreateHtmlAreaDialogEventBuilder {
@@ -66,43 +54,28 @@ export class CreateHtmlAreaDialogEvent
 
 export class CreateHtmlAreaDialogEventBuilder {
 
-    config: any;
+    config: HtmlAreaDialogConfig;
 
     type: HtmlAreaDialogType;
 
-    content: ContentSummary;
+    project: Project;
 
-    contentPath: ContentPath;
-
-    applicationKeys: ApplicationKey[];
-
-    setContent(content: ContentSummary): CreateHtmlAreaDialogEventBuilder {
-        this.content = content;
-        return this;
-    }
-
-    setContentPath(contentPath: ContentPath): CreateHtmlAreaDialogEventBuilder {
-        this.contentPath = contentPath;
-        return this;
-    }
-
-    setType(type: HtmlAreaDialogType): CreateHtmlAreaDialogEventBuilder {
+    setType(type: HtmlAreaDialogType): this {
         this.type = type;
         return this;
     }
 
-    setConfig(config: any): CreateHtmlAreaDialogEventBuilder {
+    setConfig(config: HtmlAreaDialogConfig): this {
         this.config = config;
         return this;
     }
 
-    setApplicationKeys(applicationKeys: ApplicationKey[]): CreateHtmlAreaDialogEventBuilder {
-        this.applicationKeys = applicationKeys;
+    setProject(project: Project): this {
+        this.project = project;
         return this;
     }
 
     build(): CreateHtmlAreaDialogEvent {
-
         return new CreateHtmlAreaDialogEvent(this);
     }
 }

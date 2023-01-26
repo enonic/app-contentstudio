@@ -1,23 +1,23 @@
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
-import {ProjectApplication} from '../../wizard/panel/form/element/ProjectApplication';
-import {ProjectApplicationsListRequest} from './ProjectApplicationsListRequest';
 import Q from 'q';
+import {ListSiteApplicationsRequest} from '../../../resource/ListSiteApplicationsRequest';
+import {Application} from '@enonic/lib-admin-ui/application/Application';
 
 export class ProjectApplicationsLoader
-    extends BaseLoader<ProjectApplication> {
+    extends BaseLoader<Application> {
 
-    protected createRequest(): ProjectApplicationsListRequest {
-        return new ProjectApplicationsListRequest();
+    protected createRequest(): ListSiteApplicationsRequest {
+        return new ListSiteApplicationsRequest();
     }
 
-    search(searchString: string): Q.Promise<ProjectApplication[]> {
-        return super.search(searchString).then((result: ProjectApplication[]) => {
+    search(searchString: string): Q.Promise<Application[]> {
+        return super.search(searchString).then((result: Application[]) => {
             this.notifyLoadedData(result);
             return result;
         });
     }
 
-    filterFn(item: ProjectApplication): boolean {
+    filterFn(item: Application): boolean {
         const searchString: string = this.getSearchString().toLowerCase().trim();
 
         return item.getDisplayName()?.toLowerCase().indexOf(searchString) > -1 ||

@@ -25,7 +25,7 @@ export class ProjectApplicationsDialogStep
     }
 
     getData(): ProjectApplicationsDialogStepData {
-        return new ProjectApplicationsDialogStepData().setApplications(this.getProjectApplicationsComboBox()?.getSelectedDisplayValues());
+        return new ProjectApplicationsDialogStepData().setProjectApplications(this.getProjectApplicationsComboBox()?.getSelectedApplications());
     }
 
     hasData(): boolean {

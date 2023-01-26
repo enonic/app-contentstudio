@@ -60,7 +60,11 @@ export class ContentSelector
     }
 
     private initEventsListeners() {
-        const contentId: string = this.context.content.getId();
+        const contentId: string = this.context.content?.getId();
+
+        if (!contentId) {
+            return;
+        }
 
         ContentServerEventsHandler.getInstance().onContentRenamed((data: ContentSummaryAndCompareStatus[]) => {
             const isCurrentContentRenamed: boolean = data.some((item: ContentSummaryAndCompareStatus) => item.getId() === contentId);
@@ -101,7 +105,7 @@ export class ContentSelector
     }
 
     protected getDefaultAllowPath(): string {
-        return this.context.content.getPath().hasParentContent() ? '${site}' : '';
+        return this.context.content?.getPath().hasParentContent() ? '${site}' : '';
     }
 
     public getContentComboBox(): ContentComboBox<ContentTreeSelectorItem> {
@@ -206,7 +210,8 @@ export class ContentSelector
             .setAllowedContentPaths(this.allowedContentPaths)
             .setContentTypeNames(this.allowedContentTypes)
             .setRelationshipType(this.relationshipType)
-            .setContent(this.context.content);
+            .setContent(this.context.content)
+            .setProject(this.context.project);
     }
 
     protected doCreateContentComboBoxBuilder(): ContentComboBoxBuilder<ContentTreeSelectorItem> {
@@ -423,7 +428,7 @@ export class ContentSelector
 
     protected updateSelectedOptionIsEditable(selectedOption: SelectedOption<ContentTreeSelectorItem>) {
         const selectedContentId: ContentId = selectedOption.getOption().getDisplayValue().getContentId();
-        const refersToItself: boolean = selectedContentId.toString() === this.context.content.getId();
+        const refersToItself: boolean = selectedContentId.toString() === this.context.content?.getId();
         selectedOption.getOptionView().toggleClass('non-editable', refersToItself);
     }
 
