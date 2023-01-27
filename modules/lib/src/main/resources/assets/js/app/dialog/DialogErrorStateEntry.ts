@@ -1,18 +1,18 @@
-import * as Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import * as Q from 'q';
 
 export interface ErrorStateEntryConfig {
     className?: string;
     iconClass?: string;
     text: string;
-    actionButton?: {
+    actionButtons?: {
         label: string;
         handler?: () => void;
         markIgnored?: boolean;
-    }
+    }[];
 }
 
 enum Modifiers {
@@ -32,7 +32,7 @@ export class DialogErrorStateEntry
 
     private text: SpanEl;
 
-    private actionButton: ActionButton | undefined;
+    private actionButtons: ActionButton[];
 
     private active: boolean;
 
@@ -50,6 +50,8 @@ export class DialogErrorStateEntry
         this.active = false;
         this.checking = false;
 
+        this.actionButtons = [];
+
         this.activeStateChangeHandlers = [];
         this.checkingStateChangeHandlers = [];
 
@@ -59,44 +61,23 @@ export class DialogErrorStateEntry
         this.initListeners();
     }
 
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.appendChildren(this.icon, this.text);
-            if (this.actionButton) {
-                this.appendChildren(this.actionButton);
-            }
-
-            return rendered;
+    private static wrapButtons(actionButtons: ActionButton[] = []): SpanEl[] {
+        return actionButtons.map(button => {
+            const wrapper = new SpanEl('entry-button-wrapper');
+            const separator = new SpanEl('entry-button-separator');
+            separator.setHtml('|');
+            wrapper.appendChildren(button, separator);
+            return wrapper;
         });
     }
 
-    protected initElements(): void {
-        const {iconClass, text, actionButton} = this.config;
-        this.icon = new SpanEl(`entry-icon ${iconClass || 'icon-big-plus'}`);
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.appendChildren(this.icon, this.text);
+            this.appendChildren(...DialogErrorStateEntry.wrapButtons(this.actionButtons));
 
-        this.text = new SpanEl('entry-text');
-        this.text.setHtml(text);
-
-        if (actionButton) {
-            const action = new Action(actionButton.label);
-            this.actionButton = new ActionButton(action);
-            this.actionButton.addClass('entry-button');
-        }
-    }
-
-    protected initListeners(): void {
-        const {actionButton} = this.config;
-        if (actionButton) {
-            const {handler, markIgnored} = actionButton;
-            this.actionButton.getAction().onExecuted(() => {
-                handler?.();
-                if (markIgnored) {
-                    this.addClass(Modifiers.IGNORED);
-                }
-
-                this.refreshActive();
-            });
-        }
+            return rendered;
+        });
     }
 
     updateCount(count: number): void {
@@ -107,12 +88,12 @@ export class DialogErrorStateEntry
         this.refreshActive();
     }
 
-    setActionEnabled(enabled: boolean): void {
-        this.actionButton.setEnabled(enabled);
+    setActionsEnabled(enabled: boolean): void {
+        this.actionButtons.forEach(a => a.setEnabled(enabled));
     }
 
     reset(): void {
-        this.setActionEnabled(true);
+        this.setActionsEnabled(true);
         this.removeClass(Modifiers.IGNORED);
         this.removeClass(Modifiers.NON_INTERACTIVE);
         this.updateCount(0);
@@ -133,8 +114,12 @@ export class DialogErrorStateEntry
         }
     }
 
-    markNonInteractive(nonInteractive: boolean): void {
-        this.toggleClass(Modifiers.NON_INTERACTIVE, nonInteractive);
+    markNonInteractive(nonInteractive: boolean, index?: number): void {
+        if (index != null) {
+            this.actionButtons[index]?.toggleClass(Modifiers.NON_INTERACTIVE, nonInteractive);
+        } else {
+            this.actionButtons.forEach(a => a.toggleClass(Modifiers.NON_INTERACTIVE, nonInteractive));
+        }
     }
 
     onActiveStateChange(handler: ActiveStateChangeHandler): void {
@@ -143,6 +128,35 @@ export class DialogErrorStateEntry
 
     onCheckingStateChange(handler: CheckingStateChangeHandler): void {
         this.checkingStateChangeHandlers.push(handler);
+    }
+
+    protected initElements(): void {
+        const {iconClass, text, actionButtons = []} = this.config;
+        this.icon = new SpanEl(`entry-icon ${iconClass || 'icon-big-plus'}`);
+
+        this.text = new SpanEl('entry-text');
+        this.text.setHtml(text);
+
+        this.actionButtons = actionButtons.map(({label}) => {
+            const action = new Action(label);
+            const actionButton = new ActionButton(action);
+            actionButton.addClass('entry-button');
+            return actionButton;
+        });
+    }
+
+    protected initListeners(): void {
+        const {actionButtons = []} = this.config;
+        actionButtons.forEach(({handler, markIgnored}, index) => {
+            this.actionButtons[index].getAction().onExecuted(() => {
+                handler?.();
+                if (markIgnored) {
+                    this.addClass(Modifiers.IGNORED);
+                }
+
+                this.refreshActive();
+            });
+        });
     }
 
     private notifyActiveStateChanged(): void {

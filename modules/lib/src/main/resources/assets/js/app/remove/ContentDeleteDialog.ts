@@ -1,34 +1,34 @@
-import * as Q from 'q';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
-import {ConfirmValueDialog} from './ConfirmValueDialog';
-import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {DeleteDialogItemList} from './DeleteDialogItemList';
-import {DeleteContentRequest} from '../resource/DeleteContentRequest';
-import {CompareStatus} from '../content/CompareStatus';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
-import {ContentId} from '../content/ContentId';
-import {ArchiveItem} from '../dialog/ArchiveItem';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {DeleteDialogDependantList} from './DeleteDialogDependantList';
-import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
-import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
-import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDeleteResult';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
 import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselectAllEvent';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {CompareStatus} from '../content/CompareStatus';
+import {ContentId} from '../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ArchiveItem} from '../dialog/ArchiveItem';
+import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {DialogErrorsStateBar} from '../dialog/DialogErrorsStateBar';
 import {DialogErrorStateEntry} from '../dialog/DialogErrorStateEntry';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
+import {DeleteContentRequest} from '../resource/DeleteContentRequest';
+import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDeleteResult';
+import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
+import {ConfirmValueDialog} from './ConfirmValueDialog';
+import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
+import {DeleteDialogDependantList} from './DeleteDialogDependantList';
+import {DeleteDialogItemList} from './DeleteDialogItemList';
 
 
 enum ActionType {
@@ -91,10 +91,10 @@ export class ContentDeleteDialog
         this.stateBar = new DialogErrorsStateBar({hideIfResolved: true});
         this.inboundErrorsEntry = this.stateBar.addErrorEntry({
             text: i18n('dialog.archive.warning.text'),
-            actionButton: {
+            actionButtons: [{
                 label: i18n('dialog.archive.warning.ignore'),
                 markIgnored: true,
-            },
+            }],
         });
     }
 

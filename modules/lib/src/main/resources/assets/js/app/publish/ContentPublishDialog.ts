@@ -1,24 +1,24 @@
-import * as Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
+import {AutosizeTextInput} from '@enonic/lib-admin-ui/ui/text/AutosizeTextInput';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import * as Q from 'q';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
-import {ContentPublishDialogAction} from './ContentPublishDialogAction';
+import {ContentId} from '../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
-import {BasePublishDialog, PublishDialogButtonRow} from '../dialog/BasePublishDialog';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {AutosizeTextInput} from '@enonic/lib-admin-ui/ui/text/AutosizeTextInput';
-import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
-import {ContentId} from '../content/ContentId';
+import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -44,7 +44,7 @@ export class ContentPublishDialog
             title: i18n('dialog.publish'),
             class: 'publish-dialog',
             dependantsDescription: i18n('dialog.publish.dependants'),
-            buttonRow: new PublishDialogButtonRow(),
+            buttonRow: new DropdownButtonRow(),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
         });
@@ -67,9 +67,7 @@ export class ContentPublishDialog
         return ContentPublishDialog.INSTANCE;
     }
 
-    protected initActions() {
-        super.initActions();
-
+    protected initActions(): void {
         this.publishAction = new ContentPublishDialogAction(this.doPublish.bind(this, false));
 
         this.scheduleAction = new Action('action.schedule')
@@ -78,6 +76,8 @@ export class ContentPublishDialog
     }
 
     protected initElements() {
+        this.initActions();
+
         super.initElements();
 
         this.publishSubTitle = new ContentPublishDialogSubTitle();
@@ -89,7 +89,7 @@ export class ContentPublishDialog
             this.scheduleAction.setVisible(visible);
         });
 
-        const menuButton: MenuButton = this.getButtonRow().makeActionMenu(this.publishAction, [this.markAllAsReadyAction]);
+        const menuButton = this.getButtonRow().makeActionMenu(this.publishAction, []);
         this.actionButton = menuButton.getActionButton();
     }
 
