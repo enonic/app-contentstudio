@@ -1,33 +1,34 @@
-import * as Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
-import {Issue} from '../issue/Issue';
-import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {BasePublishDialog, PublishDialogButtonRow} from '../dialog/BasePublishDialog';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {CreateIssueRequest} from '../issue/resource/CreateIssueRequest';
-import {PublishRequest} from '../issue/PublishRequest';
-import {PublishRequestItem} from '../issue/PublishRequestItem';
-import {IssueType} from '../issue/IssueType';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {TogglableStatusSelectionItem} from '../dialog/DialogTogglableItemList';
-import {ContentId} from '../content/ContentId';
-import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
+import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
+import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
+import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
-import {PrincipalLoader} from '../security/PrincipalLoader';
+import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import * as Q from 'q';
+import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
+import {ContentId} from '../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {BasePublishDialog} from '../dialog/BasePublishDialog';
+import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
+import {TogglableStatusSelectionItem} from '../dialog/DialogTogglableItemList';
+import {Issue} from '../issue/Issue';
+import {IssueType} from '../issue/IssueType';
+import {PublishRequest} from '../issue/PublishRequest';
+import {PublishRequestItem} from '../issue/PublishRequestItem';
+import {CreateIssueRequest} from '../issue/resource/CreateIssueRequest';
+import {PrincipalLoader} from '../security/PrincipalLoader';
 
 enum Step {
     ITEMS, DETAILS
@@ -66,7 +67,7 @@ export class RequestContentPublishDialog
             title: i18n('dialog.requestPublish'),
             dialogSubName: i18n('dialog.requestPublish.subname1'),
             class: 'request-publish-dialog',
-            buttonRow: new PublishDialogButtonRow(),
+            buttonRow: new DropdownButtonRow(),
             dependantsDescription: i18n('dialog.publish.dependants'),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
@@ -82,14 +83,14 @@ export class RequestContentPublishDialog
     }
 
     protected initActions(): void {
-        super.initActions();
-
         this.requestPublishAction = new Action(i18n('action.createRequest')).onExecuted(() => this.doRequestPublish());
         this.prevAction = new Action(i18n('action.previous')).onExecuted(() => this.goToStep(Step.ITEMS));
         this.nextAction = new Action(i18n('action.next')).onExecuted(() => this.goToStep(Step.DETAILS));
     }
 
     protected initElements(): void {
+        this.initActions();
+
         super.initElements();
 
         this.actionButton = this.addAction(this.requestPublishAction);
@@ -100,7 +101,7 @@ export class RequestContentPublishDialog
         this.assigneesFormItem = this.createAssigneesFormItem();
         this.detailsForm = this.createForm();
 
-        this.getButtonRow().makeActionMenu(this.nextAction, [this.markAllAsReadyAction]);
+        this.getButtonRow().makeActionMenu(this.nextAction, []);
     }
 
     private createForm(): Form {

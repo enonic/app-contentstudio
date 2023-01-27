@@ -1,6 +1,6 @@
-import * as Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
 import {DialogErrorStateEntry, ErrorStateEntryConfig} from './DialogErrorStateEntry';
 
 export interface DialogErrorsStateBarConfig {
@@ -109,7 +109,7 @@ export class DialogErrorsStateBar
     }
 
     setEnabled(enabled: boolean): void {
-        this.errorsEntries.forEach((entry: DialogErrorStateEntry) => entry.setActionEnabled(enabled));
+        this.errorsEntries.forEach((entry: DialogErrorStateEntry) => entry.setActionsEnabled(enabled));
     }
 
     markErrored(): void {

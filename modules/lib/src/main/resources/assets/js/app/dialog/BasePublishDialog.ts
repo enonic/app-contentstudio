@@ -6,10 +6,7 @@ import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
-import {MenuItem} from '@enonic/lib-admin-ui/ui/menu/MenuItem';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
@@ -26,7 +23,6 @@ import {PublishProcessor} from '../publish/PublishProcessor';
 import {PublishScheduleForm} from '../publish/PublishScheduleForm';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
-import {AccessibilityHelper} from '../util/AccessibilityHelper';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
 import {DialogErrorsStateBar} from './DialogErrorsStateBar';
 import {DialogErrorStateEntry} from './DialogErrorStateEntry';
@@ -39,8 +35,6 @@ export abstract class BasePublishDialog
     protected publishProcessor: PublishProcessor;
 
     protected publishScheduleForm: PublishScheduleForm;
-
-    protected markAllAsReadyAction: Action;
 
     protected scheduleFormPropertySet: PropertySet;
 
@@ -77,8 +71,6 @@ export abstract class BasePublishDialog
     }
 
     protected initElements(): void {
-        this.initActions();
-
         super.initElements();
 
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
@@ -109,36 +101,43 @@ export abstract class BasePublishDialog
         this.invalidErrorEntry = this.stateBar.addErrorEntry({
             text: i18n('dialog.publish.error.invalid'),
             iconClass: 'icon-state-invalid',
-            actionButton: {
+            actionButtons: [{
                 label: i18n('dialog.publish.exclude.invalid'),
                 handler: () => {
                     this.stateBar.markChecking(true);
                     this.publishProcessor.excludeInvalid();
                 },
-            },
+            }],
         });
 
+        const allowContentUpdate = CONFIG.isTrue('allowContentUpdate');
         this.inProgressErrorEntry = this.stateBar.addErrorEntry({
             text: i18n('dialog.publish.error.inProgress'),
             iconClass: 'icon-state-in-progress',
-            actionButton: {
+            actionButtons: [{
                 label: i18n('dialog.publish.exclude.inProgress'),
                 handler: () => {
                     this.stateBar.markChecking(true);
                     this.publishProcessor.excludeInProgress();
                 },
-            },
+            }, ...(!allowContentUpdate ? [] : [{
+                label: i18n('action.markAsReady'),
+                handler: () => {
+                    this.stateBar.markChecking(true);
+                    this.markAllAsReady();
+                },
+            }])],
         });
 
         this.noPermissionsErrorEntry = this.stateBar.addErrorEntry({
             text: i18n('dialog.publish.error.noPermissions'),
-            actionButton: {
+            actionButtons: [{
                 label: i18n('dialog.publish.exclude.noPermissions'),
                 handler: () => {
                     this.stateBar.markChecking(true);
                     this.publishProcessor.excludeNotPublishable();
                 },
-            },
+            }],
         });
 
         this.stateBar.markChecking(true);
@@ -152,8 +151,8 @@ export abstract class BasePublishDialog
         this.lockControls();
     }
 
-    getButtonRow(): PublishDialogButtonRow {
-        return <PublishDialogButtonRow>super.getButtonRow();
+    getButtonRow(): DropdownButtonRow {
+        return super.getButtonRow() as DropdownButtonRow;
     }
 
     protected initListeners() {
@@ -237,7 +236,7 @@ export abstract class BasePublishDialog
             this.invalidErrorEntry.markNonInteractive(!this.publishProcessor.canExcludeInvalid());
 
             this.inProgressErrorEntry.updateCount(this.publishProcessor.getInProgressCount());
-            this.inProgressErrorEntry.markNonInteractive(!this.publishProcessor.canExcludeInProgress());
+            this.inProgressErrorEntry.markNonInteractive(!this.publishProcessor.canExcludeInProgress(), 0);
 
             this.noPermissionsErrorEntry.updateCount(this.publishProcessor.getNotPublishableCount());
             this.noPermissionsErrorEntry.markNonInteractive(!this.publishProcessor.canExcludeNotPublishable());
@@ -250,12 +249,6 @@ export abstract class BasePublishDialog
 
         const canPublish: boolean = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
         this.scheduleFormToggle.getEl().setDisabled(this.publishProcessor.isAllPendingDelete() || !canPublish);
-
-        this.getButtonRow().setTotalInProgress(this.getTotalInProgressWithoutInvalid());
-    }
-
-    private getTotalInProgressWithoutInvalid(): number {
-        return this.publishProcessor.getInProgressIdsWithoutInvalid().length;
     }
 
     protected isScheduleFormValid(): boolean {
@@ -268,11 +261,6 @@ export abstract class BasePublishDialog
 
             return rendered;
         });
-    }
-
-    protected initActions() {
-        const allow = CONFIG.isTrue('allowContentUpdate');
-        this.markAllAsReadyAction = new Action(i18n('action.markAsReady')).onExecuted(this.markAllAsReady.bind(this)).setEnabled(allow);
     }
 
     private loadCurrentUser(): Q.Promise<void> {
@@ -374,15 +362,15 @@ export abstract class BasePublishDialog
         CreateIssueDialog.get().reset();
     }
 
-    private markAllAsReady() {
-        const ids: ContentId[] = this.publishProcessor.getContentIsProgressIds();
+    protected async markAllAsReady(): Promise<void> {
         this.lockControls();
-        this.stateBar.markChecking(true);
 
-        new MarkAsReadyRequest(ids).sendAndParse()
+        const ids: ContentId[] = this.publishProcessor.getContentIsProgressIds();
+
+        return await new MarkAsReadyRequest(ids).sendAndParse()
             .then(() => showFeedback(i18n('notify.item.markedAsReady.multiple', ids.length)))
-            .catch(DefaultErrorHandler.handle)
-            .finally(() => {
+            .catch(e => {
+                DefaultErrorHandler.handle(e);
                 this.stateBar.markChecking(false);
                 this.unlockControls();
             });
@@ -391,32 +379,10 @@ export abstract class BasePublishDialog
     protected lockControls() {
         super.lockControls();
         this.stateBar.setEnabled(false);
-        this.getButtonRow().getActionMenu().setDropdownHandleEnabled(false);
     }
 
     protected unlockControls() {
         super.unlockControls();
         this.stateBar.setEnabled(true);
-        this.getButtonRow().getActionMenu().setDropdownHandleEnabled(this.getTotalInProgressWithoutInvalid() > 0);
-    }
-}
-
-export class PublishDialogButtonRow
-    extends DropdownButtonRow {
-
-    makeActionMenu(mainAction: Action, menuActions: Action[], useDefault?: boolean): MenuButton {
-        const menuButton: MenuButton = super.makeActionMenu(mainAction, menuActions, useDefault);
-        this.addAccessibilityToMarkAsReadyTotalElement();
-        return menuButton;
-    }
-
-    setTotalInProgress(totalInProgress: number) {
-        this.toggleClass('has-items-in-progress', totalInProgress > 0);
-        this.getMenuActions()[0].setLabel(i18n('action.markAsReadyTotal', totalInProgress));
-    }
-
-    private addAccessibilityToMarkAsReadyTotalElement(): void{
-        const markAsReadyMenuItem: MenuItem = this.actionMenu.getMenuItem(this.getMenuActions()[0]);
-        AccessibilityHelper.tabIndex(markAsReadyMenuItem);
     }
 }
