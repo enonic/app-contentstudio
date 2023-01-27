@@ -218,7 +218,12 @@ export class MacroModalDialog
     }
 
     private insertUpdatedMacroIntoTextArea(macroString: string) {
-        this.selectedMacro.element.$.innerText = this.sanitize(macroString);
+        const sanitizedMacro: string = this.sanitize(macroString);
+        const currentElemText: string = this.selectedMacro.element.$.innerText;
+        const newElemText: string = currentElemText.substring(0, this.selectedMacro.index) +
+                                    sanitizedMacro +
+                                    currentElemText.substring(this.selectedMacro.index + this.selectedMacro.macroText.length);
+        this.selectedMacro.element.$.innerText = newElemText;
 
         this.getEditor().fire('saveSnapshot'); // to trigger change event
     }
@@ -257,5 +262,6 @@ export interface SelectedMacro {
     name: string;
     attributes: any[];
     element: CKEDITOR.dom.element;
+    index: number,
     body?: string;
 }

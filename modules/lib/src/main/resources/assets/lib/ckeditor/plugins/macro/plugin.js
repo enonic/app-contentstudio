@@ -93,7 +93,8 @@ CKEDITOR.plugins.add('macro', {
                 macroText: regexResult[0],
                 name: regexResult[1],
                 attributes: attributes,
-                element: selectedElement
+                element: selectedElement,
+                index: regexResult.index
             };
 
             return result;
