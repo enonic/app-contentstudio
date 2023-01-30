@@ -57,8 +57,8 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             // 2. Clicking on 'Mark as Ready' button in the wizard toolbar
             await contentWizard.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
-            // 3. Clicking on 'Mark as ready' Menu Item
-            await contentPublishDialog.clickOnMarkAsReadyMenuItem();
+            // 3. Clicking on 'Mark as ready' button in the modal dialog:
+            await contentPublishDialog.clickOnMarkAsReadyButton();
             await studioUtils.saveScreenshot('page_template_mark_as_ready');
             // 4. Verify 'Content is ready for publishing' appears in the dialog:
             await contentPublishDialog.waitForReadyForPublishingTextDisplayed();

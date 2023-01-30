@@ -21,13 +21,13 @@ describe('close.task.without.items.spec: create task without items, close the ta
         async () => {
             let createIssueDialog = new CreateIssueDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
-            //1. Open Create Issue dialog:
+            // 1. Open Create Issue dialog:
             await studioUtils.openCreateIssueDialog();
             await createIssueDialog.typeTitle(issueTitle);
-            //2. Click on Create Issue:
+            // 2. Click on Create Issue:
             await createIssueDialog.clickOnCreateIssueButton();
             await issueDetailsDialog.waitForDialogOpened();
-            //Click on Items-tab:
+            // Click on Items-tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             let result = await issueDetailsDialog.isNoActionLabelPresent();
             assert.isTrue(result, `No items to publish' should be displayed, because items were not selected`);
@@ -38,13 +38,13 @@ describe('close.task.without.items.spec: create task without items, close the ta
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
             await studioUtils.openIssuesListDialog();
-            //1. Click on the task and open Task Details dialog:
+            // 1. Click on the task and open Task Details dialog:
             await issueListDialog.clickOnIssue(issueTitle);
             await issueDetailsDialog.waitForDialogOpened();
-            //2. Click on 'Close Issue' button:
+            // 2. Click on 'Close Issue' button:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
-            await studioUtils.saveScreenshot("empty_issue_closed");
-            //'The issue is Closed.' - this message should appear
+            await studioUtils.saveScreenshot('empty_issue_closed');
+            // 'The issue is Closed.' - this message should appear
             await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.ISSUE_CLOSED_MESSAGE);
         });
 
@@ -53,17 +53,17 @@ describe('close.task.without.items.spec: create task without items, close the ta
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
             await studioUtils.openIssuesListDialog();
-            //1. Click on 'Closed' button and load 'closed' issues:
+            // 1. Click on 'Closed' button and load 'closed' issues:
             await issueListDialog.clickOnClosedButton();
             await issueListDialog.clickOnIssue(issueTitle);
             await issueDetailsDialog.waitForDialogOpened();
-            //2. Reopen the issue:
+            // 2. Reopen the issue:
             await issueDetailsDialog.clickOnReopenIssueButton();
-            await studioUtils.saveScreenshot("empty_issue_reopened");
-            //3. 'The issue is Open - this message should appear:
+            await studioUtils.saveScreenshot('empty_issue_reopened');
+            // 3. 'The issue is Open - this message should appear:
             await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.ISSUE_OPENED_MESSAGE);
             let actualStatus = await issueDetailsDialog.getCurrentStatusInStatusSelector();
-            assert.equal(actualStatus, "Open", "'Open' status should be displayed in status selector button");
+            assert.equal(actualStatus, 'Open', "'Open' status should be displayed in status selector button");
         });
 
     it(`GIVEN Issue Details dialog is opened WHEN 'Esc' key has been pressed THEN modal dialog should be closed`,
@@ -77,7 +77,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await issueDetailsDialog.waitForDialogOpened();
             // 3. Click on Esc:
             await issueDetailsDialog.pressEscKey();
-            await studioUtils.saveScreenshot("issue_details_esc_key");
+            await studioUtils.saveScreenshot('issue_details_esc_key');
             // issue details dialog should be closed:
             await issueDetailsDialog.waitForDialogClosed();
             // issues list dialog should be closed:
@@ -95,7 +95,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await issueDetailsDialog.waitForDialogOpened();
             // 3. Click on Back button:
             await issueDetailsDialog.clickOnBackButton();
-            await studioUtils.saveScreenshot("issue_details_back_clicked");
+            await studioUtils.saveScreenshot('issue_details_back_clicked');
             // issues list dialog should be loaded:
             await issueListDialog.waitForDialogOpened();
         });
@@ -103,7 +103,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

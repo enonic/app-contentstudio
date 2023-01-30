@@ -16,19 +16,19 @@ const IssueDetailsDialogItemsTab = require('../../page_objects/issue/issue.detai
 
 describe('publish.issue.by.user.spec: an user publishes assigned to him issue', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let TEST_FOLDER;
     let USER;
     const PASSWORD = appConst.PASSWORD.MEDIUM;
-    const ISSUE_TITLE = appConst.generateRandomName("issue");
+    const ISSUE_TITLE = appConst.generateRandomName('issue');
 
     it(`Precondition 1: new system user should be added`,
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new system user:
             await studioUtils.navigateToUsersApp();
-            let userName = contentBuilder.generateRandomName("user");
+            let userName = contentBuilder.generateRandomName('user');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP, appConst.SYSTEM_ROLES.CM_ADMIN];
             USER = contentBuilder.buildUser(userName, PASSWORD, contentBuilder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
@@ -109,7 +109,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
         });
 
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

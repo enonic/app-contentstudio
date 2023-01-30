@@ -11,7 +11,7 @@ const appConst = require('../../libs/app_const');
 
 describe('issue.list.dialog.spec: Issue List modal Dialog specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -20,7 +20,7 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             let issueListDialog = new IssueListDialog();
             await studioUtils.openIssuesListDialog();
             let title = await issueListDialog.getTitle();
-            assert.strictEqual(title, 'Issues', "Expected dialog hider should be displayed");
+            assert.strictEqual(title, 'Issues', 'Expected dialog hider should be displayed');
             // 'Open' button should be displayed
             await issueListDialog.waitForOpenButtonDisplayed();
             let closedButtonDisplayed = await issueListDialog.isClosedButtonDisplayed();
@@ -51,9 +51,9 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             let issueListDialog = new IssueListDialog();
             await studioUtils.openIssuesListDialog();
             let openButton = await issueListDialog.isOpenButtonActive();
-            assert.isTrue(openButton, "Open issues should be loaded by default");
+            assert.isTrue(openButton, 'Open issues should be loaded by default');
             let closedButton = await issueListDialog.isClosedButtonActive();
-            assert.isFalse(closedButton, "Closed issues should be hidden by default");
+            assert.isFalse(closedButton, 'Closed issues should be hidden by default');
         });
 
     it(`GIVEN 'Issues List Dialog' has been opened WHEN 'Esc' key has been clicked THEN issues list dialog closes`,
@@ -66,7 +66,7 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             await issueListDialog.waitForDialogClosed();
         });
 
-    //TODO it(`GIVEN 'Issues List Dialog' is opened WHEN 'Closed' button has been clicked THEN 'Open' button is getting not active`,
+    // TODO it(`GIVEN 'Issues List Dialog' is opened WHEN 'Closed' button has been clicked THEN 'Open' button is getting not active`,
     // TODO it(`GIVEN 'Issues List Dialog' is opened WHEN type filter selector  has been expanded THEN required options should be present in the selector`
 
 

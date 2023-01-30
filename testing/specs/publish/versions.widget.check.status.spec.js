@@ -50,7 +50,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "'Published' status should be in the top version item");
         });
 
-        it(`GIVEN existing folder(Published) has been modified WHEN Version Panel has been opened THEN 'Modified' status should be in Versions Widget`,
+    it(`GIVEN existing folder(Published) has been modified WHEN Version Panel has been opened THEN 'Modified' status should be in Versions Widget`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
@@ -122,10 +122,12 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.hotKeyPublish();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnMarkAsReadyMenuItem();
+            // 2. Click on 'Mark as ready' button in the modal dialog:
+            await contentPublishDialog.clickOnMarkAsReadyButton();
+            // 3. Click on Publish now in the modal dialog:
             await contentPublishDialog.clickOnPublishNowButton();
             await contentBrowsePanel.pause(500);
-            //2. Open version panel and verify status in the top version-item:
+            // 4. Open version panel and verify status in the top version-item:
             await contentBrowsePanel.openDetailsPanel();
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();

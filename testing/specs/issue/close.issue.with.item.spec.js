@@ -18,8 +18,8 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
     let issueTitle = appConst.generateRandomName('issue');
     let TEST_FOLDER;
 
-    //verifies https://github.com/enonic/app-contentstudio/issues/356
-    //Endless spinner after clicking on Create Issue button
+    // verifies https://github.com/enonic/app-contentstudio/issues/356
+    // Endless spinner after clicking on Create Issue button
     it(`GIVEN no selections in the grid WHEN 'Create Issue...' button has been pressed  THEN Create Issue dialog should appear`,
         async () => {
             let createIssueDialog = new CreateIssueDialog();

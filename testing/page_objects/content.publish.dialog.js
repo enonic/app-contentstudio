@@ -19,10 +19,9 @@ const XPATH = {
     changeLogInput: "//input[contains(@id,'AutosizeTextInput')]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependantItemViewer: "//div[contains(@id,'DependantItemViewer')]",
-    markAsReadyDropdownHandle: "//button[contains(@id,'DropdownHandle')]",
     readyForPublishingText: "//span[contains(@class,'entry-text') and text()='Content is ready for publishing']",
-    excludeInvalidItems: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//button[child::span[contains(.,'Exclude invalid items')]]",
-    excludeItemsInProgressButton: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//button[child::span[contains(.,'Exclude items in progress')]]",
+    excludeInvalidItems: "//button[child::span[contains(.,'Exclude invalid items')]]",
+    errorEntry: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]",
     inProgressErrorEntry: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//span[contains(@class,'entry-text') and text()='In progress']",
 
     contentSummaryByDisplayName:
@@ -71,16 +70,16 @@ class ContentPublishDialog extends Page {
         return XPATH.container + XPATH.includeChildrenToogler;
     }
 
-    get markAsReadyDropdownHandle() {
-        return XPATH.container + XPATH.markAsReadyDropdownHandle;
+    get markAsReadyButton() {
+        return XPATH.container + XPATH.errorEntry + lib.actionButton('Mark as ready');
     }
 
     get excludeInvalidItemsButton() {
-        return XPATH.container + XPATH.excludeInvalidItems;
+        return XPATH.container + XPATH.errorEntry + XPATH.excludeInvalidItems;
     }
 
     get excludeItemsInProgressButton() {
-        return XPATH.container + XPATH.excludeItemsInProgressButton;
+        return XPATH.container + XPATH.errorEntry + lib.PUBLISH_DIALOG.EXCLUDE_ITEMS_IN_PROGRESS_BTN;
     }
 
     waitForExcludeInvalidItemsButtonDisplayed() {
@@ -111,28 +110,38 @@ class ContentPublishDialog extends Page {
         return await this.pause(500);
     }
 
-    async clickOnMarkAsReadyDropdownHandle() {
-        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.mediumTimeout);
-        return await this.clickOnElement(this.markAsReadyDropdownHandle);
-    }
-
-    async markAsReadyDropdownHandleEnabled() {
-        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.mediumTimeout);
-        return await this.waitForElementEnabled(this.markAsReadyDropdownHandle, appConst.mediumTimeout);
-    }
-
-    async clickOnMarkAsReadyMenuItem() {
+    async waitForMarkAsReadyButtonDisplayed() {
         try {
-            let locator = XPATH.container + "//li[contains(@id,'MenuItem') and contains(.,'Mark as ready')]";
-            await this.clickOnMarkAsReadyDropdownHandle();
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            await this.pause(200);
-            await this.clickOnElement(locator);
-            return await this.pause(1000);
+            return await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_mark_as_ready_menu"));
-            throw new Error("Mark as ready menu item: " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
+            throw new Error(`Mark as ready button is not displayed, screenshot: ${screenshot} ` + err);
         }
+    }
+
+    async clickOnMarkAsReadyButton() {
+        try {
+            await this.waitForMarkAsReadyButtonDisplayed()
+            await this.clickOnElement(this.markAsReadyButton);
+            return await this.pause(700);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_click_mark_as_ready_btn');
+            throw new Error(`Error during clicking on Mar as ready button, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async markAsReadyButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
+            throw new Error(`Mark as ready button is still displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async markAsReadyButtonDisplayed() {
+        await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
+        return await this.waitForElementEnabled(this.markAsReadyButton, appConst.mediumTimeout);
     }
 
     async waitForDialogOpened() {

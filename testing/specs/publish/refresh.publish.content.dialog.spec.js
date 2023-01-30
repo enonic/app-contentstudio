@@ -15,12 +15,12 @@ const DateRangeInput = require('../../page_objects/components/datetime.range');
 
 describe('refresh.publish.dialog.spec - opens publish content modal dialog and checks control elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let FOLDER;
 
-    //verifies https://github.com/enonic/app-contentstudio/issues/697
+    // verifies https://github.com/enonic/app-contentstudio/issues/697
     //         https://github.com/enonic/lib-admin-ui/issues/1061
     it(`GIVEN 'Ready for publishing' folder is selected AND Publish dialog has been opened WHEN folder-link has been clicked in the dialog and a language has been selected THEN the workflow-status should be updated in Publish Wizard`,
         async () => {
@@ -29,26 +29,25 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             let contentPublishDialog = new ContentPublishDialog();
             let folderName = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(folderName);
-            //1. New folder has been added:(status of this folder is Ready for publishing)
+            // 1. New folder has been added:(status of this folder is Ready for publishing)
             await studioUtils.doAddReadyFolder(FOLDER);
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            //2. expand 'Publish Menu' and select 'Publish...' menu item, Publish Wizard should be loaded:
+            // 2. expand 'Publish Menu' and select 'Publish...' menu item, Publish Wizard should be loaded:
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForPublishNowButtonEnabled();
-
-            //3. click on the folder-name in the modal dialog then switch to the wizard-tab:
+            // 3. click on the folder-name in the modal dialog then switch to the wizard-tab:
             await contentPublishDialog.clickOnItemToPublishAndSwitchToWizard(FOLDER.displayName);
-            //4. Select a language in the wizard. The folder gets Work in Progress
+            // 4. Select a language in the wizard. The folder gets Work in Progress
             let settingsForm = new SettingsStepForm();
             await settingsForm.filterOptionsAndSelectLanguage('English (en)');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1000);
-            //5. close the wizard
+            // 5. close the wizard
             await studioUtils.doCloseWizardAndSwitchToGrid();
             let workflowStatus = await contentPublishDialog.getWorkflowState(FOLDER.displayName);
             assert.equal(workflowStatus, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
                 "'Work in Progress' status should be in the modal dialog");
-            //exception will be thrown when this button is enabled after 2000ms
+            // exception will be thrown when this button is enabled after 2000ms
             await contentPublishDialog.waitForPublishNowButtonDisabled();
             //'Add Schedule' button  should not be displayed, because the content is `Work in progress`
             await contentPublishDialog.waitForAddScheduleIconNotDisplayed();
@@ -59,20 +58,20 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             let dateRangeInput = new DateRangeInput();
-            //1. Select existing 'work in progress' folder and open Publish Dialog
+            // 1. Select existing 'work in progress' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
-            //2. For this form to appear, need to make this content marked as ready
-            await contentPublishDialog.clickOnMarkAsReadyMenuItem();
-            //3. Verify that icon-calendar gets visible now. Click on this button:
+            // 2. 'Schedule' icon should appear after making this content marked as ready
+            await contentPublishDialog.clickOnMarkAsReadyButton();
+            // 3. Verify that icon-calendar gets visible now. Click on this icon:
             await contentPublishDialog.clickOnAddScheduleIcon();
-            //4. Open date time picker popup:
+            // 4. Open date time picker popup:
             await dateRangeInput.doOpenOnlineFromPickerPopup();
-            await studioUtils.saveScreenshot("schedule_picker_popup1");
-            //Click on hours-arrow:
+            await studioUtils.saveScreenshot('schedule_picker_popup1');
+            // Click on hours-arrow:
             await dateRangeInput.clickOnHoursArrowOnlineFrom();
-            studioUtils.saveScreenshot("schedule_picker_popup2");
+            await studioUtils.saveScreenshot('schedule_picker_popup2');
             await dateRangeInput.pause(1000);
             await dateRangeInput.waitForOnlineFromPickerDisplayed();
         });
@@ -82,17 +81,17 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             let dateRangeInput = new DateRangeInput();
-            //1. Select existing 'ready' folder and open Publish Dialog
+            // 1. Select existing 'ready' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
-            //2. Click on 'Add schedule' button:
+            // 2. Click on 'Add schedule' button:
             await contentPublishDialog.clickOnAddScheduleIcon();
-            //3. Verify that 'Schedule' button is disabled (online from is not filled)
+            // 3. Verify that 'Schedule' button is disabled (online form is not filled)
             await contentPublishDialog.waitForScheduleButtonDisabled();
-            //4.
-            await dateRangeInput.typeOnlineFrom("2022-01-10 00:00");
-            //5. Verify that 'Schedule' button gets enabled in the modal dialog
+            // 4. Fill in the 'online form'
+            await dateRangeInput.typeOnlineFrom('2022-01-10 00:00');
+            // 5. Verify that 'Schedule' button gets enabled in the modal dialog
             await contentPublishDialog.waitForScheduleButtonEnabled();
         });
 
@@ -119,7 +118,7 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

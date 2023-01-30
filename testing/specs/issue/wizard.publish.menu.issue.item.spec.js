@@ -34,7 +34,6 @@ describe('wizard.publish.menu.issue.item.spec - Publish menu(in wizard)', functi
             // Open new folder-wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(displayName);
-
             // Create a new issue: (the folder will be automatically saved)
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await createIssueDialog.typeTitle(ISSUE_TITLE);
