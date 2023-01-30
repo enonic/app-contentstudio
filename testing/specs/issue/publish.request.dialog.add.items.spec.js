@@ -12,7 +12,7 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 
 describe('publish.request.dialog.add.items.spec - request publish dialog - check `Publish Now` button', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let TEST_FOLDER1;
@@ -55,7 +55,7 @@ describe('publish.request.dialog.add.items.spec - request publish dialog - check
             await publishRequestDetailsDialog.pause(500);
             // 6. Add 'Work in Progress' folder:
             await publishRequestDetailsDialog.doAddItem(TEST_FOLDER1.displayName);
-            studioUtils.saveScreenshot("request_publish_button_disabled");
+            await studioUtils.saveScreenshot('request_publish_button_disabled');
             // 7. 'Publish Now' button gets disabled:(one of the items is 'Work in Progress')
             await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
         });

@@ -13,7 +13,7 @@ const CreateRequestPublishDialog = require('../../page_objects/issue/create.requ
 
 describe('request.publish.dialog.validation.spec - opens request publish modal dialog and checks validation message', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -27,7 +27,7 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             //2. click on 'Include children items'
             await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES);
-            studioUtils.saveScreenshot("request_publish_include_children2");
+            await studioUtils.saveScreenshot("request_publish_include_children2");
             //3. Invalid icon should not be visible, because all the children are valid:
             await createRequestPublishDialog.waitForInvalidIconNotDisplayed();
         });

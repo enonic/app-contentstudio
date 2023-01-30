@@ -125,7 +125,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialog.waitForDialogOpened();
             // 3. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            await studioUtils.saveScreenshot("publish_close_issue_should_be_disabled");
+            await studioUtils.saveScreenshot('publish_close_issue_should_be_disabled');
             // 4.'Publish...' button should be disabled, because invalid child is present'
             let result = await issueDetailsDialogItemsTab.isPublishButtonEnabled();
             assert.isFalse(result, 'Publish & Close button should be disabled(invalid child)');

@@ -16,7 +16,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 
 describe('publish.work.in.progress.spec - publishes work in progress content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let TEST_FOLDER;
@@ -35,22 +35,22 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
             let displayName = contentBuilder.generateRandomName('folder');
-            //1. Add work in progress folder:
+            // 1. Add work in progress folder:
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddFolder(TEST_FOLDER);
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            //2. Expand Publish menu in wizard and select 'Publish...' menu item:
+            // 2. Expand Publish menu in wizard and select 'Publish...' menu item:
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
-            //3. Verify that Publish now button is disabled, because this content is work in progress:
+            // 3. Verify that Publish now button is disabled, because this content is work in progress:
             await contentPublishDialog.waitForPublishNowButtonDisabled();
-            //4. Expand the menu and click on 'Mark as Ready' menu item
-            await contentPublishDialog.clickOnMarkAsReadyMenuItem();
-            //5. Verify that Publish Now button gets enabled:
+            // 4. Click on 'Mark as Ready' button
+            await contentPublishDialog.clickOnMarkAsReadyButton();
+            // 5. Verify that 'Publish Now' button gets enabled:
             await contentPublishDialog.waitForPublishNowButtonEnabled();
         });
 
-    //Verifies that 'Confirm Value' dialog with the message "Enter 1 in the field and click Confirm" appears in site wizards:
+    // Verifies that 'Confirm Value' dialog with the message "Enter 1 in the field and click Confirm" appears in site wizards:
     it(`GIVEN existing 'work in progress' site has been published in wizard WHEN Unpublish button has been pressed THEN 'Confirm Value' dialog with with '1' number is loaded`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -60,8 +60,8 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
-            //2. Click on Mark as ready menu item
-            await contentPublishDialog.clickOnMarkAsReadyMenuItem();
+            //2. Click on Mark as ready button:
+            await contentPublishDialog.clickOnMarkAsReadyButton();
             //3. Publish the site:
             await contentPublishDialog.clickOnPublishNowButton();
             //4. Open Unpublish modal dialog:
@@ -87,17 +87,17 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
         async () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Open an existing site (work in progress)
+            // 1. Open an existing site (work in progress)
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
-            //2. Click on 'Include children' icon
+            // 2. Click on 'Include children' icon
             await contentPublishDialog.clickOnIncludeChildrenToogler();
-            //3. Click on 'Publish Now' button
+            // 3. Click on 'Publish Now' button
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            //4. Verify that the status gets 'Published'
+            // 4. Verify that the status gets 'Published'
             await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.PUBLISHED);
             assert.equal(actualMessage, appConst.TWO_ITEMS_PUBLISHED, "'2 items are published.' should appear");
         });
@@ -108,15 +108,15 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             let textComponentCke = new TextComponentCke();
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Open an existing site (work in progress)
+            // 1. Open an existing site (work in progress)
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.clickOnShowComponentViewToggler();
-            await pageComponentView.openMenu("main");
-            //2. Insert Text Component with test text and save it:
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            await textComponentCke.typeTextInCkeEditor("test text");
+            await pageComponentView.openMenu('main');
+            // 2. Insert Text Component with test text and save it:
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await textComponentCke.typeTextInCkeEditor('test text');
             await contentWizard.waitAndClickOnSave();
-            //3. Verify the workflow state in the wizard and in the grid
+            // 3. Verify the workflow state in the wizard and in the grid
             let workflowInWizard = await contentWizard.getContentWorkflowState();
             assert.equal(workflowInWizard, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
             await studioUtils.doSwitchToContentBrowsePanel();
@@ -128,7 +128,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

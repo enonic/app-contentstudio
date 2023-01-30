@@ -11,7 +11,7 @@ const appConst = require('../../libs/app_const');
 
 describe('create.issue.dialog.spec: Create Issue Dialog specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -20,9 +20,9 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
             let issueListDialog = new IssueListDialog();
             let createIssueDialog = new CreateIssueDialog();
             await studioUtils.openIssuesListDialog();
-            //Click on 'New Task...' button
+            // Click on 'New Task...' button
             await issueListDialog.clickOnNewIssueButton();
-            //modal dialog should be loaded:
+            // modal dialog should be loaded:
             await createIssueDialog.waitForDialogLoaded();
         });
 
@@ -31,7 +31,7 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
             let createIssueDialog = new CreateIssueDialog();
             await studioUtils.openCreateIssueDialog();
             let dialogTitle = await createIssueDialog.getDialogTitle();
-            assert.equal(dialogTitle, "New Issue", "Required dialog's title should be displayed");
+            assert.equal(dialogTitle, 'New Issue', "Required dialog's title should be displayed");
             //Title input should be present:
             let result = await createIssueDialog.isTitleInputDisplayed();
             assert.isTrue(result, 'Title input should be present');
@@ -43,7 +43,7 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
 
             result = await createIssueDialog.isDescriptionTextAreaDisplayed();
             assert.isTrue(result, 'Description text area should be present');
-            await studioUtils.saveScreenshot("create_issue_add_item_button");
+            await studioUtils.saveScreenshot('create_issue_add_item_button');
 
             // 'Add Items' button should be displayed when no item has been selected in the grid
             await createIssueDialog.isAddItemsButtonDisplayed();
@@ -62,18 +62,18 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
             await studioUtils.openCreateIssueDialog();
             await createIssueDialog.clickOnCreateIssueButton();
 
-            await studioUtils.saveScreenshot("check_validation_message");
+            await studioUtils.saveScreenshot('check_validation_message');
             let result = await createIssueDialog.getValidationMessageForTitleInput();
-            assert.equal(result, appConst.THIS_FIELD_IS_REQUIRED, "Expected validation message should appear");
+            assert.equal(result, appConst.THIS_FIELD_IS_REQUIRED, 'Expected validation message should appear');
         });
 
     it(`GIVEN 'Create Issue' has been opened WHEN 'Esc' key has been clicked THEN modal dialog closes`,
         async () => {
             let createIssueDialog = new CreateIssueDialog();
-            //1. Open Issues List Dialog:
+            // 1. Open Issues List Dialog:
             await studioUtils.openCreateIssueDialog();
             await createIssueDialog.pause(300);
-            //2. Click on Esc:
+            // 2. Click on Esc:
             await createIssueDialog.pressEscKey();
             await createIssueDialog.waitForDialogClosed();
         });
@@ -83,7 +83,7 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

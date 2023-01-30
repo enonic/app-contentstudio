@@ -4,8 +4,6 @@ const lib = require('./../../libs/elements');
 
 const xpath = {
     container: `//div[contains(@id,'RequestContentPublishDialog')]`,
-    nextButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Next')]]`,
-    previousButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Previous')]]`,
     createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
     changesInput: `//div[contains(@id,'FormItem') and descendant::label[text()='Describe the changes']]`,
     showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
@@ -13,7 +11,9 @@ const xpath = {
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
     assigneesComboBox: "//div[contains(@id,'LoaderComboBox') and @name='principalSelector']",
-    invalidIcon: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//span[contains(@class,'icon-state-invalid')]",
+    invalidIcon: "//span[contains(@class,'icon-state-invalid')]",
+    errorEntry: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]",
+    excludeInvalidItems: "//button[child::span[contains(.,'Exclude invalid items')]]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToRequest:
@@ -22,16 +22,16 @@ const xpath = {
         displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
 
 };
-//Modal Dialog for creating of new publish request
-//Select a content then expand Publish menu and click on 'Request Publishing...' menu item
+// Modal Dialog for creating of new publish request
+// Select a content then expand Publish menu and click on 'Request Publishing...' menu item
 class CreateRequestPublishDialog extends Page {
 
     get invalidIcon() {
-        return xpath.container + xpath.invalidIcon;
+        return xpath.container + xpath.errorEntry + xpath.invalidIcon;
     }
 
     get nextButton() {
-        return xpath.container + xpath.nextButton;
+        return xpath.container + lib.actionButton('Next');
     }
 
     get assigneesDropDownHandle() {
@@ -43,7 +43,19 @@ class CreateRequestPublishDialog extends Page {
     }
 
     get previousButton() {
-        return xpath.container + xpath.previousButton;
+        return xpath.container + lib.dialogButton('Previous');
+    }
+
+    get markAsReadyButton() {
+        return xpath.container + xpath.errorEntry + lib.actionButton('Mark as ready');
+    }
+
+    get excludeItemsInProgressButton() {
+        return xpath.container + xpath.errorEntry + lib.PUBLISH_DIALOG.EXCLUDE_ITEMS_IN_PROGRESS_BTN;
+    }
+
+    get excludeInvalidItemsButton() {
+        return xpath.container + xpath.errorEntry + xpath.invalidIcon;
     }
 
     get createRequestButton() {
@@ -62,20 +74,48 @@ class CreateRequestPublishDialog extends Page {
         return xpath.container + xpath.warningMessagePart1;
     }
 
-    get markAsReadyDropdownHandle() {
-        return xpath.container + "//div[contains(@class,'modal-dialog-footer')]" + lib.DROP_DOWN_HANDLE;
-    }
-
     async clickOnCancelButtonTop() {
         await this.clickOnElement(this.cancelButtonTop);
         return await this.waitForDialogClosed();
     }
 
+    async waitForMarkAsReadyButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
+            throw new Error(`Request Publishing, Mark as ready button is not displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async waitForMarkAsReadyButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
+            throw new Error(`Request Publishing, Mark as ready button should be not visible, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    waitForExcludeItemsInProgressButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+    }
+
+    waitForExcludeItemsInProgressButtonDisplayed() {
+        return this.waitForElementDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+    }
+
+    async clickOnExcludeItemsInProgressButton() {
+        await this.waitForElementDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.excludeItemsInProgressButton);
+        return await this.pause(500);
+    }
+
     async isItemRemovable(displayName) {
         let selector = xpath.itemToRequest(displayName);
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        let attr = await this.getAttribute(selector, "class");
-        return attr.includes("removable");
+        let attr = await this.getAttribute(selector, 'class');
+        return attr.includes('removable');
     }
 
     async clickOnItemToPublishAndSwitchToWizard(displayName) {
@@ -132,7 +172,7 @@ class CreateRequestPublishDialog extends Page {
     }
 
     async waitForDialogClosed() {
-        let message = "Request publish Dialog is not closed! timeout is " + appConst.mediumTimeout;
+        let message = 'Request publish Dialog is not closed! timeout is ' + appConst.mediumTimeout;
         await this.getBrowser().waitUntil(async () => {
             return await this.isElementNotDisplayed(xpath.container);
         }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
@@ -141,13 +181,13 @@ class CreateRequestPublishDialog extends Page {
 
     waitForCreateRequestButtonDisabled() {
         return this.waitForElementDisabled(this.createRequestButton, appConst.mediumTimeout).catch(err => {
-            throw new Error("Request Publishing dialog - Create Request button should be disabled " + err);
+            throw new Error('Request Publishing dialog - Create Request button should be disabled ' + err);
         })
     }
 
     waitForCreateRequestButtonEnabled() {
         return this.waitForElementEnabled(this.createRequestButton, appConst.mediumTimeout).catch(err => {
-            throw new Error("Request Publishing dialog - Create Request button should be enabled !" + err);
+            throw new Error('Request Publishing dialog - Create Request button should be enabled !' + err);
         })
     }
 
@@ -162,7 +202,7 @@ class CreateRequestPublishDialog extends Page {
             await this.clickOnElement(this.nextButton);
             return await this.pause(300);
         } catch (err) {
-            throw new Error("Request Publish Dialog -Error when clicking on Next button:" + err);
+            throw new Error('Request Publish Dialog -Error when clicking on Next button:' + err);
         }
     }
 
@@ -172,7 +212,7 @@ class CreateRequestPublishDialog extends Page {
             await result[0].click();
             return await this.pause(300);
         } catch (err) {
-            throw new Error("Request Publish Dialog -Error when clicking on Assignees button:" + err);
+            throw new Error('Request Publish Dialog -Error when clicking on Assignees button:' + err);
         }
     }
 
@@ -221,7 +261,7 @@ class CreateRequestPublishDialog extends Page {
             return appConst.WORKFLOW_STATE.PUBLISHED;
 
         } else {
-            throw new Error("Error when getting content's state, class is:" + result);
+            throw new Error("Error during getting the content's state, class is:" + result);
         }
     }
 
@@ -240,18 +280,15 @@ class CreateRequestPublishDialog extends Page {
         return this.pause(700);
     }
 
-    async clickOnMarkAsReadyMenuItem() {
-        let locator = xpath.container + "//li[contains(@id,'MenuItem') and contains(.,'Mark as ready')]";
-        await this.clickOnMarkAsReadyDropdownHandle();
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(200);
-        await this.clickOnElement(locator);
-        return await this.pause(200);
-    }
-
-    async clickOnMarkAsReadyDropdownHandle() {
-        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.mediumTimeout);
-        return await this.clickOnElement(this.markAsReadyDropdownHandle);
+    async clickOnMarkAsReadyButton() {
+        try {
+            await this.waitForMarkAsReadyButtonDisplayed()
+            await this.clickOnElement(this.markAsReadyButton);
+            return await this.pause(700);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_click_mark_as_ready_btn');
+            throw new Error(`Error during clicking on Mark as ready button, screenshot: ${screenshot} ` + err);
+        }
     }
 }
 

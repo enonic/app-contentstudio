@@ -29,15 +29,15 @@ describe('browse.panel.mark.as.ready.single.content.spec - tests for Request Pub
             //2. Click on checkbox and select the folder:
             await studioUtils.findContentAndClickCheckBox(name);
             //3. Click on 'Publish...' menu item
-            await contentBrowsePanel.openPublishMenuSelectItem("Publish...");
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             // 4. Verify that Publishing wizard is opened:
             await contentPublishDialog.waitForDialogOpened();
             // 5. Verify that 'Exclude items in progress' button is not displayed in the dialog:
             await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
             // Publish now  button should be disabled:
             await contentPublishDialog.waitForPublishNowButtonDisabled();
-            // 6. Expand the menu and make the folder 'Ready to publishing'
-            await contentPublishDialog.clickOnMarkAsReadyMenuItem();
+            // 6. Click on 'Mark as ready' button in the modal dialog:
+            await contentPublishDialog.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             let state = await contentPublishDialog.getWorkflowState(name);
             await studioUtils.saveScreenshot('content_gets_ready_to_publish');
@@ -61,8 +61,8 @@ describe('browse.panel.mark.as.ready.single.content.spec - tests for Request Pub
             // 4. Verify that the modal dialog is loaded:
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.waitForNextButtonDisabled();
-            // 5. Expand the menu and select 'Mark as Ready' menu item
-            await createRequestPublishDialog.clickOnMarkAsReadyMenuItem();
+            // 5. Click on 'Mark as Ready' button in the modal dialog:
+            await createRequestPublishDialog.clickOnMarkAsReadyButton();
             // 6. Verify that 'Next' button is enabled:
             await createRequestPublishDialog.waitForNextButtonEnabled();
             let state = await createRequestPublishDialog.getWorkflowState(name);

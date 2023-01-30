@@ -14,7 +14,7 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 
 describe('request.publish.dialog.spec - opens request publish modal dialog and checks control elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let FOLDER1_NAME;
@@ -79,7 +79,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             assert.equal(displayName, FOLDER1_NAME, "Expected display name should be present in that wizard");
         });
 
-    //verifies https://github.com/enonic/app-contentstudio/issues/867  Create request button should be disabled when required input is empty
+    // verifies https://github.com/enonic/app-contentstudio/issues/867  Create request button should be disabled when required input is empty
     it(`GIVEN folder is selected AND 'Request Publishing' dialog is opened WHEN 'Next' button has been pressed THEN new wizard page should be loaded`,
         async () => {
             let createRequestPublishDialog = new CreateRequestPublishDialog();
@@ -115,7 +115,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

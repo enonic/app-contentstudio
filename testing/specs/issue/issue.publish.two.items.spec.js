@@ -18,7 +18,7 @@ const IssueDetailsDialogItemsTab = require('../../page_objects/issue/issue.detai
 
 describe('issue.publish.two.items.spec: 2 folders have been added and published', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let ISSUE_TITLE = appConst.generateRandomName('issue');
@@ -31,7 +31,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             let displayName2 = contentBuilder.generateRandomName('folder');
             folder2 = contentBuilder.buildFolder(displayName2);
             folder1 = contentBuilder.buildFolder(displayName1);
-            //do add the first folder:
+            // do add the first folder:
             await studioUtils.doAddFolder(folder1);
             // add the second folder:
             await studioUtils.doAddFolder(folder2);
@@ -39,8 +39,8 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await contentBrowsePanel.waitForContentDisplayed(folder1.displayName);
         });
 
-    //Verifies https://github.com/enonic/app-contentstudio/issues/2825
-    //Default action is not updated after several content items have been marked as ready in the filtered grid
+    // Verifies https://github.com/enonic/app-contentstudio/issues/2825
+    // Default action is not updated after several content items have been marked as ready in the filtered grid
     it(`GIVEN two folders are selected WHEN new task has been created THEN items tab on 'Issue Details Dialog' should be loaded with expected data`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -80,15 +80,15 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             await studioUtils.openIssuesListDialog();
-            //1. Open Issue Details Dialog:
+            // 1. Open Issue Details Dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogOpened();
-            //2.Go to Items tab:
+            // 2.Go to Items tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            //Click on Publish... button and open Publishing Wizard
+            // Click on Publish... button and open Publishing Wizard
             await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
             let contentPublishDialog = new ContentPublishDialog();
-            //3. Click on Publish Now button :
+            // 3. Click on Publish Now button :
             await contentPublishDialog.clickOnPublishNowButton();
             let message = await issueDetailsDialog.waitForNotificationMessage();
             assert.equal(message, appConst.TWO_ITEMS_PUBLISHED, "'2 items are published' message should be displayed");
@@ -111,28 +111,28 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
     it(`GIVEN two published items are selected WHEN 'Unpublish' dialog has been opened and 'Unpublish(2)' button pressed THEN confirm value dialog should appear`,
         async () => {
             let confirmValueDialog = new ConfirmValueDialog();
-            //1. Select 2 published folders:
+            // 1. Select 2 published folders:
             await studioUtils.findContentAndClickCheckBox(folder1.displayName);
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
             let contentBrowsePanel = new ContentBrowsePanel();
-            //2. Open Unpublish dialog:
+            // 2. Open Unpublish dialog:
             let unpublishDialog = await contentBrowsePanel.clickOnUnpublishButton();
-            //3. Open Confirm value dialog:
+            // 3. Open Confirm value dialog:
             await unpublishDialog.clickOnUnpublishButton();
             await confirmValueDialog.waitForDialogOpened();
-            //4. Type the required number of unpublished content then click on Confirm button:
+            // 4. Type the required number of unpublished content then click on Confirm button:
             await confirmValueDialog.typeNumberOrName(2);
             await confirmValueDialog.clickOnConfirmButton();
             await confirmValueDialog.waitForDialogClosed();
             let message = await contentBrowsePanel.waitForNotificationMessage();
-            //5. Verify the notification message:
+            // 5. Verify the notification message:
             assert.equal(message, appConst.TWO_ITEMS_UNPUBLISHED, "2 items are unpublished - is expected message");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

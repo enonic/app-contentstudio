@@ -53,7 +53,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             assert.equal(actualResult, '(1)', "(1) should be displayed in 'In progress' label");
             // 6. Verify that 'Publish now' button remains disabled
             await contentPublishDialog.waitForPublishNowButtonDisabled();
-            await contentPublishDialog.markAsReadyDropdownHandleEnabled();
+            await contentPublishDialog.markAsReadyButtonDisplayed();
             // 7. 'Hide dependent items' button gets not visible:
             await contentPublishDialog.waitForHideDependentItemsButtonNotDisplayed();
         });
@@ -76,7 +76,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             assert.equal(actualResult, '(1)', "(1) should be displayed in 'In progress' label");
             // 5. Verify that 'Publish now' button remains disabled
             await contentPublishDialog.waitForPublishNowButtonDisabled();
-            await contentPublishDialog.markAsReadyDropdownHandleEnabled();
+            await contentPublishDialog.markAsReadyButtonDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

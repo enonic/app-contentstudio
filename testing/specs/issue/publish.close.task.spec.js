@@ -16,7 +16,7 @@ const appConst = require('../../libs/app_const');
 
 describe('publish.close.task.spec: publish a content and close the task.', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let ISSUE_TITLE = appConst.generateRandomName('issue');
@@ -72,7 +72,7 @@ describe('publish.close.task.spec: publish a content and close the task.', funct
             let issueListDialog = new IssueListDialog();
             // 1. Open Issues List Dialog:
             await studioUtils.openIssuesListDialog();
-            await studioUtils.saveScreenshot("verify_issue_246");
+            await studioUtils.saveScreenshot('verify_issue_246');
             // 2. Go to closed issues:
             await issueListDialog.clickOnClosedButton();
             await studioUtils.saveScreenshot('navigate_closed_issues');
@@ -94,7 +94,7 @@ describe('publish.close.task.spec: publish a content and close the task.', funct
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -12,9 +12,9 @@ const IssueDetailsDialogItemsTab = require('../../page_objects/issue/issue.detai
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
 
-describe('task.details.dialog.items.spec: open task details dialog and check control elements', function () {
+describe('issue.details.dialog.items.spec: open issue details dialog and check control elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let TASK_TITLE = appConst.generateRandomName('task');
@@ -120,36 +120,36 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             let issueDetailsDialog = new IssueDetailsDialog();
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             let issueListDialog = new IssueListDialog();
-            //1. Open Task Details dialog:
+            // 1. Open Task Details dialog:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(TASK_TITLE);
             await issueDetailsDialog.waitForDialogOpened();
-            //2. Go to 'Items' tab:
+            // 2. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            //3. Exclude children(click on the toggler):
+            // 3. Exclude children(click on the toggler):
             await issueDetailsDialogItemsTab.clickOnIncludeChildrenToggler(appConst.TEST_FOLDER_WITH_IMAGES);
             let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '1', 'only one item should be present in the link');
         });
 
-    //Verifies: Task Details Dialog switches to the Comments tab after save #1571
+    // Verifies: Task Details Dialog switches to the Comments tab after save #1571
     it(`GIVEN existing task is opened in Details Dialog WHEN new item has been added THEN 'Items' tab remains active`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             let issueListDialog = new IssueListDialog();
-            //1. Open Issue Details dialog:
+            // 1. Open Issue Details dialog:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(TASK_TITLE);
             await issueDetailsDialog.waitForDialogOpened();
-            //2. Go to 'Items' tab:
+            // 2. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            //3. Add one more item:
-            await issueDetailsDialogItemsTab.addItem("cape");
-            //4. Verify that Items tab remains active:
+            // 3. Add one more item:
+            await issueDetailsDialogItemsTab.addItem('cape');
+            // 4. Verify that Items tab remains active:
             await issueDetailsDialogItemsTab.pause(2000);
             let isActive = await issueDetailsDialog.isItemsTabBarItemActive();
-            assert.isTrue(isActive, "Items Tab should remain active after adding a item");
+            assert.isTrue(isActive, 'Items Tab should remain active after adding a item');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

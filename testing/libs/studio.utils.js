@@ -40,7 +40,7 @@ const addContext = require('mochawesome/addContext');
 module.exports = {
 
     getBrowser() {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             return browser;
         } else {
             return webDriverHelper.browser;
@@ -99,7 +99,7 @@ module.exports = {
         return this.getBrowser().getTitle();
     },
 
-    getTextInCKE: function (id) {
+    getTextInCKE(id) {
         let script = `return CKEDITOR.instances['${id}'].getData()`;
         return this.getBrowser().execute(script);
     },
@@ -124,7 +124,7 @@ module.exports = {
     },
     async insertEmailLinkInCke(text, email) {
         let insertLinkDialog = new InsertLinkDialog();
-        await insertLinkDialog.clickOnBarItem("Email");
+        await insertLinkDialog.clickOnBarItem('Email');
         await insertLinkDialog.typeInLinkTextInput(text);
         await insertLinkDialog.typeTextInEmailInput(email);
         await this.saveScreenshot('email_link_dialog');
@@ -163,7 +163,7 @@ module.exports = {
             await issueListDialog.clickOnNewIssueButton();
             return await createIssueDialog.waitForDialogLoaded();
         } catch (err) {
-            throw new Error("Error when opening Create Issue Dialog " + err);
+            throw new Error("Error when opening 'Create Issue Dialog' " + err);
         }
     },
     async createPublishRequest(text) {
@@ -177,7 +177,7 @@ module.exports = {
             await createRequestPublishDialog.typeInChangesInput(text);
             return await createRequestPublishDialog.clickOnCreateRequestButton();
         } catch (err) {
-            throw new Error("Error when create Publish Request " + err);
+            throw new Error("Error when create 'Publish Request' " + err);
         }
     },
     async openPublishMenuAndClickOnCreateIssue() {
@@ -218,7 +218,6 @@ module.exports = {
         await browsePanel.clickOnEditButton();
         await this.switchToContentTabWindow(contentName);
         await contentWizardPanel.waitForOpened();
-        //timeout = ms === undefined ? appConst.longTimeout : ms;
         let waitForFocused = checkFocused === undefined ? true : checkFocused;
         if (waitForFocused) {
             await contentWizardPanel.waitForDisplayNameInputFocused();
@@ -327,7 +326,7 @@ module.exports = {
         await this.doSwitchToContentBrowsePanel();
         return await this.getBrowser().pause(1000);
     },
-    doOpenSiteWizard: function () {
+    doOpenSiteWizard() {
         return this.openContentWizard(appConst.contentTypes.SITE);
     },
     async doOpenPageTemplateWizard(siteName) {
@@ -378,20 +377,21 @@ module.exports = {
         await contentPublishDialog.clickOnPublishNowButton();
         return await contentPublishDialog.waitForDialogClosed();
     },
-    //Parent content(work in progress) should be selected, clicks on 'Publish Tree menu item', then clicks on Mark as Ready menu item:
+    // Parent content(work in progress) should be selected, clicks on 'Publish Tree menu item', then clicks on 'Mark as ready' button:
     async doMarkAsReadyAndPublishTree() {
         let browsePanel = new BrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();
         await browsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
         await contentPublishDialog.waitForDialogOpened();
-        await contentPublishDialog.clickOnMarkAsReadyMenuItem();
+        // Click on 'Mark as ready; button in the modal dialog:
+        await contentPublishDialog.clickOnMarkAsReadyButton();
         await contentPublishDialog.clickOnPublishNowButton();
         return await contentPublishDialog.waitForDialogClosed();
     },
     async doPublishInWizard() {
         let contentPublishDialog = new ContentPublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
-        //1. Open Publish Content Dialog:
+        // 1. Open Publish Content Dialog:
         await contentWizardPanel.clickOnPublishButton();
         await contentPublishDialog.waitForDialogOpened();
         //2. Click on Publish Now button:
@@ -401,20 +401,20 @@ module.exports = {
     async doUnPublishInWizard() {
         let contentUnpublishDialog = new ContentUnpublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
-        //1. Click on Unpublish menu item:
+        // 1. Click on Unpublish menu item:
         await contentWizardPanel.clickOnUnpublishMenuItem();
         await contentUnpublishDialog.waitForDialogOpened();
-        //2. Click on Unpublish button:
+        // 2. Click on Unpublish button:
         await contentUnpublishDialog.clickOnUnpublishButton();
         return await contentUnpublishDialog.waitForDialogClosed();
     },
     async doAddArticleContent(siteName, article) {
         let contentWizardPanel = new ContentWizardPanel();
-        //1. Select the site
+        // 1. Select the site
         await this.findAndSelectItem(siteName);
-        //2. Open article-wizard:
+        // 2. Open article-wizard:
         await this.openContentWizard(article.contentType);
-        //3.Type the data and save all
+        // 3.Type the data and save all
         await contentWizardPanel.typeData(article);
         await contentWizardPanel.waitAndClickOnSave();
         await this.doCloseCurrentBrowserTab();
@@ -438,15 +438,15 @@ module.exports = {
         return await browsePanel.pause(400);
     },
 
-    //find the content, select it and 'Delete'
+    // find the content, select it and click 'Delete' menu item in the modal dialog
     async doDeleteContent(name) {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
         await this.findAndSelectItem(name);
-        //Open modal dialog:
+        // Open modal dialog:
         await browsePanel.clickOnArchiveButton();
         await deleteContentDialog.waitForDialogOpened();
-        //Click on 'Delete' menu item in the modal dialog:
+        // Click on 'Delete' menu item in the modal dialog:
         await deleteContentDialog.clickOnDeleteMenuItem();
         return await deleteContentDialog.waitForDialogClosed();
     },
@@ -454,10 +454,10 @@ module.exports = {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
         await this.findAndSelectItemByDisplayName(displayName);
-        //Open modal dialog:
+        // Open modal dialog:
         await browsePanel.clickOnArchiveButton();
         await deleteContentDialog.waitForDialogOpened();
-        //Click on 'Delete' menu item in the modal dialog:
+        // Click on 'Delete' menu item in the modal dialog:
         await deleteContentDialog.clickOnDeleteMenuItem();
         return await deleteContentDialog.waitForDialogClosed();
     },
@@ -501,7 +501,7 @@ module.exports = {
         await contentWizard.waitForDisplayNameInputFocused();
         return contentWizard;
     },
-    //Open delete dialog, click on 'Delete' button then type a number to delete
+    // Open delete dialog, click on 'Delete' button then type a number to delete
     async doDeleteNowAndConfirm(numberOfContents) {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
@@ -533,7 +533,7 @@ module.exports = {
             return await browsePanel.pause(500);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_spinner'));
-            throw new Error("Filter Panel-  error : " + err);
+            throw new Error('Filter Panel-  error : ' + err);
         }
     },
 
@@ -544,7 +544,7 @@ module.exports = {
             await browsePanel.clickOnSearchButton();
             return await filterPanel.waitForOpened();
         } catch (err) {
-            throw new Error("Error when opening Filter Panel! " + err);
+            throw new Error('Error when opening Filter Panel! ' + err);
         }
     },
     async clickOnClearSelection() {
@@ -552,7 +552,7 @@ module.exports = {
             let filterPanel = new FilterPanel();
             return await filterPanel.clickOnClearLink();
         } catch (err) {
-            throw new Error("Error when clicking on Clear in Filter Panel! " + err);
+            throw new Error('Error when clicking on Clear in Filter Panel! ' + err);
         }
     },
 
@@ -561,9 +561,9 @@ module.exports = {
             let browsePanel = new BrowsePanel();
             return await browsePanel.selectContext(context);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_select_context");
+            let screenshot = appConst.generateRandomName('err_select_context');
             await this.saveScreenshot(screenshot);
-            throw new Error("Error during selecting a context, screenshot: " + screenshot + "  " + err);
+            throw new Error('Error during selecting a context, screenshot: ' + screenshot + "  " + err);
         }
     },
 
@@ -581,9 +581,9 @@ module.exports = {
             await this.clickOnContentStudioLink(userName, password);
             return await this.doSwitchToContentBrowsePanel();
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_navigate_cs")
+            let screenshot = appConst.generateRandomName('err_navigate_cs');
             this.saveScreenshot(screenshot);
-            throw new Error('error when navigate to Content Studio app. Screenshot:  ' + screenshot + "  " + err);
+            throw new Error('error when navigate to Content Studio app. Screenshot:  ' + screenshot + '  ' + err);
         }
     },
     async navigateToContentStudioAppMobile(userName, password) {
@@ -600,14 +600,14 @@ module.exports = {
             return await browsePanel.pause(1500);
         } catch (err) {
             console.log('tried to navigate to Content Studio app, but: ' + err);
-            this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
+            this.saveScreenshot(appConst.generateRandomName('err_navigate_to_studio'));
             throw new Error('error when navigate to Content Studio app ' + err);
         }
     },
     async clickOnContentStudioLink(userName, password) {
         let launcherPanel = new LauncherPanel();
         let result = await launcherPanel.isDisplayed(2000);
-        console.log("Launcher Panel is opened, click on the `Content Studio` link...");
+        console.log('Launcher Panel is opened, click on the `Content Studio` link...');
         if (result) {
             await launcherPanel.clickOnContentStudioLink();
         } else {
@@ -618,10 +618,10 @@ module.exports = {
     async navigateToContentStudioCloseProjectSelectionDialog(userName, password) {
         try {
             await this.clickOnContentStudioLink(userName, password);
-            await this.getBrowser().switchWindow("Content Studio - Enonic XP Admin");
+            await this.getBrowser().switchWindow('Content Studio - Enonic XP Admin');
             await this.closeProjectSelectionDialog();
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_navigate_to_studio")
+            let screenshot = appConst.generateRandomName('err_navigate_to_studio')
             await this.saveScreenshot(screenshot);
             throw new Error('Error when navigate to Content Studio app. Screenshot: ' + screenshot + "  " + err);
         }
@@ -647,18 +647,18 @@ module.exports = {
     async doSwitchToContentBrowsePanel() {
         try {
             let browsePanel = new BrowsePanel();
-            await this.getBrowser().switchWindow("Content Studio - Enonic XP Admin");
-            console.log("switched to content browse panel...");
+            await this.getBrowser().switchWindow('Content Studio - Enonic XP Admin');
+            console.log('switched to content browse panel...');
             await browsePanel.waitForGridLoaded(appConst.longTimeout);
             return browsePanel;
         } catch (err) {
-            throw new Error("Error when switching to Content Studio App " + err);
+            throw new Error('Error when switching to Content Studio App ' + err);
         }
     },
     async doSwitchToHome() {
         console.log('testUtils:switching to Home page...');
         let homePage = new HomePage();
-        await this.getBrowser().switchWindow("Enonic XP Home");
+        await this.getBrowser().switchWindow('Enonic XP Home');
         return await homePage.waitForLoaded(appConst.mediumTimeout);
 
     },
@@ -680,7 +680,7 @@ module.exports = {
             let contentWizardPanel = new ContentWizardPanel();
             return await contentWizardPanel.waitForSpinnerNotVisible();
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_switch_window");
+            let screenshot = appConst.generateRandomName('err_switch_window');
             await this.saveScreenshot(screenshot);
             await this.getBrowser().pause(1500);
             await this.getBrowser().switchWindow(contentDisplayName);
@@ -740,7 +740,7 @@ module.exports = {
             return this.getBrowser().getTitle().then(title => {
                 return title.includes(reqTitle);
             }).catch(err => {
-                console.log("Error when getting Title" + err);
+                console.log('Error when getting Title' + err);
                 throw new Error("Error  " + err);
             })
         });
@@ -782,15 +782,15 @@ module.exports = {
     },
     sendRequestGetHeaders() {
         return this.getBrowser().executeAsync(
-            "var callback = arguments[arguments.length - 1];" +
-            "var xhr = new XMLHttpRequest();" +
+            'var callback = arguments[arguments.length - 1];' +
+            'var xhr = new XMLHttpRequest();' +
             "xhr.open('GET', '', true);" +
             "xhr.onreadystatechange = function() {" +
-            "  if (xhr.readyState == 4) {" +
-            "    callback(xhr.getAllResponseHeaders());" +
-            "  }" +
-            "};" +
-            "xhr.send();");
+            '  if (xhr.readyState == 4) {' +
+            '    callback(xhr.getAllResponseHeaders());' +
+            '  }' +
+            '};' +
+            'xhr.send();');
     },
     async openContentStudioMenu() {
         let result = await this.isContentStudioMenuOpened();
@@ -811,7 +811,7 @@ module.exports = {
     async isContentStudioMenuOpened() {
         let element = await this.getBrowser().$("//div[contains(@id,'AppWrapper')]");
         let atrValue = await element.getAttribute("class");
-        return atrValue.includes("sidebar-expanded");
+        return atrValue.includes('sidebar-expanded');
     },
     async openSettingsPanel() {
         try {
@@ -823,8 +823,8 @@ module.exports = {
             await settingsBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
             return settingsBrowsePanel;
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_open_settings"));
-            throw new Error("Settings Panel was not opened: " + err);
+            await this.saveScreenshot(appConst.generateRandomName('err_open_settings'));
+            throw new Error('Settings Panel was not opened: ' + err);
         }
     },
     async switchToContentMode() {
@@ -832,7 +832,7 @@ module.exports = {
         await this.getBrowser().pause(200);
         return new ContentBrowsePanel();
     },
-    generateRandomName: function (part) {
+    generateRandomName(part) {
         return part + Math.round(Math.random() * 1000000);
     },
     async navigateToUsersApp(userName, password) {
@@ -840,16 +840,16 @@ module.exports = {
             let launcherPanel = new LauncherPanel();
             let isDisplayed = await launcherPanel.isDisplayed(appConst.mediumTimeout);
             if (isDisplayed) {
-                console.log("Launcher Panel is opened, click on the `Users` link...");
+                console.log('Launcher Panel is opened, click on the `Users` link...');
                 await launcherPanel.pause(300);
                 await launcherPanel.clickOnUsersLink();
             } else {
-                console.log("Login Page is opened, type a password and name...");
+                console.log('Login Page is opened, type a password and name...');
                 await this.doLoginAndClickOnUsersLink(userName, password);
             }
             await this.doSwitchToUsersApp();
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_navigate_to_users"));
+            await this.saveScreenshot(appConst.generateRandomName('err_navigate_to_users'));
             throw new Error('error when navigate to Users app ' + err);
         }
     },
@@ -861,26 +861,26 @@ module.exports = {
         await launcherPanel.clickOnUsersLink();
         return await loginPage.pause(1000);
     },
-    doSwitchToUsersApp: function () {
+    doSwitchToUsersApp() {
         console.log('testUtils:switching to users app...');
         let browsePanel = new UserBrowsePanel();
-        return this.getBrowser().switchWindow("Users - Enonic XP Admin").then(() => {
-            console.log("switched to Users app...");
+        return this.getBrowser().switchWindow('Users - Enonic XP Admin').then(() => {
+            console.log('switched to Users app...');
             return browsePanel.waitForSpinnerNotVisible();
         }).then(() => {
             return browsePanel.waitForUsersGridLoaded(appConst.mediumTimeout);
         }).catch(err => {
-            throw new Error("Error when switching to Users App " + err);
+            throw new Error('Error when switching to Users App ' + err);
         })
     },
     async addSystemUser(userData) {
         let userWizard = new UserWizard();
-        //1. Select System ID Provider folder:
+        // 1. Select System ID Provider folder:
         await this.clickOnSystemOpenUserWizard();
-        //2. Type the data:
+        // 2. Type the data:
         await userWizard.typeData(userData);
-        await this.saveScreenshot(appConst.generateRandomName("user"));
-        //3. Save the data and close the wizard:
+        await this.saveScreenshot(appConst.generateRandomName('user'));
+        // 3. Save the data and close the wizard:
         return await this.saveAndCloseUserWizard(userData.displayName);
     },
     async selectAndDeleteUserItem(name) {
@@ -910,7 +910,7 @@ module.exports = {
         await userBrowsePanel.clickOnRowByName(name);
         return await userBrowsePanel.pause(800);
     },
-    //Click on Save button and close the wizard:
+    // Click on 'Save' button and close the wizard:
     async saveAndCloseUserWizard(displayName) {
         let wizardPanel = new UserWizard();
         let browsePanel = new UserBrowsePanel();
@@ -942,7 +942,7 @@ module.exports = {
     },
     async showLauncherPanel() {
         let launcherPanel = new LauncherPanel();
-        let selector = "//button[contains(@class,'launcher-button')  ]";
+        let selector = "//button[contains(@class,'launcher-button')]";
         try {
             // await this.waitUntilDisplayed(selector, 2000);
             await this.getBrowser().pause(100);
@@ -951,7 +951,7 @@ module.exports = {
             //await el[0].click();
             return await launcherPanel.waitForPanelDisplayed();
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_launcher_button"));
+            await this.saveScreenshot(appConst.generateRandomName('err_launcher_button'));
             await this.getBrowser().refresh();
             await this.getBrowser().pause(2000);
             await this.closeProjectSelectionDialog();
@@ -975,7 +975,7 @@ module.exports = {
             return this.getDisplayedElements(selector).then(result => {
                 return result.length > 0;
             })
-        }, {timeout: ms, timeoutMsg: "Timeout exception. Element " + selector + " still not visible in: " + ms});
+        }, {timeout: ms, timeoutMsg: 'Timeout exception. Element ' + selector + ' still not visible in: ' + ms});
     },
     async scheduleContent(contentName, date) {
         let contentBrowsePanel = new ContentBrowsePanel();
@@ -999,7 +999,7 @@ module.exports = {
     async openResourceInDraft(res) {
         let currentUrl = await this.getBrowser().getUrl();
         let base = currentUrl.substring(0, currentUrl.indexOf('admin'));
-        let url = base + "admin/site/preview/default/draft/" + res;
+        let url = base + 'admin/site/preview/default/draft/' + res;
         await this.loadUrl(url);
         return await this.getBrowser().pause(2000);
     },
@@ -1013,7 +1013,7 @@ module.exports = {
     async openResourceInMaster(res) {
         let currentUrl = await this.getBrowser().getUrl();
         let base = currentUrl.substring(0, currentUrl.indexOf('admin'));
-        let url = base + "admin/site/preview/default/master/" + res;
+        let url = base + 'admin/site/preview/default/master/' + res;
         await this.loadUrl(url);
         return await this.getBrowser().pause(2000);
     },

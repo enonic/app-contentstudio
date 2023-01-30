@@ -21,7 +21,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
     }
     let ISSUE_TITLE = csConst.generateRandomName('issue');
     let TEST_FOLDER;
-    let PUBLISH_REQUEST_TITLE = "my first request";
+    let PUBLISH_REQUEST_TITLE = 'my first request';
 
     it(`Precondition: new folder and new issue should be created`,
         async () => {
@@ -90,7 +90,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await studioUtils.openIssuesListDialog();
             // 2. Click on dropdown handle and expand 'Type Filter' selector:
             await issueListDialog.clickOnTypeFilterDropDownHandle();
-            await studioUtils.saveScreenshot("issue_list_assigned_to_me_disabled");
+            await studioUtils.saveScreenshot('issue_list_assigned_to_me_disabled');
             // 3. Wait for 'Assigned to Me' option should be disabled(no issue assigned to SU):
             await issueListDialog.waitForFilterOptionDisabled(csConst.ISSUE_LIST_TYPE_FILTER.ASSIGNED_TO_ME);
             // 4. All option should not be disabled:
@@ -151,7 +151,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await issueListDialog.isClosedButtonActive();
             let openNumber = await issueListDialog.getNumberInOpenButton();
             let filterInputNumber = await issueListDialog.getNumberInSelectedOption();
-            await studioUtils.saveScreenshot("issue_list_number_in_all");
+            await studioUtils.saveScreenshot('issue_list_number_in_all');
             // 6. Number in 'All()' should be reduced, because 'Closed' button is active:
             assert.equal((filterInputNumberBeforeReopen - filterInputNumber), 1, "number in 'All' should be reduced");
             // Number of Open issues should be increased:
@@ -167,7 +167,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await studioUtils.openIssuesListDialog();
             // 2. Select 'Tasks' in the filter:
             await issueListDialog.selectTypeFilterOption(csConst.ISSUE_LIST_TYPE_FILTER.ISSUES);
-            await studioUtils.saveScreenshot("typefilter_tasks");
+            await studioUtils.saveScreenshot('typefilter_tasks');
             // 3. Publish request should not be present:
             await issueListDialog.waitForIssueNotPresent(PUBLISH_REQUEST_TITLE);
             // but the task should be present:
@@ -181,7 +181,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await studioUtils.openIssuesListDialog();
             // 2. Select 'Publish Requests' in the filter:
             await issueListDialog.selectTypeFilterOption(csConst.ISSUE_LIST_TYPE_FILTER.PUBLISH_REQUESTS);
-            await studioUtils.saveScreenshot("typefilter_requests");
+            await studioUtils.saveScreenshot('typefilter_requests');
             // 3. Publish request should be present:
             await issueListDialog.waitForIssuePresent(PUBLISH_REQUEST_TITLE);
             // But the task should not be present:
@@ -191,7 +191,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

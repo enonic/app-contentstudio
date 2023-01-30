@@ -15,7 +15,7 @@ const appConst = require('../../libs/app_const');
 
 describe('issue.status.selector.spec: open and close issue by clicking on menu buttons, save and update the issue', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let ISSUE_TITLE = appConst.generateRandomName('issue');
@@ -80,12 +80,12 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             await taskDetailsDialog.waitForDialogOpened();
             //3. Click on 'Open' menu item:
             await taskDetailsDialog.clickOnIssueStatusSelectorAndOpenIssue();
-            await studioUtils.saveScreenshot("status_menu_task_reopened");
+            await studioUtils.saveScreenshot('status_menu_task_reopened');
             //4. 'The task is opened' - this message should appear:
             await taskDetailsDialog.waitForExpectedNotificationMessage(appConst.ISSUE_OPENED_MESSAGE);
             //5. 'Open' text should appear in the status selector button:
             let actualStatus = await taskDetailsDialog.getCurrentStatusInStatusSelector();
-            assert.equal(actualStatus, "Open", "'Open' status should be displayed in the status selector button");
+            assert.equal(actualStatus, 'Open', "'Open' status should be displayed in the status selector button");
         });
 
     it.skip(
@@ -114,7 +114,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

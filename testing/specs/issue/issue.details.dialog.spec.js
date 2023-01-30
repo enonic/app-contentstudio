@@ -14,12 +14,12 @@ const appConst = require('../../libs/app_const');
 
 describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let MY_COMMENT = appConst.generateRandomName('comment');
     let ISSUE_TITLE = appConst.generateRandomName('issue');
-    let newText = "Comment is updated";
+    let newText = 'Comment is updated';
 
     it(`WHEN new task(no items) has been created THEN expected notification should be displayed`,
         async () => {
@@ -44,7 +44,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             assert.isTrue(isActive, 'Comments Tab should be active');
             //2. Verify that status of the task is 'Open'
             let actualStatus = await issueDetailsDialog.getCurrentStatusInStatusSelector();
-            assert.equal(actualStatus, "Open", "'Open' status should be displayed in status selector button");
+            assert.equal(actualStatus, 'Open', "'Open' status should be displayed in status selector button");
             //3. Comment button should be disabled, because the textarea is empty.
             let isCommentButtonDisabled = await commentsTab.isCommentButtonEnabled();
             assert.isFalse(isCommentButtonDisabled, 'Comment button should be disabled');
@@ -60,12 +60,12 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogOpened();
-            //1. Fill in the comment textarea
+            // 1. Fill in the comment textarea
             await commentsTab.typeComment(MY_COMMENT);
-            await studioUtils.saveScreenshot("issue_comment_typed");
-            //2. Verify that 'Comment' button gets enabled
+            await studioUtils.saveScreenshot('issue_comment_typed');
+            // 2. Verify that 'Comment' button gets enabled
             await commentsTab.waitForCommentButtonEnabled();
-            //3. Verify that "Comment & Close Issue" button gets visible:
+            // 3. Verify that "Comment & Close Issue" button gets visible:
             await commentsTab.waitForCommentAndCloseIssueButtonDisplayed();
         });
 
@@ -76,23 +76,23 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             let issueDetailsDialog = new IssueDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             await studioUtils.openIssuesListDialog();
-            //1. Open Issue Details dialog:
+            // 1. Open Issue Details dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogOpened();
-            //2. Verify that Comments Tab is automatically loaded and 'No comments yet' is displayed in this tab:
+            // 2. Verify that Comments Tab is automatically loaded and 'No comments yet' is displayed in this tab:
             await commentsTab.waitForNoCommentsYetMessageDisplayed();
-            //3. Type text in comment area and click on 'Comment' button:
+            // 3. Type text in comment area and click on 'Comment' button:
             await commentsTab.typeComment(MY_COMMENT);
             await commentsTab.clickOnCommentButton();
-            //4. Verify the notification message:
+            // 4. Verify the notification message:
             let message = await issueDetailsDialog.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("issue_comment_added");
+            await studioUtils.saveScreenshot('issue_comment_added');
             assert.equal(message, appConst.YOUR_COMMENT_ADDED,
                 'Expected notification message should be shown when the comment has been added');
             await studioUtils.saveScreenshot("issue_comment_button_disabled");
-            //5. Verify that 'Comment' button gets disabled:
+            // 5. Verify that 'Comment' button gets disabled:
             await commentsTab.waitForCommentButtonDisabled();
-            //6.verify that 'No comments yet' message gets not visible in the Comments tab
+            // 6.verify that 'No comments yet' message gets not visible in the Comments tab
             await commentsTab.waitForNoCommentsYetMessageNotDisplayed();
         });
 
@@ -101,10 +101,10 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
-            //1. Open Issue List Dialog:
+            // 1. Open Issue List Dialog:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            //2. Open Task Details Dialog:
+            // 2. Open Task Details Dialog:
             await issueDetailsDialog.waitForDialogOpened();
             let result = await commentsTab.isCommentPresent(MY_COMMENT);
             await studioUtils.saveScreenshot('issue_comment_added');
@@ -117,15 +117,15 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             let issueDetailsDialog = new IssueDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             await studioUtils.openIssuesListDialog();
-            //1. Open Task Details Dialog:
+            // 1. Open Task Details Dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogOpened();
-            //2. Update the text in comment
+            // 2. Update the text in comment
             await commentsTab.clickOnEditCommentMenuItem(MY_COMMENT);
             await commentsTab.updateComment(MY_COMMENT, newText);
-            //3. Click on Save Comment button
+            // 3. Click on Save Comment button
             await commentsTab.clickOnSaveCommentButton(MY_COMMENT);
-            //4. Verify that new text is displayed in the comment
+            // 4. Verify that new text is displayed in the comment
             let result = await commentsTab.isCommentPresent(newText);
             await studioUtils.saveScreenshot("task_comment_updated");
             assert.isTrue(result, 'The comment should be updated');
@@ -137,26 +137,26 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             let issueDetailsDialog = new IssueDetailsDialog();
             let confirmationDialog = new ConfirmationDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
-            //1. Click on the task and open Task Details Dialog:
+            // 1. Click on the task and open Task Details Dialog:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogOpened();
             //2. Expand menu and click on Delete Comment:
             await commentsTab.clickOnDeleteCommentMenuItem(newText);
-            //3. Confirm the deleting:
+            // 3. Confirm the deleting:
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
-            //4. Verify that comment is not displayed
+            // 4. Verify that comment is not displayed
             let result = await commentsTab.isCommentPresent(newText);
-            await studioUtils.saveScreenshot("task_comment_deleted");
+            await studioUtils.saveScreenshot('task_comment_deleted');
             assert.isFalse(result, 'Comment with the text should be deleted');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

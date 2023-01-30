@@ -1,6 +1,7 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
+
 const XPATH = {
     container: `//div[contains(@id,'ContentUnpublishDialog')]`,
     dialogHeader: "//div[contains(@id,'ModalDialogHeader')]//h2[@class='title']",
@@ -72,9 +73,15 @@ class ContentUnpublishDialog extends Page {
         return await this.clickOnElement(this.hideDependentItemsLink);
     }
 
-    getItemDisplayName() {
-        let locator = XPATH.container + XPATH.dialogItemListUl + lib.H6_DISPLAY_NAME;
-        return this.getTextInDisplayedElements(locator);
+    async getItemDisplayName() {
+        try {
+            let locator = XPATH.container + XPATH.dialogItemListUl + lib.H6_DISPLAY_NAME;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getTextInDisplayedElements(locator);
+        } catch (err) {
+            let screenshot = this.saveScreenshotUniqueName('err_unpublish_dlg');
+            throw new Error(`Content Unpublish Dialog - Error during getting items in main items list,  screenshot: ${screenshot} ` + err);
+        }
     }
 
     getDependentItemsPath() {
@@ -91,7 +98,7 @@ class ContentUnpublishDialog extends Page {
     }
 
     async getNumberInUnpublishButton() {
-        let locator = XPATH.container + XPATH.unpublishButton + "//span";
+        let locator = XPATH.container + XPATH.unpublishButton + '//span';
         let label = await this.getText(locator);
         let startIndex = label.indexOf('(');
         let endIndex = label.indexOf(')');
