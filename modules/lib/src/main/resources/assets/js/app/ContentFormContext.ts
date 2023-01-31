@@ -8,6 +8,7 @@ import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeNa
 import {ContentId} from './content/ContentId';
 import {ContentPath} from './content/ContentPath';
 import {Project} from './settings/data/project/Project';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export class ContentFormContext
     extends FormContext {
@@ -16,9 +17,11 @@ export class ContentFormContext
 
     private persistedContent?: Content;
 
-    private contentTypeName?: ContentTypeName;
+    private readonly contentTypeName?: ContentTypeName;
 
-    private project?: Project;
+    private readonly project?: Project;
+
+    private readonly applicationKey?: ApplicationKey;
 
     private contentUpdatedListeners: { (content: Content): void }[] = [];
 
@@ -29,6 +32,7 @@ export class ContentFormContext
         this.persistedContent = builder.persistedContent;
         this.contentTypeName = builder.contentTypeName;
         this.project = builder.project;
+        this.applicationKey = builder.applicationKey;
     }
 
     getSite(): Site {
@@ -66,6 +70,10 @@ export class ContentFormContext
         return this.project;
     }
 
+    getApplicationKey(): ApplicationKey {
+        return this.applicationKey;
+    }
+
     createInputTypeViewContext(inputTypeConfig: any, parentPropertyPath: PropertyPath, input: Input): ContentInputTypeViewContext {
         const viewContext = <ContentInputTypeViewContext> {
             formContext: this,
@@ -74,7 +82,8 @@ export class ContentFormContext
             parentDataPath: parentPropertyPath,
             site: this.getSite(),
             content: this.getPersistedContent(),
-            project: this.getProject()
+            project: this.getProject(),
+            applicationKey: this.applicationKey
         };
 
         this.contentUpdatedListeners.push(content => {
@@ -90,6 +99,7 @@ export class ContentFormContext
             .setPersistedContent(this.persistedContent)
             .setContentTypeName(this.contentTypeName)
             .setProject(this.project)
+            .setApplicationKey(this.applicationKey)
             .setFormState(this.getFormState())
             .setShowEmptyFormItemSetOccurrences(this.getShowEmptyFormItemSetOccurrences())
             .setValidationErrors(this.getValidationErrors());
@@ -111,23 +121,30 @@ export class ContentFormContextBuilder
 
     project: Project;
 
-    public setSite(value: Site): ContentFormContextBuilder {
+    applicationKey: ApplicationKey;
+
+    public setSite(value: Site): this {
         this.site = value;
         return this;
     }
 
-    public setPersistedContent(value: Content): ContentFormContextBuilder {
+    public setPersistedContent(value: Content): this {
         this.persistedContent = value;
         return this;
     }
 
-    public setContentTypeName(value: ContentTypeName): ContentFormContextBuilder {
+    public setContentTypeName(value: ContentTypeName): this {
         this.contentTypeName = value;
         return this;
     }
 
-    public setProject(value: Project): ContentFormContextBuilder {
+    public setProject(value: Project): this {
         this.project = value;
+        return this;
+    }
+
+    public setApplicationKey(value: ApplicationKey): this {
+        this.applicationKey = value;
         return this;
     }
 

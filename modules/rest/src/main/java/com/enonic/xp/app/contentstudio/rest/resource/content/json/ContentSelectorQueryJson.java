@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.ContentId;
 
 public class ContentSelectorQueryJson
@@ -24,6 +25,8 @@ public class ContentSelectorQueryJson
 
     private final String relationshipType;
 
+    private final ApplicationKey applicationKey;
+
     private Integer from;
 
     private Integer size;
@@ -36,7 +39,8 @@ public class ContentSelectorQueryJson
                                      @JsonProperty("inputName") final String inputName,
                                      @JsonProperty("contentTypeNames") final List<String> contentTypeNamesString,
                                      @JsonProperty("allowedContentPaths") final List<String> allowedContentPaths,
-                                     @JsonProperty("relationshipType") final String relationshipType )
+                                     @JsonProperty("relationshipType") final String relationshipType,
+                                     @JsonProperty("applicationKey") final String applicationKey )
     {
 
         this.from = from;
@@ -48,6 +52,7 @@ public class ContentSelectorQueryJson
         this.contentTypeNames = contentTypeNamesString;
         this.allowedContentPaths = allowedContentPaths;
         this.relationshipType = relationshipType;
+        this.applicationKey = applicationKey != null ? ApplicationKey.from( applicationKey ) : null;
     }
 
     @JsonIgnore
@@ -102,6 +107,12 @@ public class ContentSelectorQueryJson
     public String getRelationshipType()
     {
         return relationshipType;
+    }
+
+    @JsonIgnore
+    public ApplicationKey getApplicationKey()
+    {
+        return applicationKey;
     }
 
     public void setFrom( final Integer from )

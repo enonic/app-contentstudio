@@ -2034,7 +2034,7 @@ public class ContentResourceTest
             .thenReturn( Contents.from( content ) );
 
         AbstractContentQueryResultJson result = contentResource.selectorQuery(
-            new ContentTreeSelectorQueryJson( "", 0, 10, null, null, null, new ArrayList<>(), new ArrayList<>(), null, null, null ) );
+            new ContentTreeSelectorQueryJson( "", 0, 10, null, null, null, new ArrayList<>(), new ArrayList<>(), null, null, null, null ) );
 
         assertEquals( 1, result.getContents().size() );
         assertTrue( result.getContents().contains( new ContentIdJson( content.getId() ) ) );

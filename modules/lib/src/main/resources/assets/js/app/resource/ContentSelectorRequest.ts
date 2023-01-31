@@ -11,6 +11,7 @@ import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 import {ResultMetadata} from './ResultMetadata';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export abstract class ContentSelectorRequest<CONTENT>
     extends CmsContentResourceRequest<CONTENT[]> {
@@ -39,11 +40,13 @@ export abstract class ContentSelectorRequest<CONTENT>
 
     private relationshipType: string;
 
+    private applicationKey: ApplicationKey;
+
     protected loaded: boolean;
 
     protected results: CONTENT[] = [];
 
-    constructor() {
+    protected constructor() {
         super();
         this.setMethod(HttpMethod.POST);
 
@@ -116,6 +119,10 @@ export abstract class ContentSelectorRequest<CONTENT>
         this.queryExpr = queryExpr;
     }
 
+    setApplicationKey(key: ApplicationKey): void {
+        this.applicationKey = key;
+    }
+
     protected createSearchExpression(searchString: string): Expression {
         return new PathMatchExpressionBuilder()
             .setSearchString(searchString)
@@ -155,7 +162,8 @@ export abstract class ContentSelectorRequest<CONTENT>
             inputName: this.getInputName(),
             contentTypeNames: this.contentTypeNames,
             allowedContentPaths: this.allowedContentPaths,
-            relationshipType: this.relationshipType
+            relationshipType: this.relationshipType,
+            applicationKey: this.applicationKey?.toString() || null
         };
     }
 

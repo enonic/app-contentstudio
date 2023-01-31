@@ -211,7 +211,8 @@ export class ContentSelector
             .setContentTypeNames(this.allowedContentTypes)
             .setRelationshipType(this.relationshipType)
             .setContent(this.context.content)
-            .setProject(this.context.project);
+            .setProject(this.context.project)
+            .setApplicationKey(this.context.applicationKey);
     }
 
     protected doCreateContentComboBoxBuilder(): ContentComboBoxBuilder<ContentTreeSelectorItem> {
