@@ -8,6 +8,7 @@ export class ItemViewContextMenuTitle
         super(new NamesAndIconViewBuilder().setAddTitleAttribute(false));
         this.setMainName(name);
         this.setIconClass(StyleHelper.COMMON_PREFIX + icon);
+        this.addClass('item-view-context-menu-title');
     }
 
 }

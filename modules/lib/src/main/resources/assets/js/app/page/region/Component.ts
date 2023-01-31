@@ -15,6 +15,11 @@ import {ComponentJson} from './ComponentJson';
 import {RegionPath} from './RegionPath';
 import {assert, assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 
+export type ComponentPropertyChangedEventHandler =  (event: ComponentPropertyChangedEvent) => void;
+export type ComponentChangedEventHandler =  (event: ComponentChangedEvent) => void;
+export type ComponentPropertyValueChangedEventHandler =  (event: ComponentPropertyValueChangedEvent) => void;
+export type ComponentResetEventHandler =  (event: ComponentResetEvent) => void;
+
 export abstract class Component
     implements Equitable, Cloneable {
 
@@ -26,17 +31,17 @@ export abstract class Component
 
     private parent: Region;
 
-    private changedListeners: { (event: ComponentChangedEvent): void }[] = [];
+    private changedListeners: ComponentChangedEventHandler[] = [];
 
-    private propertyChangedListeners: { (event: ComponentPropertyChangedEvent): void }[] = [];
+    private propertyChangedListeners: ComponentPropertyChangedEventHandler[] = [];
 
-    private propertyValueChangedListeners: { (event: ComponentPropertyValueChangedEvent): void }[] = [];
+    private propertyValueChangedListeners: ComponentPropertyValueChangedEventHandler[] = [];
 
     private resetListeners: { (event: ComponentResetEvent): void }[] = [];
 
-    private type: ComponentType;
+    private readonly type: ComponentType;
 
-    constructor(builder: ComponentBuilder<any>) {
+    protected constructor(builder: ComponentBuilder<Component>) {
 
         this.name = builder.name;
         this.index = builder.index;
@@ -150,36 +155,36 @@ export abstract class Component
         throw new Error('Must be implemented by inheritors');
     }
 
-    onChanged(listener: (event: ComponentChangedEvent) => void) {
+    onChanged(listener: ComponentChangedEventHandler) {
         this.changedListeners.push(listener);
     }
 
-    unChanged(listener: (event: ComponentChangedEvent) => void) {
+    unChanged(listener: ComponentChangedEventHandler) {
         this.changedListeners =
-            this.changedListeners.filter((curr: (event: ComponentPropertyChangedEvent) => void) => {
+            this.changedListeners.filter((curr: ComponentPropertyChangedEventHandler) => {
                 return listener !== curr;
             });
     }
 
     private notifyChangedEvent(event: ComponentChangedEvent) {
-        this.changedListeners.forEach((listener: (event: ComponentChangedEvent) => void) => {
+        this.changedListeners.forEach((listener: ComponentChangedEventHandler) => {
             listener(event);
         });
     }
 
-    onReset(listener: (event: ComponentResetEvent) => void) {
+    onReset(listener: ComponentResetEventHandler) {
         this.resetListeners.push(listener);
     }
 
-    unReset(listener: (event: ComponentResetEvent) => void) {
-        this.resetListeners = this.resetListeners.filter((curr: (event: ComponentResetEvent) => void) => {
+    unReset(listener: ComponentResetEventHandler) {
+        this.resetListeners = this.resetListeners.filter((curr: ComponentResetEventHandler) => {
             return listener !== curr;
         });
     }
 
     private notifyResetEvent() {
         let event = new ComponentResetEvent(this.getPath());
-        this.resetListeners.forEach((listener: (event: ComponentResetEvent) => void) => {
+        this.resetListeners.forEach((listener: ComponentResetEventHandler) => {
             listener(event);
         });
     }
@@ -187,27 +192,27 @@ export abstract class Component
     /**
      * Observe when a property of Component have been reassigned.
      */
-    onPropertyChanged(listener: (event: ComponentPropertyChangedEvent) => void) {
+    onPropertyChanged(listener: ComponentPropertyChangedEventHandler) {
         this.propertyChangedListeners.push(listener);
     }
 
-    unPropertyChanged(listener: (event: ComponentPropertyChangedEvent) => void) {
+    unPropertyChanged(listener: ComponentPropertyChangedEventHandler) {
         this.propertyChangedListeners =
-            this.propertyChangedListeners.filter((curr: (event: ComponentPropertyChangedEvent) => void) => {
+            this.propertyChangedListeners.filter((curr: ComponentPropertyChangedEventHandler) => {
                 return listener !== curr;
             });
     }
 
     notifyPropertyChanged(propertyName: string) {
         let event = ComponentPropertyChangedEvent.create().setComponent(this).setPropertyName(propertyName).build();
-        this.propertyChangedListeners.forEach((listener: (event: ComponentPropertyChangedEvent) => void) => {
+        this.propertyChangedListeners.forEach((listener: ComponentPropertyChangedEventHandler) => {
             listener(event);
         });
         this.notifyChangedEvent(event);
     }
 
     forwardComponentPropertyChangedEvent(event: ComponentPropertyChangedEvent) {
-        this.propertyChangedListeners.forEach((listener: (event: ComponentPropertyChangedEvent) => void) => {
+        this.propertyChangedListeners.forEach((listener: ComponentPropertyChangedEventHandler) => {
             listener(event);
         });
     }
@@ -215,20 +220,20 @@ export abstract class Component
     /**
      * Observe when a property of Component have changed (happens only for mutable objects).
      */
-    onPropertyValueChanged(listener: (event: ComponentPropertyValueChangedEvent) => void) {
+    onPropertyValueChanged(listener: ComponentPropertyValueChangedEventHandler) {
         this.propertyValueChangedListeners.push(listener);
     }
 
-    unPropertyValueChanged(listener: (event: ComponentPropertyValueChangedEvent) => void) {
+    unPropertyValueChanged(listener: ComponentPropertyValueChangedEventHandler) {
         this.propertyValueChangedListeners =
-            this.propertyValueChangedListeners.filter((curr: (event: ComponentPropertyValueChangedEvent) => void) => {
+            this.propertyValueChangedListeners.filter((curr: ComponentPropertyValueChangedEventHandler) => {
                 return listener !== curr;
             });
     }
 
     notifyPropertyValueChanged(propertyName: string) {
         let event = new ComponentPropertyValueChangedEvent(this.getPath(), propertyName);
-        this.propertyValueChangedListeners.forEach((listener: (event: ComponentPropertyValueChangedEvent) => void) => {
+        this.propertyValueChangedListeners.forEach((listener: ComponentPropertyValueChangedEventHandler) => {
             listener(event);
         });
         this.notifyChangedEvent(event);
