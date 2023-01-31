@@ -64,7 +64,7 @@ import {EditContentEvent} from '../../event/EditContentEvent';
 import {Content, ContentBuilder} from '../../content/Content';
 import {Site} from '../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Component} from '../../page/region/Component';
+import {Component, ComponentPropertyChangedEventHandler} from '../../page/region/Component';
 import {Page, PageBuilder} from '../../page/Page';
 import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
 import {ComponentPropertyChangedEvent} from '../../page/region/ComponentPropertyChangedEvent';
@@ -173,7 +173,7 @@ export class LiveFormPanel
 
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
-    private componentPropertyChangedHandler: (event: ComponentPropertyChangedEvent) => void;
+    private componentPropertyChangedHandler: ComponentPropertyChangedEventHandler;
     private propertyChangedHandler: (event: PropertyChangedEvent) => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
     private contentPermissionsUpdatedHandler: (contentIds: ContentIds) => void;

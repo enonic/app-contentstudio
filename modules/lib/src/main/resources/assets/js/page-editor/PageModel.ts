@@ -3,7 +3,7 @@ import {PageModeChangedEvent} from './PageModeChangedEvent';
 import {PageTemplate} from '../app/content/PageTemplate';
 import {Regions} from '../app/page/region/Regions';
 import {PageMode} from '../app/page/PageMode';
-import {Component} from '../app/page/region/Component';
+import {Component, ComponentPropertyChangedEventHandler} from '../app/page/region/Component';
 import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropertyChangedEvent';
 import {Page, PageBuilder} from '../app/page/Page';
 import {PageTemplateKey} from '../app/page/PageTemplateKey';
@@ -118,7 +118,7 @@ export class PageModel {
 
     private ignorePropertyChanges: boolean = false;
 
-    private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
+    private componentPropertyChangedEventHandler: ComponentPropertyChangedEventHandler;
 
     private regionsChangedEventHandler: () => void;
 
@@ -155,7 +155,7 @@ export class PageModel {
                 this.initializePageFromDefault(this);
             }
 
-            this.componentPropertyChangedListeners.forEach((listener: (event: ComponentPropertyChangedEvent) => void) => {
+            this.componentPropertyChangedListeners.forEach((listener: ComponentPropertyChangedEventHandler) => {
                 listener(event);
             });
         };
@@ -560,13 +560,13 @@ export class PageModel {
         });
     }
 
-    onComponentPropertyChangedEvent(listener: (event: ComponentPropertyChangedEvent) => void) {
+    onComponentPropertyChangedEvent(listener: ComponentPropertyChangedEventHandler) {
         this.componentPropertyChangedListeners.push(listener);
     }
 
-    unComponentPropertyChangedEvent(listener: (event: ComponentPropertyChangedEvent) => void) {
+    unComponentPropertyChangedEvent(listener: ComponentPropertyChangedEventHandler) {
         this.componentPropertyChangedListeners =
-            this.componentPropertyChangedListeners.filter((curr: (event: ComponentPropertyChangedEvent) => void) => {
+            this.componentPropertyChangedListeners.filter((curr: ComponentPropertyChangedEventHandler) => {
                 return listener !== curr;
             });
     }

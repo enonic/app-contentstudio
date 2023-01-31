@@ -17,7 +17,7 @@ export abstract class ComponentInspectionPanel<COMPONENT extends Component>
 
     protected component: COMPONENT;
 
-    constructor(config: ComponentInspectionPanelConfig) {
+    protected constructor(config: ComponentInspectionPanelConfig) {
         super();
     }
 

@@ -1,7 +1,7 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {Component} from './Component';
+import {Component, ComponentChangedEventHandler, ComponentPropertyChangedEventHandler} from './Component';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
@@ -14,13 +14,14 @@ import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {LayoutComponentType} from './LayoutComponentType';
 import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
 import {assertState} from '@enonic/lib-admin-ui/util/Assert';
+import {ComponentChangedEvent} from './ComponentChangedEvent';
 
 export class Region
     implements Equitable, Cloneable {
 
     public static debug: boolean = false;
 
-    private name: string;
+    private readonly name: string;
 
     private components: Component[] = [];
 
@@ -36,9 +37,9 @@ export class Region
 
     private propertyValueChangedListeners: { (event: RegionPropertyValueChangedEvent): void }[] = [];
 
-    private componentChangedEventHandler: (event: any) => void;
+    private readonly componentChangedEventHandler: ComponentChangedEventHandler;
 
-    private componentPropertyChangedEventHandler: (event: any) => void;
+    private readonly componentPropertyChangedEventHandler: (event: ComponentChangedEvent) => void;
 
     constructor(builder: RegionBuilder) {
         this.name = builder.name;
@@ -283,19 +284,19 @@ export class Region
         this.notifyChangedEvent(event);
     }
 
-    onComponentPropertyChangedEvent(listener: (event: ComponentPropertyChangedEvent) => void) {
+    onComponentPropertyChangedEvent(listener: ComponentPropertyChangedEventHandler) {
         this.componentPropertyChangedListeners.push(listener);
     }
 
-    unComponentPropertyChangedEvent(listener: (event: ComponentPropertyChangedEvent) => void) {
+    unComponentPropertyChangedEvent(listener: ComponentPropertyChangedEventHandler) {
         this.componentPropertyChangedListeners =
-            this.componentPropertyChangedListeners.filter((curr: (event: ComponentPropertyChangedEvent) => void) => {
+            this.componentPropertyChangedListeners.filter((curr: ComponentPropertyChangedEventHandler) => {
                 return listener !== curr;
             });
     }
 
     private forwardComponentPropertyChangedEvent(event: ComponentPropertyChangedEvent): void {
-        this.componentPropertyChangedListeners.forEach((listener: (event: ComponentPropertyChangedEvent) => void) => {
+        this.componentPropertyChangedListeners.forEach((listener: ComponentPropertyChangedEventHandler) => {
             listener(event);
         });
     }

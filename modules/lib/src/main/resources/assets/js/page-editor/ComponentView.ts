@@ -26,7 +26,7 @@ import {ComponentFragmentCreatedEvent} from './ComponentFragmentCreatedEvent';
 import {FragmentComponentView} from './fragment/FragmentComponentView';
 import {CreateFragmentRequest} from './CreateFragmentRequest';
 import {Content} from '../app/content/Content';
-import {Component} from '../app/page/region/Component';
+import {Component, ComponentPropertyChangedEventHandler, ComponentResetEventHandler} from '../app/page/region/Component';
 import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropertyChangedEvent';
 import {ComponentResetEvent} from '../app/page/region/ComponentResetEvent';
 import {FragmentComponent} from '../app/page/region/FragmentComponent';
@@ -139,9 +139,9 @@ export class ComponentView<COMPONENT extends Component>
 
     private itemViewRemovedListeners: { (event: ItemViewRemovedEvent): void }[] = [];
 
-    private propertyChangedListener: (event: ComponentPropertyChangedEvent) => void;
+    private propertyChangedListener: ComponentPropertyChangedEventHandler;
 
-    private resetListener: (event: ComponentResetEvent) => void;
+    private resetListener: ComponentResetEventHandler;
 
     protected initOnAdd: boolean = true;
 

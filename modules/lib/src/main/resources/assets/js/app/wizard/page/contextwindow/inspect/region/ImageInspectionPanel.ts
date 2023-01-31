@@ -21,19 +21,20 @@ import {ContentSummary, ContentSummaryBuilder} from '../../../../../content/Cont
 import {ContentId} from '../../../../../content/ContentId';
 import {ContentPath} from '../../../../../content/ContentPath';
 import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {ComponentPropertyChangedEventHandler} from '../../../../../page/region/Component';
 
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {
 
     private formView: FormView;
 
-    private imageSelector: ImageContentComboBox;
+    private readonly imageSelector: ImageContentComboBox;
 
-    private imageSelectorForm: ImageSelectorForm;
+    private readonly imageSelectorForm: ImageSelectorForm;
 
     private handleSelectorEvents: boolean = true;
 
-    private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
+    private readonly componentPropertyChangedEventHandler: ComponentPropertyChangedEventHandler;
 
     constructor() {
         super(<ComponentInspectionPanelConfig>{
