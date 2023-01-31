@@ -7,15 +7,17 @@ export class ComponentViewContextMenuTitle<COMPONENT extends Component>
     extends ItemViewContextMenuTitle {
 
     constructor(component: COMPONENT, type: ComponentItemType) {
-        const createMainName = (mainComponent: COMPONENT): string => {
-            return mainComponent.getName() ? mainComponent.getName().toString() : '';
-        };
+        super(component.getName()?.toString() || '', type.getConfig().getIconCls());
+
+        this.initListeners(component);
+    }
+
+    private initListeners(component: COMPONENT): void {
         const handler = (event: ComponentPropertyChangedEvent) => {
             if (event.getPropertyName() === Component.PROPERTY_NAME) {
-                this.setMainName(createMainName(component));
+                this.setMainName(component.getName()?.toString() || '');
             }
         };
-        super(createMainName(component), type.getConfig().getIconCls());
 
         component.onPropertyChanged(handler);
         this.onRemoved(() => component.unPropertyChanged(handler));

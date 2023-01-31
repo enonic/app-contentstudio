@@ -25,6 +25,7 @@ import {ContentServerEventsHandler} from '../../../../../event/ContentServerEven
 import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
 import {ContentPath} from '../../../../../content/ContentPath';
+import {ComponentPropertyChangedEventHandler} from '../../../../../page/region/Component';
 
 export class FragmentInspectionPanel
     extends ComponentInspectionPanel<FragmentComponent> {
@@ -39,7 +40,7 @@ export class FragmentInspectionPanel
 
     private handleSelectorEvents: boolean = true;
 
-    private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
+    private componentPropertyChangedEventHandler: ComponentPropertyChangedEventHandler;
 
     constructor() {
         super(<ComponentInspectionPanelConfig>{

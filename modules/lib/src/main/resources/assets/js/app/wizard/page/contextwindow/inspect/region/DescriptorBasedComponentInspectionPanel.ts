@@ -19,6 +19,7 @@ import {ComponentType} from '../../../../../page/region/ComponentType';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {DescriptorViewer} from '../DescriptorViewer';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {ComponentPropertyChangedEventHandler} from '../../../../../page/region/Component';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {
@@ -37,7 +38,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private loadMask: LoadMask;
 
-    private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
+    private componentPropertyChangedEventHandler: ComponentPropertyChangedEventHandler;
 
     private applicationUnavailableListener: (applicationEvent: ApplicationEvent) => void;
 

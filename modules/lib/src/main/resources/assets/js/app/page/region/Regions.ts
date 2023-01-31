@@ -10,6 +10,7 @@ import {RegionJson} from './RegionJson';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {RegionPath} from './RegionPath';
 import {RegionDescriptor} from '../RegionDescriptor';
+import {ComponentPropertyChangedEventHandler} from './Component';
 
 export class Regions
     implements Equitable {
@@ -168,19 +169,19 @@ export class Regions
         });
     }
 
-    onComponentPropertyChanged(listener: (event: ComponentPropertyChangedEvent) => void) {
+    onComponentPropertyChanged(listener: ComponentPropertyChangedEventHandler) {
         this.componentPropertyChangedListeners.push(listener);
     }
 
-    unComponentPropertyChanged(listener: (event: ComponentPropertyChangedEvent) => void) {
+    unComponentPropertyChanged(listener: ComponentPropertyChangedEventHandler) {
         this.componentPropertyChangedListeners =
-            this.componentPropertyChangedListeners.filter((curr: (event: ComponentPropertyChangedEvent) => void) => {
+            this.componentPropertyChangedListeners.filter((curr: ComponentPropertyChangedEventHandler) => {
                 return listener !== curr;
             });
     }
 
     private forwardComponentPropertyChangedEvent(event: ComponentPropertyChangedEvent): void {
-        this.componentPropertyChangedListeners.forEach((listener: (event: ComponentPropertyChangedEvent) => void) => {
+        this.componentPropertyChangedListeners.forEach((listener: ComponentPropertyChangedEventHandler) => {
             listener(event);
         });
     }

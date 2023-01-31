@@ -20,19 +20,21 @@ import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSumm
 import {ContentSummary, ContentSummaryBuilder} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
 import {ContentPath} from '../../../../../content/ContentPath';
+import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {ComponentPropertyChangedEventHandler} from '../../../../../page/region/Component';
 
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {
 
     private formView: FormView;
 
-    private imageSelector: ImageContentComboBox;
+    private readonly imageSelector: ImageContentComboBox;
 
-    private imageSelectorForm: ImageSelectorForm;
+    private readonly imageSelectorForm: ImageSelectorForm;
 
     private handleSelectorEvents: boolean = true;
 
-    private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
+    private readonly componentPropertyChangedEventHandler: ComponentPropertyChangedEventHandler;
 
     constructor() {
         super(<ComponentInspectionPanelConfig>{
@@ -42,7 +44,7 @@ export class ImageInspectionPanel
         this.imageSelector = ImageContentComboBox
             .create()
             .setMaximumOccurrences(1)
-            .setSelectedOptionsView(new ContentSelectedOptionsView())
+            .setSelectedOptionsView(new ContentSelectedOptionsView() as SelectedOptionsView<any>)
             .build();
 
         this.imageSelectorForm = new ImageSelectorForm(this.imageSelector, i18n('field.image'));
