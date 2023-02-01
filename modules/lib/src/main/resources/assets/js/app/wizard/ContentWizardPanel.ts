@@ -260,7 +260,7 @@ export class ContentWizardPanel
 
     private applicationLoadCount: number;
 
-    private debouncedEditorRefresh: (clearInspection: boolean) => void;
+    private debouncedEditorReload: (clearInspection: boolean) => void;
 
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
@@ -304,7 +304,7 @@ export class ContentWizardPanel
         this.editPermissionsToolbarButton = this.createEditButtonToolbar();
         this.getStepNavigator().whenRendered(() => this.editPermissionsToolbarButton.insertAfterEl(this.getStepNavigator()));
 
-        this.debouncedEditorRefresh = AppHelper.debounce((clearInspection: boolean = true) => {
+        this.debouncedEditorReload = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
 
             if (this.isRenderable()) {
@@ -838,7 +838,7 @@ export class ContentWizardPanel
         // this update was triggered by our changes, so reset dirty state after save
         if (viewedContent.equals(newPersistedContent)) {
             this.resetWizard();
-            this.resetLivePanel(newPersistedContent).then(() => this.contextView.updateWidgetsVisibility());
+            this.resetLivePanel(newPersistedContent, false).then(() => this.contextView.updateWidgetsVisibility());
             return;
         }
 
@@ -862,16 +862,16 @@ export class ContentWizardPanel
         this.updateButtonsState();
     }
 
-    private resetLivePanel(contentClone: Content): Q.Promise<void> {
+    private resetLivePanel(contentClone: Content, reloadEditor: boolean = true): Q.Promise<void> {
         if (!this.livePanel) {
             return Q.resolve();
         }
 
         if (this.isRenderable()) {
-            return this.updateLiveEditModel(contentClone);
+            return reloadEditor ? this.updateLiveEditModel(contentClone) : Q.resolve();
         }
 
-        if (this.getPersistedItem().getPage()) {
+        if (this.getPersistedItem().getPage() && reloadEditor) {
             return this.updateLiveEditModel(contentClone).then(() => this.unloadPage());
         }
 
@@ -1074,7 +1074,7 @@ export class ContentWizardPanel
         if (livePanel) {
             if (!isAnyAppMissing) {
                 if (this.isRenderable()) {
-                    this.debouncedEditorRefresh(false);
+                    this.debouncedEditorReload(false);
                 }
                 livePanel.clearErrorMissingApps();
             } else {
@@ -1568,7 +1568,7 @@ export class ContentWizardPanel
 
         Q.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
             if (containsId || templateUpdated) {
-                this.debouncedEditorRefresh(false);
+                this.debouncedEditorReload(false);
             }
         }).catch(DefaultErrorHandler.handle).done();
     }
@@ -1601,7 +1601,7 @@ export class ContentWizardPanel
                                    livePanel.clearSelectionAndInspect(true, true);
                                }
                                if (needsReload && reloadPage) {
-                                   this.debouncedEditorRefresh(true);
+                                   this.debouncedEditorReload(true);
                                }
                            }
                            return needsReload;
@@ -1711,7 +1711,7 @@ export class ContentWizardPanel
             const showPanel: boolean = wasNotRenderable && this.isRenderable();
             this.getLivePanel().setModel(this.liveEditModel);
             this.getLivePanel().clearSelectionAndInspect(showPanel, false);
-            this.debouncedEditorRefresh(false);
+            this.debouncedEditorReload(false);
 
             return Q(null);
         });

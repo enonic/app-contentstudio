@@ -265,7 +265,6 @@ export class LiveFormPanel
 
     private initPropertyChangedHandlers() {
         this.componentPropertyChangedHandler = (event: ComponentPropertyChangedEvent) => {
-
             if (ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), DescriptorBasedComponent)) {
                 if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
 

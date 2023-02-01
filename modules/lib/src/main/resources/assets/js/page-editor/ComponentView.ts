@@ -366,9 +366,8 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     clone(): ComponentView<COMPONENT> {
-
-        let isFragmentContent = this.liveEditModel.getContent().getType().isFragment();
-        let index = isFragmentContent ? 0 : this.getParentItemView().getComponentViewIndex(this);
+        const isFragmentContent: boolean = this.liveEditModel.getContent().getType().isFragment();
+        const index: number = isFragmentContent ? 0 : this.getParentItemView().getComponentViewIndex(this);
 
         return <ComponentView<COMPONENT>>this.createView(this.getType(),
             new CreateItemViewConfig<RegionView, COMPONENT>().setParentView(this.getParentItemView()).setParentElement(
