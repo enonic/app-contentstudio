@@ -238,7 +238,10 @@ export class SiteConfiguratorSelectedOptionView
 
     private createFormView(siteConfig: ApplicationConfig): FormView {
         const context: ContentFormContext =
-            <ContentFormContext>this.formContext.cloneBuilder().setFormState(new FormState(this.isNew)).build();
+            <ContentFormContext>this.formContext.cloneBuilder()
+                .setApplicationKey(this.application.getApplicationKey())
+                .setFormState(new FormState(this.isNew))
+                .build();
         const formView: FormView =
             <FormView>new FormView(context, this.application.getForm(), siteConfig.getConfig()).addClass('site-form');
 

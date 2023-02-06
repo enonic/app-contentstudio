@@ -18,11 +18,14 @@ import {ContentSummaryJson} from '../../../content/ContentSummaryJson';
 import {ContentSelectorRequest} from '../../../resource/ContentSelectorRequest';
 import {ListByIdSelectorRequest} from '../../../resource/ListByIdSelectorRequest';
 import {Project} from '../../../settings/data/project/Project';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem>
     extends OptionDataLoader<DATA> {
 
     protected readonly project?: Project;
+
+    protected readonly applicationKey: ApplicationKey;
 
     private readonly treeRequest: ContentTreeSelectorQueryRequest<DATA> | ListByIdSelectorRequest<DATA>;
 
@@ -40,29 +43,30 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         super();
 
         this.project = builder?.project;
+        this.applicationKey = builder?.applicationKey;
         this.smartTreeMode = builder ? builder.smartTreeMode : true;
 
         this.flatRequest = new ContentSelectorQueryRequest().setRequestProject(this.project);
         this.treeRequest = this.smartTreeMode ? new ContentTreeSelectorQueryRequest<DATA>().setRequestProject(this.project) :
                            new ListByIdSelectorRequest<DATA>().setRequestProject(this.project);
 
+        this.flatRequest.setApplicationKey(builder?.applicationKey);
+        this.treeRequest.setApplicationKey(builder?.applicationKey);
+
         if (builder) {
             this.initRequests(builder);
         }
-
     }
 
     load(postLoad: boolean = false): Q.Promise<DATA[]> {
-
         if (!this.isTreeLoadMode) {
             return this.sendAndParseFlatRequest(true, postLoad);
         }
 
         this.treeRequest.setContent(null);
-
         this.notifyLoadingData(postLoad);
-        return this.loadItems().then(data => {
 
+        return this.loadItems().then((data: DATA[]) => {
             this.notifyLoadedData(data, postLoad);
             return data;
         });
@@ -248,6 +252,8 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     project: Project;
 
+    applicationKey: ApplicationKey;
+
     public setContentTypeNames(contentTypeNames: string[]): ContentSummaryOptionDataLoaderBuilder {
         this.contentTypeNames = contentTypeNames;
         return this;
@@ -275,6 +281,11 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     public setProject(project: Project): ContentSummaryOptionDataLoaderBuilder {
         this.project = project;
+        return this;
+    }
+
+    public setApplicationKey(key: ApplicationKey): ContentSummaryOptionDataLoaderBuilder {
+        this.applicationKey = key;
         return this;
     }
 
