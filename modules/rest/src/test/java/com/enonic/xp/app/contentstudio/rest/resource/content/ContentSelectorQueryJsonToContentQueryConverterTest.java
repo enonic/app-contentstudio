@@ -21,8 +21,6 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ExtraData;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.icon.Icon;
-import com.enonic.xp.inputtype.InputTypeConfig;
-import com.enonic.xp.inputtype.InputTypeProperty;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
@@ -63,8 +61,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
 
         final Content content = createContent( "content-id", "my-content", ContentTypeName.folder() );
 
-        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).
-            thenReturn( content );
+        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
 
         final List<String> contentTypeNames = new ArrayList();
         contentTypeNames.add( "myApplication:comment" );
@@ -74,7 +71,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         allowPaths.add( "/path/to/parent" );
 
         ContentSelectorQueryJson contentQueryJson =
-            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", contentTypeNames, allowPaths, null );
+            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", contentTypeNames, allowPaths, null, "testapp" );
         ContentSelectorQueryJsonToContentQueryConverter processor = ContentSelectorQueryJsonToContentQueryConverter.create()
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
@@ -103,14 +100,13 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         allowPaths.add( "${site}/path2/path3" );
         allowPaths.add( "parent-path/child-path" );
 
-        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).
-            thenReturn( content );
+        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
 
-        Mockito.when( contentService.getNearestSite( Mockito.isA( ContentId.class ) ) ).
-            thenReturn( site );
+        Mockito.when( contentService.getNearestSite( Mockito.isA( ContentId.class ) ) ).thenReturn( site );
 
         ContentSelectorQueryJson contentQueryJson =
-            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(), allowPaths, null );
+            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(), allowPaths, null,
+                                          null );
         ContentSelectorQueryJsonToContentQueryConverter processor = ContentSelectorQueryJsonToContentQueryConverter.create()
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
@@ -144,7 +140,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         final List<String> allowTypesFromJson = Arrays.asList( "myApplication:type1", "myApplication:type2", "myApplication:type2" );
 
         ContentSelectorQueryJson contentQueryJson =
-            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", allowTypesFromJson, allowPaths, null );
+            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", allowTypesFromJson, allowPaths, null, null );
         ContentSelectorQueryJsonToContentQueryConverter processor = ContentSelectorQueryJsonToContentQueryConverter.create()
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
@@ -170,14 +166,13 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         final List<String> allowPaths = new ArrayList();
         allowPaths.add( "${site}/*" );
 
-        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).
-            thenReturn( content );
+        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
 
-        Mockito.when( contentService.getNearestSite( Mockito.isA( ContentId.class ) ) ).
-            thenReturn( null );
+        Mockito.when( contentService.getNearestSite( Mockito.isA( ContentId.class ) ) ).thenReturn( null );
 
         ContentSelectorQueryJson contentQueryJson =
-            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(), allowPaths, null );
+            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(), allowPaths, null,
+                                          "testapp" );
         ContentSelectorQueryJsonToContentQueryConverter processor = ContentSelectorQueryJsonToContentQueryConverter.create()
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
@@ -193,13 +188,12 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
     {
         final Content content = createContent( "content-id", "my-content", ContentTypeName.media() );
 
-        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).
-            thenReturn( content );
+        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
 
         ContentSelectorQueryJson contentQueryJson = new ContentSelectorQueryJson(
             "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) " +
                 "ORDER BY _modifiedTime DESC", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(),
-            Collections.emptyList(), null );
+            Collections.emptyList(), null, null );
         ContentSelectorQueryJsonToContentQueryConverter processor = getProcessor( contentQueryJson );
 
         final ContentQuery contentQuery = processor.createQuery();
@@ -235,12 +229,11 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         final List<String> contentTypeNames = new ArrayList();
         contentTypeNames.add( "myApplication:comment" );
 
-        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).
-            thenReturn( content );
+        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
 
         ContentSelectorQueryJson contentQueryJson = new ContentSelectorQueryJson(
             "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) " +
-                "ORDER BY _modifiedTime DESC", 0, 100, "summary", "contentId", "inputName", contentTypeNames, allowPaths, null );
+                "ORDER BY _modifiedTime DESC", 0, 100, "summary", "contentId", "inputName", contentTypeNames, allowPaths, null, null );
         ContentSelectorQueryJsonToContentQueryConverter processor = getProcessor( contentQueryJson );
 
         final ContentQuery contentQuery = processor.createQuery();
@@ -256,17 +249,11 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
     @Test
     public void testRelationshipTypesFetched()
     {
-        final InputTypeConfig config = InputTypeConfig.create().
-            property( InputTypeProperty.create( "relationship", "system:reference" ).build() ).
-            property( InputTypeProperty.create( "allowContentType", "myApplication:comment" ).build() ).
-            property( InputTypeProperty.create( "allowPath", "/*" ).build() ).
-            build();
-
-        final RelationshipType relationshipType = RelationshipType.create().
-            name( "myrelationshiptype" ).
-            addAllowedToType( ContentTypeName.media() ).
-            addAllowedToType( ContentTypeName.dataMedia() ).
-            build();
+        final RelationshipType relationshipType = RelationshipType.create()
+            .name( "myrelationshiptype" )
+            .addAllowedToType( ContentTypeName.media() )
+            .addAllowedToType( ContentTypeName.dataMedia() )
+            .build();
 
         Mockito.when( this.relationshipTypeService.getByName( Mockito.any() ) ).thenReturn( relationshipType );
 
@@ -275,13 +262,12 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         final List<String> allowPaths = new ArrayList<>();
         allowPaths.add( "/*" );
 
-        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).
-            thenReturn( content );
+        Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
 
         ContentSelectorQueryJson contentQueryJson = new ContentSelectorQueryJson(
             "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) " +
                 "ORDER BY _modifiedTime DESC", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(), allowPaths,
-            "relationship-type" );
+            "relationship-type", "testapp" );
         ContentSelectorQueryJsonToContentQueryConverter processor = getProcessor( contentQueryJson );
 
         final ContentQuery contentQuery = processor.createQuery();
@@ -294,70 +280,92 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
                       contentQuery.getQueryExpr().toString() );
     }
 
+    @Test
+    public void testNoContentAndNoAppKey()
+    {
+        Mockito.when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( createContentType( "myApplication:comment" ) ) );
+
+        final List<String> allowPaths = new ArrayList();
+        allowPaths.add( "${site}/path1" );
+
+        final List<String> contentTypeNames = new ArrayList();
+        contentTypeNames.add( "myApplication:comment" );
+
+        ContentSelectorQueryJson contentQueryJson = new ContentSelectorQueryJson(
+            "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) " +
+                "ORDER BY _modifiedTime DESC", 0, 100, "summary", "contentId", "inputName", contentTypeNames, allowPaths, null, null );
+        ContentSelectorQueryJsonToContentQueryConverter processor = getProcessor( contentQueryJson );
+
+        final ContentQuery contentQuery = processor.createQuery();
+
+        assertEquals( 0, contentQuery.getFrom() );
+        assertEquals( 100, contentQuery.getSize() );
+        assertEquals( ContentTypeNames.from( "myApplication:comment" ), contentQuery.getContentTypes() );
+        assertEquals( "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') " +
+                          "OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) ORDER BY _modifiedtime DESC",
+                      contentQuery.getQueryExpr().toString() );
+    }
+
     private Content createContent( final String id, final String name, final ContentTypeName contentTypeName )
     {
         final PropertyTree metadata = new PropertyTree();
 
-        final Content parent1 = Content.create().
-            id( ContentId.from( id ) ).
-            parentPath( ContentPath.ROOT ).
-            name( "parent-content-1" ).
-            valid( true ).
-            createdTime( Instant.parse( this.currentTime ) ).
-            creator( PrincipalKey.from( "user:system:admin" ) ).
-            owner( PrincipalKey.from( "user:myStore:me" ) ).
-            language( Locale.ENGLISH ).
-            displayName( "My Content" ).
-            modifiedTime( Instant.parse( this.currentTime ) ).
-            modifier( PrincipalKey.from( "user:system:admin" ) ).
-            type( contentTypeName ).
-            addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).
-            build();
+        final Content parent1 = Content.create()
+            .id( ContentId.from( id ) )
+            .parentPath( ContentPath.ROOT )
+            .name( "parent-content-1" )
+            .valid( true )
+            .createdTime( Instant.parse( this.currentTime ) )
+            .creator( PrincipalKey.from( "user:system:admin" ) )
+            .owner( PrincipalKey.from( "user:myStore:me" ) )
+            .language( Locale.ENGLISH )
+            .displayName( "My Content" )
+            .modifiedTime( Instant.parse( this.currentTime ) )
+            .modifier( PrincipalKey.from( "user:system:admin" ) )
+            .type( contentTypeName )
+            .addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) )
+            .build();
 
-        final Content parent2 = Content.create().
-            id( ContentId.from( id ) ).
-            parentPath( parent1.getPath() ).
-            name( "parent-content-2" ).
-            valid( true ).
-            createdTime( Instant.parse( this.currentTime ) ).
-            creator( PrincipalKey.from( "user:system:admin" ) ).
-            owner( PrincipalKey.from( "user:myStore:me" ) ).
-            language( Locale.ENGLISH ).
-            displayName( "My Content" ).
-            modifiedTime( Instant.parse( this.currentTime ) ).
-            modifier( PrincipalKey.from( "user:system:admin" ) ).
-            type( contentTypeName ).
-            addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).
-            build();
+        final Content parent2 = Content.create()
+            .id( ContentId.from( id ) )
+            .parentPath( parent1.getPath() )
+            .name( "parent-content-2" )
+            .valid( true )
+            .createdTime( Instant.parse( this.currentTime ) )
+            .creator( PrincipalKey.from( "user:system:admin" ) )
+            .owner( PrincipalKey.from( "user:myStore:me" ) )
+            .language( Locale.ENGLISH )
+            .displayName( "My Content" )
+            .modifiedTime( Instant.parse( this.currentTime ) )
+            .modifier( PrincipalKey.from( "user:system:admin" ) )
+            .type( contentTypeName )
+            .addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) )
+            .build();
 
-        return Content.create().
-            id( ContentId.from( id ) ).
-            parentPath( parent2.getPath() ).
-            name( name ).
-            valid( true ).
-            createdTime( Instant.parse( this.currentTime ) ).
-            creator( PrincipalKey.from( "user:system:admin" ) ).
-            owner( PrincipalKey.from( "user:myStore:me" ) ).
-            language( Locale.ENGLISH ).
-            displayName( "My Content" ).
-            modifiedTime( Instant.parse( this.currentTime ) ).
-            modifier( PrincipalKey.from( "user:system:admin" ) ).
-            type( contentTypeName ).
-            addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).
-            build();
+        return Content.create()
+            .id( ContentId.from( id ) )
+            .parentPath( parent2.getPath() )
+            .name( name )
+            .valid( true )
+            .createdTime( Instant.parse( this.currentTime ) )
+            .creator( PrincipalKey.from( "user:system:admin" ) )
+            .owner( PrincipalKey.from( "user:myStore:me" ) )
+            .language( Locale.ENGLISH )
+            .displayName( "My Content" )
+            .modifiedTime( Instant.parse( this.currentTime ) )
+            .modifier( PrincipalKey.from( "user:system:admin" ) )
+            .type( contentTypeName )
+            .addExtraData( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) )
+            .build();
     }
 
     private Site createSite( final String id, final String name )
     {
         return Site.create()
-            .
-                id( ContentId.from( id ) )
-            .
-                parentPath( ContentPath.ROOT )
-            .
-                name( name )
-            .
-                valid( true )
+            .id( ContentId.from( id ) )
+            .parentPath( ContentPath.ROOT )
+            .name( name )
+            .valid( true )
             .createdTime( Instant.parse( this.currentTime ) )
             .creator( PrincipalKey.from( "user:system:admin" ) )
             .owner( PrincipalKey.from( "user:myStore:me" ) )
