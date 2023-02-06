@@ -1,10 +1,26 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import com.google.common.base.Preconditions;
+
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationWildcardMatcher;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSelectorQueryJson;
-import com.enonic.xp.content.*;
+import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentConstants;
+import com.enonic.xp.content.ContentQuery;
+import com.enonic.xp.content.ContentRelativePathResolver;
+import com.enonic.xp.content.ContentService;
 import com.enonic.xp.node.NodeIndexPath;
-import com.enonic.xp.query.expr.*;
+import com.enonic.xp.query.expr.CompareExpr;
+import com.enonic.xp.query.expr.ConstraintExpr;
+import com.enonic.xp.query.expr.FieldExpr;
+import com.enonic.xp.query.expr.LogicalExpr;
+import com.enonic.xp.query.expr.QueryExpr;
+import com.enonic.xp.query.expr.ValueExpr;
 import com.enonic.xp.query.parser.QueryParser;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -14,11 +30,6 @@ import com.enonic.xp.schema.relationship.RelationshipType;
 import com.enonic.xp.schema.relationship.RelationshipTypeName;
 import com.enonic.xp.schema.relationship.RelationshipTypeService;
 import com.enonic.xp.site.Site;
-import com.google.common.base.Preconditions;
-
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -63,25 +74,51 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
     private ContentTypeNames getContentTypeNamesFromJson()
     {
-        List<String> contentTypeNames = this.contentQueryJson.getContentTypeNames();
+        final List<String> contentTypeNames = this.contentQueryJson.getContentTypeNames();
+
         if ( contentTypeNames.isEmpty() )
         {
             return this.getContentTypeNamesFromRelationshipType();
         }
 
-        if ( this.content != null )
-        {
-            final ApplicationWildcardMatcher<ContentTypeName> wildcardMatcher =
-                new ApplicationWildcardMatcher<>( this.content.getType().getApplicationKey(), ContentTypeName::toString,
-                                                  this.contentTypeParseMode );
+        final ApplicationKey applicationKey = getApplicationKey();
 
-            final Predicate<ContentTypeName> filter =
-                contentTypeNames.stream().map( wildcardMatcher::createPredicate ).reduce( Predicate::or ).orElse( s -> false );
-            return ContentTypeNames.from(
-                contentTypeService.getAll().stream().map( ContentType::getName ).filter( filter ).collect( Collectors.toList() ) );
+        if ( applicationKey != null )
+        {
+            return this.filterContentTypeNames( applicationKey );
         }
 
         return ContentTypeNames.from( contentTypeNames );
+    }
+
+    private ApplicationKey getApplicationKey()
+    {
+        if ( this.contentQueryJson.getApplicationKey() != null )
+        {
+            return this.contentQueryJson.getApplicationKey();
+        }
+
+        if ( this.content != null )
+        {
+            return this.content.getType().getApplicationKey();
+        }
+
+        return null;
+    }
+
+    private ContentTypeNames filterContentTypeNames( final ApplicationKey applicationKey )
+    {
+        final ApplicationWildcardMatcher<ContentTypeName> wildcardMatcher =
+            new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString, this.contentTypeParseMode );
+
+        final Predicate<ContentTypeName> filter = this.contentQueryJson.getContentTypeNames()
+            .stream()
+            .map( wildcardMatcher::createPredicate )
+            .reduce( Predicate::or )
+            .orElse( s -> false );
+
+        return ContentTypeNames.from(
+            contentTypeService.getAll().stream().map( ContentType::getName ).filter( filter ).collect( Collectors.toList() ) );
     }
 
     private ContentTypeNames getContentTypeNamesFromRelationshipType()

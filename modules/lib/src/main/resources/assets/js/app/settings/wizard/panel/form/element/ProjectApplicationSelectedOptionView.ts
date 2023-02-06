@@ -120,7 +120,11 @@ export class ProjectApplicationSelectedOptionView
         const app: Application = this.getOption().getDisplayValue();
         const isNew: boolean = !this.currentConfigSet;
         const propSet: PropertySet = new PropertyTree(isNew ? new PropertySet() : this.currentConfigSet).getRoot();
-        const context: FormContext = ContentFormContext.create().setProject(this.project).setFormState(new FormState(isNew)).build();
+        const context: FormContext = ContentFormContext.create()
+            .setProject(this.project)
+            .setApplicationKey(app.getApplicationKey())
+            .setFormState(new FormState(isNew))
+            .build();
         const formView: FormView = new FormViewWrapper(context, app.getForm(), propSet);
 
         formView.onLayoutFinished(() => {

@@ -2,8 +2,8 @@ import {InputTypeViewContext} from '@enonic/lib-admin-ui/form/inputtype/InputTyp
 import {ContentFormContext} from '../ContentFormContext';
 import {Site} from '../content/Site';
 import {ContentSummary} from '../content/ContentSummary';
-import {ContentPath} from '../content/ContentPath';
 import {Project} from '../settings/data/project/Project';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export interface ContentInputTypeViewContext
     extends InputTypeViewContext {
@@ -15,5 +15,7 @@ export interface ContentInputTypeViewContext
     content?: ContentSummary;
 
     project?: Project;
+
+    applicationKey?: ApplicationKey;
 
 }
