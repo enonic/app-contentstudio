@@ -41,8 +41,14 @@ export class LocaleFormItem
 
     protected doCopyFromParent(): void {
         const parentLanguage: string = this.parentProject?.getLanguage();
+        const combobox: LocaleComboBox = this.getLocaleCombobox();
 
-        this.getLocaleCombobox().setValue(parentLanguage || '');
+        combobox.getComboBox().setValue(parentLanguage || '');
+
+        if (combobox.countSelected() === 0) {
+            combobox.getComboBox().getInput().openForTyping();
+            combobox.setEnabled(true);
+        }
 
         NotifyManager.get().showSuccess(
             i18n('settings.wizard.project.copy.success', i18n('field.lang'), this.parentProject.getDisplayName()));
