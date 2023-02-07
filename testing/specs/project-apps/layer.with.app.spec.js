@@ -18,50 +18,50 @@ const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel
 
 describe('layer.with.app.spec - tests for layer with applications', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
+    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.GEEK;
 
-    it("Precondition 1 - new layer in Default project should be added by SU",
+    it("Precondition 1 - new layer in 'Default' project should be added by SU",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1.Select 'Default' project and open wizard for new layer:
+            // 1. Select 'Default' project and open wizard for new layer:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildLayer("Default", null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null, appConst.APP_CONTENT_TYPES,
-                LAYER_DISPLAY_NAME);
+            let layer = projectUtils.buildLayer(appConst.PROJECTS.DEFAULT_PROJECT_NAME, null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
+                appConst.APP_CONTENT_TYPES, LAYER_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
         });
 
-    //Verify issue https://github.com/enonic/app-contentstudio/issues/5118
-    //500 error in Project Wizard for a content with relationship-type #5118
+    // Verify issue https://github.com/enonic/app-contentstudio/issues/5118
+    // 500 error in Project Wizard for a content with relationship-type #5118
     it(`GIVEN new article has been saved in root WHEN wizard with Custom relationship selector is opened THEN the article should be available in the selector`,
         async () => {
-            //1. Select the layer's context:
+            // 1. Select the layer's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
             let displayName = contentBuilder.generateRandomName('article');
             let articleContent = contentBuilder.buildArticleContent(displayName, 'title', 'body', appConst.contentTypes.ARTICLE);
-            //2. Add Article content in root directory:
+            // 2. Add Article content in root directory:
             await doAddArticleContent(articleContent);
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
             let customRelationshipForm = new CustomRelationshipForm();
-            //3. Open new wizard with Custom relationship
+            // 3. Open new wizard with Custom relationship
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.CUSTOM_RELATIONSHIP);
-            //4. Verify that just created article content is available in the selector
+            // 4. Verify that just created article content is available in the selector
             await customRelationshipForm.selectOption(articleContent.displayName);
-            await studioUtils.saveScreenshot("custom_rel_root_dir");
+            await studioUtils.saveScreenshot('custom_rel_root_dir');
             let result = await customRelationshipForm.getSelectedOptions();
-            assert.isTrue(result[0].includes(articleContent.displayName), "Expected option should be selected");
+            assert.isTrue(result[0].includes(articleContent.displayName), 'Expected option should be selected');
         });
 
-    //Verifies: New Content dialog doesn't show content types from project apps #5104
-    //https://github.com/enonic/app-contentstudio/issues/5104
+    // Verifies: New Content dialog doesn't show content types from project apps #5104
+    // https://github.com/enonic/app-contentstudio/issues/5104
     it("GIVEN layer's context with an application is selected AND no selections in the grid WHEN New content dialog is opened THEN all content types from project's application should be available in the dialog",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -72,15 +72,15 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             await newContentDialog.pause(500);
-            await studioUtils.saveScreenshot("root_new_content_with_apps");
+            await studioUtils.saveScreenshot('root_new_content_with_apps');
             //3. Verify that all input types are available for adding new content in root directory:
             let contentTypeItems = await newContentDialog.getItems();
-            assert.isTrue(contentTypeItems.includes("all-inputs"), "Expected input type is displayed in the modal dialog");
-            assert.isTrue(contentTypeItems.includes("attachment0_0"), "Expected input type is displayed in the modal dialog");
+            assert.isTrue(contentTypeItems.includes('all-inputs'), "Expected input type is displayed in the modal dialog");
+            assert.isTrue(contentTypeItems.includes('attachment0_0'), "Expected input type is displayed in the modal dialog");
             assert.isAbove(contentTypeItems.length, 50, "All types from the application are present in the modal dialog");
         });
 
-    //Verifies: X-data is not returned for a content-type outside of site #5117
+    // Verifies: X-data is not returned for a content-type outside of site #5117
     it("WHEN wizard for new content in root with x-data THEN x-data should be present in the wizard page",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -103,7 +103,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             await xDataImageSelector.waitForImageSelected();
         });
 
-    it("Post conditions: the layer should be deleted",
+    it('Post conditions: the layer should be deleted',
         async () => {
             await studioUtils.openSettingsPanel();
             await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
@@ -114,7 +114,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

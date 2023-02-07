@@ -18,7 +18,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
     let SITE;
     const CONTENT_NAME = contentBuilder.generateRandomName('selector');
     const OPTION_1 = appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME; // All Content types images
-    const OPTION_2 = appConst.TEST_DATA.TEST_FOLDER_DISPLAY_NAME; // folder for selenium tests
+    const OPTION_2 = appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_DISPLAY_NAME; // folder for selenium tests
     const OPTION_3 = appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME; // Images for simple page
 
     it(`Preconditions: new site should be created`,

@@ -10,11 +10,12 @@ const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel'
 const contentBuilder = require("../libs/content.builder");
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const SiteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
+const SecondAppSiteConfiguratorDialog = require('../page_objects/wizardpanel/site_configurator/second.app.site.configurator');
 const appConst = require('../libs/app_const');
 
 describe('site.configurator.required.input.spec: verifies wizard validation when the dialog contains required input', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -26,12 +27,12 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConst.APP_WITH_CONFIGURATOR]);
             await studioUtils.doAddSite(SITE, true);
-            //1. Open existing site:
+            // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            //2. Click on Edit icon and open Site Configurator Dialog:
+            // 2. Click on Edit icon and open Site Configurator Dialog:
             await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_WITH_CONFIGURATOR);
-            studioUtils.saveScreenshot('site_configurator_1');
-            //3. Verify that this input is focused by default( issue#427)
+            await studioUtils.saveScreenshot('site_configurator_1');
+            // 3. Verify that this input is focused by default( issue#427)
             let isElementFocused = await siteConfiguratorDialog.isFocused(`//input[contains(@name,'trackingId')]`);
             assert.isTrue(isElementFocused, "Tracking ID input should be focused");
         });
@@ -40,9 +41,9 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(SITE.displayName);
-            //Verify that red icon is displayed in Browse Panel:
+            // Verify that red icon is displayed in Browse Panel:
             let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
-            studioUtils.saveScreenshot('site_conf_required_empty');
+            await studioUtils.saveScreenshot('site_conf_required_empty');
             assert.isTrue(isDisplayed, 'red icon should be present near the content!');
         });
 
@@ -51,7 +52,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             let contentWizard = new ContentWizard();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             let isRedIconDisplayed = await contentWizard.isContentInvalid();
-            studioUtils.saveScreenshot('site_conf_required_empty_validation');
+            await studioUtils.saveScreenshot('site_conf_required_empty_validation');
             assert.isTrue(isRedIconDisplayed, 'red icon should be present in the wizard!');
         });
 
@@ -67,34 +68,34 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
         async () => {
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
-            let siteConfiguratorDialog = new SiteConfiguratorDialog();
-            //1. Open the site and open Site Configurator Dialog:
+            let secondAppSiteConfiguratorDialog = new SecondAppSiteConfiguratorDialog();
+            // 1. Open the site and open Site Configurator Dialog:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_WITH_CONFIGURATOR);
-            //2. Fill the required input:
-            await siteConfiguratorDialog.typeInTextInput('test');
-            //3. Click on 'Apply' button and close the dialog:
-            await siteConfiguratorDialog.clickOnApplyButton();
-            //4. Verify that SiteConfiguratorView gets valid:
+            // 2. Fill the required input:
+            await secondAppSiteConfiguratorDialog.typeInTextInTrackingIdInput('test');
+            // 3. Click on 'Apply' button and close the dialog:
+            await secondAppSiteConfiguratorDialog.clickOnApplyButton();
+            // 4. Verify that SiteConfiguratorView gets valid:
             await siteFormPanel.waitUntilSiteConfiguratorViewValid(appConst.APP_WITH_CONFIGURATOR);
-            studioUtils.saveScreenshot('site_conf_gets_valid');
-            //5. Verify that red icon gets not visible:
+            await studioUtils.saveScreenshot('site_conf_gets_valid');
+            // 5. Verify that red icon gets not visible:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isFalse(isInvalid, "red icon should be not visible");
         });
 
-    //Verifies: Site/Provider configurator -Apply button should not submit invalid config form (#3097).
+    // Verifies: Site/Provider configurator -Apply button should not submit invalid config form (#3097).
     it("GIVEN existing site with the configurator is opened WHEN required text input has been cleared THEN 'Apply' button gets disabled",
         async () => {
             let siteFormPanel = new SiteFormPanel();
-            let siteConfiguratorDialog = new SiteConfiguratorDialog();
-            //1. Open the site and open Site Configurator Dialog:
+            let secondAppSiteConfiguratorDialog = new SecondAppSiteConfiguratorDialog();
+            // 1. Open the site and open Site Configurator Dialog:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_WITH_CONFIGURATOR);
-            //2. Clear the required text input:
-            await siteConfiguratorDialog.typeInTextInput("");
-            //3. Verify that 'Apply' button gets disabled
-            await siteConfiguratorDialog.waitForApplyButtonDisabled();
+            // 2. Clear the required text input:
+            await secondAppSiteConfiguratorDialog.typeInTextInTrackingIdInput("");
+            // 3. Verify that 'Apply' button gets disabled
+            await secondAppSiteConfiguratorDialog.waitForApplyButtonDisabled();
         });
 
     it(`GIVEN existing site with the configurator WHEN required input in the config is filled THEN the site should be valid in Browse Panel`,
@@ -102,14 +103,14 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(SITE.displayName);
             let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
-            studioUtils.saveScreenshot('site_conf_required_input_filled');
+            await studioUtils.saveScreenshot('site_conf_required_input_filled');
             assert.isFalse(isDisplayed, 'red icon should not be present near the content!');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

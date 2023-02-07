@@ -13,7 +13,7 @@ const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialo
 const IssueDetailsItemsTab = require('../../page_objects/issue/issue.details.items.tab');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 
-describe('wizard.publish.menu.issue.item.spec - Publish menu(in wizard)', function () {
+describe('wizard.publish.menu.issue.item.spec - tests for Publish menu in wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

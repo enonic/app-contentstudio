@@ -5,12 +5,12 @@ const XPATH = {
     container: `//div[contains(@id,'SiteConfiguratorDialog')]`,
     applyButton: `//button[contains(@id,'DialogButton') and child::span[text()='Apply']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
-    imageSelectorOptionFilterInput: `//div[contains(@id,'ImageContentComboBox')]//input[contains(@id,'ComboBoxOptionFilterInput')]`,
-    trackingIdTextInput: "//input[contains(@name,'trackingId')]",
-    getTextInHtmlArea: function (id) {
+    imageContentCombobox: "//div[contains(@id,'ImageContentComboBox')]",
+    imageSelectorOptionFilterInput: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
+    getTextInHtmlArea: id => {
         return `return CKEDITOR.instances['${id}'].getData()`
     },
-    typeText: function (id, text) {
+    typeText: (id, text) => {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
 };
@@ -21,6 +21,10 @@ class SiteConfiguratorDialog extends Page {
         return XPATH.container + `${XPATH.cancelButton}`;
     }
 
+    get imageSelectorUploadButton() {
+        return XPATH.container + `${XPATH.imageContentCombobox}` + lib.UPLOAD_BUTTON;
+    }
+
     get cancelButtonTop() {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
@@ -29,25 +33,40 @@ class SiteConfiguratorDialog extends Page {
         return XPATH.container + XPATH.applyButton;
     }
 
+    get numPostsTextInput() {
+        return XPATH.container + "//input[contains(@name,'numPosts')]";
+    }
+
     get textInput() {
         return XPATH.container + lib.TEXT_INPUT;
     }
 
-    typeInTextInput(text) {
-        return this.typeTextInInput(this.textInput, text).catch(err => {
-            this.saveScreenshot('site_conf_err');
-            throw new Error("Site Configurator Dialog - " + err);
-        })
+    async waitForImageUploadButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.imageSelectorUploadButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_upload');
+            throw new Error(`Site Config, upload button, screenshot: '${screenshot}' ` + err);
+        }
     }
 
-    async typeNumPosts(number) {
-        let selector = XPATH.container + "//input[contains(@name,'numPosts')]";
+    async typeTextInNumPostsInput(number) {
         try {
-            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-            return await this.typeTextInInput(selector, number);
+            await this.waitForElementDisplayed(this.numPostsTextInput, appConst.shortTimeout);
+            return await this.typeTextInInput(this.numPostsTextInput, number);
         } catch (err) {
-            this.saveScreenshot('site_conf_err_num_posts');
-            throw new Error("Site Configurator Dialog - " + err);
+            await this.saveScreenshot('site_conf_err_num_posts');
+            throw new Error('Site Configurator Dialog - ' + err);
+        }
+    }
+
+    async getTextInNumPostsInput() {
+        try {
+            await this.waitForElementDisplayed(this.numPostsTextInput, appConst.shortTimeout);
+            return await this.getTextInInput(this.numPostsTextInput,);
+        } catch (err) {
+            await this.saveScreenshot('site_conf_err_num_posts');
+            throw new Error('Site Configurator Dialog - ' + err);
         }
     }
 
