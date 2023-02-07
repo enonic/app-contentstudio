@@ -18,7 +18,7 @@ const webDriverHelper = require('./WebDriverHelper');
 
 module.exports = {
     getBrowser() {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             return browser;
         } else {
             return webDriverHelper.browser;
@@ -143,7 +143,7 @@ module.exports = {
             await projectWizardDialogSummaryStep.pause(1000);
             await projectWizardDialogSummaryStep.waitForLoaded();
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_save_proj");
+            let screenshot = appConst.generateRandomName('err_save_proj');
             await this.saveScreenshot(screenshot);
             throw new Error("Error when saving a project, screenshot:" + screenshot + "  " + err);
         }

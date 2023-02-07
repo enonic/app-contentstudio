@@ -4,12 +4,11 @@ const lib = require('../libs/elements');
 const DateTimeRange = require('../page_objects/components/datetime.range');
 
 const XPATH = {
-    container: `//div[contains(@id,'ContentPublishDialog')]`,
-    logMessageLink: `//div[contains(@id,'ContentPublishDialogSubTitle')]/a`,
+    container: "//div[contains(@id,'ContentPublishDialog')]",
+    logMessageLink: "//div[contains(@id,'ContentPublishDialogSubTitle')]/a",
     publishScheduleForm: "//div[contains(@id,'PublishScheduleForm')]",
     publishNowButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Publish Now')]]`,
     scheduleButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Schedule')]]`,
-    cancelButtonTop: `//button[ contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
     hideDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Hide dependent items')]`,
@@ -22,8 +21,7 @@ const XPATH = {
     readyForPublishingText: "//span[contains(@class,'entry-text') and text()='Content is ready for publishing']",
     excludeInvalidItems: "//button[child::span[contains(.,'Exclude invalid items')]]",
     errorEntry: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]",
-    inProgressErrorEntry: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]//span[contains(@class,'entry-text') and text()='In progress']",
-
+    inProgressErrorEntry: "//span[contains(@class,'entry-text') and text()='In progress']",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToPublish:
@@ -389,7 +387,7 @@ class ContentPublishDialog extends Page {
     }
 
     async getInProgressEntryText() {
-        let locator = XPATH.container + XPATH.inProgressErrorEntry;
+        let locator = XPATH.container + XPATH.errorEntry + XPATH.inProgressErrorEntry;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let res = await this.getAttribute(locator, 'data-count');
         return res;

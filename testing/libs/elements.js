@@ -34,6 +34,7 @@ module.exports = Object.freeze({
     OCCURRENCE_ERROR_BLOCK: "//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]",
     OCCURRENCE_VIEW: "//div[contains(@id,'InputOccurrenceView')]",
     ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton') and @title='Add new']",
+    EDIT_ICON: "//a[@class='edit']",
     tabBarItemByName: function (name) {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },
@@ -56,6 +57,7 @@ module.exports = Object.freeze({
     projectByName: name => {
         return `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'name') and contains(.,'${name}')]]`
     },
+    selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
     formItemByLabel: (label) => {
         return `//div[contains(@id,'FormItem') and descendant::label[contains(.,'${label}')]]`
     },
@@ -70,6 +72,7 @@ module.exports = Object.freeze({
     tabMenuItem: menuName => `//li[contains(@id,'TabMenuItem') and child::a[text()='${menuName}']]`,
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
+    UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
     MORE_FOLD_BUTTON: "//div[contains(@id,'FoldButton') and descendant::span[text()='More']]",
     CANCEL_BUTTON_DIALOG: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     COMBO_BOX_OPTION_FILTER_INPUT: "//input[contains(@id,'ComboBoxOptionFilterInput')]",

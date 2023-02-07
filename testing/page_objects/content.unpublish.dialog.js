@@ -79,7 +79,7 @@ class ContentUnpublishDialog extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(locator);
         } catch (err) {
-            let screenshot = this.saveScreenshotUniqueName('err_unpublish_dlg');
+            let screenshot = await this.saveScreenshotUniqueName('err_unpublish_dlg');
             throw new Error(`Content Unpublish Dialog - Error during getting items in main items list,  screenshot: ${screenshot} ` + err);
         }
     }

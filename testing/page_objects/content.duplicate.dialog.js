@@ -63,9 +63,15 @@ class ContentDuplicateDialog extends Page {
     }
 
     async clickOnDuplicateButton() {
-        await this.waitForElementEnabled(this.duplicateButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.duplicateButton);
-        return await this.pause(500);
+        try {
+            await this.waitForElementEnabled(this.duplicateButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.duplicateButton);
+            return await this.pause(500);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_duplicate_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error after clicking on Duplicate button, screenshot:  ' + screenshot + ' ' + err);
+        }
     }
 
     async clickOnShowDependentItemLink() {
@@ -76,13 +82,13 @@ class ContentDuplicateDialog extends Page {
 
     waitForDialogOpened() {
         return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
-            throw new Error("Content Duplicate dialog is not loaded " + err);
+            throw new Error("'Content Duplicate' dialog is not loaded " + err);
         })
     }
 
     waitForDialogClosed() {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
-            throw new Error("Content Duplicate dialog must be closed  " + err);
+            throw new Error("'Content Duplicate' dialog must be closed  " + err);
         })
     }
 
@@ -91,11 +97,11 @@ class ContentDuplicateDialog extends Page {
             let linkText = await this.getText(this.showDependentItemsLink);
             let startIndex = linkText.indexOf('(');
             if (startIndex == -1) {
-                throw new Error("Content Duplicate Dialog - error when get a number in  `show dependent items` link  ");
+                throw new Error("'Content Duplicate Dialog' - error when get a number in  `show dependent items` link  ");
             }
             let endIndex = linkText.indexOf(')');
             if (endIndex == -1) {
-                throw new Error("Content Duplicate Dialog - error when get a number in  `show dependent items` link  ");
+                throw new Error("'Content Duplicate Dialog' - error when get a number in  `show dependent items` link  ");
             }
             return linkText.substring(startIndex + 1, endIndex);
         } catch (err) {
@@ -115,7 +121,7 @@ class ContentDuplicateDialog extends Page {
             let endIndex = result.indexOf(')');
             return result.substring(startIndex + 1, endIndex);
         } catch (err) {
-            throw new Error("Error when getting number in Duplicate button " + err);
+            throw new Error("Error when getting number in 'Duplicate' button " + err);
         }
     }
 

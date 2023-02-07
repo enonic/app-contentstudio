@@ -58,7 +58,6 @@ class BaseDetailsDialog extends Page {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
 
-
     isNoActionLabelPresent() {
         return this.isElementDisplayed(XPATH.noActionLabel);
     }
@@ -68,10 +67,16 @@ class BaseDetailsDialog extends Page {
     }
 
     async clickOnCancelTopButton() {
-        await this.waitForElementDisplayed(this.cancelTopButton, appConst.mediumTimeout);
-        await this.pause(500);
-        await this.clickOnElement(this.cancelTopButton);
-        return await this.pause(500);
+        try {
+            await this.waitForElementDisplayed(this.cancelTopButton, appConst.mediumTimeout);
+            await this.pause(500);
+            await this.clickOnElement(this.cancelTopButton);
+            return await this.pause(500);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_cancel_top');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error after clicking on Cancel Top button, screenshot:  ' + screenshot + ' ' + err);
+        }
     }
 
     clickOnIssueStatusSelector() {
@@ -98,8 +103,8 @@ class BaseDetailsDialog extends Page {
             await this.typeTextInInput(this.titleInput, title);
             await this.pause(400);
         } catch (err) {
-            this.saveScreenshot("err_type_issue_title");
-            throw new Error('error when type issue-title ' + err);
+            await this.saveScreenshot('err_type_issue_title');
+            throw new Error('error when type the issue-title ' + err);
         }
     }
 
@@ -108,8 +113,8 @@ class BaseDetailsDialog extends Page {
             await this.addTextInInput(this.titleInput, newTitle);
             await this.pause(400);
         } catch (err) {
-            this.saveScreenshot("err_type_issue_title");
-            throw new Error('error when type issue-title ' + err);
+            this.saveScreenshot('err_type_issue_title');
+            throw new Error('error during update the issue-title ' + err);
         }
     }
 
