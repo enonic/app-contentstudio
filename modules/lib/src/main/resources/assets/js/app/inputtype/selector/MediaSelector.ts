@@ -18,6 +18,7 @@ import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypes
 import {Content} from '../../content/Content';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ContentSummary} from '../../content/ContentSummary';
+import {ContentPath} from '../../content/ContentPath';
 
 export class MediaSelector
     extends ContentSelector {
@@ -30,10 +31,6 @@ export class MediaSelector
     }
 
     protected addExtraElementsOnLayout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
-        if (!this.context.content) {
-            return Q.resolve();
-        }
-
         return this.createUploader().then((mediaUploader: MediaUploaderEl) => {
             this.comboBoxWrapper.appendChild(this.uploader = mediaUploader);
 
@@ -85,7 +82,7 @@ export class MediaSelector
 
         return {
             params: {
-                parent: this.context.content.getContentId().toString()
+                parent: this.context.content?.getContentId().toString() || ContentPath.getRoot().toString()
             },
             operation: MediaUploaderElOperation.create,
             name: 'media-selector-upload-el',

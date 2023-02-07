@@ -153,17 +153,23 @@ export class ContentSelector
     }
 
     protected addExtraElementsOnLayout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
-        if (!this.context.content) {
-            return Q.resolve();
-        }
-
-        return new GetContentTypeByNameRequest(this.context.content.getType()).sendAndParse().then((contentType: ContentType) => {
-            if (contentType.isAllowChildContent()) {
+        return this.isNewButtonToBeAdded().then((isNewButtonToBeAdded: boolean) => {
+            if (isNewButtonToBeAdded) {
                 this.addNewContentButton();
             }
 
             return Q.resolve();
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    private isNewButtonToBeAdded(): Q.Promise<boolean> {
+        if (!this.context.content) {
+            return Q.resolve(true);
+        }
+
+        return new GetContentTypeByNameRequest(this.context.content.getType()).sendAndParse().then((contentType: ContentType) => {
+            return Q.resolve(contentType.isAllowChildContent());
+        });
     }
 
     private addNewContentButton(): void {

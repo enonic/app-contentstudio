@@ -149,6 +149,8 @@ export class ProjectWizardPanel
             const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
             this.wizardHeader.setDisplayName(project.getDisplayName());
             this.projectWizardStepForm.setDescription(project.getDescription(), true);
+            this.readAccessWizardStepForm.clean();
+
             showFeedback(this.getSuccessfulUpdateMessage(item.getName()));
             return item;
         });
