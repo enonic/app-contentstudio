@@ -14,6 +14,7 @@ import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {UploadProgressBar} from './UploadProgressBar';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ContentPath} from '../../../content/ContentPath';
 
 export class NewContentButton
     extends ButtonEl {
@@ -24,7 +25,7 @@ export class NewContentButton
 
     private static newContentDialog: NewContentDialog;
 
-    private content: ContentSummary;
+    private content?: ContentSummary;
 
     private typeSelectedHandler: (contentType: ContentTypeSummary, parentContent?: ContentSummary) => void;
 
@@ -36,7 +37,7 @@ export class NewContentButton
 
     private contentAddedListeners: { (content: ContentSummary): void }[] = [];
 
-    constructor(content: ContentSummary, allowedContentTypes?: string[]) {
+    constructor(content?: ContentSummary, allowedContentTypes?: string[]) {
         super();
 
         this.content = content;
@@ -57,7 +58,10 @@ export class NewContentButton
         this.typeSelectedHandler = this.handleTypeSelected.bind(this);
         this.onClicked(() => this.handleButtonClicked());
         this.dialogUploadHandler = this.handleUpload.bind(this);
-        ContentServerEventsHandler.getInstance().onContentUpdated(this.handleContentUpdateEvent.bind(this));
+
+        if (this.content) {
+            ContentServerEventsHandler.getInstance().onContentUpdated(this.handleContentUpdateEvent.bind(this));
+        }
     }
 
     private handleButtonClicked(): void {
@@ -70,7 +74,7 @@ export class NewContentButton
     }
 
     private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
-        return ContentTypesHelper.getAvailableContentTypes(this.content.getContentId(), this.allowedContentTypes);
+        return ContentTypesHelper.getAvailableContentTypes(this.content?.getContentId(), this.allowedContentTypes);
     }
 
     private handleUpload(items: UploadItem<Content>[]): void {
@@ -113,7 +117,8 @@ export class NewContentButton
     }
 
     private createContent(contentType: ContentTypeSummary, parentContent?: ContentSummary): Q.Promise<Content> {
-        return ContentHelper.makeNewContentRequest(contentType.getContentTypeName(), parentContent?.getPath()).sendAndParse();
+        return ContentHelper.makeNewContentRequest(contentType.getContentTypeName(),
+            parentContent?.getPath() || ContentPath.getRoot()).sendAndParse();
     }
 
     private handleContentCreated(content: Content): void {

@@ -178,6 +178,12 @@ export class ProjectReadAccessFormItem
 
         return false;
     }
+
+    clean(): void {
+        if (this.getReadAccessType() !== ProjectReadAccessType.CUSTOM) {
+            this.principalsCombobox.clearSelection();
+        }
+    }
 }
 
 class ExtendedPrincipalComboBox

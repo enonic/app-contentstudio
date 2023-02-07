@@ -207,4 +207,8 @@ export class ProjectReadAccessWizardStepForm
     isEmpty(): boolean {
         return !this.getLanguage() && (!this.readAccessFormItem || !this.readAccessFormItem.getRadioGroup().getValue());
     }
+
+    clean(): void {
+        this.readAccessFormItem?.clean();
+    }
 }
