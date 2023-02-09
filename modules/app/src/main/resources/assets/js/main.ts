@@ -63,6 +63,7 @@ import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {ProjectNotAvailableDialog} from 'lib-contentstudio/app/settings/dialog/project/create/ProjectNotAvailableDialog';
 import {ProjectDeletedEvent} from 'lib-contentstudio/app/settings/event/ProjectDeletedEvent';
 import {NewContentEvent} from 'lib-contentstudio/app/create/NewContentEvent';
+import {ContentEventsListener} from 'lib-contentstudio/app/ContentEventsListener';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -593,6 +594,8 @@ async function startContentBrowser() {
     new SortContentDialog();
 
     new MoveContentDialog();
+
+    new ContentEventsListener().start();
 }
 
 function initProjectContext(application: Application): Q.Promise<void> {

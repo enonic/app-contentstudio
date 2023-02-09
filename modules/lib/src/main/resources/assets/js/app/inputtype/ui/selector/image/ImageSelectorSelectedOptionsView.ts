@@ -11,9 +11,10 @@ import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {MediaSelectorDisplayValue} from '../media/MediaSelectorDisplayValue';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ContentSelectedOptionsView} from '../ContentComboBox';
 
 export class ImageSelectorSelectedOptionsView
-    extends BaseSelectedOptionsView<MediaTreeSelectorItem> {
+    extends ContentSelectedOptionsView {
 
     private activeOption: SelectedOption<MediaTreeSelectorItem>;
 
@@ -122,7 +123,7 @@ export class ImageSelectorSelectedOptionsView
             return true;
         }
 
-        const displayValue = selectedOption.getOption().getDisplayValue();
+        const displayValue: MediaTreeSelectorItem = selectedOption.getOption().getDisplayValue() as MediaTreeSelectorItem;
         if (displayValue.getContentSummary() == null && option.getDisplayValue().getContentSummary() != null) {
             this.updateUploadedOption(option);
             return true;

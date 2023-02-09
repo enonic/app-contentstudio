@@ -31,8 +31,6 @@ export class ContentAppContainer
 
     constructor() {
         super();
-
-        new ContentEventsListener().start();
     }
 
     protected createAppPanel(): ContentAppPanel {

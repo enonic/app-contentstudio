@@ -18,6 +18,7 @@ import {GridOptions} from '@enonic/lib-admin-ui/ui/grid/GridOptions';
 import {Grid} from '@enonic/lib-admin-ui/ui/grid/Grid';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
+import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 
 export class ImageContentComboBox
     extends ContentComboBox<MediaTreeSelectorItem> {
@@ -150,8 +151,8 @@ export class ImageContentComboBoxBuilder
 
     comboBoxName: string = 'imageContentSelector';
 
-    selectedOptionsView: SelectedOptionsView<MediaTreeSelectorItem> =
-        <SelectedOptionsView<MediaTreeSelectorItem>>new ImageSelectorSelectedOptionsView();
+    selectedOptionsView: SelectedOptionsView<ContentTreeSelectorItem> =
+        <SelectedOptionsView<ContentTreeSelectorItem>>new ImageSelectorSelectedOptionsView();
 
     optionDisplayValueViewer: ImageSelectorViewer = new ImageSelectorViewer();
 

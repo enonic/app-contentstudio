@@ -175,7 +175,8 @@ export class ContentSelector
     private addNewContentButton(): void {
         this.comboBoxWrapper.addClass('new-content');
 
-        this.newContentButton = new NewContentButton(this.context.content, this.allowedContentTypes);
+        this.newContentButton = new NewContentButton(
+            {content: this.context.content, allowedContentTypes: this.allowedContentTypes, project: this.context.project});
         this.newContentButton.setTitle(i18n('action.addNew'));
         this.newContentButton.onContentAdded((content: ContentSummary) => this.contentComboBox.select(this.createSelectorItem(content)));
 
@@ -222,7 +223,7 @@ export class ContentSelector
     }
 
     protected doCreateContentComboBoxBuilder(): ContentComboBoxBuilder<ContentTreeSelectorItem> {
-        return ContentComboBox.create();
+        return ContentComboBox.create().setProject(this.context.project);
     }
 
     protected createOptionDataLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {

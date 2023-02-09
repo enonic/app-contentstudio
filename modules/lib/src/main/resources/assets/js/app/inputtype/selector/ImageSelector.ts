@@ -26,6 +26,7 @@ import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentPath} from '../../content/ContentPath';
+import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 
 export class ImageSelector
     extends MediaSelector {
@@ -62,7 +63,7 @@ export class ImageSelector
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
                 const content = option.getOption().getDisplayValue().getContentSummary();
                 const model = ContentSummaryAndCompareStatus.fromContentSummary(content);
-                new EditContentEvent([model]).fire();
+                new EditContentEvent([model], this.context.project).fire();
             });
         });
 
@@ -89,7 +90,7 @@ export class ImageSelector
     }
 
     protected doCreateContentComboBoxBuilder(): ImageContentComboBoxBuilder {
-        return ImageContentComboBox.create();
+        return ImageContentComboBox.create().setProject(this.context.project);
     }
 
     protected createContentComboBoxBuilder(input: Input, propertyArray: PropertyArray): ImageContentComboBoxBuilder {
@@ -207,9 +208,11 @@ export class ImageSelector
 
     protected initFailedListener(uploader: ImageUploaderEl) {
         uploader.onUploadFailed((event: UploadFailedEvent<Content>) => {
-            let item = event.getUploadItem();
+            const item: UploadItem<Content> = event.getUploadItem();
 
-            let selectedOption = this.getSelectedOptionsView().getById(item.getId());
+            const selectedOption: SelectedOption<MediaTreeSelectorItem> =
+                this.getSelectedOptionsView().getById(item.getId()) as SelectedOption<MediaTreeSelectorItem>;
+
             if (!!selectedOption) {
                 this.getSelectedOptionsView().removeSelectedOptions([selectedOption]);
             }

@@ -29,9 +29,10 @@ import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ContentPath} from '../content/ContentPath';
 import {ContentSummary} from '../content/ContentSummary';
-import {ContentTypesHelper} from '../util/ContentTypesHelper';
+import {ContentTypesHelper, GetTypesParams} from '../util/ContentTypesHelper';
 import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
 import {ContentType} from '../inputtype/schema/ContentType';
+import {Project} from '../settings/data/project/Project';
 
 type TypesAndAggregations = [ContentTypeSummary[], AggregateContentTypesResult];
 
@@ -55,6 +56,8 @@ export class NewContentDialog
     private recentContentTypes: RecentItemsBlock;
 
     private contentTypes?: ContentTypeSummary[];
+
+    private project?: Project;
 
     private emptyView?: Element;
 
@@ -237,6 +240,11 @@ export class NewContentDialog
         return this;
     }
 
+    setProject(project: Project): NewContentDialog {
+        this.project = project;
+        return this;
+    }
+
     // then catch drag leave on uploader's dropzone to get back to previous state
     private initDragAndDropUploaderEvents() {
         let dragOverEl;
@@ -313,7 +321,7 @@ export class NewContentDialog
     }
 
     private loadTypesWithAggregations(): Q.Promise<TypesAndAggregations> {
-        return Q.all([this.loadContentTypes(), ContentTypesHelper.getAggregatedTypesByContent(this.parentContent)])
+        return Q.all([this.loadContentTypes(), ContentTypesHelper.getAggregatedTypesByContent(this.parentContent, this.project)])
             .spread((contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult) => [contentTypes, aggregations]);
     }
 
@@ -350,8 +358,17 @@ export class NewContentDialog
     }
 
     private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
-        return this.contentTypes ? Q.resolve(this.contentTypes) :
-               ContentTypesHelper.getAvailableContentTypes(this.parentContent?.getContentId(), this.allowedContentTypes);
+        if (this.contentTypes) {
+            return Q.resolve(this.contentTypes);
+        }
+
+        const params: GetTypesParams = {
+            contentId: this.parentContent?.getContentId(),
+            allowedContentTypes: this.allowedContentTypes,
+            project: this.project
+        };
+
+        return ContentTypesHelper.getAvailableContentTypes(params);
     }
 
     private updateLists(contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult): void {

@@ -19,16 +19,19 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ContentPath} from '../content/ContentPath';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {Project} from '../settings/data/project/Project';
 
 export class AggregateContentTypesByPathRequest
     extends CmsContentResourceRequest<AggregateContentTypesResult> {
 
     private request: ContentQueryRequest<ContentSummaryJson, ContentSummary>;
 
-    constructor(parentPath: ContentPath) {
+    constructor(parentPath: ContentPath, project?: Project) {
         super();
-        this.request = new ContentQueryRequest<ContentSummaryJson, ContentSummary>(this.buildAggregationsQuery(parentPath));
 
+        this.request =
+            new ContentQueryRequest<ContentSummaryJson, ContentSummary>(this.buildAggregationsQuery(parentPath))
+                .setRequestProject(project);
     }
 
     getRequestPath(): Path {
@@ -36,7 +39,6 @@ export class AggregateContentTypesByPathRequest
     }
 
     sendAndParse(): Q.Promise<AggregateContentTypesResult> {
-
         return this.request.sendAndParse().then((result: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
             return this.doParseResponse(result);
         });
