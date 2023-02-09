@@ -5,6 +5,7 @@
   </interfaces>
   <config>
     <property name="width" value="small"/>
+    <property name="height" value="small"/>
     <property name="style" value="custom"/>
     <property name="order" value="1"/>
   </config>
