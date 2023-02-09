@@ -82,6 +82,7 @@ jar {
     exclude 'assets/page-editor/lib/_include.js'
     exclude 'assets/page-editor/lib/jquery*.js'
     exclude 'assets/icons/*.txt'
+    exclude 'assets/styles/widgets/*.js'
 
     if ( isProd() )
     {
