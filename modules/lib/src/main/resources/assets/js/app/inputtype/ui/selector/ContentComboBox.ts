@@ -76,6 +76,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
         this.showAfterReload = false;
         this.optionsFactory = new OptionsFactory<ITEM_TYPE>(this.getLoader(), builder.optionDataHelper);
+        (<ContentSelectedOptionsView>this.getSelectedOptionView()).setProject(builder.project);
     }
 
     private createStatusColumn() {
@@ -318,9 +319,18 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 export class ContentSelectedOptionsView
     extends BaseSelectedOptionsView<ContentTreeSelectorItem> {
 
+    private project?: Project;
+
     createSelectedOption(option: Option<ContentTreeSelectorItem>): SelectedOption<ContentTreeSelectorItem> {
-        let optionView = !!option.getDisplayValue() ? new ContentSelectedOptionView(option) : new MissingContentSelectedOptionView(option);
+        const optionView = !!option.getDisplayValue() ?
+                         new ContentSelectedOptionView(option, this.project) :
+                         new MissingContentSelectedOptionView(option);
         return new SelectedOption<ContentTreeSelectorItem>(optionView, this.count());
+    }
+
+    setProject(value: Project): this {
+        this.project = value;
+        return this;
     }
 }
 
@@ -348,13 +358,17 @@ export class MissingContentSelectedOptionView
 export class ContentSelectedOptionView
     extends RichSelectedOptionView<ContentTreeSelectorItem> {
 
-    constructor(option: Option<ContentTreeSelectorItem>) {
+    private project?: Project;
+
+    constructor(option: Option<ContentTreeSelectorItem>, project?: Project) {
         super(<RichSelectedOptionViewBuilder<ContentTreeSelectorItem>>
             new RichSelectedOptionViewBuilder<ContentTreeSelectorItem>()
                 .setDraggable(true)
                 .setEditable(true)
                 .setOption(option)
         );
+
+        this.project = project;
         this.addClass('content-selected-option-view');
     }
 
@@ -373,7 +387,7 @@ export class ContentSelectedOptionView
     protected onEditButtonClicked(e: MouseEvent) {
         let content = this.getOptionDisplayValue().getContent();
         let model = [ContentSummaryAndCompareStatus.fromContentSummary(content)];
-        new EditContentEvent(model).fire();
+        new EditContentEvent(model, this.project).fire();
 
         return super.onEditButtonClicked(e);
     }

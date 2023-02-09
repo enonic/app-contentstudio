@@ -14,10 +14,12 @@ export class ProjectHelper {
         });
     }
 
-    public static isUserProjectOwner(loginResult: LoginResult): Q.Promise<boolean> {
-        return new ProjectGetRequest(ProjectContext.get().getProject().getName()).sendAndParse().then((project: Project) => {
-            return Q(ProjectHelper.isProjectOwner(loginResult, project));
-        });
+    public static isUserProjectOwner(loginResult: LoginResult, project?: Project): Q.Promise<boolean> {
+        return new ProjectGetRequest(project?.getName() || ProjectContext.get().getProject().getName())
+            .sendAndParse()
+            .then((project: Project) => {
+                return Q(ProjectHelper.isProjectOwner(loginResult, project));
+            });
     }
 
     private static isProjectOwnerOrEditor(loginResult: LoginResult, project: Project): boolean {

@@ -15,6 +15,13 @@ import {UploadProgressBar} from './UploadProgressBar';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentPath} from '../../../content/ContentPath';
+import {Project} from '../../../settings/data/project/Project';
+
+export interface NewContentButtonParams {
+    content?: ContentSummary,
+    allowedContentTypes?: string[],
+    project?: Project;
+}
 
 export class NewContentButton
     extends ButtonEl {
@@ -27,6 +34,8 @@ export class NewContentButton
 
     private content?: ContentSummary;
 
+    private project?: Project;
+
     private typeSelectedHandler: (contentType: ContentTypeSummary, parentContent?: ContentSummary) => void;
 
     private dialogUploadHandler: (items: UploadItem<Content>[]) => void;
@@ -37,11 +46,12 @@ export class NewContentButton
 
     private contentAddedListeners: { (content: ContentSummary): void }[] = [];
 
-    constructor(content?: ContentSummary, allowedContentTypes?: string[]) {
+    constructor(params?: NewContentButtonParams) {
         super();
 
-        this.content = content;
-        this.allowedContentTypes = allowedContentTypes;
+        this.content = params?.content;
+        this.allowedContentTypes = params?.allowedContentTypes;
+        this.project = params?.project;
 
         this.initEventListeners();
     }
@@ -74,7 +84,8 @@ export class NewContentButton
     }
 
     private loadContentTypes(): Q.Promise<ContentTypeSummary[]> {
-        return ContentTypesHelper.getAvailableContentTypes(this.content?.getContentId(), this.allowedContentTypes);
+        return ContentTypesHelper.getAvailableContentTypes(
+            {contentId: this.content?.getContentId(), allowedContentTypes: this.allowedContentTypes, project: this.project});
     }
 
     private handleUpload(items: UploadItem<Content>[]): void {
@@ -101,6 +112,7 @@ export class NewContentButton
             .setContentTypes(types)
             .setAllowedContentTypes(this.allowedContentTypes)
             .setTypeSelectedHandler(this.typeSelectedHandler)
+            .setProject(this.project)
             .setUploadHandler(this.dialogUploadHandler)
             .open();
     }
@@ -123,7 +135,7 @@ export class NewContentButton
 
     private handleContentCreated(content: Content): void {
         this.notifyContentAdded(content);
-        new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(content)]).setDisplayAsNew(true).fire();
+        new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(content)], this.project).setDisplayAsNew(true).fire();
     }
 
     private handleItemUploadFailed(item: UploadItem<Content>): void {
