@@ -5,31 +5,40 @@
     color: @admin-white;
   }
 
+  > a {
+    text-decoration: none;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
   .widget-stats-container {
     display: grid;
     grid-template-columns: repeat(2, 45%);
     gap: 14px 20px;
     max-width: 360px;
 
-    .widget-stats-container-section {
+    > .widget-stats-container-section {
       text-align: center;
       width: 85px;
       margin: 0 auto;
 
-      .widget-stats-value {
+      > .widget-stats-value {
         font-size: 2.5em;
         color: white;
         margin: 0.2em 0;
         height: 35px;
       }
 
-      .widget-stats-label {
+      > .widget-stats-label {
         font-size: 1.1em;
         color: @admin-font-gray;
+        white-space: nowrap;
       }
 
-      .widget-stats-value,
-      .widget-stats-label {
+      > .widget-stats-value,
+      > .widget-stats-label {
         text-shadow: 0 0 1px @admin-black, 0 0 1px @admin-black, 0 0 1px @admin-black, 0 0 1px @admin-black;
       }
     }

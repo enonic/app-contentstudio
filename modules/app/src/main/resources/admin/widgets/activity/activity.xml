@@ -1,7 +1,7 @@
 <widget xmlns="urn:enonic:xp:model:1.0">
   <display-name>Content Studio: Activity</display-name>
   <interfaces>
-    <interface>home.dashboard.content-studio</interface>
+    <interface>admin.dashboard.content-studio</interface>
   </interfaces>
   <config>
     <property name="width" value="medium"/>
