@@ -3,23 +3,39 @@ const contextLib = require('/lib/xp/context');
 const contentLib = require('/lib/xp/content');
 const portalLib = require('/lib/xp/portal');
 const nodeLib = require('/lib/xp/node');
+const adminLib = require('/lib/xp/admin');
+const i18nLib = require('/lib/xp/i18n');
 const helper = require('/helpers/dashboard-helper');
+
+function localise(locale, key) {
+    return i18nLib.localize({
+        bundles: ['i18n/phrases'],
+        key,
+        locale
+    });
+}
 
 function handleGet() {
     const view = resolve('./stats.html');
     const projects = helper.getProjects();
-    const totalItems = '' + countItemsInRepos(projects);
-    const totalLanguages = '' + countLanguagesInRepos(projects);
-    const openIssues = '' + countIssuesInRepos(projects);
+    const contentItemsCount = '' + countItemsInRepos(projects);
+    const languagesCount = '' + countLanguagesInRepos(projects);
+    const openIssuesCount = '' + countIssuesInRepos(projects);
+    const locales = adminLib.getLocales();
 
     const params = {
-        projects: projects.length,
-        totalItems,
-        totalLanguages,
-        openIssues,
-        stylesUri: portalLib.assetUrl({
+        projectsCount: projects.length,
+        contentItemsCount,
+        languagesCount,
+        openIssuesCount,
+        stylesUrl: portalLib.assetUrl({
             path: 'styles/widgets/stats.css'
-        })
+        }),
+        toolUrl: adminLib.getToolUrl(app.name, 'main'),
+        contentItemsText: localise(locales, 'widget.dashboard.stats.contentItems'),
+        openIssuesText: localise(locales, 'widget.dashboard.stats.openIssues'),
+        projectsText: localise(locales, 'widget.dashboard.stats.projects'),
+        languagesText: localise(locales, 'widget.dashboard.stats.languages'),
     };
 
     return {

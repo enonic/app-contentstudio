@@ -1,7 +1,7 @@
 <widget xmlns="urn:enonic:xp:model:1.0">
-  <display-name>Content Studio: Stats</display-name>
+  <display-name>Statistics</display-name>
   <interfaces>
-    <interface>home.dashboard</interface>
+    <interface>admin.dashboard</interface>
   </interfaces>
   <config>
     <property name="width" value="small"/>

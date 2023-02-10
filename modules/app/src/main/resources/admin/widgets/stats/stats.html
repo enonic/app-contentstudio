@@ -1,37 +1,23 @@
 <widget id="widget-stats">
-    <link rel="stylesheet" href="{{stylesUri}}" type="text/css" media="all"/>
-    <div class="widget-stats-container">
-        <div class="widget-stats-container-section">
-            <div class="widget-stats-value">
-                {{totalItems}}
+    <link rel="stylesheet" href="{{stylesUrl}}" type="text/css" media="all"/>
+    <a href="{{toolUrl}}" target="_blank">
+        <div class="widget-stats-container">
+            <div class="widget-stats-container-section">
+                <div class="widget-stats-value">{{contentItemsCount}}</div>
+                <div class="widget-stats-label">{{contentItemsText}}</div>
             </div>
-            <div class="widget-stats-label">
-                Total items
+            <div class="widget-stats-container-section">
+                <div class="widget-stats-value">{{openIssuesCount}}</div>
+                <div class="widget-stats-label">{{openIssuesText}}</div>
             </div>
-        </div>
-        <div class="widget-stats-container-section">
-            <div class="widget-stats-value">
-                {{openIssues}}
+            <div class="widget-stats-container-section">
+                <div class="widget-stats-value">{{projectsCount}}</div>
+                <div class="widget-stats-label">{{projectsText}}</div>
             </div>
-            <div class="widget-stats-label">
-                Open Issues
-            </div>
-        </div>
-        <div class="widget-stats-container-section">
-            <div class="widget-stats-value">
-                {{projects}}
-            </div>
-            <div class="widget-stats-label">
-                Projects
+            <div class="widget-stats-container-section">
+                <div class="widget-stats-value">{{languagesCount}}</div>
+                <div class="widget-stats-label">{{languagesText}}</div>
             </div>
         </div>
-        <div class="widget-stats-container-section">
-            <div class="widget-stats-value">
-                {{totalLanguages}}
-            </div>
-            <div class="widget-stats-label">
-                Languages
-            </div>
-        </div>
-    </div>
+    </a>
 </widget>
