@@ -21,6 +21,7 @@ export class HtmlEditorParams {
     private readonly nodeChangeHandler: (e: any) => void;
     private readonly editorLoadedHandler: () => void;
     private readonly editorReadyHandler: () => void;
+    private readonly saveHandler?: () => void;
     private readonly createDialogHandler: { (event: CreateHtmlAreaDialogEvent): void };
     private readonly inline: boolean = false;
     private readonly fullscreenMode: boolean = false;
@@ -51,6 +52,7 @@ export class HtmlEditorParams {
         this.editorLoadedHandler = builder.editorLoadedHandler;
         this.editorReadyHandler = builder.editorReadyHandler;
         this.createDialogHandler = builder.createDialogHandler;
+        this.saveHandler = builder.saveHandler;
         this.inline = builder.inline;
         this.fullscreenMode = builder.fullscreenMode;
         this.fixedToolbarContainer = builder.fixedToolbarContainer;
@@ -134,6 +136,10 @@ export class HtmlEditorParams {
         return this.editorReadyHandler;
     }
 
+    getSaveHandler(): () => void {
+        return this.saveHandler;
+    }
+
     hasCreateDialogListener(): boolean {
         return !!this.createDialogHandler;
     }
@@ -210,6 +216,8 @@ export class HtmlEditorParamsBuilder {
     editorLoadedHandler: () => void;
 
     editorReadyHandler: () => void;
+
+    saveHandler: () => void;
 
     createDialogHandler: { (event: CreateHtmlAreaDialogEvent): void };
 
@@ -293,6 +301,11 @@ export class HtmlEditorParamsBuilder {
 
     setEditorReadyHandler(editorReadyHandler: () => void): HtmlEditorParamsBuilder {
         this.editorReadyHandler = editorReadyHandler;
+        return this;
+    }
+
+    setSaveHandler(saveHandler: () => void): HtmlEditorParamsBuilder {
+        this.saveHandler = saveHandler;
         return this;
     }
 
