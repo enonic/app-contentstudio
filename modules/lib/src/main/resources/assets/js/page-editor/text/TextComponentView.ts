@@ -76,7 +76,6 @@ export class TextComponentView
 
         this.addTextContextMenuActions();
         this.addClassEx('text-view');
-        this.setContentEditable(true);
         this.setTextDir();
 
         this.checkIsSourceCodeEditable();
@@ -286,6 +285,7 @@ export class TextComponentView
         }
 
         this.toggleClass('edit-mode', edit);
+        this.setContentEditable(edit);
         this.setDraggable(!edit);
 
         if (!edit) {
