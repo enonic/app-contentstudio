@@ -97,6 +97,16 @@ class TextComponent extends Page {
         return await this.pause(1000);
     }
 
+    async insertTextInCkeEditorSection(text) {
+        await this.switchToLiveEditFrame();
+        let locator = "//section[contains(@id,'TextComponentView') and contains(@class,'editor-focused')]"
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let id = await this.getAttribute(locator, 'id');
+        await utils.setTextInCKE(id, text);
+        await this.getBrowser().switchToParentFrame();
+        return await this.pause(1000);
+    }
+
     async isTextAreaFocused() {
         try {
             await this.switchToLiveEditFrame();

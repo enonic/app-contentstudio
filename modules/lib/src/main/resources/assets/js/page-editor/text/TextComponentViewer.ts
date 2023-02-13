@@ -2,6 +2,7 @@ import {TextComponentView} from './TextComponentView';
 import {ItemViewIconClassResolver} from '../ItemViewIconClassResolver';
 import {TextComponent} from '../../app/page/region/TextComponent';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export class TextComponentViewer
     extends NamesAndIconViewer<TextComponent> {
@@ -12,10 +13,11 @@ export class TextComponentViewer
 
     resolveDisplayName(object: TextComponent, componentView?: TextComponentView): string {
         if (componentView) {
-            return componentView.extractText() || componentView.getName();
-        } else {
-            return object.getText();
+            const extractedText: string = componentView.extractText();
+            return StringHelper.isBlank(extractedText) ? componentView.getName() : extractedText;
         }
+
+        return object.getText();
     }
 
     resolveSubName(object: TextComponent, relativePath: boolean = false): string {
