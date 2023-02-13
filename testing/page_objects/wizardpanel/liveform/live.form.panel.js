@@ -12,7 +12,7 @@ const xpath = {
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
     textComponentView: "//div[contains(@id,'TextComponentView')]",
-    editableTextComponentView: "//div[contains(@id,'TextComponentView') and @contenteditable='true']",
+    editableTextComponentView: "//*[contains(@id,'TextComponentView') and @contenteditable='true']",
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
     imageInTextComponentByDisplayName:
         displayName => `//figure[contains(@data-widget,'image')]//img[contains(@src,'${displayName}')]`,
