@@ -33,6 +33,7 @@ import {ContentSummary} from '../../content/ContentSummary';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
+import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
@@ -290,6 +291,12 @@ export class HtmlArea
             }
         };
 
+        const saveHandler = () => {
+            if (this.context.content?.getContentId()) {
+                new ContentRequiresSaveEvent(this.context.content.getContentId()).fire();
+            }
+        };
+
         const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
             .setEditorContainerId(id)
             .setAssetsUri(CONFIG.getString('assetsUri'))
@@ -301,6 +308,7 @@ export class HtmlArea
             .setNodeChangeHandler(editorValueChangedHandler)
             .setEditorLoadedHandler(editorLoadedHandler)
             .setEditorReadyHandler(editorReadyHandler)
+            .setSaveHandler(saveHandler)
             .setContent(this.content)
             .setApplicationKeys(this.applicationKeys)
             .setEnabledTools(this.enabledTools)
