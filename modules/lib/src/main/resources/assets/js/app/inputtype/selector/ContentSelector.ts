@@ -280,6 +280,10 @@ export class ContentSelector
         });
 
         contentComboBox.onOptionMoved(this.handleMoved.bind(this));
+
+        contentComboBox.onValueLoaded(() => {
+            this.updateNewContentButton();
+        });
     }
 
     protected createContentComboBox(input: Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
@@ -309,9 +313,6 @@ export class ContentSelector
         }
 
         return super.update(propertyArray, unchangedOnly).then(() => {
-            /*let value = this.getValueFromPropertyArray(propertyArray);
-            this.contentComboBox.setValue(value);*/
-
             if (!unchangedOnly || !this.contentComboBox.isDirty() && this.contentComboBox.isRendered()) {
                 let value = this.getValueFromPropertyArray(propertyArray);
                 this.contentComboBox.setValue(value);
