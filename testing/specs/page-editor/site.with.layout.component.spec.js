@@ -71,16 +71,18 @@ describe('site.with.layout.component.spec - specification', function () {
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
             let liveFormPanel = new LiveFormPanel();
-            //1. Open existing site with 3-col layout:
+            // 1. Open existing site with 3-col layout:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.clickOnShowComponentViewToggler();
-            //2. Expand the layout item:
+            // 2. Expand the layout item:
             await pageComponentView.expandItem(LAYOUT_NAME);
-            //2. Insert the first text component:
+            // 3. Insert the first text component:
             await pageComponentView.openMenu('center');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.typeTextInCkeEditor('text center');
+            // 4. Save the site:
             await contentWizard.waitAndClickOnSave();
+            // 5. Verify that expected text is displayed in Live Edit panel:
             await contentWizard.switchToLiveEditFrame();
             let result = await liveFormPanel.getTextInEditableLayoutComponent();
             assert.equal(result[1], 'text center', 'Expected text should be present in the layout component');

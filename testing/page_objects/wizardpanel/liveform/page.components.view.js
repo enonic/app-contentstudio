@@ -192,6 +192,17 @@ class PageComponentView extends Page {
         return this.getTextInDisplayedElements(locator);
     }
 
+    async waitForItemDisplayed(itemDisplayName) {
+        try {
+            let locator = xpath.container + lib.SLICK_VIEW_PORT + xpath.pageComponentsItemViewer + lib.itemByDisplayName(itemDisplayName);
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_component_view');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`Page Component View -  item is not displayed, screenshot: ${screenshot}  ` + err);
+        }
+    }
+
     async expandItem(item) {
         let locator = xpath.itemExpanderIcon(item);
         await this.clickOnElement(locator);
