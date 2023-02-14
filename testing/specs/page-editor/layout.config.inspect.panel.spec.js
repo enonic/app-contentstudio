@@ -37,6 +37,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with aconfig', func
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
             await contentWizard.waitForNotificationMessage();
+            await contentWizard.pause(500);
             // 2. Verify that the site should be saved automatically after selecting a controller
             await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.DEFAULT);
             await contentWizard.waitForSaveButtonDisabled();
