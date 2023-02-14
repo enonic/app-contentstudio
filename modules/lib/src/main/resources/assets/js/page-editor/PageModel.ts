@@ -76,6 +76,8 @@ export class SetTemplate {
 
 }
 
+export type PageModeChangedEventHandler = (event: PageModeChangedEvent) => void;
+
 export class PageModel {
 
     public static PROPERTY_REGIONS: string = 'regions';
@@ -106,11 +108,11 @@ export class PageModel {
 
     private config: PropertyTree;
 
-    private pageModeChangedListeners: { (event: PageModeChangedEvent): void }[] = [];
+    private pageModeChangedListeners: PageModeChangedEventHandler[] = [];
 
     private propertyChangedListeners: { (event: PropertyChangedEvent): void }[] = [];
 
-    private componentPropertyChangedListeners: { (event: ComponentPropertyChangedEvent): void }[] = [];
+    private componentPropertyChangedListeners: ComponentPropertyChangedEventHandler[] = [];
 
     private customizeChangedListeners: { (value: boolean): void }[] = [];
 
@@ -525,22 +527,17 @@ export class PageModel {
         fragment.unPropertyChanged(this.componentPropertyChangedEventHandler);
     }
 
-    onPageModeChanged(listener: (event: PageModeChangedEvent) => void) {
+    onPageModeChanged(listener: PageModeChangedEventHandler) {
         this.pageModeChangedListeners.push(listener);
     }
 
-    unPageModeChanged(listener: (event: PageModeChangedEvent) => void) {
-        this.pageModeChangedListeners =
-            this.pageModeChangedListeners.filter((curr: (event: PageModeChangedEvent) => void) => {
-                return listener !== curr;
-            });
+    unPageModeChanged(listener: PageModeChangedEventHandler) {
+        this.pageModeChangedListeners = this.pageModeChangedListeners.filter((curr: PageModeChangedEventHandler) => listener !== curr);
     }
 
     private notifyPageModeChanged(oldValue: PageMode, newValue: PageMode) {
-        let event = new PageModeChangedEvent(oldValue, newValue);
-        this.pageModeChangedListeners.forEach((listener: (event: PageModeChangedEvent) => void) => {
-            listener(event);
-        });
+        const event: PageModeChangedEvent = new PageModeChangedEvent(oldValue, newValue);
+        this.pageModeChangedListeners.forEach((listener: PageModeChangedEventHandler) => listener(event));
     }
 
     onPropertyChanged(listener: (event: PropertyChangedEvent) => void) {

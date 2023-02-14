@@ -28,6 +28,7 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ContentId} from '../../app/content/ContentId';
+import {ContentSummary} from '../../app/content/ContentSummary';
 
 export class FragmentComponentViewBuilder
     extends ContentBasedComponentViewBuilder<FragmentComponent> {
@@ -107,12 +108,18 @@ export class FragmentComponentView
         });
     }
 
-    private handleContentUpdatedEvent() {
-        let contentUpdatedListener = (event: ContentUpdatedEvent) => {
-            const fragmentId = this.component ? this.component.getFragment() : null;
+    private handleContentUpdatedEvent(): void {
+        const contentUpdatedListener = (event: ContentUpdatedEvent) => {
+            const fragmentId: ContentId = this.component?.getFragment() || null;
 
-            if (fragmentId && fragmentId.equals(event.getContentId())) {
-                new FragmentComponentReloadRequiredEvent(this).fire();
+            if (fragmentId?.equals(event.getContentId())) {
+                const updatedFragment: ContentSummary = event.getContentSummary();
+
+                // skipping just created fragment
+                if (updatedFragment.getModifiedTime() &&
+                    Math.abs(updatedFragment.getModifiedTime().getTime() - updatedFragment.getCreatedTime().getTime()) > 300) {
+                    new FragmentComponentReloadRequiredEvent(this).fire();
+                }
             }
         };
 
@@ -257,23 +264,9 @@ export class FragmentComponentView
         htmlElement.removeAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
     }
 
-    private isTextComponentSection(element: Element, parentType: ItemType): boolean {
-        const isTextComponent = TextItemType.get().equals(parentType);
-        const isSection = element.getEl().getTagName().toUpperCase() === 'SECTION';
-        const contentId: ContentId = this.component.getFragment();
-
-        return contentId && isTextComponent && isSection;
-    }
-
     private convertTextComponentImageUrls(element: Element) {
         const text = HTMLAreaHelper.convertRenderSrcToPreviewSrc(element.getHtml(), this.component.getFragment().toString());
         element.setHtml(text, false);
-    }
-
-    private isTextComponent(element: Element): boolean {
-        const itemType = ItemType.fromElement(element);
-
-        return !!itemType && TextItemType.get().equals(itemType);
     }
 
     getContentId(): ContentId {

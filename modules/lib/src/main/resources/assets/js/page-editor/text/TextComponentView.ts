@@ -264,7 +264,7 @@ export class TextComponentView
         }
 
         event.stopPropagation();
-        if (event.which === 3) { // right click
+        if (event.button === 2) { // right click
             event.preventDefault();
         }
 

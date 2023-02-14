@@ -27,8 +27,6 @@ import {FragmentComponentView} from './fragment/FragmentComponentView';
 import {CreateFragmentRequest} from './CreateFragmentRequest';
 import {Content} from '../app/content/Content';
 import {Component, ComponentPropertyChangedEventHandler, ComponentResetEventHandler} from '../app/page/region/Component';
-import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropertyChangedEvent';
-import {ComponentResetEvent} from '../app/page/region/ComponentResetEvent';
 import {FragmentComponent} from '../app/page/region/FragmentComponent';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
@@ -360,9 +358,8 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     clone(): ComponentView<COMPONENT> {
-
-        let isFragmentContent = this.liveEditModel.getContent().getType().isFragment();
-        let index = isFragmentContent ? 0 : this.getParentItemView().getComponentViewIndex(this);
+        const isFragmentContent: boolean = this.liveEditModel.getContent().getType().isFragment();
+        const index: number = isFragmentContent ? 0 : this.getParentItemView().getComponentViewIndex(this);
 
         return <ComponentView<COMPONENT>>this.createView(this.getType(),
             new CreateItemViewConfig<RegionView, COMPONENT>().setParentView(this.getParentItemView()).setParentElement(
