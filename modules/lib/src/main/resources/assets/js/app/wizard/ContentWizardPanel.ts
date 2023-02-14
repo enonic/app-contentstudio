@@ -259,7 +259,7 @@ export class ContentWizardPanel
 
     private applicationLoadCount: number;
 
-    private debouncedEditorRefresh: (clearInspection: boolean) => void;
+    private debouncedEditorReload: (clearInspection: boolean) => void;
 
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
@@ -303,7 +303,7 @@ export class ContentWizardPanel
         this.editPermissionsToolbarButton = this.createEditButtonToolbar();
         this.getStepNavigator().whenRendered(() => this.editPermissionsToolbarButton.insertAfterEl(this.getStepNavigator()));
 
-        this.debouncedEditorRefresh = AppHelper.debounce((clearInspection: boolean = true) => {
+        this.debouncedEditorReload = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
 
             if (this.isRenderable()) {
@@ -831,17 +831,17 @@ export class ContentWizardPanel
         return this.formState.isNew();
     }
 
-    private updateModifiedPersistedContent(newPersistedContent: Content): void {
+    private updatePersistedContentIfChanged(newPersistedContent: Content): Q.Promise<void> {
         const viewedContent: Content = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
 
         // this update was triggered by our changes, so reset dirty state after save
-        if (viewedContent.equals(newPersistedContent)) {
-            this.resetWizard();
-            this.resetLivePanel(newPersistedContent).then(() => this.contextView.updateWidgetsVisibility());
-            return;
+        if (!viewedContent.equals(newPersistedContent)) {
+            return this.checkIfRenderable(newPersistedContent).then(() => {
+                this.doUpdateModifiedPersistedContent(viewedContent, newPersistedContent);
+            });
         }
 
-        this.doUpdateModifiedPersistedContent(viewedContent, newPersistedContent);
+        return Q.resolve();
     }
 
     private doUpdateModifiedPersistedContent(viewedContent: Content, newPersistedContent: Content): void {
@@ -871,20 +871,22 @@ export class ContentWizardPanel
         }
 
         if (this.getPersistedItem().getPage()) {
-            return this.updateLiveEditModel(contentClone).then(() => this.unloadPage());
+            return this.updateLiveEditModel(contentClone).then(() => this.handleNonRederablePage());
         }
 
         return this.unloadPage();
     }
 
+    private handleNonRederablePage(): Q.Promise<void> {
+        this.liveEditModel = null;
+        this.getLivePanel().setPageIsNotRenderable();
+
+        return Q.resolve();
+    }
+
     private unloadPage(): Q.Promise<void> {
         this.liveEditModel = null;
-
-        if (this.getPersistedItem().getPage()) {
-            this.getLivePanel().setPageIsNotRenderable();
-        } else {
-            this.livePanel.unloadPage();
-        }
+        this.livePanel.unloadPage();
 
         return Q.resolve();
     }
@@ -922,6 +924,13 @@ export class ContentWizardPanel
         new BeforeContentSavedEvent().fire();
 
         return super.saveChanges().then((content: Content) => {
+            if (this.reloadPageEditorOnSave) {
+                this.checkIfRenderable(content)
+                    .then(() => this.resetLivePanel(content.clone()))
+                    .then(() => this.contextView.updateWidgetsVisibility())
+                    .catch(DefaultErrorHandler.handle);
+            }
+
             return content.clone();
         }).finally(() => {
             this.contentUpdateDisabled = false;
@@ -1087,7 +1096,7 @@ export class ContentWizardPanel
         if (livePanel) {
             if (!isAnyAppMissing) {
                 if (this.isRenderable()) {
-                    this.debouncedEditorRefresh(false);
+                    this.debouncedEditorReload(false);
                 }
                 livePanel.clearErrorMissingApps();
             } else {
@@ -1558,7 +1567,7 @@ export class ContentWizardPanel
         }
 
         this.fetchPersistedContent().then((content: Content) => {
-            return this.checkIfRenderable(content).then(() => this.updateModifiedPersistedContent(content));
+            return this.updatePersistedContentIfChanged(content);
         }).catch(DefaultErrorHandler.handle).done();
     }
 
@@ -1573,6 +1582,11 @@ export class ContentWizardPanel
             return;
         }
 
+        // fragment will be reloaded alone in the live panel
+        if (updatedContent.getType().isFragment()) {
+            return;
+        }
+
         const contentId: ContentId = updatedContent.getContentId();
         const containsIdPromise: Q.Promise<boolean> = this.createComponentsContainIdPromise(contentId);
         const templateUpdatedPromise: Q.Promise<boolean> = this.createTemplateUpdatedPromise(updatedContent);
@@ -1581,7 +1595,7 @@ export class ContentWizardPanel
 
         Q.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
             if (containsId || templateUpdated) {
-                this.debouncedEditorRefresh(false);
+                this.debouncedEditorReload(false);
             }
         }).catch(DefaultErrorHandler.handle).done();
     }
@@ -1614,7 +1628,7 @@ export class ContentWizardPanel
                                    livePanel.clearSelectionAndInspect(true, true);
                                }
                                if (needsReload && reloadPage) {
-                                   this.debouncedEditorRefresh(true);
+                                   this.debouncedEditorReload(true);
                                }
                            }
                            return needsReload;
@@ -1724,7 +1738,7 @@ export class ContentWizardPanel
             const showPanel: boolean = wasNotRenderable && this.isRenderable();
             this.getLivePanel().setModel(this.liveEditModel);
             this.getLivePanel().clearSelectionAndInspect(showPanel, false);
-            this.debouncedEditorRefresh(false);
+            this.debouncedEditorReload(false);
 
             return Q(null);
         });
@@ -2192,6 +2206,10 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => form.isEnabled() ? null : form.resetData());
         this.xDataWizardStepForms.validate();
         this.displayValidationErrors(!this.isValid());
+
+        if (!this.isRename) {
+            this.resetWizard();
+        }
 
         return Q.resolve(persistedItem);
     }
@@ -2757,7 +2775,7 @@ export class ContentWizardPanel
 
         this.wizardHeader?.setOnline(!this.persistedContent.isNew());
         this.wizardHeader.setDir(Locale.supportsRtl(this.persistedContent.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
-        this.contextView?.setItem(content);
+        this.contextView?.setItem(content).then(() => this.contextView.updateWidgetsVisibility());
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {

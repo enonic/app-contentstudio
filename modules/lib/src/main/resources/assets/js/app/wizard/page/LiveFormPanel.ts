@@ -168,7 +168,11 @@ export class LiveFormPanel
 
     private contentEventListener: (event: any) => void;
 
+    private hasContentEventListeners: boolean;
+
     private saveAsTemplateAction: SaveAsTemplateAction;
+
+    private isPageNotRenderable: boolean;
 
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
@@ -243,6 +247,10 @@ export class LiveFormPanel
                 this.pageModel.setMode(PageMode.NO_CONTROLLER);
             }
         };
+
+        this.contentEventListener = (event) => {
+            this.propagateEvent(event);
+        };
     }
 
     private initMaskHandlers() {
@@ -262,9 +270,8 @@ export class LiveFormPanel
         };
     }
 
-    private initPropertyChangedHandlers() {
+    private initPropertyChangedHandlers(): void {
         this.componentPropertyChangedHandler = (event: ComponentPropertyChangedEvent) => {
-
             if (ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), DescriptorBasedComponent)) {
                 if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
 
@@ -357,7 +364,7 @@ export class LiveFormPanel
             if (this.content.getContentId().equals(summaryAndStatus.getContentId())) {
                 this.saveAsTemplateAction?.setContentSummary(summaryAndStatuses[0].getContentSummary());
 
-                if (this.placeholder && !this.placeholder.hasSelectedController()) {
+                if (!this.isPageNotRenderable && this.placeholder && !this.placeholder.hasSelectedController()) {
                     this.placeholder.loadControllers();
                 }
 
@@ -606,6 +613,7 @@ export class LiveFormPanel
         this.insertablesPanel.setContent(this.content);
         this.pageModel = liveEditModel.getPageModel();
         this.pageModel.setIgnorePropertyChanges(true);
+        this.isPageNotRenderable = false;
 
         const site: Site = this.content.isSite()
                            ? <Site>this.content
@@ -634,19 +642,17 @@ export class LiveFormPanel
     }
 
     private handleContentUpdatedEvent() {
-        if (!this.contentEventListener) {
-            this.contentEventListener = (event) => {
-                this.propagateEvent(event);
-            };
-
-            ContentDeletedEvent.on(this.contentEventListener);
-            ContentUpdatedEvent.on(this.contentEventListener);
-
-            this.onRemoved(() => {
-                ContentDeletedEvent.un(this.contentEventListener);
-                ContentUpdatedEvent.un(this.contentEventListener);
-            });
+        if (this.hasContentEventListeners) {
+            return;
         }
+
+        ContentDeletedEvent.on(this.contentEventListener);
+        ContentUpdatedEvent.on(this.contentEventListener);
+        this.hasContentEventListeners = true;
+
+        this.onRemoved(() => {
+            this.removeContentEventListeners();
+        });
     }
 
     skipNextReloadConfirmation(skip: boolean) {
@@ -1140,20 +1146,25 @@ export class LiveFormPanel
             this.placeholder.loadControllers();
         }
 
+        this.removeContentEventListeners();
+    }
+
+    private removeContentEventListeners(): void {
         ContentDeletedEvent.un(this.contentEventListener);
         ContentUpdatedEvent.un(this.contentEventListener);
+        this.hasContentEventListeners = false;
     }
 
     setPageIsNotRenderable(): void {
+        this.isPageNotRenderable = true;
+
         if (!this.placeholder) {
             this.createLiveEditPagePlaceholder();
         }
 
+        this.frameContainer?.hide();
         this.placeholder.setPageIsNotRenderable();
-    }
-
-    isRenderable(): boolean {
-        return this.contentWizardPanel.isRenderable();
+        this.placeholder.show();
     }
 
     getContextWindow(): ContextWindow {

@@ -17,21 +17,15 @@ export class Regions
 
     public static debug: boolean = false;
 
-    private regionByName: { [s: string]: Region; } = {};
+    private regionByName: Map<string, Region> = new Map<string, Region>();
 
     private changedListeners: { (event: RegionsChangedEvent): void }[] = [];
 
-    private componentPropertyChangedListeners: { (event: ComponentPropertyChangedEvent): void }[] = [];
+    private componentPropertyChangedListeners: ComponentPropertyChangedEventHandler[] = [];
 
-    private regionChangedListeners: { (event: RegionChangedEvent): void }[] = [];
+    private readonly regionChangedEventHandler: (event: any) => void;
 
-    private regionAddedListeners: { (event: RegionAddedEvent): void }[] = [];
-
-    private regionRemovedListeners: { (event: RegionRemovedEvent): void }[] = [];
-
-    private regionChangedEventHandler: (event: any) => void;
-
-    private componentPropertyChangedEventHandler: (event: any) => void;
+    private readonly componentPropertyChangedEventHandler: (event: any) => void;
 
     constructor(builder: RegionsBuilder) {
 
@@ -39,7 +33,7 @@ export class Regions
         this.componentPropertyChangedEventHandler = (event) => this.forwardComponentPropertyChangedEvent(event);
 
         builder.regions.forEach((region: Region) => {
-            if (this.regionByName[region.getName()] != null) {
+            if (this.regionByName.has(region.getName())) {
                 throw new Error('Regions must be unique by name, duplicate found: ' + region.getName());
             }
 
@@ -48,8 +42,7 @@ export class Regions
     }
 
     addRegion(region: Region) {
-
-        this.regionByName[region.getName()] = region;
+        this.regionByName.set(region.getName(), region);
 
         this.notifyRegionAdded(region.getPath());
         this.registerRegionListeners(region);
@@ -67,7 +60,7 @@ export class Regions
 
     removeRegions(regions: Region[]) {
         regions.forEach((region: Region) => {
-            delete this.regionByName[region.getName()];
+            this.regionByName.delete(region.getName());
 
             this.notifyRegionRemoved(region.getPath());
             this.unregisterRegionListeners(region);
@@ -75,18 +68,17 @@ export class Regions
     }
 
     getRegions(): Region[] {
-        let regions = [];
-        for (const name in this.regionByName) {
-            if (this.regionByName.hasOwnProperty(name)) {
-                regions.push(this.regionByName[name]);
-            }
-        }
+        const regions: Region[] = [];
+
+        this.regionByName.forEach((region: Region) => {
+            regions.push(region);
+        });
+
         return regions;
     }
 
     getRegionByName(name: string): Region {
-
-        return this.regionByName[name];
+        return this.regionByName.get(name);
     }
 
     /**
@@ -186,69 +178,31 @@ export class Regions
         });
     }
 
-    onRegionChanged(listener: (event: RegionChangedEvent) => void) {
-        this.regionChangedListeners.push(listener);
-    }
-
-    unRegionChanged(listener: (event: RegionChangedEvent) => void) {
-        this.regionChangedListeners =
-            this.regionChangedListeners.filter((curr: (event: RegionChangedEvent) => void) => {
-                return listener !== curr;
-            });
-    }
-
     private notifyRegionChanged(regionPath: RegionPath): void {
-        let event = new RegionChangedEvent(regionPath);
+        const event: RegionChangedEvent = new RegionChangedEvent(regionPath);
         if (Regions.debug) {
             console.debug('Regions.notifyRegionChanged: ' + event.getRegionPath().toString());
         }
-        this.regionChangedListeners.forEach((listener: (event: RegionChangedEvent) => void) => {
-            listener(event);
-        });
         this.notifyChanged(event);
-    }
-
-    onRegionAdded(listener: (event: RegionAddedEvent) => void) {
-        this.regionAddedListeners.push(listener);
-    }
-
-    unRegionAdded(listener: (event: RegionAddedEvent) => void) {
-        this.regionAddedListeners =
-            this.regionAddedListeners.filter((curr: (event: RegionAddedEvent) => void) => {
-                return listener !== curr;
-            });
     }
 
     private notifyRegionAdded(regionPath: RegionPath) {
-        let event = new RegionAddedEvent(regionPath);
+        const event: RegionAddedEvent = new RegionAddedEvent(regionPath);
+
         if (Regions.debug) {
             console.debug('Regions.notifyRegionAdded: ' + event.getRegionPath().toString());
         }
-        this.regionAddedListeners.forEach((listener: (event: RegionAddedEvent) => void) => {
-            listener(event);
-        });
+
         this.notifyChanged(event);
     }
 
-    onRegionRemoved(listener: (event: RegionRemovedEvent) => void) {
-        this.regionRemovedListeners.push(listener);
-    }
-
-    unRegionRemoved(listener: (event: RegionRemovedEvent) => void) {
-        this.regionRemovedListeners =
-            this.regionRemovedListeners.filter((curr: (event: RegionRemovedEvent) => void) => {
-                return listener !== curr;
-            });
-    }
-
     private notifyRegionRemoved(regionPath: RegionPath) {
-        let event = new RegionRemovedEvent(regionPath);
+        const event: RegionRemovedEvent = new RegionRemovedEvent(regionPath);
+
         if (Regions.debug) {
             console.debug('Regions.notifyRegionRemoved: ' + event.getRegionPath().toString());
         }
-        this.regionRemovedListeners.forEach((listener: (event: RegionRemovedEvent) => void) => {
-            listener(event);
-        });
+
         this.notifyChanged(event);
     }
 

@@ -37,7 +37,7 @@ export abstract class Component
 
     private propertyValueChangedListeners: ComponentPropertyValueChangedEventHandler[] = [];
 
-    private resetListeners: { (event: ComponentResetEvent): void }[] = [];
+    private resetListeners: ComponentResetEventHandler[] = [];
 
     private readonly type: ComponentType;
 
@@ -173,7 +173,9 @@ export abstract class Component
     }
 
     onReset(listener: ComponentResetEventHandler) {
-        this.resetListeners.push(listener);
+        if (!this.resetListeners.some((existingListener: ComponentResetEventHandler) => existingListener === listener)) {
+            this.resetListeners.push(listener);
+        }
     }
 
     unReset(listener: ComponentResetEventHandler) {
@@ -193,7 +195,9 @@ export abstract class Component
      * Observe when a property of Component have been reassigned.
      */
     onPropertyChanged(listener: ComponentPropertyChangedEventHandler) {
-        this.propertyChangedListeners.push(listener);
+        if (!this.propertyChangedListeners.some((currentListener: ComponentPropertyChangedEventHandler) => currentListener === listener)) {
+            this.propertyChangedListeners.push(listener);
+        }
     }
 
     unPropertyChanged(listener: ComponentPropertyChangedEventHandler) {
