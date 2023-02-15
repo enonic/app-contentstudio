@@ -70,8 +70,7 @@ export class PageComponentsTreeGrid
             this.updateNodeByData(new ItemViewTreeGridWrapper(textComponentView));
         }, 500, false);
 
-        textComponentView.onKeyUp(handler);
-        textComponentView.getHTMLElement().onpaste = handler;
+        new MutationObserver(handler).observe(textComponentView.getHTMLElement(), {subtree: true, childList: true, characterData: true});
     }
 
     private updateTreeNodeWithFragmentsOnLoad(node: TreeNode<ItemViewTreeGridWrapper>) {

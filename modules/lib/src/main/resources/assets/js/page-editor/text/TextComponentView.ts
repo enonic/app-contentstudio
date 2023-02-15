@@ -43,7 +43,9 @@ export class TextComponentViewBuilder
 export class TextComponentView
     extends ComponentView<TextComponent> {
 
-    private htmlAreaEditor: HtmlEditor;
+    private htmlAreaEditor?: HtmlEditor;
+
+    private editMode: boolean;
 
     private isInitializingEditor: boolean = false;
 
@@ -76,7 +78,7 @@ export class TextComponentView
 
         this.addTextContextMenuActions();
         this.addClassEx('text-view');
-        this.setContentEditable(true);
+        this.setContentEditable(true); // https://ckeditor.com/docs/ckeditor4/latest/guide/dev_inline.html#enabling-inline-editing
         this.setTextDir();
 
         this.checkIsSourceCodeEditable();
@@ -235,7 +237,7 @@ export class TextComponentView
         }
 
         event.stopPropagation();
-        if (event.which === 3) { // right click
+        if (event.button === 2) { // right click
             event.preventDefault();
         }
 
@@ -281,6 +283,8 @@ export class TextComponentView
     }
 
     setEditMode(edit: boolean) {
+        this.editMode = edit;
+
         if (!this.initOnAdd) {
             return;
         }
@@ -288,13 +292,8 @@ export class TextComponentView
         this.toggleClass('edit-mode', edit);
         this.setDraggable(!edit);
 
-        if (!edit) {
-            if (this.isEditorReady()) {
-                this.processEditorValue();
-            }
-            this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
-
-            this.deselect();
+        if (this.isEditorReady()) {
+            this.setContentEditable(edit);
         }
 
         if (edit) {
@@ -309,6 +308,13 @@ export class TextComponentView
                 }
                 this.setHtml(TextComponentView.DEFAULT_TEXT, false);
             }
+        } else {
+            if (this.isEditorReady()) {
+                this.processEditorValue();
+            }
+
+            this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+            this.deselect();
         }
     }
 
@@ -402,6 +408,7 @@ export class TextComponentView
     }
 
     private doInitEditor(): void {
+        this.setContentEditable(true);
         this.isInitializingEditor = true;
         const id: string = this.getId().replace(/\./g, '_');
 
@@ -450,6 +457,7 @@ export class TextComponentView
 
         this.focusOnInit = false;
         this.isInitializingEditor = false;
+        this.setContentEditable(this.editMode);
         this.notifyEditorReady();
     }
 

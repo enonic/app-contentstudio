@@ -111,15 +111,6 @@ export class LiveEditPagePlaceholder
         this.controllerDropdown?.deselectOptions();
     }
 
-    selectController(descriptor: Descriptor, silent: boolean = false): void {
-        if (!this.controllerDropdown || !descriptor)  {
-            return;
-        }
-
-        const optionToSelect: Option<Descriptor> = this.controllerDropdown.createOption(descriptor);
-        this.controllerDropdown.selectOption(optionToSelect, silent);
-    }
-
     setErrorTexts(message: string, description: string): void {
         this.pagePlaceholderInfoBlock.setErrorTexts(message, description);
     }

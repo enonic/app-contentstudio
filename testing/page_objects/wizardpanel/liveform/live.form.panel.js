@@ -8,10 +8,11 @@ const LoaderComboBox = require('../../../page_objects/components/loader.combobox
 const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
+    fragmentComponentViewSection: "//section[contains(@id,'FragmentComponentView')]",
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
     textComponentView: "//div[contains(@id,'TextComponentView')]",
-    editableTextComponentView: "//section[contains(@id,'TextComponentView') and @contenteditable='true']",
+    editableTextComponentView: "//*[contains(@id,'TextComponentView') and @contenteditable='true']",
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
     imageInTextComponentByDisplayName:
         displayName => `//figure[contains(@data-widget,'image')]//img[contains(@src,'${displayName}')]`,
@@ -63,7 +64,7 @@ class LiveFormPanel extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getText(selector);
         } catch (err) {
-            throw new Error("Error when getting text in the part component! " + err);
+            throw new Error('Error when getting text in the part component! ' + err);
         }
     }
 
@@ -127,7 +128,7 @@ class LiveFormPanel extends Page {
 
             return await this.pause(1000);
         } catch (err) {
-            await this.saveScreenshot("err_live_frame_right_click");
+            await this.saveScreenshot('err_live_frame_right_click');
             throw new Error('Error when showing context menu for text component! ' + err);
         }
     }
@@ -137,7 +138,7 @@ class LiveFormPanel extends Page {
             let selector = xpath.itemViewContextMenu;
             return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot("err_live_frame_item_view_context_menu");
+            await this.saveScreenshot('err_live_frame_item_view_context_menu');
             throw new Error('Image component should not visible in Live Editor! ' + err);
         }
     }
@@ -175,6 +176,15 @@ class LiveFormPanel extends Page {
         let result = await this.getDisplayedElements(locator);
         await contentWizard.switchToMainFrame();
         return result.length;
+    }
+
+    async getTextInFragmentComponent() {
+        let contentWizard = new ContentWizard();
+        let locator = xpath.fragmentComponentViewSection + '//p';
+        await contentWizard.switchToLiveEditFrame();
+        let result = await this.getText(locator);
+        await contentWizard.switchToMainFrame();
+        return result;
     }
 
     async getLayoutColumnNumber() {
