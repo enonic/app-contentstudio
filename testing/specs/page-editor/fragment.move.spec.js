@@ -17,13 +17,14 @@ const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
 
 describe('Move Fragment specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
     let FRAGMENT_TEXT_DESCRIPTION = "text";
+    let TEST_TEXT = 'text_component_1';
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -43,20 +44,20 @@ describe('Move Fragment specification', function () {
             await contentWizard.clickOnShowComponentViewToggler();
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await textComponent.typeTextInCkeEditor('text_component_1');
-            await contentWizard.switchToMainFrame();
+            await textComponent.typeTextInCkeEditor(TEST_TEXT);
+            // await contentWizard.switchToMainFrame();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);
-            // 2. wait for (1500) page is rendered and open the menu
-            await pageComponentView.openMenu('text_component_1');
+            // 2. wait for (1500) the page is rendered and open the menu
+            await pageComponentView.openMenu(TEST_TEXT);
             // 3. Click on Save as Fragment menu item:
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await studioUtils.saveScreenshot('text_saved_as_fragment2');
             // 4. Wait for the description is refreshing:
             await contentWizard.pause(5500);
             // 5. Go to the site-wizard and verify description of the new created fragment
-            let actualDescription = await pageComponentView.getComponentDescription("text_component_1");
-            assert.equal(actualDescription, FRAGMENT_TEXT_DESCRIPTION, "Expected description should be in the text-fragment");
+            let actualDescription = await pageComponentView.getComponentDescription(TEST_TEXT);
+            assert.equal(actualDescription, FRAGMENT_TEXT_DESCRIPTION, 'Expected description should be in the text-fragment');
         });
 
     // Verifies: app-contentstudio#22 Confirmation dialog does not appear, when a fragment is filtered
@@ -89,7 +90,7 @@ describe('Move Fragment specification', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the fragment and delete it:
             await studioUtils.findAndSelectItemByDisplayName('text_component_1');
-            //Open Delete Content modal dialog:
+            // Open 'Delete Content' modal dialog:
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.clickOnIgnoreInboundReferences();

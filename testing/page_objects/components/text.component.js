@@ -163,7 +163,6 @@ class TextComponent extends Page {
             await this.switchToParentFrame();
         } catch (err) {
             await this.switchToParentFrame();
-            await this.switchToParentFrame();
             throw new Error(err);
         }
     }
