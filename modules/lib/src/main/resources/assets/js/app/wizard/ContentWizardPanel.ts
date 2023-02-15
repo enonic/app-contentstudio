@@ -927,7 +927,10 @@ export class ContentWizardPanel
             if (this.reloadPageEditorOnSave) {
                 this.checkIfRenderable(content)
                     .then(() => this.resetLivePanel(content.clone()))
-                    .then(() => this.contextView.updateWidgetsVisibility())
+                    .then(() => {
+                        this.updateButtonsState();
+                        this.contextView.updateWidgetsVisibility();
+                    })
                     .catch(DefaultErrorHandler.handle);
             }
 
