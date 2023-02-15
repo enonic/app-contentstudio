@@ -96,11 +96,13 @@ class SiteConfiguratorDialog extends Page {
 
     async clickOnApplyButton() {
         try {
+            await this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
             await this.clickOnElement(this.applyButton);
             return await this.waitForDialogClosed();
         } catch (err) {
-            await this.saveScreenshot('err_click_on_apply_dialog');
-            throw new Error('Site Configurator Dialog, error when click on the Apply button  ' + err);
+            let screenshot = appConst.generateRandomName('err_dialog_apply_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`Site Configurator Dialog, error during clicking on Apply button, screenshot: ${screenshot}  ` + err);
         }
     }
 
@@ -108,8 +110,9 @@ class SiteConfiguratorDialog extends Page {
         return this.waitForElementDisabled(this.applyButton, appConst.mediumTimeout);
     }
 
-    waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
+    async waitForDialogOpened() {
+        await this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
+        await this.pause(400);
     }
 
     waitForDialogClosed() {

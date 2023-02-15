@@ -9,7 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 
-describe("insert.relative.link.url.spec: insert relative links into htmlArea", function () {
+describe("insert.relative.link.spec: insert relative links into htmlArea", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
