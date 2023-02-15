@@ -66,7 +66,8 @@ export class ContentWizardHeader
                 this.renameDialog = new RenameContentDialog();
 
                 this.renameDialog.onRenamed((newName: string) => {
-                    this.setName(newName);
+                    this.setName(newName, true); // setting silently to avoid duplication check
+                    this.nameEl.show(); // using workaround to trigger AutosizeTextInput's resize
                     this.notifyRenamed();
                 });
             }
@@ -255,5 +256,11 @@ export class ContentWizardHeader
 
         const path: string = content.getPath().getParentPath().isRoot() ? '/' : `${content.getPath().getParentPath().toString()}/`;
         this.setPath(path);
+    }
+
+    toggleEnabled(enable: boolean) {
+        super.toggleEnabled(enable);
+
+        this.lockElem?.setEnabled(enable);
     }
 }

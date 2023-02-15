@@ -923,6 +923,7 @@ export class ContentWizardPanel
         this.isFirstUpdateAndRenameEventSkiped = false;
         this.contentWizardStepForm?.getFormView()?.clean();
         new BeforeContentSavedEvent().fire();
+        this.wizardHeader.toggleEnabled(false);
 
         return super.saveChanges().then((content: Content) => {
             if (this.reloadPageEditorOnSave) {
@@ -940,6 +941,7 @@ export class ContentWizardPanel
             this.contentUpdateDisabled = false;
             this.isRename = false;
             this.updateButtonsState();
+            this.wizardHeader.toggleEnabled(true);
         });
     }
 
