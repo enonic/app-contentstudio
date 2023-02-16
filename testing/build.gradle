@@ -45,15 +45,6 @@ task copyConfig( type: Copy ) {
     mustRunAfter unpackDistro
 }
 
-task copyProjectAppsConfig( type: Copy ) {
-    println "$appDir${File.separator}project-apps-config"
-    from "$appDir${File.separator}project-apps-config"
-    include '**.*.cfg'
-    include '*.properties'
-    into file( configDir )
-    mustRunAfter unpackDistro
-}
-
 task copyApps( type: Copy ) {
     println '*********************************************************'
     println '* task started:copyApps  *'
@@ -111,8 +102,13 @@ task testContentStudioApp( type: NpmTask,
     finalizedBy stopServer
 }
 
-task testContentStudioProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+task test_CS_Projects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_project']
+    finalizedBy stopServer
+}
+
+task test_CS_Project_Part2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_project_part2']
     finalizedBy stopServer
 }
 task testContentStudioProjectsLocal( type: NpmTask, dependsOn: [npmInstall] ) {
@@ -155,11 +151,6 @@ task testPublishIssues( type: NpmTask, dependsOn: [npmInstall, startServer, copy
 }
 task testModalDialog( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_modal_dialog']
-    finalizedBy stopServer
-}
-
-task testProjectApps( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, copyProjectAppsConfig] ) {
-    args = ['run-script', 'test_project_apps']
     finalizedBy stopServer
 }
 
