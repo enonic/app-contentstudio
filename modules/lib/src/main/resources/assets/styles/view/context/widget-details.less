@@ -32,13 +32,25 @@
   .properties-widget-item-view {
     dl {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 2fr;
       grid-auto-rows: 20px;
       grid-column-gap: 10px;
 
-      dd, dt {
+      dt {
         .ellipsis();
       }
+
+      dd {
+        white-space: pre;
+        text-overflow: ellipsis;
+        justify-self: end;
+        color: @admin-font-gray2;
+      }
+    }
+
+    .edit-settings-link-container {
+      text-align: center;
+      margin-top: 5px;
     }
   }
 

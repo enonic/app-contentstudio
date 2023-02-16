@@ -93,14 +93,12 @@ export class ContentEventsProcessor {
             const contentSummary: ContentSummary = content.getContentSummary();
             const contentTypeName: ContentTypeName = contentSummary.getType();
             const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(contentSummary.getId());
-            const isLocalize: boolean = !content.isReadOnly() && content.isDataInherited() && event.getProject().getName() ===
-                                        ProjectContext.get().getProject().getName();
 
             const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
                 .setContentTypeName(contentTypeName)
                 .setProject(event.getProject())
-                .setLocalize(isLocalize)
+                .setLocalized(event.isLocalized())
                 .setContentId(contentSummary.getContentId())
                 .setDisplayAsNew(!!event.isDisplayAsNew && event.isDisplayAsNew());
 
@@ -148,9 +146,9 @@ export class ContentEventsProcessor {
         }
 
         if (!!params.contentId) {
-            const action: string = params.localize ? UrlAction.LOCALIZE : UrlAction.EDIT;
-            const displayAsNew: string = params.displayAsNew ? `?${ContentAppHelper.DISPLAY_AS_NEW}` : '';
-            return `${project}/${action}/${params.contentId.toString()}${displayAsNew}`;
+            const action: string = UrlAction.EDIT;
+            const editParams: string = this.makeEditParams(params);
+            return `${project}/${action}/${params.contentId.toString()}${editParams}`;
         }
 
         if (params.parentContentId) {
@@ -159,5 +157,29 @@ export class ContentEventsProcessor {
 
         return `${project}/${UrlAction.NEW}/${params.contentTypeName.toString()}`;
 
+    }
+
+    private static makeEditParams(params: ContentWizardPanelParams): string {
+        const paramsList: string[] = [];
+
+        if (params.displayAsNew) {
+            paramsList.push(ContentAppHelper.DISPLAY_AS_NEW);
+        }
+
+        if (params.localized) {
+            paramsList.push(ContentAppHelper.LOCALIZED);
+        }
+
+        if (paramsList.length > 0) {
+            let result: string = '?';
+
+            paramsList.forEach((param: string, index: number) => {
+                result = result + (index === 0 ? '' : '&') + param;
+            });
+
+            return result;
+        }
+
+        return '';
     }
 }

@@ -33,7 +33,7 @@ export class ProjectHelper {
             editors.some((editor: PrincipalKey) => editor.equals(userPrincipal)));
     }
 
-    private static isProjectOwner(loginResult: LoginResult, project: Project): boolean {
+    static isProjectOwner(loginResult: LoginResult, project: Project): boolean {
         const userPrincipals: PrincipalKey[] = loginResult.getPrincipals();
         const permissions: ProjectPermissions = project.getPermissions();
         const owners: PrincipalKey[] = permissions.getOwners();

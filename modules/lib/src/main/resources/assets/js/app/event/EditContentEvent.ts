@@ -13,6 +13,8 @@ export class EditContentEvent
 
     private displayAsNew: boolean = false;
 
+    private localized: boolean = false;
+
     constructor(model: ContentSummaryAndCompareStatus[], project?: Project) {
         super();
         this.model = model;
@@ -34,6 +36,15 @@ export class EditContentEvent
 
     getProject(): Project {
         return this.project;
+    }
+
+    setIsLocalized(value: boolean): this {
+        this.localized = value;
+        return this;
+    }
+
+    isLocalized(): boolean {
+        return this.localized;
     }
 
     static on(handler: (event: EditContentEvent) => void, contextWindow: Window = window) {

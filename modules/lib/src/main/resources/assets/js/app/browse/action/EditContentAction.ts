@@ -5,10 +5,17 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import {ProjectContext} from '../../project/ProjectContext';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ContentsLocalizer} from './ContentsLocalizer';
 
 export class EditContentAction extends ContentTreeGridAction {
 
     private static MAX_ITEMS_TO_EDIT: number = 50;
+
+    private isLocalize: boolean = false;
+
+    private contentsLocalizer?: ContentsLocalizer;
 
     constructor(grid: ContentTreeGrid) {
         super(grid, i18n('action.edit'), 'mod+e');
@@ -20,9 +27,21 @@ export class EditContentAction extends ContentTreeGridAction {
 
         if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {
             showWarning(i18n('notify.edit.tooMuch'));
-        } else {
-            new EditContentEvent(contents).fire();
+        } else if (contents.length > 0) {
+            if (this.isLocalize && ProjectContext.get().getProject()?.getLanguage()) {
+                this.localizeContents(contents);
+            } else {
+                new EditContentEvent(contents).fire();
+            }
         }
+    }
+
+    private localizeContents(contents: ContentSummaryAndCompareStatus[]): void {
+        if (!this.contentsLocalizer) {
+            this.contentsLocalizer = new ContentsLocalizer();
+        }
+
+        this.contentsLocalizer.localize(contents).catch(DefaultErrorHandler.handle);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
@@ -30,13 +49,18 @@ export class EditContentAction extends ContentTreeGridAction {
     }
 
     updateLabel(state: ContentTreeGridItemsState) {
+        this.isLocalize = state.hasAllInherited();
+        this.setLabel(this.getLabelByState(state));
+    }
+
+    private getLabelByState(state: ContentTreeGridItemsState): string {
         if (state.hasAllReadOnly()) {
-            this.setLabel(i18n('action.open'));
+            return i18n('action.open');
         } else if (state.hasAllInherited()) {
-            this.setLabel(i18n('action.translate'));
-        } else {
-            this.setLabel(i18n('action.edit'));
+            return i18n('action.translate');
         }
+
+        return i18n('action.edit');
     }
 
     resetLabel() {

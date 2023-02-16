@@ -11,6 +11,10 @@ export class ContentAppHelper {
 
     static DISPLAY_AS_NEW: string = `${ContentAppHelper.DISPLAY_AS_NEW_PARAM}=true`;
 
+    static LOCALIZED_PARAM: string = 'localized';
+
+    static LOCALIZED: string = `${ContentAppHelper.LOCALIZED_PARAM}=true`;
+
     private static getContentWizardUrlPattern(action: string): string {
         return `(${CONFIG.getString('toolUri')})/(.+)/(${action})/.+$`;
     }
@@ -22,7 +26,7 @@ export class ContentAppHelper {
     }
 
     static isContentWizardUrl(): boolean {
-        return ContentAppHelper.isContentWizardUrlMatch(`${UrlAction.EDIT}|${UrlAction.LOCALIZE}|${UrlAction.NEW}`);
+        return ContentAppHelper.isContentWizardUrlMatch(`${UrlAction.EDIT}|${UrlAction.NEW}`);
     }
 
     static createWizardParamsFromUrl(): ContentWizardPanelParams {
@@ -63,15 +67,17 @@ export class ContentAppHelper {
     }
 
     private static createWizardParamsForEdit(): ContentWizardPanelParams {
-        const actionArguments: string[] = ContentAppHelper.getActionArguments(`${UrlAction.EDIT}|${UrlAction.LOCALIZE}`);
+        const actionArguments: string[] = ContentAppHelper.getActionArguments(`${UrlAction.EDIT}`);
 
         const contentId = new ContentId(actionArguments[0]);
         const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(contentId.toString());
         const displayAsNew: boolean = window.location.href.indexOf(ContentAppHelper.DISPLAY_AS_NEW) > 0;
+        const isLocalized: boolean = window.location.href.indexOf(ContentAppHelper.LOCALIZED) > 0;
 
         return new ContentWizardPanelParams()
             .setContentId(contentId)
             .setTabId(tabId)
-            .setDisplayAsNew(displayAsNew);
+            .setDisplayAsNew(displayAsNew)
+            .setLocalized(isLocalized);
     }
 }
