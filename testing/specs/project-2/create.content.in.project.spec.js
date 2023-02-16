@@ -24,13 +24,13 @@ describe('create.content.in.project.spec - create new content in the selected co
     let TEST_FOLDER_NAME = studioUtils.generateRandomName('folder');
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
-    let TEST_DESCRIPTION = "test description";
+    let TEST_DESCRIPTION = 'test description';
 
     it(`Preconditions: new project(with Norsk (no) language) and 'Private' access mode should be added`,
         async () => {
-            //1. Navigate to Settings Panel:
+            // 1. Navigate to Settings Panel:
             await studioUtils.openSettingsPanel();
-            //1. Save new project (mode access is Private):
+            // 2. Save new project (mode access is Private):
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.NORSK_NO);
         });
 
@@ -40,49 +40,49 @@ describe('create.content.in.project.spec - create new content in the selected co
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Select the project in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
-            //Verify that 'No open issues' - this label should be in Issues Button:
+            // Verify that 'No open issues' - this label should be in Issues Button:
             let actualLabel = await settingsBrowsePanel.getTextInShowIssuesButton();
             assert.equal(actualLabel, appConst.SHOW_ISSUES_BUTTON_LABEL.NO_OPEN_ISSUES, "'No open issues' should be displayed");
-            //Verify that the grid is empty:
+            // Verify that the grid is empty:
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 0, 'Browse Panel should not contain content');
             let actualDisplayName = await contentBrowsePanel.getSelectedProjectDisplayName();
             assert.equal(actualDisplayName, PROJECT_DISPLAY_NAME,
-                "Expected name should be displayed in the project selected option(App Bar)");
+                'Expected name should be displayed in the project selected option(App Bar)');
         });
 
     it(`GIVEN existing context is selected WHEN new folder wizard has been opened THEN expected language should be automatically set in the wizard step`,
         async () => {
             let settingsStepForm = new SettingsStepForm();
             let contentWizardPanel = new ContentWizardPanel();
-            //1. Select the project's context in 'Select Context' dialog
+            // 1. Select the project's context in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
-            //2. Open new folder wizard:
+            // 2. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await studioUtils.saveScreenshot('project_default_language');
-            //3. Verify the language in the wizard:
+            // 3. Verify the language in the wizard:
             let actualLanguage = await settingsStepForm.getSelectedLanguage();
-            assert.equal(actualLanguage, appConst.LANGUAGES.NORSK_NO, "Expected language should be selected in the wizard step form");
-            //4. Verify that expected project display name is present in the wizard-toolbar:
+            assert.equal(actualLanguage, appConst.LANGUAGES.NORSK_NO, 'Expected language should be selected in the wizard step form');
+            // 4. Verify that expected project display name is present in the wizard-toolbar:
             let actualProjectName = await contentWizardPanel.getProjectDisplayName();
-            assert.equal(actualProjectName, PROJECT_DISPLAY_NAME + "(no)", "Actual and expected display name should be equal");
+            assert.equal(actualProjectName, PROJECT_DISPLAY_NAME + '(no)', 'Actual and expected display name should be equal');
         });
 
     it(`WHEN new folder wizard has been saved THEN expected project-ACL entries should be present in Access form`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let contentWizardPanel = new ContentWizardPanel();
-            //1. Select the project's context in 'Select Context' dialog
+            // 1. Select the project's context in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
-            //2. Open new folder wizard:
+            // 2. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizardPanel.typeDisplayName(TEST_FOLDER_NAME);
             await contentWizardPanel.waitAndClickOnSave();
             await contentWizardPanel.pause(1000);
-            //3. Open Edit Permissions Dialog:
+            // 3. Open Edit Permissions Dialog:
             await contentWizardPanel.clickOnEditPermissionsButton();
             await editPermissionsDialog.waitForDialogLoaded();
-            //3. Open Edit Permissions Dialog
+            // 4. Open Edit Permissions Dialog
             let result = await editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + ' - Owner'), 'Expected Acl should be present');
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + ' - Editor'), 'Expected Acl should be present');
@@ -113,20 +113,20 @@ describe('create.content.in.project.spec - create new content in the selected co
             let contentBrowsePanel = new ContentBrowsePanel();
             let browseDetailsPanel = new BrowseDetailsPanel();
             let contentWidget = new ContentWidgetView();
-            //1. Select the project in 'Select Context' dialog:
+            // 1. Select the project in 'Select Context' dialog:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
-            //2. Select the folder and open details panel
+            // 2. Select the folder and open details panel
             await studioUtils.findAndSelectItem(TEST_FOLDER_NAME);
             await studioUtils.openBrowseDetailsPanel();
             let contentName = await contentWidget.getContentName();
             assert.equal(contentName, TEST_FOLDER_NAME, 'Expected name should be displayed in the widget(details panel)');
-            //3. Switch to 'Default' project:
+            // 3. Switch to 'Default' project:
             await contentBrowsePanel.selectContext('Default');
-            //4.Verify that 'Details Panel' is cleared
+            // 4.Verify that 'Details Panel' is cleared
             await browseDetailsPanel.waitForDetailsPanelCleared();
-            //5. Verify that the content is not searchable in the 'Default' context:
+            // 5. Verify that the content is not searchable in the 'Default' context:
             await studioUtils.typeNameInFilterPanel(TEST_FOLDER_NAME);
-            studioUtils.saveScreenshot('switch_to_default_context');
+            await studioUtils.saveScreenshot('switch_to_default_context');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 0, 'Filtered grid should be empty');
         });
