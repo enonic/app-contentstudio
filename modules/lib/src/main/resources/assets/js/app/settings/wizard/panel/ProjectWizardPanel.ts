@@ -117,11 +117,10 @@ export class ProjectWizardPanel
         const isDefaultProject: boolean = persistedItem?.isDefaultProject();
 
         if (!isDefaultProject) {
-            stepForms.push(this.rolesWizardStepForm = new ProjectRolesWizardStepForm());
-
-            if (CONFIG.isTrue(ProjectSteps.PROJECT_APPS_ENABLED_PROP)) {
-                stepForms.push(this.applicationsWizardStepForm = new ProjectApplicationsWizardStepForm());
-            }
+            stepForms.push(
+                this.rolesWizardStepForm = new ProjectRolesWizardStepForm(),
+                this.applicationsWizardStepForm = new ProjectApplicationsWizardStepForm()
+            );
         }
 
         return stepForms;
@@ -381,10 +380,6 @@ export class ProjectWizardPanel
     }
 
     private isApplicationsChanged(): boolean {
-        if (!CONFIG.isTrue(ProjectSteps.PROJECT_APPS_ENABLED_PROP)) {
-            return false;
-        }
-
         if (!this.isItemPersisted()) {
             return true;
         }
