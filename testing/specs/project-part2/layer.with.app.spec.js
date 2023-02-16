@@ -14,7 +14,6 @@ const NewContentDialog = require('../../page_objects/browsepanel/new.content.dia
 const XDataImageSelector = require('../../page_objects/wizardpanel/xdata.image.selector.wizard.step.form');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const CustomRelationshipForm = require('../../page_objects/wizardpanel/custom.relationship.form.panel');
-const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 
 describe('layer.with.app.spec - tests for layer with applications', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

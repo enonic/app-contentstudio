@@ -11,8 +11,6 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class ProjectSteps {
 
-    public static PROJECT_APPS_ENABLED_PROP = 'projectAppsEnabled';
-
     static create(): DialogStep[] {
         const result: DialogStep[] = [];
 
@@ -23,14 +21,8 @@ export class ProjectSteps {
         result.push(
             new ProjectLocaleDialogStep(),
             new ProjectAccessDialogStep(),
-            new ProjectPermissionsDialogStep()
-        );
-
-        if (CONFIG.isTrue(ProjectSteps.PROJECT_APPS_ENABLED_PROP)) {
-            result.push(new ProjectApplicationsDialogStep());
-        }
-
-        result.push(
+            new ProjectPermissionsDialogStep(),
+            new ProjectApplicationsDialogStep(),
             new ProjectIdDialogStep(),
             new ProjectSummaryStep()
         );

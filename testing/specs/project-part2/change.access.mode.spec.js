@@ -15,7 +15,7 @@ const appConst = require('../../libs/app_const');
 
 describe('change.access.mode.spec - Update Access Mode in project wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let FOLDER;
@@ -104,7 +104,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
