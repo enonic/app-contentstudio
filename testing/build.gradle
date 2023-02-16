@@ -102,12 +102,12 @@ task testContentStudioApp( type: NpmTask,
     finalizedBy stopServer
 }
 
-task test_CS_Projects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+task testProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_project']
     finalizedBy stopServer
 }
 
-task test_CS_Project_Part2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+task testProjects_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_project_part2']
     finalizedBy stopServer
 }

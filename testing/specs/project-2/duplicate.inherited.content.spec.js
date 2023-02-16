@@ -17,7 +17,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
+    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const SITE_NAME = studioUtils.generateRandomName('site');
     const EXPECTED_ORDER = `Sorted by "Modified date" in descending order`;
 
@@ -44,13 +44,13 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
     it("GIVEN layer's context is selected WHEN inherited site has been duplicated THEN the local copy of the site should not be created as 'inherited'",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the layer's context:
+            // 1. Select the layer's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
             await studioUtils.findAndSelectItem(SITE_NAME);
             let contentDuplicateDialog = await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             await contentDuplicateDialog.clickOnDuplicateButton();
             await contentDuplicateDialog.waitForDialogClosed();
-            // 3. Verify that the copy of the site should not be displayed as 'inherited':
+            // 2. Verify that the copy of the site should not be displayed as 'inherited':
             await studioUtils.findAndSelectItem(SITE_NAME + "-copy");
             await studioUtils.saveScreenshot('inherited_site_copy');
             let isInherited = await contentBrowsePanel.isContentInherited(SITE_NAME + '-copy');
