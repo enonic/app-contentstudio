@@ -10,8 +10,6 @@ import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DefaultModels} from './page/DefaultModels';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
-import {SettingsWizardStepForm} from './SettingsWizardStepForm';
-import {ScheduleWizardStepForm} from './ScheduleWizardStepForm';
 import {DisplayNameResolver} from './DisplayNameResolver';
 import {LiveFormPanel, LiveFormPanelConfig} from './page/LiveFormPanel';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
@@ -54,13 +52,10 @@ import {ExtraData} from '../content/ExtraData';
 import {XData} from '../content/XData';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {Page} from '../page/Page';
-import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
 import {InspectEvent} from '../event/InspectEvent';
 import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
-import {AccessControlEntryView} from '../view/AccessControlEntryView';
-import {Access} from '../security/Access';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
 import {RoutineContext} from './Flow';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
@@ -82,8 +77,6 @@ import {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormO
 import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {WizardHeader} from '@enonic/lib-admin-ui/app/wizard/WizardHeader';
@@ -101,8 +94,7 @@ import {assert} from '@enonic/lib-admin-ui/util/Assert';
 import {ContentIds} from '../content/ContentIds';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ProjectContext} from '../project/ProjectContext';
-import {ProjectHelper} from '../settings/data/project/ProjectHelper';
-import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
+import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
 import {UrlAction} from '../UrlAction';
@@ -133,7 +125,6 @@ import {ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextPanelState} from '../view/context/ContextPanelState';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {MovedContentItem} from '../browse/MovedContentItem';
-import {ContentAppHelper} from './ContentAppHelper';
 import {UrlHelper} from '../util/UrlHelper';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {ContentSaveAction} from './action/ContentSaveAction';
@@ -179,19 +170,9 @@ export class ContentWizardPanel
 
     private contentWizardStepForm: ContentWizardStepForm;
 
-    private settingsWizardStepForm: SettingsWizardStepForm;
-
-    private settingsWizardStep: ContentWizardStep;
-
-    private scheduleWizardStepForm: ScheduleWizardStepForm;
-
-    private scheduleWizardStep: ContentWizardStep;
-
     private xDataWizardStepForms: XDataWizardStepForms;
 
     private displayNameResolver: DisplayNameResolver;
-
-    private editPermissionsToolbarButton: Element;
 
     private minimizeEditButton?: DivEl;
 
@@ -300,9 +281,6 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
         this.workflowStateManager = new WorkflowStateManager(this);
-
-        this.editPermissionsToolbarButton = this.createEditButtonToolbar();
-        this.getStepNavigator().whenRendered(() => this.editPermissionsToolbarButton.insertAfterEl(this.getStepNavigator()));
 
         this.debouncedEditorReload = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
@@ -852,7 +830,6 @@ export class ContentWizardPanel
 
         this.initFormContext(contentClone);
         this.updateWizard(contentClone, true);
-        this.updateEditPermissionsButtonIcon(contentClone);
         this.resetLivePanel(contentClone).then(() => this.contextView.updateWidgetsVisibility());
 
         if (!this.isDisplayNameUpdated()) {
@@ -1172,10 +1149,6 @@ export class ContentWizardPanel
 
     }
 
-    private isLocalizeInUrl(): boolean {
-        return ContentAppHelper.isContentWizardUrlMatch(UrlAction.LOCALIZE);
-    }
-
     private onFileUploaded(event: UploadedEvent<Content>) {
         let newPersistedContent: Content = event.getUploadItem().getModel();
         this.setPersistedItem(newPersistedContent.clone());
@@ -1206,8 +1179,6 @@ export class ContentWizardPanel
         this.getWizardHeader().resetBaseValues();
 
         this.contentWizardStepForm.reset();
-        this.settingsWizardStepForm.reset();
-        this.scheduleWizardStepForm.reset();
         this.xDataWizardStepForms.reset();
     }
 
@@ -1235,12 +1206,6 @@ export class ContentWizardPanel
             steps.push(new XDataWizardStep(form));
         });
 
-        this.scheduleWizardStep = new ContentWizardStep(i18n('field.schedule'), this.scheduleWizardStepForm, 'icon-calendar');
-        steps.push(this.scheduleWizardStep);
-
-        this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
-        steps.push(this.settingsWizardStep);
-
         this.addAccessibilityToSteps(steps);
 
         return steps;
@@ -1258,20 +1223,6 @@ export class ContentWizardPanel
                 stepTabBarItem.getHTMLElement().click();
             }
         });
-    }
-
-    private createEditButtonToolbar(): DivEl {
-        const editPermissionsToolbarButton = new DivEl('edit-permissions-button');
-        editPermissionsToolbarButton.getEl().setTitle(i18n('field.access'));
-        editPermissionsToolbarButton.onClicked(this.handleEditPermissionsButtonClicked.bind(this));
-        editPermissionsToolbarButton.getEl().setTabIndex(0);
-         editPermissionsToolbarButton.onKeyDown((event: KeyboardEvent): void => {
-            if (KeyHelper.isEnterKey(event)) {
-                editPermissionsToolbarButton.getHTMLElement().click();
-            }
-        });
-
-        return editPermissionsToolbarButton;
     }
 
     private fetchPersistedContent(): Q.Promise<Content> {
@@ -1293,7 +1244,6 @@ export class ContentWizardPanel
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
                     this.setUpdatedContent(content);
-                    this.refreshScheduleWizardStep();
                     this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
                 }
             });
@@ -1513,7 +1463,6 @@ export class ContentWizardPanel
                 .setUserCanPublish(userCanPublish)
                 .setUserCanModify(userCanModify)
                 .refreshState();
-            this.toggleStepFormsVisibility(loginResult);
         }).catch(DefaultErrorHandler.handle);
     }
 
@@ -1554,10 +1503,6 @@ export class ContentWizardPanel
 
     private handlePersistedContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
         this.setUpdatedContent(updatedContent);
-
-        if (this.currentContent.getCompareStatus() != null) {
-            this.refreshScheduleWizardStep();
-        }
 
         this.fetchPersistedContent().then((content: Content) => {
             return this.updatePersistedContentIfChanged(content);
@@ -1913,8 +1858,8 @@ export class ContentWizardPanel
                     this.setSteps(steps);
 
                     return this.layoutWizardStepForms(content).then(() => {
-                        if (this.isLocalizeInUrl()) {
-                            this.onRendered(() => this.settingsWizardStepForm.updateInitialLanguage());
+                        if (this.params.localized) {
+                            this.onRendered(() => NotifyManager.get().showFeedback(i18n('notify.content.localized')));
                         }
                         this.syncPersistedItemWithContentData(content.getContentData());
                         this.xDataWizardStepForms.resetState();
@@ -1950,9 +1895,6 @@ export class ContentWizardPanel
 
     private createWizardStepForms(): Q.Promise<void> {
         this.contentWizardStepForm = new ContentWizardStepForm();
-        this.settingsWizardStepForm = new SettingsWizardStepForm();
-        this.scheduleWizardStepForm = new ScheduleWizardStepForm();
-
         return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this));
     }
 
@@ -1995,11 +1937,6 @@ export class ContentWizardPanel
         // Must pass FormView from contentWizardStepForm displayNameResolver,
         // since a new is created for each call to renderExisting
         this.displayNameResolver.setFormView(this.contentWizardStepForm.getFormView());
-        this.settingsWizardStepForm.layout(content);
-        this.settingsWizardStepForm.onPropertyChanged(this.dataChangedHandler);
-        this.scheduleWizardStepForm.layout(content);
-        this.scheduleWizardStepForm.onPropertyChanged(this.dataChangedHandler);
-        this.refreshScheduleWizardStep();
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             const promise: Q.Promise<void> = this.layoutXDataWizardStepForm(content, form);
@@ -2010,51 +1947,6 @@ export class ContentWizardPanel
         });
 
         return Q.all(formViewLayoutPromises).thenResolve(null);
-    }
-
-    private toggleSettingsElementsVisibility(visible: boolean) {
-        this.settingsWizardStepForm.setVisible(visible);
-        this.settingsWizardStepForm.getPreviousElement().setVisible(visible);
-        this.settingsWizardStep.getTabBarItem().setVisible(visible);
-    }
-
-    private toggleStepFormsVisibility(loginResult: LoginResult) {
-        const hasAdminPermissions: boolean = this.hasAdminPermissions(loginResult);
-
-        if (hasAdminPermissions) {
-            this.toggleSettingsElementsVisibility(true);
-            this.editPermissionsToolbarButton.setVisible(true);
-        } else {
-            ProjectHelper.isUserProjectOwner(loginResult).then((isOwner: boolean) => {
-                const isContentExpert: boolean = loginResult.isContentExpert();
-
-                this.toggleSettingsElementsVisibility(isContentExpert || isOwner);
-                this.editPermissionsToolbarButton.setVisible(isOwner);
-            });
-        }
-    }
-
-    private hasAdminPermissions(loginResult: LoginResult): boolean {
-        if (loginResult.getPrincipals().some(principalKey => RoleKeys.isAdmin(principalKey))) {
-            return true;
-        }
-
-        if (loginResult.isContentAdmin()) {
-            return true;
-        }
-
-        return this.hasFullAccess(loginResult);
-    }
-
-    private hasFullAccess(loginResult: LoginResult): boolean {
-        const principalKeysWithFullAccess: PrincipalKey[] = this.getPersistedItem().getPermissions().getEntries().filter(
-            (ace: AccessControlEntry) => AccessControlEntryView.getAccessValueFromEntry(ace) === Access.FULL).map(
-            (ace: AccessControlEntry) => ace.getPrincipalKey());
-
-        const principals: PrincipalKey[] = loginResult.getPrincipals();
-
-        return principalKeysWithFullAccess.some((principalFullAccess: PrincipalKey) => principals.some(
-            (principal: PrincipalKey) => principalFullAccess.equals(principal)));
     }
 
     private updateSiteModel(site: Site): void {
@@ -2116,7 +2008,7 @@ export class ContentWizardPanel
 
         const formsAdded: XDataWizardStepForm[] = this.createXDataWizardStepForms(xDatas);
         formsAdded.forEach((form: XDataWizardStepForm) => {
-            this.insertStepBefore(new XDataWizardStep(form), this.settingsWizardStep);
+            this.addStep(new XDataWizardStep(form), false);
             form.resetHeaderState();
             const promise: Q.Promise<void> = this.layoutXDataWizardStepForm(content, form);
             form.getData().onChanged(this.dataChangedHandler);
@@ -2197,10 +2089,6 @@ export class ContentWizardPanel
                 this.showFeedbackContentSaved(content, isInherited);
             }
 
-            if (isInherited && this.isLocalizeInUrl()) {
-                Router.get().setPath(UrlHelper.createContentEditUrl(this.getPersistedItem().getId()));
-            }
-
             return content;
         });
     }
@@ -2277,7 +2165,7 @@ export class ContentWizardPanel
 
                 const formsAdded: XDataWizardStepForm[] = this.createXDataWizardStepForms(xDatasToAdd);
                 formsAdded.forEach((form: XDataWizardStepForm) => {
-                    this.insertStepBefore(new XDataWizardStep(form), this.settingsWizardStep);
+                    this.addStep(new XDataWizardStep(form), false);
 
                     form.onRendered(() => {
                         form.validate(false, true);
@@ -2432,9 +2320,6 @@ export class ContentWizardPanel
 
         viewedContentBuilder.setExtraData(extraData);
 
-        this.settingsWizardStepForm.apply(viewedContentBuilder);
-        this.scheduleWizardStepForm.apply(viewedContentBuilder);
-
         viewedContentBuilder.setPage(this.assembleViewedPage());
 
         return viewedContentBuilder;
@@ -2572,9 +2457,6 @@ export class ContentWizardPanel
 
             this.syncPersistedItemWithContentData(content.getContentData());
         });
-
-        this.settingsWizardStepForm.update(content, unchangedOnly);
-        this.scheduleWizardStepForm.update(content, unchangedOnly);
     }
 
     private openLiveEdit() {
@@ -2649,31 +2531,11 @@ export class ContentWizardPanel
                 if (this.wizardActions.isOnline()) {
                     this.currentContent.setCompareStatus(CompareStatus.NEWER);
                 }
-                this.currentContent.setPublishStatus(this.scheduleWizardStepForm.getPublishStatus());
             }
             this.getMainToolbar().setItem(this.currentContent);
             this.wizardActions.setContent(this.currentContent).refreshState();
             this.workflowStateManager.update();
         }
-    }
-
-    private refreshScheduleWizardStep() {
-        let showStep = false;
-
-        if (this.getContent()) {
-            const contentSummary = this.getContent().getContentSummary();
-
-            if (contentSummary) {
-
-                if (contentSummary.getPublishFromTime() != null || contentSummary.getPublishFromTime() != null) {
-                    showStep = true;
-                } else if (contentSummary.getPublishFirstTime() != null) {
-                    showStep = this.getContent().isPublished();
-                }
-            }
-        }
-
-        this.scheduleWizardStep.show(showStep);
     }
 
     getLiveMask(): LoadMask {
@@ -2742,23 +2604,8 @@ export class ContentWizardPanel
         });
     }
 
-    private updateEditPermissionsButtonIcon(content: Content) {
-        const canEveryoneRead: boolean = this.canEveryoneRead(content);
-
-        this.editPermissionsToolbarButton.toggleClass('icon-unlock', canEveryoneRead);
-        this.editPermissionsToolbarButton.toggleClass('icon-lock', !canEveryoneRead);
-    }
-
-    private canEveryoneRead(content: Content): boolean {
-        const entry: AccessControlEntry = content.getPermissions().getEntry(RoleKeys.EVERYONE);
-        return !!entry && entry.isAllowed(Permission.READ);
-    }
-
     private updateUrlAction() {
-        const action: string = (this.modifyPermissions && this.getPersistedItem().isDataInherited() &&
-                                this.isLocalizeInUrl())
-                               ? UrlAction.LOCALIZE
-                               : UrlAction.EDIT;
+        const action: string = UrlAction.EDIT;
         Router.get().setPath(UrlHelper.createContentEditUrl(this.getPersistedItem().getId(), action));
         window.name = `${action}:${ProjectContext.get().getProject().getName()}:${this.getPersistedItem().getId()}`;
     }
@@ -2767,7 +2614,6 @@ export class ContentWizardPanel
         super.setPersistedItem(newPersistedItem);
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
-        this.updateEditPermissionsButtonIcon(newPersistedItem);
     }
 
     isHeaderValidForSaving(): boolean {
@@ -2793,7 +2639,6 @@ export class ContentWizardPanel
 
         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             this.setModifyPermissions(loginResult);
-            this.toggleStepFormsVisibility(loginResult);
         }).catch(DefaultErrorHandler.handle);
 
         this.updateUrlAction();

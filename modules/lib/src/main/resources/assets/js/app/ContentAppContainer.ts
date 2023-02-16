@@ -3,7 +3,6 @@ import {ContentAppBar} from './bar/ContentAppBar';
 import {ContentAppPanel} from './ContentAppPanel';
 import {ToggleSearchPanelWithDependenciesGlobalEvent} from './browse/ToggleSearchPanelWithDependenciesGlobalEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanelWithDependenciesEvent';
-import {ContentEventsListener} from './ContentEventsListener';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -77,7 +76,6 @@ export class ContentAppContainer
         const type = path ? path.getElement(3) : null;
 
         switch (actionAsTabMode) {
-        case UrlAction.LOCALIZE:
         case UrlAction.EDIT:
             if (id) {
                 new ContentSummaryAndCompareStatusFetcher().fetch(new ContentId(id)).done(

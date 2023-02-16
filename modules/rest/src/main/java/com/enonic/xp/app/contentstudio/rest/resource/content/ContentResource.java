@@ -87,6 +87,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDependencie
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDescendantsOfContents;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.HasUnpublishedChildrenResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.LocaleListJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.LocalizeContentsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.MarkAsReadyJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.MoveContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContentJson;
@@ -439,6 +440,41 @@ public final class ContentResource
             .authInfo( ContextAccessor.current().getAuthInfo() )
             .build()
             .createTaskResult();
+    }
+
+    @POST
+    @Path("localize")
+    public ContentListJson<ContentSummaryJson> localize( final LocalizeContentsJson params )
+    {
+        if ( params.getLanguage() == null )
+        {
+            throw new WebApplicationException( "Can't localize content: language is missing" );
+        }
+
+        if ( params.getContentIds().isEmpty() )
+        {
+            throw new WebApplicationException( "Can't localize content: no content IDs provided" );
+        }
+
+        final Locale language = params.getLanguage();
+
+        final List<Content> updatedItems =
+            params.getContentIds().stream().map( id -> this.updateContentLanguage( id, language ) ).collect( Collectors.toList() );
+
+        final Contents contents = Contents.from( updatedItems );
+
+        final ContentListMetaData metaData =
+            ContentListMetaData.create().totalHits( contents.getSize() ).hits( contents.getSize() ).build();
+
+        return new ContentListJson<>( contents, metaData, jsonObjectsFactory::createContentSummaryJson );
+    }
+
+    private Content updateContentLanguage( final ContentId id, final Locale language )
+    {
+        final UpdateContentParams updateContentParams =
+            new UpdateContentParams().contentId( id ).editor( edit -> edit.language = language );
+
+        return contentService.update( updateContentParams );
     }
 
     @POST

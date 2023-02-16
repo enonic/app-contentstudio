@@ -4,8 +4,8 @@ import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 export class ContentTabBarItem
     extends TabBarItem {
 
-    private iconCls: string;
-    private xData: boolean;
+    private readonly iconCls: string;
+    private readonly xData: boolean;
 
     constructor(builder: ContentTabBarItemBuilder) {
         super(builder);

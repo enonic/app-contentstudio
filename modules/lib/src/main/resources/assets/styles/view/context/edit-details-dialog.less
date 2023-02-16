@@ -1,0 +1,32 @@
+.edit-details-dialog {
+  .modal-dialog-header {
+    .content-path {
+      font-family: @admin-font-family;
+      color: lightgray;
+      margin-top: 5px;
+      .ellipsis();
+    }
+  }
+
+  .modal-dialog-body {
+    .dialog-content {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+
+      .settings-wizard-step-form {
+        margin-bottom: 20px;
+      }
+
+      .schedule-wizard-step-form {
+        order: 1;
+      }
+
+      .details-wizard-step-form {
+        .form-view {
+          padding: 5px;
+        }
+      }
+    }
+  }
+}

@@ -4,6 +4,8 @@ import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {AccessControlList} from '../access/AccessControlList';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
+import {AccessControlEntryView} from '../view/AccessControlEntryView';
+import {Access} from '../security/Access';
 
 export class PermissionHelper {
 
@@ -35,5 +37,20 @@ export class PermissionHelper {
         });
 
         return result;
+    }
+
+    static hasAdminPermissions(loginResult: LoginResult): boolean {
+        return loginResult.getPrincipals().some(principalKey => RoleKeys.isAdmin(principalKey)) || loginResult.isContentAdmin();
+    }
+
+    static hasFullAccess(loginResult: LoginResult, permissions: AccessControlList): boolean {
+        const principalKeysWithFullAccess: PrincipalKey[] = permissions.getEntries().filter(
+            (ace: AccessControlEntry) => AccessControlEntryView.getAccessValueFromEntry(ace) === Access.FULL).map(
+            (ace: AccessControlEntry) => ace.getPrincipalKey());
+
+        const principals: PrincipalKey[] = loginResult.getPrincipals();
+
+        return principalKeysWithFullAccess.some((principalFullAccess: PrincipalKey) => principals.some(
+            (principal: PrincipalKey) => principalFullAccess.equals(principal)));
     }
 }

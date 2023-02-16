@@ -23,7 +23,7 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
 
     project: Project;
 
-    localize: boolean = false;
+    localized: boolean = false;
 
     displayAsNew: boolean = false;
 
@@ -66,8 +66,8 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
         return this;
     }
 
-    setLocalize(value: boolean): ContentWizardPanelParams {
-        this.localize = value;
+    setLocalized(value: boolean): ContentWizardPanelParams {
+        this.localized = value;
         return this;
     }
 

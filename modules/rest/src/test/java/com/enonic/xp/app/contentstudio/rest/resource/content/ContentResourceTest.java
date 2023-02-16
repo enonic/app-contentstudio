@@ -74,6 +74,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDescendants
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.HasUnpublishedChildrenResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.LocaleJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.LocaleListJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.LocalizeContentsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.MoveContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildrenJson;
@@ -93,9 +94,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessag
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.attachment.CreateAttachment;
-import com.enonic.xp.attachment.CreateAttachments;
 import com.enonic.xp.branch.Branch;
-import com.enonic.xp.branch.Branches;
 import com.enonic.xp.content.ActiveContentVersionEntry;
 import com.enonic.xp.content.CompareContentResult;
 import com.enonic.xp.content.CompareContentResults;
@@ -2615,6 +2614,55 @@ public class ContentResourceTest
         // verify
         Mockito.verify( this.contentService, Mockito.times( 1 ) )
             .getByPathAndVersionId( any( ContentPath.class ), any( ContentVersionId.class ) );
+        Mockito.verifyNoMoreInteractions( contentService );
+    }
+
+    @Test
+    public void test_localize_content()
+    {
+        final String contentId = "content-id";
+        final ContentResource instance = getResourceInstance();
+        final List<String> ids = new ArrayList<>();
+        ids.add( contentId );
+        final LocalizeContentsJson params = new LocalizeContentsJson(ids, "en" );
+
+        ArgumentCaptor<UpdateContentParams> argumentCaptor = ArgumentCaptor.forClass( UpdateContentParams.class );
+        Content content = createContent( contentId, "content-name", "myapplication:content-type" );
+        Mockito.when( this.contentService.update( Mockito.any( UpdateContentParams.class ) ) ).thenReturn( content );
+
+        instance.localize( params );
+
+        Mockito.verify( this.contentService, Mockito.times( 1 ) ).update( argumentCaptor.capture() );
+        assertTrue( argumentCaptor.getValue().getContentId().equals( ContentId.from( contentId ) ) );
+    }
+
+    @Test
+    public void test_localize_content_no_language()
+    {
+        final ContentResource instance = getResourceInstance();
+        final LocalizeContentsJson params = new LocalizeContentsJson( new ArrayList<>(), null );
+
+        // test & assert
+        final WebApplicationException exception = assertThrows( WebApplicationException.class, () -> instance.localize( params ) );
+
+        assertEquals( "Can't localize content: language is missing", exception.getMessage() );
+
+        // verify
+        Mockito.verifyNoMoreInteractions( contentService );
+    }
+
+    @Test
+    public void test_localize_content_no_ids()
+    {
+        final ContentResource instance = getResourceInstance();
+        final LocalizeContentsJson params = new LocalizeContentsJson( new ArrayList<>(), "en" );
+
+        // test & assert
+        final WebApplicationException exception = assertThrows( WebApplicationException.class, () -> instance.localize( params ) );
+
+        assertEquals( "Can't localize content: no content IDs provided", exception.getMessage() );
+
+        // verify
         Mockito.verifyNoMoreInteractions( contentService );
     }
 
