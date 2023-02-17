@@ -1,5 +1,5 @@
 <widget xmlns="urn:enonic:xp:model:1.0">
-  <display-name>Statistics</display-name>
+  <display-name>Content Studio</display-name>
   <interfaces>
     <interface>admin.dashboard</interface>
   </interfaces>
