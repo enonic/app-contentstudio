@@ -3,6 +3,21 @@
 
 TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.com/docs/content-studio/3.x/release[here]
 
+== Content Studio 4 Update 5
+
+IMPORTANT: Content Studio 4.5.x requires XP 7.12.0 or higher.
+
+=== Applications on Content Projects
+
+Content Studio 4.5.0 introduces support of applications for Content Projects. This will enable usage of content types and controller mappings defined in
+the assigned applications when creating or rendering content outside of sites. This is especially useful for headless content management
+as opposed to site-oriented approach.
+
+You can assign applications to a new project inside the New Project Wizard, or do it inside the project settings form for existing projects.
+
+IMPORTANT: Applications assigned to projects will not work for a site or content items inside a site. Assign application(s)
+directly to the site if you want to use them for site contents.
+
 == Content Studio 4 Update 4
 
 IMPORTANT: Content Studio 4.4.x requires XP 7.11.0 or higher.
