@@ -34,9 +34,9 @@ CAUTION: Deleting a project will delete its repository and all the data inside. 
 
 == Default Project
 
-In a clean new instance of XP there's only one project (called "Default") which cannot be deleted but can be hidden using a configuration file.
-You can modify its display name and description, set default language for a new content which will be created in this repository
-and replace the icon in the "Settings" section.
+In a clean new instance of XP there's only one project (called "Default") which cannot be deleted but can be hidden using a
+<<config#disable_default_project#,configuration file>>. You can modify its display name and description, set default language
+for a new content which will be created in this repository and replace the icon in the "Settings" section.
 
 image::default-project.png[Default project, 825]
 
@@ -96,6 +96,23 @@ or change their configuration.
 * *Owner*: same as *Editor* + create and configure sites, and modify project settings.
 
 TIP: If an upstream project is selected, you can use "Copy from parent" button to quickly select this setting from the upstream project.
+
+=== Applications
+
+:imagesdir: ../images
+image:cs-450.svg[CS 4.5.0,opts=inline]
+
+You may assign applications to the project. This will enable usage of content types and controller mappings defined in
+the assigned applications when creating or rendering content outside of sites. This is especially useful for management of headless content
+as opposed to site-oriented approach.
+
+NOTE: Only applications containing `site.xml` can be assigned to content projects.
+
+:imagesdir: projects/images
+image::new-project-dialog-5.png[Applications, 470]
+
+IMPORTANT: Applications assigned to projects will not work for a site or content items inside a site. Assign applications
+directly to the site if you want to use them for site contents.
 
 === Base Properties
 
