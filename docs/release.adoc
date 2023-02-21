@@ -7,6 +7,21 @@ TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.
 
 IMPORTANT: Content Studio 4.5.x requires XP 7.12.0 or higher.
 
+=== Variants for A/B Testing
+
+A new widget provided by Content Studio+ enables creation of variants for a content item. Variants will be created under
+the original item and marked with a special icon. Variants can be managed (modified, published, duplicated etc.) as regular
+content items, then used in a 3rd party A/B Testing tool.
+
+:imagesdir: variants/images
+
+image::variants-grid.png[Variants in Content Grid, 470px]
+image::variants-widget.png[Variants widget, 470px]
+
+Read more about Variants <<variants/index#,here>>.
+
+NOTE: Widget for creating variants is provided by <<../#content_studio,Content Studio+>> application which requires Enonic license.
+
 === Applications on Content Projects
 
 Content Studio 4.5.0 introduces support of applications for Content Projects. This will enable usage of content types and controller mappings defined in
