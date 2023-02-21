@@ -57,6 +57,10 @@
       "document": "content-types"
     },
     {
+      "title": "Variants",
+      "document": "variants/index"
+    },
+    {
       "title": "Actions",
       "document": "actions"
     },
