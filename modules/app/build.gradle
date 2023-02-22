@@ -91,6 +91,7 @@ jar {
 
     outputs.dir "$buildDir/resources/main"
 
-    dependsOn webpack
+    dependsOn += test
+    dependsOn += webpack
 }
 
