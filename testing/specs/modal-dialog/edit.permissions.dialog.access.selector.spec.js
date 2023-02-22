@@ -14,7 +14,7 @@ const appConst = require('../../libs/app_const');
 
 describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions and add 'Create' operation", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -102,7 +102,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
