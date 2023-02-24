@@ -13,6 +13,7 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 const PublishContentDialog = require('../../page_objects/content.publish.dialog');
 const CompareWithPublishedVersionDialog = require('../../page_objects/compare.with.published.version.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 
 describe('version.items.after.publishing.spec tests for version items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -41,14 +42,15 @@ describe('version.items.after.publishing.spec tests for version items', function
             let wizardDetailsPanel = new WizardDetailsPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
+            let userAccessWidget = new UserAccessWidget();
             // 1. Select the folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
-            await wizardDetailsPanel.openVersionHistory();
             // 2. Update permissions:
-            await contentWizard.clickOnEditPermissionsButton();
-            await editPermissionsDialog.waitForDialogLoaded();
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             await editPermissionsDialog.clickOnApplyButton();
+            // Open version widget:
+            await wizardDetailsPanel.openVersionHistory();
             // 3. Verify that 'Permissions updated' item appears in the widget
             await wizardVersionsWidget.waitForPermissionsUpdatedItemDisplayed();
             let actualStatus = await contentWizard.getContentStatus();

@@ -6,19 +6,24 @@ const appConst = require('../../../libs/app_const');
 
 const xpath = {
     container: `//div[contains(@id,'WidgetView')]//div[contains(@id,'PropertiesWidgetItemView')]`,
-    languageProperty: "//dd[contains(.,'Language:')]/following-sibling::dt[1]",
-    ownerProperty: "//dd[contains(.,'Owner:')]/following-sibling::dt[1]",
-    publishFromProperty: "//dd[contains(.,'Publish From:')]/following-sibling::dt[1]",
-    applicationProperty: "//dd[contains(.,'Application:')]/following-sibling::dt[1]",
-    type: "//dd[contains(.,'Type:')]/following-sibling::dt[1]",
-    firstPublished: "//dd[contains(.,'First Published:')]/following-sibling::dt[1]",
-    modified: "//dd[contains(.,'Modified:')]/following-sibling::dt[1]",
+    languageProperty: "//dd[contains(.,'Language')]/following-sibling::dt[1]",
+    ownerProperty: "//dd[contains(.,'Owner')]/following-sibling::dt[1]",
+    publishFromProperty: "//dd[contains(.,'Publish From')]/following-sibling::dt[1]",
+    applicationProperty: "//dd[contains(.,'Application')]/following-sibling::dt[1]",
+    type: "//dd[contains(.,'Type')]/following-sibling::dt[1]",
+    firstPublished: "//dd[contains(.,'First Published')]/following-sibling::dt[1]",
+    modified: "//dd[contains(.,'Modified')]/following-sibling::dt[1]",
+    editPropertiesButton: "//a[contains(@class,'edit-settings-link') and text()='Edit Properties']",
 };
 
 class PropertiesItemView extends Page {
 
     get applicationProperty() {
         return xpath.container + xpath.applicationProperty;
+    }
+
+    get editPropertiesButton() {
+        return xpath.container + xpath.editPropertiesButton;
     }
 
     get typeProperty() {
@@ -45,14 +50,33 @@ class PropertiesItemView extends Page {
         return xpath.container + xpath.publishFromProperty;
     }
 
+    waitForEditPropertiesButtonDisplayed() {
+        return this.waitForElementDisplayed(this.editPropertiesButton, appConst.mediumTimeout);
+    }
+
+    waitForEditPropertiesButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.editPropertiesButton, appConst.mediumTimeout);
+    }
+
+    async clickOnEditPropertiesButton() {
+        try {
+            await this.waitForEditPropertiesButtonDisplayed();
+            await this.clickOnElement(this.editPropertiesButton);
+            await this.pause(300);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('prop_widget_edit');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`Properties Widget, Edit button is not displayed ${screenshot} ` + err);
+        }
+    }
+
     async waitForLanguageVisible() {
         try {
-            await this.waitForElementDisplayed(this.languageProperty, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.languageProperty, appConst.mediumTimeout);
         } catch (err) {
-            //Workaround for the issue with empty Details panel in Wizard
-            await this.refresh();
-            await this.pause(2000);
-            await this.waitForElementDisplayed(this.languageProperty, appConst.shortTimeout);
+            let screenshot = appConst.generateRandomName('prop_widget_lang');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`Properties Widget, language is not displayed ${screenshot} ` + err);
         }
     }
 
@@ -92,10 +116,9 @@ class PropertiesItemView extends Page {
         try {
             await this.waitForElementDisplayed(this.ownerProperty, appConst.shortTimeout);
         } catch (err) {
-            //Workaround for the issue with empty details panel in Wizard
-            await this.refresh();
-            await this.pause(2000);
-            await this.waitForElementDisplayed(this.ownerProperty, appConst.shortTimeout);
+            let screenshot = appConst.generateRandomName('prop_widget');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`Properties Widget, owner is not displayed ${screenshot} ` + err);
         }
     }
 

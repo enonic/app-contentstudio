@@ -8,8 +8,9 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const ScheduleForm = require('../../page_objects/wizardpanel/schedule.wizard.step.form');
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
+const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
+const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 
 describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -22,17 +23,17 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
     it(`GIVEN name input is filled in WHEN display name input is empty THEN only 'Create Task' menu item should be enabled`,
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Open wizard for new folder:
+            // 1. Open wizard for new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            //2. Fill in the name(path) input
+            // 2. Fill in the name(path) input
             await contentWizard.typeInPathInput(appConst.generateRandomName("folder"));
-            //3. Save the content with empty displayName:
+            // 3. Save the content with empty displayName:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            //4. Click on dropdown handle and verify the menu items:
+            // 4. Click on dropdown handle and verify the menu items:
             await contentWizard.openPublishMenu();
             await studioUtils.saveScreenshot('publish_menu_items2');
-            //Only Create Task menu item should be enabled
+            // Only Create Task menu item should be enabled
             await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.UNPUBLISH);
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
@@ -50,29 +51,31 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            //1. Publish the folder:
+            // 1. Publish the folder:
             await contentWizard.doPublish();
             await contentWizard.pause(1000);
             await studioUtils.saveScreenshot('check_default_action_unpublish');
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED);
-            //2. Verify that Unpublish is default action now
+            // 2. Verify that Unpublish is default action now
             await contentWizard.waitForUnpublishButtonDisplayed();
         });
 
     it(`WHEN existing 'published' folder is opened THEN 'Online from' and 'Online to' appear in the Schedule step form`,
         async () => {
-            let contentWizard = new ContentWizard();
-            let scheduleForm = new ScheduleForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             //1. Open the published folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.waitForWizardStepPresent('Schedule');
-            //2. Verify that actual dateTime is correct in Online From input
-            let fromActual = await scheduleForm.getOnlineFrom();
+            // 2. Open Edit Properties dialog
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            // 2. Verify that actual dateTime is correct in Online From input
+            let fromActual = await editDetailsDialog.getOnlineFrom();
             let expectedDate = new Date().toISOString().substring(0, 10);
             assert.isTrue(fromActual.includes(expectedDate), "Expected date time should be displayed");
             //3. Verify that 'Online to' input is empty
-            let to = await scheduleForm.getOnlineTo();
+            let to = await editDetailsDialog.getOnlineTo();
             assert.equal(to, '', 'Online to should be empty');
         });
 
@@ -95,7 +98,8 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
     it(`GIVEN existing 'Published' folder is opened WHEN the folder has been updated THEN 'Modified' status AND MARK AS READY button get visible`,
         async () => {
             let contentWizard = new ContentWizard();
-            let scheduleForm = new ScheduleForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.typeDisplayName(NEW_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
@@ -103,8 +107,10 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
 
             assert.equal(status, appConst.CONTENT_STATUS.MODIFIED);
             await contentWizard.waitForMarkAsReadyButtonVisible();
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
 
-            let onlineFrom = await scheduleForm.getOnlineFrom();
+            let onlineFrom = await editDetailsDialog.getOnlineFrom();
             assert.isFalse(studioUtils.isStringEmpty(onlineFrom), 'Online from input should not be empty');
 
             let workflow = await contentWizard.getContentWorkflowState();
@@ -114,10 +120,10 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
     it(`GIVEN existing 'Modified' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be enabled AND 'Create Task...' is enabled`,
         async () => {
             let contentWizard = new ContentWizard();
-            await studioUtils.selectByDisplayNameAndOpenContent( NEW_DISPLAY_NAME);
-            //Click on dropdown handle and open Publish Menu:
+            await studioUtils.selectByDisplayNameAndOpenContent(NEW_DISPLAY_NAME);
+            // Click on dropdown handle and open Publish Menu:
             await contentWizard.openPublishMenu();
-            studioUtils.saveScreenshot("publish_menu_items3");
+            await studioUtils.saveScreenshot('publish_menu_items3');
             await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         });
@@ -125,8 +131,9 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
     it(`GIVEN existing 'modified' content is opened WHEN 'unpublish...' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
-            let scheduleForm = new ScheduleForm();
-            await studioUtils.selectByDisplayNameAndOpenContent( NEW_DISPLAY_NAME);
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
+            await studioUtils.selectByDisplayNameAndOpenContent(NEW_DISPLAY_NAME);
             //'MARK AS READY' button should be present on the toolbar
             //So need to open the publish-menu and select 'Unpublish...' menu item
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.UNPUBLISH);
@@ -138,11 +145,15 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //Status should be Unpublished and 'Mark as Ready' button should be visible
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.UNPUBLISHED);
             await contentWizard.waitForMarkAsReadyButtonVisible();
-            //Schedule form gets not visible:
-            await scheduleForm.waitForNotDisplayed();
-
             let workflow = await contentWizard.getContentWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
+            // Open 'Edit Properties' modal dialog:
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            //Schedule form should not be displayed in the modal dialog:
+            await editDetailsDialog.waitForScheduleFormNotDisplayed();
+
+
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

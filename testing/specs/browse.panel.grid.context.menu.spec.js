@@ -14,7 +14,7 @@ const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem
 
 describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let TEST_FOLDER_1;
@@ -23,22 +23,22 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
     it(`WHEN do right click on an existing folder(New) THEN expected menu items should be shown`,
         async () => {
             let displayName = contentBuilder.generateRandomName('folder');
-            TEST_FOLDER_1 = contentBuilder.buildFolder(displayName, null, 'English (en)');
+            TEST_FOLDER_1 = contentBuilder.buildFolder(displayName, null, appConst.LANGUAGES.EN);
             await studioUtils.doAddFolder(TEST_FOLDER_1);
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select an existing folder:
+            // 1. Select an existing folder:
             await studioUtils.findAndSelectItem(TEST_FOLDER_1.displayName);
-            //2. Do the right click on the folder:
+            // 2. Do the right click on the folder:
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_1.displayName);
-            //3.Verify that New, Archive, Edit, Move, Publish, Duplicate  menu items are enabled in the context menu:
-            await studioUtils.saveScreenshot("folder-context-menu-1");
+            // 3.Verify that New, Archive, Edit, Move, Publish, Duplicate  menu items are enabled in the context menu:
+            await studioUtils.saveScreenshot('folder-context-menu-1');
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.ARCHIVE);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.NEW);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.EDIT);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.MOVE);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.PUBLISH);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.DUPLICATE);
-            //4.Verify that Preview, Sort  menu items are disabled in the context menu:
+            // 4.Verify that Preview, Sort  menu items are disabled in the context menu:
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.PREVIEW);
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.SORT);
         });
@@ -47,21 +47,21 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
-            TEST_FOLDER_2 = contentBuilder.buildFolder(displayName, null, 'English (en)');
+            TEST_FOLDER_2 = contentBuilder.buildFolder(displayName, null, appConst.LANGUAGES.EN);
             await studioUtils.doAddFolder(TEST_FOLDER_2);
-            //1. Select 2 folders:
+            // 1. Select 2 folders:
             await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_2.displayName);
             await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_1.displayName);
-            //2. Do right-click on the selected folders:
+            // 2. Do right-click on the selected folders:
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_1.displayName);
-            //3.Verify that Archive, Edit, Move, Publish, Duplicate  menu items are enabled in the context menu:
-            await studioUtils.saveScreenshot("folder-context-menu-2");
+            // 3.Verify that Archive, Edit, Move, Publish, Duplicate  menu items are enabled in the context menu:
+            await studioUtils.saveScreenshot('folder-context-menu-2');
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.ARCHIVE);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.EDIT);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.MOVE);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.PUBLISH);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.DUPLICATE);
-            //4.Verify that New, Preview, Sort  menu items are disabled in the context menu:
+            // 4.Verify that New, Preview, Sort  menu items are disabled in the context menu:
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.NEW);
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.PREVIEW);
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.SORT);
@@ -71,35 +71,35 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Select a folder and click on Mark as Ready button:
+            // 1. Select a folder and click on Mark as Ready button:
             await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_1.displayName);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
-            //2. Do the right click on the selected folder and click on Publish menu item :
+            // 2. Do the right click on the selected folder and click on Publish menu item :
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_1.displayName);
             await contentBrowsePanel.clickOnMenuItem(appConst.GRID_CONTEXT_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
-            //3. Click on 'Publish Now' button:
+            // 3. Click on 'Publish Now' button:
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
             await contentBrowsePanel.waitForNotificationMessage();
-            //4. Do right click on the selected folder
+            // 4. Do right click on the selected folder
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_1.displayName);
-            await studioUtils.saveScreenshot("folder-context-menu-3");
-            //5.Verify that 'Unpublish'  menu item gets visible and enabled in the context menu:
+            await studioUtils.saveScreenshot('folder-context-menu-3');
+            // 5.Verify that 'Unpublish'  menu item gets visible and enabled in the context menu:
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.UNPUBLISH);
-            //6. Verify that 'Publish' menu item is not displayed now
+            // 6. Verify that 'Publish' menu item is not displayed now
             await contentBrowsePanel.waitForContextMenuItemNotDisplayed(appConst.GRID_CONTEXT_MENU.PUBLISH);
         });
 
     it(`GIVEN one published and one new folders are selected WHEN do right click on the selected items THEN Publish and Unpublish menu items should be enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select 2 folders:
+            // 1. Select 2 folders:
             await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_1.displayName);
             await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_2.displayName);
-            //2. Do the right click on the selected folders:
+            // 2. Do the right click on the selected folders:
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_2.displayName);
-            //3.Verify that Publish, Unpublish  menu items are enabled in the context menu:
+            // 3.Verify that Publish, Unpublish  menu items are enabled in the context menu:
             await studioUtils.saveScreenshot("folder-context-menu-4");
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.PUBLISH);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.UNPUBLISH);
@@ -108,41 +108,41 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
     it(`GIVEN existing folder is selected WHEN 'Edit' menu item has been clicked in the context menu THEN this content should be loaded in the new browser tab`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select a folder:
+            // 1. Select a folder:
             await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_1.displayName);
-            //2. Do the right click on the selected folder then click on 'Edit' menu item:
+            // 2. Do the right click on the selected folder then click on 'Edit' menu item:
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_1.displayName);
             await contentBrowsePanel.clickOnMenuItem(appConst.GRID_CONTEXT_MENU.EDIT);
             await contentBrowsePanel.pause(1000);
             await studioUtils.doSwitchToNextTab();
-            //3.verify that the content is opened in the new browser tab
-            await studioUtils.saveScreenshot("folder-context-menu-5");
+            // 3.verify that the content is opened in the new browser tab
+            await studioUtils.saveScreenshot('folder-context-menu-5');
             let contentWizard = new ContentWizard();
             let displayName = await contentWizard.getDisplayName();
-            assert.equal(displayName, TEST_FOLDER_1.displayName, "Expected and actual display name should be equal");
+            assert.equal(displayName, TEST_FOLDER_1.displayName, 'Expected and actual display name should be equal');
         });
 
     it(`WHEN do right click on an existing image THEN Preview menu item should be enabled in the context menu`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            //1. Select an image:
+            // 1. Select an image:
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.RENAULT);
-            //2. Do the right click on the image:
+            // 2. Do the right click on the image:
             await contentBrowsePanel.rightClickOnItemByDisplayName(appConst.TEST_IMAGES.RENAULT);
-            //3.Verify that New, Preview, Sort  menu items are disabled in the context menu:
-            await studioUtils.saveScreenshot("image-context-menu-1");
+            // 3.Verify that New, Preview, Sort  menu items are disabled in the context menu:
+            await studioUtils.saveScreenshot('image-context-menu-1');
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.PREVIEW);
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.NEW);
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.SORT);
-            //4. Verify that Img element gets visible in the Item Preview Panel:
+            // 4. Verify that Img element gets visible in the Item Preview Panel:
             await contentItemPreviewPanel.waitForImageDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

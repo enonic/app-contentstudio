@@ -282,12 +282,12 @@ module.exports = {
     },
     async doAddFolder(folder) {
         let contentWizardPanel = new ContentWizardPanel();
-        //1. Open the folder-wizard:
+        // 1. Open the folder-wizard:
         await this.openContentWizard(appConst.contentTypes.FOLDER);
         await contentWizardPanel.typeData(folder);
-        //2. Save the folder:
+        // 2. Save the folder:
         await contentWizardPanel.waitAndClickOnSave();
-        //3.Close the wizard:
+        // 3.Close the wizard:
         await this.doCloseWizardAndSwitchToGrid();
         return await this.getBrowser().pause(1000);
     },

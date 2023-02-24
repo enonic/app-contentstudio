@@ -53,9 +53,9 @@ class BaseDetailsPanel extends Page {
 
     async selectItemInWidgetSelector(itemName) {
         await this.clickOnWidgetSelectorDropdownHandle();
-        let versionHistoryOption = this.widgetSelectorDropdown + lib.itemByDisplayName(itemName);
-        await this.waitForElementDisplayed(versionHistoryOption, appConst.mediumTimeout);
-        let elements = await this.getDisplayedElements(versionHistoryOption);
+        let option = this.widgetSelectorDropdown + lib.itemByDisplayName(itemName);
+        await this.waitForElementDisplayed(option, appConst.mediumTimeout);
+        let elements = await this.getDisplayedElements(option);
         await elements[0].click();
         return await this.pause(500);
     }
@@ -88,6 +88,19 @@ class BaseDetailsPanel extends Page {
         }
     }
 
+    async openDetails() {
+        try {
+            await this.clickOnWidgetSelectorDropdownHandle();
+            let detailsOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
+            await this.waitForElementDisplayed(detailsOption, appConst.mediumTimeout);
+            let result = await this.getDisplayedElements(detailsOption);
+            await result[0].click();
+            return await this.pause(500);
+        } catch (err) {
+            throw new Error("Error during opening 'Details widget'" + err);
+        }
+    }
+
     async clickOnEmulatorOptionsItem() {
         let emulatorOptionLocator = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.EMULATOR);
         await this.waitForElementDisplayed(emulatorOptionLocator, appConst.mediumTimeout);
@@ -101,7 +114,7 @@ class BaseDetailsPanel extends Page {
             await this.clickOnWidgetSelectorDropdownHandle();
             await this.clickOnEmulatorOptionsItem();
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_widget_selector"));
+            await this.saveScreenshot(appConst.generateRandomName('err_widget_selector'));
             //throw new Error("Error when opening Emulator widget" + err);
             await this.refresh();
             await this.pause(5000);

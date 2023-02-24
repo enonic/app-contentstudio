@@ -8,7 +8,8 @@ const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const CompareWithPublishedVersionDialog = require('../../page_objects/compare.with.published.version.dialog');
-const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
+const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 
 describe("compare.with.published.version.dialog.spec tests for 'Show changes' modal dialog", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -33,13 +34,18 @@ describe("compare.with.published.version.dialog.spec tests for 'Show changes' mo
     it(`GIVEN language has been selected in the wizard WHEN Compare With Published Version Dialog has been opened THEN 'modifiedTime', 'workflow' and 'language' properties should be visible in the dialog`,
         async () => {
             let contentWizard = new ContentWizard();
-            let settingsForm = new SettingsStepForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             let compareWithPublishedVersionDialog = new CompareWithPublishedVersionDialog();
             // 1. Open the folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
-            // 2. Select the language:
-            await settingsForm.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
-            await contentWizard.waitAndClickOnSave();
+            // 2. Open Edit Details modal dialog and select the language:
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            await editDetailsDialog.clickOnApplyButton();
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.waitForSaveButtonDisabled();
             // 3. Open 'Compare With Published Version' modal dialog
             await contentWizard.clickOnShowChangesToolbarButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();
@@ -57,12 +63,17 @@ describe("compare.with.published.version.dialog.spec tests for 'Show changes' mo
     it(`GIVEN language has been removed in the wizard WHEN Compare With Published Version Dialog has been opened THEN 'language' property should not be present in the modal dialog`,
         async () => {
             let contentWizard = new ContentWizard();
-            let settingsForm = new SettingsStepForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             let compareWithPublishedVersionDialog = new CompareWithPublishedVersionDialog();
             // 1. Select the folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
             // 2. remove the language:
-            await settingsForm.clickOnRemoveLanguage();
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            await editDetailsDialog.clickOnRemoveLanguage();
+            await editDetailsDialog.clickOnApplyButton();
+            await contentWizard.waitForNotificationMessage();
             // 3. Open 'Compare With Published Version' modal dialog
             await contentWizard.clickOnShowChangesToolbarButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();

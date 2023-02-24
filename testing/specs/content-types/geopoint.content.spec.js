@@ -12,12 +12,12 @@ const appConst = require('../../libs/app_const');
 
 describe('geopoint.content.spec: tests for geo point content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const INCORRECT_GEO_LOCATION = "1,181";
-    const VALID_GEO_LOCATION = "1,1";
+    const INCORRECT_GEO_LOCATION = '1,181';
+    const VALID_GEO_LOCATION = '1,1';
     const GEO_POINT_CONTENT_NAME_1 = contentBuilder.generateRandomName('geopoint');
     const GEO_POINT_CONTENT_NAME_2 = contentBuilder.generateRandomName('geopoint');
 
@@ -35,11 +35,11 @@ describe('geopoint.content.spec: tests for geo point content', function () {
             //1. Type a correct geo point:
             await geoPoint.typeGeoPoint(VALID_GEO_LOCATION, 0);
             await geoPoint.pause(500);
-            studioUtils.saveScreenshot('geo_point_content_valid');
+            await studioUtils.saveScreenshot('geo_point_content_valid');
             //2. Verify that validation message is not displayed:
             let recording = await geoPoint.getOccurrenceValidationRecording(0);
             await studioUtils.saveScreenshot('double_default_value_1');
-            assert.equal(recording, "", 'Validation recording should not be displayed');
+            assert.equal(recording, '', 'Validation recording should not be displayed');
         });
 
     it(`GIVEN wizard for 'GeoPoint 0:0' is opened WHEN not valid value has been typed THEN validation message should be present`,
@@ -57,7 +57,7 @@ describe('geopoint.content.spec: tests for geo point content', function () {
             //3. Save the content and check the red icon in the wizard:
             await contentWizard.waitAndClickOnSave();
             let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "This content should be valid");
+            assert.isFalse(result, 'This content should be valid');
         });
 
     it(`GIVEN invalid value has been typed in geo point input AND the content has been saved WHEN the content has been reopened THEN geo point input should be empty`,
@@ -83,21 +83,21 @@ describe('geopoint.content.spec: tests for geo point content', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.GEOPOINT_1_1);
             await contentWizard.typeDisplayName(GEO_POINT_CONTENT_NAME_2);
             await geoPoint.typeGeoPoint(INCORRECT_GEO_LOCATION, 0);
-            //2. Verify the validation message:
+            // 2. Verify the validation message:
             await studioUtils.saveScreenshot('geo_point_content_not_valid_required');
             let recording = await geoPoint.getOccurrenceValidationRecording(0);
             assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Validation recording should be displayed');
-            //3. Verify that the content is not valid, because geo point input is required
+            // 3. Verify that the content is not valid, because geo point input is required
             let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "This content should be not valid");
-            //4. Verify that 'Add' button is not displayed
+            assert.isTrue(result, 'This content should be not valid');
+            // 4. Verify that 'Add' button is not displayed
             await geoPoint.waitForAddButtonNotDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

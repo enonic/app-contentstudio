@@ -8,13 +8,12 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
-const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
 
 describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions and add 'Create' operation", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -32,34 +31,34 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             let contentBrowsePanel = new ContentBrowsePanel();
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
-            //1. Select the folder and open Details Panel:
+            // 1. Select the folder and open Details Panel:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await studioUtils.openBrowseDetailsPanel();
-            //2. Open Edit Permissions dialog and uncheck the 'Inherit' checkbox:
+            // 2. Open Edit Permissions dialog and uncheck the 'Inherit' checkbox:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
-            //3. Go to 'Content Manager App' entry and open ACE-menu then select 'Custom...' menu item:
+            // 3. Go to 'Content Manager App' entry and open ACE-menu then select 'Custom...' menu item:
             await editPermissionsDialog.showAceMenuAndSelectItem(appConst.roleName.CONTENT_MANAGER_APP, appConst.permissions.CUSTOM);
             await editPermissionsDialog.pause(500);
-            //4. Click on 'Create' permission-toggle and allow the operation:
-            await studioUtils.saveScreenshot("edit_perm_dlg_custom_permissions");
+            // 4. Click on 'Create' permission-toggle and allow the operation:
+            await studioUtils.saveScreenshot('edit_perm_dlg_custom_permissions');
             await editPermissionsDialog.clickOnPermissionToggle(appConst.roleName.CONTENT_MANAGER_APP, appConst.permissionOperation.CREATE);
-            //5. Click on 'Apply' button and close the modal dialog:
+            // 5. Click on 'Apply' button and close the modal dialog:
             await editPermissionsDialog.clickOnApplyButton();
-            //6. Verify the notification message:
+            // 6. Verify the notification message:
             let expectedMessage = appConst.permissionsAppliedNotificationMessage(FOLDER.displayName);
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
             assert.equal(actualMessage, expectedMessage, "'Permissions for 'name' are applied.' - Is expected message");
         });
 
-    it(`GIVEN existing folder with 'Custom' permissions is opened WHEN Edit Permissions dialog has been opened THEN expected operations should be allowed`,
+    it(`GIVEN existing folder with 'Custom' permissions is opened WHEN 'Edit Permissions dialog' has been opened THEN expected operations should be allowed`,
         async () => {
-            let contentWizardPanel = new ContentWizardPanel();
+            let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
             //1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             //2. Click on Edit Permissions button:
-            await contentWizardPanel.clickOnEditPermissionsButton();
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             //3. Verify that operations are 'allowed':
             let isAllowed = await editPermissionsDialog.isOperationAllowed(appConst.roleName.CONTENT_MANAGER_APP, 'Read');
             assert.isTrue(isAllowed, "'Read' operation should be allowed(green)");
@@ -102,7 +101,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -10,9 +10,10 @@ const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspane
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const ContentSettingsForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const appConst = require('../../libs/app_const');
+const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
+const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 
 describe('versions.widget.check.status.spec - check content status in Versions Panel`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -55,12 +56,19 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            let contentSettingsForm = new ContentSettingsForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             let contentWizard = new ContentWizard();
             //1. open the folder and select a language:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentSettingsForm.filterOptionsAndSelectLanguage('English (en)');
-            await contentWizard.hotKeySaveAndCloseWizard();
+            // 3. Open 'Edit Details' modal dialog:
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            await editDetailsDialog.clickOnApplyButton();
+            await editDetailsDialog.waitForClosed();
+            await contentWizard.waitForNotificationMessage();
+            await studioUtils.doCloseWindowTabAndSwitchToBrowsePanel();
             //2. Open version panel and verify status in the latest version-item:
             await contentBrowsePanel.openDetailsPanel();
             await contentBrowseDetailsPanel.openVersionHistory();
@@ -97,12 +105,17 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            let contentSettingsForm = new ContentSettingsForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             let contentWizard = new ContentWizard();
             // 1. open the folder and remove the language:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentSettingsForm.clickOnRemoveLanguage();
-            await contentWizard.waitAndClickOnSave();
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            await editDetailsDialog.clickOnRemoveLanguage();
+            await editDetailsDialog.clickOnApplyButton();
+            await editDetailsDialog.waitForClosed();
+            await contentWizard.waitForNotificationMessage();
             await studioUtils.doCloseWizardAndSwitchToGrid();
             // 2. Open version panel and verify status in the latest version-item:
             await contentBrowsePanel.openDetailsPanel();
@@ -118,7 +131,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            //1. Select the folder and publish it:
+            // 1. Select the folder and publish it:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.hotKeyPublish();
             await contentPublishDialog.waitForDialogOpened();

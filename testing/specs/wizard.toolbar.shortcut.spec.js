@@ -9,9 +9,10 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
-const SettingsStepForm = require('../page_objects/wizardpanel/settings.wizard.step.form');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../libs/app_const');
+const EditDetailsDialog = require('../page_objects/details_panel/edit.details.dialog');
+const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 
 describe('Wizard toolbar - shortcut spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -42,20 +43,20 @@ describe('Wizard toolbar - shortcut spec', function () {
             //2. Press 'Ctrl+Delete'
             await contentWizard.hotKeyDelete();
             //3. Verify that Delete Content dialog loaded:
-            studioUtils.saveScreenshot('wizard_shortcut_delete');
+            await studioUtils.saveScreenshot('wizard_shortcut_delete');
             await deleteContentDialog.waitForDialogOpened();
         });
 
-    //verifies:https://github.com/enonic/app-contentstudio/issues/127
+    // verifies:https://github.com/enonic/app-contentstudio/issues/127
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Alt+p' have been pressed THEN 'Publish Dialog' should appear`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Open existing folder:
+            // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
-            //2. Press 'Ctrl+Alt+p'
+            // 2. Press 'Ctrl+Alt+p'
             await contentWizard.hotKeyPublish();
-            //3. Verify that Publish Content dialog loaded:
+            // 3. Verify that Publish Content dialog loaded:
             await contentPublishDialog.waitForDialogOpened();
         });
 
@@ -63,7 +64,7 @@ describe('Wizard toolbar - shortcut spec', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Open existing folder:
+            // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
             await contentWizard.hotKeyCloseWizard();
             await contentBrowsePanel.waitForGridLoaded();
@@ -72,13 +73,16 @@ describe('Wizard toolbar - shortcut spec', function () {
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Enter' have been pressed THEN the content should be should be saved then closed AND grid is loaded`,
         async () => {
             let contentWizard = new ContentWizard();
-            let settingsStepForm = new SettingsStepForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Open existing folder:
+            // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
-            //2. Select a language:
-            await settingsStepForm.filterOptionsAndSelectLanguage('English (en)');
-            //3. Press 'Ctrl+Enter
+            // 2. Open Edit Details modal dialog and select the language:
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            // 3. Press 'Ctrl+Enter
             await contentWizard.hotKeySaveAndCloseWizard();
             await contentBrowsePanel.waitForGridLoaded();
         });
@@ -96,7 +100,7 @@ describe('Wizard toolbar - shortcut spec', function () {
     });
 
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -5,17 +5,16 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 const StatusWidget = require('../page_objects/browsepanel/detailspanel/status.widget.itemview');
 const WidgetItemView = require('../page_objects/browsepanel/detailspanel/content.widget.item.view');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const SettingsForm = require('../page_objects/wizardpanel/settings.wizard.step.form');
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 const PublishContentDialog = require('../page_objects/content.publish.dialog');
 const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const EditDetailsDialog = require('../page_objects/details_panel/edit.details.dialog');
 
 describe('Browse panel, properties widget, language spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -123,21 +122,25 @@ describe('Browse panel, properties widget, language spec', function () {
 
     it(`GIVEN existing folder with language is opened WHEN the language has been removed and 'Details Panel' opened THEN language should not be displayed in the widget`,
         async () => {
-            let contentWizard = new ContentWizard();
             let propertiesWidget = new PropertiesWidget();
+            let editDetailsDialog = new EditDetailsDialog();
             // 1. Open the folder:
             await studioUtils.selectContentAndOpenWizard(TEST_FOLDER.displayName);
-            let settingsForm = new SettingsForm();
-            // 2.remove the language:
-            await settingsForm.clickOnRemoveLanguage();
-            await contentWizard.waitAndClickOnSave();
+            // 2. Open 'Edit Details' modal dialog:
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            // 3. Remove the language:
+            await editDetailsDialog.clickOnRemoveLanguage();
+            await editDetailsDialog.clickOnApplyButton();
+            await editDetailsDialog.waitForNotificationMessage();
+            // Go to browse panel
             await studioUtils.doSwitchToContentBrowsePanel();
-            // 3. Open browse details panel:
+            // 4. Open browse details panel:
             await studioUtils.openBrowseDetailsPanel();
-            // 4. Language should not be present in the widget now :
+            // 5. Language should not be present in the widget now :
             await studioUtils.saveScreenshot('details_panel_language_removed');
             await propertiesWidget.waitForLanguageNotVisible();
-            // 5. Status gets modified:
+            // 6. Status gets modified:
             let statusWidget = new StatusWidget();
             await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MODIFIED);
         });

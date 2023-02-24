@@ -30,18 +30,17 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
         async () => {
             let attachmentsForm = new AttachmentsForm();
             let contentWizard = new ContentWizard();
-            //1. Open wizard for new attachment content:
+            // 1. Open wizard for new attachment content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ATTACHMENTS_1_1);
-            //2. Verify that Upload button is displayed:
+            // 2. Verify that Upload button is displayed:
             await attachmentsForm.waitForUploaderDisplayed();
             await studioUtils.saveScreenshot('attachments_wizard_1');
             await contentWizard.typeDisplayName(ATTACHMENT_NAME);
-            //3. Verify that the content is invalid, because attachment input is required:
+            // 3. Verify that the content is invalid, because attachment input is required:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, "Content should be not valid");
-            //4. Verify that validation recording does not appear until content is saved
-            let validRecording = await attachmentsForm.getOccurrenceValidationRecording(0);
-            assert.equal(validRecording, '', 'Validation recording should be empty until content is saved');
+            assert.isTrue(isInvalid, 'Content should be not valid');
+            // 4. Verify that validation recording does not appear until content is saved
+            await attachmentsForm.waitForFormValidationRecordingNotDisplayed();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });
@@ -50,24 +49,24 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
         async () => {
             let attachmentsForm = new AttachmentsForm();
             let contentWizard = new ContentWizard();
-            //1. existing attachment(1:1) has been reopened
+            // 1. existing attachment(1:1) has been reopened
             await studioUtils.selectAndOpenContentInWizard(ATTACHMENT_NAME);
-            //2. Verify that Validation Recording for attachments input is displayed:
+            // 2. Verify that Validation Recording for attachments input is displayed:
             let actualRecording = await attachmentsForm.getFormValidationRecording();
             assert.equal(actualRecording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Validation recording should be displayed");
-            //3. Verify that the content is invalid
+            // 3. Verify that the content is invalid
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, "Content should be not valid");
+            assert.isTrue(isInvalid, 'Content should be not valid');
         });
 
     it("WHEN new wizard with not required 'attachment' is opened AND name input is filled in THEN the content gets valid",
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Open wizard for new attachment content (0:0 not required)
+            // 1. Open wizard for new attachment content (0:0 not required)
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ATTACHMENTS_0_0);
             await contentWizard.typeDisplayName(ATTACHMENT_NAME2);
             await studioUtils.saveScreenshot('attachments_wizard_2');
-            //3. Verify that the content is valid, because attachment input is not required:
+            // 3. Verify that the content is valid, because attachment input is not required:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isFalse(isInvalid, 'Content should be valid');
         });

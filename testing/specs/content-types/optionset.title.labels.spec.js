@@ -16,6 +16,7 @@ const NotificationDialog = require('../../page_objects/notification.dialog');
 const OptionSetForm2View = require('../../page_objects/wizardpanel/optionset/optionset.form2.view');
 const appConst = require('../../libs/app_const');
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 
 describe("optionset.title.labels.spec: checks option set's title and labels", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -257,11 +258,11 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
     it(`GIVEN existing option set is opened WHEN permissions have been updated THEN Save button remains visible and disabled`,
         async () => {
             let contentWizard = new ContentWizard();
+            let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
             // 1. Open existing 'Option Set' content:
             await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME);
-            await contentWizard.clickOnEditPermissionsButton();
-            await editPermissionsDialog.waitForDialogLoaded();
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             // 2.  Add default permissions for 'Anonymous user' and click on Apply button:
             await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);

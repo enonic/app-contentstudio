@@ -7,32 +7,36 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('Revert published content spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let FOLDER;
 
     it(`WHEN new folder has been published THEN Published status should be displayed`,
         async () => {
-            let contentPublishDialog = new ContentPublishDialog();
             let contentWizard = new ContentWizard();
-            let settingsForm = new SettingsStepForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             let displayName = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(displayName);
-            //1. Add new folder:
+            // 1. Add new folder:
             await studioUtils.doAddFolder(FOLDER);
-            //2. reopen the folder and select a language
+            // 2. reopen the folder and select a language
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await settingsForm.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
-            await contentWizard.waitAndClickOnSave();
-            //3. Publish the folder
+            // 3. Open 'Edit Details' modal dialog:
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            await editDetailsDialog.clickOnApplyButton();
+            await contentWizard.waitForNotificationMessage();
+            // 4. Publish the folder
             await contentWizard.clickOnMarkAsReadyButton();
             await studioUtils.doPublish();
 

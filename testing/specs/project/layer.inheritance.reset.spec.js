@@ -9,19 +9,18 @@ const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolbar', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
-    const FOLDER_NAME = studioUtils.generateRandomName("folder");
-    const CONTROLLER_NAME = 'main region';
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;
 
@@ -32,11 +31,11 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME);
         });
 
-    it("Precondition 2: new site should be created in existing parent project",
+    it('Precondition 2: new site should be created in existing parent project',
         async () => {
-            //1. Select the project's context:
+            // 1. Select the project's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
-            //2. Create new site:
+            // 2. Create new site:
             SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
@@ -55,54 +54,63 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
 
     it("GIVEN site is selected AND 'Localize' button has been pressed WHEN 'Save' button has been pressed THEN 'Reset' button should appear in the wizard toolbar",
         async () => {
-            //1. Select the layer's context:
+            // 1. Select the layer's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
-            //2. Click on Localize and save the changes in the site:
+            // 2. Click on Localize button then save the changes in the opened site:
             let contentWizard = await studioUtils.selectContentAndClickOnLocalize(SITE_NAME);
-            await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            //3. Verify that Reset button gets visible in the wizard toolbar
+            // 3. Verify that Save button is disabled, because when pressing 'Localize' button update language first and then open wizard
+            await contentWizard.waitForSaveButtonDisabled();
+            // 4. Verify that 'Reset' button gets visible in the wizard toolbar
             await contentWizard.waitForResetButtonDisplayed();
         });
 
     it("GIVEN 'Reset' button has been pressed AND Confirmation dialog is opened WHEN 'No' button has been clicked THEN the site remains localized",
         async () => {
-            let settingsStepForm = new SettingsStepForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             let contentWizard = new ContentWizard();
             //1. layer's context should be loaded automatically.
             //2. Open the localized site:
             await studioUtils.selectContentAndOpenWizard(SITE_NAME);
             //3. Click on Reset button:
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
-            //4. Click on No button in confirmation dialog:
+            // 4. Click on No button in confirmation dialog:
             await confirmationDialog.clickOnNoButton();
-            let language = await settingsStepForm.getSelectedLanguage();
-            await studioUtils.saveScreenshot("reset_not_confirmed");
-            //5. Verify that site is not reverted to initial inherited state:
+            // 2. Open 'Edit Details' modal dialog:
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            let language = await editDetailsDialog.getSelectedLanguage();
+            await editDetailsDialog.clickOnCancelButton();
+            await studioUtils.saveScreenshot('reset_not_confirmed');
+            // 5. Verify that site is not reverted to initial inherited state:
             assert.equal(language, appConst.LANGUAGES.EN, "layer's data should not be reset");
-            //6. Verify that Reset button still displayed in the wizard toolbar:
+            // 6. Verify that Reset button still displayed in the wizard toolbar:
             await contentWizard.waitForResetButtonDisplayed();
         });
 
     it("GIVEN 'Reset' button has been pressed AND Confirmation dialog is opened WHEN 'Yes' button has been clicked THEN the site should be reverted to the inherited state",
         async () => {
-            let settingsStepForm = new SettingsStepForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             let contentWizard = new ContentWizard();
-            //layer's context should be loaded automatically.
-            //1. Open the localized site:
+            // layer's context should be loaded automatically.
+            // 1. Open the localized site:
             await studioUtils.selectContentAndOpenWizard(SITE_NAME);
-            //2. Click on Reset button:
+            // 2. Click on Reset button:
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
-            //3. Click on 'Yes' button in confirmation dialog:
+            // 3. Click on 'Yes' button in confirmation dialog:
             await confirmationDialog.clickOnYesButton();
-            let language = await settingsStepForm.getSelectedLanguage();
-            await studioUtils.saveScreenshot("reset_confirmed");
-            //4. Verify that content is reverted to initial inherited state:
+            await confirmationDialog.waitForDialogClosed();
+            // 4. Open 'Edit Details' modal dialog:
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            let language = await editDetailsDialog.getSelectedLanguage();
+            await studioUtils.saveScreenshot('reset_confirmed');
+            //5. Verify that content is reverted to initial inherited state:
             assert.equal(language, appConst.LANGUAGES.EN, "layer's language should be reset");
             //5. Verify that 'Reset' button is not displayed in the wizard toolbar:
             await contentWizard.waitForResetButtonNotDisplayed();
-            //6. Verify that language is not selected in the settings form:
-            await settingsStepForm.waitForSelectedLanguageNotDisplayed();
         });
 
     //Verifies https://github.com/enonic/xp/issues/8547
@@ -124,7 +132,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             //4. Click on 'Yes' button in confirmation dialog:
             await confirmationDialog.clickOnYesButton();
             await contentWizard.pause(1500);
-            await studioUtils.saveScreenshot("reset_confirmed_w_status");
+            await studioUtils.saveScreenshot('reset_confirmed_w_status');
             let actualStatus = await contentWizard.getContentWorkflowState();
             //5. Verify that workflow status is 'work in progress' ( initial inherited state):
             assert.equal(actualStatus, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
@@ -166,7 +174,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

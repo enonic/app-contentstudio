@@ -11,7 +11,8 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const contentBuilder = require("../../libs/content.builder");
@@ -159,21 +160,21 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     it("GIVEN user with 'Author' role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
-            let settingsStepForm = new SettingsStepForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             // 1. Do log in with the user-author and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // 2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
-            studioUtils.saveScreenshot('project_author_4');
+            await studioUtils.saveScreenshot('project_author_4');
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot('project_author_5');
+            await studioUtils.saveScreenshot('project_author_5');
             // 3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
-            let isVisible = await settingsStepForm.isLanguageOptionsFilterVisible();
-            assert.isFalse(isVisible, 'Language comboBox should not be visible for Author role');
-            isVisible = await settingsStepForm.isOwnerOptionsFilterVisible();
-            assert.isFalse(isVisible, 'Owner comboBox should not be visible for Author role');
+            // Verify taht Edit properties button is not visible for users with 'Author' role
+            await propertiesWidget.waitForEditPropertiesButtonNotDisplayed();
+
         });
 
     // Verify that 'Author' can not publish content:
@@ -196,8 +197,8 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
         });
 
-    //Verifies - issue#1920 User with author role - Last stage in publishing workflow for Project gives user option to "Publish Now"
-    //https://github.com/enonic/app-contentstudio/issues/1920
+    // Verifies - issue#1920 User with author role - Last stage in publishing workflow for Project gives user option to "Publish Now"
+    // https://github.com/enonic/app-contentstudio/issues/1920
     it("GIVEN user with 'Author' role is logged in WHEN existing folder has been selected and Publish Request has been created THEN 'Publish Now' button should be disabled on the last stage",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -232,7 +233,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         }
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
