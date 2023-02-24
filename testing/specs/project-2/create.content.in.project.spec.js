@@ -8,7 +8,8 @@ const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 const ContentWidgetView = require('../../page_objects/browsepanel/detailspanel/content.widget.item.view');
@@ -38,7 +39,7 @@ describe('create.content.in.project.spec - create new content in the selected co
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the project in 'Select Context' dialog
+            // 1. Select the project in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // Verify that 'No open issues' - this label should be in Issues Button:
             let actualLabel = await settingsBrowsePanel.getTextInShowIssuesButton();
@@ -53,15 +54,18 @@ describe('create.content.in.project.spec - create new content in the selected co
 
     it(`GIVEN existing context is selected WHEN new folder wizard has been opened THEN expected language should be automatically set in the wizard step`,
         async () => {
-            let settingsStepForm = new SettingsStepForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             let contentWizardPanel = new ContentWizardPanel();
             // 1. Select the project's context in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // 2. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
             await studioUtils.saveScreenshot('project_default_language');
             // 3. Verify the language in the wizard:
-            let actualLanguage = await settingsStepForm.getSelectedLanguage();
+            let actualLanguage = await editDetailsDialog.getSelectedLanguage();
             assert.equal(actualLanguage, appConst.LANGUAGES.NORSK_NO, 'Expected language should be selected in the wizard step form');
             // 4. Verify that expected project display name is present in the wizard-toolbar:
             let actualProjectName = await contentWizardPanel.getProjectDisplayName();
@@ -72,6 +76,7 @@ describe('create.content.in.project.spec - create new content in the selected co
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let contentWizardPanel = new ContentWizardPanel();
+            let userAccessWidget = new UserAccessWidget();
             // 1. Select the project's context in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // 2. Open new folder wizard:
@@ -80,7 +85,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             await contentWizardPanel.waitAndClickOnSave();
             await contentWizardPanel.pause(1000);
             // 3. Open Edit Permissions Dialog:
-            await contentWizardPanel.clickOnEditPermissionsButton();
+            await userAccessWidget.clickOnEditPermissionsLink();
             await editPermissionsDialog.waitForDialogLoaded();
             // 4. Open Edit Permissions Dialog
             let result = await editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
@@ -95,9 +100,9 @@ describe('create.content.in.project.spec - create new content in the selected co
     it("GIVEN project with 'Private' access mode is selected AND existing folder is selected WHEN Details Panel has been opened THEN 'Restricted access to item' should be in Access Widget",
         async () => {
             let userAccessWidget = new UserAccessWidget();
-            //1. Select the project in 'Select Context' dialog:
+            // 1. Select the project in 'Select Context' dialog:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
-            //2. Select the folder and open details panel
+            // 2. Select the folder and open details panel
             await studioUtils.findAndSelectItem(TEST_FOLDER_NAME);
             await studioUtils.openBrowseDetailsPanel();
             let actualHeader = await userAccessWidget.getHeader();

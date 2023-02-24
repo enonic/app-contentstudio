@@ -12,7 +12,8 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const CreateTaskDialog = require('../../page_objects/issue/create.issue.dialog');
@@ -203,25 +204,28 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             assert.isTrue(items.includes("Site"), "Shortcut is allowed for creating");
         });
 
-    //Verify that user with Owner role can not select a language or owner in Wizard, but can make a content ready for publishing( Mark as Ready)
+    // Verify that user with Owner role can not select a language or owner in Wizard, but can make a content ready for publishing( Mark as Ready)
     it("GIVEN user with 'Owner' role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
-            let settingsStepForm = new SettingsStepForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
-            studioUtils.saveScreenshot("project_owner_4");
+            await studioUtils.saveScreenshot('project_owner_4');
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot("project_owner_5");
+            await studioUtils.saveScreenshot('project_owner_5');
             //3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
-            let isVisible = await settingsStepForm.isLanguageOptionsFilterVisible();
-            assert.isTrue(isVisible, "Language comboBox should be visible for Owner role");
-            let actualOwner = await settingsStepForm.getSelectedOwner();
-            assert.equal(actualOwner, USER.displayName, "Expected Owner should be selected in Settings form");
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            let isVisible = await editDetailsDialog.isLanguageOptionsFilterVisible();
+            assert.isTrue(isVisible, 'Language comboBox should be visible for Owner role');
+            let actualOwner = await editDetailsDialog.getSelectedOwner();
+            assert.equal(actualOwner, USER.displayName, 'Expected Owner should be selected in Settings form');
         });
 
     // Verify that 'Owner' can publish content:

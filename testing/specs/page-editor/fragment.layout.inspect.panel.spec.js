@@ -118,8 +118,9 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
             //3. Click on Edit Fragment in Inspect Panel:
             await fragmentInspectionPanel.clickOnEditFragmentButton();
             await studioUtils.doSwitchToNextTab();
-            //Verify the wizard-step:
-            await contentWizard.waitForWizardStepPresent('Fragment');
+            // Verify the wizard-step:
+            let result = await contentWizard.waitForWizardStepPresent('Fragment');
+            assert.isTrue(result, 'Fragment wizard step should be present in the page');
             //Verify the display name
             let displayName = await contentWizard.getDisplayName();
             assert.equal(displayName, LAYOUT_2_COL, 'Expected display name should be present');

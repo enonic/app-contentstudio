@@ -68,7 +68,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             let issueListDialog = new IssueListDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            await studioUtils.saveScreenshot("assigned_to_me_label");
+            await studioUtils.saveScreenshot('assigned_to_me_label');
             // Verify that 'Assigned to Me' label is displayed in the Open Issues button
             await contentBrowsePanel.waitForAssignedToMeButtonDisplayed();
             // 2. Open 'Issues List' dialog:
@@ -95,7 +95,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await issueDetailsDialog.clickOnStatusSelectorMenu();
             // 5. Click on "Closed" menu item:
             await issueDetailsDialog.clickOncloseTabMenuItem();
-            await studioUtils.saveScreenshot("issue_closed");
+            await studioUtils.saveScreenshot('issue_closed');
             // 6. Verify that the notification message appears:
             await issueDetailsDialog.waitForNotificationMessage();
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -118,7 +118,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             let info = await issueDetailsDialog.getStatusInfo();
             let expectedMessage = appConst.issueClosedBy(USER.displayName);
             // 6. Verify that the info message is displayed in the status selector : "Closed by user:system:${userName}"
-            assert.isTrue(info.includes(expectedMessage), "Expected notification message should appear");
+            assert.isTrue(info.includes(expectedMessage), 'Expected notification message should appear');
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });

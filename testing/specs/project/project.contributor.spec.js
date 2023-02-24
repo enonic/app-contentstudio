@@ -11,7 +11,8 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
-const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
@@ -212,7 +213,8 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizardPanel = new ContentWizardPanel();
-            let settingsStepForm = new SettingsStepForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.pause(1000);
@@ -225,9 +227,9 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             // 4. Verify that display name input is not clickable:
             await contentWizardPanel.isDisplayNameInputClickable();
             // 5. Verify that language options filter input is not visible for Contributor:
-            let isVisible = await settingsStepForm.isLanguageOptionsFilterVisible();
+            let isVisible = await editDetailsDialog.isLanguageOptionsFilterVisible();
             assert.isFalse(isVisible, "Language comboBox should not be visible for Contributor role");
-            isVisible = await settingsStepForm.isOwnerOptionsFilterVisible();
+            isVisible = await editDetailsDialog.isOwnerOptionsFilterVisible();
             assert.isFalse(isVisible, "Owner comboBox should not be visible for Contributor role");
         });
 

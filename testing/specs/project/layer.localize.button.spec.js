@@ -10,7 +10,6 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const appConst = require('../../libs/app_const');
 
 describe('layer.localize.button.spec - checks Localize button in browse toolbar and Layers widget', function () {
@@ -71,37 +70,11 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             await studioUtils.doSwitchToNextTab();
             await contentWizardPanel.waitForOpened();
             let localizedMes = await contentWizardPanel.waitForNotificationMessage();
-            // Expected Message: Language was copied from current project
-            assert.equal(localizedMes, appConst.LOCALIZED_MESSAGE_1, "Expected message should appear after the content has been opened");
-            // 3. Remove the current notification message:
-            await contentWizardPanel.removeNotificationMessage();
-            // 4. Click on 'Save' button:
-            await contentWizardPanel.waitAndClickOnSave();
-            // 5. Verify the notification message:
-            let actualMessage = await contentWizardPanel.waitForNotificationMessage();
             // Expected Message: Inherited content was localized:
-            assert.equal(actualMessage, appConst.LOCALIZED_MESSAGE_2, "Expected message should appear after saving the content");
-        });
-
-    // Verifies https://github.com/enonic/app-contentstudio/issues/2297
-    // Notification about successful content localisation should be given only once
-    it("GIVEN localized content has been opened and updated WHEN 'Save' button has been pressed THEN expected notification should appear",
-        async () => {
-            let contentWizardPanel = new ContentWizard();
-            let settingsForm = new SettingsStepForm();
-            // layer's context should be loaded by default now!
-            // 1. Select the folder and click on Edit:
-            await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
-            // 2. Verify that 'Save' button is disabled:
+            assert.equal(localizedMes, appConst.LOCALIZED_MESSAGE_2,
+                "'Inherited content is localized' message should appear after the content has been opened");
+            // 4. 'Save' button should be disabled:
             await contentWizardPanel.waitForSaveButtonDisabled();
-            // 3. Update the content - remove the language:
-            await settingsForm.clickOnRemoveLanguage();
-            // 4. Click on 'Save' button:
-            await contentWizardPanel.waitAndClickOnSave();
-            // 5. Verify the notification message:
-            let actualMessage = await contentWizardPanel.waitForNotificationMessage();
-            let expectedMessage = appConst.itemSavedNotificationMessage(FOLDER_NAME);
-            assert.equal(actualMessage, expectedMessage, "Item is saved - this message should appear");
         });
 
     it('Precondition 3: content has been deleted in the parent context',

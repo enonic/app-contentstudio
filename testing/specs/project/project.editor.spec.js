@@ -11,7 +11,8 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
@@ -133,20 +134,25 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             assert.isTrue(items.includes("Shortcut"), "Shortcut is allowed for creating");
         });
 
-    //Verify that user-editor can select a language:
+    // Verify that user-editor can select a language:
     it("GIVEN user with Editor role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
-            let settingsStepForm = new SettingsStepForm();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             //1. Do log in with the user-editor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
-            studioUtils.saveScreenshot("project_editor_4");
-            await settingsStepForm.filterOptionsAndSelectLanguage('English (en)');
+            await studioUtils.saveScreenshot('project_editor_4');
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            await editDetailsDialog.clickOnApplyButton();
+            await editDetailsDialog.waitForClosed();
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot("project_editor_5");
+            await studioUtils.saveScreenshot('project_editor_5');
             //3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
@@ -160,10 +166,10 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             //2. The folder has been 'Marked as ready' in browse panel(Publish wizard loads automatically):
             await contentBrowsePanel.clickOnMarkAsReadyButton();
-            studioUtils.saveScreenshot("project_editor_6");
+            await studioUtils.saveScreenshot('project_editor_6');
             //3. The folder has been published in browse panel:
             await studioUtils.doPublish();
-            studioUtils.saveScreenshot("project_editor_7");
+            await studioUtils.saveScreenshot('project_editor_7');
             await contentBrowsePanel.waitForNotificationMessage();
             //4. Verify that status of thr folder is Published:
             let status = await contentBrowsePanel.getContentStatus(FOLDER_NAME);

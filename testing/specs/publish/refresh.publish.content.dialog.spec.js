@@ -10,7 +10,8 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const DateRangeInput = require('../../page_objects/components/datetime.range');
 
 describe('refresh.publish.dialog.spec - opens publish content modal dialog and checks control elements', function () {
@@ -27,6 +28,8 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
+            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidget = new PropertiesWidget();
             let folderName = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(folderName);
             // 1. New folder has been added:(status of this folder is Ready for publishing)
@@ -37,10 +40,13 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             // 3. click on the folder-name in the modal dialog then switch to the wizard-tab:
             await contentPublishDialog.clickOnItemToPublishAndSwitchToWizard(FOLDER.displayName);
-            // 4. Select a language in the wizard. The folder gets Work in Progress
-            let settingsForm = new SettingsStepForm();
-            await settingsForm.filterOptionsAndSelectLanguage('English (en)');
-            await contentWizard.waitAndClickOnSave();
+            // 4. Select a language in the wizard. The folder gets 'Work in Progress'
+            await propertiesWidget.clickOnEditPropertiesButton();
+            await editDetailsDialog.waitForLoaded();
+            await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            await editDetailsDialog.clickOnApplyButton();
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.waitForSaveButtonDisabled();
             await contentWizard.pause(1000);
             // 5. close the wizard
             await studioUtils.doCloseWizardAndSwitchToGrid();
@@ -49,7 +55,7 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
                 "'Work in Progress' status should be in the modal dialog");
             // exception will be thrown when this button is enabled after 2000ms
             await contentPublishDialog.waitForPublishNowButtonDisabled();
-            //'Add Schedule' button  should not be displayed, because the content is `Work in progress`
+            // 'Add Schedule' button  should not be displayed, because the content is `Work in progress`
             await contentPublishDialog.waitForAddScheduleIconNotDisplayed();
         });
 
