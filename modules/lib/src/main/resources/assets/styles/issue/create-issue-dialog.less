@@ -1,6 +1,22 @@
 .create-issue-dialog {
   .dialog-state-bar {
-    margin: 0 -5px 8px -5px;
+    margin: 0px -31px 8px -30px;
     padding-left: 26px;
+
+    &.editing {
+      top: -15px;
+    }
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .create-issue-dialog {
+    .dialog-state-bar {
+      margin: 0px -21px 8px -20px;
+
+      &.editing {
+        top: -20px;
+      }
+    }
   }
 }
