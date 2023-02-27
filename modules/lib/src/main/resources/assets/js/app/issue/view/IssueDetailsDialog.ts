@@ -230,9 +230,13 @@ export class IssueDetailsDialog
         this.backButton.setTitle(i18n('dialog.issue.back'));
     }
 
-    protected createDependantsControls(): DivEl {
-        const controls = super.createDependantsControls();
+    protected initDependants(): void {
+        super.initDependants();
 
+        this.initStateBar();
+    }
+
+    protected initStateBar(): void {
         this.stateBar = new DialogStateBar({
             failText: i18n('dialog.publish.error.loadFailed'),
             resolvedText: i18n('dialog.publish.error.resolved'),
@@ -251,9 +255,7 @@ export class IssueDetailsDialog
             }
         });
 
-        controls.prependChild(this.stateBar);
-
-        return controls;
+        this.stateBar.insertBeforeEl(this.dependantsControls);
     }
 
     protected initListeners() {

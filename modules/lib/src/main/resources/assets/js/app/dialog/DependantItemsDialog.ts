@@ -49,6 +49,8 @@ export abstract class DependantItemsDialog
 
     private dependantList: DialogDependantItemsList;
 
+    protected dependantsControls: DivEl;
+
     protected allCheckBox: Checkbox;
 
     protected excludedToggler: TogglerButton;
@@ -79,11 +81,11 @@ export abstract class DependantItemsDialog
 
     protected initDependants(): void {
         const header = this.createDependantsHeader();
-        const controls = this.createDependantsControls();
+        this.dependantsControls = this.createDependantsControls();
         this.dependantList = this.createDependantList();
 
         this.dependantsContainer = new DivEl('dependants');
-        this.dependantsContainer.appendChildren(header, controls, this.dependantList);
+        this.dependantsContainer.appendChildren(header, this.dependantsControls, this.dependantList);
     }
 
     protected initListeners() {
@@ -132,7 +134,7 @@ export abstract class DependantItemsDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.addClass('dependant-dialog');
+            this.addClass('dependant-items-dialog');
             this.getBody().addClass('mask-wrapper');
             this.itemList.addClass('item-list');
             this.appendChildToHeader(this.subTitle);

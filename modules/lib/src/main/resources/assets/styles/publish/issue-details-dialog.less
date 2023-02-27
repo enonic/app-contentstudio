@@ -150,8 +150,12 @@
   }
 
   .dialog-state-bar {
-    margin: 0 -5px 8px -5px;
+    margin: 0px -31px 8px -30px;
     padding-left: 26px;
+
+    &.editing {
+      top: -15px;
+    }
   }
 
   .include-children-toggler {
@@ -416,13 +420,18 @@
   }
 }
 
-._0-240,
-&._240-360,
-&._360-540,
-&._540-720 {
+@media screen and (max-width: 720px) {
   .issue-details-dialog {
     .modal-dialog-header .inplace-text-input .inplace-toggle {
       margin-right: 10px;
+    }
+
+    .dialog-state-bar {
+      margin: 0px -26px 8px -26px;
+
+      &.editing {
+        top: -20px;
+      }
     }
   }
 }
