@@ -19,10 +19,8 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import * as Q from 'q';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {TogglableStatusSelectionItem} from '../dialog/DialogTogglableItemList';
 import {Issue} from '../issue/Issue';
 import {IssueType} from '../issue/IssueType';
 import {PublishRequest} from '../issue/PublishRequest';
@@ -68,7 +66,6 @@ export class RequestContentPublishDialog
             dialogSubName: i18n('dialog.requestPublish.subname1'),
             class: 'request-publish-dialog',
             buttonRow: new DropdownButtonRow(),
-            dependantsDescription: i18n('dialog.publish.dependants'),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
         });
@@ -197,7 +194,7 @@ export class RequestContentPublishDialog
 
     open(): void {
         this.publishScheduleForm.setFormVisible(false, true);   // form will be reset on hide as well
-        this.publishProcessor.reloadPublishDependencies(true);
+        this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
 
         (<TextInput>this.detailsFormItem.getInput()).setValue('');
         (<PrincipalComboBox>this.assigneesFormItem.getInput()).clearCombobox();
@@ -263,14 +260,10 @@ export class RequestContentPublishDialog
         });
     }
 
-    setContentToPublish(contents: ContentSummaryAndCompareStatus[]): RequestContentPublishDialog {
-        return <RequestContentPublishDialog>super.setContentToPublish(contents);
-    }
-
     setIncludeChildItems(include: boolean, silent?: boolean): RequestContentPublishDialog {
         this.getItemList().getItemViews()
-            .filter((itemView: TogglableStatusSelectionItem) => itemView.hasChildrenItems())
-            .forEach((itemView: TogglableStatusSelectionItem) => itemView.toggleIncludeChildren(include, silent));
+            .filter((itemView) => itemView.hasChildrenItems())
+            .forEach((itemView) => itemView.toggleIncludeChildren(include, silent));
 
         return this;
     }

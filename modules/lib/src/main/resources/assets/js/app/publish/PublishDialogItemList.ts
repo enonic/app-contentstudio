@@ -1,11 +1,12 @@
-import {DialogTogglableItemList, TogglableStatusSelectionItem} from '../dialog/DialogTogglableItemList';
-import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentId} from '../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
+import {TogglableStatusSelectionItem} from '../dialog/TogglableStatusSelectionItem';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 
 export class PublishDialogItemList
     extends DialogTogglableItemList {
@@ -13,36 +14,43 @@ export class PublishDialogItemList
     private excludeChildrenIds: ContentId[] = [];
 
     constructor() {
-        super(false, 'publish-dialog-item-list');
+        super({className: 'publish-dialog-item-list'});
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): TogglableStatusSelectionItem {
-        const view = super.createItemView(item, readOnly);
-
-        const deletedHandler = (changedItems: ContentServerChangeItem[], pending?: boolean) => {
-            if (changedItems.some(changedItem => changedItem.getContentId().equals(item.getContentId()))) {
-                this.removeItem(item);
-            }
-        };
-
-        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            const updatedContent = data.find((d) => d.getContentId().equals(item.getContentId()));
-            if (updatedContent) {
-                this.replaceItems([updatedContent]);
-            }
-        };
+    protected initListeners(): void {
+        super.initListeners();
 
         const serverEvents = ContentServerEventsHandler.getInstance();
 
-        serverEvents.onContentUpdated(updatedHandler);
-        serverEvents.onContentDeleted(deletedHandler);
+        const deletedHandler = (deletedItems: ContentServerChangeItem[]) => {
+            deletedItems.forEach(deletedItem => {
+                this.getItems().forEach(item => {
+                    if (item.getContentId().equals(deletedItem.getContentId())) {
+                        this.removeItem(item);
+                    }
+                });
+            });
+        };
 
-        view.onRemoved(() => {
+        const updatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]) => {
+            const itemsToReplace = updatedItems.filter(updatedItem => {
+                return this.getItems().some(item => item.getContentId().equals(updatedItem.getContentId()));
+            });
+
+            if (itemsToReplace.length > 0) {
+                this.replaceItems(itemsToReplace);
+            }
+        };
+
+        this.onAdded(() => {
+            serverEvents.onContentUpdated(updatedHandler);
+            serverEvents.onContentDeleted(deletedHandler);
+        });
+
+        this.onRemoved(() => {
             serverEvents.unContentUpdated(updatedHandler);
             serverEvents.unContentDeleted(deletedHandler);
         });
-
-        return view;
     }
 
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,

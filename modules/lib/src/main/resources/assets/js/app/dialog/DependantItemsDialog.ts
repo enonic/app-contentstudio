@@ -1,30 +1,37 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
+import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
 import {DependantItemViewer} from './DependantItemViewer';
-import {StatusSelectionItem} from './StatusSelectionItem';
+import {DialogDependantItemsList, ObserverConfig, SelectionType} from './DialogDependantItemsList';
+import {DialogMainItemsList} from './DialogMainItemsList';
+
+enum DependantsStatus {
+    HAS_EXCLUDED = 'has-excluded',
+    EXCLUDED_HIDDEN = 'excluded-hidden',
+    EMPTY = 'empty',
+}
+
+enum DialogStatus {
+    EDITING = 'editing',
+}
 
 export interface DependantItemsDialogConfig
     extends ModalDialogWithConfirmationConfig {
     dialogSubName?: string;
-    dependantsName?: string;
-    dependantsDescription?: string;
-    showDependantList?: boolean;
+    dependantsTitle?: string;
 }
 
 export abstract class DependantItemsDialog
@@ -32,80 +39,84 @@ export abstract class DependantItemsDialog
 
     protected actionButton: DialogButton;
 
-    protected autoUpdateTitle: boolean = false;
-
     private ignoreItemsChanged: boolean;
 
     private subTitle: DivEl;
 
-    private itemList: ListBox<ContentSummaryAndCompareStatus>;
+    private itemList: DialogMainItemsList;
 
     private dependantsContainer: DivEl;
 
-    private dependantContainerHeader: H6El;
+    private dependantList: DialogDependantItemsList;
 
-    private dependantContainerBody: DivEl;
+    protected allCheckBox: Checkbox;
 
-    private dependantList: DialogDependantList;
+    protected excludedToggler: TogglerButton;
 
-    private dependantsHeaderText: string;
+    protected excludedNote: SpanEl;
 
     protected resolvedIds: ContentId[];
 
     protected dependantIds: ContentId[];
 
-    private showDependantList: boolean;
-
     protected config: DependantItemsDialogConfig;
 
     protected constructor(config: DependantItemsDialogConfig) {
         super(config);
+        this.dependantIds = [];
+        this.resolvedIds = [];
     }
 
     protected initElements() {
         super.initElements();
 
-        this.showDependantList = false;
-        this.dependantIds = [];
-        this.resolvedIds = [];
         this.subTitle = new H6El('sub-title').setHtml(this.config.dialogSubName);
-
         this.itemList = this.createItemList();
-        this.dependantsHeaderText = this.config.dependantsName || this.getDependantsHeader(this.config.showDependantList);
-        this.dependantContainerHeader = new H6El('dependants-header').setHtml(this.dependantsHeaderText);
-        this.dependantContainerBody = new DivEl('dependants-body');
-        this.dependantList = this.createDependantList();
-        this.dependantList.setScrollElement(this.getBody());
-        this.dependantList.setLazyLoadHandler(AppHelper.debounce(this.lazyLoadDependants.bind(this), 300));
 
-        if (this.config.showDependantList !== undefined) {
-            this.showDependantList = this.config.showDependantList;
-        }
+        this.initDependants();
+
+    }
+
+    protected initDependants(): void {
+        const header = this.createDependantsHeader();
+        const controls = this.createDependantsControls();
+        this.dependantList = this.createDependantList();
 
         this.dependantsContainer = new DivEl('dependants');
+        this.dependantsContainer.appendChildren(header, controls, this.dependantList);
     }
 
     protected initListeners() {
         super.initListeners();
 
-        const itemsChangedListener = () => {
-            const count: number = this.itemList.getItemCount();
-            if (this.autoUpdateTitle) {
-                this.setTitle(this.config.title + (count > 1 ? 's' : ''));
-            }
-        };
-        this.itemList.onItemsRemoved(itemsChangedListener);
-        this.itemList.onItemsAdded(itemsChangedListener);
+        this.allCheckBox.onValueChanged(() => {
+            const selectionType = this.dependantList.getSelectionType();
+            const isAllSelected = selectionType === SelectionType.ALL;
+            this.dependantList.toggleSelectAll(!isAllSelected);
+            this.updateAllCheckbox();
+        });
 
-        this.dependantContainerHeader.onClicked(() => {
-            const doShow = !this.dependantList.isVisible();
-            this.setDependantListVisible(doShow);
+        this.excludedToggler.onActiveChanged(active => {
+            this.excludedToggler.setLabel(active ? i18n('dialog.publish.excluded.hide') : i18n('dialog.publish.excluded.show'));
+            this.dependantsContainer.toggleClass(DependantsStatus.EXCLUDED_HIDDEN, !active);
+        });
+
+        // this.dependantList.onSelectionChanged(() => this.updateAllCheckbox());
+        this.dependantList.onSelectionTypeChanged(() => this.updateAllCheckbox());
+
+        this.dependantList.onExclusionUpdated((manual) => {
+            const hasExcluded = this.dependantList.hasExcluded();
+            this.markDependantsHasExcluded(hasExcluded);
+            this.updateAllCheckbox();
         });
 
         this.dependantList.onItemsRemoved(() => this.onDependantsChanged());
         this.dependantList.onItemsAdded(() => this.onDependantsChanged());
 
-        this.whenRendered(() => this.setDependantListVisible(this.showDependantList));
+        this.whenRendered(() => {
+            const hasDependants = this.countDependantItems(this.excludedToggler.isActive()) > 0;
+            this.markDependantsEmpty(!hasDependants);
+        });
     }
 
     protected lazyLoadDependants(): void {
@@ -116,8 +127,7 @@ export abstract class DependantItemsDialog
             if (newItems.length > 0) {
                 this.addDependantItems(newItems);
             }
-        }).catch(DefaultErrorHandler.handle)
-            .finally(() => this.hideLoadMask());
+        }).catch(DefaultErrorHandler.handle).finally(() => this.hideLoadMask());
     }
 
     doRender(): Q.Promise<boolean> {
@@ -128,67 +138,82 @@ export abstract class DependantItemsDialog
             this.appendChildToHeader(this.subTitle);
             this.appendChildToContentPanel(this.itemList);
 
-            if (this.config.dependantsDescription) {
-                const desc = new PEl('dependants-desc').setHtml(this.config.dependantsDescription);
-                this.dependantContainerBody.appendChild(desc);
-            }
-
             this.dependantList.addClass('dependant-list');
-            this.dependantContainerBody.appendChild(this.dependantList);
-            this.dependantsContainer.appendChildren(this.dependantContainerHeader, this.dependantContainerBody);
             this.appendChildToContentPanel(this.dependantsContainer);
 
             return rendered;
         });
     }
 
-    protected onDependantsChanged() {
-        const doShow: boolean = this.countDependantItems() > 0;
-        const wasVisible: boolean = this.dependantsContainer.isVisible();
+    protected onDependantsChanged(): void {
+        const count = this.countDependantItems(this.excludedToggler.isActive());
+        this.allCheckBox.setLabel(i18n('dialog.select.all', count));
 
-        if (doShow !== wasVisible) {
-            this.setDependantsContainerVisible(doShow);
-        }
+        const hasDependants = count > 0;
+        this.markDependantsEmpty(!hasDependants);
 
-        if (doShow) {
-            // update dependants header according to list visibility
-            this.updateDependantsHeader(this.getDependantsHeader(this.dependantList.isVisible()));
-        }
+        // this.updateAllCheckbox();
     }
 
-    public setDependantListVisible(visible: boolean) {
-        this.dependantContainerBody.setVisible(visible);
-        this.updateDependantsHeader(this.getDependantsHeader(visible));
+    protected updateAllCheckbox(): void {
+        const selectionType = this.dependantList.getSelectionType();
+        this.allCheckBox.setPartial(selectionType === SelectionType.PARTIAL);
+        this.allCheckBox.setChecked(selectionType !== SelectionType.NONE, true);
     }
 
-    private setDependantsContainerVisible(visible: boolean) {
-        this.dependantsContainer.setVisible(visible);
-
-        this.getBody().getEl().setScrollTop(0);
+    protected createItemList(): DialogMainItemsList {
+        return new DialogMainItemsList();
     }
 
-    protected getDependantsHeader(listVisible: boolean): string {
-        return i18n(`dialog.${listVisible ? 'hide' : 'show'}Dependants`);
+    protected createDependantsHeader(): DivEl {
+        const header = new DivEl('dependants-header');
+
+        const title = new SpanEl('dependants-title');
+        const titleText = this.config.dependantsTitle ?? i18n('dialog.dependencies');
+        title.setHtml(titleText);
+        header.appendChild(title);
+
+        return header;
     }
 
-    protected updateDependantsHeader(header?: string) {
-        const count = this.countDependantItems();
-        this.dependantContainerHeader.setHtml(`${header || this.dependantsHeaderText} (${count})`);
+    protected createDependantsControls(): DivEl {
+        const controls = new DivEl('dependants-controls');
+
+        this.allCheckBox = new CheckboxBuilder().setLabelText(i18n('dialog.select.all', 0)).setChecked(true).build();
+        this.allCheckBox.addClass('all-dependants-control');
+
+        this.excludedToggler = new TogglerButton('excluded-items-toggler');
+        this.excludedToggler.setLabel(i18n('dialog.publish.excluded.show'));
+        this.excludedToggler.setEnabled(true);
+        this.excludedToggler.setActive(false, true);
+
+        this.excludedNote = new SpanEl('excluded-items-note');
+        this.excludedNote.setHtml(i18n('dialog.dependencies.allExcluded'));
+
+        controls.appendChildren<Element>(this.allCheckBox, this.excludedNote, this.excludedToggler);
+
+        return controls;
     }
 
-    protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
-        return new DialogItemList();
+    protected createDependantList(): DialogDependantItemsList {
+        return new DialogDependantItemsList({
+            createViewer: () => new DependantItemViewer(),
+            observer: this.createObserverConfig(),
+        });
     }
 
-    protected createDependantList(): DialogDependantList {
-        return new DialogDependantList();
+    protected createObserverConfig(): ObserverConfig {
+        return {
+            scrollElement: this.getBody(),
+            lazyLoadHandler: AppHelper.debounce(() => this.lazyLoadDependants(), 300),
+        };
     }
 
-    protected getItemList(): ListBox<ContentSummaryAndCompareStatus> {
+    protected getItemList(): DialogMainItemsList {
         return this.itemList;
     }
 
-    protected getDependantList(): ListBox<ContentSummaryAndCompareStatus> {
+    protected getDependantList(): DialogDependantItemsList {
         return this.dependantList;
     }
 
@@ -204,27 +229,19 @@ export abstract class DependantItemsDialog
         this.ignoreItemsChanged = value;
     }
 
-    show() {
-        super.show();
-        this.setDependantListVisible(this.showDependantList);
-    }
-
     close() {
         super.close();
         this.remove();
 
         this.itemList.clearItems(true);
         this.dependantList.clearItems(true);
-        this.setDependantsContainerVisible(false);
+        this.allCheckBox.setChecked(true);
+        this.allCheckBox.setPartial(false);
+        this.excludedToggler.setActive(false);
+        this.markDependantsHasExcluded(false);
+        this.markDependantsEmpty(true);
+        this.markEditing(false);
         this.unlockControls();
-    }
-
-    protected setShowDependantList(value: boolean) {
-        this.showDependantList = value;
-    }
-
-    setAutoUpdateTitle(value: boolean) {
-        this.autoUpdateTitle = value;
     }
 
     setListItems(items: ContentSummaryAndCompareStatus[], silent?: boolean) {
@@ -300,10 +317,8 @@ export abstract class DependantItemsDialog
             contents.map(content => content.getContentSummary().getPath())).sendAndParse();
     }
 
-    protected loadDescendants(from: number,
-                              size: number): Q.Promise<ContentSummaryAndCompareStatus[]> {
-
-        const ids: ContentId[] = this.getDependantIds().slice(from, from + size);
+    protected loadDescendants(from: number, size: number): Q.Promise<ContentSummaryAndCompareStatus[]> {
+        const ids = this.getDependantIds(this.excludedToggler.isActive()).slice(from, from + size);
         return new ContentSummaryAndCompareStatusFetcher().fetchByIds(ids);
     }
 
@@ -311,23 +326,21 @@ export abstract class DependantItemsDialog
         return this.getItemList().getItemCount() + this.countDependantItems();
     }
 
-    protected countDependantItems(): number {
-        return this.getDependantIds().length;
+    protected countDependantItems(withExcluded?: boolean): number {
+        return this.getDependantIds(withExcluded).length;
     }
 
-    protected getDependantIds(): ContentId[] {
-        return this.dependantIds;
+    protected getDependantIds(withExcluded?: boolean): ContentId[] {
+        return withExcluded ? [...this.dependantIds, ...this.dependantList.getExcludedIds()] : this.dependantIds;
     }
 
     protected lockControls() {
         this.addClass('locked');
-        // action has it's own disabled state management so using action.setEnabled() everywhere
         this.actionButton.getAction().setEnabled(false);
     }
 
     protected unlockControls() {
         this.removeClass('locked');
-        // action has it's own disabled state management so using action.setEnabled() everywhere
         this.actionButton.getAction().setEnabled(true);
     }
 
@@ -339,161 +352,23 @@ export abstract class DependantItemsDialog
         }
     }
 
-}
-
-export class DialogItemList
-    extends ListBox<ContentSummaryAndCompareStatus> {
-
-    private itemClickListeners: { (item: ContentSummaryAndCompareStatus): void }[] = [];
-
-    protected createItemViewer(): ContentSummaryAndCompareStatusViewer {
-        return new ContentSummaryAndCompareStatusViewer();
+    protected markEditing(editing: boolean): void {
+        this.toggleClass(DialogStatus.EDITING, editing);
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): StatusSelectionItem {
-        const itemViewer = this.createItemViewer();
-
-        itemViewer.setObject(item);
-
-        const statusItem = this.createSelectionItem(itemViewer, item);
-
-        statusItem.setIsRemovableFn(() => this.getItemCount() > 1);
-        statusItem.setRemoveHandlerFn(() => this.removeItem(item));
-
-        itemViewer.onClicked((event) => {
-            if (item.isPendingDelete()) {
-                return;
-            }
-            const el = new ElementHelper(<HTMLElement>event.target);
-            if (!(el.hasClass('remove') || el.hasClass('include-children-toggler'))) {
-                this.notifyItemClicked(item);
-            }
-        });
-
-        return statusItem;
+    protected markDependantsHasExcluded(hasExcluded: boolean): void {
+        this.dependantsContainer.toggleClass(DependantsStatus.HAS_EXCLUDED, hasExcluded);
     }
 
-    protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,
-                                  browseItem: ContentSummaryAndCompareStatus): StatusSelectionItem {
-        return new StatusSelectionItem(viewer, browseItem);
-    }
-
-    getItemId(item: ContentSummaryAndCompareStatus): string {
-        return item.getContentSummary().getId();
-    }
-
-    getItemsIds(): ContentId[] {
-        return this.getItems().map(item => item.getContentId());
-    }
-
-    getItems(): ContentSummaryAndCompareStatus[] {
-        return super.getItems();
-    }
-
-
-    onItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
-        this.itemClickListeners.push(listener);
-    }
-
-    unItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
-        this.itemClickListeners = this.itemClickListeners.filter((curr) => {
-            return curr !== listener;
-        });
-    }
-
-    private notifyItemClicked(item: ContentSummaryAndCompareStatus) {
-        this.itemClickListeners.forEach(listener => {
-            listener(item);
-        });
-    }
-
-}
-
-export class DialogDependantList
-    extends LazyListBox<ContentSummaryAndCompareStatus> {
-
-    private itemClickListeners: { (item: ContentSummaryAndCompareStatus): void }[] = [];
-
-    private lazyLoadHandler: Function;
-
-    private scrollElement: Element;
-
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): StatusSelectionItem {
-
-        const dependantViewer = new DependantItemViewer();
-
-        dependantViewer.setObject(item);
-
-        dependantViewer.onClicked((event) => {
-            const el = new ElementHelper(<HTMLElement>event.target);
-            if (!(el.hasClass('remove'))) {
-                this.notifyItemClicked(item);
-            }
-        });
-
-        return new StatusSelectionItem(dependantViewer, item);
-    }
-
-    setScrollElement(element: Element): void {
-        this.scrollElement = element;
-    }
-
-    protected getScrollContainer(): Element {
-        return this.scrollElement || super.getScrollContainer();
-    }
-
-    getItemId(item: ContentSummaryAndCompareStatus): string {
-        return item.getContentSummary().getId();
-    }
-
-    setItems(items: ContentSummaryAndCompareStatus[], silent?: boolean) {
-        super.setItems(this.sortItems(items), silent);
-    }
-
-    protected sortItems(items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
-        return items.sort(DialogDependantList.invalidAndReadOnlyOnTop);
-    }
-
-    setLazyLoadHandler(handler: Function): void {
-        this.lazyLoadHandler = handler;
-    }
-
-    protected handleLazyLoad(): void {
-        if (this.lazyLoadHandler) {
-            this.lazyLoadHandler();
+    protected markDependantsEmpty(empty: boolean) {
+        const wasEmpty = this.dependantsContainer.hasClass(DependantsStatus.EMPTY);
+        if (wasEmpty !== empty) {
+            this.dependantsContainer.toggleClass(DependantsStatus.EMPTY, empty);
+            this.getBody().getEl().setScrollTop(0);
         }
     }
 
-    onItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
-        this.itemClickListeners.push(listener);
-    }
-
-    unItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
-        this.itemClickListeners = this.itemClickListeners.filter((curr) => {
-            return curr !== listener;
-        });
-    }
-
-    getItemViews(): StatusSelectionItem[] {
-        return <StatusSelectionItem[]>super.getItemViews();
-    }
-
-    protected notifyItemClicked(item: ContentSummaryAndCompareStatus) {
-        this.itemClickListeners.forEach(listener => {
-            listener(item);
-        });
-    }
-
-    protected static invalidAndReadOnlyOnTop(a: ContentSummaryAndCompareStatus, b: ContentSummaryAndCompareStatus): number {
-        return DialogDependantList.readOnlyToNumber(b) - DialogDependantList.readOnlyToNumber(a) +
-               DialogDependantList.validityToNumber(a) - DialogDependantList.validityToNumber(b);
-    }
-
-    protected static readOnlyToNumber(a: ContentSummaryAndCompareStatus): number {
-        return +(a.isReadOnly() === true);
-    }
-
-    protected static validityToNumber(a: ContentSummaryAndCompareStatus): number {
-        return +(a.getContentSummary().isValid() === true);
+    getTabbableElements(): Element[] {
+        return super.getTabbableElements().filter(element => element.hasClass('checkable-item-checkbox'));
     }
 }

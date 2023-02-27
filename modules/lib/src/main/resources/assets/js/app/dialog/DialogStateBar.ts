@@ -1,42 +1,49 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
-import {DialogErrorStateEntry, ErrorStateEntryConfig} from './DialogErrorStateEntry';
+import {ButtonType, DialogStateEntry, StateEntryConfig} from './DialogStateEntry';
 
-export interface DialogErrorsStateBarConfig {
+export interface DialogStateBarConfig {
     hideIfResolved?: boolean;
     failText?: string;
     resolvedText?: string;
+    edit?: {
+        applyHandler: () => void;
+        cancelHandler: () => void;
+    }
 }
 
 enum Modifiers {
     FAILED = 'failed',
     CHECKING = 'checking',
     RESOLVED = 'resolved',
+    EDITING = 'editing',
     HIDDEN = 'hidden',
 }
 
 export type ResolvedStateChangeHandler = (checking: boolean) => void;
 
-export class DialogErrorsStateBar
+export class DialogStateBar
     extends DivEl {
 
-    private failEntry: DialogErrorStateEntry;
+    private failEntry: DialogStateEntry;
 
-    private checkEntry: DialogErrorStateEntry;
+    private checkEntry: DialogStateEntry;
 
-    private errorsEntries: DialogErrorStateEntry[];
+    private editEntry: DialogStateEntry;
 
-    private resolvedEntry: DialogErrorStateEntry | undefined;
+    private errorsEntries: DialogStateEntry[];
+
+    private resolvedEntry: DialogStateEntry | undefined;
 
     private hideIfResolved: boolean;
 
     private readonly resolvedStateChangeHandlers: ResolvedStateChangeHandler[];
 
-    private readonly config: DialogErrorsStateBarConfig;
+    private readonly config: DialogStateBarConfig;
 
-    constructor(config?: DialogErrorsStateBarConfig) {
-        super('dialog-errors-state-bar');
+    constructor(config?: DialogStateBarConfig) {
+        super('dialog-state-bar');
 
         this.config = config ?? {};
 
@@ -51,34 +58,56 @@ export class DialogErrorsStateBar
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildren(this.failEntry, this.checkEntry, this.resolvedEntry, ...this.errorsEntries);
+            this.appendChildren(this.failEntry, this.checkEntry, this.editEntry, this.resolvedEntry, ...this.errorsEntries);
             return rendered;
         });
     }
 
     protected initElements(): void {
         const {
-            failText = i18n('dialog.errors.fail'),
-            resolvedText = i18n('dialog.errors.resolved'),
+            failText = i18n('dialog.state.fail'),
+            resolvedText = i18n('dialog.state.resolved'),
         } = this.config;
 
-        this.failEntry = new DialogErrorStateEntry({
+        this.failEntry = new DialogStateEntry({
             className: 'fail-entry',
             text: failText,
+            icon: 'icon-big-plus',
         });
 
-        this.checkEntry = new DialogErrorStateEntry({
+        this.checkEntry = new DialogStateEntry({
             className: 'check-entry',
-            text: i18n('dialog.errors.checking'),
-            iconClass: 'icon-spinner',
+            text: i18n('dialog.state.checking'),
+            icon: 'icon-spinner',
+        });
+
+        this.editEntry = new DialogStateEntry({
+            className: 'edit-entry',
+            text: i18n('dialog.state.editing'),
+            actionButtons: [{
+                type: ButtonType.BUTTON,
+                label: i18n('action.apply'),
+                className: 'blue',
+                handler: () => {
+                    this.config.edit?.applyHandler();
+                    this.markEditing(false);
+                },
+            }, {
+                type: ButtonType.BUTTON,
+                label: i18n('action.cancel'),
+                handler: () => {
+                    this.config.edit?.cancelHandler();
+                    this.markEditing(false);
+                },
+            }],
         });
 
         this.errorsEntries = [];
 
-        this.resolvedEntry = new DialogErrorStateEntry({
+        this.resolvedEntry = new DialogStateEntry({
             className: 'resolved-entry',
             text: resolvedText,
-            iconClass: 'icon-checkmark',
+            icon: 'icon-checkmark',
         });
 
         this.updateResolvedState();
@@ -91,8 +120,8 @@ export class DialogErrorsStateBar
         this.notifyResolvedStateChanged(isResolved);
     }
 
-    addErrorEntry(config: ErrorStateEntryConfig): DialogErrorStateEntry {
-        const entry = new DialogErrorStateEntry({
+    addErrorEntry(config: StateEntryConfig): DialogStateEntry {
+        const entry = new DialogStateEntry({
             ...config,
             className: `error-entry ${config.className ?? ''}`,
         });
@@ -109,7 +138,7 @@ export class DialogErrorsStateBar
     }
 
     setEnabled(enabled: boolean): void {
-        this.errorsEntries.forEach((entry: DialogErrorStateEntry) => entry.setActionsEnabled(enabled));
+        this.errorsEntries.forEach((entry: DialogStateEntry) => entry.setActionsEnabled(enabled));
     }
 
     markErrored(): void {
@@ -120,10 +149,11 @@ export class DialogErrorsStateBar
     reset(): void {
         this.errorsEntries.forEach(entry => entry.reset());
         this.removeClass(Modifiers.FAILED);
+        this.markEditing(false);
     }
 
     markChecking(checking: boolean): void {
-        this.errorsEntries.forEach((entry: DialogErrorStateEntry) => entry.markChecking(checking));
+        this.errorsEntries.forEach((entry: DialogStateEntry) => entry.markChecking(checking));
     }
 
     toggleHideIfResolved(hideIfResolved: boolean): void {
@@ -134,7 +164,7 @@ export class DialogErrorsStateBar
     }
 
     private isResolved(): boolean {
-        return !this.errorsEntries.some((entry: DialogErrorStateEntry) => entry.isActive());
+        return !this.errorsEntries.some((entry: DialogStateEntry) => entry.isActive());
     }
 
     private isChecking(): boolean {
@@ -143,6 +173,10 @@ export class DialogErrorsStateBar
 
     private updateChecking(): void {
         this.toggleClass(Modifiers.CHECKING, this.isChecking());
+    }
+
+    markEditing(editing: boolean): void {
+        this.toggleClass(Modifiers.EDITING, editing);
     }
 
     onResolvedStateChange(handler: ResolvedStateChangeHandler): void {

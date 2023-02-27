@@ -1,17 +1,18 @@
-import * as Q from 'q';
-import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
-import {IssueDialog} from './IssueDialog';
-import {CreateIssueRequest} from '../resource/CreateIssueRequest';
-import {PublishRequest} from '../PublishRequest';
-import {Issue} from '../Issue';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
+import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {DependantItemsDialogConfig} from '../../dialog/DependantItemsDialog';
+import {DialogStateBar} from '../../dialog/DialogStateBar';
+import {Issue} from '../Issue';
+import {PublishRequest} from '../PublishRequest';
+import {CreateIssueRequest} from '../resource/CreateIssueRequest';
+import {IssueDialog} from './IssueDialog';
 
 export class CreateIssueDialog
     extends IssueDialog {
@@ -23,6 +24,8 @@ export class CreateIssueDialog
     private backButton: AEl;
 
     private createAction: CreateIssueAction;
+
+    protected stateBar: DialogStateBar;
 
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
 
@@ -49,17 +52,46 @@ export class CreateIssueDialog
         this.actionButton = this.addAction(this.createAction, true);
     }
 
+    protected createDependantsControls(): DivEl {
+        const controls = super.createDependantsControls();
+
+        this.stateBar = new DialogStateBar({
+            failText: i18n('dialog.publish.error.loadFailed'),
+            resolvedText: i18n('dialog.publish.error.resolved'),
+            hideIfResolved: true,
+            edit: {
+                applyHandler: () => {
+                    this.excludedToggler.setActive(false);
+                    this.getDependantList().saveExclusions();
+                    this.markEditing(false);
+                },
+                cancelHandler: () => {
+                    this.getDependantList().restoreExclusions();
+                    this.markEditing(false);
+                },
+            }
+        });
+
+        controls.prependChild(this.stateBar);
+
+        return controls;
+    }
+
     protected initListeners() {
         super.initListeners();
 
+        this.getDependantList().onSelectionChanged(() => {
+            this.stateBar.markEditing(true);
+            this.markEditing(true);
+        });
+
         const onItemsChanged = () => {
-            (this.createAction).updateLabel(this.getItemList().getItemCount());
-            this.setDependantListVisible(this.getItemList().hasActiveTogglers());
+            this.createAction.updateLabel(this.getItemList().getItemCount());
         };
         this.getItemList().onItemsAdded(onItemsChanged);
         this.getItemList().onItemsRemoved(onItemsChanged);
 
-        this.createAction.onExecuted(this.doCreateIssue.bind(this));
+        this.createAction.onExecuted(() => this.doCreateIssue());
     }
 
     doRender(): Q.Promise<boolean> {
@@ -82,8 +114,7 @@ export class CreateIssueDialog
         return this;
     }
 
-    private doCreateIssue() {
-
+    private doCreateIssue(): void {
         const valid = this.form.validate(true).isValid();
 
         this.displayValidationErrors(!valid);
@@ -158,6 +189,8 @@ export class CreateIssueDialog
 
     close() {
         super.close();
+
+        this.stateBar.reset();
         this.disableBackButton();
     }
 }

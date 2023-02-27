@@ -1,4 +1,4 @@
-.dialog-error-state-entry {
+.dialog-state-entry {
   display: flex;
   align-items: center;
 
@@ -32,7 +32,7 @@
     line-height: 26px;
     cursor: default;
 
-    &::after {
+    &[data-count]::after {
       content: attr(data-count);
       font-weight: normal;
       margin-left: 0.25em;
@@ -40,11 +40,17 @@
   }
 
   .entry-button {
-    .link-button();
+    &.link {
+      .link-button();
+    }
 
     &.non-interactive {
       display: none;
       pointer-events: none;
+    }
+
+    &:not(.link):not(:last-child) {
+      margin-right: 12px;
     }
   }
 
