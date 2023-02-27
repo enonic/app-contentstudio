@@ -15,10 +15,11 @@ import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselect
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ArchiveItem} from '../dialog/ArchiveItem';
+import {ArchiveCheckableItem} from '../dialog/ArchiveCheckableItem';
+import {ArchiveSelectableItem} from '../dialog/ArchiveSelectableItem';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {DialogErrorsStateBar} from '../dialog/DialogErrorsStateBar';
-import {DialogErrorStateEntry} from '../dialog/DialogErrorStateEntry';
+import {DialogStateBar} from '../dialog/DialogStateBar';
+import {DialogStateEntry} from '../dialog/DialogStateEntry';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
@@ -30,9 +31,9 @@ import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
 import {DeleteDialogDependantList} from './DeleteDialogDependantList';
 import {DeleteDialogItemList} from './DeleteDialogItemList';
 
-
 enum ActionType {
-    DELETE, ARCHIVE
+    DELETE = 'delete',
+    ARCHIVE = 'archive',
 }
 
 export class ContentDeleteDialog
@@ -52,9 +53,9 @@ export class ContentDeleteDialog
 
     private confirmExecutionDialog?: ConfirmValueDialog;
 
-    private stateBar: DialogErrorsStateBar;
+    private stateBar: DialogStateBar;
 
-    private inboundErrorsEntry: DialogErrorStateEntry;
+    private inboundErrorsEntry: DialogStateEntry;
 
     private resolveDependenciesResult: ResolveContentForDeleteResult;
 
@@ -67,7 +68,7 @@ export class ContentDeleteDialog
             title: i18n('dialog.archive'),
             class: 'content-delete-dialog',
             dialogSubName: i18n('dialog.archive.subname'),
-            dependantsDescription: i18n('dialog.archive.dependants'),
+            dependantsTitle: i18n('dialog.archive.dependants'),
             showDependantList: true,
             processingLabel: `${i18n('field.progress.deleting')}...`,
             buttonRow: new ContentDeleteDialogButtonRow(),
@@ -88,7 +89,7 @@ export class ContentDeleteDialog
         this.menuButton = this.getButtonRow().makeActionMenu(this.archiveAction, [this.deleteNowAction]);
         this.actionButton = this.menuButton.getActionButton();
 
-        this.stateBar = new DialogErrorsStateBar({hideIfResolved: true});
+        this.stateBar = new DialogStateBar({hideIfResolved: true});
         this.inboundErrorsEntry = this.stateBar.addErrorEntry({
             text: i18n('dialog.archive.warning.text'),
             actionButtons: [{
@@ -109,7 +110,7 @@ export class ContentDeleteDialog
 
         const itemsAddedHandler = (items: ContentSummaryAndCompareStatus[], itemList: ListBox<ContentSummaryAndCompareStatus>) => {
             if (this.resolveDependenciesResult) {
-                this.updateItemViewsWithInboundDependencies(items.map(item => itemList.getItemView(item) as ArchiveItem));
+                this.updateItemViewsWithInboundDependencies(items.map(item => itemList.getItemView(item) as ArchiveCheckableItem));
             }
         };
 
@@ -165,20 +166,21 @@ export class ContentDeleteDialog
     }
 
     protected getItemList(): DeleteDialogItemList {
-        return <DeleteDialogItemList>super.getItemList();
+        return super.getItemList() as DeleteDialogItemList;
     }
 
     protected createDependantList(): DeleteDialogDependantList {
-        return new DeleteDialogDependantList();
+        const observer = this.createObserverConfig();
+        return new DeleteDialogDependantList(observer);
     }
 
     protected getDependantList(): DeleteDialogDependantList {
         return super.getDependantList() as DeleteDialogDependantList;
     }
 
-    private updateItemViewsWithInboundDependencies(itemViews: ArchiveItem[]) {
-        itemViews.forEach((itemView: ArchiveItem) => {
-            const hasInbound = this.hasInboundRef(itemView.getBrowseItem().getId());
+    private updateItemViewsWithInboundDependencies(itemViews: (ArchiveCheckableItem | ArchiveSelectableItem)[]) {
+        itemViews.forEach((itemView: ArchiveCheckableItem) => {
+            const hasInbound = this.hasInboundRef(itemView.getItem().getId());
             itemView.setHasInbound(hasInbound);
         });
     }
@@ -221,7 +223,7 @@ export class ContentDeleteDialog
 
                 }
             });
-        }).catch((reason: any) => {
+        }).catch((reason: unknown) => {
             DefaultErrorHandler.handle(reason);
         });
     }
@@ -303,8 +305,9 @@ export class ContentDeleteDialog
     }
 
     updateProgressLabel(): void {
-        const label = this.actionInProgressType === ActionType.DELETE ? `${i18n('field.progress.deleting')}...` : `${i18n(
-            'field.progress.archiving')}...`;
+        const label = this.actionInProgressType === ActionType.DELETE ?
+                      `${i18n('field.progress.deleting')}...` :
+                      `${i18n('field.progress.archiving')}...`;
         this.setProcessingLabel(label);
     }
 

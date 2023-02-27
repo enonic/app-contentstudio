@@ -1,36 +1,39 @@
-import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDeleteResult';
+import {ArchiveCheckableItem} from '../dialog/ArchiveCheckableItem';
 import {DependantArchiveItemViewer} from '../dialog/DependantArchiveItemViewer';
-import {ArchiveItem} from '../dialog/ArchiveItem';
+import {compareItems, DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
+import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDeleteResult';
 
 export class DeleteDialogDependantList
-    extends DialogDependantList {
+    extends DialogDependantItemsList {
 
     private resolveDependenciesResult: ResolveContentForDeleteResult;
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ArchiveItem {
+    constructor(observer: Omit<ObserverConfig, 'sort'>) {
+        super({
+            observer: {
+                ...observer,
+                sort: (items) => [...items].sort((a, b) => this.itemsWithRefsOnTop(a, b)),
+            },
+        });
+    }
 
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ArchiveCheckableItem {
         const viewer = new DependantArchiveItemViewer();
         viewer.setObject(item);
-
-        return new ArchiveItem({viewer, item});
+        return new ArchiveCheckableItem({viewer, item});
     }
 
     setResolveDependenciesResult(resolveDependenciesResult: ResolveContentForDeleteResult) {
         this.resolveDependenciesResult = resolveDependenciesResult;
     }
 
-    getItemViews(): ArchiveItem[] {
-        return super.getItemViews() as ArchiveItem[];
-    }
-
-    protected sortItems(items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
-        return items.sort(this.itemsWithRefsOnTop.bind(this));
+    getItemViews(): ArchiveCheckableItem[] {
+        return super.getItemViews() as ArchiveCheckableItem[];
     }
 
     private itemsWithRefsOnTop(a: ContentSummaryAndCompareStatus, b: ContentSummaryAndCompareStatus): number {
-        return this.hasInboundToNumber(b) - this.hasInboundToNumber(a) + DialogDependantList.invalidAndReadOnlyOnTop(a, b);
+        return this.hasInboundToNumber(b) - this.hasInboundToNumber(a) + compareItems(a, b);
     }
 
     private hasInboundToNumber(item: ContentSummaryAndCompareStatus): number {

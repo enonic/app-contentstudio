@@ -1,19 +1,19 @@
-import * as Q from 'q';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentUnpublishPromptEvent} from '../browse/ContentUnpublishPromptEvent';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {UnpublishContentRequest} from '../resource/UnpublishContentRequest';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {CompareStatus} from '../content/CompareStatus';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {BEl} from '@enonic/lib-admin-ui/dom/BEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {ContentUnpublishPromptEvent} from '../browse/ContentUnpublishPromptEvent';
+import {CompareStatus} from '../content/CompareStatus';
+import {ContentId} from '../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {ConfirmValueDialog} from '../remove/ConfirmValueDialog';
 import {ResolveUnpublishRequest} from '../resource/ResolveUnpublishRequest';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from '../content/ContentId';
+import {UnpublishContentRequest} from '../resource/UnpublishContentRequest';
 
 export class ContentUnpublishDialog
     extends DependantItemsWithProgressDialog {
@@ -21,20 +21,15 @@ export class ContentUnpublishDialog
     private unPublishConfirmationDialog?: ConfirmValueDialog;
 
     constructor() {
-        super(<DependantItemsWithProgressDialogConfig>{
-                title: i18n('dialog.unpublish'),
-                class: 'unpublish-dialog',
-                dialogSubName: i18n('dialog.unpublish.subname'),
-                dependantsName: i18n('dialog.showDependants'),
-                dependantsDescription: i18n('dialog.unpublish.dependants'),
-                processingLabel: `${i18n('field.progress.unpublishing')}...`,
-                showDependantList: true,
-                processHandler: () => {
-                    new ContentUnpublishPromptEvent([]).fire();
-                },
-            }
-        );
-        // Sub title uses html decorated text, that can't be passed into the super config
+        super({
+            title: i18n('dialog.unpublish'),
+            class: 'unpublish-dialog',
+            dialogSubName: i18n('dialog.unpublish.subname'),
+            processingLabel: `${i18n('field.progress.unpublishing')}...`,
+            processHandler: () => void new ContentUnpublishPromptEvent([]).fire(),
+        } satisfies DependantItemsWithProgressDialogConfig);
+
+        // SubTitle uses html decorated text, that can't be passed into the super config
         this.useDefaultSubTitle();
     }
 

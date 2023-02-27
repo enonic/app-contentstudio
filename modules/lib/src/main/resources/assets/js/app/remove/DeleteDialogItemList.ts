@@ -1,17 +1,17 @@
-import {DialogItemList} from '../dialog/DependantItemsDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ArchiveItem} from '../dialog/ArchiveItem';
 import {ArchiveItemViewer} from '../dialog/ArchiveItemViewer';
+import {ArchiveSelectableItem} from '../dialog/ArchiveSelectableItem';
+import {DialogMainItemsList} from '../dialog/DialogMainItemsList';
 import {ContentAppHelper} from '../wizard/ContentAppHelper';
 
 export class DeleteDialogItemList
-    extends DialogItemList {
+    extends DialogMainItemsList {
 
-    getItemView(item: ContentSummaryAndCompareStatus): ArchiveItem {
-        return <ArchiveItem>super.getItemView(item);
+    getItemView(item: ContentSummaryAndCompareStatus): ArchiveSelectableItem {
+        return super.getItemView(item) as ArchiveSelectableItem;
     }
 
-    getItemViews(): ArchiveItem[] {
+    getItemViews(): ArchiveSelectableItem[] {
         return this.getItems().map((item) => this.getItemView(item));
     }
 
@@ -19,7 +19,7 @@ export class DeleteDialogItemList
         return new ArchiveItemViewer();
     }
 
-    protected createSelectionItem(viewer: ArchiveItemViewer, item: ContentSummaryAndCompareStatus): ArchiveItem {
-        return new ArchiveItem({viewer, item, clickable: !ContentAppHelper.isContentWizardUrl()});
+    protected createSelectionItem(viewer: ArchiveItemViewer, item: ContentSummaryAndCompareStatus): ArchiveSelectableItem {
+        return new ArchiveSelectableItem({viewer, item, clickable: !ContentAppHelper.isContentWizardUrl()});
     }
 }

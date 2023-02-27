@@ -1,11 +1,11 @@
-import * as Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {SelectionItem} from '@enonic/lib-admin-ui/app/browse/SelectionItem';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {SelectionItem} from '@enonic/lib-admin-ui/app/browse/SelectionItem';
 
 export class StatusSelectionItem
     extends SelectionItem<ContentSummaryAndCompareStatus> {

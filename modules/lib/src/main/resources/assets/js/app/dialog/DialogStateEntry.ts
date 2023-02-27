@@ -4,14 +4,21 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import * as Q from 'q';
 
-export interface ErrorStateEntryConfig {
+export enum ButtonType {
+    BUTTON = 'button',
+    LINK = 'link',
+}
+
+export interface StateEntryConfig {
     className?: string;
-    iconClass?: string;
+    icon?: string;
     text: string;
     actionButtons?: {
         label: string;
+        className?: string;
         handler?: () => void;
         markIgnored?: boolean;
+        type?: ButtonType;
     }[];
 }
 
@@ -25,10 +32,10 @@ export type ActiveStateChangeHandler = (active: boolean) => void;
 
 export type CheckingStateChangeHandler = (checking: boolean) => void;
 
-export class DialogErrorStateEntry
+export class DialogStateEntry
     extends DivEl {
 
-    private icon: SpanEl;
+    private icon: SpanEl | undefined;
 
     private text: SpanEl;
 
@@ -42,10 +49,10 @@ export class DialogErrorStateEntry
 
     private readonly checkingStateChangeHandlers: CheckingStateChangeHandler[];
 
-    private readonly config: ErrorStateEntryConfig;
+    private readonly config: StateEntryConfig;
 
-    constructor(config: ErrorStateEntryConfig) {
-        super(`dialog-error-state-entry ${config.className ?? ''}`);
+    constructor(config: StateEntryConfig) {
+        super(`dialog-state-entry ${config.className ?? ''}`);
 
         this.active = false;
         this.checking = false;
@@ -73,8 +80,12 @@ export class DialogErrorStateEntry
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildren(this.icon, this.text);
-            this.appendChildren(...DialogErrorStateEntry.wrapButtons(this.actionButtons));
+            if (this.icon) {
+                this.appendChild(this.icon);
+            }
+            this.appendChild(this.text);
+            const isLinksOnly = this.config.actionButtons?.every(({type}) => type === ButtonType.LINK || type == null);
+            this.appendChildren(...isLinksOnly ? DialogStateEntry.wrapButtons(this.actionButtons) : this.actionButtons);
 
             return rendered;
         });
@@ -131,16 +142,19 @@ export class DialogErrorStateEntry
     }
 
     protected initElements(): void {
-        const {iconClass, text, actionButtons = []} = this.config;
-        this.icon = new SpanEl(`entry-icon ${iconClass || 'icon-big-plus'}`);
+        const {icon, text, actionButtons = []} = this.config;
+        if (icon != null) {
+            this.icon = new SpanEl(`entry-icon ${icon}`);
+        }
 
         this.text = new SpanEl('entry-text');
         this.text.setHtml(text);
 
-        this.actionButtons = actionButtons.map(({label}) => {
+        this.actionButtons = actionButtons.map(({label, type = ButtonType.LINK, className = ''}) => {
             const action = new Action(label);
             const actionButton = new ActionButton(action);
-            actionButton.addClass('entry-button');
+            const typeClass = type !== ButtonType.BUTTON ? type : '';
+            actionButton.addClass(`entry-button ${className} ${typeClass}`);
             return actionButton;
         });
     }

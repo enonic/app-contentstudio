@@ -1,4 +1,4 @@
-.dialog-errors-state-bar {
+.dialog-state-bar {
   margin: 0 -30px 12px -30px;
   padding: 12px 26px 12px 39px;
   background-color: @color-bg-state-errors;
@@ -8,6 +8,7 @@
 
     .fail-entry,
     .error-entry,
+    .edit-entry,
     .resolved-entry {
       display: none;
     }
@@ -15,6 +16,22 @@
 
   &:not(.checking) {
     .check-entry {
+      display: none;
+    }
+  }
+
+  &.editing {
+    background-color: @admin-bg-light-gray;
+
+    .fail-entry,
+    .error-entry,
+    .resolved-entry {
+      display: none;
+    }
+  }
+
+  &:not(.editing) {
+    .edit-entry {
       display: none;
     }
   }
@@ -40,12 +57,14 @@
     }
   }
 
-  &.resolved:not(.checking) {
-    background-color: @color-bg-state-ready;
-  }
+  &:not(.checking):not(.editing) {
+    &.hidden {
+      display: none;
+    }
 
-  &.hidden:not(.checking) {
-    display: none;
+    &.resolved {
+      background-color: @color-bg-state-ready;
+    }
   }
 
   .fail-entry {
@@ -60,6 +79,12 @@
     }
   }
 
+  .edit-entry {
+    .entry-text {
+      flex: 1;
+    }
+  }
+
   .resolved-entry {
     .entry-icon {
       color: @admin-green;
@@ -68,7 +93,7 @@
 }
 
 .grey-header {
-  .dialog-errors-state-bar {
+  .dialog-state-bar {
     margin-top: -17px;
   }
 }

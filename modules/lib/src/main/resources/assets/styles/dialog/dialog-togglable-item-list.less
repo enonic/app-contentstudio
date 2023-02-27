@@ -1,0 +1,68 @@
+.dialog-togglable-item-list {
+  .content-summary-and-compare-status-viewer:not(.pending-delete):hover * {
+    cursor: pointer;
+  }
+
+  &:not(.contains-toggleable) + .dependants > .publish-dialog-dependant-list {
+    padding-left: 5px;
+  }
+
+  .browse-selection-item {
+    display: flex;
+    line-height: 26px;
+    align-items: center;
+
+    .remove {
+      display: none;
+      align-items: center;
+      order: 1;
+      width: 16px;
+      height: 16px;
+      margin: 0 0 0 20px;
+      color: lightgray;
+      cursor: default;
+    }
+
+    &.removable {
+      .remove {
+        color: @admin-dark-gray;
+        cursor: pointer;
+      }
+    }
+
+    .status {
+      line-height: 16px;
+    }
+
+    &:not(.toggleable) {
+      .include-children-toggler {
+        display: none;
+      }
+    }
+  }
+
+  &.readonly {
+    .browse-selection-item .remove,
+    .browse-selection-item .include-children-toggler,
+    .checkable-item .checkbox {
+      pointer-events: none;
+    }
+  }
+
+  &.contains-toggleable {
+    .browse-selection-item:not(.toggleable) {
+      .viewer {
+        margin-left: 35px;
+      }
+
+      .include-children-toggler {
+        & + .viewer {
+          margin-left: 0;
+        }
+
+        display: block;
+        visibility: hidden;
+      }
+    }
+  }
+}

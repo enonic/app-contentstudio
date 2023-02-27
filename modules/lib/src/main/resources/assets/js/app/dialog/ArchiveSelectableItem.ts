@@ -1,20 +1,20 @@
-import * as Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {StatusSelectionItem} from './StatusSelectionItem';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
 import {ShowDependenciesEvent} from '../browse/ShowDependenciesEvent';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../event/EditContentEvent';
+import {StatusSelectionItem} from './StatusSelectionItem';
 
-export interface ArchiveItemConfig {
+export interface ArchiveSelectableItemConfig {
     viewer: Viewer<ContentSummaryAndCompareStatus>;
     item: ContentSummaryAndCompareStatus;
     clickable?: boolean;
 }
 
-export class ArchiveItem
+export class ArchiveSelectableItem
     extends StatusSelectionItem {
 
     private static readonly HAS_INBOUND_CLASS = 'has-inbound';
@@ -23,12 +23,12 @@ export class ArchiveItem
 
     showRefButton: ActionButton;
 
-    constructor(config: ArchiveItemConfig) {
+    constructor(config: ArchiveSelectableItemConfig) {
         const {viewer, item, clickable = true} = config;
         super(viewer, item);
 
         this.addClass('archive-item');
-        this.toggleClass(ArchiveItem.CLICKABLE_CLASS, clickable);
+        this.toggleClass(ArchiveSelectableItem.CLICKABLE_CLASS, clickable);
 
         this.initElements(clickable);
         this.initListeners(clickable);
@@ -49,11 +49,11 @@ export class ArchiveItem
     }
 
     setHasInbound(hasInbound: boolean): void {
-        this.toggleClass(ArchiveItem.HAS_INBOUND_CLASS, hasInbound);
+        this.toggleClass(ArchiveSelectableItem.HAS_INBOUND_CLASS, hasInbound);
     }
 
     hasInbound(): boolean {
-        return this.hasClass(ArchiveItem.HAS_INBOUND_CLASS);
+        return this.hasClass(ArchiveSelectableItem.HAS_INBOUND_CLASS);
     }
 
     protected initElements(clickable: boolean): void {

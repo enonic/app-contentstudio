@@ -1,19 +1,18 @@
-import * as Q from 'q';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {DependantItemsDialog, DependantItemsDialogConfig} from '../../dialog/DependantItemsDialog';
-import {IssueDialogForm} from './IssueDialogForm';
-import {PublishProcessor} from '../../publish/PublishProcessor';
-import {PublishRequestItem} from '../PublishRequestItem';
-import {PublishDialogItemList} from '../../publish/PublishDialogItemList';
-import {PublishDialogDependantList} from '../../publish/PublishDialogDependantList';
-import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
-import {ContentSummary} from '../../content/ContentSummary';
+import * as Q from 'q';
 import {ContentId} from '../../content/ContentId';
+import {ContentSummary} from '../../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {DependantItemsDialog, DependantItemsDialogConfig} from '../../dialog/DependantItemsDialog';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {PublishDialogDependantList} from '../../publish/PublishDialogDependantList';
+import {PublishDialogItemList} from '../../publish/PublishDialogItemList';
+import {PublishProcessor} from '../../publish/PublishProcessor';
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import {PublishRequestItem} from '../PublishRequestItem';
+import {IssueDialogForm} from './IssueDialogForm';
 
 export abstract class IssueDialog
     extends DependantItemsDialog {
@@ -55,7 +54,7 @@ export abstract class IssueDialog
         super.initListeners();
 
         this.onRendered(() => {
-            this.publishProcessor.reloadPublishDependencies(true);
+            this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
         });
 
         this.form.onContentItemsAdded((items: ContentTreeSelectorItem[]) => {
@@ -74,7 +73,7 @@ export abstract class IssueDialog
 
             this.setListItems(filteredItems, true);
 
-            this.publishProcessor.reloadPublishDependencies(true);
+            this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
 
         });
 
@@ -84,10 +83,6 @@ export abstract class IssueDialog
         });
 
         this.publishProcessor.onLoadingFinished(() => {
-            if (this.publishProcessor.containsInvalidDependants()) {
-                this.setDependantListVisible(true);
-            }
-
             this.form.setContentItems(this.publishProcessor.getContentToPublishIds(), true);
             this.form.giveFocus();
 
@@ -116,12 +111,19 @@ export abstract class IssueDialog
 
                 this.addListItems(result);
 
-                this.publishProcessor.reloadPublishDependencies(true);
+                this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
 
                 this.newItems = [];
             });
         }, 100);
 
+        this.excludedToggler.onActiveChanged(active => {
+            const isLoadExcludedChanged = this.publishProcessor.isLoadExcluded() !== active;
+            if (isLoadExcludedChanged) {
+                this.publishProcessor.setLoadExcluded(active);
+                this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
+            }
+        });
     }
 
     doRender(): Q.Promise<boolean> {
@@ -156,8 +158,8 @@ export abstract class IssueDialog
         return this.publishProcessor.countTotal();
     }
 
-    protected countDependantItems(): number {
-        return this.publishProcessor.getDependantIds().length;
+    protected countDependantItems(withExcluded?: boolean): number {
+        return this.publishProcessor.getDependantIds(withExcluded).length;
     }
 
     open(opener?: ModalDialog) {
@@ -233,24 +235,25 @@ export abstract class IssueDialog
         this.form.lockContentItemsSelector(false);
     }
 
-    protected getDependantIds(): ContentId[] {
-        return this.publishProcessor.getDependantIds();
+    protected getDependantIds(withExcluded?: boolean): ContentId[] {
+        return this.publishProcessor.getDependantIds(withExcluded);
     }
 
-    protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
+    protected createItemList(): PublishDialogItemList {
         return new PublishDialogItemList();
     }
 
     protected getItemList(): PublishDialogItemList {
-        return <PublishDialogItemList>super.getItemList();
+        return super.getItemList() as PublishDialogItemList;
     }
 
     protected createDependantList(): PublishDialogDependantList {
-        return new PublishDialogDependantList();
+        const observer = this.createObserverConfig();
+        return new PublishDialogDependantList(observer);
     }
 
     protected getDependantList(): PublishDialogDependantList {
-        return <PublishDialogDependantList>super.getDependantList();
+        return super.getDependantList() as PublishDialogDependantList;
     }
 
 }

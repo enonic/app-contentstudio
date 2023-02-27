@@ -14,7 +14,6 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import * as Q from 'q';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
@@ -43,7 +42,6 @@ export class ContentPublishDialog
         super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.publish'),
             class: 'publish-dialog',
-            dependantsDescription: i18n('dialog.publish.dependants'),
             buttonRow: new DropdownButtonRow(),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
@@ -135,14 +133,10 @@ export class ContentPublishDialog
         this.message = null;
     }
 
-    setContentToPublish(contents: ContentSummaryAndCompareStatus[]): ContentPublishDialog {
-        return <ContentPublishDialog>super.setContentToPublish(contents);
-    }
-
     setIncludeChildItems(include: boolean, exceptedIds?: ContentId[]): ContentPublishDialog {
         const hasExceptedIds = exceptedIds != null && exceptedIds.length > 0;
         const idExcepted = (id: ContentId) => exceptedIds.some(exceptedId => exceptedId.equals(id));
-        let noIdsIncluded: boolean = true;
+        let noIdsIncluded = true;
 
         this.getItemList().getItemViews().forEach(itemView => {
             if (itemView.hasChildrenItems()) {
@@ -157,10 +151,7 @@ export class ContentPublishDialog
 
         if (noIdsIncluded) {
             // do reload dependencies manually if no children included to update buttons
-            this.publishProcessor.reloadPublishDependencies(true);
-        } else if (include) {
-            // force expansion of the dependant list if at least one of the main items includes them
-            this.setShowDependantList(true);
+            this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
         }
 
         return this;
@@ -230,11 +221,11 @@ export class ContentPublishDialog
 
 
     protected updateControls(itemsToPublish: number = this.countTotal()) {
-        const canPublish: boolean = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
-        const scheduleValid: boolean = this.isScheduleFormValid();
+        const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
+        const isScheduleValid = this.isScheduleFormValid();
 
         this.publishAction.setEnabled(canPublish);
-        this.scheduleAction.setEnabled(canPublish && scheduleValid);
+        this.scheduleAction.setEnabled(canPublish && isScheduleValid);
         this.publishSubTitle.setVisible(!this.isAllPendingDelete());
 
         super.updateControls(itemsToPublish);

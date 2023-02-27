@@ -1,55 +1,84 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {CompareStatusChecker} from '../content/CompareStatus';
 import {ContentId} from '../content/ContentId';
 import {ContentIds} from '../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {DialogDependantList} from '../dialog/DependantItemsDialog';
-import {StatusSelectionItem} from '../dialog/StatusSelectionItem';
+import {DependantItemViewer} from '../dialog/DependantItemViewer';
+import {DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
+import {StatusCheckableItem} from '../dialog/StatusCheckableItem';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 
 export class PublishDialogDependantList
-    extends DialogDependantList {
+    extends DialogDependantItemsList {
 
     private requiredIds: ContentIds;
 
-    private removeClickListeners: { (item: ContentSummaryAndCompareStatus): void }[] = [];
+    private listChangedListeners: (() => void)[] = [];
 
-    private listChangedListeners: { (): void }[] = [];
+    constructor(observer: ObserverConfig) {
+        super({
+            className: 'publish-dialog-dependant-list',
+            observer,
+            createViewer: () => new DependantItemViewer(),
+            createItem: (viewer, item) => {
+                return new StatusCheckableItem({
+                    viewer,
+                    item,
+                    checkbox: {
+                        nonSelectableTooltip: i18n('dialog.publish.itemRequired'),
+                        checked: () => this.mustSelectItem(item),
+                        enabled: () => this.isItemExcludable(item),
+                    },
+                });
+            },
 
-    constructor() {
-        super('publish-dialog-dependant-list');
+        });
 
         this.requiredIds = ContentIds.empty();
     }
 
-    refresh() {
-        this.getItemViews().forEach((view: StatusSelectionItem) => {
-            view.toggleClass('removable', this.isRemovable(<ContentSummaryAndCompareStatus>view.getBrowseItem()));
+    protected initListeners(): void {
+        super.initListeners();
+
+        const serverEvents = ContentServerEventsHandler.getInstance();
+
+        const permissionsUpdatedHandler = (updatedIds: ContentIds): void => {
+            const isItemsPermissionsUpdated = this.getItems().some(item => updatedIds.contains(item.getContentId()));
+            if (isItemsPermissionsUpdated) {
+                this.notifyListChanged();
+            }
+        };
+
+        const deletedHandler = (deletedItems: ContentServerChangeItem[]) => {
+            const isItemsDeleted = deletedItems.some(deletedItem => {
+                return this.getItems().forEach(item => item.getContentId().equals(deletedItem.getContentId()));
+            });
+
+            if (isItemsDeleted) {
+                this.notifyListChanged();
+            }
+        };
+
+        const updatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]) => {
+            permissionsUpdatedHandler(ContentIds.from(updatedItems.map(item => item.getContentId())));
+        };
+
+        this.onAdded(() => {
+            serverEvents.onContentPermissionsUpdated(permissionsUpdatedHandler);
+            serverEvents.onContentUpdated(updatedHandler);
+            serverEvents.onContentDeleted(deletedHandler);
+        });
+
+        this.onRemoved(() => {
+            serverEvents.unContentPermissionsUpdated(permissionsUpdatedHandler);
+            serverEvents.unContentUpdated(updatedHandler);
+            serverEvents.unContentDeleted(deletedHandler);
         });
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): StatusSelectionItem {
-        const statusView: StatusSelectionItem = super.createItemView(item, readOnly);
-
-        if (this.isRemovable(item)) {
-            statusView.addClass('removable');
-        }
-
-        statusView.setIsRemovableFn(() => this.isRemovable(item));
-        statusView.setRemoveHandlerFn(() => this.notifyItemRemoveClicked(item));
-
-        statusView.setRemoveButtonTooltip(i18n('dialog.publish.excludeFromPublishing'));
-        statusView.setRemoveButtonClickTooltip(i18n('dialog.publish.itemRequired'));
-
-        this.initListItemListeners(item, statusView);
-
-        return statusView;
-    }
-
-    private isRemovable(item: ContentSummaryAndCompareStatus): boolean {
-        const isPendingDelete: boolean = CompareStatusChecker.isPendingDelete(item.getCompareStatus());
+    protected isItemExcludable(item: ContentSummaryAndCompareStatus): boolean {
+        const isPendingDelete = CompareStatusChecker.isPendingDelete(item.getCompareStatus());
         if (isPendingDelete) {
             return false;
         }
@@ -59,35 +88,6 @@ export class PublishDialogDependantList
 
     setRequiredIds(value: ContentId[]) {
         this.requiredIds = ContentIds.from(value);
-    }
-
-    private initListItemListeners(item: ContentSummaryAndCompareStatus, view: Element) {
-        const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
-
-        const permissionsUpdatedHandler = (contentIds: ContentIds) => {
-            const itemContentId: ContentId = item.getContentId();
-            if (contentIds.contains(itemContentId)) {
-                this.notifyListChanged();
-            }
-        };
-
-        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            permissionsUpdatedHandler(ContentIds.from(data.map((updated: ContentSummaryAndCompareStatus) => updated.getContentId())));
-        };
-        const deletedHandler = (changedItems: ContentServerChangeItem[], pending?: boolean) => {
-            if (changedItems.some(changedItem => changedItem.getContentId().equals(item.getContentId()))) {
-                this.notifyListChanged();
-            }
-        };
-        serverEvents.onContentUpdated(updatedHandler);
-        serverEvents.onContentPermissionsUpdated(permissionsUpdatedHandler);
-        serverEvents.onContentDeleted(deletedHandler);
-
-        view.onRemoved(() => {
-            serverEvents.unContentUpdated(updatedHandler);
-            serverEvents.unContentPermissionsUpdated(permissionsUpdatedHandler);
-            serverEvents.unContentDeleted(deletedHandler);
-        });
     }
 
     onListChanged(listener: () => void) {
@@ -106,19 +106,7 @@ export class PublishDialogDependantList
         });
     }
 
-    onItemRemoveClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
-        this.removeClickListeners.push(listener);
-    }
-
-    unItemRemoveClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
-        this.removeClickListeners = this.removeClickListeners.filter((curr) => {
-            return curr !== listener;
-        });
-    }
-
-    private notifyItemRemoveClicked(item: ContentSummaryAndCompareStatus) {
-        this.removeClickListeners.forEach(listener => {
-            listener(item);
-        });
+    refresh(): void {
+        //
     }
 }

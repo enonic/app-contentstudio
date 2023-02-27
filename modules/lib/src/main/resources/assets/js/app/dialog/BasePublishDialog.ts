@@ -7,7 +7,6 @@ import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthe
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -24,8 +23,8 @@ import {PublishScheduleForm} from '../publish/PublishScheduleForm';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
-import {DialogErrorsStateBar} from './DialogErrorsStateBar';
-import {DialogErrorStateEntry} from './DialogErrorStateEntry';
+import {DialogStateBar} from './DialogStateBar';
+import {DialogStateEntry} from './DialogStateEntry';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -40,13 +39,13 @@ export abstract class BasePublishDialog
 
     protected scheduleFormToggle: ButtonEl;
 
-    protected stateBar: DialogErrorsStateBar;
+    protected stateBar: DialogStateBar;
 
-    private invalidErrorEntry: DialogErrorStateEntry;
+    private invalidErrorEntry: DialogStateEntry;
 
-    private inProgressErrorEntry: DialogErrorStateEntry;
+    private inProgressErrorEntry: DialogStateEntry;
 
-    private noPermissionsErrorEntry: DialogErrorStateEntry;
+    private noPermissionsErrorEntry: DialogStateEntry;
 
     protected constructor(config: DependantItemsWithProgressDialogConfig) {
         super(config);
@@ -54,20 +53,21 @@ export abstract class BasePublishDialog
         this.loadCurrentUser().catch(DefaultErrorHandler.handle);
     }
 
-    protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
+    protected createItemList(): PublishDialogItemList {
         return new PublishDialogItemList();
     }
 
     protected getItemList(): PublishDialogItemList {
-        return <PublishDialogItemList>super.getItemList();
+        return super.getItemList() as PublishDialogItemList;
     }
 
     protected createDependantList(): PublishDialogDependantList {
-        return new PublishDialogDependantList();
+        const observer = this.createObserverConfig();
+        return new PublishDialogDependantList(observer);
     }
 
     protected getDependantList(): PublishDialogDependantList {
-        return <PublishDialogDependantList>super.getDependantList();
+        return super.getDependantList() as PublishDialogDependantList;
     }
 
     protected initElements(): void {
@@ -93,14 +93,25 @@ export abstract class BasePublishDialog
     }
 
     protected initStateBar(): void {
-        this.stateBar = new DialogErrorsStateBar({
+        this.stateBar = new DialogStateBar({
             failText: i18n('dialog.publish.error.loadFailed'),
             resolvedText: i18n('dialog.publish.error.resolved'),
+            edit: {
+                applyHandler: () => {
+                    this.excludedToggler.setActive(false);
+                    this.getDependantList().saveExclusions();
+                    this.markEditing(false);
+                },
+                cancelHandler: () => {
+                    this.getDependantList().restoreExclusions();
+                    this.markEditing(false);
+                },
+            }
         });
 
         this.invalidErrorEntry = this.stateBar.addErrorEntry({
             text: i18n('dialog.publish.error.invalid'),
-            iconClass: 'icon-state-invalid',
+            icon: 'icon-state-invalid',
             actionButtons: [{
                 label: i18n('dialog.publish.exclude.invalid'),
                 handler: () => {
@@ -113,7 +124,7 @@ export abstract class BasePublishDialog
         const allowContentUpdate = CONFIG.isTrue('allowContentUpdate');
         this.inProgressErrorEntry = this.stateBar.addErrorEntry({
             text: i18n('dialog.publish.error.inProgress'),
-            iconClass: 'icon-state-in-progress',
+            icon: 'icon-state-in-progress',
             actionButtons: [{
                 label: i18n('dialog.publish.exclude.inProgress'),
                 handler: () => {
@@ -167,6 +178,19 @@ export abstract class BasePublishDialog
         this.publishProcessor.onItemsChanged(debouncedFinishedHandler);
 
         this.handleIssueGlobalEvents();
+
+        this.getDependantList().onSelectionChanged(() => {
+            this.stateBar.markEditing(true);
+            this.markEditing(true);
+        });
+
+        this.excludedToggler.onActiveChanged(active => {
+            const isLoadExcludedChanged = this.publishProcessor.isLoadExcluded() !== active;
+            if (isLoadExcludedChanged) {
+                this.publishProcessor.setLoadExcluded(active);
+                this.publishProcessor.reloadDependenciesDebounced({resetDependantItems: true});
+            }
+        });
     }
 
     private handleLoadStarted(): void {
@@ -177,14 +201,7 @@ export abstract class BasePublishDialog
     }
 
     private handleLoadFinished(): void {
-        const header: string = this.getDependantsHeader(this.getDependantList().isVisible());
-        this.updateDependantsHeader(header);
         this.updateChildItemsToggler();
-
-        if (this.publishProcessor.containsInvalidDependants() || this.publishProcessor.containsItemsInProgress() ||
-            this.publishProcessor.isCheckPublishable() && !this.isAllPublishable()) {
-            this.setDependantListVisible(true);
-        }
 
         // updateCount
         const itemsToPublish = this.countTotal();
@@ -288,13 +305,14 @@ export abstract class BasePublishDialog
         return issue.getCreator() === this.currentUser.getKey().toString();
     }
 
-    setContentToPublish(contents: ContentSummaryAndCompareStatus[]): BasePublishDialog {
+    setContentToPublish(contents: ContentSummaryAndCompareStatus[]): this {
         if (this.isProgressBarEnabled()) {
             return this;
         }
         this.setIgnoreItemsChanged(true);
         this.setListItems(contents);
         this.setIgnoreItemsChanged(false);
+
         return this;
     }
 
@@ -302,8 +320,8 @@ export abstract class BasePublishDialog
         return this.publishProcessor.countTotal();
     }
 
-    protected getDependantIds(): ContentId[] {
-        return this.publishProcessor.getDependantIds();
+    protected getDependantIds(withExcluded?: boolean): ContentId[] {
+        return this.publishProcessor.getDependantIds(withExcluded);
     }
 
     protected setIgnoreItemsChanged(value: boolean) {
@@ -376,12 +394,12 @@ export abstract class BasePublishDialog
             });
     }
 
-    protected lockControls() {
+    protected lockControls(): void {
         super.lockControls();
         this.stateBar.setEnabled(false);
     }
 
-    protected unlockControls() {
+    protected unlockControls(): void {
         super.unlockControls();
         this.stateBar.setEnabled(true);
     }

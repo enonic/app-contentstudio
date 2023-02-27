@@ -5,6 +5,23 @@
     }
   }
 
+  &.editing {
+    .include-children-toggler,
+    .removable .remove,
+    .schedule-control,
+    .dialog-buttons .action-button:not(.force-enabled) {
+      opacity: 0.5;
+      cursor: default;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .excluded-items-toggler,
+    .publish-schedule-form {
+      display: none;
+    }
+  }
+
   .content-summary-and-compare-status-viewer.data-inherited {
     opacity: 0.5;
   }
@@ -13,7 +30,8 @@
 
   .include-children-toggler {
     font-size: 20px;
-    line-height: 29px;
+    line-height: 36px;
+    text-align: center;
 
     .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, false);
 
@@ -33,11 +51,15 @@
   }
 
   .browse-selection-item {
-    padding: 0 5px;
-    margin: 0;
     display: flex;
     line-height: 26px;
     align-items: center;
+  }
+
+  .browse-selection-item,
+  .checkable-item {
+    padding: 0 5px;
+    margin: 0;
 
     .viewer {
       flex: 5;
@@ -52,243 +74,101 @@
     }
 
     .content-status-mixin();
-
-    .remove {
-      display: none;
-      align-items: center;
-      color: lightgray;
-      cursor: default;
-      order: 1;
-      margin: 0;
-      margin-left: 20px;
-    }
-  }
-
-  .dialog-togglable-item-list {
-
-    &.contains-toggleable {
-      .browse-selection-item:not(.toggleable) {
-        .viewer {
-          margin-left: 35px;
-        }
-
-        .include-children-toggler {
-          & + .viewer {
-            margin-left: 0;
-          }
-
-          display: block;
-          visibility: hidden;
-        }
-      }
-    }
-
-    &.readonly {
-      .browse-selection-item {
-        .remove,
-        .include-children-toggler {
-          pointer-events: none;
-        }
-      }
-    }
-
-    .content-summary-and-compare-status-viewer:not(.pending-delete):hover * {
-      cursor: pointer;
-    }
-
-    &:not(.contains-toggleable) + .dependants > .publish-dialog-dependant-list {
-      padding-left: 5px;
-    }
-
-    .browse-selection-item {
-
-      .remove {
-        height: 16px;
-        width: 16px;
-      }
-
-      &.removable {
-        .remove {
-          color: @admin-dark-gray;
-          cursor: pointer;
-        }
-      }
-
-      .status {
-        line-height: 16px;
-      }
-
-      &:not(.toggleable) {
-        .include-children-toggler {
-          display: none;
-        }
-      }
-    }
-
   }
 
   .dialog-togglable-item-list,
   .dialog-togglable-item-list + .dependants .dependants-body {
-    .browse-selection-item:hover {
+    .checkable-item:hover {
       background-color: @admin-bg-light-gray;
       outline: 2px solid @admin-bg-light-gray;
     }
   }
 
   .publish-dialog-dependant-list {
-    .browse-selection-item .viewer {
+    .checkable-item .viewer {
       cursor: pointer;
     }
+  }
 
-    &:not(.readonly) {
-      .browse-selection-item {
-        .remove {
-          display: flex;
+  .dependants {
+    position: relative;
+
+    &.empty {
+      &:not(.has-excluded) {
+        display: none
+      }
+
+      &.has-excluded {
+        .excluded-items-toggler {
+          position: static;
         }
+      }
+
+      .dependants-controls {
+        text-align: center;
+      }
+
+      .all-dependants-control {
+        display: none;
+      }
+    }
+
+    &:not(.has-excluded) {
+      .excluded-items-toggler {
+        display: none;
+      }
+    }
+
+    &:not(.empty),
+    &:not(.has-excluded) {
+      .excluded-items-note {
+        display: none;
       }
     }
   }
 
-  .dialog-content {
-    .dependants {
-      display: none;
+  .dependants-header {
+    margin: 16px 0 8px;
+    border-bottom: 1px solid @admin-medium-gray-border;
+  }
 
-      .dependants-header:not(:empty) {
-        margin-top: 10px;
-        cursor: pointer;
-        color: @admin-button-blue2;
+  .dependants-title {
+    font-weight: bold;
+    cursor: default;
+  }
 
-        &:hover {
-          color: @admin-button-blue3;
-        }
-      }
+  .dependants-controls {
+    padding: 0 5px;
+  }
 
-      .dependants-body {
-        display: none;
-        margin-top: 10px;
+  .all-dependants-control {
+    padding-bottom: 8px;
+    color: @admin-button-blue2;
+    cursor: pointer;
 
-        .dependants-desc {
-          margin-bottom: 10px;
-          font-weight: bold;
-        }
+    label {
+      position: relative;
+      padding-left: 27px;
+    }
 
-        .browse-selection-item {
+    &:hover input:not([disabled]) + label {
+      color: @admin-button-blue3;
+    }
+  }
 
-          .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}main-name, .status {
-            font-size: 12px;
-          }
+  .excluded-items-note {
+    color: @admin-font-gray1;
+  }
 
-          .remove {
-            .icon-small();
-          }
+  .excluded-items-toggler {
+    .link-button();
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    padding: 4px;
 
-          &.removable {
-            .remove {
-              color: @admin-dark-gray;
-              cursor: pointer;
-            }
-          }
-
-          &.readonly {
-            opacity: 0.5;
-          }
-
-          .state {
-            .names-and-icon-view {
-              cursor: pointer;
-
-              .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
-                cursor: pointer;
-              }
-            }
-          }
-
-          .content-summary-and-compare-status-viewer {
-            height: 24px;
-
-            &.icon-variant.has-origin-project {
-              .icon-variant(@size: 6px, @color: @admin-white, @bg-color: @admin-button-blue1, @border-color: transparent);
-
-              &:before {
-                border: none;
-              }
-            }
-
-            &.has-origin-project:not(.icon-variant) {
-              .icon-inherited(6px);
-            }
-
-            &.icon-variant:not(.has-origin-project) {
-              .icon-variant(6px);
-
-              &:before {
-                width: 7px;
-              }
-            }
-
-            &.has-origin-project:not(.icon-variant),
-            &.icon-variant.has-origin-project {
-              &:before {
-                width: 7px;
-              }
-            }
-
-            &.has-origin-project,
-            &.icon-variant {
-              &:before {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                padding: 1px !important;
-                padding-left: 2px !important;
-              }
-            }
-
-            .state();
-          }
-
-          .names-and-icon-view {
-            .@{_COMMON_PREFIX}wrapper {
-              margin: 0 15px 0 0;
-              height: 16px;
-              width: 16px;
-              line-height: 14px;
-            }
-
-            &.small {
-              .@{_COMMON_PREFIX}wrapper:before {
-                top: 0;
-                left: 11px;
-                width: 11px;
-                height: 11px;
-                line-height: 12px;
-                font-size: 12px;
-              }
-
-              .@{_COMMON_PREFIX}names-view {
-                h6 {
-                  height: 18px;
-                }
-              }
-            }
-
-            .font-icon-default.icon-image {
-              width: 16px;
-              height: 16px;
-              font-size: 16px;
-              position: absolute;
-              left: 0;
-              top: 0;
-            }
-
-            .@{_COMMON_PREFIX}names-view {
-              .@{_COMMON_PREFIX}sub-name {
-                display: none;
-              }
-            }
-          }
-        }
-      }
+    span {
+      line-height: initial;
     }
   }
 

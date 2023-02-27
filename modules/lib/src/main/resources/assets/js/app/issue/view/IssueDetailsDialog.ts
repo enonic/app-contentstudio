@@ -20,7 +20,6 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {TabBar} from '@enonic/lib-admin-ui/ui/tab/TabBar';
 import {TabBarItem, TabBarItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
@@ -33,6 +32,7 @@ import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent'
 import {ContentId} from '../../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
+import {DialogStateBar} from '../../dialog/DialogStateBar';
 import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentPublishDialog} from '../../publish/ContentPublishDialog';
@@ -101,6 +101,8 @@ export class IssueDetailsDialog
 
     private itemSelector: ContentComboBox<ContentTreeSelectorItem>;
 
+    private stateBar: DialogStateBar;
+
     private publishProcessor: PublishProcessor;
 
     private saveOnLoaded: boolean;
@@ -136,18 +138,17 @@ export class IssueDetailsDialog
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     protected constructor() {
-        super(<DependantItemsWithProgressDialogConfig>{
-                title: i18n('dialog.issue'),
-                class: 'issue-dialog issue-details-dialog grey-header',
-                dialogSubName: i18n('dialog.issue.resolving'),
-                processingLabel: `${i18n('field.progress.publishing')}...`,
-                buttonRow: new IssueDetailsDialogButtonRow(),
-                processHandler: () => {
-                    new ContentPublishPromptEvent({model: []}).fire();
-                },
-                confirmation: {}
-            }
-        );
+        super({
+            title: i18n('dialog.issue'),
+            class: 'issue-dialog issue-details-dialog grey-header',
+            dialogSubName: i18n('dialog.issue.resolving'),
+            processingLabel: `${i18n('field.progress.publishing')}...`,
+            buttonRow: new IssueDetailsDialogButtonRow(),
+            processHandler: () => {
+                new ContentPublishPromptEvent({model: []}).fire();
+            },
+            confirmation: {},
+        } satisfies DependantItemsWithProgressDialogConfig);
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
     }
@@ -160,12 +161,13 @@ export class IssueDetailsDialog
         return IssueDetailsDialog.INSTANCE;
     }
 
-    protected initElements() {
+    protected initElements(): void {
         super.initElements();
 
         this.initActions();
 
         this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
+        this.publishProcessor.setIgnoreSilent(true);
 
         this.commentTextArea = new IssueCommentTextArea();
         this.detailsSubTitle = new IssueDetailsDialogSubTitle(this.issue);
@@ -195,7 +197,7 @@ export class IssueDetailsDialog
         this.isUpdatePending = false;
     }
 
-    protected initTabs() {
+    protected initTabs(): void {
         const userLoader = new PrincipalLoader()
             .setAllowedTypes([PrincipalType.USER])
             .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
@@ -217,7 +219,7 @@ export class IssueDetailsDialog
         return tab;
     }
 
-    protected postInitElements() {
+    protected postInitElements(): void {
         super.postInitElements();
 
         this.addClickIgnoredElement(this.commentsList.getContextMenu());
@@ -226,6 +228,32 @@ export class IssueDetailsDialog
         this.commentAction.setEnabled(false);
         this.errorTooltip.setActive(false);
         this.backButton.setTitle(i18n('dialog.issue.back'));
+    }
+
+    protected createDependantsControls(): DivEl {
+        const controls = super.createDependantsControls();
+
+        this.stateBar = new DialogStateBar({
+            failText: i18n('dialog.publish.error.loadFailed'),
+            resolvedText: i18n('dialog.publish.error.resolved'),
+            hideIfResolved: true,
+            edit: {
+                applyHandler: () => {
+                    this.saveOnLoaded = true;
+                    this.excludedToggler.setActive(false);
+                    this.getDependantList().saveExclusions();
+                    this.markEditing(false);
+                },
+                cancelHandler: () => {
+                    this.getDependantList().restoreExclusions();
+                    this.markEditing(false);
+                },
+            }
+        });
+
+        controls.prependChild(this.stateBar);
+
+        return controls;
     }
 
     protected initListeners() {
@@ -568,9 +596,7 @@ export class IssueDetailsDialog
             this.ignoreNextExcludeChildrenEvent = false;
         });
 
-        itemList.onListItemsDataChanged(this.reloadItemList.bind(this));
-
-        this.getDependantList().onItemRemoveClicked(handleRemoveItemClicked);
+        itemList.onListChanged(() => this.reloadItemList());
 
         this.publishProcessor.onLoadingStarted(() => {
             this.lockControls();
@@ -584,8 +610,6 @@ export class IssueDetailsDialog
                 this.saveOnLoaded = false;
             }
 
-            this.setDependantListVisible(this.getItemList().hasActiveTogglers());
-
             this.hideLoadMask();
         });
 
@@ -593,10 +617,23 @@ export class IssueDetailsDialog
             this.isUpdatePending = false;
             this.hideLoadMask();
         });
+
+        this.excludedToggler.onActiveChanged(active => {
+            const isLoadExcludedChanged = this.publishProcessor.isLoadExcluded() !== active;
+            if (isLoadExcludedChanged) {
+                this.publishProcessor.setLoadExcluded(active);
+                this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
+            }
+        });
+
+        this.getDependantList().onSelectionChanged(() => {
+            this.stateBar.markEditing(true);
+            this.markEditing(true);
+        });
     }
 
-    protected getDependantIds(): ContentId[] {
-        return this.publishProcessor.getDependantIds();
+    protected getDependantIds(withExcluded?: boolean): ContentId[] {
+        return this.publishProcessor.getDependantIds(withExcluded);
     }
 
     private loadCurrentUser(): Q.Promise<Principal> {
@@ -773,7 +810,7 @@ export class IssueDetailsDialog
         return <IssueDetailsDialogButtonRow>super.getButtonRow();
     }
 
-    private initItemListTogglers(itemList: IssueDialogItemList): boolean {
+    private initItemListTogglers(itemList: PublishDialogItemList): boolean {
         return itemList.getItemViews().reduce((wasAnyIncluded, itemView) => {
             const isIncluded = itemView.toggleIncludeChildren(this.areChildrenIncludedInIssue(itemView.getContentId()));
             return isIncluded || wasAnyIncluded;
@@ -931,8 +968,8 @@ export class IssueDetailsDialog
         return this.publishProcessor.countTotal();
     }
 
-    protected countDependantItems(): number {
-        return this.publishProcessor.getDependantIds().length;
+    protected countDependantItems(withExcluded?: boolean): number {
+        return this.publishProcessor.getDependantIds(withExcluded).length;
     }
 
     private populateSchedule(updateIssueRequest: UpdateIssueRequest): UpdateIssueRequest {
@@ -1045,20 +1082,21 @@ export class IssueDetailsDialog
         return publishRequest;
     }
 
-    protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
-        return new IssueDialogItemList();
+    protected createItemList(): PublishDialogItemList {
+        return new PublishDialogItemList();
     }
 
     protected createDependantList(): PublishDialogDependantList {
-        return new PublishDialogDependantList();
+        const observer = this.createObserverConfig();
+        return new PublishDialogDependantList(observer);
     }
 
-    protected getItemList(): IssueDialogItemList {
-        return <IssueDialogItemList>super.getItemList();
+    protected getItemList(): PublishDialogItemList {
+        return super.getItemList() as PublishDialogItemList;
     }
 
     protected getDependantList(): PublishDialogDependantList {
-        return <PublishDialogDependantList>super.getDependantList();
+        return super.getDependantList() as PublishDialogDependantList;
     }
 
     close() {
@@ -1074,6 +1112,8 @@ export class IssueDetailsDialog
 
         this.commentsList.clearItems();
         this.resetCommentsTabButtons();
+
+        this.stateBar.reset();
 
         Router.get().back();
     }
@@ -1115,13 +1155,5 @@ export class IssueDetailsDialog
         if (!this.loadMask.isVisible() && this.isOpen() && this.isRendered()) {
             super.showLoadMask();
         }
-    }
-}
-
-export class IssueDialogItemList
-    extends PublishDialogItemList {
-
-    isVisible(): boolean {
-        return this.getItemViews().length > 0;
     }
 }

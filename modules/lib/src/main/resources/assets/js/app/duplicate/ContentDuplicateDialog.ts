@@ -1,25 +1,25 @@
-import * as Q from 'q';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
-import {ContentDuplicatePromptEvent} from '../browse/ContentDuplicatePromptEvent';
-import {DialogTogglableItemList, TogglableStatusSelectionItem} from '../dialog/DialogTogglableItemList';
-import {DuplicateContentRequest} from '../resource/DuplicateContentRequest';
-import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
-import {ContentEventsProcessor} from '../ContentEventsProcessor';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {ContentAppBarTabId} from '../ContentAppBarTabId';
+import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {ContentDuplicatePromptEvent} from '../browse/ContentDuplicatePromptEvent';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentAppBarTabId} from '../ContentAppBarTabId';
+import {ContentEventsProcessor} from '../ContentEventsProcessor';
+import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
+import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
+import {TogglableStatusSelectionItem} from '../dialog/TogglableStatusSelectionItem';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentDuplicateParams} from '../resource/ContentDuplicateParams';
+import {DuplicateContentRequest} from '../resource/DuplicateContentRequest';
+import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
+import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
 
 export class ContentDuplicateDialog
     extends DependantItemsWithProgressDialog
@@ -38,10 +38,10 @@ export class ContentDuplicateDialog
     private duplicateAction: ContentDuplicateDialogAction;
 
     constructor() {
-        super(<DependantItemsWithProgressDialogConfig> {
+        super(<DependantItemsWithProgressDialogConfig>{
                 title: i18n('dialog.duplicate'),
                 class: 'content-duplicate-dialog',
-                dependantsDescription: i18n('dialog.duplicate.dependants'),
+                dependantsTitle: i18n('dialog.duplicate.dependants'),
                 processingLabel: `${i18n('field.progress.duplicating')}...`,
                 processHandler: () => new ContentDuplicatePromptEvent([]).fire()
             }
@@ -85,9 +85,9 @@ export class ContentDuplicateDialog
     }
 
     protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
-        return <ContentSummaryAndCompareStatus[]>this.getItemList().getItemViews()
+        return this.getItemList().getItemViews()
             .filter(view => view.includesChildren())
-            .map(view => view.getBrowseItem());
+            .map(view => view.getBrowseItem() as ContentSummaryAndCompareStatus);
     }
 
     protected manageDescendants() {
@@ -262,11 +262,11 @@ export class ContentDuplicateDialog
         return new DuplicateContentRequest(contentDuplicateParams);
     }
 
-    protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
-        return new DialogTogglableItemList(true);
+    protected createItemList(): DialogTogglableItemList {
+        return new DialogTogglableItemList({togglerEnabled: true});
     }
 
     protected getItemList(): DialogTogglableItemList {
-        return <DialogTogglableItemList>super.getItemList();
+        return super.getItemList() as DialogTogglableItemList;
     }
 }

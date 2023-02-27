@@ -1,43 +1,40 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
 import {ContentId} from '../content/ContentId';
 import {ContentIds} from '../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {AccessibilityHelper} from '../util/AccessibilityHelper';
-import {DialogItemList} from './DependantItemsDialog';
-import {StatusSelectionItem} from './StatusSelectionItem';
+import {DialogMainItemsList, ItemEventListener} from './DialogMainItemsList';
+import {TogglableStatusSelectionItem} from './TogglableStatusSelectionItem';
+
+export type ChildrenListChangedListener = (childrenRemoved?: boolean) => void;
+
+export interface DialogTogglableItemListConfig {
+    className?: string;
+    togglerEnabled?: boolean;
+}
 
 export class DialogTogglableItemList
-    extends DialogItemList {
+    extends DialogMainItemsList {
 
-    private removeClickListeners: { (item: ContentSummaryAndCompareStatus): void }[] = [];
+    private removeClickListeners: ItemEventListener[] = [];
 
     private canBeEmpty: boolean = false;
 
-    private togglerEnabled: boolean = false;
+    private childrenListChangedListeners: ChildrenListChangedListener[] = [];
 
-    private childrenListChangedListeners: { (): void }[] = [];
+    private listChangedListeners: (() => void)[] = [];
 
-    private listChangedListeners: { (): void }[] = [];
+    protected readonly config: DialogTogglableItemListConfig;
 
-    protected debounceNotifyListChanged: Function;
+    protected debounceNotifyListChanged: ChildrenListChangedListener;
 
-    constructor(togglerEnabled?: boolean, className?: string) {
-        super('dialog-togglable-item-list');
+    constructor(config: DialogTogglableItemListConfig) {
+        super(`dialog-togglable-item-list ${config.className ?? ''}`);
 
-        if (className) {
-            this.addClass(className);
-        }
-
-        this.togglerEnabled = !!togglerEnabled;
+        this.config = config;
 
         const changeHandler = () => {
             this.itemChangedHandler();
@@ -45,9 +42,48 @@ export class DialogTogglableItemList
         this.onItemsAdded(changeHandler);
         this.onItemsRemoved(changeHandler);
 
-        this.debounceNotifyListChanged = AppHelper.debounce(() => {
-            this.notifyChildrenListChanged();
+        this.debounceNotifyListChanged = AppHelper.debounce((childrenRemoved?: boolean) => {
+            this.notifyChildrenListChanged(childrenRemoved);
         }, 100, false);
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        const serverEvents = ContentServerEventsHandler.getInstance();
+
+        const itemsByIdsUpdatedHandler = (updatedIds: ContentIds): void => {
+            const isItemsUpdated = this.getItems().some(item => updatedIds.contains(item.getContentId()));
+            if (isItemsUpdated) {
+                this.notifyListChanged();
+            }
+        };
+
+        const itemsUpdatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]) => {
+            itemsByIdsUpdatedHandler(ContentIds.from(updatedItems.map(item => item.getContentId())));
+        };
+
+        const deletedHandler = (deletedItems: ContentServerChangeItem[]) => {
+            const isItemsDeleted = deletedItems.some(deletedItem => {
+                return this.getItems().forEach(item => item.getContentId().equals(deletedItem.getContentId()));
+            });
+
+            if (isItemsDeleted) {
+                this.notifyListChanged();
+            }
+        };
+
+        this.onAdded(() => {
+            serverEvents.onContentPermissionsUpdated(itemsByIdsUpdatedHandler);
+            serverEvents.onContentUpdated(itemsUpdatedHandler);
+            serverEvents.onContentDeleted(deletedHandler);
+        });
+
+        this.onRemoved(() => {
+            serverEvents.unContentPermissionsUpdated(itemsByIdsUpdatedHandler);
+            serverEvents.unContentUpdated(itemsUpdatedHandler);
+            serverEvents.unContentDeleted(deletedHandler);
+        });
     }
 
     public setContainsToggleable(value: boolean) {
@@ -58,9 +94,9 @@ export class DialogTogglableItemList
         this.canBeEmpty = value;
     }
 
-    private itemChangedHandler() {
-        const isTogglable: boolean = this.getItemViews().some(item => {
-            return (<ContentSummaryAndCompareStatus>item.getBrowseItem()).getContentSummary().hasChildren();
+    private itemChangedHandler(): void {
+        const isTogglable = this.getItemViews().some(item => {
+            return (item.getBrowseItem() as ContentSummaryAndCompareStatus).getContentSummary().hasChildren();
         });
         this.toggleClass('contains-toggleable', isTogglable);
 
@@ -69,41 +105,21 @@ export class DialogTogglableItemList
         });
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): TogglableStatusSelectionItem {
-        const itemView: TogglableStatusSelectionItem = <TogglableStatusSelectionItem>super.createItemView(item, readOnly);
-
-        if (this.canBeEmpty) {
-            itemView.setIsRemovableFn(() => true);
-        }
-
-        itemView.setRemoveHandlerFn(() => {
-            this.removeItem(item);
-            this.notifyItemRemoveClicked(item);
-        });
-
-        this.updateRemovableState(itemView);
-
-        this.initListItemListeners(item, itemView);
-
-        return itemView;
-    }
-
-    protected updateItemView(itemView: Element, item: ContentSummaryAndCompareStatus) {
-        const view: TogglableStatusSelectionItem = <TogglableStatusSelectionItem>itemView;
-        view.setObject(item);
+    protected updateItemView(itemView: Element, item: ContentSummaryAndCompareStatus): void {
+        (itemView as TogglableStatusSelectionItem).setObject(item);
     }
 
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,
                                   browseItem: ContentSummaryAndCompareStatus): TogglableStatusSelectionItem {
 
-        const item: TogglableStatusSelectionItem = new TogglableStatusSelectionItem(viewer, browseItem);
+        const item = new TogglableStatusSelectionItem(viewer, browseItem);
 
         if (item.hasChildrenItems()) {
-            item.toggleIncludeChildren(this.togglerEnabled, true);
+            item.toggleIncludeChildren(!!this.config.togglerEnabled, true);
         }
 
-        item.onItemStateChanged(() => {
-            this.debounceNotifyListChanged();
+        item.onItemStateChanged((itemId: ContentId, enabled: boolean) => {
+            this.debounceNotifyListChanged(!enabled);
         });
 
         return item;
@@ -113,12 +129,12 @@ export class DialogTogglableItemList
         return this.getItemViews().some((itemView: TogglableStatusSelectionItem) => !!itemView.includesChildren());
     }
 
-    public refreshList() {
+    public refreshList(): void {
         super.refreshList();
         this.debounceNotifyListChanged();
     }
 
-    public setReadOnly(value: boolean) {
+    public setReadOnly(value: boolean): void {
         super.setReadOnly(value);
 
         this.getItemViews().forEach((item: TogglableStatusSelectionItem) => {
@@ -127,249 +143,64 @@ export class DialogTogglableItemList
     }
 
     public getItemViews(): TogglableStatusSelectionItem[] {
-        return <TogglableStatusSelectionItem[]>super.getItemViews();
+        return super.getItemViews() as TogglableStatusSelectionItem[];
     }
 
     public getItemViewById(contentId: ContentId): TogglableStatusSelectionItem {
-        for (const view of <TogglableStatusSelectionItem[]>super.getItemViews()) {
+        for (const view of this.getItemViews()) {
             if (view.getContentId().equals(contentId)) {
                 return view;
             }
         }
     }
 
-    public onListItemsDataChanged(listener: () => void) {
-        this.listChangedListeners.push(listener);
-    }
-
-    private updateRemovableState(view: TogglableStatusSelectionItem) {
+    private updateRemovableState(view: TogglableStatusSelectionItem): void {
         view.toggleClass('removable', view.isRemovable());
     }
 
-    onItemRemoveClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
+    onItemRemoveClicked(listener: ItemEventListener): void {
         this.removeClickListeners.push(listener);
     }
 
-    unItemRemoveClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
+    unItemRemoveClicked(listener: ItemEventListener): void {
         this.removeClickListeners = this.removeClickListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private notifyItemRemoveClicked(item: ContentSummaryAndCompareStatus) {
-        this.removeClickListeners.forEach(listener => {
-            listener(item);
-        });
+    private notifyItemRemoveClicked(item: ContentSummaryAndCompareStatus): void {
+        this.removeClickListeners.forEach(listener => listener(item));
     }
 
-    public onChildrenListChanged(listener: () => void) {
+    onChildrenListChanged(listener: ChildrenListChangedListener): void {
         this.childrenListChangedListeners.push(listener);
     }
 
-    public unChildrenListChanged(listener: () => void) {
+    unChildrenListChanged(listener: ChildrenListChangedListener): void {
         this.childrenListChangedListeners = this.childrenListChangedListeners.filter((current) => {
             return current !== listener;
         });
     }
 
-    private notifyChildrenListChanged() {
+    private notifyChildrenListChanged(childrenRemoved?: boolean): void {
         this.childrenListChangedListeners.forEach((listener) => {
-            listener();
+            listener(childrenRemoved);
         });
     }
 
-    public unListItemsDataChanged(listener: () => void) {
+    onListChanged(listener: () => void): void {
+        this.listChangedListeners.push(listener);
+    }
+
+    unListChanged(listener: () => void): void {
         this.listChangedListeners = this.listChangedListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private initListItemListeners(item: ContentSummaryAndCompareStatus, view: StatusSelectionItem) {
-        const serverEvents = ContentServerEventsHandler.getInstance();
-
-        const permissionsUpdatedHandler = (contentIds: ContentIds) => {
-            const itemContentId: ContentId = item.getContentId();
-            if (contentIds.contains(itemContentId)) {
-                this.notifyListItemsDataChanged();
-            }
-        };
-
-        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            permissionsUpdatedHandler(ContentIds.from(data.map((updated: ContentSummaryAndCompareStatus) => updated.getContentId())));
-        };
-
-        const deletedHandler = (changedItems: ContentServerChangeItem[], pending?: boolean) => {
-            if (changedItems.some(changedItem => changedItem.getContentId().equals(item.getContentId()))) {
-                this.notifyListItemsDataChanged();
-            }
-        };
-        serverEvents.onContentUpdated(updatedHandler);
-        serverEvents.onContentPermissionsUpdated(permissionsUpdatedHandler);
-        serverEvents.onContentDeleted(deletedHandler);
-
-        view.onRemoved(() => {
-            serverEvents.unContentUpdated(updatedHandler);
-            serverEvents.unContentPermissionsUpdated(permissionsUpdatedHandler);
-            serverEvents.unContentDeleted(deletedHandler);
-        });
-    }
-
-    private notifyListItemsDataChanged() {
+    private notifyListChanged(): void {
         this.listChangedListeners.forEach(listener => {
             listener();
-        });
-    }
-}
-
-export class TogglableStatusSelectionItem
-    extends StatusSelectionItem {
-
-    private itemStateChangedListeners: { (itemId: ContentId, enabled: boolean): void }[] = [];
-
-    private id: ContentId;
-
-    private toggler?: IncludeChildrenToggler;
-
-    constructor(viewer: Viewer<ContentSummaryAndCompareStatus>,
-                item: ContentSummaryAndCompareStatus) {
-        super(viewer, item);
-
-        this.initElements();
-        this.initListeners();
-    }
-
-    protected initElements(): void {
-        if (this.item.getContentSummary().hasChildren()) {
-            this.toggler = new IncludeChildrenToggler();
-        }
-
-        this.id = this.item.getContentSummary().getContentId();
-    }
-
-    protected initListeners(): void {
-        this.whenRendered(() => this.addTabIndexToTogglerAndRemoveElements());
-
-        this.toggler?.onStateChanged((enabled: boolean) => {
-            this.notifyItemStateChanged((<ContentSummaryAndCompareStatus>this.getBrowseItem()).getContentId(), enabled);
-        });
-    }
-
-    public doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered) => {
-            if (this.toggler) {
-                this.prependChild(this.toggler);
-                this.addClass('toggleable');
-            }
-
-            return rendered;
-        });
-    }
-
-    public setReadOnly(value: boolean) {
-        if (this.toggler) {
-            this.toggler.setReadOnly(value);
-        }
-    }
-
-    hasChildrenItems(): boolean {
-        return this.item.getContentSummary()?.hasChildren();
-    }
-
-    toggleIncludeChildren(condition?: boolean, silent?: boolean): boolean {
-        return !!this.toggler?.toggle(condition, silent);
-    }
-
-    getContentId(): ContentId {
-        return this.id;
-    }
-
-    setTogglerActive(value: boolean) {
-        this.toggleClass('toggleable', value);
-    }
-
-    includesChildren(): boolean {
-        return !this.toggler || this.toggler.isEnabled();
-    }
-
-    public onItemStateChanged(listener: (item: ContentId, enabled: boolean) => void) {
-        this.itemStateChangedListeners.push(listener);
-    }
-
-    public unItemStateChanged(listener: (item: ContentId, enabled: boolean) => void) {
-        this.itemStateChangedListeners = this.itemStateChangedListeners.filter((current) => {
-            return current !== listener;
-        });
-    }
-
-    private notifyItemStateChanged(item: ContentId, enabled: boolean) {
-        this.itemStateChangedListeners.forEach((listener) => {
-            listener(item, enabled);
-        });
-    }
-
-    private addTabIndexToTogglerAndRemoveElements() {
-        this.toggler && AccessibilityHelper.tabIndex(this.toggler);
-        this.removeEl && AccessibilityHelper.tabIndex(this.removeEl);
-    }
-}
-
-class IncludeChildrenToggler
-    extends DivEl {
-
-    private stateChangedListeners: { (enabled: boolean): void }[] = [];
-
-    private tooltip: Tooltip;
-
-    private readOnly: boolean;
-
-    constructor() {
-        super('icon icon-tree include-children-toggler');
-
-        this.tooltip = new Tooltip(this, i18n('dialog.includeChildren'), 1000);
-
-        this.onClicked(() => {
-            this.toggle();
-        });
-    }
-
-    toggle(condition?: boolean, silent?: boolean): boolean {
-        if (!this.readOnly && this.isEnabled() !== condition) {
-            this.toggleClass('on', condition);
-
-            this.tooltip.setText(this.isEnabled() ? i18n('dialog.excludeChildren') : i18n('dialog.includeChildren'));
-
-            if (!silent) {
-                this.notifyStateChanged(this.isEnabled());
-            }
-            return true;
-        }
-        return false;
-    }
-
-    setReadOnly(value: boolean) {
-        this.readOnly = value;
-        this.tooltip.setActive(!value);
-
-        this.toggleClass('readonly', this.readOnly);
-    }
-
-    isEnabled(): boolean {
-        return this.hasClass('on');
-    }
-
-    public onStateChanged(listener: (enabled: boolean) => void) {
-        this.stateChangedListeners.push(listener);
-    }
-
-    public unStateChanged(listener: (enabled: boolean) => void) {
-        this.stateChangedListeners = this.stateChangedListeners.filter((current) => {
-            return current !== listener;
-        });
-    }
-
-    private notifyStateChanged(enabled: boolean) {
-        this.stateChangedListeners.forEach((listener) => {
-            listener(enabled);
         });
     }
 }
