@@ -920,6 +920,7 @@ export class PageView
         this.viewsById = {};
 
         if (this.liveEditModel.getPageModel().getMode() === PageMode.FRAGMENT) {
+            this.insertChild(new DivEl(), 0);
             this.doParseFragmentItemViews();
         } else {
             this.doParseItemViews();

@@ -410,10 +410,6 @@ export class TextComponentView
     private doInitEditor(): void {
         this.setContentEditable(true);
         this.isInitializingEditor = true;
-        const id: string = this.getId().replace(/\./g, '_');
-
-        this.addClass(id);
-
         const createDialogHandler: (event: CreateHtmlAreaDialogEvent) => void = event => {
             this.currentDialogConfig = event.getConfig();
         };
