@@ -24,7 +24,7 @@ export class ContentEventsProcessor {
     static openWindows: Window[] = [];
 
     static openWizardTab(params: ContentWizardPanelParams): Window {
-        const wizardUrl: string = UrlHelper.getPrefixedUrl(ContentEventsProcessor.generateURL(params), '');
+        const wizardUrl: string = UrlHelper.getStudioPrefixedUrl(ContentEventsProcessor.generateURL(params), '');
         return ContentEventsProcessor.openTab(wizardUrl, ContentEventsProcessor.makeWizardId(params));
     }
 
@@ -85,7 +85,6 @@ export class ContentEventsProcessor {
 
     static handleEdit(event: EditContentEvent) {
         event.getModels().every((content: ContentSummaryAndCompareStatus) => {
-
             if (!content || !content.getContentSummary()) {
                 return true;
             }
@@ -133,7 +132,7 @@ export class ContentEventsProcessor {
         const id: string = event.getId().toString();
         const type: string = event.getContentType() ? event.getContentType().toString() : null;
         const project: string = ProjectContext.get().getProject().getName();
-        const url = UrlHelper.getPrefixedUrl(`${project}/${mode}/${id}${!!type ? `/${type}` : ''}`);
+        const url = UrlHelper.getStudioPrefixedUrl(`${project}/${mode}/${id}${!!type ? `/${type}` : ''}`);
 
         ContentEventsProcessor.openNewTab(url);
     }
@@ -151,11 +150,8 @@ export class ContentEventsProcessor {
             return `${project}/${action}/${params.contentId.toString()}${editParams}`;
         }
 
-        if (params.parentContentId) {
-            return `${project}/${UrlAction.NEW}/${params.contentTypeName.toString()}/${params.parentContentId.toString()}`;
-        }
-
-        return `${project}/${UrlAction.NEW}/${params.contentTypeName.toString()}`;
+        const parentPostfix: string = params.parentContentId ? `/${params.parentContentId.toString()}` : '';
+        return `${project}/${UrlAction.NEW}/${params.contentTypeName.toString()}${parentPostfix}`;
 
     }
 

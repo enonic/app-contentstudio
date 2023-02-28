@@ -48,6 +48,10 @@ export class UrlHelper {
         return `${CONFIG.getString('toolUri')}${separator}/${url}`;
     }
 
+    static getStudioPrefixedUrl(url: string, separator: string = '#'): string {
+        return `${CONFIG.getString('studioToolUri')}${separator}/${url}`;
+    }
+
     static isContentBrowseUrlMatch(): boolean {
         return window.location.hash.endsWith(UrlAction.BROWSE);
     }

@@ -11,6 +11,7 @@ function handleGet() {
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const hideDefaultProject = app.config['settings.hideDefaultProject'] === 'true' || false;
+    const studioToolUri = admin.getToolUrl(app.name, 'main');
 
     return {
         status: 200,
@@ -22,10 +23,8 @@ function handleGet() {
             assetsUri: portal.assetUrl({
                 path: ''
             }),
-            toolUri: admin.getToolUrl(
-                app.name,
-                'main'
-            ),
+            toolUri: studioToolUri,
+            studioToolUri: studioToolUri,
             appId: app.name,
             appVersion: app.version,
             branch,

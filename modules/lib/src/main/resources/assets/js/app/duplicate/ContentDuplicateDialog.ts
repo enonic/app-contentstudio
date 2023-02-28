@@ -182,7 +182,7 @@ export class ContentDuplicateDialog
 
             Q.all([taskIsFinishedPromise, duplicatedPromise]).spread((isFinished: boolean, duplicatedContent: ContentSummary) => {
                 if (isFinished) {
-                    this.openTab(duplicatedContent);
+                    this.openTabOnDuplicate(duplicatedContent);
                 }
             });
         }
@@ -236,7 +236,7 @@ export class ContentDuplicateDialog
         return deferred.promise;
     }
 
-    private openTab(content: ContentSummary) {
+    protected openTabOnDuplicate(content: ContentSummary) { // used in studio plus
         const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(content.getContentId().toString());
 
         const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
