@@ -1,8 +1,8 @@
 const path = require('path');
 const Mocha = require('mocha');
-const glob = require('glob');
+const { globSync } = require('glob');
 const selenium = require('selenium-standalone');
-const testFilesGlob = glob.sync('../specs/*.js', {cwd: __dirname});
+const testFilesGlob = globSync('../specs/*.js', {cwd: __dirname});
 const PropertiesReader = require('properties-reader');
 const file = path.join(__dirname, '/../browser.properties');
 const properties = PropertiesReader(file);
