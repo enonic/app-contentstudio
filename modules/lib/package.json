@@ -41,7 +41,7 @@
     "@types/q": "^1.5.4",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
-    "@typescript-eslint/utils": "^5.51.0",
+    "@typescript-eslint/utils": "^5.54.0",
     "circular-dependency-plugin": "^5.2.2",
     "eslint": "^8.34.0",
     "mini-css-extract-plugin": "^2.7.2",
