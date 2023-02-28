@@ -44,7 +44,6 @@ export class EditDetailsDialog
         super.postInitElements();
 
         this.addAction(this.updateAction, true);
-        this.addCancelButtonToBottom();
         this.setElementToFocusOnShow(this.addCancelButtonToBottom());
     }
 
