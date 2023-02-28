@@ -292,6 +292,8 @@
       }
 
       &.minimized {
+        background-color: @admin-bg-toolbar;
+
         .thumbnail-uploader-el,
         .wizard-header,
         .wizard-steps-panel {
@@ -348,7 +350,6 @@
         }
 
         .wizard-step-navigator {
-          width: 100%;
           margin-top: 35px;
           box-sizing: border-box;
           transform: rotate(90deg);
@@ -533,30 +534,6 @@
 
   .live-form-panel.rendering {
     opacity: 0;
-  }
-}
-
-._0-240,
-._240-360,
-._360-540,
-._540-720,
-._720-960,
-.mce-fullscreen {
-  .split-panel {
-    .minimize-edit {
-      display: none;
-    }
-
-    .help-text-button {
-      order: 4;
-      margin: 0 5px 0 auto;
-    }
-  }
-}
-
-.mce-fullscreen {
-  .wizard-step-navigator-and-toolbar {
-    display: none;
   }
 }
 
