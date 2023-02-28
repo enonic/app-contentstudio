@@ -39,7 +39,7 @@
     "@wdio/cli": "^8.3.10",
     "@wdio/dot-reporter": "^8.3.0",
     "@wdio/mocha-framework": "^8.3.0",
-    "@wdio/selenium-standalone-service": "^8.3.2",
+    "@wdio/selenium-standalone-service": "^8.4.0",
     "wdio-html-nice-reporter": "^8.1.0"
   },
   "engines": {
