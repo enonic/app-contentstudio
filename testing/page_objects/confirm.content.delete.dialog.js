@@ -38,10 +38,14 @@ class ConfirmValueDialog extends Page {
     }
 
 
-    waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
+    async waitForDialogOpened() {
+        try {
+            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+            await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot('err_confirm_delete');
             throw new Error("Confirmation Content Deleting Dialog is not loaded " + err);
-        })
+        }
     }
 
     waitForDialogClosed() {
