@@ -34,6 +34,7 @@ describe('Test for updating text in fragment', function () {
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(SITE_NAME);
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.TEST_APPS_NAME.SIMPLE_SITE_APP);
+            await contentWizard.pause(2000);
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
             await contentWizard.clickOnShowComponentViewToggler();
             // 2. Insert new text-component
