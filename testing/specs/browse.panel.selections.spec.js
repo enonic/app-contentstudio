@@ -9,12 +9,35 @@ const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const appConst = require('../libs/app_const');
+const DeleteContentDialog = require('../page_objects/delete.content.dialog');
+const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 
 describe('Browse panel selections spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
+
+    it("GIVEN unnamed content are selected WHEN the content hav been deleted THEN modal dialog should be closed",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let deleteContentDialog = new DeleteContentDialog();
+            let confirmValueDialog = new ConfirmValueDialog();
+            await studioUtils.typeNameInFilterPanel('unnamed');
+            let result = await contentBrowsePanel.getDisplayNamesInGrid();
+            if (result.length === 0) {
+                return;
+            }
+            await contentBrowsePanel.clickOnSelectionControllerCheckbox();
+            await contentBrowsePanel.clickOnArchiveButton();
+            await deleteContentDialog.waitForDialogOpened();
+            await deleteContentDialog.clickOnDeleteMenuItem();
+            await confirmValueDialog.waitForDialogOpened();
+            let number = await confirmValueDialog.getSuggestedNumberToDelete();
+            await confirmValueDialog.typeNumberOrName(number);
+            await confirmValueDialog.clickOnConfirmButton();
+            await confirmValueDialog.waitForDialogClosed();
+        });
 
     it("GIVEN folder with children is checked WHEN 'Arrow Right'/Arrow Left key has been pressed THEN the folder gets expanded/collapsed",
         async () => {
@@ -185,7 +208,7 @@ describe('Browse panel selections spec', function () {
             await contentBrowsePanel.pause(1500);
             // 1. Click on two checkboxes:
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.TEST_FOLDER_2_DISPLAY_NAME);
+            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES_2);
             await contentBrowsePanel.pause(500);
             let number = await contentBrowsePanel.getNumberOfSelectedRows();
             await studioUtils.saveScreenshot('two_rows_checked');
