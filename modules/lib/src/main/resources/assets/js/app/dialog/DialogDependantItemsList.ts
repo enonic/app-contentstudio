@@ -276,6 +276,10 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
         return true;
     }
 
+    hasExcludableItems(): boolean {
+        return this.getItems().some(item => this.isItemExcludable(item));
+    }
+
     protected getScrollContainer(): Element {
         return this.config.observer?.scrollElement ?? super.getScrollContainer();
     }

@@ -160,6 +160,14 @@
     &:hover input:not([disabled]) + label {
       color: @admin-button-blue3;
     }
+
+    &.disabled {
+      opacity: 0.5;
+
+      input[disabled] + label {
+        opacity: 1;
+      }
+    }
   }
 
   .excluded-items-note {

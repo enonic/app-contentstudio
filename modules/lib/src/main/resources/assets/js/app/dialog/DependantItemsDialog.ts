@@ -103,7 +103,6 @@ export abstract class DependantItemsDialog
             this.dependantsContainer.toggleClass(DependantsStatus.EXCLUDED_HIDDEN, !active);
         });
 
-        // this.dependantList.onSelectionChanged(() => this.updateAllCheckbox());
         this.dependantList.onSelectionTypeChanged(() => this.updateAllCheckbox());
 
         this.dependantList.onExclusionUpdated((manual) => {
@@ -148,8 +147,12 @@ export abstract class DependantItemsDialog
     }
 
     protected onDependantsChanged(): void {
-        const count = this.countDependantItems(this.excludedToggler.isActive());
+        const isExcludedShown = this.excludedToggler.isActive();
+        const count = this.countDependantItems(isExcludedShown);
         this.allCheckBox.setLabel(i18n('dialog.select.all', count));
+
+        const hasEnabledItems = this.dependantList.hasExcludableItems();
+        this.allCheckBox.setEnabled(hasEnabledItems);
 
         const hasDependants = count > 0;
         this.markDependantsEmpty(!hasDependants);
@@ -239,6 +242,7 @@ export abstract class DependantItemsDialog
         this.dependantList.clearItems(true);
         this.allCheckBox.setChecked(true);
         this.allCheckBox.setPartial(false);
+        this.allCheckBox.setEnabled(true);
         this.excludedToggler.setActive(false);
         this.markDependantsHasExcluded(false);
         this.markDependantsEmpty(true);
