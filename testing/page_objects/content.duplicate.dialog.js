@@ -6,19 +6,15 @@ const XPATH = {
     duplicateButton: `//button/span[contains(.,'Duplicate')]`,
     cancelButton: `//button/span[text()='Cancel']`,
     includeChildToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
-    showDependentItemsLink: `//h6[@class='dependants-header' and contains(.,'Show dependent items')]`,
-    hideDependentItemsLink: `//h6[@class='dependants-header' and contains(.,'Hide dependent items')]`,
+    dependantsHeader: "//div[@class='dependants-header']/span[@class='dependants-title']",
 };
 
 class ContentDuplicateDialog extends Page {
 
-    get showDependentItemsLink() {
-        return XPATH.container + XPATH.showDependentItemsLink;
+    get dependentsHeader() {
+        return XPATH.container + XPATH.dependantsHeader;
     }
 
-    get hideDependentItemsLink() {
-        return XPATH.container + XPATH.hideDependentItemsLink;
-    }
 
     get duplicateButton() {
         return `${XPATH.container}` + `${XPATH.duplicateButton}`;
@@ -36,18 +32,6 @@ class ContentDuplicateDialog extends Page {
         return this.isElementDisplayed(this.includeChildToggler);
     }
 
-    isShowDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.shortTimeout).catch(err => {
-            return false;
-        })
-    }
-
-    waitForHideDependentItemLinkDisplayed() {
-        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch((err) => {
-            this.saveScreenshot('err_load_hide_dependent_link');
-            throw new Error('Hide Dependent link must be loaded ' + err);
-        })
-    }
 
     isDuplicateButtonDisplayed() {
         return this.isElementDisplayed(this.duplicateButton);
@@ -74,10 +58,17 @@ class ContentDuplicateDialog extends Page {
         }
     }
 
-    async clickOnShowDependentItemLink() {
-        await this.waitForElementEnabled(this.showDependentItemsLink, appConst.shortTimeout);
-        await this.clickOnElement(this.showDependentItemsLink);
-        return await this.pause(500);
+    waitForDependantsHeaderDisplayed() {
+        return this.waitForElementDisplayed(this.dependentsHeader, appConst.mediumTimeout);
+    }
+
+    async getDependantsHeader() {
+        await this.waitForDependantsHeaderDisplayed();
+        return await this.getText(XPATH.dependantsHeader);
+    }
+
+    async waitForDependantsHeaderNotDisplayed() {
+        return await this.waitForElementNotDisplayed(this.dependentsHeader);
     }
 
     waitForDialogOpened() {
@@ -92,25 +83,9 @@ class ContentDuplicateDialog extends Page {
         })
     }
 
-    async getNumberInDependentItemsLink() {
-        try {
-            let linkText = await this.getText(this.showDependentItemsLink);
-            let startIndex = linkText.indexOf('(');
-            if (startIndex == -1) {
-                throw new Error("'Content Duplicate Dialog' - error when get a number in  `show dependent items` link  ");
-            }
-            let endIndex = linkText.indexOf(')');
-            if (endIndex == -1) {
-                throw new Error("'Content Duplicate Dialog' - error when get a number in  `show dependent items` link  ");
-            }
-            return linkText.substring(startIndex + 1, endIndex);
-        } catch (err) {
-            throw new Error(err);
-        }
-    }
 
     //gets number in `Duplicate` button, It is total number of items to duplicate
-    async getTotalNumberItemsToDuplicate() {
+    async getNumberItemsInDuplicateButton() {
         try {
             await this.getBrowser().waitUntil(async () => {
                 let text = await this.getText(this.duplicateButton);
@@ -134,13 +109,13 @@ class ContentDuplicateDialog extends Page {
         })
     }
 
-    getDependentsName() {
-        let selector = XPATH.container + `//ul[contains(@id,'DialogDependantList')]` + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements(selector).then(result => {
-            return result;
-        }).catch(err => {
+    async getDependentsName() {
+        try {
+            let locator = XPATH.container + lib.DEPENDANTS.DEPENDENT_ITEM_LIST_UL + lib.H6_DISPLAY_NAME;
+            return await this.getTextInElements(locator);
+        } catch (err) {
             throw new Error('Duplicate Dialog: error when getting dependents name : ' + err)
-        })
+        }
     }
 }
 

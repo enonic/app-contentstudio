@@ -7,45 +7,54 @@ const XPATH = {
     container: "//div[contains(@id,'ContentPublishDialog')]",
     logMessageLink: "//div[contains(@id,'ContentPublishDialogSubTitle')]/a",
     publishScheduleForm: "//div[contains(@id,'PublishScheduleForm')]",
-    publishNowButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Publish Now')]]`,
     scheduleButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Schedule')]]`,
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
-    showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
-    hideDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Hide dependent items')]`,
+    checkableDependentItemDiv: `//div[contains(@id,'StatusCheckableItem')`,
     addScheduleIcon: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     changeLogInput: "//input[contains(@id,'AutosizeTextInput')]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
-    dependantItemViewer: "//div[contains(@id,'DependantItemViewer')]",
     readyForPublishingText: "//span[contains(@class,'entry-text') and text()='Content is ready for publishing']",
+    mainItemtDivByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`,
     excludeInvalidItems: "//button[child::span[contains(.,'Exclude invalid items')]]",
-    errorEntry: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]",
+    errorEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'error-entry')]",
     inProgressErrorEntry: "//span[contains(@class,'entry-text') and text()='In progress']",
-    contentSummaryByDisplayName:
-        displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-    itemToPublish:
-        displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-    contentStatus:
-        displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
+    contentSummaryByDisplayName: displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
+    dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
+    dependentItemContentStatus: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
+
+    contentStatus: displayName => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
+
+    removeItemIconByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]//div[@class='icon remove']`,
+
+    excludedItemsNote: "//span[@class='excluded-items-note']",
 };
 
 class ContentPublishDialog extends Page {
 
+    get applySelectionButton() {
+        return XPATH.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Apply');
+    }
+
     get cancelButtonTop() {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    }
+
+    get dependantsBlock() {
+        return XPATH.container + lib.DEPENDANTS.DEPENDANTS_BLOCK
     }
 
     get changeLogInput() {
         return XPATH.container + XPATH.changeLogInput;
     }
 
-    get showDependentItemsLink() {
-        return XPATH.container + XPATH.showDependentItemsLink;
+    get showExcludedItemsButton() {
+        return XPATH.container + lib.togglerButton('Show excluded items');
     }
 
-    get hideDependentItemsLink() {
-        return XPATH.container + XPATH.hideDependentItemsLink;
+    get hideExcludedItemsButton() {
+        return XPATH.container + lib.togglerButton('Hide excluded items');
     }
 
     get logMessageLink() {
@@ -53,7 +62,7 @@ class ContentPublishDialog extends Page {
     }
 
     get publishNowButton() {
-        return XPATH.container + XPATH.publishNowButton;
+        return XPATH.container + lib.actionButton('Publish Now');
     }
 
     get addScheduleIcon() {
@@ -80,6 +89,29 @@ class ContentPublishDialog extends Page {
         return XPATH.container + XPATH.errorEntry + lib.PUBLISH_DIALOG.EXCLUDE_ITEMS_IN_PROGRESS_BTN;
     }
 
+    get allDependantsCheckbox() {
+        return XPATH.container + lib.checkBoxDiv('All');
+    }
+
+    async waitForDependantsBlockDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.dependantsBlock, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
+            throw new Error(`Apply selection button is not displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async waitForDependantsBlockNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.dependantsBlock, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
+            throw new Error(`Apply selection button is  displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+
     waitForExcludeInvalidItemsButtonDisplayed() {
         return this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
     }
@@ -94,6 +126,47 @@ class ContentPublishDialog extends Page {
 
     waitForExcludeItemsInProgressButtonDisplayed() {
         return this.waitForElementDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+    }
+
+    async waitForApplySelectionButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.applySelectionButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
+            throw new Error(`Apply selection button is not displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    waitForAllDependantsCheckboxDisplayed() {
+        return this.waitForElementDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
+    }
+
+    waitForAllDependantsCheckboxNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
+    }
+
+    async clickOnAllCheckbox() {
+        await this.waitForAllDependantsCheckboxDisplayed();
+        await this.clickOnElement(this.allDependantsCheckbox + '//label');
+    }
+
+    async isAllDependantsCheckboxSelected() {
+        // 1. div-checkbox should be displayed:
+        await this.waitForAllDependantsCheckboxDisplayed();
+        // 2. Check the input:
+        return await this.isSelected(this.allDependantsCheckbox + lib.CHECKBOX_INPUT);
+    }
+
+    async isDependantCheckboxSelected(displayName) {
+        let checkBoxInputLocator = XPATH.container + XPATH.dependentItemToPublish(displayName) + lib.CHECKBOX_INPUT;
+        await this.waitForElementDisplayed(XPATH.container + XPATH.dependentItemToPublish(displayName), appConst.mediumTimeout);
+        return await this.isSelected(checkBoxInputLocator);
+    }
+
+    async isDependantCheckboxEnabled(displayName) {
+        let checkBoxInputLocator = XPATH.container + XPATH.dependentItemToPublish(displayName) + lib.CHECKBOX_INPUT;
+        await this.waitForElementDisplayed(XPATH.container + XPATH.dependentItemToPublish(displayName), appConst.mediumTimeout);
+        return await this.isElementEnabled(checkBoxInputLocator);
     }
 
     async clickOnExcludeInvalidItemsButton() {
@@ -205,14 +278,25 @@ class ContentPublishDialog extends Page {
         return this.waitForElementDisabled(this.scheduleButton, appConst.mediumTimeout);
     }
 
-    async clickOnShowDependentItems() {
+    async clickOnShowExcludedItemsButton() {
         try {
-            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.shortTimeout);
-            return await this.clickOnElement(this.showDependentItemsLink);
+            await this.waitForShowExcludedItemsButtonDisplayed();
+            return await this.clickOnElement(this.showExcludedItemsButton);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_publish_dlg_show_dependent_btn');
+            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
             await this.saveScreenshot(screenshot);
-            throw new Error('Error when clicking on Show dependent items, screenshot  ' + screenshot + ' ' + err);
+            throw new Error('Error when clicking on Show Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
+        }
+    }
+
+    async clickOnHideExcludedItemsButton() {
+        try {
+            await this.waitForHideExcludedItemsButtonDisplayed();
+            return await this.clickOnElement(this.hideExcludedItemsButton);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error when clicking on Hide Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
         }
     }
 
@@ -227,15 +311,15 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    waitForShowDependentItemsButtonDisplayed() {
-        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.shortTimeout).catch(err => {
+    waitForShowExcludedItemsButtonDisplayed() {
+        return this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout).catch(err => {
             throw new Error("Show dependent items link should be visible!" + err)
         })
     }
 
-    waitForHideDependentItemsButtonDisplayed() {
-        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch(err => {
-            throw new Error("'Hide dependent items' link should be visible!" + err)
+    waitForHideExcludedItemsButtonDisplayed() {
+        return this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout).catch(err => {
+            throw new Error("'Hide excluded items' button should be visible!" + err)
         })
     }
 
@@ -245,15 +329,10 @@ class ContentPublishDialog extends Page {
         })
     }
 
-    waitForHideDependentItemsButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch(err => {
-            throw new Error("'Hide dependent items' link should not be visible!" + err)
-        })
-    }
-
-    getContentStatus(name) {
-        let selector = XPATH.contentStatus(name);
-        return this.getText(selector);
+    async getContentStatus(name) {
+        let locator = XPATH.contentStatus(name);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 
     async getWorkflowState(displayName) {
@@ -310,15 +389,16 @@ class ContentPublishDialog extends Page {
     }
 
     waitForPublishNowButtonDisabled() {
-        return this.waitForElementDisabled(this.publishNowButton, appConst.mediumTimeout);
+        return this.waitForElementNotClickable(this.publishNowButton, appConst.mediumTimeout);
     }
 
-    async isPublishItemRemovable(displayName) {
-        let selector = XPATH.itemToPublish(displayName);
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        let attr = await this.getAttribute(selector, 'class');
+    async isRemoveItemIconEnabled(name) {
+        let locator = XPATH.mainItemtDivByName(name);
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        let attr = await this.getAttribute(locator, 'class');
         return attr.includes('removable');
     }
+
 
     clickOnCancelTopButton() {
         return this.clickOnElement(this.cancelButtonTop);
@@ -344,8 +424,8 @@ class ContentPublishDialog extends Page {
         return number.substring(startIndex + 1, endIndex);
     }
 
-    async removeDependentItem(displayName) {
-        let selector = XPATH.itemToPublish(displayName) + XPATH.removeItemIcon;
+    async clickOnCheckboxInDependentItem(displayName) {
+        let selector = XPATH.dependentItemToPublish(displayName) + "//div[contains(@id,'Checkbox')]";
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
         return await this.pause(400);
@@ -357,15 +437,22 @@ class ContentPublishDialog extends Page {
         return [].concat(result);
     }
 
-    async clickOnItemToPublishAndSwitchToWizard(displayName) {
-        let selector = XPATH.publishItemList + XPATH.itemToPublish(displayName);
+    async clickOnMainItemAndSwitchToWizard(displayName) {
+        let selector = XPATH.publishItemList + XPATH.mainItemtDivByName(displayName);
+        await this.clickOnElement(selector);
+        await this.pause(1000);
+        return await this.getBrowser().switchWindow(displayName);
+    }
+
+    async clickOnDependantItemAndSwitchToWizard(displayName) {
+        let selector = XPATH.publishItemList + XPATH.dependentItemToPublish(displayName);
         await this.clickOnElement(selector);
         await this.pause(1000);
         return await this.getBrowser().switchWindow(displayName);
     }
 
     async getDisplayNameInDependentItems() {
-        let locator = XPATH.container + XPATH.dependantList + XPATH.dependantItemViewer + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
         return this.getTextInElements(locator);
     }
 
@@ -376,7 +463,7 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(locator);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot("err_close_schedule_form");
+            await this.saveScreenshot('err_close_schedule_form');
             throw new Error("Publish Schedule Form, close icon: " + err);
         }
     }
@@ -397,6 +484,24 @@ class ContentPublishDialog extends Page {
         let locator = XPATH.container + XPATH.readyForPublishingText;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
+
+    async clickOnApplySelectionButton() {
+        await this.waitForApplySelectionButtonDisplayed();
+        await this.clickOnElement(this.applySelectionButton);
+    }
+
+    async waitForExcludedNote() {
+        let locator = XPATH.container + XPATH.excludedItemsNote;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return this.getText(locator);
+    }
+
+    async waitForShowExcludedItemsDisplayed() {
+        let locator = XPATH.container + XPATH.excludedItemsNote;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return this.getText(locator);
+    }
+
 }
 
 module.exports = ContentPublishDialog;

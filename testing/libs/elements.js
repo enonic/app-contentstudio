@@ -35,6 +35,15 @@ module.exports = Object.freeze({
     OCCURRENCE_VIEW: "//div[contains(@id,'InputOccurrenceView')]",
     ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton') and @title='Add new']",
     EDIT_ICON: "//a[@class='edit']",
+
+    DEPENDANTS: {
+        EDIT_ENTRY: "//div[contains(@id,'DialogStateEntry') and contains(@class,'edit-entry')]",
+        DEPENDANTS_BLOCK: "//div[contains(@class, 'dependants') and descendant::span[contains(@class,'dependants-title') and text()='Dependencies']]",
+        DEPENDENT_ITEM_LIST_UL: "//ul[contains(@id,'DialogDependantItemsList')]",
+        DEPENDENT_ITEM_LIST_UL_2: "//ul[contains(@id,'PublishDialogDependantList')]",
+        DEPENDANT_ITEM_VIEWER: "//div[contains(@id,'DependantItemViewer')]",
+    },
+
     tabBarItemByName: function (name) {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },
@@ -42,8 +51,11 @@ module.exports = Object.freeze({
         return container +
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
     },
+    checkBoxDiv: label => `//div[contains(@id,'Checkbox') and child::label[contains(.,'${label}')]]`,
     actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
-    dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
+    dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
+    dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
+    togglerButton: (label) => `//button[contains(@id,'DialogButtonTogglerButton') and child::span[text()='${label}']]`,
     slickRowByName: (container, name) => {
         return container +
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`;

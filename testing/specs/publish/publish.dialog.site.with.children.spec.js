@@ -45,9 +45,9 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Include children' button
             await contentPublishDialog.clickOnIncludeChildrenToogler();
-            // 3. Verify that dependent items are expanded:
-            await contentPublishDialog.waitForHideDependentItemsButtonDisplayed();
-            // 4. Verify that "Exclude invalid items" button gets visible
+            // 3. Verify that 'All' checkbox is displayed:
+            await contentPublishDialog.waitForAllDependantsCheckboxDisplayed()
+            // 4. Verify that "Exclude invalid items" button should be visible
             await contentPublishDialog.waitForExcludeInvalidItemsButtonDisplayed();
             // 5. Verify that 'Publish Now' button is disabled in the dialog:
             await contentPublishDialog.waitForPublishNowButtonDisabled();

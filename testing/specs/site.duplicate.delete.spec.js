@@ -14,7 +14,7 @@ const appConst = require('../libs/app_const');
 
 describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Value dialogs', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
@@ -63,7 +63,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             //3. Type not correct number to delete:
             await confirmValueDialog.typeNumberOrName(7);
             await confirmValueDialog.pause(1000);
-            await studioUtils.saveScreenshot("number_to_delete_incorrect");
+            await studioUtils.saveScreenshot('number_to_delete_incorrect');
             //5. Verify that 'Confirm' button is disabled
             await confirmValueDialog.waitForConfirmButtonDisabled();
             //6. Close the dialog:

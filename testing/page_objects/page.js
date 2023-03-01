@@ -201,6 +201,17 @@ class Page {
         return await element[0].waitForEnabled({timeout: ms, reverse: true});
     }
 
+    async waitForElementNotClickable(selector, ms) {
+        let element = await this.findElements(selector);
+        if (element.length > 1) {
+            throw new Error("More than one element were found with the selector " + selector);
+        }
+        if (element.length === 0) {
+            throw new Error('Element was not found:' + selector);
+        }
+        return await element[0].waitForClickable({timeout: ms, reverse: true});
+    }
+
     async waitForDisplayedElementDisabled(selector, ms) {
         let element = await this.getDisplayedElements(selector);
         if (element.length > 1) {

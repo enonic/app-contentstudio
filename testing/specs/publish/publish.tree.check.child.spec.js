@@ -78,8 +78,8 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             //2. Verify that 'Publish Tree' is default action(click on it):
             await contentBrowsePanel.clickOnPublishTreeButton();
             await contentPublishDialog.waitForDialogOpened();
-            //3. Verify that 'Hide dependent items' should be visible in the dialog:
-            await contentPublishDialog.waitForHideDependentItemsButtonDisplayed();
+            //3. Verify that 'dependent items' should be visible in the dialog:
+            await contentPublishDialog.waitForDependantsBlockDisplayed()
             //4. Click on 'Publish Now' button:
             await contentPublishDialog.clickOnPublishNowButton();
             //5. Dialog should close

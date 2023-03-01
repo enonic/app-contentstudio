@@ -8,15 +8,15 @@ const XPATH = {
     dialogSubheader: "//div[contains(@id,'ModalDialogHeader')]//h6[@class='sub-title']",
     unpublishButton: "//button[contains(@id,'DialogButton') and descendant::span[contains(.,'Unpublish')]]",
     cancelButtonBottom: "//button[contains(@class,'cancel-button-bottom')]",
-    dependantsDiv: "//div[@class='dependants']",
-    showDependentItemsLink: "//h6[@class='dependants-header' and contains(.,'Show dependent items')]",
-    hideDependentItemsLink: "//h6[@class='dependants-header' and contains(.,'Hide dependent items')]",
-    dialogItemListUl: "//ul[contains(@id,'DialogItemList')]",
-    dialogDependantListUl: "//ul[contains(@id,'DialogDependantList')]",
+    dialogMainItemListUl: "//ul[contains(@id,'DialogMainItemsList')]",
     itemBlock: displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
 };
 
 class ContentUnpublishDialog extends Page {
+
+    get dependantsBlock() {
+        return XPATH.container + lib.DEPENDANTS.DEPENDANTS_BLOCK
+    }
 
     get cancelButtonBottom() {
         return XPATH.container + XPATH.cancelButtonBottom;
@@ -34,14 +34,6 @@ class ContentUnpublishDialog extends Page {
         return XPATH.container + XPATH.unpublishButton;
     }
 
-    get showDependentItemsLink() {
-        return XPATH.container + XPATH.dependantsDiv + XPATH.showDependentItemsLink;
-    }
-
-    get hideDependentItemsLink() {
-        return XPATH.container + XPATH.dependantsDiv + XPATH.hideDependentItemsLink;
-    }
-
     waitForDialogOpened() {
         return this.waitForElementDisplayed(this.unpublishButton, appConst.mediumTimeout);
     }
@@ -55,27 +47,10 @@ class ContentUnpublishDialog extends Page {
         return await this.clickOnElement(this.unpublishButton);
     }
 
-    waitForShowDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout);
-    }
-
-    waitForHideDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.mediumTimeout);
-    }
-
-    async clickOnShowDependentItemsLink() {
-        await this.waitForShowDependentItemsLinkDisplayed();
-        return await this.clickOnElement(this.showDependentItemsLink);
-    }
-
-    async clickOnHideDependentItemsLink() {
-        await this.waitForHideDependentItemsLinkDisplayed();
-        return await this.clickOnElement(this.hideDependentItemsLink);
-    }
 
     async getItemDisplayName() {
         try {
-            let locator = XPATH.container + XPATH.dialogItemListUl + lib.H6_DISPLAY_NAME;
+            let locator = XPATH.container + XPATH.dialogMainItemListUl + lib.H6_DISPLAY_NAME;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(locator);
         } catch (err) {
@@ -85,7 +60,7 @@ class ContentUnpublishDialog extends Page {
     }
 
     getDependentItemsPath() {
-        let locator = XPATH.container + XPATH.dialogDependantListUl + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.container + lib.DEPENDANTS.DEPENDENT_ITEM_LIST_UL + lib.H6_DISPLAY_NAME;
         return this.getTextInDisplayedElements(locator);
     }
 
@@ -109,6 +84,15 @@ class ContentUnpublishDialog extends Page {
         let locator = XPATH.container + XPATH.itemBlock(displayName);
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
+    }
+
+    async waitForDependantsBlockDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.dependantsBlock, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
+            throw new Error(`Unpublish dialog, Dependencies block is not displayed, screenshot: ${screenshot} ` + err);
+        }
     }
 }
 

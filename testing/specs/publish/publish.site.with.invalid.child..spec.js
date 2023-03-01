@@ -56,8 +56,10 @@ describe('publish.site.with.invalid.child.spec tests for Publish Wizard with inv
             await contentPublishDialog.waitForDialogOpened();
             // 2.  Click on 'Include children' icon:
             await contentPublishDialog.clickOnIncludeChildrenToogler();
-            // 3. Click on remove icon and remove the invalid item:
-            await contentPublishDialog.removeDependentItem(LONG_2_4_NAME);
+            // 3. Click on checkbox in the dependent item and  remove the invalid item:
+            await contentPublishDialog.clickOnCheckboxInDependentItem(LONG_2_4_NAME);
+            // Click on Apply button:
+            await contentPublishDialog.clickOnApplySelectionButton();
             // 4. Verify that 'Publish Now' button gets enabled:
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             // 5. Verify that 'Exclude Invalid Items' button is not displayed:

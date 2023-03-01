@@ -14,154 +14,126 @@ const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel
 
 describe('content.publish.dialog.spec - opens publish modal dialog and checks control elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let FOLDER1_NAME;
     let PARENT_FOLDER;
     let CHILD_FOLDER;
-    const TEST_IMAGE = "whale";
+    const PARENT_FOLDER_NAME = appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME;
+    const TEST_IMAGE = appConst.TEST_IMAGES.WHALE;
 
-    //XP-4890 Publishing Wizard - Enable excluding any item from the dependants list if it's not a parent to other items in the list
-    it(`GIVEN existing shortcut with selected target WHEN publish dialog has been opened in the wizard THEN the dependent item should be removable`,
+    it(`GIVEN existing shortcut with selected target WHEN publish dialog has been opened in the wizard THEN checkboxe for dependent item should be enabled`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
             let shortcutForm = new ShortcutForm();
-            //1. Open wizard for new shortcut:
+            // 1. Open wizard for new shortcut:
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('shortcut'));
-            //2. Select a target in the selector:
+            // 2. Select a target in the selector:
             await shortcutForm.filterOptionsAndSelectTarget(TEST_IMAGE);
-            //3. Open Publish Wizard:
+            // 3. Open Publish Wizard:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
-            //4. Click on 'Show dependent items':
-            await contentPublishDialog.clickOnShowDependentItems();
-            await studioUtils.saveScreenshot("shortcut_publish_dependent_items")
-            //5. Verify that the dependent item is removable:
-            let isRemovable = await contentPublishDialog.isPublishItemRemovable(TEST_IMAGE);
-            assert.isTrue(isRemovable, "The dependent item should be removable");
+            // 4. Verify that dependants block with expected title should be present in the dialog:
+            await contentPublishDialog.waitForDependantsBlockDisplayed();
+            // 5. Verify that 'All' checkbox is selected by default:
+            let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
+            assert.isTrue(isSelected, "'All' checkbox should be selected by default");
+            // 6. Verify that the dependant-checkbox is selected and enabled:
+            let dependantItem = PARENT_FOLDER_NAME + '/' + TEST_IMAGE;
+            isSelected = await contentPublishDialog.isDependantCheckboxSelected(dependantItem);
+            assert.isTrue(isSelected, "The dependant item-checkbox should be selected by default");
+            let isEnabled = await contentPublishDialog.isDependantCheckboxEnabled(dependantItem);
+            assert.isTrue(isEnabled, "The dependant item-checkbox should be enabled by default");
         });
 
-    it(`GIVEN folder is opened AND 'Marked as ready' is done WHEN publish dialog has been opened THEN 'New' status should be displayed in the dialog`,
+    it(`GIVEN a folder is opened AND 'Marked as ready' is done WHEN publish dialog has been opened THEN 'New' status should be displayed in the dialog`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
             FOLDER1_NAME = contentBuilder.generateRandomName('folder');
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER1_NAME);
-            //1. Click on 'MARK AS READY' default action:
+            // 1. Click on 'MARK AS READY' default action:
             await contentWizard.clickOnMarkAsReadyButton();
-            await studioUtils.saveScreenshot("wizard_publish_dialog_single_folder");
+            await studioUtils.saveScreenshot('wizard_publish_dialog_single_folder');
             let status = await contentPublishDialog.getContentStatus(FOLDER1_NAME);
-            //2. New status should be displayed in the modal dialog:
-            assert.equal(status, "New", "'New' status should be displayed in the dialog");
+            // 2. 'New' status should be displayed in the modal dialog:
+            assert.equal(status, appConst.CONTENT_STATUS.NEW, "'New' status should be displayed in the dialog");
+            // 3. 'Add Schedule' button should be displayed as well:
             await contentPublishDialog.waitForAddScheduleIconDisplayed();
-
-            //This item should not be removable:
-            let isRemovable = await contentPublishDialog.isPublishItemRemovable(FOLDER1_NAME);
-            assert.isFalse(isRemovable, "One publish item should be displayed and it should not be removable");
-        });
-
-    it(`GIVEN existing folder(does not have children) is selected WHEN 'Publish' button has been pressed THEN 'New' status should be displayed in the modal dialog`,
-        async () => {
-            let contentPublishDialog = new ContentPublishDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await studioUtils.findAndSelectItem(FOLDER1_NAME);
-            //1. Click on 'Publish...' button, open Publish content dialog:
-            await contentBrowsePanel.clickOnPublishButton();
-            await studioUtils.saveScreenshot("grid_publish_dialog_single_folder");
-            //2. Verify the content status:
-            let status = await contentPublishDialog.getContentStatus(FOLDER1_NAME);
-            assert.equal(status, "New", "'New' status should be displayed in the dialog");
-            //3. "Add schedule" button should be displayed:
-            await contentPublishDialog.waitForAddScheduleIconDisplayed();
-            //4. This publish-item should be removable:
-            let isRemovable = await contentPublishDialog.isPublishItemRemovable(FOLDER1_NAME);
-            assert.isFalse(isRemovable, "One publish item should be displayed and it should not be removable");
-            //5. 'Include Children' toggler should not be displayed, the folder has no children!
+            // 4. This item should not be removable, remove-icon should be disabled:
+            let isEnabled = await contentPublishDialog.isRemoveItemIconEnabled(FOLDER1_NAME);
+            assert.isFalse(isEnabled, "This item should not be removable, remove-icon should be disabled");
+            // 5. 'Include Children' toggler should not be displayed, the folder has no children!
             let isDisplayed = await contentPublishDialog.isIncludeChildTogglerDisplayed();
-            assert.isFalse(isDisplayed, "Include child icon should not be visible");
+            assert.isFalse(isDisplayed, "'Include child' icon should not be visible");
         });
+
 
     it(`GIVEN existing folder with children is selected WHEN 'Publish' button(browse toolbar) has been pressed THEN expected control elements should be displayed in the dialog`,
         async () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Select a folder with child items:
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
-            //Click on 'Publish...' button
+            // 2. Click on 'Publish...' button
             await contentBrowsePanel.clickOnPublishButton();
-            await studioUtils.saveScreenshot("grid_publish_dialog_parent_folder");
-
+            await studioUtils.saveScreenshot('grid_publish_dialog_parent_folder');
+            // 3. Verify that New status is displayed:
             let status = await contentPublishDialog.getContentStatus(appConst.TEST_FOLDER_WITH_IMAGES);
             assert.equal(status, "New", "'New' status should be displayed in the dialog");
-            //"Add schedule" button should be displayed:
+            // 4. Verify  that "Add schedule" button should be displayed:
             await contentPublishDialog.waitForAddScheduleIconDisplayed();
+            // Remove-icon should be disabled for the Parent item
+            let isEnabled = await contentPublishDialog.isRemoveItemIconEnabled(appConst.TEST_FOLDER_WITH_IMAGES);
+            assert.isFalse(isEnabled, "Remove icon should be disabled for the Parent item");
 
-            let isRemovable = await contentPublishDialog.isPublishItemRemovable(appConst.TEST_FOLDER_WITH_IMAGES);
-            assert.isFalse(isRemovable, "Parent item should be displayed and it should not be removable");
-
-            //the folder has no children!
             let isDisplayed = await contentPublishDialog.isIncludeChildTogglerDisplayed();
             assert.isTrue(isDisplayed, "Include child icon should be visible");
 
-            //'Publish Now' button should be enabled!
+            // 'Publish Now' button should be enabled!
             await contentPublishDialog.waitForPublishNowButtonEnabled();
-            //Log message link should be displayed:
+            // Log message link should be displayed:
             let isLinkDisplayed = await contentPublishDialog.isLogMessageLinkDisplayed();
             assert.isTrue(isLinkDisplayed, "Log message link should be displayed");
         });
 
-    it(`GIVEN folder with children is selected AND Publish wizard is opened WHEN 'Include children' button has been pressed THEN 'Show dependent items' gets visible`,
+    it(`GIVEN folder with children is selected AND Publish... button ahs been pressed WHEN 'Include children' button has been clicked THEN all dependent items with checkboxes gets visible`,
         async () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
-            //Click on 'Publish...' button
+            // 1. Click on 'Publish...' button
             await contentBrowsePanel.clickOnPublishButton();
-            //'Include children' has been clicked
+            // 2. 'Include children' has been clicked
             await contentPublishDialog.clickOnIncludeChildrenToogler();
-            //Verify that 'Show Dependent items' link gets visible!
-            await contentPublishDialog.waitForShowDependentItemsButtonDisplayed();
-
+            // 3. 'All' checkbox gets visible:
+            await contentPublishDialog.waitForAllDependantsCheckboxDisplayed();
+            let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
+            assert.isTrue(isSelected, "'All' checkbox should be selected");
             let items = await contentPublishDialog.getNumberItemsToPublish();
             assert.equal(items, '13', "13 items to publish should be in the dialog");
         });
 
-    it(`GIVEN folder is selected AND Publish dialog is opened WHEN 'Include children' and Show dependent items button have been pressed THEN 'Hide dependent items' gets visible`,
-        async () => {
-            let contentPublishDialog = new ContentPublishDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_WITH_IMAGES_NAME_2);
-            // Click on 'Publish...' button (open Publish Wizard)
-            await contentBrowsePanel.clickOnPublishButton();
-            // 'Include children' has been clicked
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
-            // 'Show Dependent items' has been clicked
-            await contentPublishDialog.clickOnShowDependentItems();
-            // 'Hide dependant items' gets visible.
-            await contentPublishDialog.waitForHideDependentItemsButtonDisplayed();
-            // child item should be removable.
-            let isRemovable = await contentPublishDialog.isPublishItemRemovable(appConst.TEST_IMAGES.BRO);
-            assert.isTrue(isRemovable, 'Child item should be removable');
-        });
 
-    it(`GIVEN 'Content Publish' dialog is opened WHEN cancel button on the bottom has been clicked THEN dialog is closing`,
+    it(`GIVEN 'Content Publish' dialog is opened WHEN 'cancel' button on the bottom has been clicked THEN dialog is closing`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            // folder with children is selected and 'Publish' button pressed"
+            // 1. folder with children is selected and 'Publish' button pressed"
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
-            // "button 'Cancel' on the bottom of dialog has been pressed"
+            // 2. Button 'Cancel' in the top of dialog has been pressed:
             await contentPublishDialog.clickOnCancelTopButton();
-            // "dialog is closing. Otherwise, exception will be thrown after the timeout."
+            // 3. "dialog is closing. Otherwise, exception will be thrown after the timeout."
             await contentPublishDialog.waitForDialogClosed();
         });
 
-    it(`GIVEN parent folder with child is selected and 'Publish' button clicked WHEN child has been removed in the dialog THEN dependents item gets not visible`,
+    it(`GIVEN 'Publish Tree...' menu item has been clicked THEN 'All' checkbox should be visible and expected items to publish are present`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
@@ -170,20 +142,57 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             PARENT_FOLDER = contentBuilder.buildFolder(displayName1);
             CHILD_FOLDER = contentBuilder.buildFolder(displayName2);
             await studioUtils.doAddReadyFolder(PARENT_FOLDER);
+            // 1. Select the parent folder (one child item)
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             await studioUtils.doAddReadyFolder(CHILD_FOLDER);
 
-            //Opens Publish Content dialog
-            await contentBrowsePanel.clickOnPublishButton();
+            // 2. Click on 'Publish Tree' menu item:
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentPublishDialog.waitForDialogOpened();
-
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
-            await contentPublishDialog.clickOnShowDependentItems();
-            //Dependent item has been removed on the modal dialog
-            await contentPublishDialog.removeDependentItem(CHILD_FOLDER.displayName);
+            // 3. Verify that All checkbox is displayed:
+            await contentPublishDialog.waitForAllDependantsCheckboxDisplayed();
+            let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
+            assert.isTrue(isSelected, "'All' checkbox should be selected");
+            // 4. Verify items to publish"
             let result = await contentPublishDialog.getItemsToPublish();
-            assert.isTrue(result.length === 1, "Only one item should be present in the dialog");
-            assert.equal(result[0], PARENT_FOLDER.displayName, "Parent folder should be in items to publish");
+            assert.isTrue(result.length === 1, '1 item to publish should be present in the dialog');
+            let dependantItems = await contentPublishDialog.getDisplayNameInDependentItems();
+            // 5. Verify dependent item to publish:
+            assert.isTrue(dependantItems.length === 1, '1 dependent item should be present in the dialog');
+            assert.isTrue(dependantItems[0].includes(CHILD_FOLDER.displayName), 'Expected dependent item should be displayed');
+        });
+
+    it(`GIVEN 'Publish Tree...' menu item has been clicked WHEN 'Exclude child items' has been has been clicked THEN 'All' checkbox gets not visible`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Select the parent folder (one child item)
+            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+            // 2. Click on 'Publish Tree' menu item:
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
+            await contentPublishDialog.waitForDialogOpened();
+            // 3. Click on 'Include child items' toggler icon
+            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            // 4. Verify that 'All' checkbox gets not visible:
+            await contentPublishDialog.waitForAllDependantsCheckboxNotDisplayed();
+            await contentPublishDialog.waitForPublishNowButtonEnabled();
+        });
+
+    it(`GIVEN 'Publish Tree...' menu item has been clicked WHEN 'Exclude child items' has been has been clicked THEN 'All' checkbox gets not visible`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Select the parent folder (one child item)
+            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+            // 2. Click on 'Publish Tree' menu item:
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
+            await contentPublishDialog.waitForDialogOpened();
+            // 3. Unselect  'All' checkbox
+            await contentPublishDialog.clickOnAllCheckbox();
+            // 4. Verify that 'Apply' button gets visible:
+            await contentPublishDialog.waitForApplySelectionButtonDisplayed();
+            // 5. Verify that Publish Now button gets disabled:
+            await contentPublishDialog.waitForPublishNowButtonDisabled();
         });
 
     it(`GIVEN existing parent folder(ready to publish) is selected and 'PublishDialog' is opened WHEN child has been removed AND Publish Now has been pressed THEN only parent folder should be published`,
@@ -194,10 +203,11 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await studioUtils.selectContentAndOpenWizard(PARENT_FOLDER.displayName);
             await contentWizard.clickOnPublishButton();
             await contentPublishDialog.clickOnIncludeChildrenToogler();
-            await contentPublishDialog.clickOnShowDependentItems();
-            //Dependent item has been removed on the modal dialog
-            await contentPublishDialog.removeDependentItem(CHILD_FOLDER.displayName);
-            //click on 'Publish Now'
+            // Dependent item has been removed on the modal dialog
+            await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
+            // Verify that Apply button gets visible then click on it:
+            await contentPublishDialog.clickOnApplySelectionButton();
+            // click on 'Publish Now'
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
             await studioUtils.doCloseWizardAndSwitchToGrid();

@@ -17,28 +17,27 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let FOLDER1_NAME;
+    let FOLDER1_NAME = contentBuilder.generateRandomName('folder');
 
     it(`GIVEN folder is opened AND 'Marked as ready' is done WHEN request publish dialog has been opened THEN 'Next' button AND one item should be present in the dialog`,
         async () => {
             let contentWizard = new ContentWizard();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let contentPublishDialog = new ContentPublishDialog();
-            FOLDER1_NAME = contentBuilder.generateRandomName('folder');
-            //1. Open new folder-wizard:
+            // 1. Open new folder-wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER1_NAME);
-            //2.Click on  'mark as ready' then close Publish wizard:
+            // 2.Click on  'mark as ready' then close Publish wizard:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnCancelTopButton();
             await contentPublishDialog.waitForDialogClosed();
-            //3. Expand Publish Menu and select 'Request Publishing...' menu item
+            // 3. Expand Publish Menu and select 'Request Publishing...' menu item
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await studioUtils.saveScreenshot("wizard_publish_dialog_single_folder");
             let status = await createRequestPublishDialog.getContentStatus(FOLDER1_NAME);
 
-            assert.equal(status, "New", "'New' status should be displayed in the dialog");
+            assert.equal(status, appConst.CONTENT_STATUS.NEW, "'New' status should be displayed in the dialog");
             let isPresent = await createRequestPublishDialog.waitForNextButtonDisplayed();
             assert.isTrue(isPresent, "'Next' button should be displayed");
 
@@ -46,19 +45,23 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             assert.isFalse(isRemovable, "One item should be displayed on the dialog and it should not be removable");
         });
 
-    it(`GIVEN existing folder with children is selected AND 'Request Publishing...' menu item has been clicked WHEN 'Include child' icon has been clicked THEN 'Show dependent items' link should appear`,
+    it(`GIVEN existing folder with children is selected AND 'Request Publishing...' menu item has been clicked WHEN 'Include child' icon has been clicked THEN 'All' checkbox should appear`,
         async () => {
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. folder with children is selected:
-            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_WITH_IMAGES_NAME_2);
-            //Expand Publish Menu and select 'Request Publishing...' menu item
+            // 1. folder with child items is selected:
+            await studioUtils.findAndSelectItem(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_NAME);
+            // 2. Expand Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
-            //2. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES_2);
-            await studioUtils.saveScreenshot("request_publish_include_children");
+            // 3. click on 'Include children items'
+            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            await studioUtils.saveScreenshot('request_publish_include_children');
             //3. 'Show dependent items' link should appear, because all children are Ready for publishing
-            await createRequestPublishDialog.waitForShowDependentItemsLinkDisplayed();
+            await createRequestPublishDialog.waitForAllDependantsCheckboxDisplayed();
+            let isSelected = await createRequestPublishDialog.isAllDependantsCheckboxSelected();
+            assert.isTrue(isSelected, 'All checkbox should be selected');
+            let result = await createRequestPublishDialog.getDisplayNameInDependentItems();
+            assert.equal(result.length, 10, '10 dependent items should be present in the dialog');
         });
 
     it(`GIVEN existing folder is selected AND 'Request Publishing...' menu item has been clicked  WHEN an item to publish has been clicked THEN this item should be opened in new wizard-tab`,
@@ -66,17 +69,17 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             let contentWizard = new ContentWizard();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1.Select the existing content:
+            // 1.Select the existing content:
             await studioUtils.findAndSelectItem(FOLDER1_NAME);
-            //Expand Publish Menu and click on 'Request Publishing...' menu item:
+            // Expand Publish Menu and click on 'Request Publishing...' menu item:
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
-            //click on the publish-item:
+            // click on the publish-item:
             await createRequestPublishDialog.clickOnItemToPublishAndSwitchToWizard(FOLDER1_NAME);
-            //new wizard-tab should be opened
+            // new wizard-tab should be opened
             await contentWizard.waitForOpened();
-            await studioUtils.saveScreenshot("publish_request_dialog_item_clicked");
+            await studioUtils.saveScreenshot('publish_request_dialog_item_clicked');
             let displayName = await contentWizard.getDisplayName();
-            assert.equal(displayName, FOLDER1_NAME, "Expected display name should be present in that wizard");
+            assert.equal(displayName, FOLDER1_NAME, 'Expected display name should be present in that wizard');
         });
 
     // verifies https://github.com/enonic/app-contentstudio/issues/867  Create request button should be disabled when required input is empty
@@ -84,15 +87,15 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
         async () => {
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1.Select the content:
+            // 1.Select the content:
             await studioUtils.findAndSelectItem(FOLDER1_NAME);
-            //2. Expand Publish Menu and select 'Request Publishing...' menu item
+            // 2. Expand Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             await createRequestPublishDialog.clickOnNextButton();
-            await studioUtils.saveScreenshot("request_publishing_next");
-            //'Create Request' button should be disabled , because required input is empty:
+            await studioUtils.saveScreenshot('request_publishing_next');
+            // 'Create Request' button should be disabled , because required input is empty:
             await createRequestPublishDialog.waitForCreateRequestButtonDisabled();
-            //Previous button.
+            // Previous button.
             await createRequestPublishDialog.waitForPreviousButtonDisplayed();
         });
 
@@ -100,15 +103,15 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
         async () => {
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1.Select the content:
+            // 1.Select the content:
             await studioUtils.findAndSelectItem(FOLDER1_NAME);
-            //2. Expand 'Publish Menu' and select 'Request Publishing...' menu item
+            // 2. Expand 'Publish Menu' and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
-            //3. Go to the second step in the wizard:
+            // 3. Go to the second step in the wizard:
             await createRequestPublishDialog.clickOnNextButton();
-            //4. click on 'Previous' button
+            // 4. click on 'Previous' button
             await createRequestPublishDialog.clickOnPreviousButton();
-            //'Next' button should appear:
+            // 'Next' button should appear:
             await createRequestPublishDialog.waitForNextButtonDisplayed();
         });
 

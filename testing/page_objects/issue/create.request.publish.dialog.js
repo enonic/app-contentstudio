@@ -12,7 +12,7 @@ const xpath = {
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
     assigneesComboBox: "//div[contains(@id,'LoaderComboBox') and @name='principalSelector']",
     invalidIcon: "//span[contains(@class,'icon-state-invalid')]",
-    errorEntry: "//div[contains(@id,'DialogErrorStateEntry') and contains(@class,'error-entry')]",
+    errorEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'error-entry')]",
     excludeInvalidItems: "//button[child::span[contains(.,'Exclude invalid items')]]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
@@ -25,6 +25,14 @@ const xpath = {
 // Modal Dialog for creating of new publish request
 // Select a content then expand Publish menu and click on 'Request Publishing...' menu item
 class CreateRequestPublishDialog extends Page {
+
+    get applySelectionButton() {
+        return xpath.container + lib.DEPENDANTS.EDIT_ENTY + lib.actionButton('Apply');
+    }
+
+    get dependantsBlock() {
+        return xpath.container + lib.DEPENDANTS.DEPENDANTS_BLOCK
+    }
 
     get invalidIcon() {
         return xpath.container + xpath.errorEntry + xpath.invalidIcon;
@@ -74,9 +82,57 @@ class CreateRequestPublishDialog extends Page {
         return xpath.container + xpath.warningMessagePart1;
     }
 
+    get allDependantsCheckbox() {
+        return xpath.container + lib.checkBoxDiv('All');
+    }
+
+    waitForAllDependantsCheckboxDisplayed() {
+        return this.waitForElementDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
+    }
+
+    waitForAllDependantsCheckboxNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
+    }
+
+    async clickOnAllDependantsCheckbox() {
+        await this.waitForAllDependantsCheckboxDisplayed();
+        await this.clickOnElement(this.allDependantsCheckbox);
+    }
+
+    async isAllDependantsCheckboxSelected() {
+        // 1. div-checkbox should be displayed:
+        await this.waitForAllDependantsCheckboxDisplayed();
+        // 2. Check the input:
+        return await this.isSelected(this.allDependantsCheckbox + lib.CHECKBOX_INPUT);
+    }
+
+    async getDisplayNameInDependentItems() {
+        let locator = xpath.container + lib.DEPENDANTS.DEPENDENT_ITEM_LIST_UL_2 + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER +
+                      lib.H6_DISPLAY_NAME;
+        return await this.getTextInElements(locator);
+    }
+
+    async waitForDependantsBlockDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.dependantsBlock, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
+            throw new Error(`Dependencies block is not displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
     async clickOnCancelButtonTop() {
         await this.clickOnElement(this.cancelButtonTop);
         return await this.waitForDialogClosed();
+    }
+
+    async waitForApplySelectionButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.applySelectionButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
+            throw new Error(`Apply selection button is not displayed, screenshot: ${screenshot} ` + err);
+        }
     }
 
     async waitForMarkAsReadyButtonDisplayed() {
@@ -241,12 +297,6 @@ class CreateRequestPublishDialog extends Page {
             throw new Error('Request Publishing dialog- error when clicking on `Include Child items`: ' + err)
 
         }
-    }
-
-    waitForShowDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout).catch(err => {
-            throw new Error("Request Publishing Dialog - Show dependent Link " + err);
-        })
     }
 
     async getWorkflowState(displayName) {

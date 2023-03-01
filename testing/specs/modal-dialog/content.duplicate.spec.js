@@ -38,7 +38,7 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             //Click on Duplicate... button in the toolbar:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             await studioUtils.saveScreenshot('2_folders_to_duplicate');
-            let result = await contentDuplicateDialog.getTotalNumberItemsToDuplicate();
+            let result = await contentDuplicateDialog.getNumberItemsInDuplicateButton();
             assert.equal(result, '2', 'Expected number of content (2) should be present in the Duplicate button');
         });
 

@@ -16,7 +16,7 @@ const IssueDetailsDialogCommentsTab = require('../../page_objects/issue/issue.de
 
 describe('publish.request.create.close.spec - request publish dialog - open and clothe this request', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let TEST_FOLDER1;
@@ -37,7 +37,7 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             assert.equal(message, appConst.REQUEST_CREATED_MESSAGE, "'New publish request created successfully' message should appear");
             // 3. Verify that Issue Details dialog closes after creating an issue:
             await publishRequestDetailsDialog.waitForClosed();
-
+            await publishRequestDetailsDialog.pause(500);
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 4. Reopen Issue Details dialog and verify control elements:
             await contentItemPreviewPanel.clickOnIssueMenuButton();
@@ -46,10 +46,10 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             await publishRequestDetailsDialog.waitForPublishNowButtonEnabled();
             let result = await publishRequestDetailsDialog.getItemDisplayNames();
             // 6. Expected content should be present in items-to-publish:
-            assert.equal(result[0], TEST_FOLDER1.displayName, "Expected item to publish should be present in the dialog");
+            assert.equal(result[0], TEST_FOLDER1.displayName, 'Expected item to publish should be present in the dialog');
         });
 
-    //Verifies - Request Content Publish Dialog - roles should be filtered in Assignees -options #1312
+    // Verifies - Request Content Publish Dialog - roles should be filtered in Assignees -options #1312
     it(`GIVEN existing folder(Ready to Publish) AND Publish Request dialog is opened WHEN assignees-options have been expanded THEN roles should not be present in the assignees options`,
         async () => {
             let browsePanel = new ContentBrowsePanel();
@@ -59,12 +59,12 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             await browsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.pause(300);
-            //3. Click on 'Next' button:
+            // 3. Click on 'Next' button:
             await createRequestPublishDialog.clickOnNextButton();
-            //3. Click on Assignees dropdown handle:
+            // 4. Click on Assignees dropdown handle:
             await createRequestPublishDialog.clickOnAssigneesDropDownHandle();
             let options = await createRequestPublishDialog.getAssigneesOptions();
-            assert.isFalse(options.includes("Authenticated"), "Roles should not be present in the assignees options");
+            assert.isFalse(options.includes('Authenticated'), 'Roles should not be present in the assignees options');
         });
 
     it(`GIVEN existing Publish Request WHEN Request Details dialog is opened AND 'Publish Now' button has been pressed THEN modal dialog closes and this request closes`,
@@ -79,7 +79,7 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             await publishRequestDetailsDialog.waitForClosed();
             let expectedMsg1 = appConst.publishRequestClosedMessage(REQ_TITLE);
             let expectedMsg2 = appConst.itemPublishedNotificationMessage(TEST_FOLDER1.displayName);
-            //Item "...." is published.
+            // Item "...." is published.
             await browsePanel.waitForExpectedNotificationMessage(expectedMsg1);
             await browsePanel.waitForExpectedNotificationMessage(expectedMsg2);
         });
@@ -98,10 +98,10 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             await publishRequestDetailsDialog.clickOnReopenRequestButton();
             let expectedMsg1 = appConst.THIS_PUBLISH_REQUEST_OPEN;
             await browsePanel.waitForExpectedNotificationMessage(expectedMsg1);
-            studioUtils.saveScreenshot("request_reopened");
+            await studioUtils.saveScreenshot('request_reopened');
             //3. 'Open' label should appear in the status selector:
             let actualStatus = await publishRequestDetailsDialog.getCurrentStatusInStatusSelector();
-            assert.equal(actualStatus, "Open", "'Open' status should be displayed in status selector button");
+            assert.equal(actualStatus, 'Open', "'Open' status should be displayed in status selector button");
             let result = await publishRequestDetailsDialog.isNoActionLabelPresent();
             //4. `No items to publish' should be displayed:
             assert.isTrue(result, `No items to publish' should be displayed, because all items are published`);
@@ -121,14 +121,14 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             await publishRequestDetailsDialog.clickOnCommentsTabBarItem();
             await issueDetailsDialogCommentsTab.typeComment('my comment');
             //3. Comment & Close button should appear:
-            studioUtils.saveScreenshot("request_commented");
+            await studioUtils.saveScreenshot('request_commented');
             await issueDetailsDialogCommentsTab.waitForCommentAndCloseRequestButtonDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

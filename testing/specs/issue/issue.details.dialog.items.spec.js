@@ -17,7 +17,8 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let TASK_TITLE = appConst.generateRandomName('task');
+    const TASK_TITLE = appConst.generateRandomName('task');
+    const EXPECTED_LABEL_CHECKBOX = 'All (12)';
 
     it(`GIVEN existing folder with images is selected WHEN 'Create Task' menu item has been selected and issue created THEN '1' should be in 'Items' tab link`,
         async () => {
@@ -60,7 +61,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             assert.isTrue(result, "'Publish...' button should be displayed");
         });
 
-    it(`GIVEN Items-tab has been clicked WHEN 'Include Child Items' icon has been clicked THEN List of items should be expanded AND 'Hide dependent items' link should appear`,
+    it(`GIVEN Items-tab has been clicked WHEN 'Include Child Items' icon has been clicked THEN List of items should be expanded AND 'All' dependant checkbox should appear`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let issueListDialog = new IssueListDialog();
@@ -73,15 +74,18 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 3. Click on 'Include Child' icon:
             await issueDetailsDialogItemsTab.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES);
-            // 4. waits for Hide Dependent Items link gets visible, because the list of items should be expanded
-            await issueDetailsDialogItemsTab.waitForHideDependentItemsLinkDisplayed();
+            let message = await issueDetailsDialogItemsTab.waitForNotificationMessage();
+            assert.equal(message, "The issue is updated.");
+            await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
+            let isSelected = await issueDetailsDialogItemsTab.isAllDependantsCheckboxSelected();
+            assert.isTrue(isSelected, "'All' checkbox should be selected");
             let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '13', 'Number of items should be updated to 13');
-            let numberInHideDepItemsLink = await issueDetailsDialogItemsTab.getNumberInHideDependentItemsLink();
-            assert.equal(numberInHideDepItemsLink, '12', "Expected number should be present in the 'Hide Dependent Items'-link")
+            let numberInHideDepItemsLink = await issueDetailsDialogItemsTab.getNumberInAllCheckbox();
+            assert.equal(numberInHideDepItemsLink, EXPECTED_LABEL_CHECKBOX, "Expected number should be present in the 'All'-checkbox")
         });
 
-    it(`GIVEN existing task (child items were included) WHEN task details is opened THEN 'Hide dependent items' link should be present`,
+    it(`GIVEN existing task (child items were included) WHEN task details is opened THEN 'All' dependant checkbox should be present`,
         async () => {
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -92,13 +96,15 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             await issueDetailsDialog.waitForDialogOpened();
             // 2. Click on Items tab
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            // `Hide dependent items` link should be displayed
-            await issueDetailsDialogItemsTab.waitForHideDependentItemsLinkDisplayed();
+            // `All` link should be displayed
+            await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
+            let label = await issueDetailsDialogItemsTab.getNumberInAllCheckbox();
+            assert.equal(label, EXPECTED_LABEL_CHECKBOX, '12 should be displayed in the checkbox');
             let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '13', 'Expected number of items should be displayed');
         });
 
-    it(`GIVEN task details is opened WHEN 'Hide Dependent items' link has been clicked THEN 'Show dependent items' link should appear`,
+    it(`GIVEN task details is opened WHEN 'All' checkbox has been unselected THEN 'Apply' selection button should appear`,
         async () => {
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -109,10 +115,12 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             await issueDetailsDialog.waitForDialogOpened();
             // 2. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            // 3. Click on 'Hide Dependent Items' toggler:
-            await issueDetailsDialogItemsTab.clickOnHideDependentItems();
-            // 'Show dependent items' link gets visible now
-            await issueDetailsDialogItemsTab.waitForShowDependentItemsLinkDisplayed();
+            // 3. Unselect  'All' checkbox
+            await issueDetailsDialogItemsTab.clickOnAllCheckbox();
+            // 4. Verify that 'Apply' button gets visible:
+            await issueDetailsDialogItemsTab.waitForApplySelectionButtonDisplayed();
+            // 5. Verify that 'Publish' button gets disabled:
+            await issueDetailsDialogItemsTab.waitForPublishButtonDisabled();
         });
 
     it(`GIVEN task details is opened WHEN 'Exclude child items' icon has been clicked THEN number of items to publish should be 1`,
@@ -145,7 +153,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             // 2. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 3. Add one more item:
-            await issueDetailsDialogItemsTab.addItem('cape');
+            await issueDetailsDialogItemsTab.addItem(appConst.TEST_IMAGES.CAPE);
             // 4. Verify that Items tab remains active:
             await issueDetailsDialogItemsTab.pause(2000);
             let isActive = await issueDetailsDialog.isItemsTabBarItemActive();
@@ -155,7 +163,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
