@@ -2064,7 +2064,9 @@ export class ContentWizardPanel
 
     private doCreateContentRequest(): CreateContentRequest {
         const parentPath: ContentPath = this.parentContent != null ? this.parentContent.getPath() : ContentPath.getRoot();
-        return ContentHelper.makeNewContentRequest(this.contentType.getContentTypeName(), parentPath, this.requireValid);
+        return ContentHelper.makeNewContentRequest(this.contentType.getContentTypeName())
+            .setParent(parentPath)
+            .setRequireValid(this.requireValid);
     }
 
     updatePersistedItem(): Q.Promise<Content> {

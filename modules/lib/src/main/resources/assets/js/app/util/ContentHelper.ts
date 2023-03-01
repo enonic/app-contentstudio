@@ -64,11 +64,9 @@ export class ContentHelper {
         return Q(false);
     }
 
-    static makeNewContentRequest(type: ContentTypeName, parentPath?: ContentPath, requiredValid?: boolean): CreateContentRequest {
+    static makeNewContentRequest(type: ContentTypeName): CreateContentRequest {
         return new CreateContentRequest()
-            .setRequireValid(requiredValid)
             .setName(ContentUnnamed.newUnnamed())
-            .setParent(parentPath)
             .setContentType(type)
             .setDisplayName('')     // new content is created on wizard open so display name is always empty
             .setData(new PropertyTree())
