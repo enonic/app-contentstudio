@@ -39,7 +39,7 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             // 3. click on the folder-name in the modal dialog then switch to the wizard-tab:
-            await contentPublishDialog.clickOnItemToPublishAndSwitchToWizard(FOLDER.displayName);
+            await contentPublishDialog.clickOnMainItemAndSwitchToWizard(FOLDER.displayName);
             // 4. Select a language in the wizard. The folder gets 'Work in Progress'
             await propertiesWidget.clickOnEditPropertiesButton();
             await editDetailsDialog.waitForLoaded();

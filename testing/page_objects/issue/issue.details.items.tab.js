@@ -6,14 +6,14 @@ const LoaderComboBox = require('../components/loader.combobox');
 
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
-    hideDependentItemsLink: `//h6[@class='dependants-header' and contains(.,'Hide dependent items')]`,
-    showDependentItemsLink: `//h6[@class='dependants-header' and contains(.,'Show dependent items')]`,
     buttonRow: `//div[contains(@id,'IssueDetailsDialogButtonRow')]`,
     itemList: `//ul[contains[@id,'PublishDialogItemList']`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
-    dependantItemViewer: "//div[contains(@id,'DependantItemViewer')]",
+    dependantsDiv: "//div[@class='dependants']",
+    editEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'edit-entry')]",
+    dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     selectionItemByDisplayName:
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${text}')]]`,
 
@@ -25,6 +25,10 @@ const xpath = {
 };
 
 class IssueDetailsDialogItemsTab extends Page {
+
+    get applySelectionButton() {
+        return xpath.container + xpath.editEntry + lib.actionButton('Apply');
+    }
 
     get contentOptionsFilterInput() {
         return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
@@ -42,12 +46,42 @@ class IssueDetailsDialogItemsTab extends Page {
         return xpath.container + xpath.itemsToPublish + lib.H6_DISPLAY_NAME;
     }
 
-    get hideDependentItemsLink() {
-        return xpath.container + xpath.hideDependentItemsLink;
+    get allDependantsCheckbox() {
+        return xpath.container + xpath.dependantsDiv + lib.checkBoxDiv('All');
     }
 
-    get showDependentItemsLink() {
-        return xpath.container + xpath.showDependentItemsLink;
+    waitForAllDependantsCheckboxDisplayed() {
+        return this.waitForElementDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
+    }
+
+    waitForAllDependantsCheckboxNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
+    }
+
+    async clickOnAllCheckbox() {
+        await this.waitForAllDependantsCheckboxDisplayed();
+        await this.clickOnElement(this.allDependantsCheckbox + "//label[contains(.,'All')]");
+    }
+
+    async waitForApplySelectionButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.applySelectionButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_issue_apply_btn');
+            throw new Error(`Apply selection button is not displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async getNumberInAllCheckbox() {
+        let locator = this.allDependantsCheckbox + '//label';
+        return await this.getText(locator);
+    }
+
+    async isAllDependantsCheckboxSelected() {
+        // 1. div-checkbox should be displayed:
+        await this.waitForAllDependantsCheckboxDisplayed();
+        // 2. Check the input:
+        return await this.isSelected(this.allDependantsCheckbox + lib.CHECKBOX_INPUT);
     }
 
     async clickOnIncludeChildrenToggler(displayName) {
@@ -83,8 +117,24 @@ class IssueDetailsDialogItemsTab extends Page {
         return this.isElementEnabled(this.publishButton);
     }
 
+    async clickOnCheckboxInDependentItem(displayName) {
+        let selector = xpath.dependentItemToPublish(displayName) + "//div[contains(@id,'Checkbox')]";
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        await this.clickOnElement(selector);
+        return await this.pause(400);
+    }
+
     async waitForPublishButtonEnabled() {
         return await this.waitForElementEnabled(this.publishButton, appConst.mediumTimeout);
+    }
+
+    async waitForPublishButtonDisabled() {
+        try {
+            return await this.waitForElementNotClickable(this.publishButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_issue_publish_btn');
+            throw new Error(`Publish button is not disabled, screenshot: ${screenshot} ` + err);
+        }
     }
 
     waitForContentOptionsFilterInputDisplayed() {
@@ -103,19 +153,6 @@ class IssueDetailsDialogItemsTab extends Page {
         })
     }
 
-    async getNumberInHideDependentItemsLink() {
-        try {
-            await this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.mediumTimeout);
-            let result = await this.getText(this.hideDependentItemsLink);
-            let startIndex = result.indexOf('(');
-            let endIndex = result.indexOf(')');
-            return result.substring(startIndex + 1, endIndex);
-        } catch (err) {
-            let screenshot = appConst.generateRandomName('issue_det_items');
-            await this.saveScreenshot(screenshot)
-            throw new Error('Items Tab:error when getting number in the link, screenshot : ' + screenshot + ' ' + err)
-        }
-    }
 
     getItemDisplayNames() {
         return this.getTextInElements(this.itemNamesToPublish).catch(err => {
@@ -127,64 +164,23 @@ class IssueDetailsDialogItemsTab extends Page {
         let selector = xpath.selectionItemByDisplayName(displayName) + `//div[contains(@class,'status')][last()]`;
         let result = await this.getDisplayedElements(selector);
         return await this.getBrowser().getElementText(result[0].elementId);
-    };
+    }
 
-    //Show dependent items
-    async clickOnShowDependentItems() {
+    async clickOnIncludeChildItems(displayName) {
         try {
-            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.longTimeout);
-            await this.clickOnElement(this.showDependentItemsLink);
-            return await this.pause(400);
+            let includeIcon = xpath.selectionItemByDisplayName(displayName) + xpath.includeChildrenToggler;
+            await this.waitForElementDisplayed(includeIcon, appConst.shortTimeout);
+            await this.clickOnElement(includeIcon);
+            return await this.pause(2000);
         } catch (err) {
-            throw new Error('error when clicking on `Show dependent items`: ' + err)
+            await this.saveScreenshot('err_issue_items');
+            throw new Error('error during clicking on `Include Child items`: ' + err)
         }
     }
 
-    waitForShowDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot("err_show_dep_items_link_should_be_displayed");
-            throw new Error("Show Dependent Items link should be displayed! " + err);
-        })
-    }
-
-    //Hide dependent items
-    async clickOnHideDependentItems() {
-        try {
-            await this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout);
-            await this.clickOnElement(this.hideDependentItemsLink);
-            return await this.pause(300);
-        } catch (err) {
-            throw new Error('error when clicking on `Hide dependent items`: ' + err)
-        }
-    }
-
-    waitForHideDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot("err_hide_dependent_items_should_be_displayed");
-            throw new Error("Hide Dependent Items link should be displayed! " + err);
-        })
-    }
-
-    clickOnIncludeChildItems(displayName) {
-        let includeIcon = xpath.selectionItemByDisplayName(displayName) + xpath.includeChildrenToggler;
-        return this.waitForElementDisplayed(includeIcon, appConst.shortTimeout).then(() => {
-            return this.clickOnElement(includeIcon)
-        }).then(() => {
-            return this.pause(2000);
-        }).catch(err => {
-            throw new Error('error when clicking on `Include Child items`: ' + err)
-        })
-    }
-
-    excludeDependantItem(displayName) {
-        let removeIcon = xpath.dependantSelectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
-        return this.waitForElementDisplayed(removeIcon, appConst.shortTimeout).then(() => {
-            return this.clickOnElement(removeIcon)
-        }).then(() => {
-            return this.pause(1000);
-        }).catch(err => {
-            throw new Error('error when clicking on `remove icon`: ' + err)
-        })
+    async clickOnApplySelectionButton() {
+        await this.waitForApplySelectionButtonDisplayed();
+        await this.clickOnElement(this.applySelectionButton);
     }
 
     excludeItem(displayName) {
@@ -216,7 +212,7 @@ class IssueDetailsDialogItemsTab extends Page {
     }
 
     async getDisplayNameInDependentItems() {
-        let locator = xpath.container + xpath.dependantList + xpath.dependantItemViewer + lib.H6_DISPLAY_NAME;
+        let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
         return this.getTextInElements(locator);
     }
 

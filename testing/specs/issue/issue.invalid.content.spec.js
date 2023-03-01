@@ -18,7 +18,6 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
         webDriverHelper.setupBrowser();
     }
 
-    let ISSUE_TITLE_1 = appConst.generateRandomName('issue');
     let ISSUE_TITLE_2 = appConst.generateRandomName('issue');
     let ISSUE_TITLE = appConst.generateRandomName('issue');
     const TEST_CONTENT_NAME = 'circles';
@@ -48,49 +47,20 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialog.clickOnItemsTabBarItem()
             await studioUtils.saveScreenshot('issue_details_items_2_parent_selected');
             await issueDetailsDialog.pause(1000);
-            // 6. Verify that 'dependent list' is expanded in the dialog:
-            await issueDetailsDialogItemsTab.waitForHideDependentItemsLinkDisplayed();
+            // 6. Verify that 'All' checkbox is displayed in the dialog:
+            await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
             // 7. Verify that expected number of items is displayed in the Items tab-link:
             let result = await issueDetailsDialog.getNumberOfItems();
             assert.equal(result, '24', "24 items should be displayed in the 'Items' link");
-            // 8. Verify that 'Hide dependent items link' is expanded and expected number of items is displayed
-            let actualNumber = await issueDetailsDialogItemsTab.getNumberInHideDependentItemsLink();
-            assert.equal(actualNumber, '22', "22 items should be present in 'Hide dependent items link'");
-            // 9. Publish button should be enabled, because all items are valid
+            // 8. Publish button should be enabled, because all items are valid
             await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
             // 10. Verify that both togglers are 'switched on' in the Items tab
             await issueDetailsDialogItemsTab.waitForIncludeChildrenIsOn(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
             await issueDetailsDialogItemsTab.waitForIncludeChildrenIsOn(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
         });
 
-    // Verifies https://github.com/enonic/app-contentstudio/issues/5617
-    // Issue Details Dialog - list of dependent items should be expanded by default #5617
-    it(`GIVEN existing folder with all valid child items is selected WHEN new issue has been created THEN dependent items should be expanded in the 'Items' tab`,
-        async () => {
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let createIssueDialog = new CreateIssueDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            // 1. Select the existing folder with child items:
-            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
-            await contentBrowsePanel.waitForPublishButtonVisible();
-            // 2. open 'Create Issue' dialog
-            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
-            await createIssueDialog.typeTitle(ISSUE_TITLE_1);
-            await createIssueDialog.clickOnIncludeChildrenToggler(appConst.TEST_FOLDER_WITH_IMAGES);
-            // 3. click on 'create issue' button:
-            await createIssueDialog.clickOnCreateIssueButton();
-            // 4. Go to 'Items' tab
-            await issueDetailsDialog.waitForDialogOpened();
-            await issueDetailsDialog.clickOnItemsTabBarItem()
-            await studioUtils.saveScreenshot('issue_details_items_dependents_1');
-            //await issueDetailsDialog.waitForDialogOpened();
-            await issueDetailsDialog.pause(1000);
-            // 5. Verify that 'dependent list' is expanded on the dialog:
-            await issueDetailsDialogItemsTab.waitForHideDependentItemsLinkDisplayed();
-        });
 
-    it(`GIVEN existing folder with one not valid child is selected WHEN 'Create Issue' menu item has been selected and issue created THEN '10' number should be in 'Items' on IssueDetailsDialog`,
+    it(`GIVEN existing folder with one invalid child item is selected WHEN 'Create Issue' menu item has been selected and issue created THEN '10' number should be in 'Items' on IssueDetailsDialog`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let createIssueDialog = new CreateIssueDialog();
@@ -131,7 +101,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             assert.isFalse(result, 'Publish & Close button should be disabled(invalid child)');
         });
 
-    it(`GIVEN Items-tab has been clicked WHEN invalid content has been excluded THEN 'Publish...' button is getting enabled`,
+    it(`GIVEN Items-tab has been clicked WHEN invalid content has been excluded THEN 'Publish...' button gets enabled`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -144,10 +114,12 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             // 3. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 4. Exclude the invalid content:
-            await issueDetailsDialogItemsTab.excludeDependantItem('shortcut-imported');
+            await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem('shortcut-imported');
+            await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
             await issueDetailsDialogItemsTab.waitForNotificationMessage();
             // 5.'Publish...' button gets enabled, because invalid child is excluded'
             await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
+            // TODO show excluded items
         });
 
     // Verifies: Items that were removed in Issue Details items appear again in Publish Wizard dialog #783
@@ -162,12 +134,12 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialog.waitForDialogOpened();
             // 2. Go to 'Items' tab(IssueDetails dialog):
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            // 3. Exclude a dependant item: the list of the items should be exanded by default
-            await issueDetailsDialogItemsTab.excludeDependantItem(TEST_CONTENT_NAME);
-            // 5. Click on Publish button, 'Publish Wizard' should be loaded:
+            // 3. Exclude a dependant item: click on the checkbox:
+            await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem(TEST_CONTENT_NAME);
+            await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
+            // 4. Click on Publish button, 'Publish Wizard' should be loaded:
             let contentPublishDialog = await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
-            await contentPublishDialog.clickOnShowDependentItems();
-            // 6. Verify that removed dependant item is not present in the list in Content Publish dialog:
+            // 6. Verify that removed dependant item is not present in the list in 'Content Publish' dialog:
             let result = await contentPublishDialog.getDisplayNameInDependentItems();
             // returns a truthy value for at least one element in the array contains the name. Otherwise, false.
             let isPresent = result.some(el => el.includes(TEST_CONTENT_NAME));

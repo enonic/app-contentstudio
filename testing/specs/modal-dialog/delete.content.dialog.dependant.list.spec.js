@@ -12,7 +12,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content Dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let DEPENDANT_ITEMS_11 = 11;
@@ -21,36 +21,37 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            //1. Select existing folder with 11 child content
-            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_2_NAME);
-            //2. Open Delete content Dialog
+            // 1. Select existing folder with 11 child content
+            await studioUtils.findAndSelectItem(appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_NAME);
+            // 2. Open Delete content Dialog
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
-            //3. Verify the number in 'Hide Dependant Items' link
-            let result = await deleteContentDialog.getNumberInHideDependantItemsLink();
-            assert.equal(result, 11, "Expected number should be displayed in the link");
-            //4. Verify the number of dependant items in the list
+            // 3. Verify that 'Dependants' header is displayed:
+            await deleteContentDialog.waitForDependantsHeaderDisplayed();
+            // 4. Verify the number of dependant items in the list
             let names = await deleteContentDialog.getDependantItemsName();
-            assert.equal(names.length, 11, "Expected number of items should be present in the list")
+            assert.equal(names.length, 11, "Expected number of items should be present in the list");
+            let result = await deleteContentDialog.getNumberInArchiveButton();
+            assert.equal(result, '12', '12 should be displayed in the Archive button');
         });
 
-    //Verifies https://github.com/enonic/app-contentstudio/issues/3548
-    //Scroll bar is not showing in dialogs with dependant items #3548
+    // Verifies https://github.com/enonic/app-contentstudio/issues/3548
+    // Scroll bar is not showing in dialogs with dependant items #3548
     it(`GIVEN two parent folders are selected WHEN 'Delete Content Dialog' has been opened THEN dependant list should be displayed by default`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            await studioUtils.findContentAndClickCheckBox(appConst.TEST_FOLDER_2_DISPLAY_NAME);
-            await studioUtils.findContentAndClickCheckBox(appConst.TEST_FOLDER_WITH_IMAGES_2);
-            //Click on 'Archive...' button:
+            await studioUtils.findContentAndClickCheckBox(appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_DISPLAY_NAME);
+            await studioUtils.findContentAndClickCheckBox(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            // Click on 'Archive...' button:
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
-            await studioUtils.saveScreenshot("2_folders_dependant");
-            let result = await deleteContentDialog.getNumberInHideDependantItemsLink();
-            assert.equal(result, 21, "Expected number should be displayed in the link");
-            let names = await deleteContentDialog.getDependantItemsName();
-            //TODO uncomment it, when issue#3548 will be fixed
-            //assert.equal(names.length, 21, "Expected number of items should be present in the list")
+            await studioUtils.saveScreenshot('2_folders_dependant');
+            let result = await deleteContentDialog.getDependantItemsName();
+            assert.equal(result.length, 21, "Expected list of dependent items should be displayed");
+            // Verify the total number of items to delete
+            let numberInArchiveButton = await deleteContentDialog.getNumberInArchiveButton();
+            assert.equal(numberInArchiveButton, '23', '23 should be displayed in the Archive button');
         });
 
     it(`GIVEN a parent folders(11 child) is opened WHEN 'Delete Content Dialog' has been opened in the wizard THEN expected dependant list should be displayed in the modal dialog`,
@@ -58,39 +59,22 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             let contentWizard = new ContentWizard();
             let deleteContentDialog = new DeleteContentDialog();
             //1. Open existing folder
-            await studioUtils.selectByDisplayNameAndOpenContent(appConst.TEST_FOLDER_2_DISPLAY_NAME);
+            await studioUtils.selectByDisplayNameAndOpenContent(appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_DISPLAY_NAME);
             //2. Open Delete Dialog in the wizard:
             await contentWizard.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             //3. Verify the number ot items: should be 11
-            await studioUtils.saveScreenshot("wizard_folder_11_shown_dependant");
-            await deleteContentDialog.waitForNumberInHideDependantItemsLink(DEPENDANT_ITEMS_11);
+            await studioUtils.saveScreenshot('wizard_folder_11_shown_dependant');
             let names = await deleteContentDialog.getDependantItemsName();
-            assert.equal(names.length, DEPENDANT_ITEMS_11, "Expected number of items should be present in the list");
-        });
-
-    it(`GIVEN a parent folders(11 child) is opened WHEN 'Hide Dependant Items' has been clicked THEN 'Show Dependant Items' link gets visible with the expected number`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let deleteContentDialog = new DeleteContentDialog();
-            //1. Open existing folder
-            await studioUtils.selectByDisplayNameAndOpenContent(appConst.TEST_FOLDER_2_DISPLAY_NAME);
-            //2. Open Delete Dialog in the wizard:
-            await contentWizard.clickOnArchiveButton();
-            await deleteContentDialog.waitForDialogOpened();
-            //4. Click on 'Hide Dependant Items'
-            await deleteContentDialog.clickOnHideDependantItemsLink();
-            //5. Verify that 'Show Dependant Items' link gets visible with the correct number
-            await deleteContentDialog.waitForShowDependantItemsLinkDisplayed();
-            await studioUtils.saveScreenshot("wizard_folder_11_dependant");
-            let result = await deleteContentDialog.getNumberInShowDependantItemsLink();
-            assert.equal(result, DEPENDANT_ITEMS_11, "Expected number should be displayed in the link");
+            assert.equal(names.length, DEPENDANT_ITEMS_11, "Expected number of dependent items should be present in the list");
+            let numberInArchiveButton = await deleteContentDialog.getNumberInArchiveButton();
+            assert.equal(numberInArchiveButton, '12', "12 should be displayed in the 'Archive' button");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

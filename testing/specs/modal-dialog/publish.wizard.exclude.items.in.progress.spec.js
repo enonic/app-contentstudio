@@ -49,13 +49,21 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             await studioUtils.saveScreenshot('exclude_items_in_progress_clicked');
             // 5. Verify that 'Exclude items in progress' button gets not visible
             await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
+            // 6. Verify that number of item in progress is reduced:
             actualResult = await contentPublishDialog.getInProgressEntryText();
             assert.equal(actualResult, '(1)', "(1) should be displayed in 'In progress' label");
-            // 6. Verify that 'Publish now' button remains disabled
+            let note = await contentPublishDialog.waitForExcludedNote();
+            assert.equal(note, 'All dependencies are excluded and hidden.', 'Expected note gets visible');
+            // 7. Verify that 'Show excluded items'  button gets visible:
+            await contentPublishDialog.waitForShowExcludedItemsDisplayed();
+            // 8. Verify that 'Publish now' button remains disabled
             await contentPublishDialog.waitForPublishNowButtonDisabled();
             await contentPublishDialog.markAsReadyButtonDisplayed();
-            // 7. 'Hide dependent items' button gets not visible:
-            await contentPublishDialog.waitForHideDependentItemsButtonNotDisplayed();
+            // 9. 'Dependent block' should be visible:
+            await contentPublishDialog.waitForDependantsBlockDisplayed();
+            // But all items are excluded
+            let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
+            assert.isTrue(depItems.length === 0, 'Dependent items should be hidden');
         });
 
     it("GIVEN Publish Wizard is opened WHEN 'Exclude child items' icon has been clicked THEN 'Exclude items in progress' button gets not visible",

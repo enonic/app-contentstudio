@@ -6,13 +6,9 @@ const LoaderComboBox = require('../components/loader.combobox');
 
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
-    hideDependentItemsLink: `//h6[@class='dependants-header' and contains(.,'Hide dependent items')]`,
-    showDependentItemsLink: `//h6[@class='dependants-header' and contains(.,'Show dependent items')]`,
     buttonRow: `//div[contains(@id,'IssueDetailsDialogButtonRow')]`,
     addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     itemList: `//ul[contains[@id,'PublishDialogItemList']`,
-    publishNowButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish Now')]]`,
-    closeRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Close Request')]]`,
     reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
@@ -27,7 +23,7 @@ const xpath = {
 };
 //Dialog loads :
 // 1. after clicking on 'Create request' button in "Create request dialog"
-//2. after clicking on a request in Issues List dialog
+// 2. after clicking on a request in Issues List dialog
 class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     get contentOptionsFilterInput() {
@@ -35,11 +31,11 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     }
 
     get publishNowButton() {
-        return xpath.container + xpath.buttonRow + xpath.publishNowButton;
+        return xpath.container + xpath.buttonRow + lib.dialogButton('Publish Now');
     }
 
     get closeRequestButton() {
-        return xpath.container + xpath.buttonRow + xpath.closeRequestButton;
+        return xpath.container + xpath.buttonRow + lib.dialogButton('Close Request');
     }
 
     get reopenRequestButton() {
@@ -52,14 +48,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     get itemNamesToPublish() {
         return xpath.container + xpath.itemsToPublish + lib.H6_DISPLAY_NAME;
-    }
-
-    get hideDependentItemsLink() {
-        return xpath.container + xpath.hideDependentItemsLink;
-    }
-
-    get showDependentItemsLink() {
-        return xpath.container + xpath.showDependentItemsLink;
     }
 
     waitForAddScheduleButtonDisplayed() {
@@ -153,24 +141,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         })
     }
 
-    //Hide dependent items
-    async clickOnHideDependentItems() {
-        try {
-            await this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.mediumTimeout);
-            await this.clickOnElement(this.hideDependentItemsLink);
-            return await this.pause(300);
-        } catch (err) {
-            throw new Error('error when clicking on `Hide dependent items`: ' + err)
-        }
-    }
-
-    isHideDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot("err_hide_dependent_items_should_be_displayed");
-            throw new Error("Publish request -Hide Dependent Items link should be displayed! " + err)
-        })
-    }
-
     clickOnIncludeChildItems(displayName) {
         let includeIcon = xpath.selectionItemByDisplayName(displayName) + xpath.includeChildrenToggler;
         return this.waitForElementDisplayed(includeIcon, appConst.shortTimeout).then(() => {
@@ -182,15 +152,17 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         })
     }
 
-    excludeItem(displayName) {
-        let removeIcon = xpath.dependantSelectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
-        return this.waitForElementDisplayed(removeIcon, appConst.shortTimeout).then(() => {
-            return this.clickOnElement(removeIcon)
-        }).then(() => {
-            return this.pause(1000);
-        }).catch(err => {
+    async excludeItem(displayName) {
+        try {
+            let removeIcon = xpath.dependantSelectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
+            await this.waitForElementDisplayed(removeIcon, appConst.shortTimeout);
+            await this.clickOnElement(removeIcon)
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_schedule_button');
+            await this.saveScreenshot(screenshot);
             throw new Error('error when clicking on `remove icon`: ' + err)
-        })
+        }
     }
 
     async doAddItem(displayName) {
@@ -254,7 +226,8 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     async waitForClosed() {
         try {
-            return await this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
+            await this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
+            await this.pause(500);
         } catch (err) {
             throw new Error("Request Details dialog should be closed: " + err);
         }

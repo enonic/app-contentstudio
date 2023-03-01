@@ -20,7 +20,7 @@ class IssueDetailsDialogCommentsTab extends Page {
     }
 
     get commentButton() {
-        return XPATH.container + lib.dialogButton('Comment');
+        return XPATH.container + lib.dialogButtonStrict('Comment');
     }
 
     get commentAndCloseRequestButton() {
@@ -39,10 +39,12 @@ class IssueDetailsDialogCommentsTab extends Page {
         return this.isElementDisplayed(this.commentButton);
     }
 
-    waitForCommentButtonEnabled() {
-        return this.waitForElementEnabled(this.commentButton).catch(err => {
+    async waitForCommentButtonEnabled() {
+        try {
+            await this.waitForElementEnabled(this.commentButton, appConst.mediumTimeout)
+        } catch (err) {
             throw  new Error('Issue Details Dialog,Comments tab  ' + err);
-        })
+        }
     }
 
     async clickOnCommentButton() {

@@ -3,33 +3,36 @@ const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'ContentDeleteDialog')]`,
-    inboundErrorStateEntry: "//div[contains(@id,'DialogErrorStateEntry')]/span[text()='Inbound references']",
+    inboundErrorStateEntry: "//div[contains(@id,'DialogStateEntry')]/span[text()='Inbound references']",
     archiveOrDeleteMenu: `//div[contains(@id,'MenuButton')]`,
     deleteMenuItem: `//li[contains(@id,'MenuItem') and contains(.,'Delete')]`,
     cancelButton: `//button/span[text()='Cancel']`,
     itemToDeleteList: `//ul[contains(@id,'DeleteDialogItemList')]`,
     itemViewer: `//div[contains(@id,'DeleteItemViewer']`,
     inboundWarningPart2: "//h6/span[contains(@class,'part2')]",
-    dependantList: "//ul[contains(@id,'DeleteDialogDependantList')]",
-    hideDependantItemsLink: "//div[@class='dependants']//h6[@class='dependants-header' and contains(.,'Hide dependent items')]",
-    showDependantItemsLink: "//div[@class='dependants']//h6[@class='dependants-header' and contains(.,'Show dependent items')]",
+    dependantListUl: "//ul[contains(@id,'DeleteDialogDependantList')]",
+    dependantsHeader: "//div[@class='dependants-header']/span[@class='dependants-title']",
     itemToDeleteByDisplayName: displayName => {
         return `//div[contains(@id,'NamesAndIconView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]`
     },
     inboundLink: `//a[contains(@class,'inbound-dependency')]`,
     getContentStatus(displayName) {
-        return `//div[contains(@id,'ArchiveItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`;
+        return `//div[contains(@id,'ArchiveSelectableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`;
     },
     showReferencesButton(displayName) {
-        return `//div[contains(@id,'ArchiveItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/button[contains(@id,'ActionButton') and child::span[text()='Show references']]`;
+        return `//div[contains(@id,'ArchiveSelectableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/button[contains(@id,'ActionButton') and child::span[text()='Show references']]`;
     }
 };
 
 // it appears when select a content and click on  'Delete' button on the toolbar
 class DeleteContentDialog extends Page {
 
+    get dependentsHeader() {
+        return XPATH.container + XPATH.dependantsHeader;
+    }
+
     get cancelButton() {
-        return XPATH.container + XPATH.cancelButton;
+        return XPATH.container + lib.dialogButton('Cancel');
     }
 
     get cancelTopButton() {
@@ -205,7 +208,7 @@ class DeleteContentDialog extends Page {
     }
 
     async getDependantItemsName() {
-        let locator = XPATH.container + XPATH.dependantList + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.container + XPATH.dependantListUl + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
@@ -214,50 +217,18 @@ class DeleteContentDialog extends Page {
         return this.waitForElementDisplayed(this.hideDependantItemsLink, appConst.mediumTimeout);
     }
 
-    async waitForShowDependantItemsLinkDisplayed() {
+    async waitForDependantsHeaderDisplayed() {
         try {
-            let locator = XPATH.container + XPATH.showDependantItemsLink;
-            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.dependentsHeader, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_show_dependant_items_link"));
-            throw new Error(err);
+            await this.saveScreenshot(appConst.generateRandomName("err_dependants_header"));
+            throw new Error('Delete content dialog, dependants header is not displayed: ' + err);
         }
     }
 
-    async clickOnHideDependantItemsLink() {
-        await this.waitForHideDependantItemsLinkDisplayed();
-        return await this.clickOnElement(this.hideDependantItemsLink);
-    }
-
-    async clickShowDependantItemsLink() {
-        await this.waitForShowDependantItemsLinkDisplayed();
-        return await this.clickOnElement(this.showDependantItemsLink, appConst.mediumTimeout);
-    }
-
-    async getNumberInHideDependantItemsLink() {
-        let text = await this.getText(this.hideDependantItemsLink);
-        let startIndex = text.indexOf('(');
-        let endIndex = text.indexOf(')');
-        return text.substring(startIndex + 1, endIndex);
-    }
-
-    async waitForNumberInHideDependantItemsLink(number) {
-        await this.waitForHideDependantItemsLinkDisplayed();
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getText(this.hideDependantItemsLink);
-            return text.includes(number);
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Error getting a number in dependant items link: "});
-    }
-
-    async getNumberInShowDependantItemsLink() {
-        let text = await this.getText(this.showDependantItemsLink);
-        let startIndex = text.indexOf('(');
-        let endIndex = text.indexOf(')');
-        return text.substring(startIndex + 1, endIndex);
-    }
 
     getDependantNames() {
-        let locator = XPATH.container + XPATH.dependantList + "//div[contains(@id,'DependantItemViewer')]" + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.container + XPATH.dependantListUl + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
         return this.getTextInDisplayedElements(locator);
     }
 
