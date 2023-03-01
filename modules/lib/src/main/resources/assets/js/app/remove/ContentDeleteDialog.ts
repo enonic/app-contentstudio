@@ -64,17 +64,16 @@ export class ContentDeleteDialog
     private actionInProgressType: ActionType;
 
     constructor() {
-        super(<DependantItemsWithProgressDialogConfig>{
+        super({
             title: i18n('dialog.archive'),
             class: 'content-delete-dialog',
             dialogSubName: i18n('dialog.archive.subname'),
             dependantsTitle: i18n('dialog.archive.dependants'),
-            showDependantList: true,
             processingLabel: `${i18n('field.progress.deleting')}...`,
             buttonRow: new ContentDeleteDialogButtonRow(),
             processHandler: () => new ContentDeletePromptEvent([]).fire(),
-            confirmation: {}
-        });
+            confirmation: {},
+        } satisfies DependantItemsWithProgressDialogConfig);
     }
 
     protected initElements() {
@@ -179,7 +178,7 @@ export class ContentDeleteDialog
     }
 
     private updateItemViewsWithInboundDependencies(itemViews: (ArchiveCheckableItem | ArchiveSelectableItem)[]) {
-        itemViews.forEach((itemView: ArchiveCheckableItem) => {
+        itemViews.forEach((itemView) => {
             const hasInbound = this.hasInboundRef(itemView.getItem().getId());
             itemView.setHasInbound(hasInbound);
         });

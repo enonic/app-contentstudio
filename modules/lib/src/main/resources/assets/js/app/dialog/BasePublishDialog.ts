@@ -47,8 +47,11 @@ export abstract class BasePublishDialog
 
     private noPermissionsErrorEntry: DialogStateEntry;
 
-    protected constructor(config: DependantItemsWithProgressDialogConfig) {
-        super(config);
+    protected constructor(config: Omit<DependantItemsWithProgressDialogConfig, 'controls'>) {
+        super({
+            ...config,
+            controls: true,
+        });
 
         this.loadCurrentUser().catch(DefaultErrorHandler.handle);
     }

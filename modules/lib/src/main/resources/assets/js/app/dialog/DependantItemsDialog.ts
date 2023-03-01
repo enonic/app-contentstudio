@@ -32,6 +32,7 @@ export interface DependantItemsDialogConfig
     extends ModalDialogWithConfirmationConfig {
     dialogSubName?: string;
     dependantsTitle?: string;
+    controls?: boolean;
 }
 
 export abstract class DependantItemsDialog
@@ -49,6 +50,7 @@ export abstract class DependantItemsDialog
 
     private dependantList: DialogDependantItemsList;
 
+
     protected dependantsControls: DivEl;
 
     protected allCheckBox: Checkbox;
@@ -56,6 +58,7 @@ export abstract class DependantItemsDialog
     protected excludedToggler: TogglerButton;
 
     protected excludedNote: SpanEl;
+
 
     protected resolvedIds: ContentId[];
 
@@ -80,17 +83,45 @@ export abstract class DependantItemsDialog
     }
 
     protected initDependants(): void {
+        this.dependantsContainer = new DivEl('dependants');
+
         const header = this.createDependantsHeader();
-        this.dependantsControls = this.createDependantsControls();
         this.dependantList = this.createDependantList();
 
-        this.dependantsContainer = new DivEl('dependants');
-        this.dependantsContainer.appendChildren(header, this.dependantsControls, this.dependantList);
+        if (this.config.controls) {
+            this.dependantsControls = this.createDependantsControls();
+            this.dependantsContainer.appendChildren(header, this.dependantsControls, this.dependantList);
+        } else {
+            this.dependantsContainer.appendChildren(header, this.dependantList);
+        }
     }
 
     protected initListeners() {
         super.initListeners();
 
+        const hasControls = !!this.config.controls;
+        if (hasControls) {
+            this.initControlsListeners();
+        }
+
+        this.dependantList.onExclusionUpdated((manual) => {
+            const hasExcluded = this.dependantList.hasExcluded();
+            this.markDependantsHasExcluded(hasExcluded);
+            if (hasControls) {
+                this.updateAllCheckbox();
+            }
+        });
+
+        this.dependantList.onItemsRemoved(() => this.onDependantsChanged());
+        this.dependantList.onItemsAdded(() => this.onDependantsChanged());
+
+        this.whenRendered(() => {
+            const hasDependants = this.countDependantItems(this.isExcludedShown()) > 0;
+            this.markDependantsEmpty(!hasDependants);
+        });
+    }
+
+    protected initControlsListeners(): void {
         this.allCheckBox.onValueChanged(() => {
             const selectionType = this.dependantList.getSelectionType();
             const isAllSelected = selectionType === SelectionType.ALL;
@@ -104,20 +135,6 @@ export abstract class DependantItemsDialog
         });
 
         this.dependantList.onSelectionTypeChanged(() => this.updateAllCheckbox());
-
-        this.dependantList.onExclusionUpdated((manual) => {
-            const hasExcluded = this.dependantList.hasExcluded();
-            this.markDependantsHasExcluded(hasExcluded);
-            this.updateAllCheckbox();
-        });
-
-        this.dependantList.onItemsRemoved(() => this.onDependantsChanged());
-        this.dependantList.onItemsAdded(() => this.onDependantsChanged());
-
-        this.whenRendered(() => {
-            const hasDependants = this.countDependantItems(this.excludedToggler.isActive()) > 0;
-            this.markDependantsEmpty(!hasDependants);
-        });
     }
 
     protected lazyLoadDependants(): void {
@@ -147,17 +164,17 @@ export abstract class DependantItemsDialog
     }
 
     protected onDependantsChanged(): void {
-        const isExcludedShown = this.excludedToggler.isActive();
-        const count = this.countDependantItems(isExcludedShown);
-        this.allCheckBox.setLabel(i18n('dialog.select.all', count));
+        const count = this.countDependantItems(this.isExcludedShown());
 
-        const hasEnabledItems = this.dependantList.hasExcludableItems();
-        this.allCheckBox.setEnabled(hasEnabledItems);
+        const hasControls = this.config.controls;
+        if (hasControls) {
+            this.allCheckBox.setLabel(i18n('dialog.select.all', count));
+            const hasEnabledItems = this.dependantList.hasExcludableItems();
+            this.allCheckBox.setEnabled(hasEnabledItems);
+        }
 
         const hasDependants = count > 0;
         this.markDependantsEmpty(!hasDependants);
-
-        // this.updateAllCheckbox();
     }
 
     protected updateAllCheckbox(): void {
@@ -240,10 +257,14 @@ export abstract class DependantItemsDialog
 
         this.itemList.clearItems(true);
         this.dependantList.clearItems(true);
-        this.allCheckBox.setChecked(true);
-        this.allCheckBox.setPartial(false);
-        this.allCheckBox.setEnabled(true);
-        this.excludedToggler.setActive(false);
+
+        if (this.config.controls) {
+            this.allCheckBox.setChecked(true);
+            this.allCheckBox.setPartial(false);
+            this.allCheckBox.setEnabled(true);
+            this.excludedToggler.setActive(false);
+        }
+
         this.markDependantsHasExcluded(false);
         this.markDependantsEmpty(true);
         this.markEditing(false);
@@ -324,7 +345,7 @@ export abstract class DependantItemsDialog
     }
 
     protected loadDescendants(from: number, size: number): Q.Promise<ContentSummaryAndCompareStatus[]> {
-        const ids = this.getDependantIds(this.excludedToggler.isActive()).slice(from, from + size);
+        const ids = this.getDependantIds(this.isExcludedShown()).slice(from, from + size);
         return new ContentSummaryAndCompareStatusFetcher().fetchByIds(ids);
     }
 
@@ -372,6 +393,10 @@ export abstract class DependantItemsDialog
             this.dependantsContainer.toggleClass(DependantsStatus.EMPTY, empty);
             this.getBody().getEl().setScrollTop(0);
         }
+    }
+
+    protected isExcludedShown(): boolean {
+        return this.excludedToggler?.isActive() === true;
     }
 
     getTabbableElements(): Element[] {

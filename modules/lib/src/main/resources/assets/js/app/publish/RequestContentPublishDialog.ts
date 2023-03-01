@@ -61,14 +61,14 @@ export class RequestContentPublishDialog
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
 
     protected constructor() {
-        super(<DependantItemsWithProgressDialogConfig>{
+        super({
             title: i18n('dialog.requestPublish'),
             dialogSubName: i18n('dialog.requestPublish.subname1'),
             class: 'request-publish-dialog',
             buttonRow: new DropdownButtonRow(),
             processingLabel: `${i18n('field.progress.publishing')}...`,
-            processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
-        });
+            processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
+        } satisfies DependantItemsWithProgressDialogConfig);
     }
 
     public static get(): RequestContentPublishDialog {
