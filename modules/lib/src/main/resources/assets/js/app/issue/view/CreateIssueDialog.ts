@@ -7,12 +7,11 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {DependantItemsDialogConfig} from '../../dialog/DependantItemsDialog';
 import {DialogStateBar} from '../../dialog/DialogStateBar';
 import {Issue} from '../Issue';
 import {PublishRequest} from '../PublishRequest';
 import {CreateIssueRequest} from '../resource/CreateIssueRequest';
-import {IssueDialog} from './IssueDialog';
+import {IssueDialog, IssueDialogConfig} from './IssueDialog';
 
 export class CreateIssueDialog
     extends IssueDialog {
@@ -30,10 +29,10 @@ export class CreateIssueDialog
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
 
     protected constructor() {
-        super(<DependantItemsDialogConfig>{
+        super({
             title: i18n('text.newIssue'),
-            allowOverflow: true
-        });
+            controls: true,
+        } satisfies IssueDialogConfig);
     }
 
     static get(): CreateIssueDialog {

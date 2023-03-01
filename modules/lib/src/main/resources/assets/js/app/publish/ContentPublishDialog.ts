@@ -39,13 +39,13 @@ export class ContentPublishDialog
     private message: string;
 
     protected constructor() {
-        super(<DependantItemsWithProgressDialogConfig>{
+        super({
             title: i18n('dialog.publish'),
             class: 'publish-dialog',
             buttonRow: new DropdownButtonRow(),
             processingLabel: `${i18n('field.progress.publishing')}...`,
-            processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
-        });
+            processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
+        } satisfies DependantItemsWithProgressDialogConfig);
 
         this.onProgressComplete((taskState) => {
             switch (taskState) {

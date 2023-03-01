@@ -38,14 +38,13 @@ export class ContentDuplicateDialog
     private duplicateAction: ContentDuplicateDialogAction;
 
     constructor() {
-        super(<DependantItemsWithProgressDialogConfig>{
-                title: i18n('dialog.duplicate'),
-                class: 'content-duplicate-dialog',
-                dependantsTitle: i18n('dialog.duplicate.dependants'),
-                processingLabel: `${i18n('field.progress.duplicating')}...`,
-                processHandler: () => new ContentDuplicatePromptEvent([]).fire()
-            }
-        );
+        super({
+            title: i18n('dialog.duplicate'),
+            class: 'content-duplicate-dialog',
+            dependantsTitle: i18n('dialog.duplicate.dependants'),
+            processingLabel: `${i18n('field.progress.duplicating')}...`,
+            processHandler: () => new ContentDuplicatePromptEvent([]).fire(),
+        } satisfies DependantItemsWithProgressDialogConfig);
     }
 
     protected initElements() {

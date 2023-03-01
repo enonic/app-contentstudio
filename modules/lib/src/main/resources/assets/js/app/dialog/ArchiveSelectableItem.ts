@@ -63,7 +63,7 @@ export class ArchiveSelectableItem
     protected initActionButton(clickable: boolean): void {
         const action = new Action(i18n('action.showReferences'));
         action.onExecuted(() => {
-            const contentId = this.getBrowseItem().getContentSummary().getContentId();
+            const contentId = this.getItem().getContentSummary().getContentId();
             new ShowDependenciesEvent(contentId, true).fire();
         });
         this.showRefButton = new ActionButton(action);
@@ -80,14 +80,14 @@ export class ArchiveSelectableItem
     protected initListeners(clickable: boolean): void {
         if (clickable) {
             this.onClicked(event => {
-                if (!this.getBrowseItem().isPendingDelete()) {
-                    new EditContentEvent([this.getBrowseItem()]).fire();
+                if (!this.getItem().isPendingDelete()) {
+                    new EditContentEvent([this.getItem()]).fire();
                 }
             });
         }
     }
 
-    getBrowseItem(): ContentSummaryAndCompareStatus {
+    getItem(): ContentSummaryAndCompareStatus {
         return super.getBrowseItem() as ContentSummaryAndCompareStatus;
     }
 }

@@ -144,10 +144,9 @@ export class IssueDetailsDialog
             dialogSubName: i18n('dialog.issue.resolving'),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             buttonRow: new IssueDetailsDialogButtonRow(),
-            processHandler: () => {
-                new ContentPublishPromptEvent({model: []}).fire();
-            },
+            processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
             confirmation: {},
+            controls: true,
         } satisfies DependantItemsWithProgressDialogConfig);
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();

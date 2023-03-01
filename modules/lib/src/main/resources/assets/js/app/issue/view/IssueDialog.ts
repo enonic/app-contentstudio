@@ -14,6 +14,7 @@ import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSumma
 import {PublishRequestItem} from '../PublishRequestItem';
 import {IssueDialogForm} from './IssueDialogForm';
 
+export type IssueDialogConfig = Pick<DependantItemsDialogConfig, 'title' | 'controls'>;
 export abstract class IssueDialog
     extends DependantItemsDialog {
 
@@ -29,11 +30,11 @@ export abstract class IssueDialog
 
     private newItems: ContentSummary[] = [];
 
-    protected constructor(config: DependantItemsDialogConfig) {
-        super(<DependantItemsDialogConfig>{
-            title: config.title,
+    protected constructor(config: IssueDialogConfig) {
+        super({
+            ...config,
             class: 'issue-dialog grey-header'
-        });
+        } satisfies DependantItemsDialogConfig);
     }
 
     protected initElements() {
