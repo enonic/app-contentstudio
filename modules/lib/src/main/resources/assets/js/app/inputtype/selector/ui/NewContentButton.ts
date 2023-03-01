@@ -129,8 +129,10 @@ export class NewContentButton
     }
 
     private createContent(contentType: ContentTypeSummary, parentContent?: ContentSummary): Q.Promise<Content> {
-        return ContentHelper.makeNewContentRequest(contentType.getContentTypeName(),
-            parentContent?.getPath() || ContentPath.getRoot()).sendAndParse();
+        return ContentHelper.makeNewContentRequest(contentType.getContentTypeName())
+            .setParent(parentContent?.getPath() || ContentPath.getRoot())
+            .setRequestProject(this.project)
+            .sendAndParse();
     }
 
     private handleContentCreated(content: Content): void {
