@@ -27,6 +27,12 @@
       > :not(.@{_COMMON_PREFIX}tooltip) {
         opacity: 0.5;
       }
+
+      .checkbox {
+        input[disabled] + label {
+          opacity: 1;
+        }
+      }
     }
 
     .state {
