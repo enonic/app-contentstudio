@@ -6,6 +6,8 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class UrlHelper {
 
+    static toolUriPropertyName = 'toolUri';
+
     static getCmsRestUri(path: string): string {
         return UriHelper.getAdminUri(UriHelper.joinPath('rest-v2', 'cs', UriHelper.relativePath(path)));
     }
@@ -44,12 +46,8 @@ export class UrlHelper {
         return UrlHelper.getPrefixedUrl(`${project}/${path}`, separator);
     }
 
-    static getPrefixedUrl(url: string, separator: string = '#'): string {
-        return `${CONFIG.getString('toolUri')}${separator}/${url}`;
-    }
-
-    static getStudioPrefixedUrl(url: string, separator: string = '#'): string {
-        return `${CONFIG.getString('studioToolUri')}${separator}/${url}`;
+    static getPrefixedUrl(url: string, separator: string = '#', uriPropertyName?: string): string {
+        return `${CONFIG.getString(uriPropertyName || UrlHelper.toolUriPropertyName)}${separator}/${url}`;
     }
 
     static isContentBrowseUrlMatch(): boolean {

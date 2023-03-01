@@ -236,15 +236,16 @@ export class ContentDuplicateDialog
         return deferred.promise;
     }
 
-    protected openTabOnDuplicate(content: ContentSummary) { // used in studio plus
+    protected getWizardParams(content: ContentSummary): ContentWizardPanelParams {
         const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(content.getContentId().toString());
-
-        const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
+        return new ContentWizardPanelParams()
             .setTabId(tabId)
             .setContentTypeName(content.getType())
             .setContentId(content.getContentId());
+    }
 
-        ContentEventsProcessor.openWizardTab(wizardParams);
+    protected openTabOnDuplicate(content: ContentSummary) { // used in studio plus
+        ContentEventsProcessor.openWizardTab(this.getWizardParams(content));
     }
 
     private countItemsToDuplicateAndUpdateButtonCounter() {

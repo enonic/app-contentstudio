@@ -27,6 +27,8 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
 
     displayAsNew: boolean = false;
 
+    uriPropertyName?: string;
+
     constructor() {
         this.project = ProjectContext.get().getProject();
     }
@@ -73,6 +75,11 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
 
     setDisplayAsNew(value: boolean): ContentWizardPanelParams {
         this.displayAsNew = value;
+        return this;
+    }
+
+    setUriPropertyName(value: string): ContentWizardPanelParams {
+        this.uriPropertyName = value;
         return this;
     }
 

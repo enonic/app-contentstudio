@@ -24,7 +24,7 @@ export class ContentEventsProcessor {
     static openWindows: Window[] = [];
 
     static openWizardTab(params: ContentWizardPanelParams): Window {
-        const wizardUrl: string = UrlHelper.getStudioPrefixedUrl(ContentEventsProcessor.generateURL(params), '');
+        const wizardUrl: string = UrlHelper.getPrefixedUrl(ContentEventsProcessor.generateURL(params), '', params.uriPropertyName);
         return ContentEventsProcessor.openTab(wizardUrl, ContentEventsProcessor.makeWizardId(params));
     }
 
@@ -132,7 +132,7 @@ export class ContentEventsProcessor {
         const id: string = event.getId().toString();
         const type: string = event.getContentType() ? event.getContentType().toString() : null;
         const project: string = ProjectContext.get().getProject().getName();
-        const url = UrlHelper.getStudioPrefixedUrl(`${project}/${mode}/${id}${!!type ? `/${type}` : ''}`);
+        const url = UrlHelper.getPrefixedUrl(`${project}/${mode}/${id}${!!type ? `/${type}` : ''}`);
 
         ContentEventsProcessor.openNewTab(url);
     }
