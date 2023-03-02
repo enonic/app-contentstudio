@@ -11,8 +11,6 @@ const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 
 describe("Tests for updating a number in aggregation checkboxes", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -35,8 +33,6 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
     it(`WHEN new shortcut with Deutsch language has been created THEN Deutsch checkbox should appear in the Filter Panel`,
         async () => {
             let filterPanel = new FilterPanel();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             let contentBrowsePanel = new ContentBrowsePanel();
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
@@ -44,8 +40,8 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
             await contentWizard.typeDisplayName(SHORTCUT_DE_NAME);
             await shortcutForm.filterOptionsAndSelectTarget(TARGET_1);
-            // 2. Open 'Edit Details' modal dialog and select the language:
-            await propertiesWidget.clickOnEditPropertiesButton();
+            // 2. Open 'Edit Settings' modal dialog and select the language:
+            let editDetailsDialog = await studioUtils.openEditSettingDialog();
             await editDetailsDialog.waitForLoaded();
             await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.DEUTSCH_DE);
             await editDetailsDialog.clickOnApplyButton();
@@ -85,8 +81,6 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
     it(`GIVEN folder with Deutsch language has been opened WHEN language has been removed in the wizard THEN Deutsch checkbox gets not visible in the Filter Panel`,
         async () => {
             let filterPanel = new FilterPanel();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             let contentWizard = new ContentWizard();
             // 1. Open Filter Panel
             await studioUtils.openFilterPanel();
@@ -94,11 +88,10 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             await filterPanel.waitForCheckboxDisplayed('Language', 'Deutsch');
             // 3. Open the folder with Deutsch language:
             await studioUtils.selectAndOpenContentInWizard(SHORTCUT_DE_NAME);
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
+            let editSettingsDialog = await studioUtils.openEditSettingDialog();
             // 4. Click on remove language icon and save:
-            await editDetailsDialog.clickOnRemoveLanguage();
-            await editDetailsDialog.clickOnApplyButton();
+            await editSettingsDialog.clickOnRemoveLanguage();
+            await editSettingsDialog.clickOnApplyButton();
             await contentWizard.waitForSaveButtonDisabled();
             await contentWizard.waitForNotificationMessage();
             // 5. Switch to the browse panel:

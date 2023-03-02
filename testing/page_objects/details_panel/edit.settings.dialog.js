@@ -5,10 +5,10 @@ const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
 const LoaderComboBox = require('../components/loader.combobox');
-const DateTimeRange = require('../components/datetime.range');
 
 const xpath = {
-    container: `//div[contains(@id,'EditDetailsDialog')]`,
+    container: `//div[contains(@id,'EditPropertiesDialog')]`,
+    settingsStepFormDiv: "//div[contains(@id,'SettingsWizardStepForm')]",
     dialogTitle: "//div[contains(@id,'EditDetailsDialogHeader') and child::h2[@class='title']]",
     localeCombobox: `//div[contains(@id,'LocaleComboBox')]`,
     ownerCombobox: `//div[contains(@id,'PrincipalComboBox')]`,
@@ -19,11 +19,7 @@ const xpath = {
     scheduleForm: `//div[contains(@id,'ScheduleWizardStepForm')]`,
 };
 
-class EditDetailsDialog extends Page {
-
-    get scheduleValidationRecord() {
-        return xpath.scheduleForm + lib.OCCURRENCE_ERROR_BLOCK;
-    }
+class EditSettingDialog extends Page {
 
     get cancelTopButton() {
         return xpath.container + lib.CANCEL_BUTTON_TOP;
@@ -73,8 +69,8 @@ class EditDetailsDialog extends Page {
     }
 
     async waitForLoaded() {
+        await this.waitForElementDisplayed(xpath.settingsStepFormDiv);
         await this.waitForApplyButtonDisplayed();
-        await this.pause(300);
     }
 
     waitForClosed() {
@@ -98,7 +94,7 @@ class EditDetailsDialog extends Page {
             await this.pause(300);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_option'));
-            throw new Error('Edit Details dialog, language selector :' + err);
+            throw new Error('Edit Setting dialog, language selector :' + err);
         }
     }
 
@@ -121,7 +117,7 @@ class EditDetailsDialog extends Page {
             return await this.getText(selector);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_pr_wizard_language'));
-            throw new Error('Edit Details dialog, error during getting the selected language. ' + err);
+            throw new Error('Edit Setting dialog, error during getting the selected language. ' + err);
         }
     }
 
@@ -171,62 +167,6 @@ class EditDetailsDialog extends Page {
     isOwnerOptionsFilterVisible() {
         return this.isElementDisplayed(this.ownerFilterInput);
     }
-
-    typeOnlineFrom(value) {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.typeOnlineFrom(value, xpath.container);
-    }
-
-    async getOnlineFrom() {
-        let dateTimeRange = new DateTimeRange();
-        return await dateTimeRange.getOnlineFrom(xpath.container);
-    }
-
-    getOnlineTo() {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.getOnlineTo(xpath.container);
-    }
-
-    typeOnlineTo(value) {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.typeOnlineTo(value, xpath.container);
-    }
-
-
-    waitForValidationRecording() {
-        let dateTimeRange = new DateTimeRange();
-        return this.waitForElementDisplayed(this.scheduleValidationRecord, appConst.shortTimeout);
-    }
-
-    getScheduleValidationRecord() {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.getValidationRecord(xpath.scheduleForm);
-    }
-
-    waitForScheduleFormDisplayed() {
-        return this.waitUntilDisplayed(xpath.scheduleForm, appConst.shortTimeout);
-    }
-
-    async waitForScheduleFormNotDisplayed() {
-        try {
-            await this.waitForElementNotDisplayed(xpath.container + xpath.scheduleForm, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = appConst.generateRandomName('err_schedule_form');
-            await this.saveScreenshot(screenshot);
-            throw new Error(`Error - Schedule form should not be displayed, screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    waitForOnlineToInputDisplayed() {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.waitForOnlineToInputDisplayed(xpath.container);
-    }
-
-    waitForOnlineFromInputDisplayed() {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.waitForOnlineFromInputDisplayed(xpath.container);
-    }
-
 }
 
-module.exports = EditDetailsDialog;
+module.exports = EditSettingDialog;

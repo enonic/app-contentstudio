@@ -37,6 +37,8 @@ import {WidgetItemView} from './WidgetItemView';
 import {VersionContext} from './widget/version/VersionContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
+import {BasePropertiesWidgetItemView} from './widget/details/BasePropertiesWidgetItemView';
+import {OnlinePropertiesWidgetItemView} from './widget/details/OnlinePropertiesWidgetItemView';
 
 export class ContextView
     extends DivEl {
@@ -436,7 +438,8 @@ export class ContextView
             new ContentWidgetItemView(),
             new StatusWidgetItemView(),
             new UserAccessWidgetItemView(),
-            new PropertiesWidgetItemView(),
+            new BasePropertiesWidgetItemView(),
+            new OnlinePropertiesWidgetItemView(),
             new PageTemplateWidgetItemView(),
             new AttachmentsWidgetItemView()
         ];

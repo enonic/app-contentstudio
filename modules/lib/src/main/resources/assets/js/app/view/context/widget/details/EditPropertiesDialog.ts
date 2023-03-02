@@ -9,12 +9,16 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {UpdateContentRequest} from '../../../../resource/UpdateContentRequest';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
 import * as Q from 'q';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {Workflow} from '../../../../content/Workflow';
 import {WorkflowState} from '../../../../content/WorkflowState';
 import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 
-export class EditDetailsDialog
+export interface EditPropertiesDialogParams {
+    title: string,
+    updatedHandler?: (updatedContent: Content) => void;
+}
+
+export class EditPropertiesDialog
     extends ModalDialogWithConfirmation {
 
     private allowedForms: PropertiesWizardStepForm[];
@@ -25,12 +29,15 @@ export class EditDetailsDialog
 
     private readonly changeHandler: () => void;
 
-    constructor() {
+    private updatedHandler?: (updatedContent: Content) => void;
+
+    constructor(params: EditPropertiesDialogParams) {
         super({
-            class: 'edit-details-dialog',
-            title: i18n('widget.properties.edit.text')
+            class: 'edit-details-dialog'
         });
 
+        this.setHeading(params.title);
+        this.updatedHandler = params.updatedHandler;
         this.changeHandler = this.handleChange.bind(this);
     }
 
@@ -64,7 +71,7 @@ export class EditDetailsDialog
             this.allowedForms.forEach((form: PropertiesWizardStepForm) => form.applyChange(request));
 
             return request.sendAndParse().then((updatedContent: Content) => {
-                NotifyManager.get().showFeedback(i18n('notify.item.properties.saved', updatedContent.getName()));
+                this.updatedHandler?.(updatedContent);
                 this.close();
             });
         }).catch((e: unknown) => {
@@ -121,6 +128,14 @@ export class EditDetailsDialog
 
     isDirty(): boolean {
         return this.updateAction.isEnabled();
+    }
+
+    protected generateTitle(): string {
+        return i18n('widget.properties.edit.text');
+    }
+
+    protected getUpdateMessage(updatedContent: Content): string {
+        return i18n('notify.item.properties.saved', updatedContent.getDisplayName());
     }
 }
 

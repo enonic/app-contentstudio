@@ -11,7 +11,6 @@ const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel'
 const UserBrowsePanel = require('../page_objects/users/userbrowse.panel');
 const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
 const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const EditDetailsDialog = require('../page_objects/details_panel/edit.details.dialog');
 
 describe('content.wizard.owner.spec - ui-tests for owner', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -38,16 +37,15 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
         async () => {
             await studioUtils.navigateToContentStudioApp();
             let contentWizard = new ContentWizard();
-            let editDetailsDialog = new EditDetailsDialog();
             let propertiesWidget = new PropertiesWidget();
             // 1. Open new wizard for folder
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             // 2. Open 'Edit Details' modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
+            let editDetailsDialog = await studioUtils.openEditSettingDialog();
             await editDetailsDialog.waitForLoaded();
             // 3. Remove the default owner
-            await editDetailsDialog.clickOnRemoveOwner("Super User");
+            await editDetailsDialog.clickOnRemoveOwner('Super User');
             // 4. Select another user in owner-selector
             await editDetailsDialog.filterOptionsAndSelectOwner(USER.displayName);
             await editDetailsDialog.clickOnApplyButton();
@@ -70,16 +68,13 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
 
     it("GIVEN user owner was deleted WHEN the folder is reopened THEN the user should be displayed as 'removed' in the wizard form",
         async () => {
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             await studioUtils.navigateToContentStudioApp();
             //1. Open the folder
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
-            // 2. Open 'Edit Details' modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
+            // 2. Click on 'Edit Setting':
+            let editSettingsDialog = await studioUtils.openEditSettingDialog();
             // 3. Verify that 'This user is deleted' text appears in the settings form:
-            let actualText = await editDetailsDialog.waitForOwnerRemoved();
+            let actualText = await editSettingsDialog.waitForOwnerRemoved();
             assert.equal(actualText, OWNER_REMOVED, "'This user is deleted' - this text should be present in the form");
         });
 

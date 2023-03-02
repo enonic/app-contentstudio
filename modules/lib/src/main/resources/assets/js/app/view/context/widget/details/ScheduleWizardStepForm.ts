@@ -35,7 +35,7 @@ export class ScheduleWizardStepForm
     }
 
     protected getHeaderText(): string {
-        return i18n('field.schedule');
+        return null; // i18n('field.schedule');
     }
 
     private layoutFormView(): void {

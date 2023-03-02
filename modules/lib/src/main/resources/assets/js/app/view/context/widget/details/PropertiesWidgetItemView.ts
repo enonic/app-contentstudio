@@ -1,22 +1,18 @@
 import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {WidgetItemView} from '../../WidgetItemView';
-import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {DlEl} from '@enonic/lib-admin-ui/dom/DlEl';
 import {DdDtEl} from '@enonic/lib-admin-ui/dom/DdDtEl';
-import {GetApplicationRequest} from '../../../../resource/GetApplicationRequest';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {PropertiesWidgetItemViewHelper} from './PropertiesWidgetItemViewHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {EditDetailsDialog} from './EditDetailsDialog';
+import {EditPropertiesDialog, EditPropertiesDialogParams} from './EditPropertiesDialog';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
+import {PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
 
-export class PropertiesWidgetItemView
+export abstract class PropertiesWidgetItemView
     extends WidgetItemView {
 
     protected item: ContentSummaryAndCompareStatus;
@@ -24,36 +20,23 @@ export class PropertiesWidgetItemView
     protected editPropertiesLink?: AEl;
     protected allowedForms: PropertiesWizardStepForm[];
     protected helper: PropertiesWidgetItemViewHelper;
-    protected detailsDialog?: EditDetailsDialog;
+    protected detailsDialog?: EditPropertiesDialog;
 
     public static debug: boolean = false;
 
-    constructor() {
-        super('properties-widget-item-view');
+    constructor(className?: string) {
+        super('properties-widget-item-view ' + (className || ''));
 
-        this.helper = new PropertiesWidgetItemViewHelper();
+        this.helper = this.createHelper();
         this.list = new DlEl();
         this.appendChild(this.list);
         this.initListeners();
     }
 
-    private initListeners(): void {
-        ContentServerEventsHandler.getInstance().onContentPublished(this.handleContentPublished.bind(this));
-    }
+    protected abstract createHelper(): PropertiesWidgetItemViewHelper;
 
-    private handleContentPublished(contents: ContentSummaryAndCompareStatus[]): void {
-        if (!this.item) {
-            return;
-        }
-
-        const thisContentId: string = this.item.getId();
-
-        const contentSummary: ContentSummaryAndCompareStatus =
-            contents.filter((content: ContentSummaryAndCompareStatus) => thisContentId === content.getId())[0];
-
-        if (contentSummary) {
-            this.setContentAndUpdateView(contentSummary);
-        }
+    protected initListeners(): void {
+        //
     }
 
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
@@ -61,10 +44,20 @@ export class PropertiesWidgetItemView
             this.item = item;
             this.helper.setItem(item);
 
-            return this.layout();
+            if (this.isAllowedToBeShown()) {
+                this.show();
+                return this.layout();
+            }
+
+            this.hide();
+            return Q.resolve();
         }
 
-        return Q<any>(null);
+        return Q.resolve();
+    }
+
+    protected isAllowedToBeShown(): boolean {
+        return true;
     }
 
     public layout(): Q.Promise<any> {
@@ -76,34 +69,25 @@ export class PropertiesWidgetItemView
 
         return super.layout().then(() => {
             if (this.item != null) {
-                this.layoutContent();
+                return this.fetchExtraData().then(() => {
+                    this.layoutProperties();
+                    this.layoutEditLink();
+                    return Q.resolve();
+                });
             }
+
+            return Q.resolve();
         });
     }
 
-    private layoutContent(): void {
-        const applicationKey: ApplicationKey = this.item.getType().getApplicationKey();
-
-        if (!applicationKey.isSystemReserved()) {
-            new GetApplicationRequest(applicationKey).sendAndParse().then((application: Application) => {
-                this.layoutApplication(application);
-            }).catch(() => {
-                this.layoutApplication();
-            });
-        } else {
-            this.layoutApplication();
-        }
+    protected fetchExtraData(): Q.Promise<void> {
+        return Q.resolve();
     }
 
-    protected layoutApplication(application?: Application): void {
-        this.layoutProperties(application);
-        this.layoutEditLink();
-    }
-
-    private layoutProperties(application: Application): void {
+    private layoutProperties(): void {
         this.list.removeChildren();
 
-        this.helper.generateProps(application).forEach((value: string, key: string) => {
+        this.helper.generateProps().forEach((value: string, key: string) => {
             this.appendKeyValue(key, value);
         });
     }
@@ -129,7 +113,7 @@ export class PropertiesWidgetItemView
     }
 
     private layoutEditLink(): void {
-        this.helper.getAllowedForms().then((forms: PropertiesWizardStepForm[]) => {
+        this.helper.getAllowedForms(this.getFormsTypesToEdit()).then((forms: PropertiesWizardStepForm[]) => {
             this.allowedForms = forms;
             this.doLayoutEditLink();
         }).catch((e: unknown) => {
@@ -154,11 +138,11 @@ export class PropertiesWidgetItemView
 
     private initEditPropertiesLink(): void {
         this.editPropertiesLink = new AEl('edit-settings-link');
-        this.editPropertiesLink.setHtml(i18n('widget.properties.edit.text'));
+        this.editPropertiesLink.setHtml(this.getEditLinkText());
 
         this.editPropertiesLink.onClicked((event: MouseEvent) => {
             if (!this.detailsDialog) {
-                this.detailsDialog = new EditDetailsDialog();
+                this.detailsDialog = new EditPropertiesDialog(this.createEditPropertiesDialogParams());
             }
 
             this.detailsDialog.setFormsAllowed(this.allowedForms).setItem(this.item.getContentSummary()).open();
@@ -170,4 +154,10 @@ export class PropertiesWidgetItemView
 
         this.appendChild(new DivEl('edit-settings-link-container').appendChild(this.editPropertiesLink));
     }
+
+    protected abstract getEditLinkText(): string;
+
+    protected abstract createEditPropertiesDialogParams(): EditPropertiesDialogParams;
+
+    protected abstract getFormsTypesToEdit(): PropertiesWizardStepFormType[];
 }

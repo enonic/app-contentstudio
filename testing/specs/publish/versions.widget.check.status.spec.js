@@ -12,8 +12,6 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const appConst = require('../../libs/app_const');
-const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
-const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 
 describe('versions.widget.check.status.spec - check content status in Versions Panel`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -56,14 +54,11 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             let contentWizard = new ContentWizard();
             //1. open the folder and select a language:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            // 3. Open 'Edit Details' modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
+            // 3. Open 'Edit Setting' modal dialog:
+            let editDetailsDialog = await studioUtils.openEditSettingDialog();
             await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
             await editDetailsDialog.clickOnApplyButton();
             await editDetailsDialog.waitForClosed();
@@ -105,16 +100,13 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             let contentWizard = new ContentWizard();
             // 1. open the folder and remove the language:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-            await editDetailsDialog.clickOnRemoveLanguage();
-            await editDetailsDialog.clickOnApplyButton();
-            await editDetailsDialog.waitForClosed();
+            let editSettingsDialog = await studioUtils.openEditSettingDialog();
+            await editSettingsDialog.clickOnRemoveLanguage();
+            await editSettingsDialog.clickOnApplyButton();
+            await editSettingsDialog.waitForClosed();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.doCloseWizardAndSwitchToGrid();
             // 2. Open version panel and verify status in the latest version-item:

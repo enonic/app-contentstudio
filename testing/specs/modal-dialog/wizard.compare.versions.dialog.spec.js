@@ -11,8 +11,6 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
-const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 
 describe('wizard.compare.versions.dialog - open the dialog and verify elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -54,13 +52,10 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
     it("Preconditions: existing folder should be modified(select a language and create new version item )",
         async () => {
             let contentWizard = new ContentWizard();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-            await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
-            await editDetailsDialog.clickOnApplyButton();
+            let editSettingsDialog = await studioUtils.openEditSettingDialog();
+            await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            await editSettingsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
         });

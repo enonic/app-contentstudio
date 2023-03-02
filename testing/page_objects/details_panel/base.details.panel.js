@@ -5,7 +5,19 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
+const xpath = {
+    scheduleWidgetItem: "//div[contains(@id,'OnlinePropertiesWidgetItemView')]",
+};
+
 class BaseDetailsPanel extends Page {
+
+    async waitForScheduleWidgetItemNotDisplayed() {
+        return this.waitForElementNotDisplayed(xpath.scheduleWidgetItem, appConst.mediumTimeout);
+    }
+
+    async waitForScheduleWidgetItemDisplayed() {
+        return this.waitForElementDisplayed(xpath.scheduleWidgetItem, appConst.mediumTimeout);
+    }
 
     //drop down menu for switch to Details, Version History, Dependencies
     async clickOnWidgetSelectorDropdownHandle() {
@@ -84,11 +96,11 @@ class BaseDetailsPanel extends Page {
             await result[0].click();
             return await this.pause(500);
         } catch (err) {
-            throw new Error("Error when opening Layers widget" + err);
+            throw new Error("Error during opening 'Layers widget'" + err);
         }
     }
 
-    async openDetails() {
+    async openDetailsWidget() {
         try {
             await this.clickOnWidgetSelectorDropdownHandle();
             let detailsOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
@@ -125,5 +137,3 @@ class BaseDetailsPanel extends Page {
 }
 
 module.exports = BaseDetailsPanel;
-
-

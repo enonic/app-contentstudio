@@ -14,7 +14,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 const PublishContentDialog = require('../page_objects/content.publish.dialog');
 const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
-const EditDetailsDialog = require('../page_objects/details_panel/edit.details.dialog');
+const EditSettingsDialog = require('../page_objects/details_panel/edit.settings.dialog');
 
 describe('Browse panel, properties widget, language spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -120,15 +120,13 @@ describe('Browse panel, properties widget, language spec', function () {
             await studioUtils.waitForElementDisplayed(`//widget[text()='${TEST_WIDGET_TITLE}']`);
         });
 
-    it(`GIVEN existing folder with language is opened WHEN the language has been removed and 'Details Panel' opened THEN language should not be displayed in the widget`,
+    it(`GIVEN existing folder with language is opened WHEN the language has been removed in 'Edit Settings Dialog' THEN language should not be displayed in the widget`,
         async () => {
             let propertiesWidget = new PropertiesWidget();
-            let editDetailsDialog = new EditDetailsDialog();
             // 1. Open the folder:
             await studioUtils.selectContentAndOpenWizard(TEST_FOLDER.displayName);
-            // 2. Open 'Edit Details' modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
+            // 2. Open 'Edit Settings' modal dialog:
+            let editDetailsDialog = await studioUtils.openEditSettingDialog();
             // 3. Remove the language:
             await editDetailsDialog.clickOnRemoveLanguage();
             await editDetailsDialog.clickOnApplyButton();

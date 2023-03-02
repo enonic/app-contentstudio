@@ -12,7 +12,6 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
@@ -28,13 +27,13 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         webDriverHelper.setupBrowser();
     }
 
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
+    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
     let USER;
     let PASSWORD = appConst.PASSWORD.MEDIUM;
     let FOLDER_WORK_IN_PROGRESS;
     let FOLDER_READY_TO_PUBLISH;
-    let FOLDER_NAME_1 = studioUtils.generateRandomName("folder");
-    let FOLDER_NAME_2 = studioUtils.generateRandomName("folder");
+    let FOLDER_NAME_1 = studioUtils.generateRandomName('folder');
+    let FOLDER_NAME_2 = studioUtils.generateRandomName('folder');
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;
 
@@ -42,7 +41,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
-            let userName = builder.generateRandomName("contributor");
+            let userName = builder.generateRandomName('contributor');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
@@ -64,14 +63,14 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await projectUtils.fillFormsWizardAndClickOnCreateButton(project);
             await projectWizard.waitForNotificationMessage(PROJECT_DISPLAY_NAME);
 
-            await studioUtils.saveScreenshot("project_contributor_created_1");
+            await studioUtils.saveScreenshot('project_contributor_created_1');
             // 3. Select the project and click on Edit button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             // 4. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
-            assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
+            assert.equal(projectAccessItems[0], USER.displayName, 'expected user should be selected in Project Roles form');
         });
 
     it("Precondition 2: 'Work in Progress' and Ready folders should be created in the just created project",
@@ -106,7 +105,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentWizardPanel.pause(1000);
             // 3. Verify that Page Controller is disabled (not clickable):
             let result = await contentWizardPanel.isPageControllerFilterInputClickable();
-            assert.isFalse(result, "Page Controller selector should be disabled for user with contributor role")
+            assert.isFalse(result, 'Page Controller selector should be disabled for user with contributor role')
         });
 
     it("GIVEN contributor user is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
@@ -136,8 +135,8 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //3. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
             //4. Click on the first item in versions widget:
-            await browseVersionsWidget.clickAndExpandVersionItemByHeader("Created");
-            await studioUtils.saveScreenshot("revert_button_should_be_disabled1");
+            await browseVersionsWidget.clickAndExpandVersionItemByHeader('Created');
+            await studioUtils.saveScreenshot('revert_button_should_be_disabled1');
             //5. Verify that Revert button in browse versions panel is disabled:
             await browseVersionsWidget.waitForRevertButtonDisabled();
         });
@@ -184,8 +183,8 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
         });
 
-    //Verifies - https://github.com/enonic/app-contentstudio/issues/1984
-    //Request Publishing menu item should be disabled for contributor (content's status  is 'Work in progress')
+    // Verifies - https://github.com/enonic/app-contentstudio/issues/1984
+    // Request Publishing menu item should be disabled for contributor (content's status  is 'Work in progress')
     it("GIVEN user with 'Contributor' role is logged in WHEN existing folder(Work in Progress) has been selected THEN 'Publish', 'Request Publishing' menu items should be disabled for users with 'Contributor' role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -199,22 +198,21 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentBrowsePanel.waitForNewButtonDisabled();
             // 4. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
-            await studioUtils.saveScreenshot("project_contributor_10");
+            await studioUtils.saveScreenshot('project_contributor_10');
             // 5. Verify that 'Create Issue' and 'Request Publishing' menu items are enabled for Contributor role:
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             // 6. verify issue#1984 - 'Request Publish' menu item should be disabled
             //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             // 7. Verify that 'Publish' menu item is disabled:
             let menuItems = await contentBrowsePanel.getPublishMenuItems();
-            assert.isFalse(menuItems.includes(appConst.PUBLISH_MENU.PUBLISH), "Publish menu item should not be present");
+            assert.isFalse(menuItems.includes(appConst.PUBLISH_MENU.PUBLISH), 'Publish menu item should not be present');
         });
 
     it("GIVEN user with 'Contributor' role is logged in WHEN double click on an existing folder THEN the folder should be opened in the new browser tab AND all inputs should be disabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizardPanel = new ContentWizardPanel();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
+            let propertiesWidgetItem = new PropertiesWidget();
             // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.pause(1000);
@@ -225,12 +223,9 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentWizardPanel.waitForArchiveButtonDisabled();
             await contentWizardPanel.waitForDuplicateButtonDisabled();
             // 4. Verify that display name input is not clickable:
-            await contentWizardPanel.isDisplayNameInputClickable();
-            // 5. Verify that language options filter input is not visible for Contributor:
-            let isVisible = await editDetailsDialog.isLanguageOptionsFilterVisible();
-            assert.isFalse(isVisible, "Language comboBox should not be visible for Contributor role");
-            isVisible = await editDetailsDialog.isOwnerOptionsFilterVisible();
-            assert.isFalse(isVisible, "Owner comboBox should not be visible for Contributor role");
+            let isClickable = await contentWizardPanel.isDisplayNameInputClickable();
+            assert.isFalse(isClickable, 'Name Input should be not clickable');
+            await propertiesWidgetItem.waitForEditSettingsButtonNotDisplayed();
         });
 
     // Verifies - https://github.com/enonic/app-contentstudio/issues/1984
@@ -271,7 +266,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //4. Verify that Create Request dialog closes:
             await publishRequestDetailsDialog.waitForClosed();
             //5. Click on issue-button and open the request:
-            await contentItemPreviewPanel.clickOnIssueButtonByName("contributor request");
+            await contentItemPreviewPanel.clickOnIssueButtonByName('contributor request');
             //6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
             //7. Verify that 'Publish Now' button is disabled:

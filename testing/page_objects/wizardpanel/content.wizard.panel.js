@@ -18,7 +18,7 @@ const WizardLayersWidget = require('./details/wizard.layers.widget');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
 const WizardDependenciesWidget = require('./details/wizard.dependencies.widget');
 const PropertiesWidget = require('../browsepanel/detailspanel/properties.widget.itemview');
-const EditDetailsDialog = require('../details_panel/edit.details.dialog');
+const EditSettingsDialog = require('../details_panel/edit.settings.dialog');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -666,14 +666,13 @@ class ContentWizardPanel extends Page {
 
     async typeSettings(settings) {
         let propertiesWidget = new PropertiesWidget();
-        let editDetailsDialog = new EditDetailsDialog();
+        let editSettingsDialog = new EditSettingsDialog();
         if (settings.language) {
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-            await editDetailsDialog.filterOptionsAndSelectLanguage(settings.language);
-            await editDetailsDialog.clickOnApplyButton();
+            await propertiesWidget.clickOnEditSettingsButton();
+            await editSettingsDialog.waitForLoaded();
+            await editSettingsDialog.filterOptionsAndSelectLanguage(settings.language);
+            await editSettingsDialog.clickOnApplyButton();
         }
-
     }
 
     async doUnlockLiveEditor() {
@@ -1080,9 +1079,8 @@ class ContentWizardPanel extends Page {
 
     async openDetailsWidget() {
         let detailsPanel = new DetailsPanel();
-        let wizardLayersWidget = new WizardLayersWidget();
         await this.openDetailsPanel();
-        await detailsPanel.openDetails();
+        await detailsPanel.openDetailsWidget();
     }
 
     async waitForResetButtonDisplayed() {
