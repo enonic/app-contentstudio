@@ -205,28 +205,22 @@ Content is published through the *Publishing Wizard* dialog. When a content is s
 will be published along with it. For example, in the image below, a content named "_March madness_" was selected for publishing.
 This post has two related *Category* content items (_/parent_ and _/parent/first-child-category_) and one related *Author* item (_/authors/michael-lazell_).
 Therefore, these two categories and the author are automatically included in the list of items to be published, and all the ascendants of the dependent items will also be included.
+Total number of items that will be published is displayed on the *Publish Now* button.
 
-image::publishing-wizard-1.png[]
+TIP: The Calendar icon next to the "Publish Now" button enables <<#_scheduled-publishing,Scheduled Publishing>> of the selected content.
 
-The Calendar icon next to the "Publish Now" button enables <<#_scheduled-publishing,Scheduled Publishing>> of the selected content.
-
-TIP: Total number of items that will be published is displayed on the *Publish Now* button.
-
-TIP: If current user is missing publishing permissions for selected item(s), the "*Publish All*" button will be replaced with "*Request Publishing*"
+NOTE: If current user is missing publishing permissions for selected item(s), the "*Publish All*" button will be replaced with "*Request Publishing*"
 (read more about publish requests <<workflow#publish_request,here>>).
 
-=== Publish Tree
+=== Dependencies
 
-If the selected content has children then these items can be automatically included by clicking the tree icon to the left of the content.
-As you can see from the picture below, clicking the icon has added add all descendants of the originally selected content to the publishing
-list and the number on the "Publish Now" button has increased from 9 to 15.
+Children of content items selected for publishing can be added to the publishing batch by clicking the tree icon to the left of the content.
 
-image::publishing-wizard-2.png[]
+Dependencies & child items can be excluded from the publishing batch using checkboxes in the dependency list. Confirm your changes by clicking the "Apply" button in the toolbar. Sometimes the checkbox is disabled, this means that the item cannot be excluded, either because it's a dependency required for publishing of the originally selected item(s), or it has its children in the list (and child items cannot be published without publishing all of their ascendants). In the latter case, excluded children first, then parents will be automatically removed.
 
-TIP: You can use "x" icon on the right-hand side to exclude items from publishing. Sometimes this icon is disabled, this means that the item
-cannot be excluded, either because it's a dependency required for publishing of the originally selected item(s), or it has its children in
-the list (and child items cannot be published without publishing all of their ascendants). In the latter case, start excluding children first,
-then parents will be allowed to be excluded as well.
+TIP: If you want to add back dependent items excluded by mistake, click *Show excluded items* link above the list and all excluded items will reappear in the list. Select the items to you want to add back, and click "Apply".
+
+image::dialog-publish-excluded.png[Excluded dependencies, 470px]
 
 === Validation
 
@@ -244,7 +238,7 @@ If all the checks have successfully passed, the "Publish" button will be enabled
 
 image::dialog-publish-valid.png[Valid publication, 470px]
 
-TIP: Use "Mark as ready" action in the "Publish" button's dropdown menu to mark all in-progress items as ready for publishing.
+TIP: Use "Mark as ready" link up in the status bar to mark all in-progress items as ready for publishing.
 
 === Scheduled publishing
 
