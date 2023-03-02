@@ -256,6 +256,7 @@ export class FragmentComponentView
     private removeComponentTypeAttrs(element: Element) {
         const htmlElement: HTMLElement = element.getHTMLElement();
         const hasErrors: boolean = !!htmlElement.getAttribute('data-portal-placeholder-error');
+
         if (hasErrors) {
             this.getEl().setAttribute('data-portal-placeholder-error', 'true');
         }

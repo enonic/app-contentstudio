@@ -56,6 +56,12 @@ import {Descriptor} from '../../page/Descriptor';
 import {ContentId} from '../../content/ContentId';
 import {CreateHtmlAreaMacroDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaMacroDialogEvent';
 import {CreateHtmlAreaContentDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
+import {FragmentItemType} from '../../../page-editor/fragment/FragmentItemType';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ItemType} from '../../../page-editor/ItemType';
+import {ComponentItemType} from '../../../page-editor/ComponentItemType';
+import * as DOMPurify from 'dompurify';
+import {HTMLAreaHelper} from '../../inputtype/ui/text/HTMLAreaHelper';
 
 export class LiveEditPageProxy {
 
@@ -421,7 +427,7 @@ export class LiveEditPageProxy {
             url: componentUrl,
             type: 'GET',
             success: (htmlAsString: string) => {
-                const newElement: Element = Element.fromString(htmlAsString);
+                const newElement: Element = this.wrapLoadedComponentHtml(htmlAsString, componentView.getType());
                 const itemViewIdProducer: ItemViewIdProducer = componentView.getItemViewIdProducer();
                 const itemViewFactory: ItemViewFactory = componentView.getItemViewFactory();
 
@@ -460,6 +466,25 @@ export class LiveEditPageProxy {
         });
 
         return deferred.promise;
+    }
+
+    private wrapLoadedComponentHtml(htmlAsString: string, componentType: ComponentItemType): Element {
+        if (FragmentItemType.get().equals(componentType)) {
+            return this.wrapLoadedFragmentHtml(htmlAsString);
+        }
+
+        return Element.fromString(htmlAsString);
+    }
+
+    private wrapLoadedFragmentHtml(htmlAsString: string): Element {
+        const sanitized: string = DOMPurify.sanitize(htmlAsString, {ALLOWED_URI_REGEXP: HTMLAreaHelper.getAllowedUriRegexp()});
+        const sanitizedElement: Element = Element.fromHtml(sanitized);
+
+        const fragmentWrapperEl: Element = new DivEl();
+        fragmentWrapperEl.getEl().setAttribute(`data-${ItemType.ATTRIBUTE_TYPE}`, 'fragment');
+        fragmentWrapperEl.appendChild(sanitizedElement);
+
+        return fragmentWrapperEl;
     }
 
     public stopListening(contextWindow: any) {

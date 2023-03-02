@@ -126,4 +126,8 @@ export class HTMLAreaHelper {
         return new HtmlAreaSanitizer().sanitize(value);
     }
 
+    public static getAllowedUriRegexp(): RegExp {
+        return /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|content|media|image):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+    }
+
 }
