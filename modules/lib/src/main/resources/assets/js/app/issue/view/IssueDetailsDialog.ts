@@ -1084,7 +1084,7 @@ export class IssueDetailsDialog
     }
 
     protected createItemList(): PublishDialogItemList {
-        return new PublishDialogItemList();
+        return new PublishDialogItemList({allowOnlyItemRemoval: true});
     }
 
     protected createDependantList(): PublishDialogDependantList {
