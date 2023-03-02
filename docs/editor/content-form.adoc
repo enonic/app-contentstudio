@@ -6,7 +6,7 @@ This panel appears on the left side of the page after content is created or whil
 data is entered. The structure and fields in the form are determined by the *content type* which is defined in the application code.
 The content editor panel can be collapsed to give the page editor more room by clicking the arrow icon on the top right of the panel.
 
-image::editor-form-1.png[Editor form]
+image::editor-form.png[Editor form]
 
 The top of the content form has the content type icon, the Display Name, and the content path name.
 The default icon can be replaced with an image file by clicking on it. When the Display Name is being changed, the path name will change
@@ -24,27 +24,6 @@ modal dialog. These precautions aim to prevent accidental breaking of external h
 image::editor-header-locked.png[Locked path in published content]
 
 Underneath is a toolbar with clickable navigation steps that correspond to different sections of the content form. The first one is always
-content type name, and the last ones are icons for the *Schedule* (only for published content), *Settings* and *Access* wizard steps.
-In between, there might be *X-data* and *Mixins* steps enabled for this content. Clicking on an item in the toolbar will scroll the content
+the content type name followed by optional *X-data* steps (if any). Clicking on an item in the toolbar will scroll the content
 form down to the corresponding section.
 
-image::editor-form-2.png[Editor form]
-
-Form fields in the content data section depend on how the content type was set up.
-
-*Schedule* section is where the period of time, during which a content is available online, can be modified.
-
-NOTE: *Schedule* section is only displayed for published content.
-
-*Settings* section is where the content’s Language and Owner are set. The *Language* will be inherited from the parent content if it was
-set there. The *Owner* will be the logged in user who created the content, but it could be changed if the current user has the right permissions.
-
-Content permissions can be modified in the dedicated modal dialog.
-Content will by default inherit the <<../permissions#,permissions>> of the parent content when created.
-
-image::editor-permissions-dialog.png[Permissions dialog]
-
-To modify permissions, uncheck "Inherit permissions" checkbox, then you will be able to remove/add principals and modify their permissions.
-Clicking on any item here will expand it and show what permissions the principal has.
-
-image::editor-permissions-dialog-2.png[Permissions dialog]
