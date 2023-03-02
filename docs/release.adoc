@@ -33,6 +33,18 @@ You can assign applications to a new project inside the New Project Wizard, or d
 IMPORTANT: Applications assigned to projects will not work for a site or content items inside a site. Assign application(s)
 directly to the site if you want to use them for site contents.
 
+=== Batch exclusion of dependent items from publishing
+
+Publishing Wizard and Publishing requests now support batch exclusion of dependant items.
+"x" icons have been replaced with checkboxes which can be checked off for multiple items, then confirmed with the "Apply" button which will refresh the dependant list. If checkbox next to dependant item is disabled it means that this item is required for publishing.
+Excluded items can be added back to the list from the "Show excluded icons" mode.
+
+:imagesdir: actions/images
+image::dialog-publish-excluded.png[Publishing request, 470px]
+
+:imagesdir: workflow/images
+image::publishing-request-1.png[Publishing request, 470px]
+
 === Content Editor improvements
 
 `Settings`, `Schedule` and `Permissions` icons were moved from the Content Editor form's navigation toolbar to the <<widgets#details,"Details" widget>>. Fields from the `Settings` section (`Language` and `Owner`) were moved inside the "Properties" section of the widget, while "Schedule" got its own dedicated section right underneath "Properties". Permissions can be modified from the dedicated section of the same widget, as before.
