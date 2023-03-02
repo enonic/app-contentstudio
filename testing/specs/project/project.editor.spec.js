@@ -11,8 +11,6 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
@@ -21,11 +19,11 @@ const ProjectWizardDialogParentProjectStep = require('../../page_objects/project
 
 describe("project.editor.spec - ui-tests for an user with 'Editor' role", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let FOLDER_NAME = studioUtils.generateRandomName("folder");
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
+    let FOLDER_NAME = studioUtils.generateRandomName('folder');
+    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
     let USER;
     let PASSWORD = appConst.PASSWORD.MEDIUM;
 
@@ -47,44 +45,44 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             let languageStep = new ProjectWizardDialogLanguageStep();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
             let applicationsStep = new ProjectWizardDialogApplicationsStep();
-            //1. Do Log in with 'SU' and navigate to 'Settings':
+            // 1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //2.Open new project wizard:
+            // 2.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            //3. Select Project-radio then click on Next button:
+            // 3. Select Project-radio then click on Next button:
             await parentProjectStep.clickOnProjectRadioButton();
             await parentProjectStep.clickOnNextButton();
-            //4. Skip the language step:
+            // 4. Skip the language step:
             await languageStep.clickOnSkipButton();
-            //5. Select 'Private' access mode in the fours step:
+            // 5. Select 'Private' access mode in the fours step:
             let permissionsStep = await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PRIVATE);
             await permissionsStep.waitForLoaded();
-            //6. Select the user with default role:
+            // 6. Select the user with default role:
             await permissionsStep.selectProjectAccessRole(USER.displayName);
-            //7. Update the default role to "Editor"
+            // 7. Update the default role to "Editor"
             await permissionsStep.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.EDITOR);
-            //8. Click on Next button in permissions step:
+            // 8. Click on Next button in permissions step:
             await permissionsStep.clickOnNextButton();
             if(await applicationsStep.isLoaded()){
                 await applicationsStep.clickOnSkipButton();
             }
-            //9. Fil in the name input:
+            // 9. Fil in the name input:
             let summaryStep = await projectUtils.fillNameAndDescriptionStep(PROJECT_DISPLAY_NAME);
             await summaryStep.waitForLoaded();
-            //10. click On Create button:
+            // 10. click On Create button:
             await summaryStep.clickOnCreateProjectButton();
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
-            //11. Open the project
+            // 11. Open the project
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            await studioUtils.saveScreenshot("project_editor_1");
-            //12. Verify that expected user is present in selected options:
+            await studioUtils.saveScreenshot('project_editor_1');
+            // 12. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
-            assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
-            //Do log out:
+            assert.equal(projectAccessItems[0], USER.displayName, 'expected user should be selected in Project Roles form');
+            // Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
@@ -95,10 +93,10 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.pause(500);
-            await studioUtils.saveScreenshot("select_project_button_not_clickable");
+            await studioUtils.saveScreenshot('select_project_button_not_clickable');
             //Verify that 'Select project' button is not clickable on the browse toolbar:
             let isClickable = await contentBrowsePanel.isProjectViewerClickable();
-            assert.isFalse(isClickable, "ProjectViewer button should not be clickable");
+            assert.isFalse(isClickable, 'ProjectViewer button should not be clickable');
         });
 
     it("GIVEN user with Editor role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
@@ -113,7 +111,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
-            await studioUtils.saveScreenshot("project_editor_2");
+            await studioUtils.saveScreenshot('project_editor_2');
         });
 
     it("GIVEN user with Editor role is logged in WHEN New Content Dialog has been opened THEN only Folder and Shortcut types are allowed for Editor role",
@@ -127,63 +125,60 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             let items = await newContentDialog.getItems();
-            await studioUtils.saveScreenshot("project_editor_3");
+            await studioUtils.saveScreenshot('project_editor_3');
             //3. Verify that only 'Folders' and 'Shortcut' are allowed for Editor role
-            assert.equal(items.length, 2, "Two items should be available for Editor");
-            assert.isTrue(items.includes("Folder"), "Folder is allowed for creating");
-            assert.isTrue(items.includes("Shortcut"), "Shortcut is allowed for creating");
+            assert.equal(items.length, 2, 'Two items should be available for Editor');
+            assert.isTrue(items.includes('Folder'), 'Folder is allowed for creating');
+            assert.isTrue(items.includes('Shortcut'), 'Shortcut is allowed for creating');
         });
 
     // Verify that user-editor can select a language:
     it("GIVEN user with Editor role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             //1. Do log in with the user-editor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             await studioUtils.saveScreenshot('project_editor_4');
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-            await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
-            await editDetailsDialog.clickOnApplyButton();
-            await editDetailsDialog.waitForClosed();
+            let editSettingsDialog = await studioUtils.openEditSettingDialog();
+            await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            await editSettingsDialog.clickOnApplyButton();
+            await editSettingsDialog.waitForClosed();
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('project_editor_5');
             //3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 
-    //Verify that 'user-editor' can publish content:
+    // Verify that 'user-editor' can publish content:
     it("GIVEN user with 'Editor' role is logged in WHEN existing folder(work in progress) has been published THEN the folder gets Published",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Do log in with the user-editor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-editor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.findAndSelectItem(FOLDER_NAME);
-            //2. The folder has been 'Marked as ready' in browse panel(Publish wizard loads automatically):
+            // 2. The folder has been 'Marked as ready' in browse panel(Publish wizard loads automatically):
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await studioUtils.saveScreenshot('project_editor_6');
-            //3. The folder has been published in browse panel:
+            // 3. The folder has been published in browse panel:
             await studioUtils.doPublish();
             await studioUtils.saveScreenshot('project_editor_7');
             await contentBrowsePanel.waitForNotificationMessage();
-            //4. Verify that status of thr folder is Published:
+            // 4. Verify that status of thr folder is Published:
             let status = await contentBrowsePanel.getContentStatus(FOLDER_NAME);
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
         });
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
-        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -10,8 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
-const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 
 describe('Wizard page - verify schedule form', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -22,36 +21,32 @@ describe('Wizard page - verify schedule form', function () {
     const DATE_TIME_IN_FUTURE = '2029-09-10 00:00';
     let TEST_FOLDER;
 
-    it(`WHEN new folder has been created THEN schedule form should not be displayed in 'Edit Properties' modal dialog`,
+    it(`WHEN new folder has been created THEN schedule widget item should not be displayed in 'Details' widget`,
         async () => {
             let contentWizard = new ContentWizard();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             let contentPublishDialog = new ContentPublishDialog();
+            let wizardDetailsPanel = new WizardDetailsPanel();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             // 1. Open new folder-wizard, type a name and save:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(TEST_FOLDER.displayName);
             await contentWizard.waitAndClickOnSave();
+            // 2. Click on Mark as Ready button
             await contentWizard.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnCancelTopButton();
             let status = await contentWizard.getContentStatus();
             assert.equal(status, 'New', "New status should be in ContentWizardToolbar");
-            // 2. Open Edit Properties modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-            await studioUtils.saveScreenshot('edit_prop_not_schedule');
-            //3. 'Schedule form' should not be present in the modal dialog:
-            await editDetailsDialog.waitForScheduleFormNotDisplayed();
+            await studioUtils.saveScreenshot('schedule_widget_item_not_displayed');
+            // 3. Schedule widget item should not be displayed in the Details widget
+            await wizardDetailsPanel.waitForScheduleWidgetItemNotDisplayed();
         });
 
     it(`GIVEN existing content is opened WHEN content has been published THEN 'Schedule' form should appear in Edit Properties modal dialog`,
         async () => {
             let contentWizard = new ContentWizard();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
+            let wizardDetailsPanel = new WizardDetailsPanel();
             // 1. Open then publish the content:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.openPublishMenuAndPublish();
@@ -59,72 +54,62 @@ describe('Wizard page - verify schedule form', function () {
             // 2. Published status should be displayed in the wizard toolbar
             let status = await contentWizard.getContentStatus();
             assert.equal(status, 'Published', "'Published' status should be displayed in the toolbar");
-            // 3. Open Edit Properties modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
+
             await studioUtils.saveScreenshot('edit_prop_not_schedule');
-            // 4. Schedule item appears in the modal dialog:
-            await editDetailsDialog.waitForScheduleFormDisplayed();
+            // 4. Schedule widget item appears in the details panel:
+            await wizardDetailsPanel.waitForScheduleWidgetItemDisplayed();
+            // 3. Open Edit Properties modal dialog:
+            let editScheduleDialog = await studioUtils.openEditScheduleDialog();
             // 5. Verify the date in Online from input:
             let expectedDate = new Date().toISOString().substring(0, 10);
-            let from = await editDetailsDialog.getOnlineFrom();
+            let from = await editScheduleDialog.getOnlineFrom();
             assert.isTrue(from.includes(expectedDate), "Expected date time should be displayed");
         });
 
     it("GIVEN existing published folder is opened WHEN 'Online to' is earlier than 'Online from' THEN expected validation message appears",
         async () => {
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             // 1. Open the 'published' folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             // 3. Open Edit Properties modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-            await editDetailsDialog.typeOnlineTo(DATE_TIME_IN_PAST);
+            let editScheduleDialog = await studioUtils.openEditScheduleDialog();
+            await editScheduleDialog.typeOnlineTo(DATE_TIME_IN_PAST);
             await studioUtils.saveScreenshot('online_to_in_past');
-            await editDetailsDialog.waitForValidationRecording();
-            let recordingActual = await editDetailsDialog.getScheduleValidationRecord();
+            await editScheduleDialog.waitForValidationRecording();
+            let recordingActual = await editScheduleDialog.getScheduleValidationRecord();
             assert.equal(recordingActual, appConst.VALIDATION_MESSAGE.SCHEDULE_FORM_ONLINE_PAST);
         });
 
     it("GIVEN existing published folder is opened WHEN 'Online from' has been cleared and 'Online to' has been set THEN 'Invalid value entered' message appears",
         async () => {
             let contentWizard = new ContentWizard();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             // 1. Open the 'published' folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            // 2. Open Edit Properties modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
+            // 2. Open Edit Schedule modal dialog:
+            let editScheduleDialog = await studioUtils.openEditScheduleDialog();
             // 3. 'Online from' has been cleared and 'Online to' has been set in future
-            await editDetailsDialog.typeOnlineFrom('  ');
-            await editDetailsDialog.typeOnlineTo(DATE_TIME_IN_FUTURE);
+            await editScheduleDialog.typeOnlineFrom('  ');
+            await editScheduleDialog.typeOnlineTo(DATE_TIME_IN_FUTURE);
             await studioUtils.saveScreenshot('online_to_cleared');
             // 4. Verify that  Save button is disabled after updating date in Edit Properties dialog:
             await contentWizard.waitForSaveButtonDisabled();
             // 5. Verify that expected validation recording is displayed:
-            await editDetailsDialog.waitForScheduleFormDisplayed();
-            let recordingActual = await editDetailsDialog.getScheduleValidationRecord();
+            await editScheduleDialog.waitForScheduleFormDisplayed();
+            let recordingActual = await editScheduleDialog.getScheduleValidationRecord();
             assert.equal(recordingActual, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
         });
 
     it(`GIVEN existing published content is opened WHEN content has been unpublished THEN 'Schedule' form should not be displayed in the 'Edit Properties' dialog`,
         async () => {
             let contentWizard = new ContentWizard();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
+            let wizardDetailsPanel = new WizardDetailsPanel();
             // 1. Select and open the folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             // 2. Unpublish the folder:
             await studioUtils.doUnPublishInWizard();
             await contentWizard.pause(500);
-            // 3. Open Edit Properties modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
             await studioUtils.saveScreenshot('check_schedule_form_unpublished');
-            // 4. 'Schedule' form should not be displayed in the 'Edit Properties' dialog:
-            await editDetailsDialog.waitForScheduleFormNotDisplayed();
+            // 4. 'Edit Schedule' widget item should not be displayed in Details Panel
+            await wizardDetailsPanel.waitForScheduleWidgetItemNotDisplayed();
             // 5. 'Unpublished' status should be displayed in the toolbar:
             let status = await contentWizard.getContentStatus();
             assert.equal(status, 'Unpublished', "'Unpublished' status should be displayed in the toolbar");

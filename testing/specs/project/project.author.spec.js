@@ -12,7 +12,6 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const contentBuilder = require("../../libs/content.builder");
@@ -25,12 +24,12 @@ const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/
 
 describe('project.author.spec - ui-tests for user with Author role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    const FOLDER_NAME = studioUtils.generateRandomName("folder");
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const FOLDER_NAME = studioUtils.generateRandomName('folder');
     let USER;
     const PASSWORD = appConst.PASSWORD.MEDIUM;
     const CONTROLLER_NAME = 'main region';
@@ -41,7 +40,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         async () => {
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
-            let userName = builder.generateRandomName("author");
+            let userName = builder.generateRandomName('author');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
@@ -88,7 +87,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            await studioUtils.saveScreenshot("project_author_1");
+            await studioUtils.saveScreenshot('project_author_1');
             // 12. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
@@ -119,7 +118,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.getBrowser().url(url);
             // 3. Verify that expected site is loaded:
             let actualTitle = await studioUtils.getBrowser().getTitle();
-            assert.equal(actualTitle, SITE_NAME, "expected site should be loaded");
+            assert.equal(actualTitle, SITE_NAME, 'expected site should be loaded');
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
@@ -132,7 +131,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             // 2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             // 3. Verify that all button are disabled in the toolbar:
-            await studioUtils.saveScreenshot("project_author_1");
+            await studioUtils.saveScreenshot('project_author_1');
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
@@ -149,18 +148,18 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             let items = await newContentDialog.getItems();
-            studioUtils.saveScreenshot("project_author_3");
+            await studioUtils.saveScreenshot('project_author_3');
             //3. Verify that only 'Folders' and 'Shortcut' are allowed for Author role
-            assert.equal(items.length, 2, "Two items should be available for Author");
-            assert.isTrue(items.includes("Folder"), "Folder is allowed for creating");
-            assert.isTrue(items.includes("Shortcut"), "Shortcut is allowed for creating");
+            assert.equal(items.length, 2, 'Two items should be available for Author');
+            assert.isTrue(items.includes('Folder'), 'Folder is allowed for creating');
+            assert.isTrue(items.includes('Shortcut'), 'Shortcut is allowed for creating');
         });
 
     // Verify that user with Author role can not select a language or owner in Wizard, but can make a content ready for publishing( Mark as Ready)
     it("GIVEN user with 'Author' role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
-            let editDetailsDialog = new EditDetailsDialog();
+            let propertiesWidgetItemView = new PropertiesWidget();
             let propertiesWidget = new PropertiesWidget();
             // 1. Do log in with the user-author and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
@@ -172,8 +171,8 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.saveScreenshot('project_author_5');
             // 3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
-            // Verify taht Edit properties button is not visible for users with 'Author' role
-            await propertiesWidget.waitForEditPropertiesButtonNotDisplayed();
+            // Verify that 'Edit Settings' button is not visible for users with 'Author' role:
+            await propertiesWidgetItemView.waitForEditSettingsButtonNotDisplayed();
 
         });
 
@@ -212,13 +211,13 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.clickOnNextButton();
-            await createRequestPublishDialog.typeInChangesInput("author request");
+            await createRequestPublishDialog.typeInChangesInput('author request');
             // 3. Click on 'Create Request' button:
             await createRequestPublishDialog.clickOnCreateRequestButton();
             // 4. Verify that Create Request dialog closes:
             await publishRequestDetailsDialog.waitForClosed();
             // 5. Click on issue-button and open the request:
-            await contentItemPreviewPanel.clickOnIssueButtonByName("author request");
+            await contentItemPreviewPanel.clickOnIssueButtonByName('author request');
             // 6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
             // 7. Verify that 'Publish Now' button is disabled:

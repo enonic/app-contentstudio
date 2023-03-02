@@ -9,8 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
-const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
-const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 
 describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -18,7 +17,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
         webDriverHelper.setupBrowser();
     }
     let TEST_FOLDER;
-    let NEW_DISPLAY_NAME = 'new display name 1';
+    let NEW_DISPLAY_NAME = appConst.generateRandomName('newName');
 
     it(`GIVEN name input is filled in WHEN display name input is empty THEN only 'Create Task' menu item should be enabled`,
         async () => {
@@ -63,20 +62,17 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
 
     it(`WHEN existing 'published' folder is opened THEN 'Online from' and 'Online to' appear in the Schedule step form`,
         async () => {
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             //1. Open the published folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            // 2. Open Edit Properties dialog
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
+            // 2. Open 'Edit Schedule' dialog
+            let editScheduleDialog = await studioUtils.openEditScheduleDialog();
             // 2. Verify that actual dateTime is correct in Online From input
-            let fromActual = await editDetailsDialog.getOnlineFrom();
+            let fromActual = await editScheduleDialog.getOnlineFrom();
             let expectedDate = new Date().toISOString().substring(0, 10);
             assert.isTrue(fromActual.includes(expectedDate), "Expected date time should be displayed");
             //3. Verify that 'Online to' input is empty
-            let to = await editDetailsDialog.getOnlineTo();
-            assert.equal(to, '', 'Online to should be empty');
+            let to = await editScheduleDialog.getOnlineTo();
+            assert.equal(to, '', "'Online to' should be empty");
         });
 
     it(`GIVEN existing 'published' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be disabled AND 'Create Task...' is enabled`,
@@ -98,8 +94,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
     it(`GIVEN existing 'Published' folder is opened WHEN the folder has been updated THEN 'Modified' status AND MARK AS READY button get visible`,
         async () => {
             let contentWizard = new ContentWizard();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.typeDisplayName(NEW_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
@@ -107,10 +101,9 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
 
             assert.equal(status, appConst.CONTENT_STATUS.MODIFIED);
             await contentWizard.waitForMarkAsReadyButtonVisible();
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-
-            let onlineFrom = await editDetailsDialog.getOnlineFrom();
+            let editScheduleDialog = await studioUtils.openEditScheduleDialog();
+            // 2. Verify that actual dateTime is correct in Online From input
+            let onlineFrom = await editScheduleDialog.getOnlineFrom();
             assert.isFalse(studioUtils.isStringEmpty(onlineFrom), 'Online from input should not be empty');
 
             let workflow = await contentWizard.getContentWorkflowState();
@@ -131,13 +124,14 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
     it(`GIVEN existing 'modified' content is opened WHEN 'unpublish...' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
+            let wizardDetailsPanel = new WizardDetailsPanel();
             await studioUtils.selectByDisplayNameAndOpenContent(NEW_DISPLAY_NAME);
-            //'MARK AS READY' button should be present on the toolbar
-            //So need to open the publish-menu and select 'Unpublish...' menu item
+            // Schedule widget item should be present in the Details widget:
+            await wizardDetailsPanel.waitForScheduleWidgetItemDisplayed();
+            //'MARK AS READY' is default action now
+            // So need to open the publish-menu and select 'Unpublish...' menu item
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.UNPUBLISH);
-            //open 'Unpublish Content' Dialog:
+            // open 'Unpublish Content' Dialog:
             let contentUnpublishDialog = new ContentUnpublishDialog();
             await contentUnpublishDialog.waitForDialogOpened();
             await contentUnpublishDialog.clickOnUnpublishButton();
@@ -147,19 +141,14 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForMarkAsReadyButtonVisible();
             let workflow = await contentWizard.getContentWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
-            // Open 'Edit Properties' modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-            //Schedule form should not be displayed in the modal dialog:
-            await editDetailsDialog.waitForScheduleFormNotDisplayed();
-
-
+            // Schedule widget item gets not visible in the details widget::
+            await wizardDetailsPanel.waitForScheduleWidgetItemNotDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

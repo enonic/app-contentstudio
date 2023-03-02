@@ -9,8 +9,6 @@ const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
@@ -67,8 +65,6 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
 
     it("GIVEN 'Reset' button has been pressed AND Confirmation dialog is opened WHEN 'No' button has been clicked THEN the site remains localized",
         async () => {
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             let contentWizard = new ContentWizard();
             //1. layer's context should be loaded automatically.
             //2. Open the localized site:
@@ -77,11 +73,10 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
             // 4. Click on No button in confirmation dialog:
             await confirmationDialog.clickOnNoButton();
-            // 2. Open 'Edit Details' modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-            let language = await editDetailsDialog.getSelectedLanguage();
-            await editDetailsDialog.clickOnCancelButton();
+            // 2. Open 'Edit Setting' modal dialog:
+            let editSettingsDialog = await studioUtils.openEditSettingDialog();
+            let language = await editSettingsDialog.getSelectedLanguage();
+            await editSettingsDialog.clickOnCancelButton();
             await studioUtils.saveScreenshot('reset_not_confirmed');
             // 5. Verify that site is not reverted to initial inherited state:
             assert.equal(language, appConst.LANGUAGES.EN, "layer's data should not be reset");
@@ -91,8 +86,6 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
 
     it("GIVEN 'Reset' button has been pressed AND Confirmation dialog is opened WHEN 'Yes' button has been clicked THEN the site should be reverted to the inherited state",
         async () => {
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             let contentWizard = new ContentWizard();
             // layer's context should be loaded automatically.
             // 1. Open the localized site:
@@ -103,9 +96,8 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
             // 4. Open 'Edit Details' modal dialog:
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-            let language = await editDetailsDialog.getSelectedLanguage();
+            let editSettingsDialog = await studioUtils.openEditSettingDialog();
+            let language = await editSettingsDialog.getSelectedLanguage();
             await studioUtils.saveScreenshot('reset_confirmed');
             //5. Verify that content is reverted to initial inherited state:
             assert.equal(language, appConst.LANGUAGES.EN, "layer's language should be reset");

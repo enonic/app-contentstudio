@@ -51,7 +51,7 @@ export class SettingsWizardStepForm
     }
 
     protected getHeaderText(): string {
-        return i18n('field.settings');
+        return null; // i18n('field.settings');
     }
 
     private addSettingsForm(): void {

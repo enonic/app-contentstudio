@@ -192,7 +192,7 @@ class ContentPublishDialog extends Page {
 
     async clickOnMarkAsReadyButton() {
         try {
-            await this.waitForMarkAsReadyButtonDisplayed()
+            await this.waitForMarkAsReadyButtonDisplayed();
             await this.clickOnElement(this.markAsReadyButton);
             return await this.pause(700);
         } catch (err) {

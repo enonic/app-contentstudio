@@ -36,6 +36,10 @@ const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.d
 const fs = require('fs');
 const path = require('path');
 const addContext = require('mochawesome/addContext');
+const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const ScheduleWidgetItem = require('../page_objects/browsepanel/detailspanel/schedule.widget.itemview');
+const EditSettingDialog = require('../page_objects/details_panel/edit.settings.dialog');
+const EditScheduleDialog = require('../page_objects/details_panel/edit.schedule.dialog');
 
 module.exports = {
 
@@ -1028,5 +1032,21 @@ module.exports = {
             ids.push(el.getAttribute("id"));
         });
         return Promise.all(ids);
+    },
+    async openEditSettingDialog() {
+        let propertiesWidgetItem = new PropertiesWidgetItem();
+        let editSettingsDialog = new EditSettingDialog();
+        // 3. Click on Edit Settings :
+        await propertiesWidgetItem.clickOnEditSettingsButton();
+        await editSettingsDialog.waitForLoaded();
+        return editSettingsDialog;
+    },
+    async openEditScheduleDialog() {
+        let scheduleWidgetItem = new ScheduleWidgetItem();
+        let editScheduleDialog = new EditScheduleDialog();
+        // 3. Open Edit Schedule modal dialog:
+        await scheduleWidgetItem.clickOnEditScheduleButton();
+        await editScheduleDialog.waitForLoaded();
+        return editScheduleDialog;
     }
 };

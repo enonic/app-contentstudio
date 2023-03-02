@@ -10,8 +10,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const DateRangeInput = require('../../page_objects/components/datetime.range');
 
 describe('refresh.publish.dialog.spec - opens publish content modal dialog and checks control elements', function () {
@@ -28,8 +26,6 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             let folderName = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(folderName);
             // 1. New folder has been added:(status of this folder is Ready for publishing)
@@ -41,10 +37,9 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             // 3. click on the folder-name in the modal dialog then switch to the wizard-tab:
             await contentPublishDialog.clickOnMainItemAndSwitchToWizard(FOLDER.displayName);
             // 4. Select a language in the wizard. The folder gets 'Work in Progress'
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-            await editDetailsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
-            await editDetailsDialog.clickOnApplyButton();
+            let editSettingsDialog = await studioUtils.openEditSettingDialog();
+            await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            await editSettingsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
             await contentWizard.pause(1000);

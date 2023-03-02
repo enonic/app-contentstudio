@@ -13,7 +13,7 @@ const xpath = {
     type: "//dd[contains(.,'Type')]/following-sibling::dt[1]",
     firstPublished: "//dd[contains(.,'First Published')]/following-sibling::dt[1]",
     modified: "//dd[contains(.,'Modified')]/following-sibling::dt[1]",
-    editPropertiesButton: "//a[contains(@class,'edit-settings-link') and text()='Edit Properties']",
+    editSettingsButton: "//a[contains(@class,'edit-settings-link') and text()='Edit Settings']",
 };
 
 class PropertiesItemView extends Page {
@@ -22,8 +22,8 @@ class PropertiesItemView extends Page {
         return xpath.container + xpath.applicationProperty;
     }
 
-    get editPropertiesButton() {
-        return xpath.container + xpath.editPropertiesButton;
+    get editSettingsButton() {
+        return xpath.container + xpath.editSettingsButton;
     }
 
     get typeProperty() {
@@ -50,18 +50,18 @@ class PropertiesItemView extends Page {
         return xpath.container + xpath.publishFromProperty;
     }
 
-    waitForEditPropertiesButtonDisplayed() {
-        return this.waitForElementDisplayed(this.editPropertiesButton, appConst.mediumTimeout);
+    waitForEditSettingsButtonDisplayed() {
+        return this.waitForElementDisplayed(this.editSettingsButton, appConst.mediumTimeout);
     }
 
-    waitForEditPropertiesButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.editPropertiesButton, appConst.mediumTimeout);
+    waitForEditSettingsButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.editSettingsButton, appConst.mediumTimeout);
     }
 
-    async clickOnEditPropertiesButton() {
+    async clickOnEditSettingsButton() {
         try {
-            await this.waitForEditPropertiesButtonDisplayed();
-            await this.clickOnElement(this.editPropertiesButton);
+            await this.waitForEditSettingsButtonDisplayed();
+            await this.clickOnElement(this.editSettingsButton);
             await this.pause(300);
         } catch (err) {
             let screenshot = appConst.generateRandomName('prop_widget_edit');
@@ -88,7 +88,7 @@ class PropertiesItemView extends Page {
 
     waitForOwnerNotVisible() {
         return this.waitForElementNotDisplayed(this.ownerProperty, appConst.shortTimeout).catch(err => {
-            throw new Error("Owner should not be present in the properties widget! " + err);
+            throw new Error('Owner should not be present in the properties widget! ' + err);
         });
     }
 
@@ -137,5 +137,3 @@ class PropertiesItemView extends Page {
 }
 
 module.exports = PropertiesItemView;
-
-

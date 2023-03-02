@@ -12,8 +12,6 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const EditDetailsDialog = require('../../page_objects/details_panel/edit.details.dialog');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const CreateTaskDialog = require('../../page_objects/issue/create.issue.dialog');
@@ -29,17 +27,17 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 
 describe('project.owner.spec - ui-tests for user with Owner role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    const FOLDER_NAME = studioUtils.generateRandomName("folder");
-    const FOLDER_NAME_2 = studioUtils.generateRandomName("folder");
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const FOLDER_NAME = studioUtils.generateRandomName('folder');
+    const FOLDER_NAME_2 = studioUtils.generateRandomName('folder');
     let USER;
     let FOLDER_ISSUE;
     const PASSWORD = appConst.PASSWORD.MEDIUM;
-    const TASK_TITLE = "task for owner";
+    const TASK_TITLE = 'task for owner';
 
     it(`Preconditions: new system user should be created`,
         async () => {
@@ -93,13 +91,13 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            await studioUtils.saveScreenshot("project_owner_1");
+            await studioUtils.saveScreenshot('project_owner_1');
             // 12. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
-            assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
+            assert.equal(projectAccessItems[0], USER.displayName, 'expected user should be selected in Project Roles form');
             // 5. Verify that expected role is assigned to the user
             let role = await projectWizard.getSelectedProjectAccessRole(USER.displayName);
-            assert.equal(role[0], appConst.PROJECT_ROLES.OWNER, "Owner role should be assigned to the user");
+            assert.equal(role[0], appConst.PROJECT_ROLES.OWNER, 'Owner role should be assigned to the user');
         });
 
     // Verifies https://github.com/enonic/xp/issues/8139  Users with Owner or Editor roles can not be assigned to issues
@@ -120,7 +118,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await createTaskDialog.typeTitle(TASK_TITLE);
             // 3. Select the user with owner role in Assignees selector:
             await createTaskDialog.selectUserInAssignees(USER.displayName);
-            await studioUtils.saveScreenshot("project_owner_1_1");
+            await studioUtils.saveScreenshot('project_owner_1_1');
             // 4. Click on 'Create Task' button and create new task:
             await createTaskDialog.clickOnCreateIssueButton();
             let message = await contentBrowsePanel.waitForNotificationMessage();
@@ -138,11 +136,11 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
     it("WHEN user with 'Owner' role is logged in  THEN 'Assigned to Me' button should be present in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Do Log in with the user-owner and navigate to 'Content Studio':
+            // 1. Do Log in with the user-owner and navigate to 'Content Studio':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.pause(1000);
             await studioUtils.saveScreenshot('has_assigned_issues_icon');
-            //4. Verify that the user has assigned task('Assigned to Me' and red circle should be displayed on the toolbar):
+            // 4. Verify that the user has assigned task('Assigned to Me' and red circle should be displayed on the toolbar):
             await contentBrowsePanel.hasAssignedIssues();
         });
 
@@ -161,27 +159,27 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let isPageDisabled = await projectWizard.isNoModify();
             assert.isFalse(isPageDisabled, "Wizard page should be enabled for 'Owner' role");
             let result = await projectWizard.isDescriptionInputClickable();
-            assert.isTrue(result, "Description input should be clickable");
+            assert.isTrue(result, 'Description input should be clickable');
             result = await projectWizard.isLocaleOptionsFilterInputClickable();
-            assert.isTrue(result, "Locale input should  be clickable");
+            assert.isTrue(result, 'Locale input should  be clickable');
             result = await projectWizard.isDisplayNameInputClickable();
-            assert.isTrue(result, "Display Name input should be clickable");
+            assert.isTrue(result, 'Display Name input should be clickable');
         });
 
     it("GIVEN user with 'Owner' role is logged in WHEN existing project has been selected THEN New..., Delete buttons should be disabled Edit should be enabled",
         async () => {
-            //1. Do log in with the user-owner and navigate to 'Settings':
+            // 1. Do log in with the user-owner and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //2.Click(select) on existing project:
+            // 2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            await studioUtils.saveScreenshot("project_owner_1_2");
-            //3. Verify that 'New' button is disabled in the toolbar:
+            await studioUtils.saveScreenshot('project_owner_1_2');
+            // 3. Verify that 'New' button is disabled in the toolbar:
             await settingsBrowsePanel.waitForNewButtonDisabled();
-            //4. Edit button should be disabled
+            // 4. Edit button should be disabled
             await settingsBrowsePanel.waitForEditButtonEnabled();
-            //5. Delete button should be disabled (deleting a project is not allowed for users with Owner role)
+            // 5. Delete button should be disabled (deleting a project is not allowed for users with Owner role)
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
         });
 
@@ -196,20 +194,18 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             let items = await newContentDialog.getItems();
-            studioUtils.saveScreenshot("project_owner_3");
+            await studioUtils.saveScreenshot('project_owner_3');
             //3. Verify that only 'Folders', 'Shortcut' 'Sites' are allowed for Owner role
-            assert.equal(items.length, 3, "Three items should be available for Owner");
-            assert.isTrue(items.includes("Folder"), "Folder is allowed for creating");
-            assert.isTrue(items.includes("Shortcut"), "Shortcut is allowed for creating");
-            assert.isTrue(items.includes("Site"), "Shortcut is allowed for creating");
+            assert.equal(items.length, 3, 'Three items should be available for Owner');
+            assert.isTrue(items.includes("Folder"), 'Folder is allowed for creating');
+            assert.isTrue(items.includes("Shortcut"), 'Shortcut is allowed for creating');
+            assert.isTrue(items.includes('Site'), 'Site is allowed for creating');
         });
 
     // Verify that user with Owner role can not select a language or owner in Wizard, but can make a content ready for publishing( Mark as Ready)
     it("GIVEN user with 'Owner' role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
-            let editDetailsDialog = new EditDetailsDialog();
-            let propertiesWidget = new PropertiesWidget();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Open folder-wizard and save new folder:
@@ -220,11 +216,10 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.saveScreenshot('project_owner_5');
             //3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
-            let isVisible = await editDetailsDialog.isLanguageOptionsFilterVisible();
+            let editSettingsDialog = await studioUtils.openEditSettingDialog();
+            let isVisible = await editSettingsDialog.isLanguageOptionsFilterVisible();
             assert.isTrue(isVisible, 'Language comboBox should be visible for Owner role');
-            let actualOwner = await editDetailsDialog.getSelectedOwner();
+            let actualOwner = await editSettingsDialog.getSelectedOwner();
             assert.equal(actualOwner, USER.displayName, 'Expected Owner should be selected in Settings form');
         });
 
@@ -233,77 +228,77 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Do log in with the user-owner and navigate to Content Browse Panel:
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.findAndSelectItem(FOLDER_NAME);
-            //2. The folder has been 'Marked as ready' in browse panel:
+            // 2. The folder has been 'Marked as ready' in browse panel:
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnCancelTopButton();
             await contentPublishDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('project_owner_6');
-            //3. Open Publish Menu:
+            // 3. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
             await studioUtils.saveScreenshot('project_owner_7');
-            //4. Verify that 'Create Issue' and 'Request Publishing' menu items are enabled for Owner role:
+            // 4. Verify that 'Create Issue' and 'Request Publishing' menu items are enabled for Owner role:
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-            //5. Verify that 'Publish' menu item is enabled:
+            // 5. Verify that 'Publish' menu item is enabled:
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.PUBLISH);
-            //6 Verify that 'Publish Tree' menu item is disabled, because the folder has no children:
+            // 6 Verify that 'Publish Tree' menu item is disabled, because the folder has no children:
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH_TREE);
         });
 
-    //Verifies that user with Owner role can publish content in 'Publish Request Details' Dialog - "Publish Now" should be enabled in the Last stage.
-    //Request Details Dialog - Publish Now button is not displayed when content is ready for publishing #3177
-    //https://github.com/enonic/app-contentstudio/issues/3177
+    // Verifies that user with Owner role can publish content in 'Publish Request Details' Dialog - "Publish Now" should be enabled in the Last stage.
+    // Request Details Dialog - Publish Now button is not displayed when content is ready for publishing #3177
+    // https://github.com/enonic/app-contentstudio/issues/3177
     it("GIVEN user with 'Owner' role is logged in WHEN existing folder has been selected and 'Publish Request' has been created THEN 'Publish Now' button should be enabled on the last stage",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            //1. Do log in with the user-owner and navigate to Content Browse Panel:
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Select the folder and open new Request wizard:
+            // 2. Select the folder and open new Request wizard:
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.clickOnNextButton();
-            await createRequestPublishDialog.typeInChangesInput("owner request");
-            //3. Click on 'Create Request' button:
+            await createRequestPublishDialog.typeInChangesInput('owner request');
+            // 3. Click on 'Create Request' button:
             await createRequestPublishDialog.clickOnCreateRequestButton();
-            //4. Verify that Create Request dialog closes:
+            // 4. Verify that Create Request dialog closes:
             await publishRequestDetailsDialog.waitForClosed();
-            //5. Click on issue-button and open the request:
-            await contentItemPreviewPanel.clickOnIssueButtonByName("owner request");
-            //6. Verify that 'Request Details' dialog is loaded:
+            // 5. Click on issue-button and open the request:
+            await contentItemPreviewPanel.clickOnIssueButtonByName('owner request');
+            // 6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
-            //7. Verify that 'Publish Now' button is enabled:
-            await studioUtils.saveScreenshot("project_owner_8");
+            // 7. Verify that 'Publish Now' button is enabled:
+            await studioUtils.saveScreenshot('project_owner_8');
             await publishRequestDetailsDialog.waitForPublishNowButtonEnabled();
-            //8. Click on Publish Now button:
+            // 8. Click on Publish Now button:
             await publishRequestDetailsDialog.clickOnPublishNowButton();
-            //9. Verify that modal dialog is closed:
+            // 9. Verify that modal dialog is closed:
             await publishRequestDetailsDialog.waitForClosed();
-            await studioUtils.saveScreenshot("project_owner_9");
+            await studioUtils.saveScreenshot('project_owner_9');
             let actualStatus = await contentBrowsePanel.getContentStatus(FOLDER_NAME);
-            assert.equal(actualStatus, "Published", "the folder should be 'Published'");
+            assert.equal(actualStatus, 'Published', "the folder should be 'Published'");
         });
 
     //Verify that Owner can manage the project settings. (Select a language)
     it("GIVEN user with 'Owner' role is logged in AND existing project has been opened WHEN language has been selected THEN the language should be present in selected options",
         async () => {
-            //1. Do Log in with the user-owner and navigate to 'Settings':
+            // 1. Do Log in with the user-owner and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //2.Double click on the project:
+            // 2.Double click on the project:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //3. wait for the project is opened:
+            // 3. wait for the project is opened:
             await projectWizard.waitForLoaded();
-            //4. Select a language in the wizard page:
+            // 4. Select a language in the wizard page:
             await projectWizard.selectLanguage(appConst.LANGUAGES.EN);
             await projectWizard.waitAndClickOnSave();
             await projectWizard.waitForNotificationMessage();
@@ -318,7 +313,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
         }
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

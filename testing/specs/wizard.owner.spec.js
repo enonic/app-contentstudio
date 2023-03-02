@@ -10,7 +10,6 @@ const contentBuilder = require("../libs/content.builder");
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const EditDetailsDialog = require('../page_objects/details_panel/edit.details.dialog');
 
 describe('wizard.owner.spec - update and revert owner in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -30,16 +29,14 @@ describe('wizard.owner.spec - update and revert owner in wizard`', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let editDetailsDialog = new EditDetailsDialog();
             let propertiesWidget = new PropertiesWidget();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await propertiesWidget.clickOnEditPropertiesButton();
-            await editDetailsDialog.waitForLoaded();
+            let editSettingsDialog = await studioUtils.openEditSettingDialog();
             // 2. Change the owner to 'Anonymous User':
-            await editDetailsDialog.clickOnRemoveOwner(appConst.systemUsersDisplayName.SUPER_USER);
-            await editDetailsDialog.filterOptionsAndSelectOwner(appConst.systemUsersDisplayName.ANONYMOUS_USER);
-            await editDetailsDialog.clickOnApplyButton();
+            await editSettingsDialog.clickOnRemoveOwner(appConst.systemUsersDisplayName.SUPER_USER);
+            await editSettingsDialog.filterOptionsAndSelectOwner(appConst.systemUsersDisplayName.ANONYMOUS_USER);
+            await editSettingsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
             // Save should be disabled after updating owner in properties:
             await contentWizard.waitForSaveButtonDisabled();
@@ -57,7 +54,7 @@ describe('wizard.owner.spec - update and revert owner in wizard`', function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
