@@ -59,6 +59,19 @@ contentWizard.allowPathTransliteration=false
 
 image:cs-410.svg[CS 4.1.0,opts=inline]
 
+IMPORTANT: You may need to tweak CSP settings in Content Studio _only_ if you are building a widget which will be embedded inside Content Studio where you want to allow references to external resources or other potentially unsafe (from the CSP point of view) actions. If CSP
+errors appear when your content is rendered (when you preview or edit content in Content Studio), then you need to configure CSP settings in https://developer.enonic.com/docs/xp/stable/deployment/config#admin[XP admin config].
+
+You can provide your own header for <<security#_content_security_policy,Content Security Policy>> using `contentSecurityPolicy.header` property.
+For example, Google Analytics injects its own scripts referring to external domains, so
+we are using the following CSP headers for the Google Analytics widget not to be blocked in Content Studio:
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+contentSecurityPolicy.header=default-src 'self'; connect-src 'self' ws: wss: https://*.gstatic.com https://*.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.googleapis.com https://*.gstatic.com; object-src 'none'; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data:; frame-src 'self' https://*.googleapis.com
+----
+
 Turn off <<security#content_security_policy,Content Security Policy>> by setting `contentSecurityPolicy.enabled` property to `false`.
 
 .com.enonic.app.contentstudio.cfg
@@ -67,16 +80,6 @@ Turn off <<security#content_security_policy,Content Security Policy>> by setting
 contentSecurityPolicy.enabled=false
 ----
 
-You can provide your own header for <<security#_content_security_policy,Content Security Policy>> using `contentSecurityPolicy.header` property.
-For example, if you are using Google Analytics app then CSP header has to be customised, since GA injects its own scripts referring to external domains which have to be allowed in CSP.
-
-Below is the header to be used for CSP if you want the Google Analytics widget not to be blocked in Content Studio:
-
-.com.enonic.app.contentstudio.cfg
-[source,properties]
-----
-contentSecurityPolicy.header=default-src 'self'; connect-src 'self' ws: wss: https://*.gstatic.com https://*.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.googleapis.com https://*.gstatic.com; object-src 'none'; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data:; frame-src 'self' https://*.googleapis.com
-----
 
 === Disable Default Project
 
