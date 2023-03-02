@@ -28,11 +28,13 @@ and contains the following sections:
 
 * **Properties:** This section shows useful metadata (application type, create/modified date etc.);
 
+* **Schedule:** This section shows date/time range when the content will be available online. Will not be visible if the content is not published.
+
 * **Page template:** This section shows a page template used by this content (if set);
 
 * **Attachments:** This section shows links to binary attachments which can be downloaded with a single-click. An example of such a content can be seen below.
 
-image::widgets-details.png[,212]
+image::widgets-details.png[Details widget,450px]
 
 
 === Version History
