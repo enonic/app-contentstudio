@@ -6,7 +6,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {DialogMainItemsList, ItemEventListener} from './DialogMainItemsList';
+import {DialogMainItemsList} from './DialogMainItemsList';
 import {TogglableStatusSelectionItem} from './TogglableStatusSelectionItem';
 
 export type ChildrenListChangedListener = (childrenRemoved?: boolean) => void;
@@ -18,8 +18,6 @@ export interface DialogTogglableItemListConfig {
 
 export class DialogTogglableItemList
     extends DialogMainItemsList {
-
-    private removeClickListeners: ItemEventListener[] = [];
 
     private canBeEmpty: boolean = false;
 
@@ -156,20 +154,6 @@ export class DialogTogglableItemList
 
     private updateRemovableState(view: TogglableStatusSelectionItem): void {
         view.toggleClass('removable', view.isRemovable());
-    }
-
-    onItemRemoveClicked(listener: ItemEventListener): void {
-        this.removeClickListeners.push(listener);
-    }
-
-    unItemRemoveClicked(listener: ItemEventListener): void {
-        this.removeClickListeners = this.removeClickListeners.filter((curr) => {
-            return curr !== listener;
-        });
-    }
-
-    private notifyItemRemoveClicked(item: ContentSummaryAndCompareStatus): void {
-        this.removeClickListeners.forEach(listener => listener(item));
     }
 
     onChildrenListChanged(listener: ChildrenListChangedListener): void {

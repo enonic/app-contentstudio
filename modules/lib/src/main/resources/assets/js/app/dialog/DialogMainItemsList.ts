@@ -12,6 +12,8 @@ export class DialogMainItemsList
 
     private itemClickListeners: ItemEventListener[] = [];
 
+    private removeClickListeners: ItemEventListener[] = [];
+
     constructor(className?: string) {
         super(className);
 
@@ -38,8 +40,11 @@ export class DialogMainItemsList
 
         const statusItem = this.createSelectionItem(itemViewer, item);
 
-        statusItem.setIsRemovableFn(() => this.getItemCount() > 1);
-        statusItem.setRemoveHandlerFn(() => this.removeItem(item));
+        statusItem.setIsRemovableFn(() => this.isItemRemovable(statusItem));
+        statusItem.setRemoveHandlerFn(() => {
+            this.removeItem(item);
+            this.notifyItemRemoveClicked(item);
+        });
 
         itemViewer.onClicked((event) => {
             if (item.isPendingDelete()) {
@@ -57,6 +62,10 @@ export class DialogMainItemsList
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,
                                   browseItem: ContentSummaryAndCompareStatus): StatusSelectionItem {
         return new StatusSelectionItem(viewer, browseItem);
+    }
+
+    protected isItemRemovable(item: StatusSelectionItem): boolean {
+        return this.getItemCount() > 1;
     }
 
     getItemView(item: ContentSummaryAndCompareStatus): StatusSelectionItem {
@@ -86,9 +95,23 @@ export class DialogMainItemsList
         });
     }
 
-    private notifyItemClicked(item: ContentSummaryAndCompareStatus) {
+    protected notifyItemClicked(item: ContentSummaryAndCompareStatus) {
         this.itemClickListeners.forEach(listener => {
             listener(item);
         });
+    }
+
+    onItemRemoveClicked(listener: ItemEventListener): void {
+        this.removeClickListeners.push(listener);
+    }
+
+    unItemRemoveClicked(listener: ItemEventListener): void {
+        this.removeClickListeners = this.removeClickListeners.filter((curr) => {
+            return curr !== listener;
+        });
+    }
+
+    protected notifyItemRemoveClicked(item: ContentSummaryAndCompareStatus): void {
+        this.removeClickListeners.forEach(listener => listener(item));
     }
 }

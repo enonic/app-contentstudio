@@ -3,18 +3,29 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
+import {DialogTogglableItemList, DialogTogglableItemListConfig} from '../dialog/DialogTogglableItemList';
 import {TogglableStatusSelectionItem} from '../dialog/TogglableStatusSelectionItem';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+
+export interface PublishDialogItemList
+    extends DialogTogglableItemListConfig {
+
+    allowOnlyItemRemoval?: boolean;
+}
 
 export class PublishDialogItemList
     extends DialogTogglableItemList {
 
     private excludeChildrenIds: ContentId[] = [];
 
-    constructor() {
-        super({className: 'publish-dialog-item-list'});
+    protected config: PublishDialogItemList;
+
+    constructor(config: Pick<PublishDialogItemList, 'allowOnlyItemRemoval'> = {}) {
+        super({
+            ...config,
+            className: 'publish-dialog-item-list',
+        });
     }
 
     protected initListeners(): void {
@@ -74,6 +85,10 @@ export class PublishDialogItemList
         }
 
         return item;
+    }
+
+    protected isItemRemovable(item: TogglableStatusSelectionItem): boolean {
+        return !!this.config.allowOnlyItemRemoval || this.getItemCount() > 1;
     }
 
     public setExcludeChildrenIds(ids: ContentId[]) {

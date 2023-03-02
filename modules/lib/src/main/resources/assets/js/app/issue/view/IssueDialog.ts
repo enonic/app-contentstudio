@@ -241,7 +241,7 @@ export abstract class IssueDialog
     }
 
     protected createItemList(): PublishDialogItemList {
-        return new PublishDialogItemList();
+        return new PublishDialogItemList({allowOnlyItemRemoval: true});
     }
 
     protected getItemList(): PublishDialogItemList {
