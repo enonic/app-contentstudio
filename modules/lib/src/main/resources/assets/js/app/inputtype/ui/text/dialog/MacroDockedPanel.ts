@@ -19,7 +19,6 @@ import {GetPreviewRequest} from '../../../../macro/resource/GetPreviewRequest';
 import {GetPreviewStringRequest} from '../../../../macro/resource/GetPreviewStringRequest';
 import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import {MacroPreview} from '../../../../macro/MacroPreview';
-import {PageContributions} from '../../../../macro/PageContributions';
 
 export class MacroDockedPanel
     extends DockedPanel {

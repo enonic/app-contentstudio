@@ -18,6 +18,7 @@ import {GetMacrosRequest} from '../../../../macro/resource/GetMacrosRequest';
 import {MacroComboBox} from '../../../../macro/MacroComboBox';
 import * as DOMPurify from 'dompurify';
 import {MacroDialogParams} from '../HtmlEditor';
+import {HTMLAreaHelper} from '../HTMLAreaHelper';
 
 export interface MacroModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -182,11 +183,13 @@ export class MacroModalDialog
             return value;
         }
 
+        const config: DOMPurify.Config = {ALLOWED_URI_REGEXP: HTMLAreaHelper.getAllowedUriRegexp()};
+
         if (macroName === 'SYSTEM:EMBED') {
-            return DOMPurify.sanitize(value, {ADD_TAGS: ['iframe'], ALLOWED_URI_REGEXP: this.getAllowedUriRegexp()});
+            config.ADD_TAGS = ['iframe'];
         }
 
-        return DOMPurify.sanitize(value, {ALLOWED_URI_REGEXP: this.getAllowedUriRegexp()});
+        return DOMPurify.sanitize(value, config) as string;
     }
 
     private makeData(): PropertySet {
