@@ -8,7 +8,6 @@ const LoaderComboBox = require('../../../page_objects/components/loader.combobox
 const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
-    fragmentComponentViewSection: "//section[contains(@id,'FragmentComponentView')]",
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
     textComponentView: "//div[contains(@id,'TextComponentView')]",
@@ -180,8 +179,9 @@ class LiveFormPanel extends Page {
 
     async getTextInFragmentComponent() {
         let contentWizard = new ContentWizard();
-        let locator = xpath.fragmentComponentViewSection + '//p';
+        let locator = xpath.fragmentComponentView + '//p';
         await contentWizard.switchToLiveEditFrame();
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let result = await this.getText(locator);
         await contentWizard.switchToMainFrame();
         return result;
