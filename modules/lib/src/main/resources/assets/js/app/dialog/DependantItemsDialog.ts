@@ -124,7 +124,7 @@ export abstract class DependantItemsDialog
     protected initControlsListeners(): void {
         this.allCheckBox.onValueChanged(() => {
             const selectionType = this.dependantList.getSelectionType();
-            const isAllSelected = selectionType === SelectionType.ALL;
+            const isAllSelected = selectionType !== SelectionType.NONE;
             this.dependantList.toggleSelectAll(!isAllSelected);
             this.updateAllCheckbox();
         });
