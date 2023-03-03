@@ -17,6 +17,7 @@ import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
 import {TogglableStatusSelectionItem} from '../dialog/TogglableStatusSelectionItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentDuplicateParams} from '../resource/ContentDuplicateParams';
+import {UrlHelper} from '../util/UrlHelper';
 import {DuplicateContentRequest} from '../resource/DuplicateContentRequest';
 import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
 import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
@@ -181,7 +182,7 @@ export class ContentDuplicateDialog
 
             Q.all([taskIsFinishedPromise, duplicatedPromise]).spread((isFinished: boolean, duplicatedContent: ContentSummary) => {
                 if (isFinished) {
-                    this.openTab(duplicatedContent);
+                    this.openTabOnDuplicate(duplicatedContent);
                 }
             });
         }
@@ -235,15 +236,16 @@ export class ContentDuplicateDialog
         return deferred.promise;
     }
 
-    private openTab(content: ContentSummary) {
+    protected getWizardParams(content: ContentSummary): ContentWizardPanelParams {
         const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(content.getContentId().toString());
-
-        const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
+        return new ContentWizardPanelParams()
             .setTabId(tabId)
             .setContentTypeName(content.getType())
             .setContentId(content.getContentId());
+    }
 
-        ContentEventsProcessor.openWizardTab(wizardParams);
+    protected openTabOnDuplicate(content: ContentSummary): void { // used in studio plus
+        ContentEventsProcessor.openWizardTab(this.getWizardParams(content), this.getUriPropertyName());
     }
 
     private countItemsToDuplicateAndUpdateButtonCounter() {
@@ -267,5 +269,9 @@ export class ContentDuplicateDialog
 
     protected getItemList(): DialogTogglableItemList {
         return super.getItemList() as DialogTogglableItemList;
+    }
+
+    protected getUriPropertyName(): string {
+        return UrlHelper.toolUriPropertyName;
     }
 }

@@ -23,8 +23,8 @@ export class ContentEventsProcessor {
 
     static openWindows: Window[] = [];
 
-    static openWizardTab(params: ContentWizardPanelParams): Window {
-        const wizardUrl: string = UrlHelper.getPrefixedUrl(ContentEventsProcessor.generateURL(params), '');
+    static openWizardTab(params: ContentWizardPanelParams, uriPropertyName?: string): Window {
+        const wizardUrl: string = UrlHelper.getPrefixedUrl(ContentEventsProcessor.generateURL(params), '', uriPropertyName);
         return ContentEventsProcessor.openTab(wizardUrl, ContentEventsProcessor.makeWizardId(params));
     }
 
@@ -85,7 +85,6 @@ export class ContentEventsProcessor {
 
     static handleEdit(event: EditContentEvent) {
         event.getModels().every((content: ContentSummaryAndCompareStatus) => {
-
             if (!content || !content.getContentSummary()) {
                 return true;
             }
@@ -102,7 +101,7 @@ export class ContentEventsProcessor {
                 .setContentId(contentSummary.getContentId())
                 .setDisplayAsNew(!!event.isDisplayAsNew && event.isDisplayAsNew());
 
-            const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
+            const win: Window = ContentEventsProcessor.openWizardTab(wizardParams, event.getUriPropertyName());
 
             if (ContentEventsProcessor.popupBlocked(win)) {
                 showWarning(i18n('notify.popupBlocker.admin'), false);
@@ -151,11 +150,8 @@ export class ContentEventsProcessor {
             return `${project}/${action}/${params.contentId.toString()}${editParams}`;
         }
 
-        if (params.parentContentId) {
-            return `${project}/${UrlAction.NEW}/${params.contentTypeName.toString()}/${params.parentContentId.toString()}`;
-        }
-
-        return `${project}/${UrlAction.NEW}/${params.contentTypeName.toString()}`;
+        const parentPostfix: string = params.parentContentId ? `/${params.parentContentId.toString()}` : '';
+        return `${project}/${UrlAction.NEW}/${params.contentTypeName.toString()}${parentPostfix}`;
 
     }
 
