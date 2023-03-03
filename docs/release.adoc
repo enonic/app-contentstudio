@@ -53,6 +53,12 @@ image::publishing-request-1.png[Publishing request, 470px]
 
 image::widgets-details.png[Details widget, 450px]
 
+=== Auto-save of localised content
+
+Previously, clicking "Localise" for a content item in a layer would set the layer's language in a content but not save the change,
+which means that the content wouldn't really be localised until user explicitly clicked "Save".
+Starting from this release, "Localise" action will set the language *and* save the content, instantly localising it.
+
 == Content Studio 4 Update 4
 
 IMPORTANT: Content Studio 4.4.x requires XP 7.11.0 or higher.
