@@ -20,6 +20,8 @@ export interface ExclusionUpdateEvent {
 
 export type ItemClickListener = (item: ContentSummaryAndCompareStatus) => void;
 
+export type SelectionChangeListener = (original: boolean) => void;
+
 export type ExclusionUpdateListener = (event: ExclusionUpdateEvent) => void;
 
 export type SelectionTypeChangeListener = (type: SelectionType) => void;
@@ -38,9 +40,8 @@ export interface DialogDependantItemsListConfig<View extends Element> {
     emptyText?: string;
 }
 
-const calcIdsDiff = (idsA: ContentId[], idsB: ContentId[]): ContentId[] => {
-    return idsA.filter(idA => idsB.every(idB => !idB.equals(idA)));
-};
+const calcIdsDiff = (idsA: ContentId[], idsB: ContentId[]): ContentId[] => idsA.filter(idA => idsB.every(idB => !idB.equals(idA)));
+const hasIdsDiff = (idsA: ContentId[], idsB: ContentId[]): boolean => idsA.some(idA => idsB.every(idB => !idB.equals(idA)));
 
 const readOnlyToNumber = (content: ContentSummaryAndCompareStatus): number => Number(content.isReadOnly() === true);
 const validityToNumber = (content: ContentSummaryAndCompareStatus): number => Number(content.getContentSummary().isValid() === true);
@@ -56,7 +57,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
 
     private itemClickListeners: ItemClickListener[];
 
-    private selectionChangeListeners: (() => void)[];
+    private selectionChangeListeners: SelectionChangeListener[];
 
     private exclusionUpdateListeners: ExclusionUpdateListener[];
 
@@ -96,10 +97,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
         });
 
         const statusItem = this.config.createItem?.(viewer, item) ?? new StatusCheckableItem({viewer, item});
-        statusItem.onSelected(() => {
-            this.updateSelectionType();
-            this.notifySelectionChanged();
-        });
+        statusItem.onSelected(() => this.handleSelectionChange());
 
         return statusItem;
     }
@@ -190,11 +188,18 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
     }
 
     toggleSelectAll(select: boolean): void {
+        let isSelectionChanged = false;
+
         this.getItemViews().forEach(view => {
             if (view.isSelected() !== select) {
-                view.setSelected(select);
+                view.setSelected(select, false, true);
+                isSelectionChanged = true;
             }
         });
+
+        if (isSelectionChanged) {
+            this.handleSelectionChange();
+        }
     }
 
     onItemClicked(listener: ItemClickListener) {
@@ -207,11 +212,11 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
         });
     }
 
-    onSelectionChanged(listener: () => void) {
+    onSelectionChanged(listener: SelectionChangeListener) {
         this.selectionChangeListeners.push(listener);
     }
 
-    unSelectionChanged(listener: () => void) {
+    unSelectionChanged(listener: SelectionChangeListener) {
         this.selectionChangeListeners = this.selectionChangeListeners.filter((curr) => {
             return curr !== listener;
         });
@@ -280,6 +285,17 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
         return this.getItems().some(item => this.isItemExcludable(item));
     }
 
+    protected handleSelectionChange(): void {
+        const newExcludedIds = this.getItemViews().filter(view => !view.isSelected()).map(view => view.getItem().getContentId());
+        const loadedOldExcludedIds = this.excludedIds.filter(
+            id => this.getItemViews().some(view => view.getItem().getContentId().equals(id)));
+
+        const hasExclusionChanges = hasIdsDiff(newExcludedIds, this.excludedIds) || hasIdsDiff(loadedOldExcludedIds, newExcludedIds);
+
+        this.updateSelectionType();
+        this.notifySelectionChanged(!hasExclusionChanges);
+    }
+
     protected getScrollContainer(): Element {
         return this.config.observer?.scrollElement ?? super.getScrollContainer();
     }
@@ -292,8 +308,8 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
         this.itemClickListeners.forEach(listener => listener(item));
     }
 
-    protected notifySelectionChanged(): void {
-        this.selectionChangeListeners.forEach(listener => listener());
+    protected notifySelectionChanged(original: boolean): void {
+        this.selectionChangeListeners.forEach(listener => listener(original));
     }
 
     protected notifyExclusionUpdated(event: ExclusionUpdateEvent): void {

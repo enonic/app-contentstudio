@@ -627,9 +627,9 @@ export class IssueDetailsDialog
             }
         });
 
-        this.getDependantList().onSelectionChanged(() => {
-            this.stateBar.markEditing(true);
-            this.markEditing(true);
+        this.getDependantList().onSelectionChanged((original) => {
+            this.stateBar.markEditing(!original);
+            this.markEditing(!original);
         });
     }
 
