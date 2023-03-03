@@ -23,8 +23,8 @@ function handleGet() {
                 path: ''
             }),
             toolUri: admin.getToolUrl(
-                app.name,
-                'main'
+              app.name,
+              'main'
             ),
             appId: app.name,
             appVersion: app.version,

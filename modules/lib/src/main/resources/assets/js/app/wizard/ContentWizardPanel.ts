@@ -96,7 +96,6 @@ import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ProjectContext} from '../project/ProjectContext';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
 import {UrlAction} from '../UrlAction';
 import {ContentWizardHeader} from './ContentWizardHeader';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
@@ -792,19 +791,6 @@ export class ContentWizardPanel
         this.splitPanel.addClass('wizard-and-preview');
 
         return this.splitPanel;
-    }
-
-    private handleEditPermissionsButtonClicked() {
-        const content: Content = this.getPersistedItem();
-        OpenEditPermissionsDialogEvent.create()
-            .setContentId(content.getContentId())
-            .setContentPath(content.getPath())
-            .setDisplayName(content.getDisplayName())
-            .setPermissions(content.getPermissions())
-            .setInheritPermissions(content.isInheritPermissionsEnabled())
-            .setOverwritePermissions(false)
-            .build()
-            .fire();
     }
 
     isNew(): boolean {

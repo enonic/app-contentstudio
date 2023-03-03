@@ -15,6 +15,8 @@ export class EditContentEvent
 
     private localized: boolean = false;
 
+    private uriPropertyName?: string;
+
     constructor(model: ContentSummaryAndCompareStatus[], project?: Project) {
         super();
         this.model = model;
@@ -45,6 +47,15 @@ export class EditContentEvent
 
     isLocalized(): boolean {
         return this.localized;
+    }
+
+    setUriPropertyName(value: string): this {
+        this.uriPropertyName = value;
+        return this;
+    }
+
+    getUriPropertyName(): string {
+        return this.uriPropertyName;
     }
 
     static on(handler: (event: EditContentEvent) => void, contextWindow: Window = window) {
