@@ -81,9 +81,9 @@ export class CreateIssueDialog
     protected initListeners(): void {
         super.initListeners();
 
-        this.getDependantList().onSelectionChanged(() => {
-            this.stateBar.markEditing(true);
-            this.markEditing(true);
+        this.getDependantList().onSelectionChanged((original) => {
+            this.stateBar.markEditing(!original);
+            this.markEditing(!original);
         });
 
         const onItemsChanged = () => {
