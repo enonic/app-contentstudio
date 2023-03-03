@@ -29,7 +29,8 @@ import {CreateIssueRequest} from '../issue/resource/CreateIssueRequest';
 import {PrincipalLoader} from '../security/PrincipalLoader';
 
 enum Step {
-    ITEMS, DETAILS
+    ITEMS = 'items-step',
+    DETAILS = 'details-step',
 }
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -174,12 +175,19 @@ export class RequestContentPublishDialog
     }
 
     private goToStep(step: Step): void {
-        const isDetailsStep: boolean = step === Step.DETAILS;
+        const isDetailsStep = step === Step.DETAILS;
+
+        for (const key in Step) {
+            this.removeClass(Step[key]);
+        }
+        this.addClass(step);
+
         this.requestPublishAction.setVisible(isDetailsStep);
         this.publishItemsStep.setVisible(!isDetailsStep);
         this.requestDetailsStep.setVisible(isDetailsStep);
         this.prevAction.setVisible(isDetailsStep);
         this.getButtonRow().getActionMenu().setVisible(!isDetailsStep);
+
         this.setSubTitle(i18n(`dialog.requestPublish.subname${this.getCurrentStep() + 1}`));
         this.updateControls();
 
