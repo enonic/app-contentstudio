@@ -175,7 +175,7 @@ export abstract class BasePublishDialog
         // TODO: This delay was added to make UI transitions smooth. Consider removing it later
         const debouncedFinishedHandler = AppHelper.debounce(() => this.handleLoadFinished(), 500);
 
-        this.publishProcessor.onLoadingStarted(() => this.handleLoadStarted());
+        this.publishProcessor.onLoadingStarted((checking) => this.handleLoadStarted(checking));
         this.publishProcessor.onLoadingFinished(debouncedFinishedHandler);
         this.publishProcessor.onLoadingFailed(() => this.handleLoadFailed());
         this.publishProcessor.onItemsChanged(debouncedFinishedHandler);
@@ -187,20 +187,16 @@ export abstract class BasePublishDialog
             this.markEditing(!original);
         });
 
-        this.excludedToggler.onActiveChanged(active => {
-            const isLoadExcludedChanged = this.publishProcessor.isLoadExcluded() !== active;
-            if (isLoadExcludedChanged) {
-                this.publishProcessor.setLoadExcluded(active);
-                this.publishProcessor.reloadDependenciesDebounced({resetDependantItems: true});
-            }
-        });
+        this.excludedToggler.onActiveChanged(loadExcluded => this.publishProcessor.updateLoadExcluded(loadExcluded));
     }
 
-    private handleLoadStarted(): void {
+    private handleLoadStarted(checking: boolean): void {
         this.lockControls();
-        this.setSubTitle(i18n('dialog.publish.resolving'));
-        this.stateBar.markChecking(true);
-        this.stateBar.reset();
+        if (checking) {
+            this.setSubTitle(i18n('dialog.publish.resolving'));
+            this.stateBar.markChecking(true);
+            this.stateBar.reset();
+        }
     }
 
     private handleLoadFinished(): void {
