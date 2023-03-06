@@ -5,6 +5,7 @@ import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentId} from '../../content/ContentId';
 import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
 import {ContentSummary} from '../../content/ContentSummary';
+import {ContentEventsProcessor} from '../../ContentEventsProcessor';
 
 export class ContentsLocalizer {
 
@@ -34,7 +35,7 @@ export class ContentsLocalizer {
         });
 
         if (contentsToEdit.length > 0) {
-            new EditContentEvent(contentsToEdit).fire();
+            ContentEventsProcessor.handleEdit(new EditContentEvent(contentsToEdit));
         }
 
         if (contentsToLocalize.length > 0) {
@@ -44,7 +45,7 @@ export class ContentsLocalizer {
                 if (updatedItems?.length > 0) {
                     const itemsToOpen: ContentSummaryAndCompareStatus[] =
                         updatedItems.map((item: ContentSummary) => ContentSummaryAndCompareStatus.fromContentSummary(item));
-                    new EditContentEvent(itemsToOpen).setIsLocalized(true).fire();
+                    ContentEventsProcessor.handleEdit(new EditContentEvent(itemsToOpen).setIsLocalized(true));
                 }
 
                 return Q.resolve();

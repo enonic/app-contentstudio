@@ -84,7 +84,7 @@ export abstract class PropertiesWidgetItemView
         return Q.resolve();
     }
 
-    private layoutProperties(): void {
+    protected layoutProperties(): void {
         this.list.removeChildren();
 
         this.helper.generateProps().forEach((value: string, key: string) => {
@@ -112,7 +112,7 @@ export abstract class PropertiesWidgetItemView
         this.list.insertChild(keyEl, index);
     }
 
-    private layoutEditLink(): void {
+    protected layoutEditLink(): void {
         this.helper.getAllowedForms(this.getFormsTypesToEdit()).then((forms: PropertiesWizardStepForm[]) => {
             this.allowedForms = forms;
             this.doLayoutEditLink();

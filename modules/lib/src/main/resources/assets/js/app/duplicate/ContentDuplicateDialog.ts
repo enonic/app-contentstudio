@@ -10,7 +10,6 @@ import * as Q from 'q';
 import {ContentDuplicatePromptEvent} from '../browse/ContentDuplicatePromptEvent';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import {ContentEventsProcessor} from '../ContentEventsProcessor';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
@@ -19,8 +18,8 @@ import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentDuplicateParams} from '../resource/ContentDuplicateParams';
 import {UrlHelper} from '../util/UrlHelper';
 import {DuplicateContentRequest} from '../resource/DuplicateContentRequest';
-import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
 import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
+import {EditContentEvent} from '../event/EditContentEvent';
 
 export class ContentDuplicateDialog
     extends DependantItemsWithProgressDialog
@@ -236,16 +235,9 @@ export class ContentDuplicateDialog
         return deferred.promise;
     }
 
-    protected getWizardParams(content: ContentSummary): ContentWizardPanelParams {
-        const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(content.getContentId().toString());
-        return new ContentWizardPanelParams()
-            .setTabId(tabId)
-            .setContentTypeName(content.getType())
-            .setContentId(content.getContentId());
-    }
-
-    protected openTabOnDuplicate(content: ContentSummary): void { // used in studio plus
-        ContentEventsProcessor.openWizardTab(this.getWizardParams(content), this.getUriPropertyName());
+    protected openTabOnDuplicate(content: ContentSummary): void {
+        const item: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromContentSummary(content);
+        ContentEventsProcessor.handleEdit(new EditContentEvent([item]));
     }
 
     private countItemsToDuplicateAndUpdateButtonCounter() {
@@ -269,9 +261,5 @@ export class ContentDuplicateDialog
 
     protected getItemList(): DialogTogglableItemList {
         return super.getItemList() as DialogTogglableItemList;
-    }
-
-    protected getUriPropertyName(): string {
-        return UrlHelper.toolUriPropertyName;
     }
 }

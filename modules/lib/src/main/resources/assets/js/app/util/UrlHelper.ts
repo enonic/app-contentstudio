@@ -46,8 +46,8 @@ export class UrlHelper {
         return UrlHelper.getPrefixedUrl(`${project}/${path}`, separator);
     }
 
-    static getPrefixedUrl(url: string, separator: string = '#', uriPropertyName?: string): string {
-        return `${CONFIG.getString(uriPropertyName || UrlHelper.toolUriPropertyName)}${separator}/${url}`;
+    static getPrefixedUrl(url: string, separator: string = '#'): string {
+        return `${CONFIG.getString(UrlHelper.toolUriPropertyName)}${separator}/${url}`;
     }
 
     static isContentBrowseUrlMatch(): boolean {

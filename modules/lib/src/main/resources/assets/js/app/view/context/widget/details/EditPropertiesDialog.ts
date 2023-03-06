@@ -129,14 +129,6 @@ export class EditPropertiesDialog
     isDirty(): boolean {
         return this.updateAction.isEnabled();
     }
-
-    protected generateTitle(): string {
-        return i18n('widget.properties.edit.text');
-    }
-
-    protected getUpdateMessage(updatedContent: Content): string {
-        return i18n('notify.item.properties.saved', updatedContent.getDisplayName());
-    }
 }
 
 class EditDetailsDialogHeader
