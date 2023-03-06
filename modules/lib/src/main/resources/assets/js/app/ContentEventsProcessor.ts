@@ -23,8 +23,8 @@ export class ContentEventsProcessor {
 
     static openWindows: Window[] = [];
 
-    static openWizardTab(params: ContentWizardPanelParams, uriPropertyName?: string): Window {
-        const wizardUrl: string = UrlHelper.getPrefixedUrl(ContentEventsProcessor.generateURL(params), '', uriPropertyName);
+    static openWizardTab(params: ContentWizardPanelParams): Window {
+        const wizardUrl: string = UrlHelper.getPrefixedUrl(ContentEventsProcessor.generateURL(params), '');
         return ContentEventsProcessor.openTab(wizardUrl, ContentEventsProcessor.makeWizardId(params));
     }
 
@@ -101,7 +101,7 @@ export class ContentEventsProcessor {
                 .setContentId(contentSummary.getContentId())
                 .setDisplayAsNew(!!event.isDisplayAsNew && event.isDisplayAsNew());
 
-            const win: Window = ContentEventsProcessor.openWizardTab(wizardParams, event.getUriPropertyName());
+            const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
 
             if (ContentEventsProcessor.popupBlocked(win)) {
                 showWarning(i18n('notify.popupBlocker.admin'), false);

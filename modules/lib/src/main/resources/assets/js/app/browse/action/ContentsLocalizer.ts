@@ -11,15 +11,12 @@ export class ContentsLocalizer {
 
     private contents: ContentSummaryAndCompareStatus[];
 
-    private uriPropertyName?: string;
-
-    localize(contents: ContentSummaryAndCompareStatus[], uriPropertyName?: string): Q.Promise<void> {
+    localize(contents: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
         if (!contents || contents.length === 0) {
             return Q.resolve();
         }
 
         this.contents = contents;
-        this.uriPropertyName = uriPropertyName;
 
         return this.localizeContents();
     }
@@ -38,7 +35,7 @@ export class ContentsLocalizer {
         });
 
         if (contentsToEdit.length > 0) {
-            ContentEventsProcessor.handleEdit(new EditContentEvent(contentsToEdit).setUriPropertyName(this.uriPropertyName));
+            ContentEventsProcessor.handleEdit(new EditContentEvent(contentsToEdit));
         }
 
         if (contentsToLocalize.length > 0) {
@@ -48,8 +45,7 @@ export class ContentsLocalizer {
                 if (updatedItems?.length > 0) {
                     const itemsToOpen: ContentSummaryAndCompareStatus[] =
                         updatedItems.map((item: ContentSummary) => ContentSummaryAndCompareStatus.fromContentSummary(item));
-                    ContentEventsProcessor.handleEdit(
-                        new EditContentEvent(itemsToOpen).setIsLocalized(true).setUriPropertyName(this.uriPropertyName));
+                    ContentEventsProcessor.handleEdit(new EditContentEvent(itemsToOpen).setIsLocalized(true));
                 }
 
                 return Q.resolve();

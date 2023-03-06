@@ -237,7 +237,7 @@ export class ContentDuplicateDialog
 
     protected openTabOnDuplicate(content: ContentSummary): void {
         const item: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromContentSummary(content);
-        ContentEventsProcessor.handleEdit(new EditContentEvent([item]).setUriPropertyName(this.getUriPropertyName()));
+        ContentEventsProcessor.handleEdit(new EditContentEvent([item]));
     }
 
     private countItemsToDuplicateAndUpdateButtonCounter() {
@@ -261,9 +261,5 @@ export class ContentDuplicateDialog
 
     protected getItemList(): DialogTogglableItemList {
         return super.getItemList() as DialogTogglableItemList;
-    }
-
-    protected getUriPropertyName(): string {
-        return UrlHelper.toolUriPropertyName;
     }
 }
