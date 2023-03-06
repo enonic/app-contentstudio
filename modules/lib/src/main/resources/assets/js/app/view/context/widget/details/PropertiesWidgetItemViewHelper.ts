@@ -37,6 +37,6 @@ export abstract class PropertiesWidgetItemViewHelper {
     }
 
     protected isFormAllowed(type: PropertiesWizardStepFormType): Q.Promise<boolean> {
-        throw new Error(i18n('widget.properties.unknown.formType', type));
+        throw new Error('Must be implemented by inheritors');
     }
 }
