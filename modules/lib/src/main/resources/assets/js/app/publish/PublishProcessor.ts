@@ -21,6 +21,8 @@ interface ReloadDependenciesParams {
     silent?: boolean;
 }
 
+export type LoadingStartedListener = (checking: boolean) => void;
+
 export class PublishProcessor {
 
     private itemList: PublishDialogItemList;
@@ -53,7 +55,7 @@ export class PublishProcessor {
 
     private ignoreSilent?: boolean = false;
 
-    private loadingStartedListeners: (() => void)[] = [];
+    private loadingStartedListeners: LoadingStartedListener[] = [];
 
     private loadingFinishedListeners: (() => void)[] = [];
 
@@ -151,7 +153,7 @@ export class PublishProcessor {
 
     reloadPublishDependencies({resetDependantItems, resetExclusions, silent}: ReloadDependenciesParams): void {
         if (!silent) {
-            this.notifyLoadingStarted();
+            this.notifyLoadingStarted(true);
         }
 
         const ids = this.getContentToPublishIds();
@@ -200,7 +202,7 @@ export class PublishProcessor {
     }
 
     private loadPublishDependencies(ids: ContentId[], resetDependantItems?: boolean, silent?: boolean): void {
-        const instanceId: number = this.instanceId;
+        const instanceId = this.instanceId;
         this.createResolveDependenciesRequest(ids, this.getExcludedIds()).sendAndParse()
             .then((result: ResolvePublishDependenciesResult) => {
                 this.processResolveDependenciesResult(result);
@@ -209,10 +211,12 @@ export class PublishProcessor {
             const hasExcluded = this.getExcludedIds().length > 0;
             if (hasExcluded) {
                 return this.createResolveDependenciesRequest(ids, []).sendAndParse().then((result: ResolvePublishDependenciesResult) => {
-                    this.allDependantIds = result.getDependants().slice();
+                    if (instanceId === this.instanceId) {
+                        this.allDependantIds = [...result.getDependants()];
+                    }
                 });
-            } else {
-                this.allDependantIds = this.dependantIds.slice();
+            } else if (instanceId === this.instanceId) {
+                this.allDependantIds = [...this.dependantIds];
             }
         }).then(() => {
             return this.loadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
@@ -223,6 +227,49 @@ export class PublishProcessor {
                     }
                 }
             });
+        }).catch((reason) => {
+            if (instanceId === this.instanceId) {
+                this.notifyLoadingFailed();
+                DefaultErrorHandler.handle(reason);
+            }
+        });
+    }
+
+    updateLoadExcluded(loadExcluded: boolean): void {
+        const isLoadExcludedChanged = this.loadExcluded !== loadExcluded;
+        if (!isLoadExcludedChanged) {
+            return;
+        }
+
+        this.loadExcluded = loadExcluded;
+
+        const ids = this.getContentToPublishIds();
+        const isNoItemsToPublish = ids.length === 0;
+        if (isNoItemsToPublish) {
+            return;
+        }
+
+        if (!loadExcluded) {
+            this.allDependantIds = this.dependantIds.slice();
+            const dependants = this.dependantList.getItems().filter(item => this.allDependantIds.some(id => id.equals(item.getContentId())));
+            this.processResolveDescendantsResult(dependants, true);
+            return;
+        }
+
+        const instanceId = this.instanceId;
+        this.notifyLoadingStarted(false);
+
+        this.createResolveDependenciesRequest(ids, []).sendAndParse().then((result: ResolvePublishDependenciesResult) => {
+            if (this.instanceId === instanceId) {
+                this.allDependantIds = [...result.getDependants()];
+
+                return this.loadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
+                    if (instanceId === this.instanceId) {
+                        this.processResolveDescendantsResult(descendants, true);
+                        this.notifyLoadingFinished();
+                    }
+                });
+            }
         }).catch((reason) => {
             if (instanceId === this.instanceId) {
                 this.notifyLoadingFailed();
@@ -441,10 +488,6 @@ export class PublishProcessor {
         return this.loadExcluded;
     }
 
-    setLoadExcluded(loadExcluded: boolean) {
-        this.loadExcluded = loadExcluded;
-    }
-
     private countToPublish(summaries: ContentSummaryAndCompareStatus[]): number {
         return summaries.reduce((count, summary: ContentSummaryAndCompareStatus) => {
             return summary.getCompareStatus() !== CompareStatus.EQUAL ? ++count : count;
@@ -502,19 +545,19 @@ export class PublishProcessor {
         return this.inProgressIds;
     }
 
-    onLoadingStarted(listener: () => void) {
+    onLoadingStarted(listener: LoadingStartedListener) {
         this.loadingStartedListeners.push(listener);
     }
 
-    unLoadingStarted(listener: () => void) {
+    unLoadingStarted(listener: LoadingStartedListener) {
         this.loadingStartedListeners = this.loadingStartedListeners.filter((curr) => {
             return listener !== curr;
         });
     }
 
-    private notifyLoadingStarted() {
+    private notifyLoadingStarted(checking: boolean) {
         this.loadingStartedListeners.forEach((listener) => {
-            listener();
+            listener(checking);
         });
     }
 

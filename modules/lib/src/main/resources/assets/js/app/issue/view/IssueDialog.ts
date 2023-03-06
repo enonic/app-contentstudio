@@ -118,13 +118,7 @@ export abstract class IssueDialog
             });
         }, 100);
 
-        this.excludedToggler.onActiveChanged(active => {
-            const isLoadExcludedChanged = this.publishProcessor.isLoadExcluded() !== active;
-            if (isLoadExcludedChanged) {
-                this.publishProcessor.setLoadExcluded(active);
-                this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
-            }
-        });
+        this.excludedToggler.onActiveChanged(loadExcluded => this.publishProcessor.updateLoadExcluded(loadExcluded));
     }
 
     doRender(): Q.Promise<boolean> {
