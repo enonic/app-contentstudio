@@ -16,9 +16,9 @@ import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
 import {TogglableStatusSelectionItem} from '../dialog/TogglableStatusSelectionItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentDuplicateParams} from '../resource/ContentDuplicateParams';
-import {UrlHelper} from '../util/UrlHelper';
 import {DuplicateContentRequest} from '../resource/DuplicateContentRequest';
 import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
+import {ItemEventListener} from '../dialog/DialogMainItemsList';
 import {EditContentEvent} from '../event/EditContentEvent';
 
 export class ContentDuplicateDialog
@@ -78,9 +78,15 @@ export class ContentDuplicateDialog
             }
         }, 100, false);
 
+        const clickListener: ItemEventListener = (item: ContentSummaryAndCompareStatus) => {
+            ContentEventsProcessor.handleEdit(new EditContentEvent([item]));
+        };
+
         this.getItemList().onItemsRemoved(reloadDependenciesDebounced);
         this.getItemList().onItemsAdded(reloadDependenciesDebounced);
         this.getItemList().onChildrenListChanged(reloadDependenciesDebounced);
+        this.getItemList().onItemClicked(clickListener);
+        this.getDependantList().onItemClicked(clickListener);
     }
 
     protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
