@@ -12,7 +12,6 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.PublishContentResult;
 import com.enonic.xp.content.PushContentParams;
-import com.enonic.xp.task.AbstractRunnableTaskTest;
 import com.enonic.xp.task.RunnableTask;
 import com.enonic.xp.task.TaskId;
 

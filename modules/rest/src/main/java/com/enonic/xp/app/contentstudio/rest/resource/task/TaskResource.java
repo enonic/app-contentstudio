@@ -15,12 +15,12 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
+import com.enonic.xp.app.contentstudio.rest.resource.task.json.TaskInfoJson;
 import com.enonic.xp.app.contentstudio.rest.resource.task.json.TaskInfoListJson;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskInfo;
-import com.enonic.xp.task.TaskInfoJson;
 import com.enonic.xp.task.TaskService;
 
 @Path(ResourceConstants.REST_ROOT + "tasks")

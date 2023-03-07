@@ -43,26 +43,28 @@ public class TaskResourceTest
         throws Exception
     {
         final TaskId taskId1 = TaskId.from( "123" );
-        final TaskInfo taskInfo1 = TaskInfo.create().
-            id( taskId1 ).
-            description( "My task" ).
-            state( TaskState.RUNNING ).
-            application( ApplicationKey.from( "com.enonic.myapp" ) ).
-            user( PrincipalKey.from( "user:store:me" ) ).
-            startTime( Instant.parse( "2017-10-01T09:00:00Z" ) ).
-            progress( TaskProgress.create().current( 2 ).total( 10 ).info( "Processing items" ).build() ).
-            build();
+        final TaskInfo taskInfo1 = TaskInfo.create()
+            .id( taskId1 )
+            .description( "My task" )
+            .name( "my task name 1" )
+            .state( TaskState.RUNNING )
+            .application( ApplicationKey.from( "com.enonic.myapp" ) )
+            .user( PrincipalKey.from( "user:store:me" ) )
+            .startTime( Instant.parse( "2017-10-01T09:00:00Z" ) )
+            .progress( TaskProgress.create().current( 2 ).total( 10 ).info( "Processing items" ).build() )
+            .build();
 
         final TaskId taskId2 = TaskId.from( "666" );
-        final TaskInfo taskInfo2 = TaskInfo.create().
-            id( taskId2 ).
-            description( "Old task" ).
-            state( TaskState.FINISHED ).
-            application( ApplicationKey.from( "com.enonic.other" ) ).
-            user( PrincipalKey.from( "user:store:user" ) ).
-            startTime( Instant.parse( "2017-09-11T09:00:00Z" ) ).
-            progress( TaskProgress.create().current( 42 ).total( 42 ).info( "Process completed" ).build() ).
-            build();
+        final TaskInfo taskInfo2 = TaskInfo.create()
+            .id( taskId2 )
+            .description( "Old task" )
+            .name( "my task name 2" )
+            .state( TaskState.FINISHED )
+            .application( ApplicationKey.from( "com.enonic.other" ) )
+            .user( PrincipalKey.from( "user:store:user" ) )
+            .startTime( Instant.parse( "2017-09-11T09:00:00Z" ) )
+            .progress( TaskProgress.create().current( 42 ).total( 42 ).info( "Process completed" ).build() )
+            .build();
 
         Mockito.when( this.taskService.getAllTasks() ).thenReturn( Arrays.asList( taskInfo1, taskInfo2 ) );
 
@@ -76,15 +78,16 @@ public class TaskResourceTest
         throws Exception
     {
         final TaskId taskId = TaskId.from( "123" );
-        final TaskInfo taskInfo = TaskInfo.create().
-            id( taskId ).
-            description( "My task" ).
-            state( TaskState.RUNNING ).
-            application( ApplicationKey.from( "com.enonic.myapp" ) ).
-            user( PrincipalKey.from( "user:store:me" ) ).
-            startTime( Instant.parse( "2017-10-01T09:00:00Z" ) ).
-            progress( TaskProgress.create().current( 2 ).total( 10 ).info( "Processing items" ).build() ).
-            build();
+        final TaskInfo taskInfo = TaskInfo.create()
+            .id( taskId )
+            .description( "My task" )
+            .name( "my task name" )
+            .state( TaskState.RUNNING )
+            .application( ApplicationKey.from( "com.enonic.myapp" ) )
+            .user( PrincipalKey.from( "user:store:me" ) )
+            .startTime( Instant.parse( "2017-10-01T09:00:00Z" ) )
+            .progress( TaskProgress.create().current( 2 ).total( 10 ).info( "Processing items" ).build() )
+            .build();
 
         Mockito.when( this.taskService.getTaskInfo( taskId ) ).thenReturn( taskInfo );
 
