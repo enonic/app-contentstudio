@@ -1230,13 +1230,11 @@ public class ContentResourceTest
         Mockito.<Optional<? extends Principal>>when( securityService.getUser( user4.getKey() ) ).thenReturn( Optional.of( user4 ) );
 
         final PrincipalRelationships group1Memberships =
-            PrincipalRelationships.from( PrincipalRelationship.from( groupA ).to( user1.getKey() ),
-                                         PrincipalRelationship.from( groupA ).to( user2.getKey() ) );
+            PrincipalRelationships.from( PrincipalRelationship.from( groupA ).to( user1.getKey() ) );
         Mockito.when( this.securityService.getRelationships( eq( groupA ) ) ).thenReturn( group1Memberships );
 
         final PrincipalRelationships group2Memberships =
-            PrincipalRelationships.from( PrincipalRelationship.from( groupB ).to( user3.getKey() ),
-                                         PrincipalRelationship.from( groupA ).to( user4.getKey() ) );
+            PrincipalRelationships.from( PrincipalRelationship.from( groupB ).to( user3.getKey() ) );
         Mockito.when( this.securityService.getRelationships( eq( groupB ) ) ).thenReturn( group2Memberships );
 
         final Permission[] ACCESS_WRITE = {Permission.READ, Permission.CREATE, Permission.DELETE, Permission.MODIFY};
