@@ -86,6 +86,10 @@ export class PublishDialogDependantList
         return !this.requiredIds.contains(item.getContentId());
     }
 
+    hasExcluded(): boolean {
+        return this.excludedIds.filter(id => !this.requiredIds.contains(id)).length > 0;
+    }
+
     setRequiredIds(value: ContentId[]) {
         this.requiredIds = ContentIds.from(value);
     }
