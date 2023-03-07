@@ -344,7 +344,11 @@ export class PublishProcessor {
     }
 
     private getExcludableFromIdsCount(ids: ContentId[]): number {
-        return ids.filter(id => !this.itemsIncludeId(this.getExcludedIds(), id) && this.itemsIncludeId(this.dependantIds, id)).length;
+        return ids.filter(id => {
+            return !this.itemsIncludeId(this.excludedIds, id) &&
+                   !this.itemsIncludeId(this.requiredIds, id) &&
+                   this.itemsIncludeId(this.dependantIds, id);
+        }).length;
     }
 
     canExcludeInProgress(): boolean {
