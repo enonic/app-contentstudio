@@ -1,11 +1,11 @@
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {Application} from '@enonic/lib-admin-ui/app/Application';
-import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import {Project} from '../settings/data/project/Project';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentId} from '../content/ContentId';
 import {WizardPanelParams} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {Content} from '../content/Content';
+import {AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
 
 export class ContentWizardPanelParams implements WizardPanelParams<Content> {
 
@@ -13,7 +13,7 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
 
     createSite: boolean = false;
 
-    tabId: ContentAppBarTabId;
+    tabId: AppBarTabId;
 
     contentTypeName: ContentTypeName;
 
@@ -36,7 +36,7 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
         return this;
     }
 
-    setTabId(value: ContentAppBarTabId): ContentWizardPanelParams {
+    setTabId(value: AppBarTabId): ContentWizardPanelParams {
         this.tabId = value;
         return this;
     }

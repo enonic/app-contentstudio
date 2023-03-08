@@ -1,34 +1,19 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentId} from '../content/ContentId';
+import {DependencyParams} from './DependencyParams';
 
 export class ShowDependenciesEvent
     extends Event {
 
-    private id: ContentId;
+    private readonly dependencyParams: DependencyParams;
 
-    private inbound: boolean;
-
-    private contentType: ContentTypeName;
-
-    constructor(id: ContentId, inbound: boolean, contentType?: ContentTypeName) {
+    constructor(dependencyParams: DependencyParams) {
         super();
-        this.id = id;
-        this.inbound = inbound;
-        this.contentType = contentType;
+        this.dependencyParams = dependencyParams;
     }
 
-    getId(): ContentId {
-        return this.id;
-    }
-
-    isInbound(): boolean {
-        return this.inbound;
-    }
-
-    getContentType(): ContentTypeName {
-        return this.contentType;
+    getDependencyParams(): DependencyParams {
+        return this.dependencyParams;
     }
 
     static on(handler: (event: ShowDependenciesEvent) => void, contextWindow: Window = window) {

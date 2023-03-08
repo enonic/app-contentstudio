@@ -2,22 +2,18 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ContentDependencyGroupJson} from '../../../../resource/json/ContentDependencyGroupJson';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-
-export enum DependencyType {
-    INBOUND,
-    OUTBOUND
-}
+import {DependencyType} from '../../../../browse/DependencyType';
 
 export class DependencyGroup
     implements Equitable {
 
-    private itemCount: number;
+    private readonly itemCount: number;
 
-    private iconUrl: string;
+    private readonly iconUrl: string;
 
-    private contentType: ContentTypeName;
+    private readonly contentType: ContentTypeName;
 
-    private type: DependencyType;
+    private readonly type: DependencyType;
 
     constructor(builder: DependencyGroupBuilder) {
         this.itemCount = builder.itemCount;

@@ -1,5 +1,5 @@
 import {WidgetItemView} from '../../WidgetItemView';
-import {DependencyGroup, DependencyType} from './DependencyGroup';
+import {DependencyGroup} from './DependencyGroup';
 import {ResolveDependenciesRequest} from '../../../../resource/ResolveDependenciesRequest';
 import {ContentDependencyJson} from '../../../../resource/json/ContentDependencyJson';
 import {ResolveDependencyResult} from '../../../../resource/ResolveDependencyResult';
@@ -12,6 +12,8 @@ import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/ap
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {DependencyType} from '../../../../browse/DependencyType';
+import {DependencyParams} from '../../../../browse/DependencyParams';
 
 export class DependenciesWidgetItemView
     extends WidgetItemView {
@@ -40,11 +42,15 @@ export class DependenciesWidgetItemView
 
     private manageButtonClick() {
         this.inboundButton.getAction().onExecuted(() => {
-            new ShowDependenciesEvent(this.item.getContentId(), true).fire();
+            const params: DependencyParams =
+                DependencyParams.create().setContentId(this.item.getContentId()).setDependencyType(DependencyType.INBOUND).build();
+            new ShowDependenciesEvent(params).fire();
         });
 
         this.outboundButton.getAction().onExecuted(() => {
-            new ShowDependenciesEvent(this.item.getContentId(), false).fire();
+            const params: DependencyParams =
+                DependencyParams.create().setContentId(this.item.getContentId()).setDependencyType(DependencyType.OUTBOUND).build();
+            new ShowDependenciesEvent(params).fire();
         });
     }
 
@@ -101,13 +107,12 @@ export class DependenciesWidgetItemView
     }
 
     private createDependenciesContainer(type: DependencyType, dependencies: DependencyGroup[]): DivEl {
-        const typeAsString = DependencyType[type].toLowerCase();
-        const div = new DivEl('dependencies-container ' + typeAsString);
+        const div = new DivEl('dependencies-container ' + type);
 
         if (dependencies.length === 0) {
-            this.addClass('no-' + typeAsString);
+            this.addClass('no-' + type);
             div.addClass('no-dependencies');
-            div.setHtml(i18n('field.widget.noDependencies.' + typeAsString));
+            div.setHtml(i18n('field.widget.noDependencies.' + type));
         } else {
             this.appendDependencies(div, dependencies);
         }
@@ -155,8 +160,12 @@ export class DependenciesWidgetItemView
 
     private handleDependencyGroupClick(dependencyGroupView: NamesAndIconView, dependencyGroup: DependencyGroup) {
         dependencyGroupView.getIconImageEl().onClicked(() => {
-            new ShowDependenciesEvent(this.item.getContentId(), dependencyGroup.getType() === DependencyType.INBOUND,
-                dependencyGroup.getContentType()).fire();
+            const params: DependencyParams = DependencyParams.create()
+                .setContentId(this.item.getContentId())
+                .setDependencyType(dependencyGroup.getType())
+                .setContentType(dependencyGroup.getContentType())
+                .build();
+            new ShowDependenciesEvent(params).fire();
         });
     }
 
