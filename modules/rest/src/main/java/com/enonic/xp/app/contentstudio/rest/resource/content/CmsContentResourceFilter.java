@@ -13,7 +13,6 @@ import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.node.NodePath;
-import com.enonic.xp.project.ProjectConstants;
 
 @Provider
 public final class CmsContentResourceFilter
@@ -29,10 +28,9 @@ public final class CmsContentResourceFilter
         if ( matcher.find() )
         {
             final String contentRootPath = matcher.group( 2 );
-            final Context context = ContextBuilder.
-                from( ContextAccessor.current() ).
-                attribute( "contentRootPath", NodePath.create(NodePath.ROOT, contentRootPath).build() ).
-                build();
+            final Context context = ContextBuilder.from( ContextAccessor.current() )
+                .attribute( "contentRootPath", NodePath.create( NodePath.ROOT ).addElement( contentRootPath ).build() )
+                .build();
             ContextAccessor.INSTANCE.set( context );
         }
     }
