@@ -7,6 +7,9 @@ import {ShowDependenciesEvent} from '../browse/ShowDependenciesEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {StatusSelectionItem} from './StatusSelectionItem';
+import {DependencyType} from '../browse/DependencyType';
+import {ContentId} from '../content/ContentId';
+import {DependencyParams} from '../browse/DependencyParams';
 
 export interface ArchiveSelectableItemConfig {
     viewer: Viewer<ContentSummaryAndCompareStatus>;
@@ -63,8 +66,10 @@ export class ArchiveSelectableItem
     protected initActionButton(clickable: boolean): void {
         const action = new Action(i18n('action.showReferences'));
         action.onExecuted(() => {
-            const contentId = this.getItem().getContentSummary().getContentId();
-            new ShowDependenciesEvent(contentId, true).fire();
+            const contentId: ContentId = this.getItem().getContentSummary().getContentId();
+            const params: DependencyParams =
+                DependencyParams.create().setContentId(contentId).setDependencyType(DependencyType.INBOUND).build();
+            new ShowDependenciesEvent(params).fire();
         });
         this.showRefButton = new ActionButton(action);
         this.showRefButton.addClass('show-ref-button');

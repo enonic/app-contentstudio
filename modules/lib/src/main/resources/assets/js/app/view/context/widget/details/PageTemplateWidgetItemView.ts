@@ -37,6 +37,7 @@ import {Descriptor} from '../../../../page/Descriptor';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
 import {ContentSummaryJson} from '../../../../content/ContentSummaryJson';
+import {ContentUrlHelper} from '../../../../util/ContentUrlHelper';
 
 export class PageTemplateWidgetItemView
     extends WidgetItemView {
@@ -273,15 +274,12 @@ class PageTemplateViewer {
     }
 
     private getPageTemplateLinkEl(): AEl {
-        const pageTemplateEl = new AEl();
-        pageTemplateEl.setHtml(this.pageTemplate.getDisplayName());
-        pageTemplateEl.setTitle(this.pageTemplate.getPath().toString());
+        const url: string = ContentUrlHelper.generateEditContentUrl(this.pageTemplate.getContentId());
 
-        pageTemplateEl.onClicked(() => {
-            new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(this.pageTemplate)]).fire();
-        });
-
-        return pageTemplateEl;
+        return new AEl()
+            .setUrl(url, '_blank')
+            .setHtml(this.pageTemplate.getDisplayName())
+            .setTitle(this.pageTemplate.getPath().toString()) as AEl;
     }
 
     private getEmptyDescriptorEl(): SpanEl {
