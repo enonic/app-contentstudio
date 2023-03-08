@@ -488,8 +488,8 @@ export class PublishProcessor {
         this.ignoreDependantItemsChanged = value;
     }
 
-    isLoadExcluded(): boolean {
-        return this.loadExcluded;
+    setLoadExcluded(loadExcluded: boolean): void {
+        this.loadExcluded = loadExcluded;
     }
 
     private countToPublish(summaries: ContentSummaryAndCompareStatus[]): number {

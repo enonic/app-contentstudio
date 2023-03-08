@@ -16,7 +16,6 @@ module.exports = {
     entry: {
         'js/main': './js/main.ts',
         'js/settings': './js/settings.ts',
-        'js/widgets/activity': './js/widgets/activity.ts',
         'page-editor/js/editor': './js/page-editor.ts',
         'page-editor/styles/main': './page-editor/styles/main.less',
         'styles/widgets/stats': './styles/widgets/stats.less'

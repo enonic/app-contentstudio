@@ -3,6 +3,62 @@
 
 TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.com/docs/content-studio/3.x/release[here]
 
+== Content Studio 4 Update 5
+
+IMPORTANT: Content Studio 4.5.x requires XP 7.12.0 or higher.
+
+=== Variants for A/B Testing
+
+A new widget provided by Content Studio+ enables creation of variants for a content item. Variants will be created under
+the original item and marked with a special icon. Variants can be managed (modified, published, duplicated etc.) as regular
+content items, then used in a 3rd party A/B Testing tool.
+
+:imagesdir: variants/images
+
+image::variants-grid.png[Variants in Content Grid, 470px]
+image::variants-widget.png[Variants widget, 470px]
+
+Read more about Variants <<variants/index#,here>>.
+
+NOTE: Widget for creating variants is provided by <<../#content_studio,Content Studio+>> application which requires Enonic license.
+
+=== Applications on Content Projects
+
+Content Studio 4.5.0 introduces support of applications for Content Projects. This will enable usage of content types and controller mappings defined in
+the assigned applications when creating or rendering content outside of sites. This is especially useful for headless content management
+as opposed to site-oriented approach.
+
+You can assign applications to a new project inside the New Project Wizard, or do it inside the project settings form for existing projects.
+
+IMPORTANT: Applications assigned to projects will not work for a site or content items inside a site. Assign application(s)
+directly to the site if you want to use them for site contents.
+
+=== Batch exclusion of dependent items from publishing
+
+Publishing Wizard and Publishing requests now support batch exclusion of dependant items.
+"x" icons have been replaced with checkboxes which can be checked off for multiple items, then confirmed with the "Apply" button which will refresh the dependant list. If checkbox next to dependant item is disabled it means that this item is required for publishing.
+Excluded items can be added back to the list from the "Show excluded icons" mode.
+
+:imagesdir: actions/images
+image::dialog-publish-excluded.png[Publishing request, 470px]
+
+:imagesdir: workflow/images
+image::publishing-request-1.png[Publishing request, 470px]
+
+=== Content Editor improvements
+
+`Settings`, `Schedule` and `Permissions` icons were moved from the Content Editor form's navigation toolbar to the <<widgets#details,"Details" widget>>. Fields from the `Settings` section (`Language` and `Owner`) were moved inside the "Properties" section of the widget, while "Schedule" got its own dedicated section right underneath "Properties". Permissions can be modified from the dedicated section of the same widget, as before.
+
+:imagesdir: widgets/images
+
+image::widgets-details.png[Details widget, 450px]
+
+=== Auto-save of localised content
+
+Previously, clicking "Localise" for a content item in a layer would set the layer's language in a content but not save the change,
+which means that the content wouldn't really be localised until user explicitly clicked "Save".
+Starting from this release, "Localise" action will set the language *and* save the content, instantly localising it.
+
 == Content Studio 4 Update 4
 
 IMPORTANT: Content Studio 4.4.x requires XP 7.11.0 or higher.

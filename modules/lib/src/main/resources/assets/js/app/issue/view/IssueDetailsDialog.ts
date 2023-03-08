@@ -243,6 +243,7 @@ export class IssueDetailsDialog
             edit: {
                 applyHandler: () => {
                     this.saveOnLoaded = true;
+                    this.publishProcessor.setLoadExcluded(false);
                     this.excludedToggler.setActive(false);
                     this.getDependantList().saveExclusions();
                     this.markEditing(false);

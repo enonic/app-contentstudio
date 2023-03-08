@@ -101,6 +101,7 @@ export abstract class BasePublishDialog
             resolvedText: i18n('dialog.publish.error.resolved'),
             edit: {
                 applyHandler: () => {
+                    this.publishProcessor.setLoadExcluded(false);
                     this.excludedToggler.setActive(false);
                     this.getDependantList().saveExclusions();
                     this.markEditing(false);

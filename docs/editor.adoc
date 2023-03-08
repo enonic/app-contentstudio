@@ -6,7 +6,7 @@ The *Content Editor* opens in a new browser tab from the <<navigator#,Browse Vie
 
 The edit view consists of several parts. On the left is the <<editor/content-form#,Content Form>>. If content is editable, the <<editor/page-editor#,Page Editor>> will automatically open on the right. A <<editor/context-panel#, Context Panel>> can be accessed from inside the Page Editor.  The Context Panel contain a number of widgets to work with the page, and will be placed to the right of the <<editor/page-editor#,Page Editor>> or expand over it, based on screen resolution.
 
-image::editor.png[Content Wizard, 1920]
+image::editor.png[Content Wizard, 1680]
 
 == Collaboration
 :imagesdir: images

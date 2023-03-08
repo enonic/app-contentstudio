@@ -64,6 +64,7 @@ export class CreateIssueDialog
             hideIfResolved: true,
             edit: {
                 applyHandler: () => {
+                    this.publishProcessor.setLoadExcluded(false);
                     this.excludedToggler.setActive(false);
                     this.getDependantList().saveExclusions();
                     this.markEditing(false);
