@@ -9,6 +9,6 @@ public class ContentHelper
     public static NodePath getContentRoot()
     {
         final NodePath nodePath = (NodePath) ContextAccessor.current().getAttribute( "contentRootPath");
-        return nodePath != null ? nodePath.asAbsolute() : ContentConstants.CONTENT_ROOT_PATH;
+        return nodePath != null ? nodePath : ContentConstants.CONTENT_ROOT_PATH;
     }
 }
