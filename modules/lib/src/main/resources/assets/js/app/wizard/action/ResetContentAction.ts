@@ -6,6 +6,7 @@ import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ContentInheritType} from '../../content/ContentInheritType';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 
 export class ResetContentAction
     extends Action {
@@ -25,7 +26,9 @@ export class ResetContentAction
         new RestoreInheritRequest()
             .setContentId(content.getContentId())
             .setInherit(this.getInheritTypesToRestore(content))
-            .sendAndParse().catch(DefaultErrorHandler.handle);
+            .sendAndParse()
+            .then(() => showFeedback(i18n('notify.content.reset')))
+            .catch(DefaultErrorHandler.handle);
     }
 
     private getInheritTypesToRestore(content: ContentSummaryAndCompareStatus): ContentInheritType[] {
