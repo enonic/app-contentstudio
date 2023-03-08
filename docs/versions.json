@@ -10,7 +10,7 @@
     },
     {
       "label": "stable",
-      "checkout": "master",
+      "checkout": "b820dc4",
       "latest": true
     },
     {
