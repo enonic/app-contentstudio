@@ -166,11 +166,11 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     getInherit(): ContentInheritType[] {
-        return !!this.contentSummary ? this.contentSummary.getInherit() : [];
+        return this.contentSummary?.getInherit() || [];
     }
 
     isDataInherited(): boolean {
-        return !!this.contentSummary ? this.contentSummary.isDataInherited() : false;
+        return this.contentSummary?.isDataInherited();
     }
 
     isSortInherited(): boolean {

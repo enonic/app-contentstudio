@@ -12,9 +12,9 @@ export class LocalizeContentsRequest
 
     private readonly ids: ContentId[];
 
-    private readonly language: string;
+    private readonly language?: string;
 
-    constructor(ids: ContentId[], language: string) {
+    constructor(ids: ContentId[], language?: string) {
         super();
         this.setMethod(HttpMethod.POST);
         this.ids = ids;
@@ -23,14 +23,19 @@ export class LocalizeContentsRequest
     }
 
     getParams(): Object {
-        return {
-            contentIds: this.ids.map(id => id.toString()),
-            language: this.language
+        const params: Object = {
+            contentIds: this.ids.map(id => id.toString())
         };
+
+        if (this.language) {
+            params['language'] = this.language;
+        }
+
+        return params;
     }
 
     sendAndParse(): Q.Promise<ContentSummary[]> {
-        if (this.ids?.length > 0 && this.language) {
+        if (this.ids?.length > 0) {
             return super.sendAndParse();
         }
 

@@ -37,10 +37,13 @@ import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {ResetContentAction} from './ResetContentAction';
+import {LocalizeContentAction} from './LocalizeContentAction';
+import {ProjectContext} from '../../project/ProjectContext';
 
 type ActionNames =
     'SAVE' |
     'RESET' |
+    'LOCALIZE' |
     'DELETE' |
     'DUPLICATE' |
     'PREVIEW' |
@@ -61,6 +64,7 @@ type ActionNames =
 type ActionsMap = {
     SAVE?: Action,
     RESET?: Action,
+    LOCALIZE?: Action,
     ARCHIVE?: Action,
     DUPLICATE?: Action,
     PREVIEW?: Action,
@@ -82,6 +86,7 @@ type ActionsMap = {
 type ActionsState = {
     SAVE?: boolean,
     RESET?: boolean,
+    LOCALIZE?: boolean
     ARCHIVE?: boolean,
     DUPLICATE?: boolean,
     PREVIEW?: boolean,
@@ -153,7 +158,8 @@ export class ContentWizardActions
             new ShowFormAction(wizardPanel),
             new ShowSplitEditAction(wizardPanel),
             new SaveAndCloseAction(wizardPanel),
-            new UndoPendingDeleteAction(wizardPanel)
+            new UndoPendingDeleteAction(wizardPanel),
+            new LocalizeContentAction(wizardPanel)
         );
 
         this.wizardPanel = wizardPanel;
@@ -179,6 +185,7 @@ export class ContentWizardActions
             SHOW_SPLIT_EDIT: actions[15],
             SAVE_AND_CLOSE: actions[16],
             UNDO_PENDING_DELETE: actions[17],
+            LOCALIZE: actions[18]
         };
 
         const stashableActionsMap: ActionsMap = {
@@ -242,7 +249,8 @@ export class ContentWizardActions
             isEnabled = isEnabled &&
                         this.persistedContent.isEditable() &&
                         !this.isPendingDelete() &&
-                        this.userCanModify;
+                        this.userCanModify &&
+                        !this.persistedContent.isDataInherited();
         }
         this.enableActions({SAVE: isEnabled});
 
@@ -268,7 +276,7 @@ export class ContentWizardActions
         const isPendingDelete = this.isPendingDelete();
 
         this.actionsMap.UNDO_PENDING_DELETE.setVisible(isPendingDelete);
-        this.actionsMap.SAVE.setVisible(!isPendingDelete);
+        this.actionsMap.SAVE.setVisible(!isPendingDelete && !this.wizardPanel.getPersistedItem().isDataInherited());
         this.actionsMap.ARCHIVE.setVisible(!isPendingDelete);
         this.actionsMap.DUPLICATE.setVisible(!isPendingDelete);
         this.actionsMap.UNPUBLISH.setVisible(!isPendingDelete);
@@ -278,6 +286,7 @@ export class ContentWizardActions
             this.enableActions({
                 SAVE: false,
                 RESET: false,
+                LOCALIZE: false,
                 ARCHIVE: false,
                 DUPLICATE: false
             });
@@ -302,6 +311,7 @@ export class ContentWizardActions
         this.stateManager.enableActions({});
         this.enableActions({SAVE: this.wizardPanel.hasUnsavedChanges(), ARCHIVE: true});
         this.actionsMap.RESET.setVisible(false);
+        this.actionsMap.LOCALIZE.setVisible(false);
         (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(true);
     }
 
@@ -312,11 +322,9 @@ export class ContentWizardActions
             ARCHIVE: existing.isDeletable()
         });
 
-        this.actionsMap.RESET.setVisible(false);
-
         return this.enableActionsForExistingByPermissions(existing).then(() => {
             this.enableActions({
-                SAVE: existing.isEditable() && this.wizardPanel.hasUnsavedChanges() && !this.isPendingDelete()
+                SAVE: existing.isEditable() && this.wizardPanel.hasUnsavedChanges() && !this.isPendingDelete() && !existing.isDataInherited()
             });
         });
     }
@@ -361,7 +369,7 @@ export class ContentWizardActions
             (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(this.userCanModify);
 
             if (!this.userCanModify) {
-                this.enableActions({SAVE: false, SAVE_AND_CLOSE: false, MARK_AS_READY: false, RESET: false});
+                this.enableActions({SAVE: false, SAVE_AND_CLOSE: false, MARK_AS_READY: false, RESET: false, LOCALIZE: false});
             }
             if (!hasDeletePermission) {
                 this.enableActions({ARCHIVE: false});
@@ -454,9 +462,9 @@ export class ContentWizardActions
         const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
         const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline() && !this.content.isPendingDelete();
-        const canBeReset: boolean = this.wizardPanel.isContentExistsInParentProject() && this.userCanModify &&
-                                    this.content.hasOriginProject() &&
-                                    !this.content.isFullyInherited();
+        const isInheritedItem: boolean = this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject();
+        const canBeReset: boolean = isInheritedItem && !this.content.isFullyInherited();
+        const canBeLocalized: boolean = isInheritedItem && this.content.isDataInherited();
 
         this.enableActions({
             PUBLISH: canBePublished,
@@ -465,12 +473,13 @@ export class ContentWizardActions
             MARK_AS_READY: canBeMarkedAsReady,
             REQUEST_PUBLISH: canBeRequestedPublish,
             OPEN_REQUEST: this.hasPublishRequest,
-            RESET: canBeReset
+            RESET: this.userCanModify && canBeReset,
+            LOCALIZE: this.userCanModify && canBeLocalized
         });
 
         this.actionsMap.OPEN_REQUEST.setVisible(this.hasPublishRequest);
-        this.actionsMap.RESET.setVisible(
-            this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject() && !this.content.isFullyInherited());
+        this.actionsMap.RESET.setVisible(canBeReset);
+        this.actionsMap.LOCALIZE.setVisible(canBeLocalized);
     }
 
     canBePublished(): boolean {
@@ -523,6 +532,10 @@ export class ContentWizardActions
 
     getResetAction(): Action {
         return this.actionsMap.RESET;
+    }
+
+    getLocalizeAction(): Action {
+        return this.actionsMap.LOCALIZE;
     }
 
     getSaveAction(): ContentSaveAction {

@@ -28,7 +28,7 @@ export class EditContentAction extends ContentTreeGridAction {
         if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {
             showWarning(i18n('notify.edit.tooMuch'));
         } else if (contents.length > 0) {
-            if (this.isLocalize && ProjectContext.get().getProject()?.getLanguage()) {
+            if (this.isLocalize) {
                 this.localizeContents(contents);
             } else {
                 new EditContentEvent(contents).fire();
@@ -41,7 +41,7 @@ export class EditContentAction extends ContentTreeGridAction {
             this.contentsLocalizer = new ContentsLocalizer();
         }
 
-        this.contentsLocalizer.localize(contents).catch(DefaultErrorHandler.handle);
+        this.contentsLocalizer.localizeAndEdit(contents).catch(DefaultErrorHandler.handle);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
@@ -56,7 +56,7 @@ export class EditContentAction extends ContentTreeGridAction {
     private getLabelByState(state: ContentTreeGridItemsState): string {
         if (state.hasAllReadOnly()) {
             return i18n('action.open');
-        } else if (state.hasAllInherited()) {
+        } else if (this.isLocalize) {
             return i18n('action.translate');
         }
 

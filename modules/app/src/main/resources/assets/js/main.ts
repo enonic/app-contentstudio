@@ -496,7 +496,7 @@ async function startContentWizard() {
         if (wizard.isContentDeleted() || !connectionDetector?.isConnected() || !connectionDetector?.isAuthenticated()) {
             return;
         }
-        if (wizard.hasUnsavedChanges() && wizard.hasModifyPermissions()) {
+        if (wizard.hasUnsavedChanges() && !wizard.isReadOnly()) {
             let message = i18n('dialog.wizard.unsavedChanges');
             // Hack for IE. returnValue is boolean
             const e: any = event || window.event || {returnValue: ''};
