@@ -11,7 +11,7 @@ export class ContentsLocalizer {
 
     private contents: ContentSummaryAndCompareStatus[];
 
-    localize(contents: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
+    localizeAndEdit(contents: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
         if (!contents || contents.length === 0) {
             return Q.resolve();
         }
@@ -27,7 +27,7 @@ export class ContentsLocalizer {
         const contentsToLocalize: ContentSummaryAndCompareStatus[] = [];
 
         this.contents.forEach((content: ContentSummaryAndCompareStatus) => {
-            if (content.getLanguage() !== projectLang) {
+            if (content.isDataInherited()) {
                 contentsToLocalize.push(content);
             } else {
                 contentsToEdit.push(content);
