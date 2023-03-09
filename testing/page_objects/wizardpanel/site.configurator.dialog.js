@@ -112,7 +112,7 @@ class SiteConfiguratorDialog extends Page {
 
     async waitForDialogOpened() {
         await this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
-        await this.pause(400);
+        await this.pause(500);
     }
 
     waitForDialogClosed() {
@@ -144,6 +144,13 @@ class SiteConfiguratorDialog extends Page {
     async clickOnCancelTopButton() {
         await this.waitForElementDisplayed(this.cancelButtonTop, appConst.mediumTimeout);
         return await this.clickOnElement(this.cancelButtonTop);
+    }
+
+    // Click on Add New button in the content selector:
+    async clickOnAddNewButton() {
+        let locator = XPATH.container + lib.CONTENT_SELECTOR + lib.NEW_CONTENT_BUTTON;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
     }
 }
 

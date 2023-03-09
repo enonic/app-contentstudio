@@ -55,7 +55,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             let note = await contentPublishDialog.waitForExcludedNote();
             assert.equal(note, 'All dependencies are excluded and hidden.', 'Expected note gets visible');
             // 7. Verify that 'Show excluded items'  button gets visible:
-            await contentPublishDialog.waitForShowExcludedItemsDisplayed();
+            await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
             // 8. Verify that 'Publish now' button remains disabled
             await contentPublishDialog.waitForPublishNowButtonDisabled();
             await contentPublishDialog.markAsReadyButtonDisplayed();

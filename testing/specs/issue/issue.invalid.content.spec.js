@@ -119,7 +119,8 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialogItemsTab.waitForNotificationMessage();
             // 5.'Publish...' button gets enabled, because invalid child is excluded'
             await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
-            // TODO show excluded items
+            // 6. Verify that 'Show excluded items' button gets visible:
+            await issueDetailsDialogItemsTab.waitForShowExcludedItemsButtonDisplayed();
         });
 
     // Verifies: Items that were removed in Issue Details items appear again in Publish Wizard dialog #783

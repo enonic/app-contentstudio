@@ -14,7 +14,7 @@ const appConst = require('../../libs/app_const');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
@@ -35,10 +35,10 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
             await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE);
-            await studioUtils.saveScreenshot("article_template");
+            await studioUtils.saveScreenshot('article_template');
         });
 
-    //verifies https://github.com/enonic/xp/issues/7396 and https://github.com/enonic/app-contentstudio/issues/947
+    // verifies https://github.com/enonic/xp/issues/7396 and https://github.com/enonic/app-contentstudio/issues/947
     it(`WHEN new wizard for article has been opened THEN input from template-config should be displayed in the Inspection Panel`,
         async () => {
             let defaultPageInspectionPanel = new DefaultPageInspectionPanel();
@@ -48,20 +48,20 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
             await wizardDetailsPanel.waitForDetailsPanelLoaded();
-            await studioUtils.saveScreenshot("article_details_panel");
+            await studioUtils.saveScreenshot('article_details_panel');
             //Inspection Panel should be automatically opened:
             await defaultPageInspectionPanel.waitForTitleInputDisplayed();
             await defaultPageInspectionPanel.typeTitle(TITLE_TEXT);
             //Click on Apply button in Inspect Panel and save the changes:
             await defaultPageInspectionPanel.clickOnApplyButton();
             let result = await defaultPageInspectionPanel.getTitle();
-            assert.equal(result, TITLE_TEXT, "expected and actual title should be equal");
+            assert.equal(result, TITLE_TEXT, 'expected and actual title should be equal');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

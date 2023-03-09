@@ -30,6 +30,10 @@ class IssueDetailsDialogItemsTab extends Page {
         return xpath.container + xpath.editEntry + lib.actionButton('Apply');
     }
 
+    get showExcludedItemsButton() {
+        return xpath.container + lib.togglerButton('Show excluded items');
+    }
+
     get contentOptionsFilterInput() {
         return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
@@ -222,6 +226,17 @@ class IssueDetailsDialogItemsTab extends Page {
         let result = await this.getAttribute(locator, 'class');
         return result.includes('include-children-toggler on');
     }
+
+    async waitForShowExcludedItemsButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await appConst.generateRandomName('err_show_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(` Issue Details tab - 'Show excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
 }
 
 module.exports = IssueDetailsDialogItemsTab;
