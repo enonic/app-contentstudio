@@ -51,12 +51,12 @@ module.exports = {
         }
     },
 
-    setTextInCKE: function (id, text) {
+    async setTextInCKE(id, text) {
         let script = `CKEDITOR.instances['${id}'].setData('${text}')`;
-        return this.getBrowser().execute(script).then(() => {
-            let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
-            return this.getBrowser().execute(script2);
-        })
+        await this.getBrowser().execute(script);
+        let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
+        //let script2 = `CKEDITOR.instances['${id}'].element.$.dispatchEvent(new Event('paste'))`;
+        return await this.getBrowser().execute(script2);
     },
 
     insertTextInCKE: function (id, text) {
@@ -352,9 +352,9 @@ module.exports = {
         let contentWizardPanel = new ContentWizardPanel();
         await this.doOpenPageTemplateWizard(siteName);
         await contentWizardPanel.typeData(template);
-        //auto saving should be here:
+        // auto saving should be here:
         await contentWizardPanel.selectPageDescriptor(template.data.controllerDisplayName);
-        this.saveScreenshot(template.displayName + '_created');
+        await this.saveScreenshot(template.displayName + '_created');
         await this.doCloseCurrentBrowserTab();
         await this.doSwitchToContentBrowsePanel();
         return await contentWizardPanel.pause(2000);
@@ -436,7 +436,7 @@ module.exports = {
     async findAndSelectItemByDisplayName(displayName) {
         let browsePanel = new BrowsePanel();
         await this.typeNameInFilterPanel(displayName);
-        await browsePanel.waitForRowByDisplayNameVisible(displayName);
+        await browsePanel.waitForContentByDisplayNameVisible(displayName);
         await browsePanel.pause(300);
         await browsePanel.clickOnRowByDisplayName(displayName);
         return await browsePanel.pause(400);
