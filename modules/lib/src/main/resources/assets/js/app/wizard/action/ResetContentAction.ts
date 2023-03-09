@@ -17,17 +17,20 @@ export class ResetContentAction
         this.onExecuted(() => {
             new ConfirmationDialog()
                 .setQuestion(i18n('dialog.confirm.resetInheritance'))
-                .setYesCallback(() => this.restoreContentInheritance(wizardPanel.getContent()))
+                .setYesCallback(() => this.restoreContentInheritance(wizardPanel))
                 .open();
         });
     }
 
-    private restoreContentInheritance(content: ContentSummaryAndCompareStatus) {
+    private restoreContentInheritance(wizardPanel: ContentWizardPanel) {
         new RestoreInheritRequest()
-            .setContentId(content.getContentId())
-            .setInherit(this.getInheritTypesToRestore(content))
+            .setContentId(wizardPanel.getContent().getContentId())
+            .setInherit(this.getInheritTypesToRestore(wizardPanel.getContent()))
             .sendAndParse()
-            .then(() => showFeedback(i18n('notify.content.reset')))
+            .then(() => {
+                showFeedback(i18n('notify.content.reset'));
+                wizardPanel.setEnabled(false);
+            })
             .catch(DefaultErrorHandler.handle);
     }
 

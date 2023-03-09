@@ -1123,11 +1123,11 @@ export class LiveFormPanel
         });
     }
 
-    setModifyPermissions(modifyPermissions: boolean): void {
-        this.modifyPermissions = modifyPermissions;
-        this.insertablesPanel?.setModifyPermissions(modifyPermissions);
-        this.liveEditPageProxy?.setModifyPermissions(modifyPermissions);
-        this.placeholder?.setEnabled(modifyPermissions);
+    setEnabled(enabled: boolean): void {
+        this.modifyPermissions = enabled;
+        this.insertablesPanel?.setModifyPermissions(enabled);
+        this.liveEditPageProxy?.setModifyPermissions(enabled);
+        this.placeholder?.setEnabled(enabled);
     }
 
     unloadPage(): void {

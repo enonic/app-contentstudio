@@ -236,8 +236,6 @@ export class ContentWizardPanel
 
     private pageEditorUpdatedDuringSave: boolean;
 
-    private modifyPermissions: boolean = false;
-
     private applicationLoadCount: number;
 
     private debouncedEditorReload: (clearInspection: boolean) => void;
@@ -941,7 +939,7 @@ export class ContentWizardPanel
     }
 
     giveInitialFocus() {
-        if (this.modifyPermissions) {
+        if (this.canModify) {
             super.giveInitialFocus();
         }
     }
@@ -2387,19 +2385,15 @@ export class ContentWizardPanel
         this.formContext.setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError));
     }
 
-    private setModifyPermissions(loginResult: LoginResult) {
-        this.modifyPermissions =
-            this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY);
-        this.getEl().toggleClass('no-modify-permissions', !this.modifyPermissions);
-        this.getLivePanel()?.setModifyPermissions(this.modifyPermissions);
+    setEnabled(value: boolean) {
+        super.setEnabled(value);
 
-        if (!this.modifyPermissions) {
-            NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
-        }
+        this.getEl().toggleClass('no-modify-permissions', !value);
+        this.getLivePanel()?.setEnabled(value);
     }
 
-    hasModifyPermissions(): boolean {
-        return this.modifyPermissions;
+    isReadOnly(): boolean {
+        return !this.canModify;
     }
 
     /**
@@ -2617,17 +2611,24 @@ export class ContentWizardPanel
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {
+        if (this.getPersistedItem().isDataInherited()) {
+            return Q.resolve(false);
+        }
+
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            return Q(this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY));
+            const hasModifyPermissions: boolean =
+                this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY);
+
+            if (!hasModifyPermissions) {
+                NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
+            }
+
+            return hasModifyPermissions && !this.getPersistedItem().isDataInherited();
         });
     }
 
     protected handleCanModify(canModify: boolean): void {
         super.handleCanModify(canModify);
-
-        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            this.setModifyPermissions(loginResult);
-        }).catch(DefaultErrorHandler.handle);
 
         this.updateUrlAction();
     }

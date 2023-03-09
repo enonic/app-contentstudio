@@ -2635,21 +2635,6 @@ public class ContentResourceTest
     }
 
     @Test
-    public void test_localize_content_no_language()
-    {
-        final ContentResource instance = getResourceInstance();
-        final LocalizeContentsJson params = new LocalizeContentsJson( new ArrayList<>(), null );
-
-        // test & assert
-        final WebApplicationException exception = assertThrows( WebApplicationException.class, () -> instance.localize( params ) );
-
-        assertEquals( "Can't localize content: language is missing", exception.getMessage() );
-
-        // verify
-        Mockito.verifyNoMoreInteractions( contentService );
-    }
-
-    @Test
     public void test_localize_content_no_ids()
     {
         final ContentResource instance = getResourceInstance();

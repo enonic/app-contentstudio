@@ -446,11 +446,6 @@ public final class ContentResource
     @Path("localize")
     public ContentListJson<ContentSummaryJson> localize( final LocalizeContentsJson params )
     {
-        if ( params.getLanguage() == null )
-        {
-            throw new WebApplicationException( "Can't localize content: language is missing" );
-        }
-
         if ( params.getContentIds().isEmpty() )
         {
             throw new WebApplicationException( "Can't localize content: no content IDs provided" );
@@ -459,7 +454,7 @@ public final class ContentResource
         final Locale language = params.getLanguage();
 
         final List<Content> updatedItems =
-            params.getContentIds().stream().map( id -> this.updateContentLanguage( id, language ) ).collect( Collectors.toList() );
+            params.getContentIds().stream().map( id -> this.localizeContent( id, language ) ).collect( Collectors.toList() );
 
         final Contents contents = Contents.from( updatedItems );
 
@@ -469,10 +464,14 @@ public final class ContentResource
         return new ContentListJson<>( contents, metaData, jsonObjectsFactory::createContentSummaryJson );
     }
 
-    private Content updateContentLanguage( final ContentId id, final Locale language )
+    private Content localizeContent( final ContentId id, final Locale language )
     {
         final UpdateContentParams updateContentParams =
-            new UpdateContentParams().contentId( id ).editor( edit -> edit.language = language );
+            new UpdateContentParams().contentId( id ).editor( edit -> {
+                if (language != null) {
+                    edit.language = language;
+                }
+            } );
 
         return contentService.update( updateContentParams );
     }
