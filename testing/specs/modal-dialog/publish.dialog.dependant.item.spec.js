@@ -10,7 +10,7 @@ const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
-describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
+describe('publish.dialog.dependant.items.spec: tests for dependant items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -55,6 +55,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             assert.equal(items.length, 2, 'Two dependant items should be displayed');
             let expectedItem = '/' + SITE.displayName + '/' + '_templates';
             assert.isTrue(items.includes(expectedItem), "Expected items should be displayed in dependants items");
+            // 6. Verify that 'All' checkbox is not clickable(disabled), all items are requred for publishing:
+            await contentPublishDialog.waitForAllDependantsCheckboxDisabled();
         });
 
     it(`GIVEN Publish Wizard has been opened WHEN 'Mark as ready' button has been pressed THEN 'Publish now' button gets enabled`,
@@ -75,7 +77,6 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 5. Expected text gets visible in the dialog:
             let result = await contentPublishDialog.getResolvedEntryText();
             assert.equal(result, 'Content is ready for publishing', 'Expected note appears in the dialog');
-
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

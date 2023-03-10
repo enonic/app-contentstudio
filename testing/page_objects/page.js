@@ -201,6 +201,28 @@ class Page {
         return await element[0].waitForEnabled({timeout: ms, reverse: true});
     }
 
+
+    /**
+     *  Return true if the selected DOM-element:
+     *
+     *     - exists
+     *     - is visible
+     *     - is within viewport (if not try scroll to it)
+     *     - its center is not overlapped with another element
+     *     - is not disabled
+     *     otherwise exception will be thrown.
+     */
+    async waitForElementClickable(selector, ms) {
+        let element = await this.findElements(selector);
+        if (element.length > 1) {
+            throw new Error("More than one element were found with the selector " + selector);
+        }
+        if (element.length === 0) {
+            throw new Error('Element was not found:' + selector);
+        }
+        return await element[0].waitForClickable({timeout: ms});
+    }
+
     async waitForElementNotClickable(selector, ms) {
         let element = await this.findElements(selector);
         if (element.length > 1) {

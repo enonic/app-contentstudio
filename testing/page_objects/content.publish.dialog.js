@@ -141,6 +141,14 @@ class ContentPublishDialog extends Page {
         return this.waitForElementDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
     }
 
+    waitForAllDependantsCheckboxDisabled() {
+        return this.waitForElementNotClickable(this.allDependantsCheckbox, appConst.mediumTimeout);
+    }
+
+    waitForAllDependantsCheckboxEnabled() {
+        return this.waitForElementClickable(this.allDependantsCheckbox, appConst.mediumTimeout);
+    }
+
     waitForAllDependantsCheckboxNotDisplayed() {
         return this.waitForElementNotDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
     }
@@ -292,7 +300,8 @@ class ContentPublishDialog extends Page {
     async clickOnHideExcludedItemsButton() {
         try {
             await this.waitForHideExcludedItemsButtonDisplayed();
-            return await this.clickOnElement(this.hideExcludedItemsButton);
+            await this.clickOnElement(this.hideExcludedItemsButton);
+            return await this.pause(1000);
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
             await this.saveScreenshot(screenshot);
@@ -514,7 +523,8 @@ class ContentPublishDialog extends Page {
 
     async clickOnShowExcludedButtonItems() {
         await this.waitForShowExcludedItemsButtonDisplayed()
-        return this.clickOnElement(this.showExcludedItemsButton);
+        await this.clickOnElement(this.showExcludedItemsButton);
+        return await this.pause(1000);
     }
 
 }

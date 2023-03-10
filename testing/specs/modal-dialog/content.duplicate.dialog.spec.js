@@ -42,6 +42,8 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             // 5. Verify the list of dependant items"
             let dependants = await contentDuplicateDialog.getDependentsName();
             assert.equal(dependants.length, 12, '12 dependants item should be displayed');
+            // Checkbox 'All' should not be displayed in Duplicate modal dialog:
+            await contentDuplicateDialog.waitForAllCheckboxNotDisplayed();
         });
 
     it(`GIVEN 2 folders with children are selected WHEN 'Duplicate...' button has been clicked THEN expected display names should be present on the dialog`,
