@@ -11,6 +11,7 @@ module.exports = Object.freeze({
     TIME_PICKER_INPUT: "//div[contains(@id,'TimePicker')]//input[contains(@id,'TextInput')]",
     DATE_PICKER_INPUT: "//div[contains(@id,'DatePicker') and contains(@class,'date-time-picker')]//input[contains(@id,'TextInput')]",
     CONTENT_SELECTOR: "//div[contains(@id,'ContentSelector')]",
+    NEW_CONTENT_BUTTON: "//button[contains(@class,'new-content-button')]",
     SELECTED_LOCALE: `//div[contains(@id,'LocaleSelectedOptionView')]`,
     SLICK_VIEW_PORT: `//div[contains(@class,'slick-viewport')]`,
     SLICK_ROW: "//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row')]",
@@ -55,7 +56,7 @@ module.exports = Object.freeze({
     actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
     dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
     dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
-    togglerButton: (label) => `//button[contains(@id,'DialogButtonTogglerButton') and child::span[text()='${label}']]`,
+    togglerButton: (label) => `//button[contains(@id,'TogglerButton') and child::span[text()='${label}']]`,
     slickRowByName: (container, name) => {
         return container +
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`;

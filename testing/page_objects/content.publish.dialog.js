@@ -300,6 +300,26 @@ class ContentPublishDialog extends Page {
         }
     }
 
+    async waitForShowExcludedItemsButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`'Show excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
+    async waitForHideExcludedItemsButtonDisplayed() {
+        try {
+            return this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`'Hide excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
     async clickOnIncludeChildrenToogler() {
         try {
             await this.waitForElementDisplayed(this.includeChildrenToogler, appConst.mediumTimeout);
@@ -311,17 +331,6 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    waitForShowExcludedItemsButtonDisplayed() {
-        return this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout).catch(err => {
-            throw new Error("Show dependent items link should be visible!" + err)
-        })
-    }
-
-    waitForHideExcludedItemsButtonDisplayed() {
-        return this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout).catch(err => {
-            throw new Error("'Hide excluded items' button should be visible!" + err)
-        })
-    }
 
     waitForScheduleButtonDisplayed() {
         return this.waitForElementDisplayed(this.scheduleButton, appConst.shortTimeout).catch(err => {
@@ -480,6 +489,13 @@ class ContentPublishDialog extends Page {
         return res;
     }
 
+    async getResolvedEntryText() {
+        let locator = XPATH.container +
+                      "//div[contains(@id,'DialogStateEntry') and contains(@class, 'resolved-entry')]//span[@class='entry-text']";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
     async waitForReadyForPublishingTextDisplayed() {
         let locator = XPATH.container + XPATH.readyForPublishingText;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -496,10 +512,9 @@ class ContentPublishDialog extends Page {
         return this.getText(locator);
     }
 
-    async waitForShowExcludedItemsDisplayed() {
-        let locator = XPATH.container + XPATH.excludedItemsNote;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return this.getText(locator);
+    async clickOnShowExcludedButtonItems() {
+        await this.waitForShowExcludedItemsButtonDisplayed()
+        return this.clickOnElement(this.showExcludedItemsButton);
     }
 
 }
