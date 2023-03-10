@@ -721,6 +721,11 @@ export class LinkModalDialog
         return nextParamIdentifier + 1;
     }
 
+    private resetMediaRadioValue(): void {
+        const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
+        mediaRadio.setValue(MediaContentRadioAction.OPEN);
+    }
+
     private createParamKeyFormItem(initialKey: string): [FormItem, string] {
         const id: string = `paramsKey-${this.getNewParamIdentifier()}`;
         const label: string = i18n('dialog.link.parameters.name');
@@ -875,10 +880,9 @@ export class LinkModalDialog
     }
 
     private handleSelectorValueChanged(selectedContent: ContentSummary, formItem: FormItem): void {
-        const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
-
         if (!selectedContent) {
             formItem.setValidator(Validators.required);
+            this.resetMediaRadioValue();
             this.mediaOptionRadioFormItem.hide();
             this.contentTargetCheckBoxFormItem.hide();
             this.anchorFormItem.hide();
@@ -887,6 +891,8 @@ export class LinkModalDialog
         }
 
         if (selectedContent.getType().isDescendantOfMedia()) {
+            const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
+
             this.mediaOptionRadioFormItem.show();
             this.anchorFormItem.hide();
             this.paramsFormItem.hide();
