@@ -140,20 +140,28 @@ export class ContentBrowseFilterPanel
         Router.get().back();
     }
 
-    public setDependencyItem(item: ContentSummary, inbound: boolean, type?: string) {
+    public setDependencyItem(item: ContentSummary, inbound: boolean, type?: string): void {
         this.dependenciesSection.setInbound(inbound).setType(type);
-        this.setConstraintItems(this.dependenciesSection, [item.getId()]);
-        this.dependenciesSection.setDependencyItem(item);
-        this.selectContentTypeBucket(type);
-    }
 
-    private selectContentTypeBucket(key: string) {
-        if (!key) {
-            return;
+        if (type) {
+            this.selectBucketByTypeOnLoad(type);
         }
 
-        (<BucketAggregationView>this.aggregations.get(
-            ContentAggregation.CONTENT_TYPE).getAggregationViews()[0]).selectBucketViewByKey(key);
+        this.setConstraintItems(this.dependenciesSection, [item.getId()]);
+        this.dependenciesSection.setDependencyItem(item);
+    }
+
+    private selectBucketByTypeOnLoad(type: string): void {
+        const handler = () => { // waiting for aggregations views added
+            this.unSearchEvent(handler);
+            this.selectContentTypeBucket(type);
+        };
+
+        this.onSearchEvent(handler);
+    }
+
+    private selectContentTypeBucket(key: string): void {
+        (<BucketAggregationView>this.aggregations.get(ContentAggregation.CONTENT_TYPE).getAggregationViews()[0])?.selectBucketViewByKey(key);
     }
 
     doRefresh(): Q.Promise<void> {
