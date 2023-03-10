@@ -380,6 +380,10 @@ export class LinkModalDialog
         return isValid;
     }
 
+    private isMediaRadioValueOpenOrLink(selectedValue: string): boolean {
+        return selectedValue === MediaContentRadioAction.OPEN || selectedValue === MediaContentRadioAction.LINK;
+    }
+
     private static validationAlwaysValid(): string {
         return undefined;
     }
@@ -573,9 +577,7 @@ export class LinkModalDialog
                 return;
             }
 
-            const radioValue = event.getNewValue();
-
-            if (radioValue === MediaContentRadioAction.LINK) {
+            if (this.isMediaRadioValueOpenOrLink(event.getNewValue())) {
                 this.contentTargetCheckBoxFormItem.show();
             } else {
                 this.contentTargetCheckBoxFormItem.hide();
@@ -890,7 +892,8 @@ export class LinkModalDialog
             this.mediaOptionRadioFormItem.show();
             this.anchorFormItem.hide();
             this.paramsFormItem.hide();
-            if (mediaRadio.doGetValue() === MediaContentRadioAction.LINK) {
+            
+            if (this.isMediaRadioValueOpenOrLink(mediaRadio.doGetValue())) {
                 this.contentTargetCheckBoxFormItem.show();
             }
         } else {
@@ -931,8 +934,8 @@ export class LinkModalDialog
             const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
 
             this.mediaOptionRadioFormItem.show();
-
-            if (mediaRadio.doGetValue() === MediaContentRadioAction.LINK) {
+         
+            if (this.isMediaRadioValueOpenOrLink(mediaRadio.doGetValue())) {
                 this.contentTargetCheckBoxFormItem.show();
             }
 
@@ -1057,7 +1060,7 @@ export class LinkModalDialog
         if (mediaContentRadioSelectedOption === MediaContentRadioAction.OPEN) {
             return {
                 url: LinkModalDialog.mediaInlinePrefix + contentSelectorValue,
-                target: '_blank'
+                target: this.getContentLinkTarget()
             };
         }
 
