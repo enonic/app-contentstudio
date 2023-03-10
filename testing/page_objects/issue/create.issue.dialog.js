@@ -93,7 +93,8 @@ class CreateIssueDialog extends Page {
         try {
             let selector = XPATH.container + XPATH.selectionItemByDisplayName(contentName) + lib.INCLUDE_CHILDREN_TOGGLER;
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-            return await this.clickOnElement(selector);
+            await this.clickOnElement(selector);
+            await this.pause(1000);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_include_children'));
             throw new Error("Error when clicking on 'include children' icon " + err);

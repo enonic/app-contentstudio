@@ -15,6 +15,9 @@ class ContentDuplicateDialog extends Page {
         return XPATH.container + XPATH.dependantsHeader;
     }
 
+    get allDependantsCheckbox() {
+        return XPATH.container + lib.checkBoxDiv('All');
+    }
 
     get duplicateButton() {
         return `${XPATH.container}` + `${XPATH.duplicateButton}`;
@@ -116,6 +119,10 @@ class ContentDuplicateDialog extends Page {
         } catch (err) {
             throw new Error('Duplicate Dialog: error when getting dependents name : ' + err)
         }
+    }
+
+    waitForAllCheckboxNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
     }
 }
 

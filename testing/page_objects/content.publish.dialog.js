@@ -141,6 +141,22 @@ class ContentPublishDialog extends Page {
         return this.waitForElementDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
     }
 
+    async waitForAllDependantsCheckboxDisabled() {
+        let selector = this.allDependantsCheckbox;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(selector, "class");
+            return text.includes('disabled');
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be disabled"});
+    }
+
+    async waitForAllDependantsCheckboxEnabled() {
+        let selector = this.allDependantsCheckbox;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(selector, "class");
+            return !text.includes('disabled');
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be enabled"});
+    }
+
     waitForAllDependantsCheckboxNotDisplayed() {
         return this.waitForElementNotDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
     }
@@ -292,7 +308,8 @@ class ContentPublishDialog extends Page {
     async clickOnHideExcludedItemsButton() {
         try {
             await this.waitForHideExcludedItemsButtonDisplayed();
-            return await this.clickOnElement(this.hideExcludedItemsButton);
+            await this.clickOnElement(this.hideExcludedItemsButton);
+            return await this.pause(1000);
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
             await this.saveScreenshot(screenshot);
@@ -504,6 +521,7 @@ class ContentPublishDialog extends Page {
     async clickOnApplySelectionButton() {
         await this.waitForApplySelectionButtonDisplayed();
         await this.clickOnElement(this.applySelectionButton);
+        return await this.pause(500);
     }
 
     async waitForExcludedNote() {
@@ -514,7 +532,8 @@ class ContentPublishDialog extends Page {
 
     async clickOnShowExcludedButtonItems() {
         await this.waitForShowExcludedItemsButtonDisplayed()
-        return this.clickOnElement(this.showExcludedItemsButton);
+        await this.clickOnElement(this.showExcludedItemsButton);
+        return await this.pause(1000);
     }
 
 }
