@@ -141,12 +141,20 @@ class ContentPublishDialog extends Page {
         return this.waitForElementDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
     }
 
-    waitForAllDependantsCheckboxDisabled() {
-        return this.waitForElementNotClickable(this.allDependantsCheckbox, appConst.mediumTimeout);
+    async waitForAllDependantsCheckboxDisabled() {
+        let selector = this.allDependantsCheckbox;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(selector, "class");
+            return text.includes('disabled');
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be disabled"});
     }
 
-    waitForAllDependantsCheckboxEnabled() {
-        return this.waitForElementClickable(this.allDependantsCheckbox, appConst.mediumTimeout);
+    async waitForAllDependantsCheckboxEnabled() {
+        let selector = this.allDependantsCheckbox;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(selector, "class");
+            return !text.includes('disabled');
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be enabled"});
     }
 
     waitForAllDependantsCheckboxNotDisplayed() {
@@ -513,6 +521,7 @@ class ContentPublishDialog extends Page {
     async clickOnApplySelectionButton() {
         await this.waitForApplySelectionButtonDisplayed();
         await this.clickOnElement(this.applySelectionButton);
+        return await this.pause(500);
     }
 
     async waitForExcludedNote() {
