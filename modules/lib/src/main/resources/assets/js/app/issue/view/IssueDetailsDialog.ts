@@ -679,6 +679,11 @@ export class IssueDetailsDialog
         this.itemSelector.setEnabled(!value);
         this.assigneesCombobox.setEnabled(!value);
         this.getHeader().setReadOnly(value);
+        if (!value) {
+            this.getDependantList().restoreExclusions();
+            this.stateBar.markEditing(false);
+            this.markEditing(false);
+        }
     }
 
     private getHeader(): IssueDetailsDialogHeader {
