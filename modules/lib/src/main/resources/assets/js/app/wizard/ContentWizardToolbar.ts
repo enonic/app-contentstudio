@@ -1,26 +1,26 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContentWizardActions} from './action/ContentWizardActions';
-import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
-import {ContentStatusToolbar, ContentStatusToolbarConfig} from '../ContentStatusToolbar';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
-import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
-import {CycleButton} from '@enonic/lib-admin-ui/ui/button/CycleButton';
-import {ProjectContext} from '../project/ProjectContext';
-import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
+import {WebSocketConnection} from '@enonic/lib-admin-ui/connection/WebSocketConnection';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {CycleButton} from '@enonic/lib-admin-ui/ui/button/CycleButton';
+import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import * as Q from 'q';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentStatusToolbar, ContentStatusToolbarConfig} from '../ContentStatusToolbar';
+import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
+import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
-import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {UrlHelper} from '../util/UrlHelper';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
+import {ContentWizardActions} from './action/ContentWizardActions';
 import {CollaborationEl} from './CollaborationEl';
-import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {WebSocketConnection} from '@enonic/lib-admin-ui/connection/WebSocketConnection';
-import * as Q from 'q';
+import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
+import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
 
 export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
     actions: ContentWizardActions;
@@ -130,7 +130,7 @@ export class ContentWizardToolbar
 
     private addCollaboration(): void {
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
-        super.addElement(this.collaborationBlock);
+        this.addElement(this.collaborationBlock);
         this.openCollaborationWSConnection();
     }
 
@@ -188,7 +188,7 @@ export class ContentWizardToolbar
 
         this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(this.config.actions);
         this.contentWizardToolbarPublishControls.getPublishButton().hide();
-        super.addElement(this.contentWizardToolbarPublishControls);
+        this.addElement(this.contentWizardToolbarPublishControls);
     }
 
     private addTogglerButtons() {
@@ -197,14 +197,14 @@ export class ContentWizardToolbar
         this.componentsViewToggler = new TogglerButton('icon-clipboard', i18n('field.showComponent'));
         this.contextPanelToggler = new NonMobileContextPanelToggleButton();
 
-        super.addElement(this.componentsViewToggler);
-        super.addElement(this.cycleViewModeButton);
-        super.addElement(this.contextPanelToggler);
+        this.addElement(this.componentsViewToggler);
+        this.addElement(this.cycleViewModeButton);
+        this.addElement(this.contextPanelToggler);
     }
 
     private addStateIcon(): void {
         this.stateIcon = new DivEl('toolbar-state-icon');
-        super.addElement(this.stateIcon);
+        this.addElement(this.stateIcon);
     }
 
     private isCollaborationEnabled(): boolean {
