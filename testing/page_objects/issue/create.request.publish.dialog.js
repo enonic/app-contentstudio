@@ -27,11 +27,15 @@ const xpath = {
 class CreateRequestPublishDialog extends Page {
 
     get applySelectionButton() {
-        return xpath.container + lib.DEPENDANTS.EDIT_ENTY + lib.actionButton('Apply');
+        return xpath.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Apply');
+    }
+
+    get cancelSelectionButton() {
+        return xpath.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Cancel');
     }
 
     get dependantsBlock() {
-        return xpath.container + lib.DEPENDANTS.DEPENDANTS_BLOCK
+        return xpath.container + lib.DEPENDANTS.DEPENDANTS_BLOCK;
     }
 
     get invalidIcon() {
@@ -63,7 +67,7 @@ class CreateRequestPublishDialog extends Page {
     }
 
     get excludeInvalidItemsButton() {
-        return xpath.container + xpath.errorEntry + xpath.invalidIcon;
+        return xpath.container + xpath.errorEntry + xpath.excludeInvalidItems;
     }
 
     get createRequestButton() {
@@ -96,7 +100,7 @@ class CreateRequestPublishDialog extends Page {
 
     async clickOnAllDependantsCheckbox() {
         await this.waitForAllDependantsCheckboxDisplayed();
-        await this.clickOnElement(this.allDependantsCheckbox);
+        await this.clickOnElement(this.allDependantsCheckbox + "//label[contains(.,'All')]");
     }
 
     async isAllDependantsCheckboxSelected() {
@@ -135,6 +139,15 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
+    async waitForCancelSelectionButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.cancelSelectionButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_cancel_btn');
+            throw new Error(`Cancel selection button is not displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
     async waitForMarkAsReadyButtonDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
@@ -167,6 +180,12 @@ class CreateRequestPublishDialog extends Page {
         return await this.pause(500);
     }
 
+    async clickOnExcludeInvalidItemsButton() {
+        await this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.excludeInvalidItemsButton);
+        return await this.pause(500);
+    }
+
     async isItemRemovable(displayName) {
         let selector = xpath.itemToRequest(displayName);
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
@@ -189,16 +208,20 @@ class CreateRequestPublishDialog extends Page {
         return this.waitForElementDisplayed(this.nextButton, appConst.mediumTimeout);
     }
 
-    waitForNextButtonEnabled() {
-        return this.waitForElementEnabled(this.nextButton, appConst.mediumTimeout).catch(err => {
+    async waitForNextButtonEnabled() {
+        try {
+            return await this.waitForElementClickable(this.nextButton, appConst.mediumTimeout);
+        } catch (err) {
             throw new Error("Request Publishing dialog:  'Next' button should be enabled :" + err);
-        })
+        }
     }
 
-    waitForNextButtonDisabled() {
-        return this.waitForElementDisabled(this.nextButton, appConst.mediumTimeout).catch(err => {
+    async waitForNextButtonDisabled() {
+        try {
+            return await this.waitForElementNotClickable(this.nextButton, appConst.mediumTimeout);
+        } catch (err) {
             throw new Error("Request Publishing dialog:  'Next' button should be disabled :" + err);
-        })
+        }
     }
 
     async waitForInvalidIconDisplayed() {

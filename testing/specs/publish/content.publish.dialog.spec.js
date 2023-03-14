@@ -178,7 +178,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentPublishDialog.waitForPublishNowButtonEnabled();
         });
 
-    it(`GIVEN 'Publish Tree...' menu item has been clicked WHEN 'Exclude child items' has been has been clicked THEN 'All' checkbox gets not visible`,
+    it(`GIVEN 'Publish Wizard' is opened WHEN click on 'All' checkbox and unselect items THEN Apply button gets visible`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
@@ -191,8 +191,28 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentPublishDialog.clickOnAllCheckbox();
             // 4. Verify that 'Apply' button gets visible:
             await contentPublishDialog.waitForApplySelectionButtonDisplayed();
-            // 5. Verify that Publish Now button gets disabled:
+            // 5. Verify that 'Publish Now' button gets disabled:
             await contentPublishDialog.waitForPublishNowButtonDisabled();
+        });
+
+    it(`GIVEN 'Publish Wizard' is opened WHEN unselect then select all items THEN 'Apply' button should not be visible`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Select the parent folder (one child item)
+            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+            // 2. Click on 'Publish Tree' menu item:
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
+            await contentPublishDialog.waitForDialogOpened();
+            // 3. Unselect  'All' checkbox
+            await contentPublishDialog.clickOnAllCheckbox();
+            // 4. Verify that 'Apply' button gets visible:
+            await contentPublishDialog.waitForApplySelectionButtonDisplayed();
+            // 5. Select 'All' checkbox again:
+            await contentPublishDialog.clickOnAllCheckbox();
+            // 6. Verify that 'Apply' button gets hidden and 'Publish Now' button gets enabled:
+            await contentPublishDialog.waitForApplySelectionButtonNotDisplayed();
+            await contentPublishDialog.waitForPublishNowButtonEnabled();
         });
 
     it(`GIVEN existing parent folder(ready to publish) is selected and 'PublishDialog' is opened WHEN child has been removed AND Publish Now has been pressed THEN only parent folder should be published`,
@@ -200,19 +220,22 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             let contentWizard = new ContentWizard();
+            // 1. Select a parent folder:
             await studioUtils.selectContentAndOpenWizard(PARENT_FOLDER.displayName);
+            // 2. OPen Publish Wizard:
             await contentWizard.clickOnPublishButton();
             await contentPublishDialog.clickOnIncludeChildrenToogler();
-            // Dependent item has been removed on the modal dialog
+            // 3. Exclude the child item in Dependent block
             await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
-            // Verify that Apply button gets visible then click on it:
+            // 4. Verify that Apply button gets visible then click on it:
             await contentPublishDialog.clickOnApplySelectionButton();
-            // click on 'Publish Now'
+            // 5. click on 'Publish Now'
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
+            // 6. Go to grid and verify statuses of parent and child content:
             await studioUtils.doCloseWizardAndSwitchToGrid();
             await contentBrowsePanel.pause(1000);
-            await studioUtils.saveScreenshot("status_in_browse_panel");
+            await studioUtils.saveScreenshot('status_in_browse_panel');
             let parentFolderStatus = await contentBrowsePanel.getContentStatus(PARENT_FOLDER.displayName);
             assert.equal(parentFolderStatus, appConst.CONTENT_STATUS.PUBLISHED, "Parent folder should be 'PUBLISHED'");
 
