@@ -55,7 +55,8 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
             assert.equal(items.length, 2, 'Two dependant items should be displayed');
             let expectedItem = '/' + SITE.displayName + '/' + '_templates';
             assert.isTrue(items.includes(expectedItem), "Expected items should be displayed in dependants items");
-            // 6. Verify that 'All' checkbox is not clickable(disabled), all items are requred for publishing:
+            // verifies -  Disable All checkbox in dependants dialog if list is not editable #5960
+            // 6. Verify that 'All' checkbox is not clickable(disabled), all items are required for publishing:
             await contentPublishDialog.waitForAllDependantsCheckboxDisabled();
         });
 
