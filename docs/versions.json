@@ -10,12 +10,8 @@
     },
     {
       "label": "stable",
-      "checkout": "b820dc4",
+      "checkout": "master",
       "latest": true
-    },
-    {
-      "label": "next",
-      "checkout": "683c26e"
     }
   ]
 }
