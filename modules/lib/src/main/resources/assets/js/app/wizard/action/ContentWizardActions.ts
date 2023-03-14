@@ -11,7 +11,6 @@ import {UnpublishAction} from './UnpublishAction';
 import {PreviewAction} from './PreviewAction';
 import {ShowLiveEditAction} from './ShowLiveEditAction';
 import {ShowFormAction} from './ShowFormAction';
-import {ShowSplitEditAction} from './ShowSplitEditAction';
 import {UndoPendingDeleteAction} from './UndoPendingDeleteAction';
 import {ContentSaveAction} from './ContentSaveAction';
 import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPermissionsRequest';
@@ -38,7 +37,6 @@ import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthe
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {ResetContentAction} from './ResetContentAction';
 import {LocalizeContentAction} from './LocalizeContentAction';
-import {ProjectContext} from '../../project/ProjectContext';
 
 type ActionNames =
     'SAVE' |
@@ -57,7 +55,6 @@ type ActionNames =
     'CLOSE' |
     'SHOW_LIVE_EDIT' |
     'SHOW_FORM' |
-    'SHOW_SPLIT_EDIT' |
     'SAVE_AND_CLOSE' |
     'UNDO_PENDING_DELETE';
 
@@ -78,7 +75,6 @@ type ActionsMap = {
     CLOSE?: Action,
     SHOW_LIVE_EDIT?: Action,
     SHOW_FORM?: Action,
-    SHOW_SPLIT_EDIT?: Action,
     SAVE_AND_CLOSE?: Action,
     UNDO_PENDING_DELETE?: Action,
 };
@@ -100,7 +96,6 @@ type ActionsState = {
     CLOSE?: boolean,
     SHOW_LIVE_EDIT?: boolean,
     SHOW_FORM?: boolean,
-    SHOW_SPLIT_EDIT?: boolean,
     SAVE_AND_CLOSE?: boolean,
     UNDO_PENDING_DELETE?: boolean,
 };
@@ -156,7 +151,6 @@ export class ContentWizardActions
             new CloseAction(wizardPanel),
             new ShowLiveEditAction(wizardPanel),
             new ShowFormAction(wizardPanel),
-            new ShowSplitEditAction(wizardPanel),
             new SaveAndCloseAction(wizardPanel),
             new UndoPendingDeleteAction(wizardPanel),
             new LocalizeContentAction(wizardPanel)
@@ -182,10 +176,9 @@ export class ContentWizardActions
             CLOSE: actions[12],
             SHOW_LIVE_EDIT: actions[13],
             SHOW_FORM: actions[14],
-            SHOW_SPLIT_EDIT: actions[15],
-            SAVE_AND_CLOSE: actions[16],
-            UNDO_PENDING_DELETE: actions[17],
-            LOCALIZE: actions[18]
+            SAVE_AND_CLOSE: actions[15],
+            UNDO_PENDING_DELETE: actions[16],
+            LOCALIZE: actions[17]
         };
 
         const stashableActionsMap: ActionsMap = {
@@ -588,10 +581,6 @@ export class ContentWizardActions
 
     getShowFormAction(): Action {
         return this.actionsMap.SHOW_FORM;
-    }
-
-    getShowSplitEditAction(): Action {
-        return this.actionsMap.SHOW_SPLIT_EDIT;
     }
 
     getUndoPendingDeleteAction(): Action {
