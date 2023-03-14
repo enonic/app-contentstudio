@@ -98,8 +98,9 @@ import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentType} from '../../inputtype/schema/ContentType';
 import {ApplicationRemovedEvent} from '../../site/ApplicationRemovedEvent';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {DescriptorKey} from '../../page/DescriptorKey';
 import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
+import {GetComponentDescriptorsRequest} from '../../resource/GetComponentDescriptorsRequest';
+import {PageComponentType} from '../../page/region/PageComponentType';
 
 export interface LiveFormPanelConfig {
 
@@ -175,6 +176,8 @@ export class LiveFormPanel
 
     private isPageNotRenderable: boolean;
 
+    private hasPageControllers: boolean;
+
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
     private componentPropertyChangedHandler: ComponentPropertyChangedEventHandler;
@@ -200,10 +203,32 @@ export class LiveFormPanel
     protected initElements(): void {
         if (!this.content.getPage()) {
             this.createLiveEditPagePlaceholder();
-            this.placeholder.loadControllers();
+            this.updatePlaceholder();
         }
 
         this.initPageRequiredElements();
+    }
+
+    private updatePlaceholder(): void {
+        this.hasControllers().then((hasControllers: boolean) => {
+            this.placeholder.setHasControllers(hasControllers);
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    hasControllers(): Q.Promise<boolean> {
+        return this.createControllersRequest().sendAndParse().then((descriptors: Descriptor[]) => {
+            return Q.resolve(descriptors.length > 0);
+        }).catch((err) => {
+            DefaultErrorHandler.handle(err);
+            return Q.resolve(false);
+        });
+    }
+
+    private createControllersRequest(): GetComponentDescriptorsRequest {
+        const req: GetComponentDescriptorsRequest = new GetComponentDescriptorsRequest();
+        req.setComponentType(PageComponentType.get());
+        req.setContentId(this.content.getContentId());
+        return req;
     }
 
     protected initPageRequiredElements(): void {
@@ -366,7 +391,7 @@ export class LiveFormPanel
                 this.saveAsTemplateAction?.setContentSummary(summaryAndStatuses[0].getContentSummary());
 
                 if (!this.isPageNotRenderable && this.placeholder && !this.placeholder.hasSelectedController()) {
-                    this.placeholder.loadControllers();
+                    this.updatePlaceholder();
                 }
 
                 return true;
@@ -915,7 +940,6 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {
             showError(event.getMessage(), false);
-            new ShowContentFormEvent().fire();
             this.contentWizardPanel.showForm();
         });
 
@@ -1141,10 +1165,10 @@ export class LiveFormPanel
         if (this.placeholder) {
             this.placeholder.deselectOptions();
             this.placeholder.show();
-            this.placeholder.loadControllers();
+            this.updatePlaceholder();
         } else {
             this.createLiveEditPagePlaceholder();
-            this.placeholder.loadControllers();
+            this.updatePlaceholder();
         }
 
         this.removeContentEventListeners();
