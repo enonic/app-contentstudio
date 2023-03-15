@@ -64,15 +64,15 @@ describe('geopoint.content.spec: tests for geo point content', function () {
         async () => {
             let geoPoint = new GeoPointForm();
             let contentWizard = new ContentWizardPanel();
-            //1. reopen the content with saved not valid geo point:
+            // 1. reopen the content with saved not valid geo point:
             await studioUtils.selectAndOpenContentInWizard(GEO_POINT_CONTENT_NAME_1);
             await studioUtils.saveScreenshot('geo_point_content_invalid_reopened');
-            //2. Verify that not correct geo point was not saved, the input is empty:
+            // 2. Verify that not correct geo point was not saved, the input is empty:
             let actualText = await geoPoint.getValueInGeoPoint(0);
             assert.equal(actualText, '', 'Geo point input should be empty');
-            //3. Controller selector should not be displayed because Page Editor is hidden for this content:
+            // 3. Controller selector should not be displayed because Page Editor is hidden for this content:
             await contentWizard.waitForControllerOptionFilterInputNotVisible();
-            //4. Verify that 'Add' button is displayed
+            // 4. Verify that 'Add' button is displayed
             await geoPoint.waitForAddButtonDisplayed();
         });
 

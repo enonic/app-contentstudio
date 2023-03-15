@@ -13,7 +13,7 @@ const appConst = require('../../libs/app_const');
 
 describe('Menu Items: Save as fragment and Detach from Fragment specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -37,7 +37,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             //Click on 'Show Component View'
             await contentWizard.clickOnShowComponentViewToggler();
             await pageComponentView.waitForOpened();
-            await pageComponentView.openMenu("main");
+            await pageComponentView.openMenu('main');
             //'Hide Component View' should appear:
             await contentWizard.waitForHideComponentViewTogglerDisplayed();
         });
@@ -53,12 +53,12 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await contentWizard.clickOnShowComponentViewToggler();
             await pageComponentView.waitForOpened();
             //2. Open the menu in Page Component View dialog:
-            await pageComponentView.openMenu("main");
+            await pageComponentView.openMenu('main');
             //3. Verify that required items are visible:
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
             //4. Click on publish-menu button's dropdown:
             await contentWizard.clickOnPublishMenuDropdownHandle();
-            await studioUtils.saveScreenshot("components_menu_closed");
+            await studioUtils.saveScreenshot('components_menu_closed');
             //5. Verify that page-component's menu gets closed:
             await pageComponentView.waitForMenuItemNotDisplayed(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
             //6.  But Publish-menu should be expanded and 'Publish...' menu item is enabled here:
@@ -76,17 +76,17 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             //Click on 'Show Component View'
             await contentWizard.clickOnShowComponentViewToggler();
             //Open the context menu:
-            await pageComponentView.openMenu("main");
+            await pageComponentView.openMenu('main');
             //Select "Insert>Text"
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             //Open text-component's context menu:
-            await pageComponentView.openMenu("Text");
+            await pageComponentView.openMenu('Text');
             //Click on 'Save as Fragment' menu item:
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await pageComponentView.pause(4000);
             //Open text-component's context menu:
-            await pageComponentView.openMenu("Text");
-            studioUtils.saveScreenshot('text_saved_as_fragment');
+            await pageComponentView.openMenu('Text');
+            await studioUtils.saveScreenshot('text_saved_as_fragment');
             //"'Detach from Fragment' menu item should appear in the menu"
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
         });
@@ -101,7 +101,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
 
             let result = await pageComponentView.getFragmentsDisplayName();
             //2. Verify that single expected fragment is displayed in Page Component View:
-            assert.equal(result.length, 1, "Single fragment should be present");
+            assert.equal(result.length, 1, 'Single fragment should be present');
             assert.equal(result[0], FRAGMENT_NAME, "Expected fragment display name should be present");
             //3. Select the fragment, open the context-menu and verify all menu items:
             await pageComponentView.openMenu(FRAGMENT_NAME);
@@ -124,12 +124,12 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             //1. Open Page Component View:
             await contentWizard.clickOnShowComponentViewToggler();
             //2. Select the fragment and open the context-menu:
-            await pageComponentView.openMenu("Text");
+            await pageComponentView.openMenu('Text');
             //3. Open this fragment in new browser-tab:
-            await pageComponentView.selectMenuItem(["Edit"]);
+            await pageComponentView.selectMenuItem(['Edit']);
             await studioUtils.doSwitchToNextTab();
-            let result = await contentWizard.isWizardStepByTitlePresent("Fragment");
-            assert.isTrue(result, "Fragment Wizard Step should be present in the toolbar");
+            let result = await contentWizard.waitForWizardStepPresent('Fragment');
+            assert.isTrue(result, "'Fragment' Wizard Step should be present in the toolbar");
             //parent site is 'Work in progress', so this fragment must have the same state
             let state = await contentWizard.getContentWorkflowState();
             assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "Work in progress state should be in fragment-wizard ");
@@ -145,13 +145,13 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             //1. Open Page Component View:
             await contentWizard.clickOnShowComponentViewToggler();
             //2. Click on the existing component and select it:
-            await pageComponentView.clickOnComponent("Text");
+            await pageComponentView.clickOnComponent('Text');
             //3. Update the site-description and save the site:
-            await siteFormPanel.typeDescription("description111");
+            await siteFormPanel.typeDescription('description111');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1000);
-            let result = await pageComponentView.isComponentSelected("Text");
-            assert.isTrue(result, "The component should be selected after changes are saved");
+            let result = await pageComponentView.isComponentSelected('Text');
+            assert.isTrue(result, 'The component should be selected after changes are saved');
         });
 
     it(`GIVEN Page Component View is opened WHEN text-fragment context menu has been opened AND 'Detach from Fragment' has been clicked THEN 'Save as Fragment' menu item should appear again`,
@@ -161,13 +161,13 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.clickOnShowComponentViewToggler();
             //text-component context menu has been opened:
-            await pageComponentView.openMenu("Text");
+            await pageComponentView.openMenu('Text');
             //'Detach from Fragment' menu item has been clicked:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT]);
             await pageComponentView.pause(2000);
             //text-component context menu has been opened:
-            await pageComponentView.openMenu("Text");
-            studioUtils.saveScreenshot('text_is_detached');
+            await pageComponentView.openMenu('Text');
+            await studioUtils.saveScreenshot('text_is_detached');
             //"'Save as Fragment' menu item should appear again"
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
         });
@@ -175,7 +175,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

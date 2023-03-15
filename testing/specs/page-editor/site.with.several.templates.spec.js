@@ -39,7 +39,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             // 1. Open the existing site(no page controller is selected):
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Verify that 'Hide Page Editor' button is displayed
-            await contentWizard.waitForHidePageEditorTogglerButtonDisplayed();
+            await contentWizard.waitForPageEditorTogglerDisplayed();
             // 3. Verify that 'Show Component View' is not visible now
             await contentWizard.waitForShowComponentVewTogglerNotVisible();
             // 4. Verify that 'Show Context Window' button is visible:
