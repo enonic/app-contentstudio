@@ -723,6 +723,10 @@ export class LinkModalDialog
         return nextParamIdentifier + 1;
     }
 
+    private resetMediaRadioValue(): void {
+        this.getMediaRadioGroup().setValue(MediaContentRadioAction.OPEN);
+    }
+
     private createParamKeyFormItem(initialKey: string): [FormItem, string] {
         const id: string = `paramsKey-${this.getNewParamIdentifier()}`;
         const label: string = i18n('dialog.link.parameters.name');
@@ -777,6 +781,10 @@ export class LinkModalDialog
         const button: Button = new Button();
         button.addClass('remove-button transparent icon-close');
         return button;
+    }
+
+    private getMediaRadioGroup(): RadioGroup {
+        return <RadioGroup>this.getFieldById('contentMediaRadio');
     }
 
     protected getMainFormItems(): FormItem [] {
@@ -876,11 +884,10 @@ export class LinkModalDialog
         return formItem;
     }
 
-    private handleSelectorValueChanged(selectedContent: ContentSummary, formItem: FormItem): void {
-        const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
-
+    private handleSelectorValueChanged(selectedContent: ContentSummary, formItem: FormItem): void {       
         if (!selectedContent) {
             formItem.setValidator(Validators.required);
+            this.resetMediaRadioValue();
             this.mediaOptionRadioFormItem.hide();
             this.contentTargetCheckBoxFormItem.hide();
             this.anchorFormItem.hide();
@@ -891,9 +898,8 @@ export class LinkModalDialog
         if (selectedContent.getType().isDescendantOfMedia()) {
             this.mediaOptionRadioFormItem.show();
             this.anchorFormItem.hide();
-            this.paramsFormItem.hide();
-            
-            if (this.isMediaRadioValueOpenOrLink(mediaRadio.doGetValue())) {
+            this.paramsFormItem.hide();            
+            if (this.isMediaRadioValueOpenOrLink(this.getMediaRadioGroup().doGetValue())) {
                 this.contentTargetCheckBoxFormItem.show();
             }
         } else {
@@ -931,11 +937,9 @@ export class LinkModalDialog
         });
 
         mediaUploader.onFileUploaded((event: UploadedEvent<Content>) => {
-            const mediaRadio: RadioGroup = <RadioGroup>this.getFieldById('contentMediaRadio');
-
             this.mediaOptionRadioFormItem.show();
-         
-            if (this.isMediaRadioValueOpenOrLink(mediaRadio.doGetValue())) {
+            
+            if (this.isMediaRadioValueOpenOrLink(this.getMediaRadioGroup().doGetValue())) {
                 this.contentTargetCheckBoxFormItem.show();
             }
 
@@ -1054,7 +1058,7 @@ export class LinkModalDialog
     }
 
     private generateUrlParamsForMedia(): ContentLinkParams {
-        const mediaContentRadioSelectedOption: string = (<RadioGroup>this.getFieldById('contentMediaRadio')).doGetValue();
+        const mediaContentRadioSelectedOption: string = this.getMediaRadioGroup().doGetValue();
         const contentSelectorValue: string = this.getContentSelectorValue();
 
         if (mediaContentRadioSelectedOption === MediaContentRadioAction.OPEN) {
