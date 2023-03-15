@@ -38,9 +38,13 @@
   }
 
   &.readonly {
+    .browse-selection-item .include-children-toggler {
+      pointer-events: none;
+    }
+
     .browse-selection-item .remove,
-    .browse-selection-item .include-children-toggler,
     .checkable-item .checkbox {
+      display: none;
       pointer-events: none;
     }
   }

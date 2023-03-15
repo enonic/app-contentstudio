@@ -1,9 +1,9 @@
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import {UrlAction} from '../UrlAction';
 import {ContentId} from '../content/ContentId';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
 
 export class ContentAppHelper {
 
@@ -53,7 +53,7 @@ export class ContentAppHelper {
     private static createWizardParamsForNew(): ContentWizardPanelParams {
         const actionArguments: string[] = ContentAppHelper.getActionArguments(UrlAction.NEW);
         const contentTypeName: ContentTypeName = new ContentTypeName(actionArguments[0]);
-        const tabId: ContentAppBarTabId = ContentAppBarTabId.forNew(contentTypeName.getApplicationKey().getName());
+        const tabId: AppBarTabId = AppBarTabId.forNew(contentTypeName.getApplicationKey().getName());
         const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
             .setContentTypeName(contentTypeName)
             .setCreateSite(contentTypeName.isSite())
@@ -70,7 +70,7 @@ export class ContentAppHelper {
         const actionArguments: string[] = ContentAppHelper.getActionArguments(`${UrlAction.EDIT}`);
 
         const contentId = new ContentId(actionArguments[0]);
-        const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(contentId.toString());
+        const tabId: AppBarTabId = AppBarTabId.forEdit(contentId.toString());
         const displayAsNew: boolean = window.location.href.indexOf(ContentAppHelper.DISPLAY_AS_NEW) > 0;
         const isLocalized: boolean = window.location.href.indexOf(ContentAppHelper.LOCALIZED) > 0;
 

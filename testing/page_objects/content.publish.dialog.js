@@ -37,6 +37,10 @@ class ContentPublishDialog extends Page {
         return XPATH.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Apply');
     }
 
+    get cancelSelectionButton() {
+        return XPATH.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Cancel');
+    }
+
     get cancelButtonTop() {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
@@ -128,12 +132,30 @@ class ContentPublishDialog extends Page {
         return this.waitForElementDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
     }
 
+    async waitForCancelSelectionButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.cancelSelectionButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_cancel_btn');
+            throw new Error(`Cancel selection button is not displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
     async waitForApplySelectionButtonDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.applySelectionButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
             throw new Error(`Apply selection button is not displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async waitForApplySelectionButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.applySelectionButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
+            throw new Error(`Apply selection button should not be displayed, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -524,6 +546,12 @@ class ContentPublishDialog extends Page {
         return await this.pause(500);
     }
 
+    async clickOnCancelSelectionButton() {
+        await this.waitForCancelSelectionButtonDisplayed();
+        await this.clickOnElement(this.cancelSelectionButton);
+        return await this.pause(500);
+    }
+
     async waitForExcludedNote() {
         let locator = XPATH.container + XPATH.excludedItemsNote;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -534,6 +562,11 @@ class ContentPublishDialog extends Page {
         await this.waitForShowExcludedItemsButtonDisplayed()
         await this.clickOnElement(this.showExcludedItemsButton);
         return await this.pause(1000);
+    }
+
+    async getNumberInAllCheckbox() {
+        let locator = this.allDependantsCheckbox + '//label';
+        return await this.getText(locator);
     }
 
 }

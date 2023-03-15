@@ -37,10 +37,6 @@ export class UrlHelper {
         return UrlHelper.getProjectContextUrl(`${action}/${contentId}`, '');
     }
 
-    static createIssueDetailsUrl(issueId: string): string {
-        return UrlHelper.getProjectContextUrl(`${UrlAction.ISSUE}/${issueId}`);
-    }
-
     static getProjectContextUrl(path: string, separator: string = '#'): string {
         const project = ProjectContext.get().getProject().getName();
         return UrlHelper.getPrefixedUrl(`${project}/${path}`, separator);

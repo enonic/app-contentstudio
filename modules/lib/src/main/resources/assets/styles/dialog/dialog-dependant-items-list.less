@@ -1,4 +1,11 @@
 .dialog-dependant-items-list {
+  &.readonly {
+    .checkable-item-checkbox {
+      display: none;
+      pointer-events: none;
+    }
+  }
+
   .empty-list-item {
     color: #acacac;
     font-size: 12px;

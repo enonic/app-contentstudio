@@ -126,6 +126,10 @@ export class RequestContentPublishDialog
             this.setSubTitle(i18n('dialog.requestPublish.error.loadFailed'));
         });
 
+        this.getDependantList().onSelectionChanged((original) => {
+            this.nextAction.setEnabled(original);
+        });
+
         (<PrincipalComboBox>this.assigneesFormItem.getInput()).onValueChanged(() => this.handleDataChanged());
         (<TextInput>this.detailsFormItem.getInput()).onValueChanged(() => this.handleDataChanged());
     }

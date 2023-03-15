@@ -45,7 +45,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             assert.isFalse(isRemovable, "One item should be displayed on the dialog and it should not be removable");
         });
 
-    it(`GIVEN existing folder with children is selected AND 'Request Publishing...' menu item has been clicked WHEN 'Include child' icon has been clicked THEN 'All' checkbox should appear`,
+    it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'Include child' icon has been clicked THEN 'All' checkbox should appear`,
         async () => {
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -62,6 +62,49 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             assert.isTrue(isSelected, 'All checkbox should be selected');
             let result = await createRequestPublishDialog.getDisplayNameInDependentItems();
             assert.equal(result.length, 10, '10 dependent items should be present in the dialog');
+        });
+
+    // Verifies https://github.com/enonic/app-contentstudio/issues/6041
+    // Disable Next button when Request Publishing dialog is in edit mode #6041
+    it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'All' checkbox has been unselected THEN 'Next' button should be disabled`,
+        async () => {
+            let createRequestPublishDialog = new CreateRequestPublishDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. folder with child items is selected:
+            await studioUtils.findAndSelectItem(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_NAME);
+            // 2. Expand Publish Menu and select 'Request Publishing...' menu item
+            await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
+            // 3. click on 'Include children items'
+            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            // 4. Unselect 'All' checkbox
+            await createRequestPublishDialog.clickOnAllDependantsCheckbox();
+            await studioUtils.saveScreenshot('request_publish_include_all_unselected');
+            // 5. Verify that 'Apply selection' button gets visible
+            await createRequestPublishDialog.waitForApplySelectionButtonDisplayed();
+            await createRequestPublishDialog.waitForCancelSelectionButtonDisplayed();
+            // 6. Verify that 'Next' button is disabled:
+            await createRequestPublishDialog.waitForNextButtonDisabled();
+        });
+
+    it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'Exclude invalid items' has been clicked THEN 'Next' button gets enabled`,
+        async () => {
+            let createRequestPublishDialog = new CreateRequestPublishDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. folder with invalid items is selected:
+            await studioUtils.findAndSelectItem(appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_NAME);
+            // 2. Expand Publish Menu and select 'Request Publishing...' menu item:
+            await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
+            // 3. Verify that Next is enabled(child items are not included)
+            await createRequestPublishDialog.waitForNextButtonEnabled();
+            // 4. Click on Include children icon:
+            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_DATA.SELENIUM_TESTS_FOLDER_DISPLAY_NAME);
+            // 5. Next button gets disabled now:
+            await createRequestPublishDialog.waitForNextButtonDisabled();
+            // 6. click on 'Exclude invalid items' button
+            await createRequestPublishDialog.clickOnExcludeInvalidItemsButton();
+            await studioUtils.saveScreenshot('request_dlg_excluded_invalid_items');
+            // 7. Verify that 'Next' button gets enabled:
+            await createRequestPublishDialog.waitForNextButtonEnabled();
         });
 
     it(`GIVEN existing folder is selected AND 'Request Publishing...' menu item has been clicked  WHEN an item to publish has been clicked THEN this item should be opened in new wizard-tab`,
