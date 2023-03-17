@@ -110,6 +110,30 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             await createRequestPublishDialog.waitForNextButtonEnabled();
         });
 
+    it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'All' checkbox has been unselected AND Apply button has been clicked THEN 'Show excluded items' button gets visible`,
+        async () => {
+            let createRequestPublishDialog = new CreateRequestPublishDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. folder with child items is selected:
+            await studioUtils.findAndSelectItem(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_NAME);
+            // 2. Expand Publish Menu and select 'Request Publishing...' menu item
+            await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
+            // 3. click on 'Include children items'
+            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
+            // 4. Unselect 'All' checkbox
+            await createRequestPublishDialog.clickOnAllDependantsCheckbox();
+            // 5. Click on 'Apply selection' button:
+            await createRequestPublishDialog.clickOnApplySelectionButton();
+            await studioUtils.saveScreenshot('request_publish_exclude_items');
+            // 6. Verify that 'Show excluded items' button gets visible:
+            await createRequestPublishDialog.waitForShowExcludedItemsButtonDisplayed();
+            // 7. Dependent items should be hidden:
+            let result = await createRequestPublishDialog.getDisplayNameInDependentItems();
+            assert.equal(result.length, 0, 'dependant items should be hidden in the modal dialog');
+            // 8. Verify that 'Next' button is enabled:
+            await createRequestPublishDialog.waitForNextButtonEnabled();
+        });
+
     it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'Exclude invalid items' has been clicked THEN 'Next' button gets enabled`,
         async () => {
             let createRequestPublishDialog = new CreateRequestPublishDialog();
