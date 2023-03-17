@@ -501,7 +501,7 @@ class ContentPublishDialog extends Page {
 
     async getDisplayNameInDependentItems() {
         let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements(locator);
+        return await this.getTextInElements(locator);
     }
 
     async clickOnCloseScheduleFormButton() {
