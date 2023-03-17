@@ -93,29 +93,30 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         return result.substring(startIndex + 1, endIndex);
     }
 
-    isItemsTabBarItemActive() {
-        return this.getAttribute(this.itemsTabBarItem, 'class').then(result => {
+    async isItemsTabBarItemActive() {
+        try {
+            let result = await this.getAttribute(this.itemsTabBarItem, 'class');
             return result.includes('active');
-        }).catch(err => {
+        } catch (err) {
             throw  new Error('Issue Details Dialog  ' + err);
-        })
+        }
     }
 
     async clickOnItemsTabBarItem() {
         try {
             await this.waitForElementDisplayed(this.itemsTabBarItem, appConst.mediumTimeout);
             await this.clickOnElement(this.itemsTabBarItem);
+            return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_click_on_items_tabbar_item');
-            throw new Error('Issue Details Dialog: error when clicking on Items tab bar item: ' + err)
+            await this.saveScreenshot('err_click_on_items_tab_bar_item');
+            throw new Error('Issue Details Dialog: error during clicking on Items tab bar item: ' + err)
         }
-        return await this.pause(500);
     }
 
     async clickOnStatusSelectorMenu() {
         await this.waitForElementDisplayed(this.issueStatusSelector, appConst.mediumTimeout);
         await this.clickOnElement(this.issueStatusSelector);
-        return this.pause(200);
+        return await this.pause(200);
     }
 
     async clickOncloseTabMenuItem() {

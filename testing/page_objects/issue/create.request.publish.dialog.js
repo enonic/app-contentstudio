@@ -6,8 +6,8 @@ const xpath = {
     container: `//div[contains(@id,'RequestContentPublishDialog')]`,
     createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
     changesInput: `//div[contains(@id,'FormItem') and descendant::label[text()='Describe the changes']]`,
-    showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
+    dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
     assigneesComboBox: "//div[contains(@id,'LoaderComboBox') and @name='principalSelector']",
@@ -32,6 +32,14 @@ class CreateRequestPublishDialog extends Page {
 
     get cancelSelectionButton() {
         return xpath.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Cancel');
+    }
+
+    get showExcludedItemsButton() {
+        return xpath.container + lib.togglerButton('Show excluded items');
+    }
+
+    get hideExcludedItemsButton() {
+        return xpath.container + lib.togglerButton('Hide excluded items');
     }
 
     get dependantsBlock() {
@@ -135,7 +143,7 @@ class CreateRequestPublishDialog extends Page {
             return await this.waitForElementDisplayed(this.applySelectionButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error(`Apply selection button is not displayed, screenshot: ${screenshot} ` + err);
+            throw new Error(`Request publishing - 'Apply selection' button is not displayed, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -228,7 +236,7 @@ class CreateRequestPublishDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.invalidIcon, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot("err_request_publish_dialog_invalid_icon");
+            await this.saveScreenshot('err_request_publish_dialog_invalid_icon');
             throw new Error("Request Publishing dialog:  'invalid' icon should be visible :" + err);
         }
     }
@@ -237,7 +245,7 @@ class CreateRequestPublishDialog extends Page {
         try {
             await this.waitForElementNotDisplayed(this.invalidIcon, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot("err_request_publish_dialog_invalid_icon");
+            await this.saveScreenshot('err_request_publish_dialog_invalid_icon');
             throw new Error("Request Publishing dialog:  'invalid' icon should be not visible :" + err);
         }
     }
@@ -306,7 +314,7 @@ class CreateRequestPublishDialog extends Page {
             await this.waitForPreviousButtonDisplayed();
             return await this.clickOnElement(this.previousButton);
         } catch (err) {
-            throw new Error("Request Publish Dialog -Error when clicking on Previous button:" + err);
+            throw new Error('Request Publish Dialog -Error when clicking on Previous button:' + err);
         }
     }
 
@@ -362,6 +370,52 @@ class CreateRequestPublishDialog extends Page {
             let screenshot = await this.saveScreenshotUniqueName('err_click_mark_as_ready_btn');
             throw new Error(`Error during clicking on Mark as ready button, screenshot: ${screenshot} ` + err);
         }
+    }
+
+    async waitForShowExcludedItemsButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`Request Publish dialog , 'Show excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
+    async clickOnShowExcludedItemsButton() {
+        try {
+            await this.waitForShowExcludedItemsButtonDisplayed();
+            return await this.clickOnElement(this.showExcludedItemsButton);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(
+                'Request Publish dialog , Error when clicking on Show Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
+        }
+    }
+
+    async clickOnHideExcludedItemsButton() {
+        try {
+            await this.waitForHideExcludedItemsButtonDisplayed();
+            await this.clickOnElement(this.hideExcludedItemsButton);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(
+                'Request Publish dialog , Error when clicking on Hide Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
+        }
+    }
+
+    async clickOnApplySelectionButton() {
+        await this.waitForApplySelectionButtonDisplayed();
+        await this.clickOnElement(this.applySelectionButton);
+        return await this.pause(500);
+    }
+
+    async getDisplayNameInDependentItems() {
+        let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
+        return await this.getTextInElements(locator);
     }
 }
 
