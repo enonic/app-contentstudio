@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentPath;
-import com.enonic.xp.content.ContentRelativePathResolver;
 import com.enonic.xp.site.Site;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,10 +18,10 @@ public class ContentRelativePathResolverTest
 
         final Site parentSite = Site.create().parentPath( ContentPath.from( "/mySitePath" ) ).name( "test" ).build();
 
-        final String resolvedWildcardOption1 = com.enonic.xp.content.ContentRelativePathResolver.resolveWithSite(
-            com.enonic.xp.content.ContentRelativePathResolver.SITE_WILDCARD, parentSite );
-        final String resolvedWildcardOption2 = com.enonic.xp.content.ContentRelativePathResolver.resolveWithSite(
-            com.enonic.xp.content.ContentRelativePathResolver.SITE_WILDCARD + "/somepath/", parentSite );
+        final String resolvedWildcardOption1 =
+            ContentRelativePathResolver.resolveWithSite( ContentRelativePathResolver.SITE_WILDCARD, parentSite );
+        final String resolvedWildcardOption2 =
+            ContentRelativePathResolver.resolveWithSite( ContentRelativePathResolver.SITE_WILDCARD + "/somepath/", parentSite );
 
         assertEquals( "/mySitePath/test*", resolvedWildcardOption1 );
         assertEquals( "/mySitePath/test/somepath/*", resolvedWildcardOption2 );
@@ -33,8 +32,8 @@ public class ContentRelativePathResolverTest
         throws Exception
     {
 
-        final String resolvedWildcardOption1 = com.enonic.xp.content.ContentRelativePathResolver.resolveWithSite(
-            com.enonic.xp.content.ContentRelativePathResolver.SITE_WILDCARD + "/somePath", null );
+        final String resolvedWildcardOption1 =
+            ContentRelativePathResolver.resolveWithSite( ContentRelativePathResolver.SITE_WILDCARD + "/somePath", null );
 
         assertEquals( "/somePath*", resolvedWildcardOption1 );
     }
@@ -45,9 +44,9 @@ public class ContentRelativePathResolverTest
     {
         final Content content = Content.create().parentPath( ContentPath.from( "/myPath" ) ).name( "test" ).build();
 
-        final String resolvedWildcardOption1 = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "/" );
-        final String resolvedWildcardOption2 = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "/*" );
-        final String resolvedWildcardOption3 = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "*" );
+        final String resolvedWildcardOption1 = ContentRelativePathResolver.resolve( content, "/" );
+        final String resolvedWildcardOption2 = ContentRelativePathResolver.resolve( content, "/*" );
+        final String resolvedWildcardOption3 = ContentRelativePathResolver.resolve( content, "*" );
 
         assertEquals( "/*", resolvedWildcardOption1 );
         assertEquals( "/*", resolvedWildcardOption2 );
@@ -60,8 +59,8 @@ public class ContentRelativePathResolverTest
     {
         final Content content = Content.create().parentPath( ContentPath.from( "/myPath" ) ).name( "test" ).build();
 
-        final String resolvedWildcardOption1 = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "../" );
-        final String resolvedWildcardOption2 = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "../*" );
+        final String resolvedWildcardOption1 = ContentRelativePathResolver.resolve( content, "../" );
+        final String resolvedWildcardOption2 = ContentRelativePathResolver.resolve( content, "../*" );
 
         assertEquals( "/myPath/*", resolvedWildcardOption1 );
         assertEquals( "/myPath/*", resolvedWildcardOption2 );
@@ -73,8 +72,8 @@ public class ContentRelativePathResolverTest
     {
         final Content content = Content.create().parentPath( ContentPath.from( "/myPath" ) ).name( "test" ).build();
 
-        final String resolvedWildcardOption1 = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "./" );
-        final String resolvedWildcardOption2 = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "./*" );
+        final String resolvedWildcardOption1 = ContentRelativePathResolver.resolve( content, "./" );
+        final String resolvedWildcardOption2 = ContentRelativePathResolver.resolve( content, "./*" );
 
         assertEquals( "/myPath/test/*", resolvedWildcardOption1 );
         assertEquals( "/myPath/test/*", resolvedWildcardOption2 );
@@ -86,8 +85,8 @@ public class ContentRelativePathResolverTest
     {
         final Content content = Content.create().parentPath( ContentPath.from( "/myPath" ) ).name( "test" ).build();
 
-        final String resolved1 = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "./images" );
-        final String resolved2 = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "./images/" );
+        final String resolved1 = ContentRelativePathResolver.resolve( content, "./images" );
+        final String resolved2 = ContentRelativePathResolver.resolve( content, "./images/" );
 
         assertEquals( "/myPath/test/images*", resolved1 );
         assertEquals( "/myPath/test/images/*", resolved2 );
@@ -99,7 +98,7 @@ public class ContentRelativePathResolverTest
     {
         final Content content = Content.create().parentPath( ContentPath.from( "/myPath" ) ).name( "test" ).build();
 
-        final String resolved = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "some-path1/some-path2/images" );
+        final String resolved = ContentRelativePathResolver.resolve( content, "some-path1/some-path2/images" );
 
         assertEquals( "/some-path1/some-path2/images*", resolved );
     }
@@ -110,7 +109,7 @@ public class ContentRelativePathResolverTest
     {
         final Content content = Content.create().parentPath( ContentPath.from( "/myParentPath1/myParentPath2" ) ).name( "test" ).build();
 
-        final String resolved = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "../images/" );
+        final String resolved = ContentRelativePathResolver.resolve( content, "../images/" );
 
         assertEquals( "/myParentPath1/myParentPath2/images/*", resolved );
     }
@@ -121,7 +120,7 @@ public class ContentRelativePathResolverTest
     {
         final Content content = Content.create().parentPath( ContentPath.from( "/myParentPath1/myParentPath2" ) ).name( "test" ).build();
 
-        final String resolved = com.enonic.xp.content.ContentRelativePathResolver.resolve( content, "../../images" );
+        final String resolved = ContentRelativePathResolver.resolve( content, "../../images" );
 
         assertEquals( "/myParentPath1/images*", resolved );
     }
