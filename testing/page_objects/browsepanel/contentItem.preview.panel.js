@@ -11,6 +11,7 @@ const xpath = {
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
+    showChangesButtonToolbar: "//a[contains(@class,'show-changes') and text()='Show changes']",
     previewNotAvailableSpan: "//div[@class='no-preview-message']//span[text()='Preview not available']",
     issueMenuItemByName:
         name => `//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and contains(.,'${name}')]`,
@@ -34,6 +35,23 @@ class ContentItemPreviewPanel extends Page {
 
     get author() {
         return xpath.toolbar + xpath.author;
+    }
+
+    get showChangesToolbarButton() {
+        return xpath.toolbar + xpath.showChangesButtonToolbar;
+    }
+
+    waitForShowChangesButtonDisplayed() {
+        return this.waitForElementDisplayed(this.showChangesToolbarButton, appConst.mediumTimeout);
+    }
+
+    waitForShowChangesButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.showChangesToolbarButton, appConst.mediumTimeout);
+    }
+
+    async clickOnShowChangesToolbarButton() {
+        await this.waitForShowChangesButtonDisplayed();
+        await this.clickOnElement(this.showChangesToolbarButton);
     }
 
     waitForPreviewNotAvailAbleMessageDisplayed() {
@@ -186,7 +204,7 @@ class ContentItemPreviewPanel extends Page {
         return this.waitUntilDisplayed(selector, appConst.shortTimeout);
     }
 
-    //switches to iframe and gets text in the panel
+    // switches to iframe and gets text in the panel
     async getTextInAttachmentPreview() {
         try {
             let attachmentFrame = "//iframe[contains(@src,'/admin/rest-v2/cs/cms/default/content/content/media/')]";

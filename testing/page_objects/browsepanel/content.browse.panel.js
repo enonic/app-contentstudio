@@ -728,7 +728,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async getPublishMenuItems() {
-        //await this.openPublishMenu();
         let locator = "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem')]";
         return await this.getTextInDisplayedElements(locator);
 
@@ -756,7 +755,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await confirmationDialog.clickOnYesButton();
     }
 
-//find workflow state by the display name
+    // finds workflow state by the display name
     async getWorkflowState(displayName) {
         let xpath = XPATH.contentSummaryByDisplayName(displayName);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
@@ -773,7 +772,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-//find workflow state by the name
+    // finds workflow state by the name
     async getWorkflowStateByName(name) {
         let xpath = XPATH.contentSummaryListViewerByName(name);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
@@ -954,7 +953,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'sort-dialog-trigger')]";
         return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
-
 }
 
 module.exports = ContentBrowsePanel;

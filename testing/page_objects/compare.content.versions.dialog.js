@@ -11,7 +11,7 @@ const XPATH = {
     containerBottom: `//div[@class='container bottom']`,
     revertMenuButton: "//button[contains(@id,'Button') and descendant::li[contains(@id,'MenuItem') and text()='Revert']]",
     revertMenuItem: "//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and text()='Revert']",
-    showEntireContent: "//div[contains(@id,'Checkbox') and child::label[text()='Show entire content']]",
+    showEntireContentCheckboxDiv: "//div[contains(@id,'Checkbox') and child::label[text()='Show entire content']]",
     listItemNameAndIconView: "//div[contains(@id,'NamesAndIconView') and not(descendant::h6[contains(.,'version')])]",
     contentPanel: "//div[contains(@id,'ModalDialogContentPanel')]",
 };
@@ -47,8 +47,8 @@ class CompareContentVersionsDialog extends Page {
         return XPATH.container + XPATH.containerRight + lib.DROP_DOWN_HANDLE;
     }
 
-    get showEntireContent() {
-        return XPATH.container + XPATH.showEntireContent + "//label";
+    get showEntireContentCheckbox() {
+        return XPATH.container + XPATH.showEntireContentCheckboxDiv + '//label';
     }
 
     async expandLeftDropdownClickOnModifiedOption(index) {
@@ -118,7 +118,9 @@ class CompareContentVersionsDialog extends Page {
     }
 
     async clickOnShowEntireContentCheckbox() {
-        return this.clickOnElement(this.showEntireContent);
+        await this.waitForElementDisplayed(this.showEntireContentCheckbox, appConst.mediumTimeout);
+        await this.clickOnElement(this.showEntireContentCheckbox);
+        await this.pause(500);
     }
 
     async getTypeProperty() {
@@ -180,6 +182,12 @@ class CompareContentVersionsDialog extends Page {
         let locator = XPATH.container + XPATH.contentPanel + "//div[contains(@class,'jsondiffpatch-delta empty')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator + "//h3");
+    }
+
+    async isShowEntireContentCheckboxSelected() {
+        let checkBoxInput = XPATH.container + XPATH.showEntireContentCheckboxDiv + lib.CHECKBOX_INPUT;
+        await this.waitForElementDisplayed(this.showEntireContentCheckbox, appConst.mediumTimeout);
+        return await this.isSelected(checkBoxInput);
     }
 }
 
