@@ -12,7 +12,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSelecto
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentQuery;
-import com.enonic.xp.content.ContentRelativePathResolver;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.node.NodeIndexPath;
 import com.enonic.xp.query.expr.CompareExpr;
@@ -144,22 +143,17 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
         if ( this.content != null )
         {
-            this.resolveParentSiteIfNeeded( allowedPaths );
+            this.resolveParentSite( allowedPaths );
         }
 
         return this.constructExprWithAllowedPaths( allowedPaths );
     }
 
-    private void resolveParentSiteIfNeeded( final List<String> allowedPaths )
+    private void resolveParentSite( final List<String> allowedPaths )
     {
         if ( ContentRelativePathResolver.anyPathNeedsSiteResolving( allowedPaths ) )
         {
             this.parentSite = this.contentService.getNearestSite( this.content.getId() );
-
-            if ( this.parentSite == null )
-            {
-                throw new RuntimeException( "Could not resolve parent site for content: " + this.content.getDisplayName() );
-            }
         }
     }
 
@@ -202,14 +196,7 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
     private ConstraintExpr addAllowPathToExpr( final String allowedPath, final ConstraintExpr expr )
     {
-        if ( ContentRelativePathResolver.hasSiteToResolve( allowedPath ) && this.parentSite == null )
-        {
-            return expr; // do nothing - we can't resolve site
-        }
-
-        final String resolvedPath = doResolvePath( allowedPath );
-
-        return createAndAppendExpr( resolvedPath, expr );
+        return createAndAppendExpr( doResolvePath( allowedPath ), expr );
     }
 
     private String doResolvePath( final String allowedPath )

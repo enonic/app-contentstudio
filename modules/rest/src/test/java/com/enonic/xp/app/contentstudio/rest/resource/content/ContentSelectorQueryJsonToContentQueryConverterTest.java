@@ -33,7 +33,6 @@ import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.site.Site;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ContentSelectorQueryJsonToContentQueryConverterTest
 {
@@ -163,7 +162,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
     {
         final Content content = createContent( "content-id", "my-content", ContentTypeName.shortcut() );
 
-        final List<String> allowPaths = new ArrayList();
+        final List<String> allowPaths = new ArrayList<>();
         allowPaths.add( "${site}/*" );
 
         Mockito.when( contentService.getById( Mockito.isA( ContentId.class ) ) ).thenReturn( content );
@@ -180,7 +179,8 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             .contentTypeParseMode( ApplicationWildcardMatcher.Mode.MATCH )
             .build();
 
-        assertThrows( RuntimeException.class, () -> processor.createQuery() );
+        final ContentQuery contentQuery = processor.createQuery();
+        assertEquals( "_path LIKE '/content/*'", contentQuery.getQueryExpr().toString() );
     }
 
     @Test
@@ -301,8 +301,8 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         assertEquals( 0, contentQuery.getFrom() );
         assertEquals( 100, contentQuery.getSize() );
         assertEquals( ContentTypeNames.from( "myApplication:comment" ), contentQuery.getContentTypes() );
-        assertEquals( "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') " +
-                          "OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) ORDER BY _modifiedtime DESC",
+        assertEquals( "(_path LIKE '/content/path1*' AND (fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') " +
+                          "OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND'))) ORDER BY _modifiedtime DESC",
                       contentQuery.getQueryExpr().toString() );
     }
 
