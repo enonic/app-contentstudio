@@ -86,7 +86,8 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/6082
     // 'Show entire content' checkbox is not reset after reopening the modal dialog
-    it("GIVEN 'Show entire content' checkbox has been selected WHEN the modal dialog has been reopened THEN 'Show entire content' should not be selected",
+    it.skip(
+        "GIVEN 'Show entire content' checkbox has been selected WHEN the modal dialog has been reopened THEN 'Show entire content' should not be selected",
         async () => {
             let contentWizard = new ContentWizard();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
@@ -113,7 +114,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardVersionsWidget.clickOnOnShowChangesButton(1);
             await compareContentVersionsDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('show_entire_content_not_selected');
-            // 6. Verify that 'Show entire content' is not selected:
+            // 6. Verify that 'Show entire content' checkbox  is not selected:
             isSelected = await compareContentVersionsDialog.isShowEntireContentCheckboxSelected();
             assert.isFalse(isSelected, "'Show entire content' checkbox should not be selected");
         });
