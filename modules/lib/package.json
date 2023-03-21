@@ -42,7 +42,7 @@
     "@types/q": "^1.5.4",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
-    "@typescript-eslint/utils": "^5.51.0",
+    "@typescript-eslint/utils": "^5.56.0",
     "circular-dependency-plugin": "^5.2.2",
     "eslint": "^8.36.0",
     "mini-css-extract-plugin": "^2.7.3",
