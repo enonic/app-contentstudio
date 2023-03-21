@@ -84,6 +84,40 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             assert.equal(type, `"base:folder"`, 'Expected type property gets visible');
         });
 
+    // Verifies https://github.com/enonic/app-contentstudio/issues/6082
+    // 'Show entire content' checkbox is not reset after reopening the modal dialog
+    it("GIVEN 'Show entire content' checkbox has been selected WHEN the modal dialog has been reopened THEN 'Show entire content' should not be selected",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let compareContentVersionsDialog = new CompareContentVersionsDialog();
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            // 1. Open existing folder:
+            await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openDetailsPanel();
+            // 2. Open Version History panel:
+            await wizardDetailsPanel.openVersionHistory();
+            await wizardVersionsWidget.waitForVersionsLoaded();
+            // 3. Click on 'show changes' icon:
+            await wizardVersionsWidget.clickOnOnShowChangesButton(1);
+            await compareContentVersionsDialog.waitForDialogOpened();
+            let isSelected = await compareContentVersionsDialog.isShowEntireContentCheckboxSelected();
+            assert.isFalse(isSelected, "'Show entire content' checkbox should not be selected");
+            // 4. Click on 'Show entire content' checkbox
+            await compareContentVersionsDialog.clickOnShowEntireContentCheckbox();
+            isSelected = await compareContentVersionsDialog.isShowEntireContentCheckboxSelected();
+            assert.isTrue(isSelected, "'Show entire content' checkbox should be selected");
+            // 5. Close then reopen the modal dialog:
+            await compareContentVersionsDialog.clickOnCancelButtonTop();
+            await compareContentVersionsDialog.waitForDialogClosed();
+            await wizardVersionsWidget.clickOnOnShowChangesButton(1);
+            await compareContentVersionsDialog.waitForDialogOpened();
+            await studioUtils.saveScreenshot('show_entire_content_not_selected');
+            // 6. Verify that 'Show entire content' is not selected:
+            isSelected = await compareContentVersionsDialog.isShowEntireContentCheckboxSelected();
+            assert.isFalse(isSelected, "'Show entire content' checkbox should not be selected");
+        });
+
     it(`GIVEN existing folder is opened WHEN compare icon in the active version item has been clicked THEN then right Revert button should be disabled in the compare versions dialog`,
         async () => {
             let contentWizard = new ContentWizard();
