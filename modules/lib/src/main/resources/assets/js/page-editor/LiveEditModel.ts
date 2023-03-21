@@ -19,7 +19,7 @@ import {DescriptorKey} from '../app/page/DescriptorKey';
 
 export class LiveEditModel {
 
-    private siteModel: SiteModel;
+    private siteModel?: SiteModel;
 
     private parentContent: Content;
 

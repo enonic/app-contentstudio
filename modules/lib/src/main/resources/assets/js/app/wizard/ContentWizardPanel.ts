@@ -635,10 +635,6 @@ export class ContentWizardPanel
     }
 
     private createLivePanel(): LiveFormPanel {
-        if (!this.isLivePanelAllowed()) {
-            return null;
-        }
-
         const liveFormPanel: LiveFormPanel = new LiveFormPanel(<LiveFormPanelConfig>{
             contentWizardPanel: this,
             contentType: this.contentType,
@@ -665,15 +661,27 @@ export class ContentWizardPanel
             liveFormPanel.removeClass('rendering');
         });
 
+        this.toggleMinimizeListener = (event: ActivatedEvent) => {
+            this.toggleMinimize(event.getIndex());
+        };
+
+        this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
+        this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
+        this.liveMask = new LoadMask(this.livePanel);
+
         return liveFormPanel;
     }
 
-    private isLivePanelAllowed(): boolean {
+    private isLivePanelAllowed(): Q.Promise<boolean> {
         const isSiteOrWithinSite: boolean = !!this.site || this.params.createSite;
         const isPageTemplate: boolean = this.contentType.isPageTemplate();
         const isShortcut: boolean = this.contentType.isShortcut();
 
-        return (isSiteOrWithinSite || isPageTemplate) && !isShortcut;
+        if ((isSiteOrWithinSite || isPageTemplate) && !isShortcut) {
+            return Q.resolve(true);
+        }
+
+        return this.checkIfRenderable();
     }
 
     getWizardActions(): ContentWizardActions {
@@ -683,91 +691,77 @@ export class ContentWizardPanel
     doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
         this.initListeners();
 
-        this.livePanel = this.createLivePanel();
-
-        if (this.livePanel) {
-            this.toggleMinimizeListener = (event: ActivatedEvent) => {
-                this.toggleMinimize(event.getIndex());
-            };
-
-            this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
-            this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
-            this.liveMask = new LoadMask(this.livePanel);
-
-            this.livePanel.whenRendered(() => {
-                if (WizardPanel.debug) {
-                    console.debug('WizardPanel: livePanel.onRendered');
-                }
-                this.liveMask.hide();
-                this.livePanel.removeClass('rendering');
-            });
-        }
-
-        return super.doRenderOnDataLoaded(rendered).then(() => {
-            if (ContentWizardPanel.debug) {
-                console.debug('ContentWizardPanel.doRenderOnDataLoaded at ' + new Date().toISOString());
+        return this.isLivePanelAllowed().then((isAllowed: boolean) => {
+            if (isAllowed) {
+                this.livePanel = this.createLivePanel();
             }
 
-            this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
-
-            if (this.contentType.hasDisplayNameExpression()) {
-                this.displayNameResolver.setExpression(this.contentType.getDisplayNameExpression());
-            }
-
-            this.addClass('content-wizard-panel');
-
-            this.inMobileViewMode = false;
-
-            ResponsiveManager.onAvailableSizeChanged(this, this.availableSizeChangedHandler.bind(this));
-
-            this.onRemoved(() => {
-                ResponsiveManager.unAvailableSizeChanged(this);
-            });
-
-            const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
-
-            this.onValidityChanged((event: ValidityChangedEvent) => {
-                if (!this.persistedContent) {
-                    return;
+            return super.doRenderOnDataLoaded(rendered).then(() => {
+                if (ContentWizardPanel.debug) {
+                    console.debug('ContentWizardPanel.doRenderOnDataLoaded at ' + new Date().toISOString());
                 }
 
-                const isThisValid: boolean = this.isValid();
-                this.isContentFormValid = isThisValid;
-                this.workflowStateManager.update();
-                this.wizardActions
-                    .setContentCanBePublished(this.checkContentCanBePublished())
-                    .setIsValid(isThisValid)
-                    .refreshState();
-                if (!this.isNew()) {
-                    this.displayValidationErrors(!(isThisValid && event.isValid()));
+                this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
+
+                if (this.contentType.hasDisplayNameExpression()) {
+                    this.displayNameResolver.setExpression(this.contentType.getDisplayNameExpression());
                 }
+
+                this.addClass('content-wizard-panel');
+
+                this.inMobileViewMode = false;
+
+                ResponsiveManager.onAvailableSizeChanged(this, this.availableSizeChangedHandler.bind(this));
+
+                this.onRemoved(() => {
+                    ResponsiveManager.unAvailableSizeChanged(this);
+                });
+
+                const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
+
+                this.onValidityChanged((event: ValidityChangedEvent) => {
+                    if (!this.persistedContent) {
+                        return;
+                    }
+
+                    const isThisValid: boolean = this.isValid();
+                    this.isContentFormValid = isThisValid;
+                    this.workflowStateManager.update();
+                    this.wizardActions
+                        .setContentCanBePublished(this.checkContentCanBePublished())
+                        .setIsValid(isThisValid)
+                        .refreshState();
+                    if (!this.isNew()) {
+                        this.displayValidationErrors(!(isThisValid && event.isValid()));
+                    }
+                });
+
+                thumbnailUploader.setEnabled(!this.contentType.isImage());
+                thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
+                thumbnailUploader.toggleClass('icon-variant', this.getPersistedItem().isVariant());
+
+                this.workflowStateManager.onStatusChanged((status: WorkflowStateStatus) => {
+                    this.wizardActions.setContentCanBeMarkedAsReady(WorkflowStateManager.isInProgress(status)).refreshState();
+                    this.setMarkedAsReady(WorkflowStateManager.isReady(status));
+                });
+
+                this.getContentWizardToolbarPublishControls().getPublishButton().onPublishRequestActionChanged((added: boolean) => {
+                    this.wizardActions.setHasPublishRequest(added);
+                    this.wizardActions.refreshState();
+                });
+
+                if (this.livePanel) {
+                    this.livePanel.addClass('rendering');
+                    ResponsiveManager.onAvailableSizeChanged(this.formPanel);
+                    this.stepNavigatorAndToolbarContainer.appendChild(this.minimizeEditButton);
+                }
+
+                if (this.params.createSite || this.getPersistedItem().isSite()) {
+                    thumbnailUploader.addClass('site');
+                }
+
+                return rendered;
             });
-
-            thumbnailUploader.setEnabled(!this.contentType.isImage());
-            thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
-            thumbnailUploader.toggleClass('icon-variant', this.getPersistedItem().isVariant());
-
-            this.workflowStateManager.onStatusChanged((status: WorkflowStateStatus) => {
-                this.wizardActions.setContentCanBeMarkedAsReady(WorkflowStateManager.isInProgress(status)).refreshState();
-                this.setMarkedAsReady(WorkflowStateManager.isReady(status));
-            });
-
-            this.getContentWizardToolbarPublishControls().getPublishButton().onPublishRequestActionChanged((added: boolean) => {
-                this.wizardActions.setHasPublishRequest(added);
-                this.wizardActions.refreshState();
-            });
-
-            if (this.livePanel) {
-                this.livePanel.addClass('rendering');
-                ResponsiveManager.onAvailableSizeChanged(this.formPanel);
-                this.stepNavigatorAndToolbarContainer.appendChild(this.minimizeEditButton);
-            }
-
-            if (this.params.createSite || this.getPersistedItem().isSite()) {
-                thumbnailUploader.addClass('site');
-            }
-
-            return rendered;
         });
     }
 
@@ -830,7 +824,11 @@ export class ContentWizardPanel
         }
 
         if (this.isRenderable()) {
-            return this.updateLiveEditModel(contentClone);
+            if (this.getPersistedItem().getPage()) {
+                return this.updateLiveEditModel(contentClone);
+            }
+
+            return Q.resolve();
         }
 
         if (this.getPersistedItem().getPage()) {
@@ -1724,6 +1722,11 @@ export class ContentWizardPanel
             this.getLivePanel().setPageIsNotRenderable();
         }
 
+        if (this.isRenderable() && !this.getPersistedItem().getPage()) {
+            this.debouncedEditorReload(false);
+            return Q.resolve();
+        }
+
         return this.updateLiveEditModel(content);
     }
 
@@ -2461,10 +2464,10 @@ export class ContentWizardPanel
         }
     }
 
-    private checkIfRenderable(item?: ContentSummary): Q.Promise<Boolean> {
+    private checkIfRenderable(item?: ContentSummary): Q.Promise<boolean> {
         return new IsRenderableRequest(item || this.getPersistedItem(), RenderingMode.EDIT).sendAndParse().then((renderable: boolean) => {
             this.renderable = renderable;
-            this.contextView.setIsPageRenderable(renderable);
+            this.contextView?.setIsPageRenderable(renderable);
 
             return renderable;
         });
