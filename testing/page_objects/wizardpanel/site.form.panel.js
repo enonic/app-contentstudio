@@ -37,7 +37,6 @@ class SiteForm extends Page {
         }
         if (siteData.applications) {
             await this.addApplications(siteData.applications);
-            await this.waitForNotificationMessage();
         }
     }
 
@@ -59,7 +58,7 @@ class SiteForm extends Page {
         try {
             let loaderComboBox = new LoaderComboBox();
             await loaderComboBox.typeTextAndSelectOption(displayName, "//div[contains(@id,'SiteConfiguratorComboBox')]");
-            await this.pause(700);
+            await this.pause(1000);
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_app_option');
             await this.saveScreenshot(screenshot);
