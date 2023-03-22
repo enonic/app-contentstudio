@@ -65,9 +65,9 @@ import {HTMLAreaHelper} from '../../inputtype/ui/text/HTMLAreaHelper';
 
 export class LiveEditPageProxy {
 
-    private liveEditModel: LiveEditModel;
+    private liveEditModel?: LiveEditModel;
 
-    private pageView: PageView;
+    private pageView?: PageView;
 
     private liveEditIFrame?: IFrameEl;
 
@@ -316,7 +316,7 @@ export class LiveEditPageProxy {
             this.pageView.remove();
             this.pageView = null;
         }
-        let contentId = this.liveEditModel.getContent().getContentId().toString();
+        let contentId = this.contentId.toString();
         let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT);
 
         if (BrowserHelper.isIE()) {
@@ -331,19 +331,22 @@ export class LiveEditPageProxy {
                 this.livejq(this.liveEditWindow.document).ready(() => this.scrollIFrameToSavedPosition(scrollTop));
             }
         }
-        if (this.liveEditModel.isRenderableContent()) {
-            if (LiveEditPageProxy.debug) {
-                console.log(`LiveEditPageProxy.load loading page from '${pageUrl}' at ${new Date().toISOString()}`);
+
+        if (this.liveEditModel) {
+            if (this.liveEditModel.isRenderableContent()) {
+                if (LiveEditPageProxy.debug) {
+                    console.log(`LiveEditPageProxy.load loading page from '${pageUrl}' at ${new Date().toISOString()}`);
+                }
+
+                this.liveEditIFrame.show();
+            } else {
+
+                if (LiveEditPageProxy.debug) {
+                    console.debug('LiveEditPageProxy.load: no reason to load page, showing blank placeholder');
+                }
+
+                this.liveEditIFrame.hide();
             }
-
-            this.liveEditIFrame.show();
-        } else {
-
-            if (LiveEditPageProxy.debug) {
-                console.debug('LiveEditPageProxy.load: no reason to load page, showing blank placeholder');
-            }
-
-            this.liveEditIFrame.hide();
         }
     }
 
@@ -403,12 +406,18 @@ export class LiveEditPageProxy {
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
                 }
-                new InitializeLiveEditEvent(this.liveEditModel, this.modifyPermissions).fire(this.liveEditWindow);
+
+                if (this.liveEditModel) {
+                    new InitializeLiveEditEvent(this.liveEditModel, this.modifyPermissions).fire(this.liveEditWindow);
+                }
             } else {
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.handleIframeLoadedEvent: notify live edit ready at ' + new Date().toISOString());
                 }
-                this.notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
+
+                if (this.liveEditModel) {
+                    this.notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
+                }
             }
         }
 
