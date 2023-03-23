@@ -61,10 +61,10 @@ class LoaderComboBox extends Page {
     }
 
     async getOptionDisplayNames(xpath) {
-        let locator = lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
         if (xpath === undefined) {
             xpath = '';
         }
+        let locator = xpath + lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }

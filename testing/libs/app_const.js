@@ -313,6 +313,7 @@ module.exports = Object.freeze({
         CUSTOM_SELECTOR_0_2: 'custom-selector0_2',
         CUSTOM_SELECTOR_1_1: 'custom-selector1_1',
         CONTENT_SELECTOR_2_8: 'content-selector2_8',
+        CONTENT_SELECTOR_1_2: 'content-selector1_2',
         EXPANDED_SINGLE_SELECTION_OPTION_SET: 'optionset-single-selection',
         OPTION_SET: 'optionset',
         OPTION_SET_0_2: 'optionset0_2',

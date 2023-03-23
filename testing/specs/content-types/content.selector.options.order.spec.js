@@ -73,6 +73,44 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             assert.equal(options[2], OPTION_1, 'Order of selected Options should not be changed');
         });
 
+    it(`GIVEN content with selector in flat mode is opened WHEN mode toggler has been clicked THEN tree mode should be is switched on`,
+        async () => {
+            let contentSelectorForm = new ContentSelectorForm();
+            // 1. Open wizard for new content-selector:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_1_2);
+            // 2. Click on the selector mode toggler:
+            await contentSelectorForm.clickOnModeTogglerButton();
+            await studioUtils.saveScreenshot('selector_modetoggler_btn');
+            // 3. Verify that tree mode is switched on:
+            let options = await contentSelectorForm.getOptionsDisplayName();
+            assert.isTrue(options.includes(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME),
+                'Expected display name should be present in the options list');
+        });
+
+
+    it(`GIVEN dropdown has been expanded WHEN an option's checkbox has been selected AND 'Apply' button has been pressed THEN the options should be selected`,
+        async () => {
+            let contentSelectorForm = new ContentSelectorForm();
+            let contentWizard = new ContentWizard();
+            // 1. Open wizard for new content-selector:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_1_2);
+            await contentWizard.typeDisplayName(appConst.generateRandomName('cs'));
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            // 2. Expand the dropdown:
+            await contentSelectorForm.clickOnDropdownHandle();
+            // 3. Click on a checkbox in options list:
+            await contentSelectorForm.clickOnCheckboxInDropdown(1);
+            await studioUtils.saveScreenshot('selector_apply_btn');
+            // 4. Verify that Apply button gets visible then click on it:
+            await contentSelectorForm.clickOnApplyButton();
+            // 5. Verify the selected option:
+            let selectedOptions = await contentSelectorForm.getSelectedOptions();
+            assert.isTrue(selectedOptions.length === 1, 'Selected options should be displayed');
+            // 6. Verify that Save button gets enabled:
+            await contentWizard.waitForSaveButtonEnabled();
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
