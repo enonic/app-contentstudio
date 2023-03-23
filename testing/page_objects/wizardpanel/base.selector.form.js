@@ -13,6 +13,10 @@ class BaseSelectorForm extends Page {
         return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
     }
 
+    get applyButton() {
+        return "//button[contains(@class,'small apply-button')]";
+    }
+
     async getSelectorValidationMessage() {
         let locator = lib.CONTENT_WIZARD_STEP_FORM + this.selectorValidationRecording;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -73,6 +77,23 @@ class BaseSelectorForm extends Page {
             await this.saveScreenshot(appConst.generateRandomName("err_empty_opt"));
             throw new Error("Empty options text is not visible " + err);
         }
+    }
+
+    async getOptionsDisplayName() {
+        let loaderComboBox = new LoaderComboBox();
+        let optionsLocator = "//div[contains(@id,'Grid') and contains(@class,'options-container')]" + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
+        await loaderComboBox.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
+        return await loaderComboBox.getOptionDisplayNames();
+    }
+
+    async waitForApplyButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
+    }
+
+    async clickOnApplyButton() {
+        await this.waitForApplyButtonDisplayed();
+        await this.clickOnElement(this.applyButton);
+        await this.pause(1000);
     }
 }
 

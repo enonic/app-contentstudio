@@ -84,6 +84,7 @@ module.exports = Object.freeze({
     },
     tabMenuItem: menuName => `//li[contains(@id,'TabMenuItem') and child::a[text()='${menuName}']]`,
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
+    SELECTOR_MODE_TOGGLER: `//button[contains(@id,'ModeTogglerButton')]`,
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
     UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
     MORE_FOLD_BUTTON: "//div[contains(@id,'FoldButton') and descendant::span[text()='More']]",
