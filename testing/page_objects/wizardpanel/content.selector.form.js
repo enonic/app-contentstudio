@@ -68,7 +68,7 @@ class ContentSelector extends BaseSelectorForm {
         return this.getTextInElements(selector);
     }
 
-    getNameSelectedOptions() {
+    getNameOfSelectedOptions() {
         let selector = "//div[contains(@id,'ContentSelectedOptionView')]" + lib.P_SUB_NAME;
         return this.getTextInElements(selector);
     }
