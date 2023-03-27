@@ -61,7 +61,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             await contentPublishDialog.markAsReadyButtonDisplayed();
             // 9. 'Dependent block' should be visible:
             await contentPublishDialog.waitForDependantsBlockDisplayed();
-            // But all items are excluded
+            // But all items are excluded:
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.isTrue(depItems.length === 0, 'Dependent items should be hidden');
         });
@@ -85,6 +85,83 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             // 5. Verify that 'Publish now' button remains disabled
             await contentPublishDialog.waitForPublishNowButtonDisabled();
             await contentPublishDialog.markAsReadyButtonDisplayed();
+        });
+
+    it("GIVEN parent folder is ready for publishing AND Publish Wizard is opened WHEN checkbox for 'work in progress' item has been unselected THEN 'Publish now' button gets enabled",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Select the parent folder:
+            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
+            await contentBrowsePanel.waitForNotificationMessage();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
+            // 2. Click on the 'Publish Tree' menu item
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
+            await contentPublishDialog.waitForDialogOpened();
+            // 3. Unselect the checkbox for 'work in progress' child item:
+            await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
+            await contentPublishDialog.clickOnApplySelectionButton();
+            await studioUtils.saveScreenshot('publish_w_work_in_progress_unselected');
+            // 4. Verify that Publish Now button gets enabled:
+            await contentPublishDialog.waitForPublishNowButtonEnabled();
+            await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
+            await contentPublishDialog.waitForReadyForPublishingTextDisplayed();
+        });
+
+    it("GIVEN Publish Wizard is opened WHEN checkbox for 'work in progress' item has been selected then 'Apply selection' has been pressed THEN 'Publish now' button gets disabled",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Select the parent folder(ready for publishing):
+            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+            // 2. Click on the 'Publish Tree' menu item
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
+            await contentPublishDialog.clickOnApplySelectionButton();
+            // 3. Click on 'Show excluded items' and select the checkbox for 'work in progress' item
+            await contentPublishDialog.clickOnShowExcludedButtonItems();
+            await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
+            // 4. Click on 'Apply selection':
+            await contentPublishDialog.waitForPublishNowButtonDisabled();
+            await contentPublishDialog.clickOnApplySelectionButton();
+            await studioUtils.saveScreenshot('publish_w_work_in_progress_selected');
+            // 5. Verify that 'Exclude items in progress' button gets not visible
+            await contentPublishDialog.waitForExcludeItemsInProgressButtonDisplayed();
+            // 6. 'Show Excluded items' button gets hidden now:
+            await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
+            // 7. 'Mark as ready' button gets visible:
+            await contentPublishDialog.markAsReadyButtonDisplayed();
+            // 8. 'Publish now' button remains disabled after clicking on 'Apply' selection button:
+            await contentPublishDialog.waitForPublishNowButtonDisabled();
+        });
+
+    it("GIVEN Publish Wizard is opened WHEN 'mark as ready' button has been pressed THEN the dependent item gets ready for publishing AND 'Publish now' button gets enabled",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Select the parent folder(ready for publishing):
+            await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
+            // 2. Click on the 'Publish Tree' menu item
+            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
+            await contentPublishDialog.waitForDialogOpened();
+            // 3. Child item has been marked as ready:
+            await contentPublishDialog.clickOnMarkAsReadyButton();
+            await studioUtils.saveScreenshot('child_item_marked_as_ready');
+            // 4. Verify that 'Exclude items in progress' button gets not visible
+            await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
+            // 5. 'Show Excluded items' button should not be displayed:
+            await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
+            // 6. 'Mark as ready' button gets not visible:
+            await contentPublishDialog.markAsReadyButtonNotDisplayed();
+            // 7. 'Publish now' button gets enabled:
+            await contentPublishDialog.waitForPublishNowButtonEnabled();
+            // 8. 'All' checkbox remains visible and selected:
+            await contentPublishDialog.waitForAllDependantsCheckboxEnabled();
+            let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
+            assert.isTrue(isSelected, "'All' checkbox should be visible and selected");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
