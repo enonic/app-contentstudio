@@ -56,6 +56,30 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.waitForPublishNowButtonDisabled();
         });
 
+    it("GIVEN existing site with invalid child item is selected AND 'Publish wizard' is opened WHEN invalid dependent item has been unselected THEN 'Publish now' button gets enabled in the dialog",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Select an existing folder with invalid child and open Publish wizard:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnPublishButton();
+            await contentPublishDialog.waitForDialogOpened();
+            // 2. Click on 'Include children' button
+            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            // 3. Unselect the checkbox for 'unnamed' (invalid) folder:
+            await contentPublishDialog.clickOnCheckboxInDependentItem('_unnamed_');
+            // 4. Apply the selection:
+            await contentPublishDialog.clickOnApplySelectionButton();
+            // 5. Verify that 'Exclude invalid items' button gets not visible:
+            await contentPublishDialog.waitForExcludeInvalidItemsButtonNotDisplayed();
+            // 6. Verify that 'Publish Now' button is enabled in the dialog:
+            await contentPublishDialog.waitForPublishNowButtonEnabled();
+            // 7. Verify that Show excluded Items button is displayed:
+            await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
+            // 8. Verify that 'Content is ready for publishing' record is displayed:
+            await contentPublishDialog.waitForReadyForPublishingTextDisplayed();
+        });
+
     it("GIVEN Publish wizard is opened AND 'Include children' has been clicked WHEN 'Exclude all' invalid items has been clicked THEN 'Exclude all' button gets not visible",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -118,7 +142,6 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.waitForPublishNowButtonEnabled();
         });
 
-
     it("WHEN 'Show excluded items' button has been clicked THEN the number of dependant items should be increased",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -158,5 +181,4 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
         }
         return console.log('specification starting: ' + this.title);
     });
-
 });

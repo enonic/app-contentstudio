@@ -349,6 +349,16 @@ class ContentPublishDialog extends Page {
         }
     }
 
+    async waitForShowExcludedItemsButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
     async waitForHideExcludedItemsButtonDisplayed() {
         try {
             return this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
