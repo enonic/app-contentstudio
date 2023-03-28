@@ -12,6 +12,7 @@ const xpath = {
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependantsDiv: "//div[@class='dependants']",
+    contentComboboxDiv: "//div[contains(@id,'ContentComboBox')]",
     editEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'edit-entry')]",
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     selectionItemByDisplayName:
@@ -25,6 +26,10 @@ const xpath = {
 };
 
 class IssueDetailsDialogItemsTab extends Page {
+
+    get dropdownHandle() {
+        return xpath.container + xpath.contentComboboxDiv + lib.DROP_DOWN_HANDLE;
+    }
 
     get applySelectionButton() {
         return xpath.container + xpath.editEntry + lib.actionButton('Apply');
@@ -128,6 +133,22 @@ class IssueDetailsDialogItemsTab extends Page {
         return await this.pause(400);
     }
 
+    async clickOnDropdownHandle() {
+        await this.waitForElementDisplayed(this.dropdownHandle, appConst.mediumTimeout);
+        await this.clickOnElement(this.dropdownHandle);
+        await this.pause(1000);
+    }
+
+    async clickOnCheckboxInDropdown(index) {
+        let loaderComboBox = new LoaderComboBox();
+        await loaderComboBox.clickOnCheckboxInDropdown(index, xpath.contentComboboxDiv);
+    }
+
+    async clickOnApplyButtonInCombobox() {
+        let loaderComboBox = new LoaderComboBox();
+        await loaderComboBox.clickOnApplyButton();
+    }
+
     async waitForPublishButtonEnabled() {
         return await this.waitForElementEnabled(this.publishButton, appConst.mediumTimeout);
     }
@@ -187,22 +208,22 @@ class IssueDetailsDialogItemsTab extends Page {
         await this.clickOnElement(this.applySelectionButton);
     }
 
-    excludeItem(displayName) {
+    async excludeItem(displayName) {
         let removeIcon = xpath.selectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
-        return this.waitForElementDisplayed(removeIcon, appConst.shortTimeout).then(() => {
-            return this.clickOnElement(removeIcon)
-        }).then(() => {
-            return this.pause(1000);
-        }).catch(err => {
-            throw new Error('error when clicking on `remove icon`: ' + err)
-        })
+        try {
+            await this.waitForElementDisplayed(removeIcon, appConst.shortTimeout);
+            await this.clickOnElement(removeIcon)
+            return await this.pause(700);
+        } catch (err) {
+            throw new Error("error during clicking on 'remove' icon: " + err)
+        }
     }
 
     async waitForReopenIssueButtonDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.reopenIssueButton, appConst.mediumTimeout);
         } catch (err) {
-            throw new Error("Reopen Issue button is not displayed: " + err)
+            throw new Error("'Reopen Issue' button is not displayed: " + err)
         }
     }
 
@@ -211,7 +232,7 @@ class IssueDetailsDialogItemsTab extends Page {
             let loaderComboBox = new LoaderComboBox();
             return await loaderComboBox.typeTextAndSelectOption(itemDisplayName, xpath.container);
         } catch (err) {
-            throw new Error("Task Details dialog -  " + err);
+            throw new Error("Issue Details dialog -  " + err);
         }
     }
 
@@ -233,10 +254,9 @@ class IssueDetailsDialogItemsTab extends Page {
         } catch (err) {
             let screenshot = await appConst.generateRandomName('err_show_excluded_btn');
             await this.saveScreenshot(screenshot);
-            throw new Error(` Issue Details tab - 'Show excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
+            throw new Error(`Issue Details tab - 'Show excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
         }
     }
-
 }
 
 module.exports = IssueDetailsDialogItemsTab;

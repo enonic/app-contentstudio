@@ -4,12 +4,10 @@
 const lib = require('../../libs/elements');
 const BaseSelectorForm = require('./base.selector.form');
 const appConst = require('../../libs/app_const');
+const LoaderComboBox = require('../components/loader.combobox');
+
 const XPATH = {
     container: lib.FORM_VIEW + "//div[contains(@id,'ContentSelector')]",
-    checkboxByName: name => {
-        return `${lib.itemByName(name)}` +
-               `//ancestor::div[contains(@class,'slick-row')]//div[contains(@class,'slick-cell-checkboxsel')]/label`
-    },
 };
 
 class ContentSelector extends BaseSelectorForm {
@@ -42,21 +40,10 @@ class ContentSelector extends BaseSelectorForm {
         await this.pause(1000);
     }
 
-    async clickOnCheckboxByNameInDropdown(contentName) {
-        let locator = XPATH.checkboxByName(contentName);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-    }
 
     async clickOnCheckboxInDropdown(index) {
-        let locator = "//div[contains(@id,'Grid') and contains(@class,'options-container')]//div[contains(@class,'slick-cell-checkboxsel')]/label";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        let result = await this.findElements(locator);
-        if (result.length === 0) {
-            await this.saveScreenshot(appConst.generateRandomName('err_selector_dropdown'));
-            throw new Error('Content selector - options were not found:' + err);
-        }
-        await result[index].click();
+        let loaderComboBox = new LoaderComboBox();
+        await loaderComboBox.clickOnCheckboxInDropdown(index, XPATH.container);
     }
 
     selectedOptionByDisplayName(displayName) {

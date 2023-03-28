@@ -44,8 +44,7 @@ module.exports = Object.freeze({
         DEPENDENT_ITEM_LIST_UL_2: "//ul[contains(@id,'PublishDialogDependantList')]",
         DEPENDANT_ITEM_VIEWER: "//div[contains(@id,'DependantItemViewer')]",
     },
-
-    tabBarItemByName: function (name) {
+    tabBarItemByName: name => {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },
     slickRowByDisplayName: (container, displayName) => {
@@ -66,6 +65,10 @@ module.exports = Object.freeze({
     },
     itemByName: name => {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
+    },
+    checkboxByName: name => {
+        return `${this.itemByName(name)}` +
+               `//ancestor::div[contains(@class,'slick-row')]//div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
     projectByName: name => {
         return `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'name') and contains(.,'${name}')]]`

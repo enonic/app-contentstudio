@@ -24,9 +24,8 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
     let ISSUE_TITLE = appConst.generateRandomName('issue');
     let folder1;
     let folder2;
-    it(`Precondition: WHEN two 'Work in Progress' folders has been added THEN folders should be present in the grid`,
+    it(`Precondition: two work in progress folder should be added`,
         async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName1 = contentBuilder.generateRandomName('folder');
             let displayName2 = contentBuilder.generateRandomName('folder');
             folder2 = contentBuilder.buildFolder(displayName2);
@@ -35,20 +34,18 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await studioUtils.doAddFolder(folder1);
             // add the second folder:
             await studioUtils.doAddFolder(folder2);
-            await studioUtils.typeNameInFilterPanel(folder1.displayName);
-            await contentBrowsePanel.waitForContentDisplayed(folder1.displayName);
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/2825
     // Default action is not updated after several content items have been marked as ready in the filtered grid
-    it(`GIVEN two folders are selected WHEN new task has been created THEN items tab on 'Issue Details Dialog' should be loaded with expected data`,
+    it(`GIVEN two folders are selected WHEN new issue has been created THEN items tab on 'Issue Details Dialog' should be loaded with expected data`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let createIssueDialog = new CreateIssueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Do both folders 'Mark as Ready':
+            // 1. Select 2 folders then do 'Mark as Ready':
             await studioUtils.findContentAndClickCheckBox(folder1.displayName);
             await contentBrowsePanel.pause(500);
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
@@ -57,14 +54,14 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnCancelTopButton();
             await contentPublishDialog.waitForDialogClosed();
-            // Verify that Publish button is default action now
+            // Verify that 'Publish' button is default action now:
             await contentBrowsePanel.waitForPublishButtonVisible();
             //2. Open 'Create Issue' dialog and create new task:
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             await createIssueDialog.typeTitle(ISSUE_TITLE);
             await createIssueDialog.clickOnCreateIssueButton();
             await issueDetailsDialog.clickOnItemsTabBarItem();
-            // 3. Verify issue's data:
+            // 3. Verify the items to publish:
             let result = await issueDetailsDialogItemsTab.getItemDisplayNames();
             assert.isTrue(result.includes(folder1.displayName));
             assert.isTrue(result.includes(folder2.displayName));
@@ -83,7 +80,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             // 1. Open Issue Details Dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogOpened();
-            // 2.Go to Items tab:
+            // 2. Go to Items tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // Click on Publish... button and open Publishing Wizard
             await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
@@ -103,7 +100,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await studioUtils.findContentAndClickCheckBox(folder1.displayName);
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
             await contentItemPreviewPanel.pause(1000);
-            studioUtils.saveScreenshot("issue_menu_should_be_displayed");
+            await studioUtils.saveScreenshot("issue_menu_should_be_displayed");
             //2. 'Issue Menu button should be visible, because the task is closed'
             await contentItemPreviewPanel.waitForIssueMenuButtonNotVisible();
         });
@@ -126,7 +123,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await confirmValueDialog.waitForDialogClosed();
             let message = await contentBrowsePanel.waitForNotificationMessage();
             // 5. Verify the notification message:
-            assert.equal(message, appConst.TWO_ITEMS_UNPUBLISHED, "2 items are unpublished - is expected message");
+            assert.equal(message, appConst.TWO_ITEMS_UNPUBLISHED, '2 items are unpublished - is expected message');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
