@@ -16,6 +16,22 @@ class LoaderComboBox extends Page {
         return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
+    get applyButton() {
+        return "//button[contains(@class,'small apply-button')]";
+    }
+
+    async waitForApplyButtonDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            return await this.isElementDisplayed(this.applyButton);
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Combobox - Apply button is not displayed! '});
+    }
+
+    async clickOnApplyButton() {
+        await this.waitForApplyButtonDisplayed();
+        await this.clickOnElement(this.applyButton);
+        await this.pause(1000);
+    }
+
     async selectOption(optionDisplayName) {
         let optionSelector = lib.slickRowByDisplayName(XPATH.container, optionDisplayName);
         await this.getBrowser().waitUntil(async () => {
@@ -55,7 +71,7 @@ class LoaderComboBox extends Page {
             await this.clickOnElement(optionLocator);
             return await this.pause(800);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_combobox"));
+            await this.saveScreenshot(appConst.generateRandomName('err_combobox'));
             throw new Error(err);
         }
     }
@@ -67,6 +83,27 @@ class LoaderComboBox extends Page {
         let locator = xpath + lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
+    }
+
+    async clickOnCheckboxInDropdown(index, xpath) {
+        if (xpath === undefined) {
+            xpath = '';
+        }
+        let locator = xpath +
+                      "//div[contains(@id,'Grid') and contains(@class,'options-container')]//div[contains(@class,'slick-cell-checkboxsel')]/label";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let result = await this.findElements(locator);
+        if (result.length === 0) {
+            await this.saveScreenshot(appConst.generateRandomName('err_selector_dropdown'));
+            throw new Error('Content selector - options were not found:' + err);
+        }
+        await result[index].click();
+    }
+
+    async clickOnCheckboxByNameInDropdown(contentName) {
+        let locator = lib.checkboxByName(contentName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
     }
 }
 

@@ -1,7 +1,6 @@
 /**
  * Created on 09.07.2020.
  */
-
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
@@ -11,10 +10,6 @@ class BaseSelectorForm extends Page {
 
     get selectorValidationRecording() {
         return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
-    }
-
-    get applyButton() {
-        return "//button[contains(@class,'small apply-button')]";
     }
 
     async getSelectorValidationMessage() {
@@ -86,14 +81,9 @@ class BaseSelectorForm extends Page {
         return await loaderComboBox.getOptionDisplayNames();
     }
 
-    async waitForApplyButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
-    }
-
     async clickOnApplyButton() {
-        await this.waitForApplyButtonDisplayed();
-        await this.clickOnElement(this.applyButton);
-        await this.pause(1000);
+        let loaderComboBox = new LoaderComboBox();
+        await loaderComboBox.clickOnApplyButton();
     }
 }
 
