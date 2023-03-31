@@ -34,6 +34,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             // 3. Select 2 checkboxes in the dropdown:
             await siteFormPanel.clickOnCheckboxInDropdown(0);
             await siteFormPanel.clickOnCheckboxInDropdown(1);
+            await studioUtils.saveScreenshot('site_2_apps_checked');
             // 4. Click on Apply selections button
             await siteFormPanel.clickOnApplySelectionButtonInApplications();
             await studioUtils.saveScreenshot('site_2_apps_applied');
