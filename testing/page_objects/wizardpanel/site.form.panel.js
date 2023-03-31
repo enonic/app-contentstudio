@@ -11,6 +11,7 @@ const XPATH = {
     editIcon: `//a[@class='edit']`,
     descriptionInput: `//textarea[contains(@name,'description')]`,
     applicationsSelectedOptions: "//div[contains(@id,'SiteConfiguratorSelectedOptionView')]",
+    siteConfigComboboxDiv: "//div[contains(@id,'SiteConfiguratorComboBox')]",
     selectedAppByDisplayName: function (displayName) {
         return `//div[contains(@id,'SiteConfiguratorSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]`
     },
@@ -20,6 +21,10 @@ class SiteForm extends Page {
 
     get applicationsOptionsFilterInput() {
         return XPATH.wizardSteps + lib.FORM_VIEW + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+    get dropdownHandle() {
+        return XPATH.wizardSteps + XPATH.siteConfigComboboxDiv + lib.DROP_DOWN_HANDLE;
     }
 
     get descriptionInput() {
@@ -55,6 +60,22 @@ class SiteForm extends Page {
         return result;
     }
 
+    async clickOnDropdownHandle() {
+        await this.waitForElementDisplayed(this.dropdownHandle, appConst.mediumTimeout);
+        await this.clickOnElement(this.dropdownHandle);
+        await this.pause(1000);
+    }
+
+    async clickOnCheckboxInDropdown(index) {
+        let loaderComboBox = new LoaderComboBox();
+        await loaderComboBox.clickOnCheckboxInDropdown(index, XPATH.siteConfigComboboxDiv);
+    }
+
+    async clickOnApplySelectionButtonInApplications() {
+        let loaderComboBox = new LoaderComboBox();
+        await loaderComboBox.clickOnApplyButton();
+    }
+
     async filterOptionsAndSelectApplication(displayName) {
         try {
             let loaderComboBox = new LoaderComboBox();
@@ -67,7 +88,7 @@ class SiteForm extends Page {
         }
     }
 
-    getAppDisplayNames() {
+    getSelectedAppDisplayNames() {
         let selector = XPATH.applicationsSelectedOptions + lib.H6_DISPLAY_NAME;
         return this.getTextInElements(selector);
     }
@@ -112,7 +133,7 @@ class SiteForm extends Page {
             return this.getAttribute(selector, 'class').then(result => {
                 return !result.includes('invalid');
             })
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Site configurator should be valid"});
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Site configurator should be valid'});
     }
 
     async swapApplications(sourceAppName, destinationAppName) {
