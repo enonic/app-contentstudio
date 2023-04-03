@@ -64,13 +64,12 @@ jacocoTestReport {
     }
 }
 
-check.dependsOn jacocoTestReport
-
 task lint( type: NpmTask, group: "verification", dependsOn: npmInstall ) {
     args = ['run', 'lint']
     outputs.upToDateWhen { false }
 }
 
+check.dependsOn jacocoTestReport
 check.dependsOn lint
 
 task webpack( type: NpmTask, dependsOn: npmInstall ) {
@@ -104,3 +103,4 @@ jar {
     dependsOn += webpack
 }
 
+jar.dependsOn jacocoTestReport
