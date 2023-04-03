@@ -5,6 +5,7 @@ const DateTimeRange = require('../page_objects/components/datetime.range');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentPublishDialog')]",
+    dialogStateBarDiv: "//div[contains(@id,'DialogStateBar')]",
     logMessageLink: "//div[contains(@id,'ContentPublishDialogSubTitle')]/a",
     publishScheduleForm: "//div[contains(@id,'PublishScheduleForm')]",
     scheduleButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Schedule')]]`,
@@ -239,7 +240,7 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    async markAsReadyButtonNotDisplayed() {
+    async waitForMarkAsReadyButtonNotDisplayed() {
         try {
             return await this.waitForElementNotDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
         } catch (err) {
@@ -577,6 +578,12 @@ class ContentPublishDialog extends Page {
     async getNumberInAllCheckbox() {
         let locator = this.allDependantsCheckbox + '//label';
         return await this.getText(locator);
+    }
+
+    async getNumberOfInvalidItems() {
+        let locator = XPATH.container + XPATH.dialogStateBarDiv + "//span[text()='Form validation']";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getAttribute(locator, 'data-count');
     }
 
 }
