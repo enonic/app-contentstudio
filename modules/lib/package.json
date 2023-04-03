@@ -51,7 +51,7 @@
     "postcss-loader": "^7.1.0",
     "swc-loader": "^0.2.3",
     "terser-webpack-plugin": "^5.3.7",
-    "typescript": "^5.0.2"
+    "typescript": "^5.0.3"
   },
   "engines": {
     "node": ">= 18.12.1",
