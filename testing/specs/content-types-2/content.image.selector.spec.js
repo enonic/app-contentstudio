@@ -61,7 +61,8 @@ describe('content.image.selector: Image content specification', function () {
             await imageSelectorForm.clickOnModeTogglerButton();
             let options = await imageSelectorForm.getTreeModeOptionDisplayNames();
             await studioUtils.saveScreenshot('img_sel_tree_mode');
-            assert.strictEqual(options[0], appConst.TEST_FOLDER_WITH_IMAGES);
+            assert.strictEqual(options[0], appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME,
+                'Expected folder should be present in expanded tree mode options');
         });
 
     it(`GIVEN wizard for image-selector is opened WHEN options have been expanded in tree mode THEN image status should be displayed in options`,
@@ -106,7 +107,7 @@ describe('content.image.selector: Image content specification', function () {
             await imageSelectorForm.doFilterOptions(FOLDER_WITH_FILES);
             // 3. Verify that expected options are present in the expanded list:
             let optionsName = await imageSelectorForm.getFlatModeOptionImageNames();
-            studioUtils.saveScreenshot('img_sel_filtered');
+            await studioUtils.saveScreenshot('img_sel_filtered');
             assert.equal(optionsName.length, 2, 'one option should be present in options, because text files should be filtered');
             assert.isTrue(optionsName[1].includes('.svg'), 'pdf and text- files should be filtered in drop down list');
         });

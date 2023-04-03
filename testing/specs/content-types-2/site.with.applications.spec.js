@@ -47,12 +47,12 @@ describe('site.with.applications.spec: swaps applications in the site-form', fun
             // 3. the site should be automatically saved:
             await contentWizard.waitForSaveButtonDisabled();
             await contentWizard.pause(2000);
-            let apps = await siteFormPanel.getAppDisplayNames();
+            let apps = await siteFormPanel.getSelectedAppDisplayNames();
             assert.equal(apps[0], appConst.TEST_APPS_NAME.FIRST_SELENIUM_APP, 'Expected application be first from the top');
             // 4. two applications have been selected
             await siteFormPanel.swapApplications(appConst.TEST_APPS_NAME.FIRST_SELENIUM_APP, appConst.MY_FIRST_APP);
             // 5. Verify that the applications are swapped
-            apps = await siteFormPanel.getAppDisplayNames();
+            apps = await siteFormPanel.getSelectedAppDisplayNames();
             assert.equal(apps[0], appConst.MY_FIRST_APP, 'Applications should be swapped');
             // 6. Verify that 'Save' button gets enabled:
             await contentWizard.waitAndClickOnSave();
@@ -70,8 +70,8 @@ describe('site.with.applications.spec: swaps applications in the site-form', fun
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
             // 4. Verify the selected option in applications selector:
-            let apps = await siteFormPanel.getAppDisplayNames();
-            assert.equal(apps[0], appConst.MY_FIRST_APP, 'Expected application should be in the selected options');
+            let apps = await siteFormPanel.getSelectedAppDisplayNames();
+            assert.equal(apps[0], appConst.MY_FIRST_APP, 'Expected application should be displayed in the form');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
