@@ -44,7 +44,7 @@
     "swc-loader": "^0.2.3",
     "terser-webpack-plugin": "^5.3.7",
     "typescript": "^5.0.2",
-    "webpack": "^5.76.3",
+    "webpack": "^5.77.0",
     "webpack-cli": "^5.0.1"
   },
   "browserslist": [
