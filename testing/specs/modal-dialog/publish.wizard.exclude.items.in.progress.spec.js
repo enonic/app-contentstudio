@@ -155,7 +155,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             // 5. 'Show Excluded items' button should not be displayed:
             await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
             // 6. 'Mark as ready' button gets not visible:
-            await contentPublishDialog.markAsReadyButtonNotDisplayed();
+            await contentPublishDialog.waitForMarkAsReadyButtonNotDisplayed();
             // 7. 'Publish now' button gets enabled:
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             // 8. 'All' checkbox remains visible and selected:

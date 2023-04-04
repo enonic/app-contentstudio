@@ -59,7 +59,7 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
             await studioUtils.saveScreenshot('widget_menu_2');
             // 2. Expand the dropdown and verify all available resolutions::
             let actualResolutions = await emulatorWidget.getResolutions();
-            assert.equal(actualResolutions.length, 8, "8 resolutions should be present in the widget");
+            assert.equal(actualResolutions.length, 8, '8 resolutions should be present in the widget');
         });
 
     it(`GIVEN existing site is opened WHEN 'Medium Phone' resolution has been clicked THEN Page Editor size gets 375x667px`,
@@ -75,9 +75,9 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
             await emulatorWidget.clickOnResolution(appConst.EMULATOR_RESOLUTION.MEDIUM_PHONE);
             // 3. Verify actual width and height:
             let actualWidth = await contentWizard.getPageEditorWidth();
-            assert.equal(actualWidth, "375px", "Expected width of Page Editor is present");
+            assert.equal(actualWidth, '375px', "Expected width of 'Page Editor' is present");
             let actualHeight = await contentWizard.getPageEditorHeight();
-            assert.equal(actualHeight, "667px", "Expected height of Page Editor is present");
+            assert.equal(actualHeight, '667px', "Expected height of 'Page Editor' is present");
         });
 
     it(`GIVEN existing site is opened WHEN 'Notebook 13' resolution has been clicked THEN Page Editor size gets 1280x800px`,
