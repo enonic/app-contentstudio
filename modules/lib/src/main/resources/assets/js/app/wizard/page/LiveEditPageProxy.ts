@@ -287,7 +287,7 @@ export class LiveEditPageProxy {
         }
 
         if (!this.liveEditWindow.document.body) {
-            timer = setTimeout(() => this.scrollIFrameToSavedPosition(scrollTop, timer), 10);
+            timer = window.setTimeout(() => this.scrollIFrameToSavedPosition(scrollTop, timer), 10);
             return;
         }
 

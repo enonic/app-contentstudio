@@ -252,7 +252,7 @@ export class TextComponentView
         let timeSinceLastClick = new Date().getTime() - this.lastClicked;
 
         if (timeSinceLastClick > TextComponentView.DBL_CLICK_TIMEOUT) {
-            this.singleClickTimer = setTimeout(() => {
+            this.singleClickTimer = window.setTimeout(() => {
                 if (TextComponentView.debug) {
                     console.log('no dblclick occured during ' + TextComponentView.DBL_CLICK_TIMEOUT + 'ms, notifying click', this);
                     console.groupEnd();

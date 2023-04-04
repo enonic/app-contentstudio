@@ -131,7 +131,7 @@ function initApplicationEventListener() {
             if (appStatusCheckInterval) {
                 return;
             }
-            appStatusCheckInterval = setInterval(() => {
+            appStatusCheckInterval = window.setInterval(() => {
                 if (!messageId && CONFIG.get('appId') === event.getApplicationKey().toString()) {
                     NotifyManager.get().hide(messageId);
                     messageId = showError(i18n('notify.application.notAvailable'), false);
