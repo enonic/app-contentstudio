@@ -1,7 +1,6 @@
 import {ContextPanel} from './ContextPanel';
 import {ContextView} from './ContextView';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class DockedContextPanel
     extends ContextPanel {
@@ -28,7 +27,7 @@ export class DockedContextPanel
         this.onShown(() => {
             if (this.getItem()) {
                 // small delay so that isVisibleOrAboutToBeVisible() check detects width change
-                setTimeout(() => this.contextView.updateActiveWidget(), 250);
+                window.setTimeout(() => void this.contextView.updateActiveWidget(), 250);
             }
         });
     }
