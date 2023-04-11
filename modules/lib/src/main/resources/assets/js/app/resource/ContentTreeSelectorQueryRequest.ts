@@ -1,5 +1,4 @@
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ContentTreeSelectorListJson} from './ContentTreeSelectorListResult';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ResultMetadata} from './ResultMetadata';
 import {ContentSelectorRequest} from './ContentSelectorRequest';
@@ -7,6 +6,7 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ChildOrder} from './order/ChildOrder';
 import {ContentPath} from '../content/ContentPath';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
+import {ContentTreeSelectorListJson} from './json/ContentTreeSelectorListJson';
 
 export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorItem>
     extends ContentSelectorRequest<DATA> {

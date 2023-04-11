@@ -6,12 +6,16 @@ import {ComponentType} from '../page/region/ComponentType';
 import {PageComponentType} from '../page/region/PageComponentType';
 import {CmsResourceRequest} from './CmsResourceRequest';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import * as Q from 'q';
 
 export class GetComponentDescriptorRequest
     extends CmsResourceRequest<Descriptor> {
 
     private readonly descriptorKey: string;
+
     private readonly componentType: ComponentType;
+
+    private static CACHE: Map<string, Q.Promise<Descriptor>> = new Map<string, Q.Promise<Descriptor>>();
 
     constructor(descriptorKey: string, componentType: ComponentType = PageComponentType.get()) {
         super();
@@ -30,5 +34,18 @@ export class GetComponentDescriptorRequest
 
     protected parseResponse(response: JsonResponse<DescriptorJson>): Descriptor {
         return Descriptor.fromJson(response.getResult()).setComponentType(this.componentType);
+    }
+
+    sendAndParse(): Q.Promise<Descriptor> {
+        if (GetComponentDescriptorRequest.CACHE.has(this.descriptorKey)) {
+            return GetComponentDescriptorRequest.CACHE.get(this.descriptorKey);
+        }
+
+
+        const promise: Q.Promise<Descriptor> = super.sendAndParse();
+        GetComponentDescriptorRequest.CACHE.set(this.descriptorKey, promise);
+
+        return promise;
+
     }
 }
