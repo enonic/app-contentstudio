@@ -39,6 +39,8 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await liveFormPanel.selectLayoutByDisplayName(LAYOUT_NAME);
             await contentWizard.waitForNotificationMessage();
+            // TODO workaround - expand the collapsed row with the layout component:
+            await pageComponentView.clickOnRowExpander('3-col');
             // 4. Insert text component in the left layout's region
             await pageComponentView.openMenu('left');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
