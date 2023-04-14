@@ -9,23 +9,30 @@ import {Content} from '../app/content/Content';
 import {PageTemplate} from '../app/content/PageTemplate';
 import {PageMode} from '../app/page/PageMode';
 import {Page} from '../app/page/Page';
-import {Regions} from '../app/page/region/Regions';
+import {Regions, RegionsBuilder} from '../app/page/region/Regions';
 import {PageTemplateKey} from '../app/page/PageTemplateKey';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
 import {GetComponentDescriptorRequest} from '../app/resource/GetComponentDescriptorRequest';
 import {Descriptor} from '../app/page/Descriptor';
 import {DescriptorKey} from '../app/page/DescriptorKey';
+import {RegionDescriptor} from '../app/page/RegionDescriptor';
+import {Region} from '../app/page/region/Region';
+import {Component} from '../app/page/region/Component';
+import {LayoutComponent} from '../app/page/region/LayoutComponent';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ComponentType} from '../app/page/region/ComponentType';
+import {LayoutComponentType} from '../app/page/region/LayoutComponentType';
 
 export class LiveEditModel {
 
-    private siteModel: SiteModel;
+    private readonly siteModel: SiteModel;
 
-    private parentContent: Content;
+    private readonly parentContent: Content;
 
     private content: Content;
 
-    private formContext: ContentFormContext;
+    private readonly formContext: ContentFormContext;
 
     private pageModel: PageModel;
 
@@ -203,7 +210,9 @@ export class LiveEditModelInitializer {
             this.initForcedControllerPage(page, pageModel, promises);
         } else if (pageMode === PageMode.AUTOMATIC) {
             pageModel.setAutomaticTemplate(this);
-        } else if (pageMode === PageMode.NO_CONTROLLER || pageMode === PageMode.FRAGMENT) {
+        } else if (pageMode === PageMode.FRAGMENT) {
+            this.initFragmentPage(page, pageModel, promises);
+        } else if (pageMode === PageMode.NO_CONTROLLER) {
             this.initNoControllerPage(pageModel);
         } else {
             throw new Error(i18n('live.view.page.error.contentmodenotsupported', PageMode[<number>pageMode]));
@@ -214,7 +223,7 @@ export class LiveEditModelInitializer {
                                                     pageModel: PageModel,
                                                     promises: Q.Promise<any>[]): void {
         const pageDescriptorKey: DescriptorKey = pageTemplate.getController();
-        const pageDescriptorPromise: Q.Promise<Descriptor> = this.loadPageDescriptor(pageDescriptorKey);
+        const pageDescriptorPromise: Q.Promise<Descriptor> = this.loadDescriptor(pageDescriptorKey);
         pageDescriptorPromise.then((pageDescriptor: Descriptor) => {
 
             const config: PropertyTree = pageTemplate.hasConfig() ? pageTemplate.getPage().getConfig().copy() : new PropertyTree();
@@ -249,7 +258,7 @@ export class LiveEditModelInitializer {
         pageTemplatePromise.then((pageTemplate: PageTemplate) => {
 
             const pageDescriptorKey: DescriptorKey = pageTemplate.getController();
-            const pageDescriptorPromise: Q.Promise<Descriptor> = LiveEditModelInitializer.loadPageDescriptor(pageDescriptorKey);
+            const pageDescriptorPromise: Q.Promise<Descriptor> = LiveEditModelInitializer.loadDescriptor(pageDescriptorKey);
             pageDescriptorPromise.then((pageDescriptor: Descriptor) => {
 
                 const config: PropertyTree = content.getPage().hasNonEmptyConfig()
@@ -273,9 +282,8 @@ export class LiveEditModelInitializer {
         const pageDescriptorKey: DescriptorKey = page.getController();
 
         if (pageDescriptorKey) {
-            const pageDescriptorPromise: Q.Promise<Descriptor> = this.loadPageDescriptor(pageDescriptorKey);
-            pageDescriptorPromise.then((pageDescriptor: Descriptor) => {
-                this.initPageController(page, pageModel, pageDescriptor);
+            const pageDescriptorPromise: Q.Promise<void> = this.loadDescriptor(pageDescriptorKey).then((pageDescriptor: Descriptor) => {
+                return this.initPageController(page, pageModel, pageDescriptor).catch(DefaultErrorHandler.handle);
             });
             promises.push(pageDescriptorPromise);
         } else {
@@ -292,16 +300,67 @@ export class LiveEditModelInitializer {
         pageModel.initController(setController);
     }
 
-    private static initPageController(page: Page, pageModel: PageModel, pageDescriptor: Descriptor): void {
-
+    private static initPageController(page: Page, pageModel: PageModel, pageDescriptor: Descriptor): Q.Promise<void> {
         const config: PropertyTree = page.hasConfig() ? page.getConfig().copy() : new PropertyTree();
 
-        const regions: Regions = page.hasRegions() ? page.getRegions().clone() : Regions.create().build();
+        return this.fetchAndInjectPageRegions(page, pageDescriptor).then((regions: Regions) => {
+            const setController: SetController = new SetController(this)
+                .setDescriptor(pageDescriptor).setConfig(config).setRegions(regions);
 
-        const setController: SetController = new SetController(this)
-            .setDescriptor(pageDescriptor).setConfig(config).setRegions(regions);
+            pageModel.initController(setController);
 
-        pageModel.initController(setController);
+            return Q.resolve();
+        });
+    }
+
+    private static fetchAndInjectPageRegions(page: Page, pageDescriptor?: Descriptor): Q.Promise<Regions> {
+        if (!pageDescriptor) {
+            const regions: Regions = page.hasRegions() ? page.getRegions().clone() : Regions.create().build();
+            return Q.resolve(regions);
+        }
+
+        const builder: RegionsBuilder = Regions.create();
+
+        const regionsFetchPromises: Q.Promise<Region>[] = pageDescriptor.getRegions().map((regionDesc: RegionDescriptor) => {
+            const existingRegion: Region = page.getRegions()?.getRegionByName(regionDesc.getName());
+
+            if (existingRegion) {
+                return this.updateExistingRegion(existingRegion);
+            }
+
+            return Q.resolve(Region.create().setName(regionDesc.getName()).build());
+        });
+
+        return Q.all(regionsFetchPromises).then((regions: Region[]) => {
+            builder.setRegions(regions);
+
+            return builder.build();
+        });
+    }
+
+    private static updateExistingRegion(existingRegion: Region): Q.Promise<Region> {
+        const layoutsPromises: Q.Promise<void>[] = existingRegion.getComponents()
+            .filter((component: Component) => component instanceof LayoutComponent)
+            .filter((layout: LayoutComponent) => layout.getDescriptorKey())
+            .map((layout: LayoutComponent) => this.fetchAndInjectLayoutRegions(layout));
+
+        return Q.all(layoutsPromises).then(() => existingRegion);
+    }
+
+    private static fetchAndInjectLayoutRegions(layout: LayoutComponent): Q.Promise<void> {
+        return this.loadDescriptor(layout.getDescriptorKey(), LayoutComponentType.get()).then((descriptor: Descriptor) => {
+            const builder: RegionsBuilder = Regions.create();
+
+            descriptor.getRegions().forEach((regionDescriptor: RegionDescriptor) => {
+                const regionToAdd: Region = layout.getRegions()?.getRegionByName(regionDescriptor.getName()) ||
+                                            Region.create().setName(regionDescriptor.getName()).setParentPath(layout.getPath()).build();
+                builder.addRegion(regionToAdd);
+            });
+
+            layout.setRegions(builder.build());
+
+            return Q.resolve();
+        });
     }
 
     private static getPageMode(content: Content, defaultTemplatePresents: boolean,
@@ -345,9 +404,9 @@ export class LiveEditModelInitializer {
         return deferred.promise;
     }
 
-    private static loadPageDescriptor(key: DescriptorKey): Q.Promise<Descriptor> {
+    private static loadDescriptor(key: DescriptorKey, type?: ComponentType): Q.Promise<Descriptor> {
         let deferred: Q.Deferred<Descriptor> = Q.defer<Descriptor>();
-        new GetComponentDescriptorRequest(key.toString()).sendAndParse().then((pageDescriptor: Descriptor) => {
+        new GetComponentDescriptorRequest(key.toString(), type).sendAndParse().then((pageDescriptor: Descriptor) => {
             deferred.resolve(pageDescriptor);
         }).catch(() => {
             deferred.reject(new Exception(i18n('live.view.page.error.descriptornotfound', key), ExceptionType.WARNING));
@@ -369,5 +428,26 @@ export class LiveEditModelInitializer {
         }
 
         return deferred.promise;
+    }
+
+    private static initFragmentPage(page: Page, pageModel: PageModel, promises: Q.Promise<any>[]): void {
+        const component: Component = page.getFragment();
+        const promise: Q.Promise<void> = (component instanceof LayoutComponent && component.getDescriptorKey())
+                                         ? this.fetchAndInjectLayoutRegions(component)
+                                         : Q.resolve();
+
+        promise.then(() => {
+            pageModel.initController(this.createFragmentController());
+            return Q.resolve();
+        });
+
+        promises.push(promise);
+    }
+
+    private static createFragmentController(): SetController {
+        const config: PropertyTree = new PropertyTree();
+        const regions: Regions = Regions.create().build();
+
+        return new SetController(this).setDescriptor(null).setConfig(config).setRegions(regions);
     }
 }

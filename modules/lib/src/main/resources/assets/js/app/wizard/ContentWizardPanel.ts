@@ -135,6 +135,7 @@ import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ContentSummary} from '../content/ContentSummary';
 import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
+import {PageHelper} from '../util/PageHelper';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -2221,7 +2222,7 @@ export class ContentWizardPanel
 
     private assembleViewedPage(): Page {
         return (this.getPersistedItem().getPage() && !this.isRenderable()) ?
-               this.getPersistedItem().getPage() : this.getLivePanel()?.getPage();
+               this.getPersistedItem().getPage() : PageHelper.getPageWithoutEmptyRegions(this.getLivePanel()?.getPage());
     }
 
     private resolveContentNameForUpdateRequest(): ContentName {
