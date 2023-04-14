@@ -65,6 +65,21 @@ class PageComponentView extends Page {
         }
     }
 
+    // Click on the toggle icon and expand/collapse the row in PageComponent View
+    async clickOnRowExpander(componentName) {
+        try {
+            let toggleIcon = xpath.componentByName(componentName) + "/../..//span[contains(@class,'toggle icon')]";
+            await this.waitForElementDisplayed(toggleIcon, appConst.shortTimeout);
+            await this.pause(300);
+            await this.clickOnElement(toggleIcon);
+            return await this.pause(500);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_component_view');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Page Component View, Error when clicking on `toggle icon in the row` screenshot: ' + screenshot + '  ' + err);
+        }
+    }
+
     async openMenu(componentName) {
         try {
             let menuButton = xpath.componentByName(componentName) + "/../..//div[contains(@class,'menu-icon')]";
