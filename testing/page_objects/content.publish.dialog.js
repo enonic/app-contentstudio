@@ -469,6 +469,21 @@ class ContentPublishDialog extends Page {
         return await this.pause(300);
     }
 
+    async typeInOnlineTo(dateTime) {
+        let dateTimeRange = new DateTimeRange();
+        await dateTimeRange.typeOnlineTo(dateTime, XPATH.container);
+        return await this.pause(300);
+    }
+
+    async clickOnOkButton() {
+        let locator = "//div[@class='picker-buttons']//button[child::span[text()='OK']]";
+        //let locator = "//div[@class='picker-buttons']//button/span[text()='OK']";
+        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
+        let elems = await this.getDisplayedElements(locator);
+        await elems[0].click();
+        await this.pause(200);
+    }
+
     async getNumberItemsToPublish() {
         let selector = XPATH.container + `//button[contains(@id,'ActionButton')]/span[contains(.,'Publish Now')]`;
         let number = await this.getText(selector);
