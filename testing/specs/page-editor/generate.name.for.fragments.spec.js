@@ -145,7 +145,7 @@ describe('Generate name for fragments specification', function () {
             // 3. Save the empty layout-component as fragment:
             await pageComponentView.openMenu("Layout");
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
-            await contentWizard.pause(700);
+            await contentWizard.pause(1000);
             await studioUtils.doSwitchToNewWizard();
             // 4. Verify the generated display name(should be 'Layout'):
             let fragmentContent = await contentWizard.getDisplayName();

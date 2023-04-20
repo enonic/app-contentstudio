@@ -701,14 +701,12 @@ module.exports = {
         return this.getBrowser().keys('Enter');
     },
 
-    doSwitchToNewWizard: function () {
+    async doSwitchToNewWizard() {
         console.log('testUtils:switching to the new wizard tab...');
         let contentWizardPanel = new ContentWizardPanel();
-        return this.getBrowser().getWindowHandles().then(tabs => {
-            return this.getBrowser().switchToWindow(tabs[tabs.length - 1]);
-        }).then(() => {
-            return contentWizardPanel.waitForOpened();
-        });
+        let tabs = await this.getBrowser().getWindowHandles();
+        await this.getBrowser().switchToWindow(tabs[tabs.length - 1]);
+        return contentWizardPanel.waitForOpened();
     },
     async doSwitchToNextTab() {
         let tabs = await this.getBrowser().getWindowHandles();

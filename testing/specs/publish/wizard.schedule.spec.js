@@ -19,6 +19,7 @@ describe('Wizard page - verify schedule form', function () {
     }
     const DATE_TIME_IN_PAST = '2020-09-10 00:00';
     const DATE_TIME_IN_FUTURE = '2029-09-10 00:00';
+    const DATE_TIME_TO = '2029-09-11 00:00';
     let TEST_FOLDER;
 
     it(`WHEN new folder has been created THEN schedule widget item should not be displayed in 'Details' widget`,
@@ -131,6 +132,9 @@ describe('Wizard page - verify schedule form', function () {
             await contentPublishDialog.clickOnAddScheduleIcon();
             // 4. Type dateTime in future
             await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_FUTURE);
+            await contentPublishDialog.typeInOnlineTo(DATE_TIME_TO);
+            await studioUtils.saveScreenshot('online_to_set');
+            await contentPublishDialog.clickOnOkButton();
             // 5. Press the Schedule button
             await contentPublishDialog.clickOnScheduleButton();
             // 6. Verify that status is 'Publishing Scheduled''
@@ -141,6 +145,40 @@ describe('Wizard page - verify schedule form', function () {
             let status = await wizardVersionsWidget.getContentStatus();
             assert.isTrue(status.includes('Will be published'), "'Will be published' should be present in the versions widget");
             assert.isTrue(status.includes(DATE_TIME_IN_FUTURE), 'Expected date time in future should be displayed');
+        });
+
+    it(`WHEN 'Online from' has been set in future THEN 'Published until' should be displayed in versions widget`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contentPublishDialog = new ContentPublishDialog();
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            let displayName = contentBuilder.generateRandomName('folder');
+            TEST_FOLDER = contentBuilder.buildFolder(displayName);
+            // 1. Open new folder-wizard, type a name and save:
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            await contentWizard.typeDisplayName(TEST_FOLDER.displayName);
+            await contentWizard.waitAndClickOnSave();
+            // 2. Click on Mark as Ready button
+            await contentWizard.clickOnMarkAsReadyButton();
+            await contentPublishDialog.waitForDialogOpened();
+            // 3. Click on Add Schedule (calendar icon):
+            await contentPublishDialog.clickOnAddScheduleIcon();
+            // 4. Type dateTime in past:
+            await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_PAST);
+            // 5. Insert dateTime in future:
+            await contentPublishDialog.typeInOnlineTo(DATE_TIME_TO);
+            await studioUtils.saveScreenshot('online_to_set_2');
+            await contentPublishDialog.clickOnOkButton();
+            // 6. Press  'Schedule' button
+            await contentPublishDialog.clickOnScheduleButton();
+            // 7. Verify that status is 'Publishing Scheduled''
+            await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHED);
+            // 8. Open 'Versions Panel':
+            await contentWizard.openVersionsHistoryPanel();
+            // 9. Verify the status in versions widget
+            let status = await wizardVersionsWidget.getContentStatus();
+            assert.isTrue(status.includes('Published until'), "'Published until' should be present in the versions widget");
+            assert.isTrue(status.includes(DATE_TIME_TO), 'Expected date time in future should be displayed');
         });
 
 
