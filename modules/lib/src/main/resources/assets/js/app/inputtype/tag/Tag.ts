@@ -61,7 +61,7 @@ export class Tag
                 new TagsBuilder().setTagSuggester(this.tagSuggester).setMaxTags(this.context.input.getOccurrences().getMaximum());
 
             propertyArray.forEach((property) => {
-                let value = property.getString();
+                const value: string = property.getString() || 'null';
                 if (value) {
                     tagsBuilder.addTag(value);
                 }
@@ -72,12 +72,8 @@ export class Tag
 
             this.tags.onTagAdded((event: TagAddedEvent) => {
                 this.ignorePropertyChange(true);
-                let value = new Value(event.getValue(), ValueTypes.STRING);
-                if (this.tags.countTags() === 1) {
-                    this.getPropertyArray().set(0, value);
-                } else {
-                    this.getPropertyArray().add(value);
-                }
+                const value: Value = new Value(event.getValue(), ValueTypes.STRING);
+                this.getPropertyArray().add(value);
                 this.handleValueChanged(false);
                 this.ignorePropertyChange(false);
             });

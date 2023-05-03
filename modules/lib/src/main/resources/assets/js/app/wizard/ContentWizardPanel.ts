@@ -1745,46 +1745,6 @@ export class ContentWizardPanel
         return this.updateLiveEditModel(content);
     }
 
-    // sync persisted content extra data with xData
-    // when rendering form - we may add extra fields from xData;
-    // as this is intended action from XP, not user - it should be present in persisted content
-    private syncPersistedItemWithXData(xDataName: XDataName, xDataPropertyTree: PropertyTree) {
-        let persistedContent = this.getPersistedItem();
-        let extraData = persistedContent.getExtraDataByName(xDataName);
-        if (!extraData) { // ensure ExtraData object corresponds to each step form
-            this.enrichWithExtraData(persistedContent, xDataName, xDataPropertyTree);
-        } else {
-            let diff = extraData.getData().diff(xDataPropertyTree);
-            diff.added.forEach((property: Property) => {
-                extraData.getData().addProperty(property.getName(), property.getValue());
-            });
-        }
-    }
-
-    private enrichWithExtraData(content: Content, xDataName: XDataName, propertyTree?: PropertyTree): ExtraData {
-        let extraData = new ExtraData(xDataName, propertyTree ? propertyTree.copy() : new PropertyTree());
-        content.getAllExtraData().push(extraData);
-        return extraData;
-    }
-
-    private syncPersistedItemWithContentData(propertyTree: PropertyTree) {
-        const persistedContent: Content = this.getPersistedItem();
-        const persistedContentData: PropertyTree = persistedContent.getContentData();
-
-        const treeCopy: PropertyTree = propertyTree.copy();
-
-        persistedContentData.getRoot().syncEmptyArrays(treeCopy.getRoot());
-
-        const diff = persistedContentData.diff(treeCopy);
-        diff.added.forEach((property: Property) => {
-            persistedContentData.setPropertyByPath(property.getPath(), property.getValue());
-        });
-
-        if (diff.added && diff.added.length > 0) {
-            this.wizardActions.refreshSaveActionState();
-        }
-    }
-
     private isSplitEditModeActive(): boolean {
         return ResponsiveRanges._960_1200.isFitOrBigger(this.getEl().getWidth()) &&
                this.isEditorEnabled() && this.shouldOpenEditorByDefault();
@@ -1863,7 +1823,6 @@ export class ContentWizardPanel
                         if (this.params.localized) {
                             this.onRendered(() => NotifyManager.get().showFeedback(i18n('notify.content.localized')));
                         }
-                        this.syncPersistedItemWithContentData(content.getContentData());
                         this.xDataWizardStepForms.resetState();
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
@@ -2022,15 +1981,12 @@ export class ContentWizardPanel
     }
 
     private layoutXDataWizardStepForm(content: Content, xDataStepForm: XDataWizardStepForm): Q.Promise<void> {
-        const extraData = content.getExtraDataByName(xDataStepForm.getXData().getXDataName());
+        const extraData: ExtraData = content.getExtraDataByName(xDataStepForm.getXData().getXDataName());
         const data: PropertyTree = extraData ? extraData.getData() : new PropertyTree();
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
 
-        return xDataStepForm.layout(this.formContext, data, xDataForm).then(() => {
-            this.syncPersistedItemWithXData(xDataStepForm.getXDataName(), data);
-            return Q(null);
-        });
+        return xDataStepForm.layout(this.formContext, data, xDataForm);
     }
 
     private initLiveEditModel(content: Content): Q.Promise<LiveEditModel> {
@@ -2320,7 +2276,9 @@ export class ContentWizardPanel
         const extraData: ExtraData[] = [];
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
-            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData()));
+            if (this.isFormExtraDataToBePersisted(form)) {
+                extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData()));
+            }
         });
 
         viewedContentBuilder.setExtraData(extraData);
@@ -2328,6 +2286,20 @@ export class ContentWizardPanel
         viewedContentBuilder.setPage(this.assembleViewedPage());
 
         return viewedContentBuilder;
+    }
+
+    private isFormExtraDataToBePersisted(form: XDataWizardStepForm): boolean {
+        const isPersistedXData: boolean = !!this.getPersistedItem().getExtraDataByName(form.getXDataName());
+
+        if (isPersistedXData) {
+            return true;
+        }
+
+        if (form.isOptional()) {
+            return form.isEnabled();
+        }
+
+        return !form.getData().isEmpty();
     }
 
     private displayValidationErrors(value: boolean) {
@@ -2438,12 +2410,6 @@ export class ContentWizardPanel
                 form.resetData();
             }
 
-            const viewedData: PropertyTree = form.getData().copy();
-
-            if (!form.isOptional() || !extraData || extraData.getData().getRoot().getSize() > 0) {
-                this.syncPersistedItemWithXData(xDataName, form.isEnabled() ? viewedData : new PropertyTree());
-            }
-
         });
     }
 
@@ -2455,8 +2421,6 @@ export class ContentWizardPanel
 
         this.contentWizardStepForm.update(content.getContentData(), unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
-
-            this.syncPersistedItemWithContentData(content.getContentData());
         });
     }
 
