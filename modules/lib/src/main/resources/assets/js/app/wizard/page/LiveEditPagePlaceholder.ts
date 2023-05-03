@@ -1,15 +1,10 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {GetComponentDescriptorsRequest} from '../../resource/GetComponentDescriptorsRequest';
-import {PageComponentType} from '../../page/region/PageComponentType';
 import {Descriptor} from '../../page/Descriptor';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from '../../content/ContentId';
-import * as Q from 'q';
 import {PagePlaceholderInfoBlock} from '../../../page-editor/PagePlaceholderInfoBlock';
 import {PageDescriptorDropdown} from './contextwindow/inspect/page/PageDescriptorDropdown';
 import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ContentType} from '../../inputtype/schema/ContentType';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class LiveEditPagePlaceholder
@@ -34,22 +29,11 @@ export class LiveEditPagePlaceholder
         this.contentType = type;
     }
 
-    loadControllers(): Q.Promise<Descriptor[]> {
-        return this.createControllersRequest().sendAndParse().then((descriptors: Descriptor[]) => {
-            this.handleControllersLoaded(descriptors);
-            return Q.resolve(descriptors);
-        }).catch((err) => {
-            this.handleControllersLoaded([]);
-            DefaultErrorHandler.handle(err);
-            return Q.resolve([]);
-        });
-    }
-
-    private handleControllersLoaded(descriptors: Descriptor[]): void {
+    setHasControllers(hasControllers: boolean): void {
         this.initPagePlaceholderInfoBlock();
         this.removeClass('page-not-renderable');
 
-        if (descriptors.length > 0) {
+        if (hasControllers) {
             this.handleHasControllers();
         } else {
             this.handleNoControllers();
@@ -78,13 +62,6 @@ export class LiveEditPagePlaceholder
         this.removeClass('icon-insert-template');
         this.pagePlaceholderInfoBlock.setEmptyText();
         this.controllerDropdown?.hide();
-    }
-
-    private createControllersRequest(): GetComponentDescriptorsRequest {
-        const req: GetComponentDescriptorsRequest = new GetComponentDescriptorsRequest();
-        req.setComponentType(PageComponentType.get());
-        req.setContentId(this.contentId);
-        return req;
     }
 
     private createControllerDropdown(): PageDescriptorDropdown {

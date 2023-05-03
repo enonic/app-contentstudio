@@ -1,7 +1,6 @@
 import {WebSocketConnection} from '@enonic/lib-admin-ui/connection/WebSocketConnection';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {CycleButton} from '@enonic/lib-admin-ui/ui/button/CycleButton';
 import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -21,6 +20,7 @@ import {ContentWizardActions} from './action/ContentWizardActions';
 import {CollaborationEl} from './CollaborationEl';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
+import {ContentActionCycleButton} from './ContentActionCycleButton';
 
 export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
     actions: ContentWizardActions;
@@ -35,7 +35,7 @@ export class ContentWizardToolbar
 
     private componentsViewToggler: TogglerButton;
 
-    private cycleViewModeButton: CycleButton;
+    private cycleViewModeButton: ContentActionCycleButton;
 
     private contextPanelToggler: NonMobileContextPanelToggleButton;
 
@@ -193,7 +193,7 @@ export class ContentWizardToolbar
 
     private addTogglerButtons() {
         const actions: ContentWizardActions = this.config.actions;
-        this.cycleViewModeButton = new CycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
+        this.cycleViewModeButton = new ContentActionCycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
         this.componentsViewToggler = new TogglerButton('icon-clipboard', i18n('field.showComponent'));
         this.contextPanelToggler = new NonMobileContextPanelToggleButton();
 
@@ -222,7 +222,7 @@ export class ContentWizardToolbar
             .connect();
     }
 
-    getCycleViewModeButton(): CycleButton {
+    getCycleViewModeButton(): ContentActionCycleButton {
         return this.cycleViewModeButton;
     }
 

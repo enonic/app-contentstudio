@@ -15,7 +15,7 @@ const appConst = require('../../libs/app_const');
 
 describe('page.template.controller: select a controller in a template-wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
@@ -30,14 +30,14 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.doAddSite(SITE);
         });
 
-    //verifies https://github.com/enonic/app-contentstudio/issues/364
-    //Upload button should not be visible in the New Content dialog for Templates folder
+    // verifies https://github.com/enonic/app-contentstudio/issues/364
+    // Upload button should not be visible in the New Content dialog for Templates folder
     it(`GIVEN _templates folder is selected WHEN New button has been pressed THEN upload button should not be present in the modal dialog`,
         async () => {
             let newContentDialog = new NewContentDialog();
             await selectTemplatesFolderAndClickNew();
             let isDisplayed = await newContentDialog.waitForUploaderButtonDisplayed();
-            assert.isFalse(isDisplayed, "Uploader button should not be displayed (_templates is selected)");
+            assert.isFalse(isDisplayed, "Uploader button should not be displayed  for '_templates' folder");
         });
 
     // verifies the xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
@@ -50,26 +50,26 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeDisplayName(TEMPLATE.displayName);
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-            //Verifies xp-apps#686 - 'Context Window should be loaded automatically':
+            // Verifies xp-apps#686 - 'Context Window should be loaded automatically':
             await liveContextWindow.waitForOpened();
         });
 
-    //xp-apps#737: Page Editor panel for a site is not correctly refreshed when a page template was added or removed
+    // xp-apps#737: Page Editor panel for a site is not correctly refreshed when a page template was added or removed
     it(`GIVEN site is opened AND page-template is opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageTemplateForm = new PageTemplateForm();
-            //1. Open the site:
+            // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await studioUtils.doSwitchToContentBrowsePanel();
-            //2. Open the template:
+            // 2. Open the template:
             await studioUtils.selectContentAndOpenWizard(TEMPLATE.displayName);
-            //3. 'site' has been selected in 'support' and the template has been saved
+            // 3. 'site' has been selected in 'support' and the template has been saved
             await pageTemplateForm.filterOptionsAndSelectSupport(appConst.TEMPLATE_SUPPORT.SITE);
             await contentWizard.waitAndClickOnSave();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
-            await studioUtils.saveScreenshot("support_site_applied");
-            //4. Template should be applied in the site-wizard so the controller selector should not be visible now:
+            await studioUtils.saveScreenshot('support_site_applied');
+            // 4. Template should be applied in the site-wizard so the controller selector should not be visible now:
             await contentWizard.waitForControllerOptionFilterInputNotVisible();
         });
 
@@ -112,7 +112,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

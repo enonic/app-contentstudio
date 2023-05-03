@@ -68,7 +68,6 @@ import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import {CycleButton} from '@enonic/lib-admin-ui/ui/button/CycleButton';
 import {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
 import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {FormItemSet} from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
@@ -136,6 +135,7 @@ import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationCon
 import {ContentSummary} from '../content/ContentSummary';
 import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
 import {PageHelper} from '../util/PageHelper';
+import {ContentActionCycleButton} from './ContentActionCycleButton';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -477,13 +477,6 @@ export class ContentWizardPanel
         const wizardActions: ContentWizardActions = new ContentWizardActions(this);
         wizardActions.getShowLiveEditAction().setEnabled(false);
 
-        wizardActions.getShowSplitEditAction().onExecuted(() => {
-            if (!this.inMobileViewMode) {
-                this.getCycleViewModeButton()
-                    .selectActiveAction(wizardActions.getShowLiveEditAction());
-            }
-        });
-
         const publishActionHandler = () => {
             if (this.hasUnsavedChanges()) {
                 this.contentWizardStepForm.validate();
@@ -656,7 +649,6 @@ export class ContentWizardPanel
         this.liveMask = new LoadMask(liveFormPanel);
 
         this.wizardActions.getShowLiveEditAction().setEnabled(true);
-        this.wizardActions.getShowSplitEditAction().setEnabled(true);
 
         liveFormPanel.whenRendered(() => {
             if (WizardPanel.debug) {
@@ -816,7 +808,10 @@ export class ContentWizardPanel
 
         this.initFormContext(contentClone);
         this.updateWizard(contentClone, true);
-        this.resetLivePanel(contentClone).then(() => this.contextView.updateWidgetsVisibility());
+        this.resetLivePanel(contentClone).then(() => {
+            this.contextView.updateWidgetsVisibility();
+            this.toggleLiveEdit();
+        });
 
         if (!this.isDisplayNameUpdated()) {
             this.getWizardHeader().resetBaseValues();
@@ -870,12 +865,11 @@ export class ContentWizardPanel
                         this.toggleMinimize();
                     }
                     this.showForm();
-                    this.getCycleViewModeButton().selectActiveAction(this.wizardActions.getShowFormAction());
                 }
             } else {
                 if (this.inMobileViewMode && this.isLiveView()) {
                     this.inMobileViewMode = false;
-                    this.showSplitEdit();
+                    this.showLiveEdit();
                 }
 
                 this.inMobileViewMode = false;
@@ -900,6 +894,7 @@ export class ContentWizardPanel
                     .then(() => {
                         this.updateButtonsState();
                         this.contextView.updateWidgetsVisibility();
+                        this.toggleLiveEdit();
                     })
                     .catch(DefaultErrorHandler.handle);
             }
@@ -1512,6 +1507,7 @@ export class ContentWizardPanel
             this.checkIfRenderable().then(() => {
                 if (wasRenderable !== this.isRenderable()) {
                     this.resetLivePanel(this.getPersistedItem().clone());
+                    this.toggleLiveEdit();
                 }
             });
             return;
@@ -1732,6 +1728,7 @@ export class ContentWizardPanel
         }
 
         this.setupWizardLiveEdit();
+        this.toggleLiveEdit();
 
         if (!this.isRenderable() && this.getPersistedItem().getPage()) {
             this.getLivePanel().setPageIsNotRenderable();
@@ -1791,26 +1788,34 @@ export class ContentWizardPanel
     }
 
     private setupWizardLiveEdit() {
-        const editorEnabled = this.isEditorEnabled();
+        const isEditorEnabled: boolean = this.isEditorEnabled();
 
-        this.toggleClass('rendered', editorEnabled);
+        this.toggleClass('rendered', isEditorEnabled);
 
-        this.wizardActions.getShowLiveEditAction().setEnabled(editorEnabled);
-        this.wizardActions.getShowSplitEditAction().setEnabled(editorEnabled);
+        this.wizardActions.getShowLiveEditAction().setEnabled(isEditorEnabled);
 
-        this.getCycleViewModeButton().setVisible(editorEnabled);
+        this.getCycleViewModeButton().setVisible(isEditorEnabled);
+
+        if (isEditorEnabled) {
+            this.formMask.show();
+        }
+    }
+
+    private toggleLiveEdit(): void {
+        if (!this.livePanel) {
+            return;
+        }
 
         if (this.isSplitEditModeActive()) {
-            this.wizardActions.getShowSplitEditAction().execute();
-        } else if (ResponsiveRanges._1920_UP.isFitOrBigger(this.getEl().getWidth())) {
-            this.wizardActions.getShowSplitEditAction().execute();
-            this.closeLiveEdit();
-            this.getCycleViewModeButton().selectActiveAction(this.wizardActions.getShowFormAction());
-        } else if (this.splitPanel) {
-            this.wizardActions.getShowFormAction().execute();
-        }
-        if (editorEnabled) {
-            this.formMask.show();
+            this.livePanel.hasControllers().then((hasControllers: boolean) => {
+                if (hasControllers) {
+                    this.showLiveEdit();
+                } else {
+                    this.showForm();
+                }
+            });
+        } else {
+            this.showForm();
         }
     }
 
@@ -2254,33 +2259,12 @@ export class ContentWizardPanel
         return this.markedAsReady;
     }
 
-    showLiveEdit() {
-        if (!this.inMobileViewMode) {
-            this.showSplitEdit();
-            return;
-        }
-
-        this.splitPanel.addClass('toggle-live').removeClass('toggle-form toggle-split');
-        this.getMainToolbar().toggleClass('live', true);
-        this.toggleClass('form', false);
-
-        this.openLiveEdit();
+    showForm(): void {
+        this.wizardActions.getShowFormAction().execute();
     }
 
-    showSplitEdit() {
-        this.splitPanel.addClass('toggle-split').removeClass('toggle-live toggle-form');
-        this.getMainToolbar().toggleClass('live', true);
-        this.toggleClass('form', false);
-
-        this.openLiveEdit();
-    }
-
-    showForm() {
-        this.splitPanel.addClass('toggle-form').removeClass('toggle-live toggle-split');
-        this.getMainToolbar().toggleClass('live', false);
-        this.toggleClass('form', true);
-
-        this.closeLiveEdit();
+    showLiveEdit(): void {
+        this.wizardActions.getShowLiveEditAction().execute();
     }
 
     private isSplitView(): boolean {
@@ -2343,7 +2327,7 @@ export class ContentWizardPanel
         return this.getMainToolbar().getContentWizardToolbarPublishControls();
     }
 
-    getCycleViewModeButton(): CycleButton {
+    getCycleViewModeButton(): ContentActionCycleButton {
         return this.getMainToolbar().getCycleViewModeButton();
     }
 
@@ -2458,26 +2442,6 @@ export class ContentWizardPanel
 
             this.syncPersistedItemWithContentData(content.getContentData());
         });
-    }
-
-    private openLiveEdit() {
-        this.splitPanel.showSecondPanel();
-        const showInspectionPanel = ResponsiveRanges._1920_UP.isFitOrBigger(this.getEl().getWidthWithBorder());
-        this.getLivePanel().clearPageViewSelectionAndOpenInspectPage(showInspectionPanel);
-        this.showMinimizeEditButton();
-    }
-
-    private closeLiveEdit() {
-        this.splitPanel.hideSecondPanel();
-        this.hideMinimizeEditButton();
-
-        if (this.liveMask && this.liveMask.isVisible()) {
-            this.liveMask.hide();
-        }
-
-        if (this.isMinimized()) {
-            this.toggleMinimize();
-        }
     }
 
     private checkIfRenderable(item?: ContentSummary): Q.Promise<boolean> {
@@ -2674,5 +2638,13 @@ export class ContentWizardPanel
         }
 
         return super.calcNavigationWidth();
+    }
+
+    isInMobileViewMode(): boolean {
+        return this.inMobileViewMode;
+    }
+
+    getSplitPanel(): SplitPanel {
+        return this.splitPanel;
     }
 }
