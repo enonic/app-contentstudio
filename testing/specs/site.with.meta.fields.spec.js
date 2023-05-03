@@ -14,7 +14,7 @@ const appConst = require('../libs/app_const');
 
 describe('site.with.meta.fields.spec: verifies application-metadata in a site-wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -29,7 +29,7 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             //2. Type the name in the filter-panel:
             await studioUtils.typeNameInFilterPanel(displayName);
             await contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            studioUtils.saveScreenshot('site_metadata1');
+            await studioUtils.saveScreenshot('site_metadata1');
             //3. red icon should be displayed because the required input(meta-data) was not filled:
             let result = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
             assert.isTrue(result, "'Red icon' should be displayed near the content, because the required input for metadata is empty");
@@ -49,7 +49,7 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
                 "Expected recording should appear, the text area is empty in metadata form");
 
             let isRedIconPresent = await contentWizard.isContentInvalid();
-            studioUtils.saveScreenshot('site_metadata_wizard');
+            await studioUtils.saveScreenshot('site_metadata_wizard');
             assert.isTrue(isRedIconPresent, 'red icon should be displayed in the wizard!');
         });
 
@@ -65,7 +65,7 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             await contentWizard.waitUntilInvalidIconDisappears();
         });
 
-    //Verifies the https://github.com/enonic/xp-apps/issues/533
+    // Verifies the https://github.com/enonic/xp-apps/issues/533
     it(`GIVEN wizard for new site with metadata is opened AND data is saved WHEN description in metadata has been typed THEN 'Saved' label should be changed to 'Save'`,
         async () => {
             let metadataStepForm = new MetadataStepForm();
@@ -88,7 +88,7 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
