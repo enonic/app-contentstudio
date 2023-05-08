@@ -149,8 +149,8 @@ content type behaviour in Content Studio.
       <label>City</label>
     </input>
   </form>
-  <config>  <!--1-->
-    <allow-new-content>false</allow-new-content>  <!--2-->
+  <config> // <1>
+    <allow-new-content>false</allow-new-content> // <2>
   </config>
 </content-type>
 ----
@@ -170,7 +170,7 @@ NOTE: Only simple input types may be used as variables, so input types like Html
 ----
 <content-type>
   <display-name>Person</display-name>
-  <display-name-expression>${firstName} ${lastName}</display-name-expression> <!--1-->
+  <display-name-expression>${firstName} ${lastName}</display-name-expression> // <1>
   <form>
     <input name="firstName" type="TextLine">
       <label>First Name</label>
