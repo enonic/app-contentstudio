@@ -42,7 +42,7 @@
     "source-map-loader": "^4.0.1",
     "terser-webpack-plugin": "^5.3.8",
     "typescript": "^5.0.2",
-    "webpack": "^5.82.0",
+    "webpack": "^5.82.1",
     "webpack-cli": "^5.1.1"
   },
   "browserslist": [
