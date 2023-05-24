@@ -72,7 +72,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         });
     }
 
-    private initRequests(builder: ContentSummaryOptionDataLoaderBuilder) {
+    initRequests(builder: ContentSummaryOptionDataLoaderBuilder) {
         this.initRequest(builder, this.treeRequest);
         this.initRequest(builder, this.flatRequest);
     }
