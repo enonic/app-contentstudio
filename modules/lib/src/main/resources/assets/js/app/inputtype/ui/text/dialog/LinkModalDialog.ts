@@ -85,6 +85,7 @@ export class LinkModalDialog
     private mediaOptionRadioFormItem: FormItem;
     private contentTargetCheckBoxFormItem: FormItem;
     private urlTargetCheckboxFormItem: FormItem;
+    private showAllContentCheckboxFormItem: FormItem;
     private anchorFormItem: FormItem;
     private paramsFormItem: FormItem;
     private protocolsDropdownButton: MenuButton;
@@ -289,10 +290,16 @@ export class LinkModalDialog
             return StringHelper.EMPTY_STRING;
         };
 
+        const contentSelectorBuilder = this.createContentSelectorBuilder(this.parentSitePath);
+        const contentSelector = this.createContentSelector(getContentId, contentSelectorBuilder);
+        const showAllContentToggler = (showAllContent: boolean) => {
+            contentSelectorBuilder.setAllowedContentPaths([showAllContent ? '' : this.parentSitePath]);
+            contentSelector.getLoader().initRequests(contentSelectorBuilder);
+        };
+
         const contentPanel = this.createFormPanel([
-            this.createSelectorFormItem('contentId', i18n('field.content'),
-                this.createSelector(getContentId, this.createContentSelectorBuilder()),
-                true),
+            this.createSelectorFormItem('contentId', i18n('field.content'), contentSelector, true),
+            this.createShowAllContentCheckboxFormItem('contentShowAll', showAllContentToggler),
             this.createMediaOptionRadio('contentMediaRadio'),
             this.createContentTargetCheckboxFormItem('contentTarget', this.isContentLink),
             this.createFragmentOption('contentFragment', i18n('dialog.link.fragment')),
@@ -423,6 +430,26 @@ export class LinkModalDialog
         }
 
         return this.contentTargetCheckBoxFormItem;
+    }
+
+    private createShowAllContentCheckboxFormItem(id: string, valueChangeHandler: (isChecked: boolean) => void): FormItem {
+        const checkbox: Checkbox = Checkbox.create()
+            .setLabelText(i18n('dialog.link.formitem.showallcontent'))
+            .setInputAlignment(InputAlignment.LEFT).build();
+
+        checkbox.onValueChanged(() => valueChangeHandler(checkbox.isChecked()));
+
+        const formItemBuilder = new ModalDialogFormItemBuilder(id).setInputEl(checkbox);
+
+        this.showAllContentCheckboxFormItem = this.createFormItem(formItemBuilder);
+
+        if (!this.parentSitePath) {
+            // No need to show the checkbox if we are outside a site,
+            // as we already allow selecting content from the entire project
+            this.showAllContentCheckboxFormItem.hide();
+        }
+
+        return this.showAllContentCheckboxFormItem;
     }
 
     private createUrlTargetCheckboxFormItem(id: string, isTabSelectedFn: Function, showOnCreate: boolean = false): FormItem {
@@ -840,7 +867,7 @@ export class LinkModalDialog
         };
     }
 
-    private createSelector(getValueFn: Function,
+    private createContentSelector(getValueFn: Function,
                            loaderBuilder: ContentSummaryOptionDataLoaderBuilder
     ): ContentComboBox<ContentTreeSelectorItem> {
         const selector = ContentComboBox.create()
@@ -854,11 +881,11 @@ export class LinkModalDialog
         return selector;
     }
 
-    private createContentSelectorBuilder(): ContentSummaryOptionDataLoaderBuilder {
+    private createContentSelectorBuilder(parentSitePath: string): ContentSummaryOptionDataLoaderBuilder {
         return ContentSummaryOptionDataLoader
             .create()
             .setProject(this.config.project)
-            .setAllowedContentPaths([this.parentSitePath || '']);
+            .setAllowedContentPaths([parentSitePath || '']);
     }
 
     private createSelectorFormItem(id: string, label: string, contentSelector: ContentComboBox<ContentTreeSelectorItem>,
@@ -874,9 +901,8 @@ export class LinkModalDialog
             return formItem;
         }
 
-        const callHandleSelectorValueChanged = () => {
+        const callHandleSelectorValueChanged = () =>
             this.handleSelectorValueChanged(contentSelector.getSelectedContent(), formItem);
-        };
 
         contentSelector.onValueLoaded(callHandleSelectorValueChanged);
         contentSelector.onValueChanged(callHandleSelectorValueChanged);
@@ -884,10 +910,13 @@ export class LinkModalDialog
         return formItem;
     }
 
-    private handleSelectorValueChanged(selectedContent: ContentSummary, formItem: FormItem): void {       
+    private handleSelectorValueChanged(selectedContent: ContentSummary, formItem: FormItem): void {
         if (!selectedContent) {
             formItem.setValidator(Validators.required);
             this.resetMediaRadioValue();
+            if (this.parentSitePath) {
+                this.showAllContentCheckboxFormItem.show();
+            }
             this.mediaOptionRadioFormItem.hide();
             this.contentTargetCheckBoxFormItem.hide();
             this.anchorFormItem.hide();
@@ -895,10 +924,12 @@ export class LinkModalDialog
             return;
         }
 
+        this.showAllContentCheckboxFormItem.hide();
+
         if (selectedContent.getType().isDescendantOfMedia()) {
             this.mediaOptionRadioFormItem.show();
             this.anchorFormItem.hide();
-            this.paramsFormItem.hide();            
+            this.paramsFormItem.hide();
             if (this.isMediaRadioValueOpenOrLink(this.getMediaRadioGroup().doGetValue())) {
                 this.contentTargetCheckBoxFormItem.show();
             }
@@ -938,7 +969,7 @@ export class LinkModalDialog
 
         mediaUploader.onFileUploaded((event: UploadedEvent<Content>) => {
             this.mediaOptionRadioFormItem.show();
-            
+
             if (this.isMediaRadioValueOpenOrLink(this.getMediaRadioGroup().doGetValue())) {
                 this.contentTargetCheckBoxFormItem.show();
             }
