@@ -867,6 +867,17 @@ export class LinkModalDialog
         };
     }
 
+    private filterContentByParentPath(contentItem: ContentSummary | ContentTreeSelectorItem): boolean {
+        if (!this.parentSitePath || (<Checkbox>this.showAllContentCheckboxFormItem.getInput()).isChecked()) {
+            return true;
+        }
+
+        const contentSummary = contentItem instanceof ContentSummary ? contentItem : contentItem.getContent();
+        const contentPath = contentSummary.getPath().toString();
+
+        return contentPath === this.parentSitePath || contentPath.startsWith(`${this.parentSitePath}/`);
+    }
+
     private createContentSelector(getValueFn: Function,
                            loaderBuilder: ContentSummaryOptionDataLoaderBuilder
     ): ContentComboBox<ContentTreeSelectorItem> {
@@ -885,6 +896,7 @@ export class LinkModalDialog
         return ContentSummaryOptionDataLoader
             .create()
             .setProject(this.config.project)
+            .setPostFilterFn((contentItem) => this.filterContentByParentPath(contentItem))
             .setAllowedContentPaths([parentSitePath || '']);
     }
 
