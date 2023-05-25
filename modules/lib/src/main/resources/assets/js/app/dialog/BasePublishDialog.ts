@@ -117,7 +117,7 @@ export abstract class BasePublishDialog
             text: i18n('dialog.publish.error.invalid'),
             icon: 'icon-state-invalid',
             actionButtons: [{
-                label: i18n('dialog.publish.exclude.invalid'),
+                label: i18n('dialog.publish.exclude'),
                 handler: () => {
                     this.stateBar.markChecking(true);
                     this.publishProcessor.excludeInvalid();
@@ -130,7 +130,7 @@ export abstract class BasePublishDialog
             text: i18n('dialog.publish.error.inProgress'),
             icon: 'icon-state-in-progress',
             actionButtons: [{
-                label: i18n('dialog.publish.exclude.inProgress'),
+                label: i18n('dialog.publish.exclude'),
                 handler: () => {
                     this.stateBar.markChecking(true);
                     this.publishProcessor.excludeInProgress();
