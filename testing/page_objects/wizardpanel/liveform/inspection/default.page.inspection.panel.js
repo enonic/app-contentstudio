@@ -47,7 +47,7 @@ class DefaultPageInspectionPanel extends PageInspectionPanel {
     }
 
     async clickOnApplyButton() {
-        let selector = "//div[contains(@id,'ContextWindow')]" + lib.ACTION_BUTTON + "/span[text()='Apply']";
+        let selector = "//div[contains(@id,'ContextWindow')]" + lib.actionButton('Apply');
         await this.clickOnElement(selector);
         return await this.pause(2000);
     }

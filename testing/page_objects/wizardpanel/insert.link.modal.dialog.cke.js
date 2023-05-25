@@ -5,8 +5,6 @@ const LoaderComboBox = require('../components/loader.combobox');
 
 const XPATH = {
     container: `//div[contains(@id,'LinkModalDialog')]`,
-    insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
-    cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     linkTextFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::label[text()='Text']]`,
     linkTooltipFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::label[text()='Tooltip']]`,
     urlPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and contains(@class,'panel url-panel')]",
@@ -77,7 +75,7 @@ class InsertLinkDialog extends Page {
     }
 
     get cancelButton() {
-        return XPATH.container + XPATH.cancelButton;
+        return XPATH.container + lib.dialogButton('Cancel');
     }
 
     get cancelButtonTop() {
@@ -85,7 +83,7 @@ class InsertLinkDialog extends Page {
     }
 
     get insertButton() {
-        return XPATH.container + XPATH.insertButton;
+        return XPATH.container + lib.dialogButton('Insert');
     }
 
     //types text in link text input
@@ -155,14 +153,12 @@ class InsertLinkDialog extends Page {
         return await this.pause(300);
     }
 
-    selectTargetInDownloadTab(targetDisplayName) {
+    async selectTargetInDownloadTab(targetDisplayName) {
         let loaderComboBox = new LoaderComboBox();
         let selector = XPATH.container + lib.tabBarItemByName('Download');
-        return this.clickOnElement(selector).then(() => {
-            return this.waitForElementDisplayed(loaderComboBox.optionsFilterInput, appConst.shortTimeout);
-        }).then(() => {
-            return loaderComboBox.typeTextAndSelectOption(targetDisplayName, XPATH.container);
-        })
+        await this.clickOnElement(selector);
+        await this.waitForElementDisplayed(loaderComboBox.optionsFilterInput, appConst.shortTimeout);
+        await loaderComboBox.typeTextAndSelectOption(targetDisplayName, XPATH.container);
     }
 
     async typeTextInEmailInput(email) {

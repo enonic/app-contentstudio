@@ -16,7 +16,7 @@ module.exports = Object.freeze({
         return `Item \"${name}\" is saved.`
     },
     languageCopiedNotification: parent => `Language successfully copied from \"${parent}\"`,
-    itemPublishedNotificationMessage: function (name) {
+    itemPublishedNotificationMessage: (name) => {
         return `Item \"${name}\" is published.`
     },
     issueClosedNotificationMessage: function (name) {
@@ -25,7 +25,7 @@ module.exports = Object.freeze({
     sortOrderTitle: function (by, order) {
         return `Sorted by \"${by}\" in ${order} order`
     },
-    permissionsAppliedNotificationMessage: function (name) {
+    permissionsAppliedNotificationMessage: (name) => {
         return `Permissions for \"${name}\" are applied.`
     },
     projectModifiedMessage: displayName => `Project \"${displayName}\" is modified.`,

@@ -118,13 +118,14 @@ class SiteForm extends Page {
         return await siteConfigDialog.pause(1000);
     }
 
-    isSiteConfiguratorViewInvalid(displayName) {
-        let selector = XPATH.selectedAppByDisplayName(displayName);
-        return this.getAttribute(selector, 'class').then(result => {
-            return result.includes("invalid");
-        }).catch(err => {
-            throw new Error('error when try to find selected application view: ' + err);
-        });
+    async isSiteConfiguratorViewInvalid(displayName) {
+        try {
+            let selector = XPATH.selectedAppByDisplayName(displayName);
+            let result = await this.getAttribute(selector, 'class');
+            return result.includes('invalid');
+        } catch (err) {
+            throw new Error('error, site configurator validation ' + err);
+        }
     }
 
     waitUntilSiteConfiguratorViewValid(displayName) {

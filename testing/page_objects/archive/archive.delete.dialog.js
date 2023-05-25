@@ -19,7 +19,7 @@ class ArchiveDeleteDialog extends Page {
     }
 
     get cancelButton() {
-        return XPATH.container + lib.CANCEL_BUTTON_DIALOG;
+        return XPATH.container + lib.dialogButton('Cancel');
     }
 
     get deleteNowButton() {
