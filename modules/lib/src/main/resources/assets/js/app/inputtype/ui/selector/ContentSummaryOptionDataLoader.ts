@@ -39,6 +39,8 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     private readonly smartTreeMode: boolean;
 
+    private readonly postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean = () => true;
+
     constructor(builder?: ContentSummaryOptionDataLoaderBuilder) {
         super();
 
@@ -55,6 +57,9 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
         if (builder) {
             this.initRequests(builder);
+            if (builder.postFilterFn) {
+                this.postFilterFn = builder.postFilterFn;
+            }
         }
     }
 
@@ -100,7 +105,8 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     private sendAndParseFlatRequest(silent: boolean = false, postLoad?: boolean): Q.Promise<DATA[]> {
         return this.flatRequest.sendAndParse().then((contents) => {
-            const result = contents.map(content => new ContentTreeSelectorItem(content));
+            const result =
+                contents.filter(this.postFilterFn).map(content => new ContentTreeSelectorItem(content));
 
             if (!silent) {
                 this.isTreeLoadMode = false;
@@ -152,6 +158,8 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         this.treeRequest.setSearchString(this.treeFilterValue);
 
         return this.loadItems().then((result: DATA[]) => {
+            result = result.filter(this.postFilterFn);
+
             this.notifyLoadedData([], postLoad, true);
 
             return this.createOptionData(result, this.treeRequest.getMetadata().getHits(),
@@ -254,38 +262,45 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     applicationKey: ApplicationKey;
 
-    public setContentTypeNames(contentTypeNames: string[]): ContentSummaryOptionDataLoaderBuilder {
+    postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean = () => true;
+
+    setContentTypeNames(contentTypeNames: string[]): ContentSummaryOptionDataLoaderBuilder {
         this.contentTypeNames = contentTypeNames;
         return this;
     }
 
-    public setAllowedContentPaths(allowedContentPaths: string[]): ContentSummaryOptionDataLoaderBuilder {
+    setAllowedContentPaths(allowedContentPaths: string[]): ContentSummaryOptionDataLoaderBuilder {
         this.allowedContentPaths = allowedContentPaths;
         return this;
     }
 
-    public setRelationshipType(relationshipType: string): ContentSummaryOptionDataLoaderBuilder {
+    setRelationshipType(relationshipType: string): ContentSummaryOptionDataLoaderBuilder {
         this.relationshipType = relationshipType;
         return this;
     }
 
-    public setContent(content: ContentSummary): ContentSummaryOptionDataLoaderBuilder {
+    setContent(content: ContentSummary): ContentSummaryOptionDataLoaderBuilder {
         this.content = content;
         return this;
     }
 
-    public setSmartTreeMode(smartTreeMode: boolean): ContentSummaryOptionDataLoaderBuilder {
+    setSmartTreeMode(smartTreeMode: boolean): ContentSummaryOptionDataLoaderBuilder {
         this.smartTreeMode = smartTreeMode;
         return this;
     }
 
-    public setProject(project: Project): ContentSummaryOptionDataLoaderBuilder {
+    setProject(project: Project): ContentSummaryOptionDataLoaderBuilder {
         this.project = project;
         return this;
     }
 
-    public setApplicationKey(key: ApplicationKey): ContentSummaryOptionDataLoaderBuilder {
+    setApplicationKey(key: ApplicationKey): ContentSummaryOptionDataLoaderBuilder {
         this.applicationKey = key;
+        return this;
+    }
+
+    setPostFilterFn(postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean): ContentSummaryOptionDataLoaderBuilder {
+        this.postFilterFn = postFilterFn;
         return this;
     }
 
