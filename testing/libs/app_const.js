@@ -16,7 +16,7 @@ module.exports = Object.freeze({
         return `Item \"${name}\" is saved.`
     },
     languageCopiedNotification: parent => `Language successfully copied from \"${parent}\"`,
-    itemPublishedNotificationMessage: function (name) {
+    itemPublishedNotificationMessage: (name) => {
         return `Item \"${name}\" is published.`
     },
     issueClosedNotificationMessage: function (name) {
@@ -25,7 +25,7 @@ module.exports = Object.freeze({
     sortOrderTitle: function (by, order) {
         return `Sorted by \"${by}\" in ${order} order`
     },
-    permissionsAppliedNotificationMessage: function (name) {
+    permissionsAppliedNotificationMessage: (name) => {
         return `Permissions for \"${name}\" are applied.`
     },
     projectModifiedMessage: displayName => `Project \"${displayName}\" is modified.`,
@@ -313,6 +313,7 @@ module.exports = Object.freeze({
         CUSTOM_SELECTOR_0_2: 'custom-selector0_2',
         CUSTOM_SELECTOR_1_1: 'custom-selector1_1',
         CONTENT_SELECTOR_2_8: 'content-selector2_8',
+        CONTENT_SELECTOR_1_2: 'content-selector1_2',
         EXPANDED_SINGLE_SELECTION_OPTION_SET: 'optionset-single-selection',
         OPTION_SET: 'optionset',
         OPTION_SET_0_2: 'optionset0_2',

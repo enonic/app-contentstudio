@@ -17,7 +17,7 @@ const XPATH = {
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     readyForPublishingText: "//span[contains(@class,'entry-text') and text()='Content is ready for publishing']",
     mainItemtDivByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`,
-    excludeInvalidItems: "//button[child::span[contains(.,'Exclude invalid items')]]",
+    excludeInvalidItems: "//button[child::span[contains(.,'Exclude')]]",
     errorEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'error-entry')]",
     inProgressErrorEntry: "//span[contains(@class,'entry-text') and text()='In progress']",
     contentSummaryByDisplayName: displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
