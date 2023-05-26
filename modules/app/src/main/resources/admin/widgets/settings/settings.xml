@@ -1,6 +1,6 @@
 <widget xmlns="urn:enonic:xp:model:1.0">
-  <display-name>Settings</display-name>
-  <description>Configure Projects, Layers</description>
+  <display-name i18n="admin.tool.settings.displayName">Settings</display-name>
+  <description i18n="admin.tool.settings.description">Configure Projects, Layers</description>
   <interfaces>
     <interface>contentstudio.menuitem</interface>
   </interfaces>

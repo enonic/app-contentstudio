@@ -9,20 +9,11 @@ import org.mockito.Mockito;
 
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
-import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.ContentPath;
-import com.enonic.xp.content.ContentService;
-import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
-import com.enonic.xp.schema.content.ContentTypeService;
-import com.enonic.xp.schema.content.ContentTypes;
-import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.schema.mixin.Mixins;
 import com.enonic.xp.schema.xdata.XData;
@@ -30,8 +21,6 @@ import com.enonic.xp.schema.xdata.XDataName;
 import com.enonic.xp.schema.xdata.XDataNames;
 import com.enonic.xp.schema.xdata.XDataService;
 import com.enonic.xp.schema.xdata.XDatas;
-import com.enonic.xp.site.Site;
-import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteDescriptor;
 import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMapping;
@@ -57,11 +46,7 @@ public class XDataResourceTest
 
     private LocaleService localeService;
 
-    private ContentService contentService;
-
     private SiteService siteService;
-
-    private ContentTypeService contentTypeService;
 
     @Override
     protected XDataResource getResourceInstance()
@@ -69,17 +54,13 @@ public class XDataResourceTest
         mixinService = Mockito.mock( MixinService.class );
         xDataService = Mockito.mock( XDataService.class );
         localeService = Mockito.mock( LocaleService.class );
-        contentService = Mockito.mock( ContentService.class );
         siteService = Mockito.mock( SiteService.class );
-        contentTypeService = Mockito.mock( ContentTypeService.class );
 
         final XDataResource resource = new XDataResource();
         resource.setMixinService( mixinService );
         resource.setXDataService( xDataService );
         resource.setLocaleService( localeService );
-        resource.setContentService( contentService );
         resource.setSiteService( siteService );
-        resource.setContentTypeService( contentTypeService );
 
         final AdminRestConfig config = Mockito.mock( AdminRestConfig.class );
         when( config.contentTypePatternMode() ).thenReturn( "MATCH" );
@@ -160,10 +141,6 @@ public class XDataResourceTest
         Mockito.when( xDataService.getByName( xdata3.getName() ) ).thenReturn( xdata3 );
 
         Mockito.when( xDataService.getByApplication( Mockito.any() ) ).thenReturn( XDatas.from( xdata2 ) );
-
-        Mockito.when( contentTypeService.getAll() )
-            .thenReturn( ContentTypes.from(
-                ContentType.create().superType( ContentTypeName.folder() ).name( contentTypeName.toString() ).build() ) );
 
         String result = request().path( "schema/xdata/getApplicationXDataForContentType" ).
             queryParam( "contentTypeName", contentTypeName.toString() ).
