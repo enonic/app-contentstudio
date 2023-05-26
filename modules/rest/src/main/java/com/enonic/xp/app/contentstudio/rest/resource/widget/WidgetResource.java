@@ -22,8 +22,10 @@ import com.enonic.xp.app.ApplicationDescriptor;
 import com.enonic.xp.app.ApplicationDescriptorService;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.widget.json.WidgetDescriptorJson;
 import com.enonic.xp.descriptor.Descriptors;
+import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.page.DescriptorKey;
@@ -45,6 +47,8 @@ public class WidgetResource
 
     private ApplicationDescriptorService applicationDescriptorService;
 
+    private LocaleService localeService;
+
     @POST
     @Path("list/byinterfaces")
     public List<WidgetDescriptorJson> getByInterfaces( final String[] widgetInterfaces )
@@ -55,7 +59,31 @@ public class WidgetResource
 
     private List<WidgetDescriptorJson> widgetDescriptorsToJsonList( final Descriptors<WidgetDescriptor> descriptors )
     {
-        return descriptors.stream().map( WidgetDescriptorJson::new ).collect( toList() );
+        return descriptors.stream().map( this::convertToJsonAndLocalize ).collect( toList() );
+    }
+
+    private WidgetDescriptorJson convertToJsonAndLocalize( final WidgetDescriptor widgetDescriptor )
+    {
+        final WidgetDescriptorJson json = new WidgetDescriptorJson( widgetDescriptor );
+
+        if ( !isNullOrEmpty( widgetDescriptor.getDisplayNameI18nKey() ) || !isNullOrEmpty( widgetDescriptor.getDescriptionI18nKey() ) )
+        {
+            final LocaleMessageResolver messageResolver = new LocaleMessageResolver( localeService, widgetDescriptor.getApplicationKey() );
+
+            if ( !isNullOrEmpty( widgetDescriptor.getDisplayNameI18nKey() ) )
+            {
+                json.displayName =
+                    messageResolver.localizeMessage( widgetDescriptor.getDisplayNameI18nKey(), widgetDescriptor.getDisplayName() );
+            }
+
+            if ( !isNullOrEmpty( widgetDescriptor.getDisplayNameI18nKey() ) )
+            {
+                json.description =
+                    messageResolver.localizeMessage( widgetDescriptor.getDescriptionI18nKey(), widgetDescriptor.getDescription() );
+            }
+        }
+
+        return json;
     }
 
     @GET
@@ -121,4 +149,11 @@ public class WidgetResource
     {
         this.applicationDescriptorService = applicationDescriptorService;
     }
+
+    @Reference
+    public void setLocaleService( final LocaleService localeService )
+    {
+        this.localeService = localeService;
+    }
+
 }

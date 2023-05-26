@@ -16,6 +16,7 @@ import com.enonic.xp.app.ApplicationDescriptorService;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.descriptor.Descriptors;
+import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.page.DescriptorKey;
 
@@ -31,15 +32,19 @@ public class WidgetResourceTest
 
     private ApplicationDescriptorService applicationDescriptorService;
 
+    private LocaleService localeService;
+
     @Override
     protected Object getResourceInstance()
     {
         this.widgetDescriptorService = Mockito.mock( WidgetDescriptorService.class );
         this.applicationDescriptorService = Mockito.mock( ApplicationDescriptorService.class );
+        this.localeService = Mockito.mock( LocaleService.class );
 
         final WidgetResource resource = new WidgetResource();
         resource.setWidgetDescriptorService( widgetDescriptorService );
         resource.setApplicationDescriptorService( applicationDescriptorService );
+        resource.setLocaleService( localeService );
 
         return resource;
     }
@@ -57,7 +62,9 @@ public class WidgetResourceTest
     {
         return WidgetDescriptor.create().
             displayName( "My widget" ).
+            displayNameI18nKey( "widget.displayName.key" ).
             description( "My widget description" ).
+            descriptionI18nKey( "widget.description.key" ).
             addInterface( "com.enonic.xp.my-interface" ).
             addInterface( "com.enonic.xp.my-interface-2" ).
             key( DescriptorKey.from( "myapp:my-widget" ) ).

@@ -3,7 +3,6 @@ package com.enonic.xp.app.contentstudio.rest.resource.schema.xdata;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
@@ -27,22 +26,13 @@ import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessag
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.MixinIconResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.MixinIconUrlResolver;
-import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.ContentService;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.jaxrs.JaxRsComponent;
-import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
-import com.enonic.xp.schema.content.ContentTypeService;
-import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.schema.xdata.XData;
 import com.enonic.xp.schema.xdata.XDataService;
-import com.enonic.xp.schema.xdata.XDatas;
 import com.enonic.xp.security.RoleKeys;
-import com.enonic.xp.site.Site;
-import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteDescriptor;
 import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMappings;
@@ -59,11 +49,7 @@ public final class XDataResource
 {
     private XDataService xDataService;
 
-    private ContentService contentService;
-
     private SiteService siteService;
-
-    private ContentTypeService contentTypeService;
 
     private LocaleService localeService;
 
@@ -146,24 +132,10 @@ public final class XDataResource
         this.localeService = localeService;
     }
 
-
-    @Reference
-    public void setContentService( final ContentService contentService )
-    {
-        this.contentService = contentService;
-    }
-
-
     @Reference
     public void setSiteService( final SiteService siteService )
     {
         this.siteService = siteService;
-    }
-
-    @Reference
-    public void setContentTypeService( final ContentTypeService contentTypeService )
-    {
-        this.contentTypeService = contentTypeService;
     }
 
     @Reference
