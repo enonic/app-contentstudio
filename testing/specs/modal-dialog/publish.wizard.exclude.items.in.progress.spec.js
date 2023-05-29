@@ -36,13 +36,13 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Select the parent folder:
+            // 1. Select the parent folder:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             // 2. Click on the 'Publish Tree' menu item
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentPublishDialog.waitForDialogOpened();
             // 3. Verify that number (2) is displayed for in-progress items
-            let actualResult = await contentPublishDialog.getInProgressEntryText();
+            let actualResult = await contentPublishDialog.getNumberOfInProgressItems();
             assert.equal(actualResult, '(2)', "(2) should be displayed in 'In progress' label");
             // 4. Click on 'Exclude items in progress'
             await contentPublishDialog.clickOnExcludeItemsInProgressButton();
@@ -50,7 +50,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             // 5. Verify that 'Exclude items in progress' button gets not visible
             await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
             // 6. Verify that number of item in progress is reduced:
-            actualResult = await contentPublishDialog.getInProgressEntryText();
+            actualResult = await contentPublishDialog.getNumberOfInProgressItems();
             assert.equal(actualResult, '(1)', "(1) should be displayed in 'In progress' label");
             let note = await contentPublishDialog.waitForExcludedNote();
             assert.equal(note, 'All dependencies are excluded and hidden.', 'Expected note gets visible');
@@ -70,7 +70,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Select the parent folder:
+            // 1. Select the parent folder:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             // 2. Click on the 'Publish Tree' menu item
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
@@ -80,7 +80,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             await studioUtils.saveScreenshot('exclude_items_in_progress_toggled');
             // 4. Verify that 'Exclude items in progress' button gets not visible
             await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
-            let actualResult = await contentPublishDialog.getInProgressEntryText();
+            let actualResult = await contentPublishDialog.getNumberOfInProgressItems();
             assert.equal(actualResult, '(1)', "(1) should be displayed in 'In progress' label");
             // 5. Verify that 'Publish now' button remains disabled
             await contentPublishDialog.waitForPublishNowButtonDisabled();

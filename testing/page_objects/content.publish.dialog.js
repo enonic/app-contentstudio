@@ -17,18 +17,15 @@ const XPATH = {
     changeLogInput: "//input[contains(@id,'AutosizeTextInput')]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     readyForPublishingText: "//span[contains(@class,'entry-text') and text()='Content is ready for publishing']",
-    mainItemtDivByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`,
-    excludeInvalidItems: "//button[child::span[contains(.,'Exclude')]]",
-    errorEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'error-entry')]",
-    inProgressErrorEntry: "//span[contains(@class,'entry-text') and text()='In progress']",
+    mainItemDivByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`,
+    inProgressStateEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-in-progress')]]",
+    invalidStateEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-invalid')]]",
+    inProgressSpan: "//span[contains(@class,'entry-text') and text()='In progress']",
     contentSummaryByDisplayName: displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     dependentItemContentStatus: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-
     contentStatus: displayName => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
-
     removeItemIconByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]//div[@class='icon remove']`,
-
     excludedItemsNote: "//span[@class='excluded-items-note']",
 };
 
@@ -83,15 +80,15 @@ class ContentPublishDialog extends Page {
     }
 
     get markAsReadyButton() {
-        return XPATH.container + XPATH.errorEntry + lib.actionButton('Mark as ready');
+        return XPATH.container + XPATH.inProgressStateEntryDiv + lib.actionButton('Mark as ready');
     }
 
     get excludeInvalidItemsButton() {
-        return XPATH.container + XPATH.errorEntry + XPATH.excludeInvalidItems;
+        return XPATH.container + XPATH.invalidStateEntryDiv + lib.PUBLISH_DIALOG.EXCLUDE_BTN;
     }
 
     get excludeItemsInProgressButton() {
-        return XPATH.container + XPATH.errorEntry + lib.PUBLISH_DIALOG.EXCLUDE_ITEMS_IN_PROGRESS_BTN;
+        return XPATH.container + XPATH.inProgressStateEntryDiv + lib.PUBLISH_DIALOG.EXCLUDE_BTN;
     }
 
     get allDependantsCheckbox() {
@@ -452,7 +449,7 @@ class ContentPublishDialog extends Page {
     }
 
     async isRemoveItemIconEnabled(name) {
-        let locator = XPATH.mainItemtDivByName(name);
+        let locator = XPATH.mainItemDivByName(name);
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         let attr = await this.getAttribute(locator, 'class');
         return attr.includes('removable');
@@ -512,7 +509,7 @@ class ContentPublishDialog extends Page {
     }
 
     async clickOnMainItemAndSwitchToWizard(displayName) {
-        let selector = XPATH.publishItemList + XPATH.mainItemtDivByName(displayName);
+        let selector = XPATH.publishItemList + XPATH.mainItemDivByName(displayName);
         await this.clickOnElement(selector);
         await this.pause(1000);
         return await this.getBrowser().switchWindow(displayName);
@@ -547,11 +544,12 @@ class ContentPublishDialog extends Page {
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 
-    async getInProgressEntryText() {
-        let locator = XPATH.container + XPATH.errorEntry + XPATH.inProgressErrorEntry;
+    // get number of items in the span: In progress (4)
+    async getNumberOfInProgressItems() {
+        let locator = XPATH.container + XPATH.inProgressSpan;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        let res = await this.getAttribute(locator, 'data-count');
-        return res;
+        let value = await this.getAttribute(locator, 'data-count');
+        return value;
     }
 
     async getResolvedEntryText() {

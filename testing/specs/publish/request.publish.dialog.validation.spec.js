@@ -1,7 +1,5 @@
 /**
  * Created on 15.01.2020.
- * verifies Publish Content dialog - Validation messages should be reset when the dialog is reopened #1199
- *          https://github.com/enonic/app-contentstudio/issues/1199
  */
 const chai = require('chai');
 const assert = chai.assert;
