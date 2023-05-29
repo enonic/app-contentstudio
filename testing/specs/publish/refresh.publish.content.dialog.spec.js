@@ -100,19 +100,19 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Select existing 'ready' folder and open Publish Dialog
+            // 1. Select existing 'ready' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
-            //2. Click on 'Add schedule' button:
+            // 2. Click on 'Add schedule' button:
             await contentPublishDialog.clickOnAddScheduleIcon();
-            //3. Verify that 'Schedule' button is disabled (online from is not filled)
+            // 3. Verify that 'Schedule' button is disabled (online from is not filled)
             await contentPublishDialog.waitForScheduleButtonDisabled();
-            //4. Click on 'Close Schedule Form'
+            // 4. Click on 'Close Schedule Form'
             await contentPublishDialog.clickOnCloseScheduleFormButton();
-            //5. Schedule form should not be visible:
+            // 5. Schedule form should not be visible:
             await contentPublishDialog.waitForScheduleFormNotDisplayed();
-            //6. Verify that 'Add Schedule' button gets visible  again:
+            // 6. Verify that 'Add Schedule' button gets visible  again:
             await contentPublishDialog.waitForAddScheduleIconDisplayed();
         });
 

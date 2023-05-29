@@ -14,6 +14,8 @@ const xpath = {
     invalidIcon: "//span[contains(@class,'icon-state-invalid')]",
     errorEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'error-entry')]",
     excludeInvalidItems: "//button[child::span[contains(.,'Exclude')]]",
+    inProgressEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-in-progress')]]",
+    invalidEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-invalid')]]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToRequest:
@@ -47,7 +49,7 @@ class CreateRequestPublishDialog extends Page {
     }
 
     get invalidIcon() {
-        return xpath.container + xpath.errorEntry + xpath.invalidIcon;
+        return xpath.container + xpath.invalidEntryDiv + xpath.invalidIcon;
     }
 
     get nextButton() {
@@ -67,15 +69,15 @@ class CreateRequestPublishDialog extends Page {
     }
 
     get markAsReadyButton() {
-        return xpath.container + xpath.errorEntry + lib.actionButton('Mark as ready');
+        return xpath.container + xpath.inProgressEntryDiv + lib.actionButton('Mark as ready');
     }
 
     get excludeItemsInProgressButton() {
-        return xpath.container + xpath.errorEntry + lib.PUBLISH_DIALOG.EXCLUDE_ITEMS_IN_PROGRESS_BTN;
+        return xpath.container + xpath.inProgressEntryDiv + lib.PUBLISH_DIALOG.EXCLUDE_BTN;
     }
 
     get excludeInvalidItemsButton() {
-        return xpath.container + xpath.errorEntry + xpath.excludeInvalidItems;
+        return xpath.container + xpath.invalidEntryDiv + xpath.excludeInvalidItems;
     }
 
     get createRequestButton() {

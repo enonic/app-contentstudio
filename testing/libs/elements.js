@@ -135,7 +135,7 @@ module.exports = Object.freeze({
     SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Settings']",
     MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
     PUBLISH_DIALOG: {
-        EXCLUDE_ITEMS_IN_PROGRESS_BTN: "//button[child::span[contains(.,'Exclude items in progress')]]",
+        EXCLUDE_BTN: "//button[child::span[contains(.,'Exclude')]]",
     },
     CKE: {
         insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
