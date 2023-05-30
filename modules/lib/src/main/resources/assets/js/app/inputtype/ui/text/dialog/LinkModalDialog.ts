@@ -980,6 +980,7 @@ export class LinkModalDialog
         });
 
         mediaUploader.onFileUploaded((event: UploadedEvent<Content>) => {
+            this.showAllContentCheckboxFormItem.hide();
             this.mediaOptionRadioFormItem.show();
 
             if (this.isMediaRadioValueOpenOrLink(this.getMediaRadioGroup().doGetValue())) {
