@@ -12,7 +12,7 @@ const appConst = require('../libs/app_const');
 
 describe('insert.image.dlg.style.selector.spec: style selector, select Original option', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -30,16 +30,16 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
         async () => {
             let insertImageDialog = new InsertImageDialog();
             let htmlAreaForm = new HtmlAreaForm();
-            //1. Open wizard with html-area:
+            // 1. Open wizard with html-area:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            //2. Open 'Insert Image' dialog:
+            // 2. Open 'Insert Image' dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
-            //3. Select the image:
+            // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
-            //4. Click on dropdown handle and expand the style-options:
+            // 4. Click on dropdown handle and expand the style-options:
             let actualOptions = await insertImageDialog.getStyleSelectorOptions();
-            studioUtils.saveScreenshot('image_digradlew cleanalog_style_options');
+            await studioUtils.saveScreenshot('image_digalog_style_options');
             assert.equal(actualOptions[0], "<None>", "First option should be '<None>' ");
             assert.equal(actualOptions[1], appConst.IMAGE_STYLE_ORIGINAL, "one available option should be present in options list");
         });
@@ -48,18 +48,18 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            //1. Open wizard with html-area:
+            // 1. Open wizard with html-area:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            //2. Open 'Insert Image' dialog:
+            // 2. Open 'Insert Image' dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
-            //3. Select the image:
+            // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
-            //4. Type the text in 'filter input' and click on the option
+            // 4. Type the text in 'filter input' and click on the option
             await insertImageDialog.doFilterStyleAndClickOnOption("Original");
-            //5. Verify that 'Custom Width' checkbox gets disabled:
+            // 5. Verify that 'Custom Width' checkbox gets disabled:
             await insertImageDialog.waitForCustomWidthCheckBoxDisabled();
-            //6. 'Custom Width' checkbox should be unchecked:
+            // 6. 'Custom Width' checkbox should be unchecked:
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
             assert.isFalse(isChecked, "'Custom Width' checkbox should be unchecked");
         });
@@ -67,7 +67,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -12,6 +12,7 @@ const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const SiteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
 const InsertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
+const InsertLinkDialogUrlPanel= require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 
 describe('site.configurator.htmlarea.spec: tests for site configurator with htmlArea input', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -31,6 +32,7 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             let insertLinkDialog = new InsertLinkDialog();
             let contentWizard = new ContentWizard();
             let siteConfiguratorDialog = new SiteConfiguratorDialog();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test site', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             // Add a site with 'page'-controller
@@ -44,10 +46,10 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             await studioUtils.saveScreenshot('site_configurator_html_1');
             await insertLinkDialog.waitForDialogLoaded();
             // 4.click on URL tab item:
-            await insertLinkDialog.clickOnBarItem("URL");
+            await insertLinkDialog.clickOnBarItem('URL');
             await insertLinkDialog.typeInLinkTextInput(LINK_TEXT);
             // 5. Fill in the URL input and insert the link:
-            await insertLinkDialog.typeUrl(TEST_URL);
+            await insertLinkDialogUrlPanel.typeUrl(TEST_URL);
             await insertLinkDialog.clickOnInsertButton();
             await studioUtils.saveScreenshot('site_config_link_inserted');
             // 6. Verify the text in htmlArea:

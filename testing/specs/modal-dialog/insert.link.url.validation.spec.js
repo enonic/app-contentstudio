@@ -8,10 +8,11 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const InsertLinkDialogUrlPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 
 describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
@@ -39,18 +40,19 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
     it("GIVEN URL tab is active  WHEN 'Types' menu button has been pressed THEN expected options should be shown",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            //1. Open new wizard for htmlArea content:
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
+            // 1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
+            // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            //3. Go to URL tab:
+            // 3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
-            //4. Click on 'Type' menu button:
-            await insertLinkDialog.clickOnUrlTypeButton();
-            await studioUtils.saveScreenshot("insert_url_opts");
-            //5. Verify that required types are present in the selector:
-            let result = await insertLinkDialog.getUrlTypeMenuOptions();
+            // 4. Click on 'Type' menu button, expand the menu:
+            await insertLinkDialogUrlPanel.clickOnUrlTypeButton();
+            await studioUtils.saveScreenshot('insert_url_opts');
+            // 5. Verify that required types are present in the selector:
+            let result = await insertLinkDialogUrlPanel.getUrlTypeMenuOptions();
             assert.isTrue(result.includes("Https"), "Https option should be present in the selector");
             assert.isTrue(result.includes("Http"), "Http option should be present in the selector");
             assert.isTrue(result.includes("Ftp"), "Ftp option should be present in the selector");
@@ -61,6 +63,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
     it("WHEN URL tab is open THEN 'Https' menu option should be selected by default",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             //1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
@@ -69,16 +72,17 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Verify that https type is selected by default:
-            let text = await insertLinkDialog.getTextInUrlInput();
+            let text = await insertLinkDialogUrlPanel.getTextInUrlInput();
             assert.equal(text, "https://", "Expected part of https url should be present by default");
-            await insertLinkDialog.clickOnUrlTypeButton();
-            let result = await insertLinkDialog.isUrlTypeOptionSelected("Https");
+            await insertLinkDialogUrlPanel.clickOnUrlTypeButton();
+            let result = await insertLinkDialogUrlPanel.isUrlTypeOptionSelected("Https");
             assert.isTrue(result, "Https option should be selected in the dropdown selector by default");
         });
 
     it("GIVEN URL tab is open WHEN 'Http' menu option has been selected THEN Http part of url should be present in the url input",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             //1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
@@ -87,19 +91,20 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Expand url type selector and click on 'Http' option
-            await insertLinkDialog.clickOnUrlTypeMenuOption("Http");
+            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption("Http");
             //5. Verify that 'Http' text appears in the input
-            let text = await insertLinkDialog.getTextInUrlInput();
+            let text = await insertLinkDialogUrlPanel.getTextInUrlInput();
             assert.equal(text, "http://", "'Http' part should be present in the input");
-            await insertLinkDialog.clickOnUrlTypeButton();
+            await insertLinkDialogUrlPanel.clickOnUrlTypeButton();
             //6. Https menu option should be selected in the dropdown selector:
-            let result = await insertLinkDialog.isUrlTypeOptionSelected("Http");
+            let result = await insertLinkDialogUrlPanel.isUrlTypeOptionSelected("Http");
             assert.isTrue(result, "Http option should be selected in the dropdown selector");
         });
 
     it("GIVEN URL tab is open WHEN 'Https' url has been inserted THEN expected text should be present in the HtmlArea",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             //1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
@@ -109,8 +114,8 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Fill in the URL input with a valid https url:
-            await insertLinkDialog.typeUrl(VALID_HTTPS_URL);
-            await insertLinkDialog.waitForValidationMessageForUrlInputNotDisplayed();
+            await insertLinkDialogUrlPanel.typeUrl(VALID_HTTPS_URL);
+            await insertLinkDialogUrlPanel.waitForValidationMessageForUrlInputNotDisplayed();
             await studioUtils.saveScreenshot("insert_valid_url_1");
             //5. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
@@ -123,6 +128,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
     it("GIVEN URL tab is open WHEN 'Https' url with parameters has been inserted THEN expected text should be present in the HtmlArea",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             //1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
@@ -132,9 +138,9 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Fill in the URL input with a valid https url:
-            await insertLinkDialog.typeUrl(HTTPS_URL_WITH_PARAMETERS);
+            await insertLinkDialogUrlPanel.typeUrl(HTTPS_URL_WITH_PARAMETERS);
             await studioUtils.saveScreenshot("insert_valid_url_2");
-            await insertLinkDialog.waitForValidationMessageForUrlInputNotDisplayed();
+            await insertLinkDialogUrlPanel.waitForValidationMessageForUrlInputNotDisplayed();
             //5. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.waitForDialogClosed();
@@ -146,6 +152,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
     it("GIVEN URL tab is open WHEN 'Https' url (ends with slash) has been inserted THEN expected text should be present in the HtmlArea",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             //1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
@@ -155,9 +162,9 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Fill in the URL input with a valid https url:
-            await insertLinkDialog.typeUrl(HTTP_URL_ENDS_WITH_SLASH);
+            await insertLinkDialogUrlPanel.typeUrl(HTTP_URL_ENDS_WITH_SLASH);
             await studioUtils.saveScreenshot("insert_valid_url_3");
-            await insertLinkDialog.waitForValidationMessageForUrlInputNotDisplayed();
+            await insertLinkDialogUrlPanel.waitForValidationMessageForUrlInputNotDisplayed();
             //5. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.waitForDialogClosed();
@@ -169,6 +176,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
     it("GIVEN Insert Link dialog, URL tab is open WHEN invalid url (with spaces) has been inserted THEN expected validation recording gets visible",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             //1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
@@ -178,37 +186,39 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Fill in the URL input with the invalid(spaces) https url:
-            await insertLinkDialog.typeUrl(INVALID_HTTPS_URL_WITH_SPACES);
+            await insertLinkDialogUrlPanel.typeUrl(INVALID_HTTPS_URL_WITH_SPACES);
             //5. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
-            await studioUtils.saveScreenshot("insert_invalid_url_1");
-            let message = await insertLinkDialog.getUrlInputValidationMessage();
+            await studioUtils.saveScreenshot('insert_invalid_url_1');
+            let message = await insertLinkDialogUrlPanel.getUrlInputValidationMessage();
             assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, "Invalid value entered - message gets visible");
         });
 
     it("GIVEN Insert Link dialog, URL tab is open WHEN invalid url (with special symbols) has been inserted THEN expected validation recording gets visible",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             //1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInLinkTextInput("google url");
+            await insertLinkDialog.typeInLinkTextInput('google url');
             //3. Go to URL tab:
-            await insertLinkDialog.clickOnBarItem("URL");
+            await insertLinkDialog.clickOnBarItem('URL');
             //4. Fill in the URL input with the invalid(special symbols $) https url:
-            await insertLinkDialog.typeUrl(INVALID_HTTPS_URL_WITH_SYMBOLS);
+            await insertLinkDialogUrlPanel.typeUrl(INVALID_HTTPS_URL_WITH_SYMBOLS);
             //5. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
-            await studioUtils.saveScreenshot("insert_invalid_url_2");
-            let message = await insertLinkDialog.getUrlInputValidationMessage();
+            await studioUtils.saveScreenshot('insert_invalid_url_2');
+            let message = await insertLinkDialogUrlPanel.getUrlInputValidationMessage();
             assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, "Invalid value entered - message gets visible");
         });
 
     it("GIVEN Insert Link dialog, URL tab is open WHEN valid ftp url has been inserted THEN expected text should be present in Html Area",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             //1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
@@ -218,13 +228,13 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             //3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem("URL");
             //4. Select 'Ftp' option in the dropdown selector:
-            await insertLinkDialog.clickOnUrlTypeMenuOption("Ftp");
+            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption("Ftp");
             //5. Fill in the URL input with the invalid(special symbols) https url:
-            await insertLinkDialog.typeUrl(FTP_URL);
+            await insertLinkDialogUrlPanel.typeUrl(FTP_URL);
             //6. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             await studioUtils.saveScreenshot("insert_ftp_url_1");
-            await insertLinkDialog.waitForValidationMessageForUrlInputNotDisplayed();
+            await insertLinkDialogUrlPanel.waitForValidationMessageForUrlInputNotDisplayed();
             await insertLinkDialog.waitForDialogClosed();
             //7. Get and verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
@@ -235,22 +245,23 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
     it("GIVEN URL tab is open WHEN valid ftp url with IP address has been inserted THEN expected text should be present in htmlArea",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             //1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
             //2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInLinkTextInput("ftp url");
+            await insertLinkDialog.typeInLinkTextInput('ftp url');
             //3. Go to URL tab:
-            await insertLinkDialog.clickOnBarItem("URL");
+            await insertLinkDialog.clickOnBarItem('URL');
             //4. Select 'Ftp' option in the dropdown selector:
-            await insertLinkDialog.clickOnUrlTypeMenuOption("Ftp");
+            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption('Ftp');
             //5. Fill in the URL input with the invalid(special symbols) https url:
-            await insertLinkDialog.typeUrl(FTP_URL_WITH_PASSWORD);
+            await insertLinkDialogUrlPanel.typeUrl(FTP_URL_WITH_PASSWORD);
             //6. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
-            await studioUtils.saveScreenshot("insert_ftp_url_2");
-            await insertLinkDialog.waitForValidationMessageForUrlInputNotDisplayed();
+            await studioUtils.saveScreenshot('insert_ftp_url_2');
+            await insertLinkDialogUrlPanel.waitForValidationMessageForUrlInputNotDisplayed();
             await insertLinkDialog.waitForDialogClosed();
             //7. Get and verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();

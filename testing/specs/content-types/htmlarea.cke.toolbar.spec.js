@@ -13,10 +13,11 @@ const InsertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor
 const InsertSpecialDialog = require('../../page_objects/wizardpanel/insert.special.character.dialog.cke');
 const InsertMacroDialog = require('../../page_objects/wizardpanel/macro/insert.macro.dialog.cke');
 const appConst = require('../../libs/app_const');
+const InsertLinkDialogUrlPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 
 describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
@@ -113,19 +114,21 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await contentWizard.pause(1000);
-            //Open Insert Link dialog:
+            // 1. Open Insert Link dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            //Go to URL tab:
-            await insertLinkDialog.clickOnBarItem("URL");
+            // 2. Go to URL tab:
+            await insertLinkDialog.clickOnBarItem('URL');
             await insertLinkDialog.typeInLinkTextInput(NORWEGIAN_TEXT);
-            //type the URL:
-            await insertLinkDialog.typeUrl('http://google.com');
+            // 3. insert the URL:
+            await insertLinkDialogUrlPanel.typeUrl('http://google.com');
             await insertLinkDialog.clickOnInsertButton();
-            //Save the content:
+            await insertLinkDialog.waitForDialogClosed();
+            // 4. Save the content:
             await contentWizard.waitAndClickOnSave();
-            //get text in Html-area:
+            // 5. get text in Html-area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
             await studioUtils.saveScreenshot('htmlarea_0_1_url_link');
             assert.equal(result[0], EXPECTED_URL, 'correct data should be in CKE');
@@ -179,7 +182,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
