@@ -11,7 +11,6 @@ const XPATH = {
     uploaderButton: "//a[@class='dropzone']",
     imageContentComboBox: "//div[contains(@id,'ImageContentComboBox')]",
     flatOptionView: "//div[contains(@id,'ImageSelectorViewer')]",
-    modeTogglerButton: `//button[contains(@id,'ModeTogglerButton')]`,
     selectedOption: "//div[contains(@id,'ImageSelectorSelectedOptionView')]",
     selectedOptions: "//div[contains(@id,'ImageSelectorSelectedOptionsView')]",
     editButton: "//div[contains(@id,'SelectionToolbar')]//button[child::span[contains(.,'Edit')]]",
@@ -32,7 +31,7 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     get modeTogglerButton() {
-        return XPATH.imageContentComboBox + XPATH.modeTogglerButton;
+        return XPATH.imageContentComboBox + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
     }
 
     get optionsFilterInput() {

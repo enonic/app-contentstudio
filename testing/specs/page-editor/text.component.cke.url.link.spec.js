@@ -1,7 +1,5 @@
 /**
- * Created on 10.05.2018.
- * Verifies:
- * https://github.com/enonic/lib-admin-ui/issues/485   impossible to insert a table into Text Editor(CKE)
+ * Created on 10.05.2018
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -15,10 +13,11 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const InsertLinkDialogUrlPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 
 describe('Text Component with CKE - insert link and table specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -60,25 +59,30 @@ describe('Text Component with CKE - insert link and table specification', functi
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             let insertLinkDialog = new InsertLinkDialog();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.clickOnShowComponentViewToggler();
-            //1. Insert a text component and type the not valid URL:
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            // 1. Insert a text component and type an invalid URL:
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await pageComponentView.clickOnCloseButton();
-            //Close the details panel
+            // Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
+            // 2. Open Insert link modal dialog
             await textComponentCke.clickOnInsertLinkButton();
-            await insertLinkDialog.clickOnBarItem("URL")
-            await insertLinkDialog.typeInLinkTextInput("url_link");
-            await insertLinkDialog.typeUrl(INVALID_URL_SPEC);
-            //2. Click on 'Insert" in the modal dialog:
+            // go to url-tab
+            await insertLinkDialog.clickOnBarItem('URL')
+            await insertLinkDialog.typeInLinkTextInput('url_link');
+            // 3. Insert invalid URL:
+            await insertLinkDialogUrlPanel.typeUrl(INVALID_URL_SPEC);
+            // 4. Click on 'Insert" in the modal dialog:
             await insertLinkDialog.clickOnInsertButton();
-            //Validation message gets visible:
-            let result = await insertLinkDialog.waitForValidationMessage();
-            studioUtils.saveScreenshot('not_valid_url_typed');
-            assert.isTrue(result, 'Validation message should be displayed in the modal dialog ');
+            await studioUtils.saveScreenshot('not_valid_url');
+            // 5. Verify that Validation message gets visible:
+            await insertLinkDialogUrlPanel.waitForValidationMessage();
+            let message = await insertLinkDialogUrlPanel.getValidationMessage();
+            assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, "Invalid value entered - should be visible" );
         });
 
     it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'url-link' has been inserted THEN expected URL should appear in CKE`,
@@ -102,7 +106,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await studioUtils.saveScreenshot('url_link_inserted');
             //3. Get and check the text in CKE:
             let result = await textComponentCke.getTextFromEditor();
-            assert.isTrue(result.includes( EXPECTED_URL), 'expected URL should appear in CKE');
+            assert.isTrue(result.includes(EXPECTED_URL), 'expected URL should appear in CKE');
             await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -139,9 +143,9 @@ describe('Text Component with CKE - insert link and table specification', functi
             await studioUtils.saveScreenshot('enonic_not_loaded_in_preview_panel');
             //The Link gets not visible:
             let result = await contentItemPreviewPanel.waitForElementNotDisplayedInFrame("a=test");
-            assert.isTrue(result, "The link should not be visible");
+            assert.isTrue(result, 'The link should not be visible');
             await contentItemPreviewPanel.pause(2000);
-            studioUtils.saveScreenshot("link_clicked_in_preview_panel");
+            await studioUtils.saveScreenshot("link_clicked_in_preview_panel");
             //Web page should not be loaded as well, because disallowed loading of the resource in an iframe outside of their domain:
             result = await contentItemPreviewPanel.waitForElementNotDisplayedInFrame("//input[name='q']");
             assert.isTrue(result, "Web page should not be loaded");
@@ -159,7 +163,7 @@ describe('Text Component with CKE - insert link and table specification', functi
         })
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

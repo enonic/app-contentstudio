@@ -15,13 +15,14 @@ const appConst = require('../../libs/app_const');
 
 describe('Text Component with CKE - insert content-link  specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = 'main region';
     const EXPECTED_SRC = '<p><a href="content://';
+    const LINK_TITLE = 'test';
 
     it(`Precondition: new site should be added`,
         async () => {
@@ -39,18 +40,18 @@ describe('Text Component with CKE - insert content-link  specification', functio
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.clickOnShowComponentViewToggler();
             //2. Insert text-component:
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             //Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
             //3. Open Insert Link dialog
             await textComponentCke.clickOnInsertLinkButton();
             //4. Insert content-link:
-            await studioUtils.insertContentLinkInCke("test", SITE.displayName);
+            await studioUtils.insertContentLinkInCke(LINK_TITLE, SITE.displayName);
             await textComponentCke.switchToLiveEditFrame();
             //5. Verify the text in CKE html area:
-            studioUtils.saveScreenshot('content_link_inserted');
+            await studioUtils.saveScreenshot('content_link_inserted');
             let actualText = await textComponentCke.getTextFromEditor();
             assert.include(actualText, EXPECTED_SRC, 'expected data should be present in CKE');
             await textComponentCke.switchToParentFrame();
@@ -82,7 +83,7 @@ describe('Text Component with CKE - insert content-link  specification', functio
         })
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

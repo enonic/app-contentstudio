@@ -40,6 +40,8 @@ const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/p
 const ScheduleWidgetItem = require('../page_objects/browsepanel/detailspanel/schedule.widget.itemview');
 const EditSettingDialog = require('../page_objects/details_panel/edit.settings.dialog');
 const EditScheduleDialog = require('../page_objects/details_panel/edit.schedule.dialog');
+const InsertLinkDialogContentPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
+const InsertLinkDialogUrlPanel= require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 
 module.exports = {
 
@@ -112,19 +114,12 @@ module.exports = {
     },
     async insertUrlLinkInCke(text, url) {
         let insertLinkDialog = new InsertLinkDialog();
-        await insertLinkDialog.clickOnBarItem("URL");
+        let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
+        await insertLinkDialog.clickOnBarItem('URL');
         await insertLinkDialog.typeInLinkTextInput(text);
-        await insertLinkDialog.typeUrl(url);
+        await insertLinkDialogUrlPanel.typeUrl(url);
         await insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
         return await this.getBrowser().pause(500);
-    },
-    async insertDownloadLinkInCke(text, contentDisplayName) {
-        let insertLinkDialog = new InsertLinkDialog();
-        await insertLinkDialog.typeInLinkTextInput(text);
-        await insertLinkDialog.selectTargetInDownloadTab(contentDisplayName);
-        await this.saveScreenshot('download_link_dialog');
-        await insertLinkDialog.clickOnInsertButton();
-        return await insertLinkDialog.pause(700);
     },
     async insertEmailLinkInCke(text, email) {
         let insertLinkDialog = new InsertLinkDialog();
@@ -138,8 +133,9 @@ module.exports = {
 
     async insertContentLinkInCke(text, contentDisplayName) {
         let insertLinkDialog = new InsertLinkDialog();
+        let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
         await insertLinkDialog.typeInLinkTextInput(text);
-        await insertLinkDialog.selectTargetInContentTab(contentDisplayName);
+        await insertLinkDialogContentPanel.selectTargetInContentSelector(contentDisplayName);
         this.saveScreenshot('content_link_dialog');
         await insertLinkDialog.clickOnInsertButton();
         return await insertLinkDialog.pause(700);

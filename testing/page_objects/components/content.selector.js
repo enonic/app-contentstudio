@@ -6,7 +6,6 @@ const appConst = require('../../libs/app_const');
 const LoaderComboBox = require('./loader.combobox');
 const XPATH = {
     container: `//div[contains(@id,'ContentSelector')]`,
-    modeTogglerButton: `//button[contains(@id,'ModeTogglerButton')]`,
     flatOptionView: `//div[contains(@id,'ImageSelectorViewer')]//img`,
 };
 
@@ -17,7 +16,7 @@ class ContentSelector extends LoaderComboBox {
     }
 
     get modeTogglerButton() {
-        return XPATH.container + XPATH.modeTogglerButton;
+        return XPATH.container + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
     }
 
     get optionsFilterInput() {

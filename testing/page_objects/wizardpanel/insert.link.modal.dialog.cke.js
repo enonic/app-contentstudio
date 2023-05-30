@@ -9,7 +9,6 @@ const XPATH = {
     linkTooltipFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::label[text()='Tooltip']]`,
     urlPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and contains(@class,'panel url-panel')]",
     emailPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and @class='panel']",
-    radioButtonByLabel: label => `//span[contains(@id,'RadioButton') and child::label[contains(.,'${label}')]]`,
     urlTypeButton: "//div[contains(@id,'MenuButton')]//button[contains(@id,'ActionButton') and child::span[text()='Type']]",
     menuItemByName: optionName => `//div[contains(@id,'MenuButton')]//li[text()='${optionName}']`,
     anchorFormItem: "//div[contains(@class,'anchor-form-item')]",
@@ -17,30 +16,6 @@ const XPATH = {
 };
 
 class InsertLinkDialog extends Page {
-
-    get addAnchorButton() {
-        return XPATH.container + XPATH.anchorFormItem + lib.BUTTON_WITH_SPAN_ADD;
-    }
-
-    get anchorTextInput() {
-        return XPATH.container + XPATH.anchorFormItem + lib.TEXT_INPUT;
-    }
-
-    get parameterNameInput() {
-        return XPATH.container + XPATH.parametersFormItem + "//input[contains(@id,'TextInput') and @placeholder='Name']";
-    }
-
-    get parameterValueInput() {
-        return XPATH.container + XPATH.parametersFormItem + "//input[contains(@id,'TextInput') and @placeholder='Value']";
-    }
-
-    get addParametersButton() {
-        return XPATH.container + XPATH.parametersFormItem + lib.BUTTON_WITH_SPAN_ADD;
-    }
-
-    get urlTypeButton() {
-        return XPATH.container + XPATH.urlTypeButton;
-    }
 
     get linkTooltipInput() {
         return XPATH.container + XPATH.linkTooltipFieldset + lib.TEXT_INPUT;
@@ -52,14 +27,6 @@ class InsertLinkDialog extends Page {
 
     get linkTextInputValidationRecording() {
         return XPATH.container + XPATH.linkTextFieldset + lib.VALIDATION_RECORDING_VIEWER;
-    }
-
-    get urlInput() {
-        return XPATH.container + XPATH.urlPanel + lib.TEXT_INPUT;
-    }
-
-    get urlInputValidationRecording() {
-        return XPATH.container + XPATH.urlPanel + lib.VALIDATION_RECORDING_VIEWER;
     }
 
     get emailInputValidationRecording() {
@@ -86,7 +53,7 @@ class InsertLinkDialog extends Page {
         return XPATH.container + lib.dialogButton('Insert');
     }
 
-    //types text in link text input
+    // types text in link text input
     typeInLinkTextInput(text) {
         return this.typeTextInInput(this.linkTextInput, text).catch(err => {
             this.saveScreenshot('err_type_link_text');
@@ -94,7 +61,7 @@ class InsertLinkDialog extends Page {
         });
     }
 
-    //types text in link tooltip input
+    // types text in link tooltip input
     async typeInLinkTooltip(text) {
         try {
             await this.waitForElementDisplayed(this.linkTooltipInput, appConst.mediumTimeout);
@@ -109,58 +76,6 @@ class InsertLinkDialog extends Page {
         return this.getTextInInput(this.linkTooltipInput);
     }
 
-    //types text in URL input(URL tab)
-    typeUrl(url) {
-        return this.typeTextInInput(this.urlInput, url).catch(err => {
-            this.saveScreenshot('err_type_link_url');
-            throw new Error('error when type URL in Insert Link modal dialog ' + err);
-        });
-    }
-
-    async getTextInUrlInput() {
-        try {
-            return await this.getTextInInput(this.urlInput);
-        } catch (err) {
-            await this.saveScreenshot('err_url_input');
-            throw new Error('URL input, Insert Link modal dialog ' + err);
-        }
-    }
-
-    async clickOnUrlTypeButton() {
-        await this.waitForElementDisplayed(this.urlTypeButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.urlTypeButton);
-        return await this.pause(200);
-    }
-
-    async getUrlTypeMenuOptions() {
-        let locator = XPATH.container + "//div[contains(@id,'MenuButton')]//li";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getTextInDisplayedElements(locator);
-    }
-
-    async isUrlTypeOptionSelected(option) {
-        let locator = XPATH.container + XPATH.menuItemByName(option);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        let attr = await this.getAttribute(locator, "class");
-        return attr.includes("selected");
-    }
-
-    async clickOnUrlTypeMenuOption(option) {
-        let optionLocator = XPATH.container + XPATH.menuItemByName(option);
-        await this.clickOnUrlTypeButton();
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        await this.clickOnElement(optionLocator);
-        return await this.pause(300);
-    }
-
-    async selectTargetInDownloadTab(targetDisplayName) {
-        let loaderComboBox = new LoaderComboBox();
-        let selector = XPATH.container + lib.tabBarItemByName('Download');
-        await this.clickOnElement(selector);
-        await this.waitForElementDisplayed(loaderComboBox.optionsFilterInput, appConst.shortTimeout);
-        await loaderComboBox.typeTextAndSelectOption(targetDisplayName, XPATH.container);
-    }
-
     async typeTextInEmailInput(email) {
         try {
             await this.waitForElementDisplayed(XPATH.emailPanel, appConst.shortTimeout);
@@ -170,15 +85,6 @@ class InsertLinkDialog extends Page {
             await this.saveScreenshot(appConst.generateRandomName('err_email'));
             throw new Error('error when type in email input, Insert Link modal dialog ' + err);
         }
-    }
-
-    async selectTargetInContentTab(targetDisplayName) {
-        let loaderComboBox = new LoaderComboBox();
-        let selector = "//div[contains(@id,'ContentComboBox')]" + loaderComboBox.optionsFilterInput;
-        //opens Content tab
-        await this.clickOnBarItem('Content');
-        await this.pause(300);
-        return await loaderComboBox.typeTextAndSelectOption(targetDisplayName, "//div[contains(@id,'ContentComboBox')]");
     }
 
     async clickOnCancelButton() {
@@ -195,12 +101,6 @@ class InsertLinkDialog extends Page {
     async clickOnInsertButtonAndWaitForClosed() {
         await this.clickOnInsertButton();
         return await this.waitForDialogClosed();
-    }
-
-    waitForValidationMessage() {
-        return this.waitForElementDisplayed(XPATH.container + lib.VALIDATION_RECORDING_VIEWER, appConst.shortTimeout).catch(err => {
-            return false;
-        });
     }
 
     isDialogOpened() {
@@ -239,11 +139,6 @@ class InsertLinkDialog extends Page {
         });
     }
 
-    getSelectedOptionDisplayName() {
-        let selector = XPATH.container + lib.CONTENT_SELECTED_OPTION_VIEW + lib.H6_DISPLAY_NAME;
-        return this.getText(selector);
-    }
-
     waitForValidationMessageForTextInputDisplayed() {
         return this.waitForElementDisplayed(this.linkTextInputValidationRecording, appConst.mediumTimeout);
     }
@@ -253,122 +148,14 @@ class InsertLinkDialog extends Page {
         return await this.getText(this.linkTextInputValidationRecording);
     }
 
-    async waitForValidationMessageForUrlInputDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.urlInputValidationRecording, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_validation"));
-            throw new Error("Validation message for URL input is not displayed " + err);
-        }
-    }
-
-    async waitForValidationMessageForUrlInputNotDisplayed() {
-        try {
-            return await this.waitForElementNotDisplayed(this.urlInputValidationRecording, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_close_insert_link"));
-            throw new Error("Insert link dialog should be closed " + err);
-        }
-    }
-
     waitForValidationMessageForEmailInputDisplayed() {
         return this.waitForElementDisplayed(this.emailInputValidationRecording, appConst.mediumTimeout);
     }
 
-    async getUrlInputValidationMessage() {
-        await this.waitForValidationMessageForUrlInputDisplayed();
-        return await this.getText(this.urlInputValidationRecording);
-    }
 
     async getEmailInputValidationMessage() {
         await this.waitForValidationMessageForEmailInputDisplayed();
         return await this.getText(this.emailInputValidationRecording);
-    }
-
-    //Click on a radio in Media options:
-    async clickOnRadioButton(label) {
-        let locator = XPATH.container + XPATH.radioButtonByLabel(label)
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator + "//input");
-    }
-
-    async waitForAddAnchorButtonDisplayed() {
-        try {
-            return this.waitForElementDisplayed(this.addAnchorButton, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_anchor_btn"));
-            throw new Error("Add Anchor button should be displayed! " + err);
-        }
-    }
-
-    async waitForAddAnchorButtonNotDisplayed() {
-        try {
-            return this.waitForElementNotDisplayed(this.addAnchorButton, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_anchor_btn"));
-            throw new Error("Add Anchor button should not be displayed! " + err);
-        }
-    }
-
-    async waitForAddParametersButtonDisplayed() {
-        try {
-            return this.waitForElementDisplayed(this.addParametersButton, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_param_btn"));
-            throw new Error("Add parameters button should be displayed! " + err);
-        }
-    }
-
-    async clickOnAddAnchorButton() {
-        await this.waitForAddAnchorButtonDisplayed();
-        return await this.clickOnElement(this.addAnchorButton);
-    }
-
-    async clickOnAddParametersButton() {
-        await this.waitForAddParametersButtonDisplayed();
-        return await this.clickOnElement(this.addParametersButton);
-    }
-
-    async getTextInAnchorInput() {
-        await this.waitForElementDisplayed(this.anchorTextInput, appConst.mediumTimeout);
-        return await this.getTextInInput(this.anchorTextInput);
-    }
-
-    async typeTextInAnchorInput(text) {
-        await this.waitForElementDisplayed(this.anchorTextInput, appConst.mediumTimeout);
-        return await this.typeTextInInput(this.anchorTextInput, text);
-    }
-
-    async typeInParameterNameInput(value, index) {
-        index = typeof index !== 'undefined' ? index : 0;
-        let inputElements = await this.getDisplayedElements(this.parameterNameInput);
-        await inputElements[index].setValue(value);
-        return await this.pause(300);
-    }
-
-    async getTextInParameterNameInput(index) {
-        index = typeof index !== 'undefined' ? index : 0;
-        let inputElements = await this.getDisplayedElements(this.parameterNameInput);
-        return await inputElements[index].getValue();
-    }
-
-    async typeInParameterValueInput(value, index) {
-        index = typeof index !== 'undefined' ? index : 0;
-        let inputElements = await this.getDisplayedElements(this.parameterValueInput);
-        await inputElements[index].setValue(value);
-        return await this.pause(300);
-    }
-
-    async getParametersFormValidationMessage() {
-        let locator = XPATH.container + XPATH.parametersFormItem + lib.VALIDATION_RECORDING_VIEWER;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
-    }
-
-    async getAnchorFormValidationMessage() {
-        let locator = XPATH.container + XPATH.anchorFormItem + lib.VALIDATION_RECORDING_VIEWER;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
     }
 }
 

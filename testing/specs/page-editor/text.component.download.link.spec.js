@@ -16,6 +16,7 @@ const MoveContentDialog = require('../../page_objects/browsepanel/move.content.d
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const InsertLinkDialogContentPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
 
 describe('Text Component with CKE - insert download-link specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -54,6 +55,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
             let insertLinkDialog = new InsertLinkDialog();
+            let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             //1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.clickOnShowComponentViewToggler();
@@ -67,11 +69,12 @@ describe('Text Component with CKE - insert download-link specification', functio
             await textComponentCke.clickOnInsertLinkButton();
             //4. Type a link-name and select a target:
             //await studioUtils.insertDownloadLinkInCke("test", TEST_CONTENT_DISPLAY_NAME);
-            await insertLinkDialog.typeInLinkTextInput("test");
+            await insertLinkDialog.typeInLinkTextInput('test');
+            await insertLinkDialog.clickOnBarItem('Content');
             //Select a media content in the dropdown selector - select the 'server.sh'
-            await insertLinkDialog.selectTargetInContentTab(TEST_CONTENT_DISPLAY_NAME);
+            await insertLinkDialogContentPanel.selectTargetInContentSelector(TEST_CONTENT_DISPLAY_NAME);
             //5. Click on 'Download file' radio:
-            await insertLinkDialog.clickOnRadioButton(appConst.INSERT_LINK_DIALOG_TABS.DOWNLOAD_FILE);
+            await insertLinkDialogContentPanel.clickOnRadioButton(appConst.INSERT_LINK_DIALOG_TABS.DOWNLOAD_FILE);
             await studioUtils.saveScreenshot('download_link_dialog');
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.pause(700);

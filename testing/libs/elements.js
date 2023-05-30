@@ -36,6 +36,9 @@ module.exports = Object.freeze({
     OCCURRENCE_VIEW: "//div[contains(@id,'InputOccurrenceView')]",
     ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton') and @title='Add new']",
     EDIT_ICON: "//a[@class='edit']",
+    COMBOBOX:{
+        MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
+    },
     INPUTS:{
         TEXT_INPUT: "//input[@type='text']",
         CHECKBOX_INPUT: "//input[@type='checkbox']",

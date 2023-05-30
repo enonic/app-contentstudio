@@ -7,7 +7,6 @@ const appConst = require('../../libs/app_const');
 
 const XPATH = {
     container: `//div[contains(@id,'LoaderComboBox')]`,
-    modeTogglerButton: `//button[contains(@id,'ModeTogglerButton')]`,
 };
 
 class LoaderComboBox extends Page {
