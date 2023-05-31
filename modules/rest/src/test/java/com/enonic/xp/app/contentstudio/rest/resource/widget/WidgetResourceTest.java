@@ -32,19 +32,17 @@ public class WidgetResourceTest
 
     private ApplicationDescriptorService applicationDescriptorService;
 
-    private LocaleService localeService;
-
     @Override
     protected Object getResourceInstance()
     {
         this.widgetDescriptorService = Mockito.mock( WidgetDescriptorService.class );
         this.applicationDescriptorService = Mockito.mock( ApplicationDescriptorService.class );
-        this.localeService = Mockito.mock( LocaleService.class );
+        LocaleService localeService = Mockito.mock(LocaleService.class);
 
         final WidgetResource resource = new WidgetResource();
         resource.setWidgetDescriptorService( widgetDescriptorService );
         resource.setApplicationDescriptorService( applicationDescriptorService );
-        resource.setLocaleService( localeService );
+        resource.setLocaleService(localeService);
 
         return resource;
     }

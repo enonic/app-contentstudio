@@ -76,7 +76,7 @@ public class WidgetResource
                     messageResolver.localizeMessage( widgetDescriptor.getDisplayNameI18nKey(), widgetDescriptor.getDisplayName() );
             }
 
-            if ( !isNullOrEmpty( widgetDescriptor.getDisplayNameI18nKey() ) )
+            if ( !isNullOrEmpty( widgetDescriptor.getDescriptionI18nKey() ) )
             {
                 json.description =
                     messageResolver.localizeMessage( widgetDescriptor.getDescriptionI18nKey(), widgetDescriptor.getDescription() );
