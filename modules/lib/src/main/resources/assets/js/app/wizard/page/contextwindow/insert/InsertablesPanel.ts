@@ -38,8 +38,6 @@ export class InsertablesPanel
 
     private pageView: PageView;
 
-    private componentsView: PageComponentsView;
-
     private overIFrame: boolean = false;
 
     private iFrameDraggable: JQuery<HTMLElement>;
@@ -61,8 +59,6 @@ export class InsertablesPanel
         this.insertablesGrid = new InsertablesGrid(insertablesDataView, {draggableRows: true, rowClass: 'comp'});
 
         insertablesDataView.setItems(Insertables.ALL, 'name');
-
-        this.componentsView = new PageComponentsView(config.liveEditPage, config.saveAsTemplateAction);
 
         this.appendChildren(topDescription, this.insertablesGrid);
 
@@ -91,24 +87,8 @@ export class InsertablesPanel
         this.onRemoved(this.destroyDraggables.bind(this));
     }
 
-    setModifyPermissions(modifyPermissions: boolean): boolean {
+    setModifyPermissions(modifyPermissions: boolean): void {
         this.modifyPermissions = modifyPermissions;
-        if (this.componentsView) {
-            return this.componentsView.setModifyPermissions(modifyPermissions);
-        }
-        return null;
-    }
-
-    getComponentsView(): PageComponentsView {
-        return this.componentsView;
-    }
-
-    setPageView(pageView: PageView) {
-        this.componentsView.setPageView(pageView);
-    }
-
-    setContent(content: Content) {
-        this.componentsView.setContent(content);
     }
 
     private initializeDraggables() {

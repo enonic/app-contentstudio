@@ -32,16 +32,19 @@ import {Content} from '../content/Content';
 import {DataChangedEvent, DataChangedType} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
-import {H3El} from '@enonic/lib-admin-ui/dom/H3El';
-import {CloseButton} from '@enonic/lib-admin-ui/ui/button/CloseButton';
-import {H2El} from '@enonic/lib-admin-ui/dom/H2El';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 
 export class PageComponentsView
     extends DivEl {
+
+    private static LOCKED_CLASS: string = 'locked';
+    private static COLLAPSED_CLASS: string = 'collapsed';
+    private static COLLAPSE_BUTTON_ICON_CLASS: string = 'icon-down-arrow';
+    private static PCV_COLLAPSED_KEY: string = 'contentstudio:pcv:collapsed';
 
     private content: Content;
     private pageView: PageView;
@@ -51,11 +54,12 @@ export class PageComponentsView
     private responsiveItem: ResponsiveItem;
 
     private tree: PageComponentsTreeGrid;
-    private header: H3El;
+    private header: Element;
     private modal: boolean;
-    private floating: boolean;
     private draggable: boolean;
     private selectedItemId: string;
+    private dockedParent: Element;
+    private toggleCollapsedStateButton: Button;
 
     private beforeInsertActionListeners: { (event: any): void }[] = [];
 
@@ -79,7 +83,7 @@ export class PageComponentsView
 
     private modifyPermissions: boolean = false;
 
-    constructor(liveEditPage: LiveEditPageProxy, private saveAsTemplateAction: SaveAsTemplateAction) {
+    constructor(liveEditPage: LiveEditPageProxy) {
         super('page-components-view');
 
         this.liveEditPage = liveEditPage;
@@ -90,22 +94,25 @@ export class PageComponentsView
 
         this.setupListeners();
 
-        this.setModal(false).setFloating(true).setDraggable(true);
+        this.setModal(false);
 
         this.initKeyBoardBindings();
 
         this.bindMouseListeners();
     }
 
-    private initElements() {
-        const closeButton = new CloseButton();
-        closeButton.onClicked((event: MouseEvent) => {
+    private initElements(): void {
+        this.toggleCollapsedStateButton =
+            new Button().addClass(`minimize-button ${PageComponentsView.COLLAPSE_BUTTON_ICON_CLASS}`).setTitle(
+                i18n('field.hideComponent')) as Button;
+
+        this.toggleCollapsedStateButton.onClicked((event: MouseEvent) => {
             event.stopPropagation();
             event.preventDefault();
-            this.hide();
+            this.toggleCollapsedState();
         });
 
-        this.header = new H2El('header');
+        this.header = new DivEl('header');
         this.header.setHtml(i18n('field.components'));
 
         this.responsiveItem = ResponsiveManager.onAvailableSizeChanged(Body.get(), (item: ResponsiveItem) => {
@@ -113,46 +120,38 @@ export class PageComponentsView
                 return;
             }
             const smallSize = item.isInRangeOrSmaller(ResponsiveRanges._360_540);
-            const compactSize = item.isInRangeOrSmaller(ResponsiveRanges._720_960);
-            this.toggleClass('compact', compactSize);
-            if (this.tree) {
-                this.tree.toggleCompact(compactSize);
-            }
+
             if (!smallSize && this.isVisible()) {
                 this.constrainToParent();
             }
             if (item.isRangeSizeChanged()) {
-                this.setModal(smallSize).setDraggable(!smallSize);
-            }
-            if (this.tree && compactSize) {
-                this.tree.getGrid().resizeCanvas();
+                this.setModal(smallSize);
             }
         });
 
-        this.appendChildren(<Element>closeButton, this.header);
+
+        const headerWrapper = new DivEl('header-wrapper');
+        headerWrapper.appendChildren(this.header, this.toggleCollapsedStateButton);
+        this.appendChildren(headerWrapper);
     }
 
-    private setupListeners() {
+    private setupListeners(): void {
         this.onHidden(() => this.hideContextMenu());
 
-        this.onRemoved(() => {
-            if (this.contextMenu) {
-                this.contextMenu.remove();
-            }
-        });
-
         this.onShown(() => {
-            this.constrainToParent();
-            this.getHTMLElement().style.display = '';
-            if (this.pageView && this.pageView.isLocked()) {
-                this.addClass('locked');
+            if (this.pageView?.isLocked()) {
+                this.addClass(PageComponentsView.LOCKED_CLASS);
             }
         });
 
-        this.onAdded(() => this.initLiveEditEvents());
+        this.whenRendered(() => this.initLiveEditEvents());
+
+        this.header.onDblClicked(() => {
+            this.toggleCollapsedState();
+        });
     }
 
-    show() {
+    show(): void {
         KeyBindings.get().bindKeys(this.keyBinding);
         super.show();
 
@@ -161,14 +160,32 @@ export class PageComponentsView
         }
     }
 
-    hide() {
+    dock(): void {
+        this.setDraggable(false);
+        this.dockedParent?.appendChild(this);
+    }
+
+    undock(): void {
+        this.dockedParent = this.getParentElement();
+        this.setDraggable(true);
+        Body.get().appendChild(this);
+
+        if (localStorage.getItem(PageComponentsView.PCV_COLLAPSED_KEY)) {
+            if (!this.isCollapsed()) {
+                this.collapse();
+            }
+        } else {
+            this.constrainToParent();
+        }
+    }
+
+    hide(): void {
         super.hide();
         KeyBindings.get().unbindKeys(this.keyBinding);
     }
 
-    setPageView(pageView: PageView) {
-
-        this.removeClass('locked');
+    setPageView(pageView: PageView): void {
+        this.removeClass(PageComponentsView.LOCKED_CLASS);
 
         this.pageView = pageView;
         if (!this.tree && this.content && this.pageView) {
@@ -189,26 +206,26 @@ export class PageComponentsView
             });
         }
 
-        this.pageView.onRemoved(() => {
+        this.pageView.onRemoved((): void => {
             ResponsiveManager.unAvailableSizeChangedByItem(this.responsiveItem);
         });
 
         this.pageView.onPageLocked(this.pageLockedHandler.bind(this));
     }
 
-    private initLock() {
+    private initLock(): void {
         this.unContextMenu(this.lockedViewClickHandler);
         this.unClicked(this.lockedViewClickHandler);
 
         if (this.pageView.isLocked()) {
-            this.addClass('locked');
+            this.addClass(PageComponentsView.LOCKED_CLASS);
         }
 
         this.onContextMenu(this.lockedViewClickHandler);
         this.onClicked(this.lockedViewClickHandler);
     }
 
-    setContent(content: Content) {
+    setContent(content: Content): void {
         this.content = content;
         if (!this.tree && this.content && this.pageView) {
             this.createTree(this.content, this.pageView);
@@ -221,30 +238,34 @@ export class PageComponentsView
     }
 
     private initLiveEditEvents() {
-        this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent) => {
+        this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent): void => {
             if (!event.isNewlyCreated() && !this.pageView.isLocked()) {
                 this.selectedItemId = event.getItemView().getItemId().toString();
                 this.selectItemById();
+
+                if (event.getPosition()) { // scroll to item if it was selected in preview
+                    this.tree.scrollToItem(this.selectedItemId);
+                }
             }
         });
 
-        this.liveEditPage.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
+        this.liveEditPage.onItemViewDeselected((event: ItemViewDeselectedEvent): void => {
             this.tree.deselectNodes([event.getItemView().getItemId().toString()]);
             this.selectedItemId = null;
         });
 
-        this.liveEditPage.onComponentAdded((event: ComponentAddedEvent) => {
+        this.liveEditPage.onComponentAdded((event: ComponentAddedEvent): void => {
             this.addComponent(event).then(() => {
                 this.handleComponentAdded(event);
             });
         });
 
-        this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent) => {
+        this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent): void => {
             this.tree.deleteNodeByDataId(event.getComponentView().getItemId().toString());
             this.highlightInvalidItems();
         });
 
-        this.liveEditPage.onComponentLoaded((event: ComponentLoadedEvent) => {
+        this.liveEditPage.onComponentLoaded((event: ComponentLoadedEvent): void => {
             this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView());
             this.tree.scrollToItem(event.getNewComponentView().getItemId().toString());
 
@@ -261,12 +282,20 @@ export class PageComponentsView
             }
         });
 
-        this.liveEditPage.onComponentReset((event: ComponentResetEvent) => {
+        this.liveEditPage.onComponentReset((event: ComponentResetEvent): void => {
             const oldDataId: string = event.getOldComponentView().getItemId().toString();
 
             this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView(), true);
 
             this.removeFromInvalidItems(oldDataId);
+        });
+
+        this.liveEditPage.onBeforeLoad(() => {
+            this.addClass('loading');
+        });
+
+        this.liveEditPage.onLoaded(() => {
+            this.removeClass('loading');
         });
     }
 
@@ -275,7 +304,7 @@ export class PageComponentsView
         return this.tree.expandNodeByDataId(event.getParentRegionView().getItemId().toString());
     }
 
-    private handleComponentAdded(event: ComponentAddedEvent) {
+    private handleComponentAdded(event: ComponentAddedEvent): void {
         if (event.getComponentView().isSelected()) {
             this.tree.selectNode(event.getComponentView().getItemId().toString());
         }
@@ -294,11 +323,11 @@ export class PageComponentsView
         this.highlightInvalidItems();
     }
 
-    private createTree(content: Content, pageView: PageView) {
+    private createTree(content: Content, pageView: PageView): void {
         this.tree = new PageComponentsTreeGrid(content, pageView);
 
-        this.clickListener = (event, data) => {
-            let elem = new ElementHelper(event.target);
+        this.clickListener = (event, data): void => {
+            const elem: ElementHelper = new ElementHelper(event.target);
 
             this.hideContextMenu();
 
@@ -312,19 +341,15 @@ export class PageComponentsView
             if (this.isMenuIconClicked(data.cell)) {
                 this.showContextMenu(data.row, {x: event.pageX, y: event.pageY});
             }
-
-            if (this.isModal()) {
-                this.hide();
-            }
         };
 
-        this.dblClickListener = (event, data) => {
+        this.dblClickListener = (event, data): void => {
             if (this.pageView.isLocked()) {
                 return;
             }
 
-            let clickedItemView: ItemView = this.tree.getGrid().getDataView().getItem(data.row).getData().getItemView();
-            let isTextComponent = ObjectHelper.iFrameSafeInstanceOf(clickedItemView, TextComponentView);
+            const clickedItemView: ItemView = this.tree.getGrid().getDataView().getItem(data.row).getData().getItemView();
+            const isTextComponent: boolean = ObjectHelper.iFrameSafeInstanceOf(clickedItemView, TextComponentView);
 
             if (isTextComponent) {
                 this.editTextComponent(clickedItemView);
@@ -335,8 +360,7 @@ export class PageComponentsView
 
         this.tree.getGrid().subscribeOnDblClick(this.dblClickListener);
 
-        this.tree.getGrid().subscribeOnMouseEnter((event, data) => {
-
+        this.tree.getGrid().subscribeOnMouseEnter((event, data): void => {
             if (DragHelper.get().isVisible()) {
                 return;
             }
@@ -365,17 +389,12 @@ export class PageComponentsView
         });
 
         this.tree.onSelectionChanged(() => {
-            const fullSelection: number = this.tree.getTotalSelected();
             const currentSelection: ItemViewTreeGridWrapper[] = this.tree.getCurrentSelection();
-
-            if (fullSelection > 0 && this.isModal()) {
-                this.hide();
-            }
-
             const selectedItem: ItemViewTreeGridWrapper = currentSelection[0];
 
             if (selectedItem) {
-                if (!selectedItem.getItemView().isSelected()) {
+                // only if iframe is visible
+                if (!selectedItem.getItemView().isSelected() && this.liveEditPage.getIFrame()?.isVisible()) {
                     this.selectItem(selectedItem.getItemView());
                 }
 
@@ -385,21 +404,18 @@ export class PageComponentsView
             }
         });
 
-        this.tree.getGrid().subscribeOnContextMenu((event) => {
+        this.tree.getGrid().subscribeOnContextMenu((event): void => {
             event.stopPropagation();
             event.preventDefault();
 
-            let cell = this.tree.getGrid().getCellFromEvent(event);
+            const cell: Slick.Cell = this.tree.getGrid().getCellFromEvent(event);
 
             this.showContextMenu(cell.row, {x: event.pageX, y: event.pageY});
         });
 
         this.appendChild(this.tree);
 
-        this.tree.onRemoved((event) => this.tree.getGrid().unsubscribeOnClick(this.clickListener));
-        this.tree.onRemoved((event) => this.tree.getGrid().unsubscribeOnDblClick(this.dblClickListener));
-
-        this.tree.onLoaded(() => {
+        this.tree.onLoaded((): void => {
             this.subscribeOnFragmentLoadError();
         });
 
@@ -409,36 +425,38 @@ export class PageComponentsView
             }
         });
 
-        this.tree.getGrid().subscribeOnDrag(() => {
+        this.tree.getGrid().subscribeOnDrag((): void => {
             this.addClass('dragging');
         });
 
-        this.tree.getGrid().subscribeOnDragEnd(() => {
+        this.tree.getGrid().subscribeOnDragEnd((): void => {
             this.removeClass('dragging');
         });
+
+        this.tree.setNodeExpandedHandler(() => this.constrainToParent()); // not letting PCV to overflow the page
     }
 
-    private highlightInvalidItems() {
+    private highlightInvalidItems(): void {
         this.tree.setInvalid(this.invalidItemIds);
     }
 
-    private removeFromInvalidItems(itemId: string) {
+    private removeFromInvalidItems(itemId: string): void {
         this.invalidItemIds = this.invalidItemIds.filter((curr) => {
             return curr !== itemId;
         });
         this.highlightInvalidItems();
     }
 
-    private addToInvalidItems(itemId: string) {
+    private addToInvalidItems(itemId: string): void {
         this.invalidItemIds.push(itemId);
         this.highlightInvalidItems();
     }
 
     private isMenuIcon(element: HTMLElement): boolean {
-        return !!element && !!element.className && element.className.indexOf('menu-icon') > -1;
+        return element?.className?.indexOf('menu-icon') > -1;
     }
 
-    private subscribeOnFragmentLoadError() {
+    private subscribeOnFragmentLoadError(): void {
         this.tree.getGrid().getDataView().getItems().map((dataItem) => {
             return dataItem.getData().getItemView();
         }).filter((itemView: ItemView) => {
@@ -448,19 +466,19 @@ export class PageComponentsView
         });
     }
 
-    private bindTreeFragmentNodeUpdateOnComponentLoaded(fragmentComponentView: FragmentComponentView) {
+    private bindTreeFragmentNodeUpdateOnComponentLoaded(fragmentComponentView: FragmentComponentView): void {
         fragmentComponentView.onFragmentContentLoaded((e) => {
             this.tree.updateNodeByData(new ItemViewTreeGridWrapper(e.getFragmentComponentView()));
         });
     }
 
-    private bindFragmentLoadErrorHandler(fragmentComponentView: FragmentComponentView) {
+    private bindFragmentLoadErrorHandler(fragmentComponentView: FragmentComponentView): void {
         fragmentComponentView.onFragmentLoadError((e) => {
             this.addToInvalidItems(e.getFragmentComponentView().getItemId().toString());
         });
     }
 
-    private initKeyBoardBindings() {
+    private initKeyBoardBindings(): void {
         const removeHandler = () => {
             const itemViewWrapper: ItemViewTreeGridWrapper = this.tree.getFirstSelectedItem();
 
@@ -479,11 +497,11 @@ export class PageComponentsView
 
     }
 
-    private bindMouseListeners() {
+    private bindMouseListeners(): void {
         this.lockedViewClickHandler = this.lockedViewClickHandler.bind(this);
     }
 
-    private selectItem(item: ItemView) {
+    private selectItem(item: ItemView): void {
         item.selectWithoutMenu();
         this.tree.scrollToItem(item.getItemId().toString());
     }
@@ -497,7 +515,8 @@ export class PageComponentsView
     }
 
     setDraggable(draggable: boolean): PageComponentsView {
-        let body = Body.get();
+        const body = Body.get();
+
         if (!this.draggable && draggable) {
             let lastPos;
             if (!this.mouseDownListener) {
@@ -576,8 +595,14 @@ export class PageComponentsView
         return this;
     }
 
-    private constrainToParent(offset?: { top: number; left: number }) {
+    private constrainToParent(offset?: { top: number; left: number }): void {
         const el = this.getEl();
+
+        if (!this.draggable) {
+            el.setMaxHeight('');
+            return;
+        }
+
         const elOffset = offset || el.getOffset();
         let parentEl;
         let parentOffset;
@@ -593,22 +618,15 @@ export class PageComponentsView
             };
         }
 
-        el.setMaxHeightPx(parentEl.getHeight());
+        el.setMaxHeightPx(parentEl.getHeight() - 48);
 
-        el.setOffset({
-            top: Math.max(parentOffset.top, Math.min(elOffset.top, parentOffset.top + parentEl.getHeight() - el.getHeightWithBorder())),
-            left: Math.max(parentOffset.left, Math.min(elOffset.left, parentOffset.left + parentEl.getWidth() - el.getWidthWithBorder()))
-        });
-    }
+        const top =
+                Math.max(parentOffset.top, Math.min(elOffset.top, parentOffset.top + parentEl.getHeight() - el.getHeightWithBorder()), 48);
+        const left =
+            Math.max(parentOffset.left, Math.min(elOffset.left, parentOffset.left + parentEl.getWidth() - el.getWidthWithBorder()), 48);
 
-    isFloating(): boolean {
-        return this.floating;
-    }
-
-    setFloating(floating: boolean): PageComponentsView {
-        this.toggleClass('floating', floating);
-        this.floating = floating;
-        return this;
+        el.setTop(`${top}px`);
+        el.setLeft(`${left}px`);
     }
 
     isModal(): boolean {
@@ -625,14 +643,14 @@ export class PageComponentsView
         return this;
     }
 
-    private pageLockedHandler(lock: boolean) {
-        this.toggleClass('locked', lock);
+    private pageLockedHandler(lock: boolean): void {
+        this.toggleClass(PageComponentsView.LOCKED_CLASS, lock);
         if (this.tree) {
             this.tree.reload();
         }
     }
 
-    private lockedViewClickHandler(event: MouseEvent) {
+    private lockedViewClickHandler(event: MouseEvent): void {
         const isUnlocked = !(this.pageView.isLocked() && this.modifyPermissions);
 
         if (isUnlocked) {
@@ -642,7 +660,7 @@ export class PageComponentsView
         event.stopPropagation();
         event.preventDefault();
 
-        if (this.contextMenu && this.contextMenu.isVisible()) {
+        if (this.contextMenu?.isVisible()) {
             this.hideContextMenu();
         } else {
             this.showContextMenu(null, {x: event.pageX, y: event.pageY});
@@ -653,7 +671,7 @@ export class PageComponentsView
         return cellNumber === 1;
     }
 
-    private showContextMenu(row: number, clickPosition: ClickPosition) {
+    private showContextMenu(row: number, clickPosition: ClickPosition): void {
         let node = this.tree.getGrid().getDataView().getItem(row);
         let itemView: ItemView;
         let pageView: PageView;
@@ -697,7 +715,6 @@ export class PageComponentsView
         } else {
             this.afterActionHandler = (action: Action) => {
                 const isViewVisible = (this.getHTMLElement().offsetHeight > 0);
-                this.hidePageComponentsIfInMobileView(action);
 
                 if (isViewVisible && action.hasParentAction() && action.getParentAction().getLabel() === i18n('live.view.selectparent')) {
                     this.tree.getFirstSelectedItem().getItemView().hideContextMenu();
@@ -718,7 +735,7 @@ export class PageComponentsView
 
         this.setMenuOpenStyleOnMenuIcon(row);
 
-        this.saveAsTemplateAction.updateVisibility();
+        SaveAsTemplateAction.get().updateVisibility();
 
         // show menu at position
         let x = clickPosition.x;
@@ -727,28 +744,18 @@ export class PageComponentsView
         this.contextMenu.showAt(x, y, false);
     }
 
-    private hidePageComponentsIfInMobileView(action: Action) {
-        if (BrowserHelper.isMobile() &&
-            ((action.hasParentAction() && action.getParentAction().getLabel() === i18n('action.insert'))
-             || action.getLabel() === i18n('action.inspect')
-             || action.getLabel() === i18n('action.edit')
-             || action.getLabel() === i18n('action.duplicate'))) {
-            this.hide();
-        }
-    }
-
-    private setMenuOpenStyleOnMenuIcon(row: number) {
+    private setMenuOpenStyleOnMenuIcon(row: number): void {
         let stylesHash = {};
         stylesHash[row] = {menu: 'menu-open'};
         this.tree.getGrid().setCellCssStyles('menu-open', stylesHash);
     }
 
-    private removeMenuOpenStyleFromMenuIcon() {
+    private removeMenuOpenStyleFromMenuIcon(): void {
         this.tree.getGrid().removeCellCssStyles('menu-open');
     }
 
-    private hideContextMenu() {
-        if (this.contextMenu && this.contextMenu.isVisible()) {
+    private hideContextMenu(): void {
+        if (this.contextMenu?.isVisible()) {
             this.contextMenu.hide();
         }
     }
@@ -773,25 +780,24 @@ export class PageComponentsView
         }
     }
 
-    onBeforeInsertAction(listener: (event: any) => void) {
+    onBeforeInsertAction(listener: (event: any) => void): void {
         this.beforeInsertActionListeners.push(listener);
     }
 
-    unBeforeInsertAction(listener: (event: any) => void) {
+    unBeforeInsertAction(listener: (event: any) => void): void {
         this.beforeInsertActionListeners = this.beforeInsertActionListeners.filter((currentListener: (event: any) => void) => {
             return listener !== currentListener;
         });
     }
 
-    private notifyBeforeInsertAction() {
+    private notifyBeforeInsertAction(): void {
         this.beforeInsertActionListeners.forEach((listener: (event: any) => void) => {
             listener.call(this);
         });
     }
 
-    private editTextComponent(textComponent: ItemView) {
-        let contextMenuActions: Action[] = textComponent.getContextMenuActions();
-
+    private editTextComponent(textComponent: ItemView): void {
+        const contextMenuActions: Action[] = textComponent.getContextMenuActions();
         let editAction: Action;
 
         contextMenuActions.some((action: Action) => {
@@ -801,9 +807,33 @@ export class PageComponentsView
             }
         });
 
-        if (editAction) {
-            this.hide();
-            editAction.execute();
-        }
+        editAction?.execute();
+    }
+
+    getEl(): ElementHelper {
+        return super.getEl();
+    }
+
+    private toggleCollapsedState(): void {
+        this.isCollapsed() ? this.expand() : this.collapse();
+    }
+
+    private isCollapsed(): boolean {
+        return this.hasClass(PageComponentsView.COLLAPSED_CLASS);
+    }
+
+    private collapse(): void {
+        localStorage.setItem(PageComponentsView.PCV_COLLAPSED_KEY, 'true');
+        this.toggleCollapsedStateButton.setTitle(i18n('field.showComponent'));
+        this.toggleClass(PageComponentsView.COLLAPSED_CLASS, true);
+        this.hideContextMenu();
+    }
+
+    private expand(): void {
+        localStorage.removeItem(PageComponentsView.PCV_COLLAPSED_KEY);
+        this.toggleCollapsedStateButton.setTitle(i18n('field.hideComponent'));
+        this.toggleClass(PageComponentsView.COLLAPSED_CLASS, false);
+        this.constrainToParent(); // not letting PCV to overflow the page
+        this.tree.getGrid().resizeCanvas();
     }
 }

@@ -53,7 +53,6 @@ import {XData} from '../content/XData';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {Page} from '../page/Page';
 import {Permission} from '../access/Permission';
-import {InspectEvent} from '../event/InspectEvent';
 import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
@@ -63,7 +62,6 @@ import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
 import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
@@ -136,6 +134,12 @@ import {ContentSummary} from '../content/ContentSummary';
 import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
 import {PageHelper} from '../util/PageHelper';
 import {ContentActionCycleButton} from './ContentActionCycleButton';
+import {PageComponentsWizardStep} from './PageComponentsWizardStep';
+import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
+import {LiveEditPageProxy} from './page/LiveEditPageProxy';
+import {PageComponentsView} from './PageComponentsView';
+import {PageView} from '../../page-editor/PageView';
+import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -145,6 +149,16 @@ export class ContentWizardPanel
     private contextView: ContextView;
 
     private livePanel?: LiveFormPanel;
+
+    private liveEditPage?: LiveEditPageProxy;
+
+    private pageComponentsView?: PageComponentsView;
+
+    private pageComponentsWizardStepForm?: PageComponentsWizardStepForm;
+
+    private pageComponentsWizardStep?: PageComponentsWizardStep;
+
+    private dataWizardStep?: ContentWizardStep;
 
     protected wizardActions: ContentWizardActions;
 
@@ -165,8 +179,6 @@ export class ContentWizardPanel
     private siteModel: SiteModel;
 
     private liveEditModel: LiveEditModel;
-
-    private contentWizardStep: ContentWizardStep;
 
     private contentWizardStepForm: ContentWizardStepForm;
 
@@ -454,16 +466,20 @@ export class ContentWizardPanel
             this.scrollPosition = scroll;
             this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.Pixels(40));
             this.splitPanel.hideSplitter();
-
             this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
+            this.undockPCV();
         } else {
             this.splitPanel.loadPanelSizesAndDistribute();
-            this.splitPanel.showSplitter();
+
+            if (!this.splitPanel.isSecondPanelHidden()) {
+                this.splitPanel.showSplitter();
+            }
+
             this.stepsPanel.setScroll(this.scrollPosition);
             this.stepsPanel.setListenToScroll(true);
             this.stepNavigator.setScrollEnabled(true);
-
             this.stepNavigator.selectNavigationItem(navigationIndex, false, true);
+            this.dockPCV();
         }
 
         const maximized = !this.minimized;
@@ -633,19 +649,21 @@ export class ContentWizardPanel
     }
 
     private createLivePanel(): LiveFormPanel {
+        this.liveEditPage = new LiveEditPageProxy(this.getPersistedItem().getContentId());
+        this.pageComponentsView = new PageComponentsView(this.liveEditPage);
+
         const liveFormPanel: LiveFormPanel = new LiveFormPanel(<LiveFormPanelConfig>{
             contentWizardPanel: this,
             contentType: this.contentType,
             defaultModels: this.defaultModels,
-            content: this.getPersistedItem()
+            content: this.getPersistedItem(),
+            liveEditPage: this.liveEditPage,
         });
 
         this.toggleMinimizeListener = (event: ActivatedEvent) => {
             this.toggleMinimize(event.getIndex());
         };
 
-        this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
-        this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
         this.liveMask = new LoadMask(liveFormPanel);
 
         this.wizardActions.getShowLiveEditAction().setEnabled(true);
@@ -665,6 +683,20 @@ export class ContentWizardPanel
         this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
         this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
         this.liveMask = new LoadMask(this.livePanel);
+
+        liveFormPanel.onPageViewReady((pageView: PageView) => {
+            this.pageComponentsView.setPageView(pageView);
+
+            pageView.onPageLocked((locked: boolean) => {
+                if (!locked) { // add PCV when page is unlocked
+                    this.addPCV();
+
+                    if (this.isMinimized()) {
+                        this.undockPCV();
+                    }
+                }
+            });
+        });
 
         return liveFormPanel;
     }
@@ -895,6 +927,7 @@ export class ContentWizardPanel
                         this.updateButtonsState();
                         this.contextView.updateWidgetsVisibility();
                         this.toggleLiveEdit();
+                        this.togglePageComponentsViewOnDemand();
                     })
                     .catch(DefaultErrorHandler.handle);
             }
@@ -1066,9 +1099,6 @@ export class ContentWizardPanel
                 livePanel.setErrorMissingApps();
             }
         }
-
-        this.getComponentsViewToggler().setEnabled(this.isRenderable());
-        this.getComponentsViewToggler().setVisible(this.isRenderable());
     }
 
     public checkContentCanBePublished(): boolean {
@@ -1126,19 +1156,6 @@ export class ContentWizardPanel
                 this.wizardActions.suspendActions(event.isMask());
             }
         });
-
-        InspectEvent.on((event: InspectEvent) => {
-            const minimizeWizard = event.isShowPanel() &&
-                                   !this.isMinimized() &&
-                                   this.isRenderable() &&
-                                   this.getLivePanel().isShown() &&
-                                   !this.contextSplitPanel.isMobileMode() &&
-                                   ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
-            if (minimizeWizard) {
-                this.toggleMinimize();
-            }
-        });
-
     }
 
     private onFileUploaded(event: UploadedEvent<Content>) {
@@ -1189,16 +1206,37 @@ export class ContentWizardPanel
     }
 
     private createSteps(): ContentWizardStep[] {
-        const steps: ContentWizardStep[] = [];
+        if (this.contentType.getContentTypeName().isFragment()) {
+            return this.createFragmentSteps();
+        }
 
-        this.contentWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
-        steps.push(this.contentWizardStep);
+        if (this.contentType.isPageTemplate()) {
+            return this.createPageTemplateSteps();
+        }
+
+        const steps: ContentWizardStep[] =
+            [this.dataWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm)];
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             steps.push(new XDataWizardStep(form));
         });
 
-        this.addAccessibilityToSteps(steps);
+        if (this.isPageComponentsViewRequired()) {
+            steps.push(this.initPageComponentsWizardStep());
+        }
+
+        return steps;
+    }
+
+    private createFragmentSteps(): ContentWizardStep[] {
+        return [this.initPageComponentsWizardStep()];
+    }
+
+    private createPageTemplateSteps(): ContentWizardStep[] {
+        const steps: ContentWizardStep[] = [];
+
+        steps.push(this.initPageComponentsWizardStep());
+        steps.push(this.dataWizardStep = new ContentWizardStep('', this.contentWizardStepForm));
 
         return steps;
     }
@@ -1555,6 +1593,7 @@ export class ContentWizardPanel
                            const needsReload = !this.isSaving();
                            if (livePanel) {
                                livePanel.setModel(this.liveEditModel);
+                               this.pageComponentsView?.setContent(this.liveEditModel.getContent());
                                if (reloadPage) {
                                    livePanel.clearSelectionAndInspect(true, true);
                                }
@@ -1669,6 +1708,7 @@ export class ContentWizardPanel
             const showPanel: boolean = wasNotRenderable && this.isRenderable();
             this.getLivePanel().setModel(this.liveEditModel);
             this.getLivePanel().clearSelectionAndInspect(showPanel, false);
+            this.pageComponentsView?.setContent(this.liveEditModel.getContent());
             this.debouncedEditorReload(false);
 
             return Q(null);
@@ -1862,7 +1902,12 @@ export class ContentWizardPanel
 
                 return this.createWizardStepForms().then(() => {
                     const steps: ContentWizardStep[] = this.createSteps();
+                    this.addAccessibilityToSteps(steps);
                     this.setSteps(steps);
+
+                    if (this.contentType.isPageTemplate()) {
+                        this.stepNavigator.removeNavigationItem(this.dataWizardStep.getTabBarItem());
+                    }
 
                     return this.layoutWizardStepForms(content).then(() => {
                         if (this.params.localized) {
@@ -1902,6 +1947,11 @@ export class ContentWizardPanel
 
     private createWizardStepForms(): Q.Promise<void> {
         this.contentWizardStepForm = new ContentWizardStepForm();
+
+        if (this.isPageComponentsViewRequired() || this.contentType.isPageTemplate()) {
+            this.pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+        }
+
         return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this));
     }
 
@@ -1952,6 +2002,10 @@ export class ContentWizardPanel
 
             formViewLayoutPromises.push(promise);
         });
+
+        if (this.isPageComponentsViewRequired()) {
+            this.pageComponentsWizardStepForm?.layout(this.pageComponentsView);
+        }
 
         return Q.all(formViewLayoutPromises).thenResolve(null);
     }
@@ -2319,10 +2373,6 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.displayValidationErrors(value);
     }
 
-    getComponentsViewToggler(): TogglerButton {
-        return this.getMainToolbar().getComponentsViewToggler();
-    }
-
     getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {
         return this.getMainToolbar().getContentWizardToolbarPublishControls();
     }
@@ -2393,6 +2443,7 @@ export class ContentWizardPanel
 
         this.getEl().toggleClass('no-modify-permissions', !value);
         this.getLivePanel()?.setEnabled(value);
+        this.pageComponentsView?.setModifyPermissions(value);
     }
 
     isReadOnly(): boolean {
@@ -2432,7 +2483,6 @@ export class ContentWizardPanel
     }
 
     private updateWizardStepForms(content: Content, unchangedOnly: boolean = true) {
-
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
 
         content.getContentData().onChanged(this.dataChangedHandler);
@@ -2442,6 +2492,8 @@ export class ContentWizardPanel
 
             this.syncPersistedItemWithContentData(content.getContentData());
         });
+
+        this.togglePageComponentsViewOnDemand();
     }
 
     private checkIfRenderable(item?: ContentSummary): Q.Promise<boolean> {
@@ -2474,8 +2526,6 @@ export class ContentWizardPanel
             this.wizardActions.getPreviewAction().setEnabled(this.isRenderable());
 
             return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
-                this.getComponentsViewToggler().setEnabled(this.isRenderable());
-                this.getComponentsViewToggler().setVisible(this.isRenderable());
                 this.contextView.updateWidgetsVisibility();
             });
         });
@@ -2646,5 +2696,81 @@ export class ContentWizardPanel
 
     getSplitPanel(): SplitPanel {
         return this.splitPanel;
+    }
+
+    private isPageComponentsViewRequired(): boolean {
+        return this.livePanel && (this.getPersistedItem().getPage()?.hasController() || this.getPersistedItem().getPage()?.isFragment() ||
+                                  this.liveEditModel?.getPageModel()?.isCustomized());
+    }
+
+    private togglePageComponentsViewOnDemand() {
+        if (this.isPageComponentsViewRequired()) {
+            this.addPCV();
+        } else {
+            this.removePCV();
+        }
+    }
+
+    private addPCV(): void {
+        if (!this.pageComponentsWizardStepForm) {
+            this.pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            this.pageComponentsWizardStep = this.initPageComponentsWizardStep();
+        }
+
+        if (!this.pageComponentsView.isAdded()) {
+            this.pageComponentsWizardStepForm.layout(this.pageComponentsView);
+        }
+
+        if (!this.getSteps().some((step: WizardStep) => step === this.pageComponentsWizardStep)) {
+            this.addStep(this.pageComponentsWizardStep, false);
+            // bug in lib-admin-ui WizardPanel addStep method: it doesn't add step to steps array
+            this.getSteps().push(this.pageComponentsWizardStep);
+        }
+    }
+
+    private removePCV(): void {
+        if (this.pageComponentsWizardStepForm) {
+            this.pageComponentsView.dock();
+
+            if (this.contentType.isPageTemplate()) {
+                this.pageComponentsWizardStepForm.removeChild(this.pageComponentsView);
+            } else {
+                this.removeStepWithForm(this.pageComponentsWizardStepForm);
+            }
+        }
+    }
+
+    private undockPCV(): void {
+        if (this.isPageComponentsViewRequired()) {
+            this.pageComponentsView?.undock();
+        }
+    }
+
+    private dockPCV(): void {
+        if (this.isPageComponentsViewRequired()) {
+            this.pageComponentsView?.dock();
+        }
+    }
+
+    private getInitialPageWizardStepName(): string {
+        if (this.contentType.getContentTypeName().isFragment()) {
+            return i18n('field.fragment');
+        }
+
+        if (this.contentType.isPageTemplate()) {
+            return this.contentType.getDisplayName();
+        }
+
+        return i18n('field.page');
+    }
+
+    private initPageComponentsWizardStep(): PageComponentsWizardStep {
+        if (!this.pageComponentsWizardStepForm) {
+            throw new Error('PageComponentsWizardStepForm is not initialized');
+        }
+
+        this.pageComponentsWizardStep = new PageComponentsWizardStep(this.getInitialPageWizardStepName(), this.pageComponentsWizardStepForm);
+
+        return this.pageComponentsWizardStep;
     }
 }

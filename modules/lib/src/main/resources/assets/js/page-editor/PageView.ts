@@ -1067,11 +1067,11 @@ export class PageView
         this.itemViewRemovedListeners.forEach((listener) => listener(event));
     }
 
-    onPageLocked(listener: (event: any) => void) {
+    onPageLocked(listener: (locked: boolean) => void) {
         this.pageLockedListeners.push(listener);
     }
 
-    unPageLocked(listener: (event: any) => void) {
+    unPageLocked(listener: (locked: boolean) => void) {
         this.pageLockedListeners = this.pageLockedListeners.filter((current) => (current !== listener));
     }
 
