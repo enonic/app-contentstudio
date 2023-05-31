@@ -466,6 +466,7 @@ export class ContentWizardPanel
             this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.Pixels(40));
             this.splitPanel.hideSplitter();
             this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
+            this.pageComponentsView?.undock();
         } else {
             this.splitPanel.loadPanelSizesAndDistribute();
             this.splitPanel.showSplitter();
@@ -473,6 +474,7 @@ export class ContentWizardPanel
             this.stepsPanel.setListenToScroll(true);
             this.stepNavigator.setScrollEnabled(true);
             this.stepNavigator.selectNavigationItem(navigationIndex, false, true);
+            this.pageComponentsView?.dock();
         }
 
         const maximized = !this.minimized;
@@ -678,11 +680,15 @@ export class ContentWizardPanel
         this.liveMask = new LoadMask(this.livePanel);
 
         this.liveEditPage.onBeforeLoad(() => {
-            this.pageComponentsView?.addClass('loading');
+            this.pageComponentsView.addClass('loading');
         });
 
         this.liveEditPage.onLoaded(() => {
-            this.pageComponentsView?.removeClass('loading');
+            this.pageComponentsView.removeClass('loading');
+        });
+
+        liveFormPanel.onPageViewReady((pageView: PageView) => {
+            this.pageComponentsView.setPageView(pageView);
         });
 
         return liveFormPanel;
@@ -2528,9 +2534,7 @@ export class ContentWizardPanel
                 this.onPageChanged(listener);
             }
 
-            this.getLivePanel().onPageViewReady((pageView: PageView) => {
-                this.pageComponentsView?.setPageView(pageView);
-
+            this.getLivePanel().onPageViewReady(() => {
                 this.checkIfRenderable().then(() => {
                     this.onPageChanged(listener);
                 });

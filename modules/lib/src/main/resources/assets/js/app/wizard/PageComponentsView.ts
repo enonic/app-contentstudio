@@ -156,6 +156,18 @@ export class PageComponentsView
         }
     }
 
+    dock(): void {
+        this.setDraggable(false);
+        this.dockedParent.appendChild(this);
+    }
+
+    undock(): void {
+        this.dockedParent = this.getParentElement();
+        this.setDraggable(true);
+        Body.get().appendChild(this);
+        this.constrainToParent();
+    }
+
     hide() {
         super.hide();
         KeyBindings.get().unbindKeys(this.keyBinding);
