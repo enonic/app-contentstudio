@@ -21,7 +21,6 @@ import {PartInspectionPanel} from './contextwindow/inspect/region/PartInspection
 import {PageInspectionPanel} from './contextwindow/inspect/page/PageInspectionPanel';
 import {InspectionsPanel, InspectionsPanelConfig} from './contextwindow/inspect/InspectionsPanel';
 import {InsertablesPanel} from './contextwindow/insert/InsertablesPanel';
-import {ContextWindowController} from './contextwindow/ContextWindowController';
 import {ContextWindow, ContextWindowConfig, getInspectParameters} from './contextwindow/ContextWindow';
 import {ShowContentFormEvent} from '../ShowContentFormEvent';
 import {SaveAsTemplateAction} from '../action/SaveAsTemplateAction';
@@ -111,6 +110,8 @@ export interface LiveFormPanelConfig {
     defaultModels: DefaultModels;
 
     content: Content;
+
+    liveEditPage: LiveEditPageProxy;
 }
 
 enum ErrorType {
@@ -146,7 +147,6 @@ export class LiveFormPanel
     private modifyPermissions: boolean = false;
 
     private contextWindow: ContextWindow;
-    private contextWindowController: ContextWindowController;
 
     private placeholder?: LiveEditPagePlaceholder;
     private insertablesPanel: InsertablesPanel;
@@ -172,11 +172,7 @@ export class LiveFormPanel
 
     private hasContentEventListeners: boolean;
 
-    private saveAsTemplateAction: SaveAsTemplateAction;
-
     private isPageNotRenderable: boolean;
-
-    private hasPageControllers: boolean;
 
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
@@ -195,6 +191,7 @@ export class LiveFormPanel
         this.defaultModels = config.defaultModels;
         this.content = config.content;
         this.contentType = config.contentType;
+        this.liveEditPageProxy = config.liveEditPage;
 
         this.initElements();
         this.initEventHandlers();
@@ -232,16 +229,8 @@ export class LiveFormPanel
     }
 
     protected initPageRequiredElements(): void {
-        this.saveAsTemplateAction = new SaveAsTemplateAction();
-        this.liveEditPageProxy = new LiveEditPageProxy(this.content.getContentId());
         this.liveEditPageProxy.setModifyPermissions(this.modifyPermissions);
         this.contextWindow = this.createContextWindow();
-
-        // constructor to listen to live edit events during wizard rendering
-        this.contextWindowController = new ContextWindowController(
-            this.contextWindow,
-            this.contentWizardPanel
-        );
 
         this.addPageProxyLoadEventListeners();
         this.addPageProxyEventListeners();
@@ -388,7 +377,7 @@ export class LiveFormPanel
         // Update action with new content on save if it gets updated
         summaryAndStatuses.some((summaryAndStatus: ContentSummaryAndCompareStatus) => {
             if (this.content.getContentId().equals(summaryAndStatus.getContentId())) {
-                this.saveAsTemplateAction?.setContentSummary(summaryAndStatuses[0].getContentSummary());
+                SaveAsTemplateAction.get()?.setContentSummary(summaryAndStatuses[0].getContentSummary());
 
                 if (!this.isPageNotRenderable && this.placeholder && !this.placeholder.hasSelectedController()) {
                     this.updatePlaceholder();
@@ -412,7 +401,7 @@ export class LiveFormPanel
         }
 
         new ContentSummaryAndCompareStatusFetcher().fetch(thisContentId)
-            .then((contentSummary: ContentSummaryAndCompareStatus) => this.saveAsTemplateAction.setContentSummary(
+            .then((contentSummary: ContentSummaryAndCompareStatus) => SaveAsTemplateAction.get().setContentSummary(
                 contentSummary.getContentSummary()))
             .catch(DefaultErrorHandler.handle);
     }
@@ -460,7 +449,7 @@ export class LiveFormPanel
         this.insertablesPanel = new InsertablesPanel({
             liveEditPage: this.liveEditPageProxy,
             contentWizardPanel: this.contentWizardPanel,
-            saveAsTemplateAction: this.saveAsTemplateAction
+            saveAsTemplateAction: SaveAsTemplateAction.get()
         });
 
         this.insertablesPanel.setModifyPermissions(this.modifyPermissions);
@@ -499,7 +488,7 @@ export class LiveFormPanel
 
         this.contentInspectionPanel = new ContentInspectionPanel();
 
-        this.pageInspectionPanel = new PageInspectionPanel(this.saveAsTemplateAction);
+        this.pageInspectionPanel = new PageInspectionPanel(SaveAsTemplateAction.get());
         this.partInspectionPanel = new PartInspectionPanel();
         this.layoutInspectionPanel = new LayoutInspectionPanel();
         this.imageInspectionPanel = new ImageInspectionPanel();
@@ -636,7 +625,6 @@ export class LiveFormPanel
 
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
-        this.insertablesPanel.setContent(this.content);
         this.pageModel = liveEditModel.getPageModel();
         this.pageModel.setIgnorePropertyChanges(true);
         this.isPageNotRenderable = false;
@@ -647,7 +635,7 @@ export class LiveFormPanel
                              ? this.liveEditModel.getSiteModel().getSite()
                              : null;
 
-        this.saveAsTemplateAction
+        SaveAsTemplateAction.get()
             .setContentSummary(this.content)
             .setPageModel(this.pageModel)
             .setSite(site);
@@ -703,11 +691,6 @@ export class LiveFormPanel
         }
 
         this.pageLoading = true;
-
-        this.insertablesPanel.getComponentsView().addClass('loading');
-        this.liveEditPageProxy.onLoaded(() => {
-            this.insertablesPanel.getComponentsView().removeClass('loading');
-        });
 
         this.clearPreviewErrors();
 
@@ -820,8 +803,7 @@ export class LiveFormPanel
             this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView && pageModelRenderable);
 
             if (this.pageView) {
-                this.insertablesPanel.setPageView(this.pageView);
-                this.pageView.getContextMenuActions().push(this.saveAsTemplateAction);
+                this.pageView.getContextMenuActions().push(SaveAsTemplateAction.get());
                 restoreSelection();
 
                 this.notifyPageViewReady(this.pageView);

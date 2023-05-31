@@ -88,12 +88,6 @@ export class PageComponentsTreeGrid
         fragmentView.onFragmentContentLoaded(loadedListener);
     }
 
-    toggleCompact(flag: boolean) {
-        const options = this.getOptions().setRowHeight(flag ? 30 : 45);
-        this.getGrid().setOptions(options);
-        this.invalidate();
-    }
-
     queryScrollable(): Element {
         return this;
     }

@@ -1,15 +1,8 @@
 .page-components-view {
-  position: absolute;
-  width: 400px;
-  padding: 0 30px;
+  padding: 10px;
   box-sizing: border-box;
   max-width: 100%;
-  background-color: rgba(255, 255, 255, 0.9);
-  z-index: @z-index-context-window;
-  display: none;
-  margin-top: @app-header-height;
   .notSelectable();
-  .material-layer-shadow();
 
   display: flex;
   flex-flow: column nowrap;
@@ -19,17 +12,49 @@
     z-index: @z-index-modal-dialog;
   }
 
-  &.modal {
-    left: 0 !important;
-    top: 0 !important;
-    width: 100%;
-    height: 100%;
-    margin-left: 0;
+  .header-wrapper {
+    display: flex;
+    align-items: center;
+
+    .header {
+      flex-grow: 1;
+    }
   }
 
   &.draggable {
     .header {
       cursor: move;
+      line-height: 0.8em;
+      padding: 20px;
+      font-size: 30px;
+    }
+
+    .collapse-button {
+      display: block;
+
+      &::before {
+        display: block;
+      }
+    }
+
+    position: absolute;
+    width: 400px;
+    padding: 0 30px;
+    margin-top: @app-header-height;
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: @z-index-context-window;
+    .material-layer-shadow();
+
+    &.collapsed {
+      .tree-grid {
+        display: none;
+      }
+
+      .collapse-button {
+        &::before {
+          transform: none;
+        }
+      }
     }
   }
 
@@ -46,7 +71,7 @@
   }
 
   .tree-grid {
-    width: 340px;
+    margin-top: 5px;
     padding-bottom: 15px;
     height: auto;
     overflow-y: auto;
@@ -56,8 +81,6 @@
       height: initial !important;
 
       .slick-viewport {
-        width: 340px !important;
-
         .slick-row {
           .slick-cell {
             width: 100%;
@@ -99,7 +122,7 @@
                 display: flex;
                 align-items: center;
                 top: 0;
-                right: 5px;
+                right: 7px;
                 cursor: pointer;
                 transition-duration: 0.5s;
 
@@ -204,22 +227,23 @@
     opacity: 0;
   }
 
-  .close-button {
+  .collapse-button {
     .button(@admin-dark-gray, transparent);
-
-    position: absolute;
-    top: 5px;
-    right: 3px;
+    display: none;
     padding: 0;
 
+    &:focus {
+      outline: none;
+    }
+
     &::before {
-      font-size: 20px;
+      font-size: 28px;
     }
   }
 
   .header {
-    line-height: 0.8em;
-    padding: 30px 30px 20px;
+    font-size: 12px;
+    line-height: 20px;
   }
 }
 
@@ -239,5 +263,15 @@
 @media screen and (max-width: 720px) {
   .page-components-view {
     width: 100%;
+  }
+}
+
+.form-panel {
+  &._0-240,
+  &._240-360,
+  &._360-540 {
+    .page-components-view {
+      padding: 10px 15px;
+    }
   }
 }

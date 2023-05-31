@@ -13,6 +13,8 @@ import {ContentSummary} from '../../content/ContentSummary';
 export class SaveAsTemplateAction
     extends Action {
 
+    private static INSTANCE: SaveAsTemplateAction;
+
     private userHasCreateRights: Boolean;
 
     private contentSummary: ContentSummary;
@@ -21,7 +23,7 @@ export class SaveAsTemplateAction
 
     private site: Site;
 
-    constructor() {
+    private constructor() {
         super(i18n('action.saveAsTemplate'));
 
         this.onExecuted(action => {
@@ -39,6 +41,14 @@ export class SaveAsTemplateAction
                 DefaultErrorHandler.handle(reason);
             }).done();
         });
+    }
+
+    static get(): SaveAsTemplateAction {
+        if (!SaveAsTemplateAction.INSTANCE) {
+            SaveAsTemplateAction.INSTANCE = new SaveAsTemplateAction();
+        }
+
+        return SaveAsTemplateAction.INSTANCE;
     }
 
     updateVisibility() {

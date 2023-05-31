@@ -74,10 +74,6 @@ export class ContextWindow
         });
     }
 
-    getComponentsView(): PageComponentsView {
-        return this.insertablesPanel.getComponentsView();
-    }
-
     private isPanelSelectable(panel: Panel): boolean {
         return !ObjectHelper.iFrameSafeInstanceOf(panel, PageInspectionPanel) || this.liveFormPanel.getPageMode() !== PageMode.FRAGMENT;
     }

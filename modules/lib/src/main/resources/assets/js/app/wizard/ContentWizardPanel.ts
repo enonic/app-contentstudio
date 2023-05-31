@@ -136,6 +136,11 @@ import {ContentSummary} from '../content/ContentSummary';
 import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
 import {PageHelper} from '../util/PageHelper';
 import {ContentActionCycleButton} from './ContentActionCycleButton';
+import {PageComponentsWizardStep} from './PageComponentsWizardStep';
+import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
+import {LiveEditPageProxy} from './page/LiveEditPageProxy';
+import {PageComponentsView} from './PageComponentsView';
+import {PageView} from '../../page-editor/PageView';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -145,6 +150,12 @@ export class ContentWizardPanel
     private contextView: ContextView;
 
     private livePanel?: LiveFormPanel;
+
+    private liveEditPage?: LiveEditPageProxy;
+
+    private pageComponentsView?: PageComponentsView;
+
+    private pageComponentsWizardStepForm?: PageComponentsWizardStepForm;
 
     protected wizardActions: ContentWizardActions;
 
@@ -454,7 +465,6 @@ export class ContentWizardPanel
             this.scrollPosition = scroll;
             this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.Pixels(40));
             this.splitPanel.hideSplitter();
-
             this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
         } else {
             this.splitPanel.loadPanelSizesAndDistribute();
@@ -462,7 +472,6 @@ export class ContentWizardPanel
             this.stepsPanel.setScroll(this.scrollPosition);
             this.stepsPanel.setListenToScroll(true);
             this.stepNavigator.setScrollEnabled(true);
-
             this.stepNavigator.selectNavigationItem(navigationIndex, false, true);
         }
 
@@ -633,19 +642,21 @@ export class ContentWizardPanel
     }
 
     private createLivePanel(): LiveFormPanel {
+        this.liveEditPage = new LiveEditPageProxy(this.getPersistedItem().getContentId());
+        this.pageComponentsView = new PageComponentsView(this.liveEditPage);
+
         const liveFormPanel: LiveFormPanel = new LiveFormPanel(<LiveFormPanelConfig>{
             contentWizardPanel: this,
             contentType: this.contentType,
             defaultModels: this.defaultModels,
-            content: this.getPersistedItem()
+            content: this.getPersistedItem(),
+            liveEditPage: this.liveEditPage,
         });
 
         this.toggleMinimizeListener = (event: ActivatedEvent) => {
             this.toggleMinimize(event.getIndex());
         };
 
-        this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
-        this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
         this.liveMask = new LoadMask(liveFormPanel);
 
         this.wizardActions.getShowLiveEditAction().setEnabled(true);
@@ -665,6 +676,14 @@ export class ContentWizardPanel
         this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
         this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
         this.liveMask = new LoadMask(this.livePanel);
+
+        this.liveEditPage.onBeforeLoad(() => {
+            this.pageComponentsView?.addClass('loading');
+        });
+
+        this.liveEditPage.onLoaded(() => {
+            this.pageComponentsView?.removeClass('loading');
+        });
 
         return liveFormPanel;
     }
@@ -1066,9 +1085,6 @@ export class ContentWizardPanel
                 livePanel.setErrorMissingApps();
             }
         }
-
-        this.getComponentsViewToggler().setEnabled(this.isRenderable());
-        this.getComponentsViewToggler().setVisible(this.isRenderable());
     }
 
     public checkContentCanBePublished(): boolean {
@@ -1126,19 +1142,6 @@ export class ContentWizardPanel
                 this.wizardActions.suspendActions(event.isMask());
             }
         });
-
-        InspectEvent.on((event: InspectEvent) => {
-            const minimizeWizard = event.isShowPanel() &&
-                                   !this.isMinimized() &&
-                                   this.isRenderable() &&
-                                   this.getLivePanel().isShown() &&
-                                   !this.contextSplitPanel.isMobileMode() &&
-                                   ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
-            if (minimizeWizard) {
-                this.toggleMinimize();
-            }
-        });
-
     }
 
     private onFileUploaded(event: UploadedEvent<Content>) {
@@ -1197,6 +1200,10 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             steps.push(new XDataWizardStep(form));
         });
+
+        if (this.isPageComponentsViewRequired()) {
+            steps.push(new PageComponentsWizardStep(i18n('field.page'), this.pageComponentsWizardStepForm));
+        }
 
         this.addAccessibilityToSteps(steps);
 
@@ -1555,6 +1562,7 @@ export class ContentWizardPanel
                            const needsReload = !this.isSaving();
                            if (livePanel) {
                                livePanel.setModel(this.liveEditModel);
+                               this.pageComponentsView?.setContent(this.liveEditModel.getContent());
                                if (reloadPage) {
                                    livePanel.clearSelectionAndInspect(true, true);
                                }
@@ -1669,6 +1677,7 @@ export class ContentWizardPanel
             const showPanel: boolean = wasNotRenderable && this.isRenderable();
             this.getLivePanel().setModel(this.liveEditModel);
             this.getLivePanel().clearSelectionAndInspect(showPanel, false);
+            this.pageComponentsView?.setContent(this.liveEditModel.getContent());
             this.debouncedEditorReload(false);
 
             return Q(null);
@@ -1902,6 +1911,11 @@ export class ContentWizardPanel
 
     private createWizardStepForms(): Q.Promise<void> {
         this.contentWizardStepForm = new ContentWizardStepForm();
+
+        if (this.isPageComponentsViewRequired()) {
+            this.pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+        }
+
         return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this));
     }
 
@@ -1952,6 +1966,8 @@ export class ContentWizardPanel
 
             formViewLayoutPromises.push(promise);
         });
+
+        this.pageComponentsWizardStepForm?.layout(this.pageComponentsView);
 
         return Q.all(formViewLayoutPromises).thenResolve(null);
     }
@@ -2319,10 +2335,6 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.displayValidationErrors(value);
     }
 
-    getComponentsViewToggler(): TogglerButton {
-        return this.getMainToolbar().getComponentsViewToggler();
-    }
-
     getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {
         return this.getMainToolbar().getContentWizardToolbarPublishControls();
     }
@@ -2393,6 +2405,7 @@ export class ContentWizardPanel
 
         this.getEl().toggleClass('no-modify-permissions', !value);
         this.getLivePanel()?.setEnabled(value);
+        this.pageComponentsView?.setModifyPermissions(value);
     }
 
     isReadOnly(): boolean {
@@ -2474,8 +2487,6 @@ export class ContentWizardPanel
             this.wizardActions.getPreviewAction().setEnabled(this.isRenderable());
 
             return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
-                this.getComponentsViewToggler().setEnabled(this.isRenderable());
-                this.getComponentsViewToggler().setVisible(this.isRenderable());
                 this.contextView.updateWidgetsVisibility();
             });
         });
@@ -2517,7 +2528,9 @@ export class ContentWizardPanel
                 this.onPageChanged(listener);
             }
 
-            this.getLivePanel().onPageViewReady(() => {
+            this.getLivePanel().onPageViewReady((pageView: PageView) => {
+                this.pageComponentsView?.setPageView(pageView);
+
                 this.checkIfRenderable().then(() => {
                     this.onPageChanged(listener);
                 });
@@ -2646,5 +2659,9 @@ export class ContentWizardPanel
 
     getSplitPanel(): SplitPanel {
         return this.splitPanel;
+    }
+
+    private isPageComponentsViewRequired(): boolean {
+        return this.livePanel && this.getPersistedItem().getPage()?.hasController();
     }
 }

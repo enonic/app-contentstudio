@@ -32,13 +32,11 @@ import {Content} from '../content/Content';
 import {DataChangedEvent, DataChangedType} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
-import {H3El} from '@enonic/lib-admin-ui/dom/H3El';
-import {CloseButton} from '@enonic/lib-admin-ui/ui/button/CloseButton';
-import {H2El} from '@enonic/lib-admin-ui/dom/H2El';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 
 export class PageComponentsView
     extends DivEl {
@@ -51,11 +49,11 @@ export class PageComponentsView
     private responsiveItem: ResponsiveItem;
 
     private tree: PageComponentsTreeGrid;
-    private header: H3El;
+    private header: Element;
     private modal: boolean;
-    private floating: boolean;
     private draggable: boolean;
     private selectedItemId: string;
+    private dockedParent: Element;
 
     private beforeInsertActionListeners: { (event: any): void }[] = [];
 
@@ -79,7 +77,7 @@ export class PageComponentsView
 
     private modifyPermissions: boolean = false;
 
-    constructor(liveEditPage: LiveEditPageProxy, private saveAsTemplateAction: SaveAsTemplateAction) {
+    constructor(liveEditPage: LiveEditPageProxy) {
         super('page-components-view');
 
         this.liveEditPage = liveEditPage;
@@ -90,7 +88,7 @@ export class PageComponentsView
 
         this.setupListeners();
 
-        this.setModal(false).setFloating(true).setDraggable(true);
+        this.setModal(false);
 
         this.initKeyBoardBindings();
 
@@ -98,14 +96,17 @@ export class PageComponentsView
     }
 
     private initElements() {
-        const closeButton = new CloseButton();
-        closeButton.onClicked((event: MouseEvent) => {
+        let isCollapsed = false;
+        const toggleButton = new Button().addClass('collapse-button icon-arrow_drop_down');
+
+        toggleButton.onClicked((event: MouseEvent) => {
             event.stopPropagation();
             event.preventDefault();
-            this.hide();
+            isCollapsed = !isCollapsed;
+            this.toggleClass('collapsed', isCollapsed);
         });
 
-        this.header = new H2El('header');
+        this.header = new DivEl('header');
         this.header.setHtml(i18n('field.components'));
 
         this.responsiveItem = ResponsiveManager.onAvailableSizeChanged(Body.get(), (item: ResponsiveItem) => {
@@ -113,23 +114,19 @@ export class PageComponentsView
                 return;
             }
             const smallSize = item.isInRangeOrSmaller(ResponsiveRanges._360_540);
-            const compactSize = item.isInRangeOrSmaller(ResponsiveRanges._720_960);
-            this.toggleClass('compact', compactSize);
-            if (this.tree) {
-                this.tree.toggleCompact(compactSize);
-            }
+
             if (!smallSize && this.isVisible()) {
                 this.constrainToParent();
             }
             if (item.isRangeSizeChanged()) {
-                this.setModal(smallSize).setDraggable(!smallSize);
-            }
-            if (this.tree && compactSize) {
-                this.tree.getGrid().resizeCanvas();
+                this.setModal(smallSize);
             }
         });
 
-        this.appendChildren(<Element>closeButton, this.header);
+
+        const headerWrapper = new DivEl('header-wrapper');
+        headerWrapper.appendChildren(this.header, toggleButton);
+        this.appendChildren(headerWrapper);
     }
 
     private setupListeners() {
@@ -142,9 +139,7 @@ export class PageComponentsView
         });
 
         this.onShown(() => {
-            this.constrainToParent();
-            this.getHTMLElement().style.display = '';
-            if (this.pageView && this.pageView.isLocked()) {
+            if (this.pageView?.isLocked()) {
                 this.addClass('locked');
             }
         });
@@ -312,10 +307,6 @@ export class PageComponentsView
             if (this.isMenuIconClicked(data.cell)) {
                 this.showContextMenu(data.row, {x: event.pageX, y: event.pageY});
             }
-
-            if (this.isModal()) {
-                this.hide();
-            }
         };
 
         this.dblClickListener = (event, data) => {
@@ -365,13 +356,7 @@ export class PageComponentsView
         });
 
         this.tree.onSelectionChanged(() => {
-            const fullSelection: number = this.tree.getTotalSelected();
             const currentSelection: ItemViewTreeGridWrapper[] = this.tree.getCurrentSelection();
-
-            if (fullSelection > 0 && this.isModal()) {
-                this.hide();
-            }
-
             const selectedItem: ItemViewTreeGridWrapper = currentSelection[0];
 
             if (selectedItem) {
@@ -577,6 +562,10 @@ export class PageComponentsView
     }
 
     private constrainToParent(offset?: { top: number; left: number }) {
+        if (!this.draggable) {
+            return;
+        }
+
         const el = this.getEl();
         const elOffset = offset || el.getOffset();
         let parentEl;
@@ -599,16 +588,6 @@ export class PageComponentsView
             top: Math.max(parentOffset.top, Math.min(elOffset.top, parentOffset.top + parentEl.getHeight() - el.getHeightWithBorder())),
             left: Math.max(parentOffset.left, Math.min(elOffset.left, parentOffset.left + parentEl.getWidth() - el.getWidthWithBorder()))
         });
-    }
-
-    isFloating(): boolean {
-        return this.floating;
-    }
-
-    setFloating(floating: boolean): PageComponentsView {
-        this.toggleClass('floating', floating);
-        this.floating = floating;
-        return this;
     }
 
     isModal(): boolean {
@@ -697,7 +676,6 @@ export class PageComponentsView
         } else {
             this.afterActionHandler = (action: Action) => {
                 const isViewVisible = (this.getHTMLElement().offsetHeight > 0);
-                this.hidePageComponentsIfInMobileView(action);
 
                 if (isViewVisible && action.hasParentAction() && action.getParentAction().getLabel() === i18n('live.view.selectparent')) {
                     this.tree.getFirstSelectedItem().getItemView().hideContextMenu();
@@ -718,23 +696,13 @@ export class PageComponentsView
 
         this.setMenuOpenStyleOnMenuIcon(row);
 
-        this.saveAsTemplateAction.updateVisibility();
+        SaveAsTemplateAction.get().updateVisibility();
 
         // show menu at position
         let x = clickPosition.x;
         let y = clickPosition.y;
 
         this.contextMenu.showAt(x, y, false);
-    }
-
-    private hidePageComponentsIfInMobileView(action: Action) {
-        if (BrowserHelper.isMobile() &&
-            ((action.hasParentAction() && action.getParentAction().getLabel() === i18n('action.insert'))
-             || action.getLabel() === i18n('action.inspect')
-             || action.getLabel() === i18n('action.edit')
-             || action.getLabel() === i18n('action.duplicate'))) {
-            this.hide();
-        }
     }
 
     private setMenuOpenStyleOnMenuIcon(row: number) {
@@ -801,9 +769,10 @@ export class PageComponentsView
             }
         });
 
-        if (editAction) {
-            this.hide();
-            editAction.execute();
-        }
+        editAction?.execute();
+    }
+
+    getEl(): ElementHelper {
+        return super.getEl();
     }
 }
