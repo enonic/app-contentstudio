@@ -207,6 +207,22 @@
   }
 }
 
+.icon-minimize {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e98c";
+  }
+}
+
+.icon-maximize {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e98b";
+  }
+}
+
 .icon-inherited(@size: 18px, @width: @size+2, @height: @size+2, @line-height: @size+4) {
   .icon-down-arrow();
 

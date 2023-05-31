@@ -33,8 +33,6 @@ export class ContentWizardToolbar
 
     protected config: ContentWizardToolbarConfig;
 
-    private componentsViewToggler: TogglerButton;
-
     private cycleViewModeButton: ContentActionCycleButton;
 
     private contextPanelToggler: NonMobileContextPanelToggleButton;
@@ -70,10 +68,6 @@ export class ContentWizardToolbar
         this.config.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
             this.updateStateIcon(status);
             this.toggleValid(!WorkflowStateManager.isInvalid(status));
-        });
-
-        this.componentsViewToggler.onActiveChanged((isActive: boolean) => {
-            this.componentsViewToggler.setTitle(isActive ? i18n('field.hideComponent') : i18n('field.showComponent'), false);
         });
 
         this.contentWizardToolbarPublishControls.getPublishButton().onInitialized(() => {
@@ -194,10 +188,8 @@ export class ContentWizardToolbar
     private addTogglerButtons() {
         const actions: ContentWizardActions = this.config.actions;
         this.cycleViewModeButton = new ContentActionCycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
-        this.componentsViewToggler = new TogglerButton('icon-clipboard', i18n('field.showComponent'));
         this.contextPanelToggler = new NonMobileContextPanelToggleButton();
 
-        this.addElement(this.componentsViewToggler);
         this.addElement(this.cycleViewModeButton);
         this.addElement(this.contextPanelToggler);
     }
@@ -224,10 +216,6 @@ export class ContentWizardToolbar
 
     getCycleViewModeButton(): ContentActionCycleButton {
         return this.cycleViewModeButton;
-    }
-
-    getComponentsViewToggler(): TogglerButton {
-        return this.componentsViewToggler;
     }
 
     getContextPanelToggler(): NonMobileContextPanelToggleButton {

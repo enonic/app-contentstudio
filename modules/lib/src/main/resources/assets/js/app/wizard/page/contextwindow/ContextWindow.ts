@@ -1,12 +1,10 @@
 import * as Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {LiveFormPanel} from '../LiveFormPanel';
 import {InspectionsPanel} from './inspect/InspectionsPanel';
 import {BaseInspectionPanel} from './inspect/BaseInspectionPanel';
 import {InsertablesPanel} from './insert/InsertablesPanel';
-import {PageComponentsView} from '../../PageComponentsView';
 import {InspectEvent} from '../../../event/InspectEvent';
 import {NamedPanel} from './inspect/NamedPanel';
 import {PageMode} from '../../../page/PageMode';
@@ -14,6 +12,7 @@ import {PageInspectionPanel} from './inspect/page/PageInspectionPanel';
 import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
+import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
 
 export interface ContextWindowConfig {
 
@@ -57,6 +56,22 @@ export class ContextWindow
         this.liveFormPanel = config.liveFormPanel;
         this.inspectionsPanel = config.inspectionPanel;
         this.insertablesPanel = config.insertablesPanel;
+
+        this.initListeners();
+    }
+
+    protected initListeners(): void {
+        this.liveFormPanel.onHidden((): void => {
+            this.setItemVisible(this.insertablesPanel, false);
+        });
+
+        this.liveFormPanel.onShown((): void => {
+            this.setItemVisible(this.insertablesPanel, true);
+        });
+    }
+
+    getDeck(): NavigatedDeckPanel {
+        return super.getDeck() as NavigatedDeckPanel;
     }
 
     doRender(): Q.Promise<boolean> {
@@ -72,10 +87,6 @@ export class ContextWindow
 
             return rendered;
         });
-    }
-
-    getComponentsView(): PageComponentsView {
-        return this.insertablesPanel.getComponentsView();
     }
 
     private isPanelSelectable(panel: Panel): boolean {
@@ -121,9 +132,5 @@ export class ContextWindow
         return ObjectHelper.iFrameSafeInstanceOf(shownPanel, NamedPanel) ?
                (<NamedPanel>shownPanel).getName() :
                i18n('live.view.inspect');
-    }
-
-    isLiveFormShown(): boolean {
-        return this.liveFormPanel.isVisible();
     }
 }

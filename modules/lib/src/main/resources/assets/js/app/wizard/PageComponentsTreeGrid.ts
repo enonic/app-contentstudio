@@ -35,6 +35,7 @@ export class PageComponentsTreeGrid
 
     private pageView: PageView;
     private content: Content;
+    private nodeExpandedHandler?: ()=> void;
 
     constructor(content: Content, pageView: PageView) {
         super(new TreeGridBuilder<ItemViewTreeGridWrapper>()
@@ -88,12 +89,6 @@ export class PageComponentsTreeGrid
         fragmentView.onFragmentContentLoaded(loadedListener);
     }
 
-    toggleCompact(flag: boolean) {
-        const options = this.getOptions().setRowHeight(flag ? 30 : 45);
-        this.getGrid().setOptions(options);
-        this.invalidate();
-    }
-
     queryScrollable(): Element {
         return this;
     }
@@ -101,6 +96,10 @@ export class PageComponentsTreeGrid
     setPageView(pageView: PageView): Q.Promise<void> {
         this.pageView = pageView;
         return this.reload();
+    }
+
+    setNodeExpandedHandler(handler: () => void) {
+        this.nodeExpandedHandler = handler;
     }
 
     setInvalid(dataIds: string[]) {
@@ -214,7 +213,7 @@ export class PageComponentsTreeGrid
 
         if (clean) {
             oldNode.getChildren().forEach((childNode: TreeNode<ItemViewTreeGridWrapper>) => {
-               this.deleteNode(childNode);
+                this.deleteNode(childNode);
             });
         }
 
@@ -241,11 +240,37 @@ export class PageComponentsTreeGrid
 
         if (node) {
             this.scrollToRow(this.getGrid().getDataView().getRowById(node.getId()));
+            const row = this.getGrid().getDataView().getRowById(node.getId());
+            this.getGrid().getCellNode(row, 0).scrollIntoView();
         }
     }
 
     protected isToBeExpanded(node: TreeNode<ItemViewTreeGridWrapper>): boolean {
-        return super.isToBeExpanded(node) || !node.getData().getItemView().getType().equals(LayoutItemType.get());
+        return super.isToBeExpanded(node) ||
+               !node.getData().getItemView().getType().equals(LayoutItemType.get()) ||
+               node.getData().getItemView().getParentItemView() === this.pageView;
     }
 
+    mask() {
+        // skipping mask for now to avoid flickering
+    }
+
+    unmask() {
+        // skipping mask for now to avoid flickering
+    }
+
+    protected expandNode(node?: TreeNode<ItemViewTreeGridWrapper>): Q.Promise<boolean> {
+        return super.expandNode(node).then((expanded: boolean) => {
+            this.nodeExpandedHandler?.();
+            return expanded;
+        });
+    }
+
+    protected deleteNode(node: TreeNode<ItemViewTreeGridWrapper>): void {
+        if (node.hasChildren()) {
+            node.getChildren().forEach((childNode: TreeNode<ItemViewTreeGridWrapper>) => this.deleteNode(childNode));
+        }
+
+        super.deleteNode(node);
+    }
 }

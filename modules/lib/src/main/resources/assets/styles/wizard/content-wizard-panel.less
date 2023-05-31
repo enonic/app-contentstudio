@@ -49,6 +49,10 @@
           width: 100% !important;
         }
       }
+
+      .splitter {
+        display: none !important;
+      }
     }
 
     &.context-split-panel.expanded {
@@ -168,12 +172,6 @@
       .details-toggle {
         margin-left: auto;
       }
-    }
-  }
-
-  &.form {
-    .page-components-view {
-      display: none !important;
     }
   }
 
@@ -384,6 +382,12 @@
 
     &:hover {
       color: @admin-bg-dark-gray;
+    }
+  }
+
+  .content-wizard-context-split-panel {
+    .splitter, .context-panel {
+      z-index: @z-index-toolbar-element + 1;
     }
   }
 

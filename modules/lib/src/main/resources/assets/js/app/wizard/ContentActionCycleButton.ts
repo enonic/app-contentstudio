@@ -69,7 +69,7 @@ export class ContentActionCycleButton
     }
 
     private updateActiveTitle(): void {
-        this.setTitle(this.activeAction.getTitle() || '');
+        this.setTitle(this.activeAction.getTitle() || '', false);
     }
 
 }
