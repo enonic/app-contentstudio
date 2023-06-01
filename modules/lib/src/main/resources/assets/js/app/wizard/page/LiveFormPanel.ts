@@ -795,7 +795,6 @@ export class LiveFormPanel
         };
 
         this.liveEditPageProxy.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
-            debugger;
             this.pageView = event.getPageView();
 
             // disable insert tab if there is no page for some reason (i.e. error occurred)

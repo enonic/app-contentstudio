@@ -41,6 +41,11 @@ import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 export class PageComponentsView
     extends DivEl {
 
+    private static LOCKED_CLASS: string = 'locked';
+    private static MINIMIZED_CLASS: string = 'minimized';
+    private static MINIMIZED_ICON_CLASS: string = 'icon-minimize';
+    private static MAXIMIZED_ICON_CLASS: string = 'icon-maximize';
+
     private content: Content;
     private pageView: PageView;
     private liveEditPage: LiveEditPageProxy;
@@ -54,6 +59,7 @@ export class PageComponentsView
     private draggable: boolean;
     private selectedItemId: string;
     private dockedParent: Element;
+    private toggleMinimizedStateButton: Button;
 
     private beforeInsertActionListeners: { (event: any): void }[] = [];
 
@@ -96,14 +102,13 @@ export class PageComponentsView
     }
 
     private initElements() {
-        let isCollapsed = false;
-        const toggleButton = new Button().addClass('collapse-button icon-arrow_drop_down');
+        this.toggleMinimizedStateButton =
+            new Button().addClass(`minimize-button ${PageComponentsView.MINIMIZED_ICON_CLASS}`).setTitle(i18n('field.minimize')) as Button;
 
-        toggleButton.onClicked((event: MouseEvent) => {
+        this.toggleMinimizedStateButton.onClicked((event: MouseEvent) => {
             event.stopPropagation();
             event.preventDefault();
-            isCollapsed = !isCollapsed;
-            this.toggleClass('collapsed', isCollapsed);
+            this.toggleCollapsedState();
         });
 
         this.header = new DivEl('header');
@@ -125,7 +130,7 @@ export class PageComponentsView
 
 
         const headerWrapper = new DivEl('header-wrapper');
-        headerWrapper.appendChildren(this.header, toggleButton);
+        headerWrapper.appendChildren(this.header, this.toggleMinimizedStateButton);
         this.appendChildren(headerWrapper);
     }
 
@@ -140,11 +145,15 @@ export class PageComponentsView
 
         this.onShown(() => {
             if (this.pageView?.isLocked()) {
-                this.addClass('locked');
+                this.addClass(PageComponentsView.LOCKED_CLASS);
             }
         });
 
         this.onAdded(() => this.initLiveEditEvents());
+
+        this.header.onDblClicked(() => {
+            this.toggleCollapsedState();
+        });
     }
 
     show() {
@@ -174,8 +183,7 @@ export class PageComponentsView
     }
 
     setPageView(pageView: PageView) {
-
-        this.removeClass('locked');
+        this.removeClass(PageComponentsView.LOCKED_CLASS);
 
         this.pageView = pageView;
         if (!this.tree && this.content && this.pageView) {
@@ -208,7 +216,7 @@ export class PageComponentsView
         this.unClicked(this.lockedViewClickHandler);
 
         if (this.pageView.isLocked()) {
-            this.addClass('locked');
+            this.addClass(PageComponentsView.LOCKED_CLASS);
         }
 
         this.onContextMenu(this.lockedViewClickHandler);
@@ -617,7 +625,7 @@ export class PageComponentsView
     }
 
     private pageLockedHandler(lock: boolean) {
-        this.toggleClass('locked', lock);
+        this.toggleClass(PageComponentsView.LOCKED_CLASS, lock);
         if (this.tree) {
             this.tree.reload();
         }
@@ -786,5 +794,15 @@ export class PageComponentsView
 
     getEl(): ElementHelper {
         return super.getEl();
+    }
+
+    private toggleCollapsedState() {
+        const isCollapsed = this.hasClass(PageComponentsView.MINIMIZED_CLASS);
+        const classToRemove = isCollapsed ? PageComponentsView.MAXIMIZED_ICON_CLASS : PageComponentsView.MINIMIZED_ICON_CLASS;
+        const classToAdd = isCollapsed ? PageComponentsView.MINIMIZED_ICON_CLASS : PageComponentsView.MAXIMIZED_ICON_CLASS;
+        this.toggleMinimizedStateButton.setTitle(isCollapsed ? i18n('field.minimize') : i18n('field.maximize'));
+        this.toggleMinimizedStateButton.removeClass(classToRemove).addClass(classToAdd);
+        this.toggleClass(PageComponentsView.MINIMIZED_CLASS, !isCollapsed);
+
     }
 }
