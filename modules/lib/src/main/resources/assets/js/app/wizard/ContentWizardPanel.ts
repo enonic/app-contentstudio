@@ -1199,16 +1199,26 @@ export class ContentWizardPanel
 
     private createSteps(): ContentWizardStep[] {
         const steps: ContentWizardStep[] = [];
+        const isFragment = this.contentType.getContentTypeName().isFragment();
 
         this.contentWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
-        steps.push(this.contentWizardStep);
+
+        if (!isFragment) {
+            steps.push(this.contentWizardStep);
+        }
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             steps.push(new XDataWizardStep(form));
         });
 
         if (this.isPageComponentsViewRequired()) {
-            steps.push(new PageComponentsWizardStep(i18n('field.page'), this.pageComponentsWizardStepForm));
+            const pageStep = new PageComponentsWizardStep(i18n('field.page'), this.pageComponentsWizardStepForm);
+
+            if (this.contentType.isPageTemplate() || isFragment) {
+                steps.unshift(pageStep);
+            } else {
+                steps.push(pageStep);
+            }
         }
 
         this.addAccessibilityToSteps(steps);
@@ -2666,6 +2676,6 @@ export class ContentWizardPanel
     }
 
     private isPageComponentsViewRequired(): boolean {
-        return this.livePanel && this.getPersistedItem().getPage()?.hasController();
+        return this.livePanel && (this.getPersistedItem().getPage()?.hasController() || this.getPersistedItem().getPage()?.isFragment());
     }
 }
