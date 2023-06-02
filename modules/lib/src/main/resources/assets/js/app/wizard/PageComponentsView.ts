@@ -137,19 +137,13 @@ export class PageComponentsView
     private setupListeners() {
         this.onHidden(() => this.hideContextMenu());
 
-        this.onRemoved(() => {
-            if (this.contextMenu) {
-                this.contextMenu.remove();
-            }
-        });
-
         this.onShown(() => {
             if (this.pageView?.isLocked()) {
                 this.addClass(PageComponentsView.LOCKED_CLASS);
             }
         });
 
-        this.onAdded(() => this.initLiveEditEvents());
+        this.whenRendered(() => this.initLiveEditEvents());
 
         this.header.onDblClicked(() => {
             this.toggleCollapsedState();
@@ -167,7 +161,7 @@ export class PageComponentsView
 
     dock(): void {
         this.setDraggable(false);
-        this.dockedParent.appendChild(this);
+        this.dockedParent?.appendChild(this);
     }
 
     undock(): void {
@@ -282,6 +276,14 @@ export class PageComponentsView
             this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView(), true);
 
             this.removeFromInvalidItems(oldDataId);
+        });
+
+        this.liveEditPage.onBeforeLoad(() => {
+            this.addClass('loading');
+        });
+
+        this.liveEditPage.onLoaded(() => {
+            this.removeClass('loading');
         });
     }
 
@@ -736,7 +738,7 @@ export class PageComponentsView
     }
 
     private hideContextMenu() {
-        if (this.contextMenu && this.contextMenu.isVisible()) {
+        if (this.contextMenu?.isVisible()) {
             this.contextMenu.hide();
         }
     }

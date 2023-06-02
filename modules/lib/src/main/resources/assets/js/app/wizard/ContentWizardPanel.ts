@@ -157,6 +157,8 @@ export class ContentWizardPanel
 
     private pageComponentsWizardStepForm?: PageComponentsWizardStepForm;
 
+    private pageComponentsWizardStep?: PageComponentsWizardStep;
+
     protected wizardActions: ContentWizardActions;
 
     protected params: ContentWizardPanelParams;
@@ -466,7 +468,7 @@ export class ContentWizardPanel
             this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.Pixels(40));
             this.splitPanel.hideSplitter();
             this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
-            this.pageComponentsView?.undock();
+            this.undockPCV();
         } else {
             this.splitPanel.loadPanelSizesAndDistribute();
             this.splitPanel.showSplitter();
@@ -474,7 +476,7 @@ export class ContentWizardPanel
             this.stepsPanel.setListenToScroll(true);
             this.stepNavigator.setScrollEnabled(true);
             this.stepNavigator.selectNavigationItem(navigationIndex, false, true);
-            this.pageComponentsView?.dock();
+            this.dockPCV();
         }
 
         const maximized = !this.minimized;
@@ -678,14 +680,6 @@ export class ContentWizardPanel
         this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
         this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
         this.liveMask = new LoadMask(this.livePanel);
-
-        this.liveEditPage.onBeforeLoad(() => {
-            this.pageComponentsView.addClass('loading');
-        });
-
-        this.liveEditPage.onLoaded(() => {
-            this.pageComponentsView.removeClass('loading');
-        });
 
         liveFormPanel.onPageViewReady((pageView: PageView) => {
             this.pageComponentsView.setPageView(pageView);
@@ -920,6 +914,7 @@ export class ContentWizardPanel
                         this.updateButtonsState();
                         this.contextView.updateWidgetsVisibility();
                         this.toggleLiveEdit();
+                        this.togglePageComponentsViewOnDemand();
                     })
                     .catch(DefaultErrorHandler.handle);
             }
@@ -1201,7 +1196,7 @@ export class ContentWizardPanel
         const steps: ContentWizardStep[] = [];
         const isFragment = this.contentType.getContentTypeName().isFragment();
 
-        this.contentWizardStep = new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm);
+        this.contentWizardStep = new ContentWizardStep(this.getContentWizardStepName(), this.contentWizardStepForm);
 
         if (!isFragment) {
             steps.push(this.contentWizardStep);
@@ -1212,12 +1207,12 @@ export class ContentWizardPanel
         });
 
         if (this.isPageComponentsViewRequired()) {
-            const pageStep = new PageComponentsWizardStep(i18n('field.page'), this.pageComponentsWizardStepForm);
+            this.pageComponentsWizardStep = new PageComponentsWizardStep(this.getPageWizardStepName(), this.pageComponentsWizardStepForm);
 
             if (this.contentType.isPageTemplate() || isFragment) {
-                steps.unshift(pageStep);
+                steps.unshift(this.pageComponentsWizardStep);
             } else {
-                steps.push(pageStep);
+                steps.push(this.pageComponentsWizardStep);
             }
         }
 
@@ -2461,7 +2456,6 @@ export class ContentWizardPanel
     }
 
     private updateWizardStepForms(content: Content, unchangedOnly: boolean = true) {
-
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
 
         content.getContentData().onChanged(this.dataChangedHandler);
@@ -2471,6 +2465,8 @@ export class ContentWizardPanel
 
             this.syncPersistedItemWithContentData(content.getContentData());
         });
+
+        this.togglePageComponentsViewOnDemand();
     }
 
     private checkIfRenderable(item?: ContentSummary): Q.Promise<boolean> {
@@ -2677,5 +2673,56 @@ export class ContentWizardPanel
 
     private isPageComponentsViewRequired(): boolean {
         return this.livePanel && (this.getPersistedItem().getPage()?.hasController() || this.getPersistedItem().getPage()?.isFragment());
+    }
+
+    private togglePageComponentsViewOnDemand() {
+        if (this.isPageComponentsViewRequired()) {
+            if (!this.pageComponentsWizardStepForm) {
+                this.pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+                this.pageComponentsWizardStepForm.layout(this.pageComponentsView);
+                this.pageComponentsWizardStep = new PageComponentsWizardStep(this.getPageWizardStepName(), this.pageComponentsWizardStepForm);
+            }
+
+            if (!this.getSteps().some((step) => step === this.pageComponentsWizardStep)) {
+                this.addStep(this.pageComponentsWizardStep, false);
+            }
+        } else {
+            if (this.pageComponentsWizardStepForm) {
+                this.pageComponentsView.dock();
+                this.removeStepWithForm(this.pageComponentsWizardStepForm);
+            }
+        }
+    }
+
+    private undockPCV(): void {
+        if (this.isPageComponentsViewRequired()) {
+            this.pageComponentsView?.undock();
+        }
+    }
+
+    private dockPCV(): void {
+        if (this.isPageComponentsViewRequired()) {
+            this.pageComponentsView?.dock();
+        }
+    }
+
+    private getPageWizardStepName(): string {
+        if (this.contentType.getContentTypeName().isFragment()) {
+            return i18n('field.fragment');
+        }
+
+        if (this.contentType.isPageTemplate()) {
+            return this.contentType.getDisplayName();
+        }
+
+        return i18n('field.page');
+    }
+
+    private getContentWizardStepName(): string {
+        if (this.contentType.isPageTemplate()) {
+            return i18n('field.page.template.supports');
+        }
+
+        return this.contentType.getDisplayName();
     }
 }
