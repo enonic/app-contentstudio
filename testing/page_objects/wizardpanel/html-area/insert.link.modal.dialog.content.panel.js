@@ -54,6 +54,13 @@ class InsertLinkDialogContentPanel extends Page {
         return XPATH.contentPanel + XPATH.parametersFormItem + lib.BUTTON_WITH_SPAN_ADD;
     }
 
+    async typeTextInContentOptionsFilterInput(text) {
+        let locator = XPATH.container + XPATH.contentCombobox + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.typeTextInInput(locator, text);
+        return await this.pause(1000);
+    }
+
     async clickOnContentDropdownHandle() {
         await this.waitForElementDisplayed(this.contentDropDownHandler, appConst.mediumTimeout);
         await this.clickOnElement(this.contentDropDownHandler);
@@ -66,6 +73,7 @@ class InsertLinkDialogContentPanel extends Page {
         await this.pause(700);
     }
 
+    // returns the list of options display name:
     async getDropdownListOptions() {
         let loaderComboBox = new LoaderComboBox();
         let optionsLocator = XPATH.container + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
@@ -73,9 +81,22 @@ class InsertLinkDialogContentPanel extends Page {
         return await loaderComboBox.getOptionDisplayNames(XPATH.container);
     }
 
+    // returns the list of options name:
+    async getDropdownListOptionsName() {
+        let loaderComboBox = new LoaderComboBox();
+        let optionsLocator = XPATH.container + lib.SLICK_ROW + lib.P_SUB_NAME;
+        await loaderComboBox.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
+        return await loaderComboBox.getOptionsName(XPATH.container);
+    }
+
+    async getOptionsMode() {
+        let loaderComboBox = new LoaderComboBox();
+
+        return await loaderComboBox.getMode(XPATH.container);
+    }
 
     waitForShowContentFromEntireProjectCheckboxDisplayed() {
-        let locator = XPATH.contentPanel +  XPATH.showContentCheckboxLabel;
+        let locator = XPATH.contentPanel + XPATH.showContentCheckboxLabel;
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 

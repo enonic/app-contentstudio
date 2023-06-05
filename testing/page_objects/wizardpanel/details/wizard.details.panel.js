@@ -24,7 +24,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
     async isContentInvalid() {
         let selector = xpath.container + xpath.widgetItem + lib.CONTENT_SUMMARY_AND_STATUS_VIEWER;
         let attr = await this.getAttribute(selector, 'class');
-        return await attr.includes("invalid");
+        return await attr.includes('invalid');
     }
 
     async waitForDetailsPanelLoaded() {

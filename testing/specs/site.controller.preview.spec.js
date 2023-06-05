@@ -16,12 +16,12 @@ const appConst = require('../libs/app_const');
 
 describe('site.controller.preview.spec: checks Preview button and options in selector for Page Templates and Controllers', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
-    let CONTROLLER_NAME = "Page";
+    let CONTROLLER_NAME = 'Page';
 
     it(`GIVEN wizard for new site is opened WHEN page controller is not selected THEN 'Preview' button should not be visible in the wizard toolbar`,
         async () => {
@@ -45,9 +45,9 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             //3. Verify that 'Preview' button is disabled in the browse toolbar:
             await contentBrowsePanel.waitForPreviewButtonDisabled();
             //4. Verify that 'Failed to render content preview' is displayed in Content Item Preview panel:
-            await studioUtils.saveScreenshot("site_preview_not_available");
+            await studioUtils.saveScreenshot('site_preview_not_available');
             let text = await contentItemPreviewPanel.getNoPreviewMessage();
-            assert.isTrue(text.includes("Unable to render"),
+            assert.isTrue(text.includes('Unable to render'),
                 "Expected text should be displayed in Content Item Preview panel");
             assert.isTrue(text.includes("No template or page configured"), "Expected text should be displayed");
         });
@@ -70,11 +70,11 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             //5. Click on dropdown handle and expand options:
             let actualOptions = await pageInspectionPanel.getPageTemplateDropdownOptions();
             //6. Verify actual options:
-            studioUtils.saveScreenshot('site_inspect_panel_template_dropdown');
+            await studioUtils.saveScreenshot('site_inspect_panel_template_dropdown');
             let expectedOption = `( no default template found )`;
             assert.equal(actualOptions[0], expectedOption, 'name of automatic template should be displayed');
-            assert.equal(actualOptions[1], "test region", 'expected option should be present');
-            assert.equal(actualOptions[2], "home page", 'expected option should be present');
+            assert.equal(actualOptions[1], 'test region', 'expected option should be present');
+            assert.equal(actualOptions[2], 'home page', 'expected option should be present');
         });
 
     it(`WHEN existing site(controller is selected) has been clicked THEN 'Preview' button should be enabled in the browse toolbar and in Context menu`,
@@ -86,8 +86,8 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentBrowsePanel.waitForPreviewButtonEnabled();
             //4.Verify that Preview menu item is enabled in grid context menu:
             await contentBrowsePanel.rightClickOnItemByDisplayName(SITE.displayName);
-            await studioUtils.saveScreenshot("check-context-menu-preview");
-            await contentBrowsePanel.waitForContextMenuItemEnabled("Preview");
+            await studioUtils.saveScreenshot('check-context-menu-preview');
+            await contentBrowsePanel.waitForContextMenuItemEnabled('Preview');
         });
 
     it(`GIVEN existing site is opened WHEN selected controller has been reset THEN 'Preview' button gets not visible in wizard-toolbar and gets disabled in browse-toolbar `,
@@ -100,7 +100,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             //2. Expand the menu:
             await pageComponentView.openMenu(CONTROLLER_NAME);
             //3. Click on the 'Reset' menu item:
-            await pageComponentView.selectMenuItem(["Reset"]);
+            await pageComponentView.selectMenuItem(['Reset']);
             //3. Verify that 'Preview' button gets not visible in the wizard toolbar:
             await contentWizard.waitForPreviewButtonNotDisplayed();
             //4. Verify that Controller Options Filter input gets visible:
@@ -124,7 +124,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
