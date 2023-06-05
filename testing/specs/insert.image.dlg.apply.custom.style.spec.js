@@ -41,10 +41,10 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             // 4. Click on dropdown handle and verify style-options
             let actualOptions = await insertImageDialog.getStyleSelectorOptions();
-            studioUtils.saveScreenshot('image_dialog_custom_style_options');
-            assert.equal(actualOptions[2], 'Cinema', "Cinema should be present in options list");
-            assert.equal(actualOptions[3], 'Tall', "Tall option should be present in options list");
-            assert.equal(actualOptions.length, 7, "Expected number of options be present in options list");
+            await studioUtils.saveScreenshot('image_dialog_custom_style_options');
+            assert.equal(actualOptions[2], 'Cinema', "'Cinema' should be present in options list");
+            assert.equal(actualOptions[3], 'Tall', "'Tall' option should be present in options list");
+            assert.equal(actualOptions.length, 7, 'Expected number of options be present in options list');
         });
 
     it(`GIVEN Insert Image modal dialog opened WHEN 'Cinema' option has been selected THEN 'Custom Width' checkbox should be enabled`,
@@ -60,12 +60,12 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             // 3. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             // 4. Type the 'Cinema' in filter input and click on the option:
-            await insertImageDialog.doFilterStyleAndClickOnOption("Cinema");
+            await insertImageDialog.doFilterStyleAndClickOnOption('Cinema');
             // 5. Verify that 'Custom Width' checkbox is enabled
             await insertImageDialog.waitForCustomWidthCheckBoxEnabled();
             //checkbox should be unselected
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-            assert.isFalse(isChecked, "Custom Width checkbox should be unchecked");
+            assert.isFalse(isChecked, 'Custom Width checkbox should be unchecked');
             // just save the changes and save the content
             await insertImageDialog.clickOnInsertButton();
             await contentWizard.waitAndClickOnSave();

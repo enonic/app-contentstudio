@@ -17,8 +17,8 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let TEST_TOOLTIP = 'my tooltip';
-    const TEST_CONTENT_DISPLAY_NAME = 'Templates'
+    const TEST_TOOLTIP = 'my tooltip';
+    const TEST_CONTENT_DISPLAY_NAME = 'Templates';
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -94,7 +94,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await insertLinkDialogContentPanel.clickOnContentSelectorModeTogglerButton();
             // 7. Verify the number of available items in the flat mode:
             let itemsFlatMode = await insertLinkDialogContentPanel.getDropdownListOptions();
-            assert.equal(itemsFlatMode.length, 5, '4 Items from the current site should be present in the options');
+            assert.equal(itemsFlatMode.length, 5, '5 Items from the current site should be present in the options');
         });
 
     it(`GIVEN content link is inserted in a htmlarea WHEN 'Edit link' modal dialog is opened THEN Content tab should be active and expected content should be present in selected options`,

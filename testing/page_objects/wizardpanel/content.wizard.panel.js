@@ -614,7 +614,7 @@ class ContentWizardPanel extends Page {
         try {
             let locator = this.workflowIconAndValidation;
             let result = await this.getAttribute(locator, 'class');
-            return result.includes("invalid");
+            return result.includes('invalid');
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_wizard_validation');
             await this.saveScreenshot(screenshot);

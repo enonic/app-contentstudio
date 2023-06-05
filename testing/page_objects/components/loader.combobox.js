@@ -15,8 +15,18 @@ class LoaderComboBox extends Page {
         return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
+    get modeTogglerButton() {
+        return XPATH.container + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
+    }
+
     get applyButton() {
         return "//button[contains(@class,'small apply-button')]";
+    }
+
+    // tree mode if 'active' is present in @class attribute
+    async getMode(xpath) {
+        let attr = await this.getAttribute(xpath+ this.modeTogglerButton, 'class');
+        return attr.includes('active') ? 'tree' : 'flat';
     }
 
     async waitForApplyButtonDisplayed() {
@@ -80,6 +90,15 @@ class LoaderComboBox extends Page {
             xpath = '';
         }
         let locator = xpath + lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
+    async getOptionsName(xpath) {
+        if (xpath === undefined) {
+            xpath = '';
+        }
+        let locator = xpath + lib.SLICK_VIEW_PORT + lib.P_SUB_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
