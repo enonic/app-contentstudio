@@ -31,6 +31,12 @@ exports.webSocketEvent = function (event) {
         return;
     }
 
+    if (!event.session) {
+        return {
+            status: 401
+        };
+    }
+
     switch (event.type) {
     case 'open': {
         collaborationLib.join(createJoinOrLeaveParams(event));
