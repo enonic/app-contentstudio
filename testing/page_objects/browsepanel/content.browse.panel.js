@@ -519,11 +519,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-    waitForSortButtonEnabled() {
-        return this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_sort_enabled_button');
-            throw Error('Sort button should be enabled, timeout: ' + err);
-        })
+    async waitForSortButtonEnabled() {
+        try {
+            await this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_sort_enabled_button');
+            await this.saveScreenshot(screenshot);
+            throw Error('Sort button should be enabled, screenshot: ' + screenshot + ' ' + err);
+        }
     }
 
     waitForMoveButtonEnabled() {

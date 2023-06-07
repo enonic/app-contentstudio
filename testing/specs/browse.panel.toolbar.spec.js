@@ -6,13 +6,16 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const appConst = require('../libs/app_const');
+const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 
 describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar after closing a wizard page', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let FOLDER_NAME;
+    let FOLDER
+    let CHILD_FOLDER;
 
     let SITE;
     //verifies https://github.com/enonic/app-contentstudio/issues/645
@@ -97,14 +100,48 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
-            let folder = contentBuilder.buildFolder(displayName);
-            await studioUtils.doAddFolder(folder);
-            await studioUtils.findAndSelectItem(folder.displayName);
+            FOLDER = contentBuilder.buildFolder(displayName);
+            await studioUtils.doAddFolder(FOLDER);
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.waitForEditButtonEnabled();
             //'Sort' button should be disabled, because this folder is empty!
             await contentBrowsePanel.waitForSortButtonDisabled();
             //'New' button should be enabled, because children are allowed for folder-content.
             await contentBrowsePanel.waitForNewButtonEnabled();
+        });
+
+    it(`GIVEN single folder is selected WHEN a child folder has been added THEN 'Sort' buttons gets enabled`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let displayName = contentBuilder.generateRandomName('child');
+            CHILD_FOLDER = contentBuilder.buildFolder(displayName);
+            // 1. Select a folder and add a child folder:
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            await studioUtils.doAddFolder(CHILD_FOLDER);
+            // 2.  'Sort' button gets enabled, because child folder was added:
+            await contentBrowsePanel.waitForSortButtonEnabled();
+            await contentBrowsePanel.waitForEditButtonEnabled();
+            await contentBrowsePanel.waitForMoveButtonEnabled();
+        });
+
+    it(`GIVEN the parent folder is selected WHEN child folder has been deleted THEN 'Sort' buttons should be disabled`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let deleteContentDialog = new DeleteContentDialog();
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            // 1. Click on the child folder:
+            await contentBrowsePanel.clickOnExpanderIcon(FOLDER.displayName);
+            await contentBrowsePanel.clickOnRowByName(CHILD_FOLDER.displayName)
+            // 2. delete the child folder:
+            await contentBrowsePanel.clickOnArchiveButton();
+            await deleteContentDialog.waitForDialogOpened();
+            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.waitForDialogClosed();
+            await contentBrowsePanel.waitForNotificationMessage();
+            // 3. select the parent folder:
+            await contentBrowsePanel.clickOnRowByName(FOLDER.displayName);
+            // 4. Verify that 'Sort' button should be disabled, because child folder has been deleted:
+            await contentBrowsePanel.waitForSortButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
