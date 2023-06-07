@@ -65,8 +65,8 @@ class DateTimeForm extends OccurrencesFormView {
         if (inputs.length === 0) {
             throw new Error("Date time Form - DateTime inputs were not found!");
         }
-        let attr = await inputs[index].getAttribute("class");
-        return attr.includes("invalid");
+        let attr = await inputs[index].getAttribute('class');
+        return attr.includes('invalid');
     }
 
     async showPicker() {

@@ -11,10 +11,10 @@ const studioUtils = require('../../libs/studio.utils.js');
 
 describe('sort.dialog.spec, tests for sort content dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const DIALOG_TITLE = "Sort items";
+    const DIALOG_TITLE = 'Sort items';
 
     it(`GIVEN sort dialog is opened WHEN 'Cancel' button has been clicked THEN the modal dialog should be closed`,
         async () => {
