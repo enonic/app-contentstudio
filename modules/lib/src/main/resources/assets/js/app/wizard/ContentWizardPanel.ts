@@ -179,8 +179,6 @@ export class ContentWizardPanel
 
     private liveEditModel: LiveEditModel;
 
-    private contentWizardStep: ContentWizardStep;
-
     private contentWizardStepForm: ContentWizardStepForm;
 
     private xDataWizardStepForms: XDataWizardStepForms;
@@ -1193,30 +1191,36 @@ export class ContentWizardPanel
     }
 
     private createSteps(): ContentWizardStep[] {
-        const steps: ContentWizardStep[] = [];
-        const isFragment = this.contentType.getContentTypeName().isFragment();
-
-        this.contentWizardStep = new ContentWizardStep(this.getContentWizardStepName(), this.contentWizardStepForm);
-
-        if (!isFragment) {
-            steps.push(this.contentWizardStep);
+        if (this.contentType.getContentTypeName().isFragment()) {
+            return this.createFragmentSteps();
         }
+
+        if (this.contentType.isPageTemplate()) {
+            return this.createPageTemplateSteps();
+        }
+
+        const steps: ContentWizardStep[] = [new ContentWizardStep(this.contentType.getDisplayName(), this.contentWizardStepForm)];
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             steps.push(new XDataWizardStep(form));
         });
 
         if (this.isPageComponentsViewRequired()) {
-            this.pageComponentsWizardStep = new PageComponentsWizardStep(this.getPageWizardStepName(), this.pageComponentsWizardStepForm);
-
-            if (this.contentType.isPageTemplate() || isFragment) {
-                steps.unshift(this.pageComponentsWizardStep);
-            } else {
-                steps.push(this.pageComponentsWizardStep);
-            }
+            steps.push(this.initPageComponentsWizardStep());
         }
 
-        this.addAccessibilityToSteps(steps);
+        return steps;
+    }
+
+    private createFragmentSteps(): ContentWizardStep[] {
+        return [this.initPageComponentsWizardStep()];
+    }
+
+    private createPageTemplateSteps(): ContentWizardStep[] {
+        const steps: ContentWizardStep[] = [];
+
+        steps.push(this.initPageComponentsWizardStep());
+        steps.push(new ContentWizardStep('', this.contentWizardStepForm));
 
         return steps;
     }
@@ -1882,6 +1886,7 @@ export class ContentWizardPanel
 
                 return this.createWizardStepForms().then(() => {
                     const steps: ContentWizardStep[] = this.createSteps();
+                    this.addAccessibilityToSteps(steps);
                     this.setSteps(steps);
 
                     return this.layoutWizardStepForms(content).then(() => {
@@ -2680,11 +2685,13 @@ export class ContentWizardPanel
             if (!this.pageComponentsWizardStepForm) {
                 this.pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
                 this.pageComponentsWizardStepForm.layout(this.pageComponentsView);
-                this.pageComponentsWizardStep = new PageComponentsWizardStep(this.getPageWizardStepName(), this.pageComponentsWizardStepForm);
+                this.pageComponentsWizardStep = this.initPageComponentsWizardStep();
             }
 
             if (!this.getSteps().some((step) => step === this.pageComponentsWizardStep)) {
                 this.addStep(this.pageComponentsWizardStep, false);
+                // bug in lib-admin-ui WizardPanel addStep method: it doesn't add step to steps array
+                this.getSteps().push(this.pageComponentsWizardStep);
             }
         } else {
             if (this.pageComponentsWizardStepForm) {
@@ -2718,11 +2725,13 @@ export class ContentWizardPanel
         return i18n('field.page');
     }
 
-    private getContentWizardStepName(): string {
-        if (this.contentType.isPageTemplate()) {
-            return i18n('field.page.template.supports');
+    private initPageComponentsWizardStep(): PageComponentsWizardStep {
+        if (!this.pageComponentsWizardStepForm) {
+            throw new Error('PageComponentsWizardStepForm is not initialized');
         }
 
-        return this.contentType.getDisplayName();
+        this.pageComponentsWizardStep = new PageComponentsWizardStep(this.getPageWizardStepName(), this.pageComponentsWizardStepForm);
+
+        return this.pageComponentsWizardStep;
     }
 }

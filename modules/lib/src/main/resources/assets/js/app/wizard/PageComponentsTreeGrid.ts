@@ -208,7 +208,7 @@ export class PageComponentsTreeGrid
 
         if (clean) {
             oldNode.getChildren().forEach((childNode: TreeNode<ItemViewTreeGridWrapper>) => {
-               this.deleteNode(childNode);
+                this.deleteNode(childNode);
             });
         }
 
@@ -239,7 +239,16 @@ export class PageComponentsTreeGrid
     }
 
     protected isToBeExpanded(node: TreeNode<ItemViewTreeGridWrapper>): boolean {
-        return super.isToBeExpanded(node) || !node.getData().getItemView().getType().equals(LayoutItemType.get());
+        return super.isToBeExpanded(node) ||
+               !node.getData().getItemView().getType().equals(LayoutItemType.get()) ||
+               node.getData().getItemView().getParentItemView() === this.pageView;
     }
 
+    mask() {
+        // skipping mask for now to avoid flickering
+    }
+
+    unmask() {
+        // skipping mask for now to avoid flickering
+    }
 }

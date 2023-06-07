@@ -1,5 +1,5 @@
-@button-size: 28px;
-@button-icon-size: 18px;
+@button-size: 24px;
+@button-icon-size: 16px;
 
 .page-components-view {
   padding: 10px;
@@ -164,8 +164,7 @@
   &.draggable {
     position: absolute;
     width: 400px;
-    padding: 0 30px;
-    margin-top: @app-header-height;
+    padding: 0 10px;
     background-color: rgba(255, 255, 255, 0.9);
     z-index: @z-index-context-window;
     .material-layer-shadow();
@@ -174,8 +173,8 @@
       .header {
         cursor: move;
         line-height: 0.8em;
-        padding: 20px;
-        font-size: 30px;
+        padding: 10px;
+        font-size: 24px;
       }
 
       .minimize-button {
@@ -188,7 +187,7 @@
     }
 
     &.minimized {
-      width: 300px;
+      width: auto;
 
       .tree-grid {
         display: none;
@@ -196,20 +195,7 @@
 
       .header-wrapper {
         .header {
-          padding: 10px;
-          font-size: 20px;
-        }
-
-        .minimize-button {
-          width: @button-size * 0.8;
-          height: @button-size * 0.8;
-
-          &::before {
-            transform: none;
-            font-size: @button-icon-size * 0.8;
-            width: @button-icon-size * 0.8;
-            height: @button-icon-size * 0.8;
-          }
+          margin-right: 50px;
         }
       }
     }

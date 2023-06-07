@@ -606,10 +606,13 @@ export class PageComponentsView
 
         el.setMaxHeightPx(parentEl.getHeight());
 
-        el.setOffset({
-            top: Math.max(parentOffset.top, Math.min(elOffset.top, parentOffset.top + parentEl.getHeight() - el.getHeightWithBorder())),
-            left: Math.max(parentOffset.left, Math.min(elOffset.left, parentOffset.left + parentEl.getWidth() - el.getWidthWithBorder()))
-        });
+        const top =
+                Math.max(parentOffset.top, Math.min(elOffset.top, parentOffset.top + parentEl.getHeight() - el.getHeightWithBorder()), 48);
+        const left =
+            Math.max(parentOffset.left, Math.min(elOffset.left, parentOffset.left + parentEl.getWidth() - el.getWidthWithBorder()), 48);
+
+        el.setTop(`${top}px`);
+        el.setLeft(`${left}px`);
     }
 
     isModal(): boolean {

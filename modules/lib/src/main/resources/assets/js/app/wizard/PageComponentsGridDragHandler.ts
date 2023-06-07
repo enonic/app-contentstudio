@@ -3,7 +3,6 @@ import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {ItemView} from '../../page-editor/ItemView';
 import {Highlighter} from '../../page-editor/Highlighter';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {ItemViewContextMenuPosition} from '../../page-editor/ItemViewContextMenuPosition';
@@ -17,7 +16,6 @@ import {DragEventData, GridDragHandler} from '@enonic/lib-admin-ui/ui/grid/GridD
 
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
-import {BodyMask} from '@enonic/lib-admin-ui/ui/mask/BodyMask';
 import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
 import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
 
@@ -37,7 +35,6 @@ export class PageComponentsGridDragHandler
     protected handleDragStart() {
         super.handleDragStart();
 
-        BodyMask.get().show();
         Highlighter.get().hide();
         this.getDraggableItem().getChildren().forEach((childEl: Element) => {
             childEl.removeClass('selected');
@@ -53,7 +50,6 @@ export class PageComponentsGridDragHandler
     }
 
     protected handleDragEnd(event: Event, data: any) {
-        BodyMask.get().hide();
         Body.get().unMouseMove(this.handleHelperMove);
         Body.get().removeChild(DragHelper.get());
 
