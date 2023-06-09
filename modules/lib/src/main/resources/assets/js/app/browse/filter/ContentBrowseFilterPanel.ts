@@ -166,12 +166,11 @@ export class ContentBrowseFilterPanel
 
     doRefresh(): Q.Promise<void> {
         if (!this.isFilteredOrConstrained()) {
-            return this.resetFacets();
+            return this.resetFacets(true);
         }
 
         return this.getAndUpdateAggregations().then((aggregationsQueryResult: AggregationsQueryResult) => {
             if (aggregationsQueryResult.getMetadata().getTotalHits() > 0) {
-                this.notifySearchEvent(this.aggregationsFetcher.createContentQuery(this.getSearchInputValues()));
                 return Q.resolve();
             }
 
@@ -179,7 +178,7 @@ export class ContentBrowseFilterPanel
                 this.removeDependencyItem();
             }
 
-            return this.reset();
+            return this.reset(true);
         });
     }
 
@@ -249,7 +248,10 @@ export class ContentBrowseFilterPanel
 
     protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): Q.Promise<void> {
         return this.getAndUpdateAggregations().then(() => {
-            this.notifySearchEvent();
+            if (!suppressEvent) {
+                this.notifySearchEvent();
+            }
+
             return Q.resolve();
         });
     }
