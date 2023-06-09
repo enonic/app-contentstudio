@@ -15,6 +15,8 @@ import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
+import {ContentId} from '../content/ContentId';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends CmsContentResourceRequest<ContentQueryResult<CONTENT, CONTENT_JSON>> {
@@ -166,8 +168,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         return ContentSummary.fromJson(json);
     }
 
-    fromJsonToContentIdBaseItemArray(jsonArray: ContentSummaryJson[]): ContentSummary[] {
-
-        return ContentSummary.fromJsonArray(jsonArray);
+    fromJsonToContentIdBaseItemArray(jsonArray: ContentIdBaseItemJson[]): ContentId[] {
+        return jsonArray?.map((json: ContentIdBaseItemJson) => new ContentId(json.id)) || [];
     }
 }

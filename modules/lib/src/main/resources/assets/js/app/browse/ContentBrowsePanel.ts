@@ -32,8 +32,6 @@ import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
@@ -139,7 +137,6 @@ export class ContentBrowsePanel
         };
 
         filterPanel.onSearchStarted(showMask);
-        filterPanel.onRefreshStarted(showMask);
 
         return filterPanel;
     }
@@ -281,7 +278,7 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: created', data);
         }
 
-        if (data && data.length > 0) {
+        if (data?.length > 0) {
             this.handleCUD();
             this.treeGrid.addContentNodes(data);
             this.refreshFilterWithDelay();
@@ -338,6 +335,11 @@ export class ContentBrowsePanel
 
         this.handleCUD();
         this.treeGrid.deleteItems(items);
+
+        if (this.treeGrid.isFiltered() && this.treeGrid.isEmpty()) {
+            this.treeGrid.resetFilter();
+        }
+
         this.updateContextPanelOnNodesDelete(items);
         this.refreshFilterWithDelay();
     }
@@ -490,7 +492,8 @@ export class ContentBrowsePanel
         const selectedItem: ContentSummaryAndCompareStatus = this.treeGrid.getLastSelectedOrHighlightedItem();
 
         if (selectedItem) {
-            this.contentFetcher.updateRenderableContents([this.treeGrid.getLastSelectedOrHighlightedItem()]).then(() => {
+            new IsRenderableRequest(selectedItem.getContentSummary()).sendAndParse().then((isRenderable: boolean) => {
+                this.treeGrid.updateItemIsRenderable(selectedItem.getId(), isRenderable);
                 super.updateActionsAndPreview();
             }).catch(DefaultErrorHandler.handle);
         } else {

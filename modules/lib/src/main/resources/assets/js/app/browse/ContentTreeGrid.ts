@@ -201,7 +201,7 @@ export class ContentTreeGrid
         }
     }
 
-    setFilterQuery(query: ContentQuery): void {
+    setFilterQuery(query: ContentQuery | null): void {
         this.filterQuery = query ? new ContentQuery() : null;
 
         if (query) {
@@ -280,9 +280,13 @@ export class ContentTreeGrid
     }
 
     private sendContentQueryRequest(from: number, size: number): Q.Promise<ContentQueryResult<ContentSummary, ContentSummaryJson>> {
+        return this.makeContentQueryRequest(from, size).sendAndParse();
+    }
+
+    private makeContentQueryRequest(from: number, size: number): ContentQueryRequest<ContentSummaryJson, ContentSummary> {
         this.filterQuery.setFrom(from).setSize(size);
 
-        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(this.filterQuery).setExpand(Expand.SUMMARY).sendAndParse();
+        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(this.filterQuery).setExpand(Expand.SUMMARY);
     }
 
     private processContentQueryResponse(node: TreeNode<ContentSummaryAndCompareStatus>,
@@ -594,10 +598,17 @@ export class ContentTreeGrid
         });
     }
 
-
     addContentNodes(itemsToAdd: ContentSummaryAndCompareStatus[]) {
+        if (this.isFiltered()) {
+            this.addContentItemsTo(itemsToAdd, true);
+        }
+
+        this.addContentItemsTo(itemsToAdd, false);
+    }
+
+    private addContentItemsTo(itemsToAdd: ContentSummaryAndCompareStatus[], isInFiltered: boolean): void {
         const parentsOfChildrenToAdd: Map<TreeNode<ContentSummaryAndCompareStatus>, ContentSummaryAndCompareStatus[]> =
-            this.getParentsOfItemsToAdd(itemsToAdd);
+            this.getParentsOfItemsToAdd(itemsToAdd, isInFiltered);
 
         parentsOfChildrenToAdd.forEach((items: ContentSummaryAndCompareStatus[], parentNode: TreeNode<ContentSummaryAndCompareStatus>) => {
             this.addItemsToParent(items, parentNode);
@@ -615,9 +626,8 @@ export class ContentTreeGrid
         }
 
         const parentId: ContentId = parentNode.hasData() ? parentNode.getData().getContentId() : null;
-        const order: ChildOrder = !!parentId ? null : this.contentFetcher.createRootChildOrder();
-        this.contentFetcher.fetchChildrenIds(parentId, order)
-            .then((childrenIds: ContentId[]) => {
+
+        this.fetchChildrenIds(parentId).then((childrenIds: ContentId[]) => {
                 items.forEach((item: ContentSummaryAndCompareStatus) => {
                     const contentId: ContentId = item.getContentId();
                     let insertPosition: number = -1;
@@ -638,18 +648,34 @@ export class ContentTreeGrid
             });
     }
 
-    private getParentsOfItemsToAdd(itemsToAdd: ContentSummaryAndCompareStatus[]):
+    private fetchChildrenIds(parentId: ContentId): Q.Promise<ContentId[]> {
+        if (this.isFiltered() && !parentId) { // need to perform query and return root children ids
+            return this.makeContentQueryRequest(0, -1).setExpand(Expand.NONE).sendAndParse().then(
+                (result: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
+                    return result.getContents().map((item) => item as unknown as ContentId);
+                });
+        }
+
+        const order: ChildOrder = !!parentId ? null : this.contentFetcher.createRootChildOrder();
+
+        return this.contentFetcher.fetchChildrenIds(parentId, order);
+    }
+
+    private getParentsOfItemsToAdd(itemsToAdd: ContentSummaryAndCompareStatus[], isInFiltered: boolean):
         Map<TreeNode<ContentSummaryAndCompareStatus>, ContentSummaryAndCompareStatus[]> {
         const parentsOfChildrenToAdd: Map<TreeNode<ContentSummaryAndCompareStatus>, ContentSummaryAndCompareStatus[]> =
             new Map<TreeNode<ContentSummaryAndCompareStatus>, ContentSummaryAndCompareStatus[]>();
-        const allNodes: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getAllDefaultRootNodes();
+        const allNodes: TreeNode<ContentSummaryAndCompareStatus>[] = isInFiltered
+                                                                     ? this.getRoot().getAllFilteredRootNodes()
+                                                                     : this.getRoot().getAllDefaultRootNodes();
 
 
         itemsToAdd
             .filter((item: ContentSummaryAndCompareStatus) => !this.hasItemWithDataId(item.getId()))
             .forEach((itemToAdd: ContentSummaryAndCompareStatus) => {
                 const parentPathOfItemToAdd: ContentPath = itemToAdd.getPath().getParentPath();
-                const parentNode: TreeNode<ContentSummaryAndCompareStatus> = this.getParentNodeByPath(parentPathOfItemToAdd, allNodes);
+                const parentNode: TreeNode<ContentSummaryAndCompareStatus> = this.getParentNodeByPath(parentPathOfItemToAdd, allNodes,
+                    isInFiltered);
 
                 if (parentNode) {
                     if (parentsOfChildrenToAdd.has(parentNode)) {
@@ -664,9 +690,9 @@ export class ContentTreeGrid
     }
 
     private getParentNodeByPath(parentPath: ContentPath,
-                                nodes: TreeNode<ContentSummaryAndCompareStatus>[]): TreeNode<ContentSummaryAndCompareStatus> {
+                                nodes: TreeNode<ContentSummaryAndCompareStatus>[], isInFiltered: boolean): TreeNode<ContentSummaryAndCompareStatus> {
         if (parentPath.isRoot()) {
-            return this.getRoot().getDefaultRoot();
+            return isInFiltered ? this.getRoot().getFilteredRoot() : this.getRoot().getDefaultRoot();
         }
 
         return nodes.find((node: TreeNode<ContentSummaryAndCompareStatus>) => {
@@ -704,8 +730,23 @@ export class ContentTreeGrid
         return this.getRoot().getDefaultRoot().getChildren().map((item: TreeNode<ContentSummaryAndCompareStatus>) => item.getDataId());
     }
 
-    deleteItems(items: DeletedContentItem[]) {
-        const allNodes: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getAllDefaultRootNodes();
+    deleteItems(items: DeletedContentItem[]): void {
+        if (this.isFiltered()) {
+            this.deleteItemsInFilteredRoot(items);
+        }
+
+        this.deleteItemsInDefaultRoot(items);
+    }
+
+    private deleteItemsInDefaultRoot(items: DeletedContentItem[]): void {
+        this.doDeleteItems(items, this.getRoot().getAllDefaultRootNodes(), false);
+    }
+
+    private deleteItemsInFilteredRoot(items: DeletedContentItem[]): void {
+        this.doDeleteItems(items, this.getRoot().getAllFilteredRootNodes(), true);
+    }
+
+    private doDeleteItems(items: DeletedContentItem[], allNodes: TreeNode<ContentSummaryAndCompareStatus>[], isInFiltered: boolean): void {
         const nodesToDelete: TreeNode<ContentSummaryAndCompareStatus>[] = [];
 
         items.forEach((item: DeletedContentItem) => {
@@ -715,7 +756,7 @@ export class ContentTreeGrid
                 nodesToDelete.push(nodeToDelete);
             }
 
-            this.updateParentHasChildren(item, allNodes);
+            this.updateParentHasChildren(item, allNodes, isInFiltered);
         });
 
         if (nodesToDelete.length > 0) {
@@ -723,11 +764,11 @@ export class ContentTreeGrid
         }
     }
 
-    private updateParentHasChildren(item: DeletedContentItem, allNodes: TreeNode<ContentSummaryAndCompareStatus>[]): void {
+    private updateParentHasChildren(item: DeletedContentItem, allNodes: TreeNode<ContentSummaryAndCompareStatus>[], isInFiltered: boolean): void {
         const parentPath: ContentPath = item.path.getParentPath();
 
         if (parentPath && !parentPath.isRoot()) {
-            const parentNode: TreeNode<ContentSummaryAndCompareStatus> = this.getParentNodeByPath(parentPath, allNodes);
+            const parentNode: TreeNode<ContentSummaryAndCompareStatus> = this.getParentNodeByPath(parentPath, allNodes, isInFiltered);
 
             if (parentNode && !parentNode.hasChildren()) {
                 this.contentFetcher.fetchChildrenIds(parentNode.getData().getContentId()).then((ids: ContentId[]) => {
@@ -749,4 +790,18 @@ export class ContentTreeGrid
     resizeCanvas(): void {
         this.getGrid().resizeCanvas();
     }
+
+    getHighlightedItem(): ContentSummaryAndCompareStatus {
+        // returning highlighted item from current root, super version returns from default root even when grid is filtered
+        return this.getHighlightedNode()?.getData() || super.getHighlightedItem();
+    }
+
+    updateItemIsRenderable(id: string, isRenderable: boolean): void {
+        if (this.isFiltered()) {
+            this.getRoot().getNodeByDataIdFromFiltered(id)?.getData().setRenderable(isRenderable);
+        }
+
+        this.getRoot().getNodeByDataIdFromDefault(id)?.getData().setRenderable(isRenderable);
+    }
+
 }
