@@ -9,13 +9,12 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 export class ContentAndStatusTreeSelectorItem
     extends ContentTreeSelectorItem {
 
-    private compareStatus: CompareStatus;
+    private readonly compareStatus: CompareStatus;
 
-    private publishStatus: PublishStatus;
+    private readonly publishStatus: PublishStatus;
 
-    constructor(content: ContentSummaryAndCompareStatus, expand: boolean) {
-
-        super(content.getContentSummary(), expand);
+    constructor(content: ContentSummaryAndCompareStatus, selectable: boolean = true, expandable: boolean = true) {
+        super(content.getContentSummary(), selectable, expandable);
 
         this.compareStatus = content.getCompareStatus();
         this.publishStatus = content.getPublishStatus();

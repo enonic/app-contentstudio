@@ -35,6 +35,8 @@ import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentId} from '../../../content/ContentId';
 import {OptionDataLoader} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
 import {Project} from '../../../settings/data/project/Project';
+import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
@@ -390,6 +392,27 @@ export class ContentSelectedOptionView
         new EditContentEvent(model, this.project).fire();
 
         return super.onEditButtonClicked(e);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            const item = this.getOptionDisplayValue();
+
+            if (item instanceof ContentAndStatusTreeSelectorItem) {
+                const content = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(item.getContent(),
+                    item.getCompareStatus(),
+                    item.getPublishStatus());
+
+                const status = new SpanEl('status');
+                const statusTextEl = new SpanEl();
+                statusTextEl.addClass(content.getStatusClass());
+                statusTextEl.setHtml(content.getStatusText());
+                status.appendChild(statusTextEl);
+                this.appendChild(status);
+            }
+
+            return rendered;
+        });
     }
 }
 

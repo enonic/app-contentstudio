@@ -3,16 +3,12 @@ import {RichComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboB
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {ContentInputTypeViewContext} from '../../ContentInputTypeViewContext';
-import {ContentServerEventsHandler} from '../../../event/ContentServerEventsHandler';
-import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import {ContentServerChangeItem} from '../../../event/ContentServerChangeItem';
 import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {ContentPath} from '../../../content/ContentPath';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationBasedName} from '@enonic/lib-admin-ui/application/ApplicationBasedName';
 import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
-import {MovedContentItem} from '../../../browse/MovedContentItem';
 
 export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {
@@ -25,13 +21,8 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
 
     protected allowedContentPaths: string[];
 
-    protected contentDeletedListener: (paths: ContentServerChangeItem[], pending?: boolean) => void;
-
     constructor(context: ContentInputTypeViewContext, className?: string) {
         super(context, className);
-
-        this.handleContentDeletedEvent();
-        this.handleContentUpdatedEvent();
     }
 
     protected getContentComboBox(): RichComboBox<any> {
@@ -102,93 +93,5 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
 
     getValueType(): ValueType {
         return null;
-    }
-
-    private handleContentUpdatedEvent() {
-        const contentUpdatedListener = (statuses: ContentSummaryAndCompareStatus[], oldPaths?: ContentPath[]) => {
-
-            if (this.getSelectedOptions().length === 0) {
-                return;
-            }
-
-            statuses.forEach((status: ContentSummaryAndCompareStatus, index: number) => {
-                let selectedOption: SelectedOption<RAW_VALUE_TYPE>;
-
-                if (oldPaths) {
-                    selectedOption = this.findSelectedOptionByContentPath(oldPaths[index]);
-                } else {
-                    selectedOption = this.getSelectedOptionsView().getById(status.getContentId().toString());
-                }
-                if (selectedOption) {
-                    this.getContentComboBox().updateOption(selectedOption.getOption(), status.getContentSummary());
-                }
-            });
-        };
-
-        const contentMovedListener = (movedItems: MovedContentItem[]) => {
-            if (this.getSelectedOptions().length === 0) {
-                return;
-            }
-
-            movedItems.forEach((movedItem: MovedContentItem) => {
-                const selectedOption: SelectedOption<RAW_VALUE_TYPE> = this.findSelectedOptionByContentPath(movedItem.oldPath);
-
-                if (selectedOption) {
-                    this.getContentComboBox().updateOption(selectedOption.getOption(), movedItem.item.getContentSummary());
-                }
-            });
-        };
-
-        const handler: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
-        handler.onContentMoved(contentMovedListener);
-        handler.onContentRenamed(contentUpdatedListener);
-        handler.onContentUpdated(contentUpdatedListener);
-
-        this.onRemoved(() => {
-            handler.unContentUpdated(contentUpdatedListener);
-            handler.unContentRenamed(contentUpdatedListener);
-            handler.unContentMoved(contentMovedListener);
-        });
-    }
-
-    private findSelectedOptionByContentPath(contentPath: ContentPath): SelectedOption<RAW_VALUE_TYPE> {
-        let selectedOptions = this.getSelectedOptions();
-        for (let i = 0; i < selectedOptions.length; i++) {
-            let option = selectedOptions[i];
-            if (contentPath.equals(this.getContentPath(option.getOption().getDisplayValue()))) {
-                return option;
-            }
-        }
-        return null;
-    }
-
-    private handleContentDeletedEvent() {
-        this.contentDeletedListener = (paths: ContentServerChangeItem[], pending?: boolean) => {
-            if (this.getSelectedOptions().length === 0) {
-                return;
-            }
-
-            let selectedContentIdsMap: {} = {};
-            this.getSelectedOptions().forEach((selectedOption: any) => {
-                if (!!selectedOption.getOption().displayValue && !!selectedOption.getOption().displayValue.getContentId()) {
-                    selectedContentIdsMap[selectedOption.getOption().displayValue.getContentId().toString()] = '';
-                }
-            });
-
-            paths.filter(deletedItem => !pending && selectedContentIdsMap.hasOwnProperty(deletedItem.getContentId().toString()))
-                .forEach((deletedItem) => {
-                    let option = this.getSelectedOptionsView().getById(deletedItem.getContentId().toString());
-                    if (option != null) {
-                        this.getSelectedOptionsView().removeOption(option.getOption(), false);
-                    }
-                });
-        };
-
-        let handler = ContentServerEventsHandler.getInstance();
-        handler.onContentDeleted(this.contentDeletedListener);
-
-        this.onRemoved(() => {
-            handler.unContentDeleted(this.contentDeletedListener);
-        });
     }
 }
