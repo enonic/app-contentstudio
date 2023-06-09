@@ -27,6 +27,7 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentPath} from '../../content/ContentPath';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {ContentSummary} from '../../content/ContentSummary';
 
 export class ImageSelector
     extends MediaSelector {
@@ -223,6 +224,14 @@ export class ImageSelector
         if (!this.isPendingPreload) {
             super.validate(silent);
         }
+    }
+
+    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): MediaTreeSelectorItem {
+        if (content instanceof ContentSummaryAndCompareStatus) {
+            return new MediaTreeSelectorItem(content.getContentSummary());
+        }
+
+        return new MediaTreeSelectorItem(content);
     }
 }
 

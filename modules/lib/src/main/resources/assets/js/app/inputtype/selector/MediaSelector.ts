@@ -10,15 +10,15 @@ import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ContentSelector} from './ContentSelector';
-import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {MediaUploaderEl, MediaUploaderElConfig, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
 import {Content} from '../../content/Content';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {ContentSummary} from '../../content/ContentSummary';
 import {ContentPath} from '../../content/ContentPath';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {CompareStatus} from '../../content/CompareStatus';
 
 export class MediaSelector
     extends ContentSelector {
@@ -96,10 +96,11 @@ export class MediaSelector
     protected doInitUploader(uploader: MediaUploaderEl): MediaUploaderEl {
         uploader.onFileUploaded((event: UploadedEvent<Content>) => {
             const createdContent = event.getUploadItem().getModel();
+            const item = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(createdContent, CompareStatus.NEW);
 
-            const option = Option.create<MediaTreeSelectorItem>()
+            const option = Option.create<ContentTreeSelectorItem>()
                     .setValue(createdContent.getContentId().toString())
-                    .setDisplayValue(this.createSelectorItem(createdContent))
+                    .setDisplayValue(this.createSelectorItem(item))
                     .build();
 
             this.contentComboBox.selectOption(option);
@@ -144,10 +145,6 @@ export class MediaSelector
         });
 
         return uploader;
-    }
-
-    protected createSelectorItem(content: ContentSummary): MediaTreeSelectorItem {
-        return new MediaTreeSelectorItem(content);
     }
 
     protected selectedOptionHandler(_selectedOption: SelectedOption<ContentTreeSelectorItem>) {

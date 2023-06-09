@@ -18,7 +18,6 @@ import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagi
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import {GetContentSummaryByIds} from '../../resource/GetContentSummaryByIds';
 import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {Reference} from '@enonic/lib-admin-ui/util/Reference';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
@@ -32,6 +31,11 @@ import {ContentType} from '../schema/ContentType';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {NewContentButton} from './ui/NewContentButton';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeSelectorItem';
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import {CompareStatus} from '../../content/CompareStatus';
+import {MovedContentItem} from '../../browse/MovedContentItem';
+import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
@@ -46,9 +50,11 @@ export class ContentSelector
 
     protected hideToggleIcon: boolean;
 
+    protected contentDeletedListener: (paths: ContentServerChangeItem[], pending?: boolean) => void;
+
     protected static contentIdBatch: ContentId[] = [];
 
-    protected static loadSummariesResult: Q.Deferred<ContentSummary[]>;
+    protected static loadSummariesResult: Q.Deferred<ContentSummaryAndCompareStatus[]>;
 
     public static debug: boolean = false;
 
@@ -59,7 +65,7 @@ export class ContentSelector
         this.initEventsListeners();
     }
 
-    private initEventsListeners() {
+    protected initEventsListeners() {
         const contentId: string = this.context.content?.getId();
 
         if (!contentId) {
@@ -73,22 +79,116 @@ export class ContentSelector
                 this.handleContentRenamed();
             }
         });
+
+        this.handleContentDeletedEvent();
+        this.handleContentUpdatedEvent();
     }
 
     protected handleContentRenamed() {
         const selectedIds: ContentId[] = this.getSelectedOptions().map(
             (option: SelectedOption<ContentTreeSelectorItem>) => option.getOption().getDisplayValue().getContentId());
 
-        this.doLoadContent(selectedIds).then((contents: ContentSummary[]) => {
+        this.doLoadContent(selectedIds).then((contents: ContentSummaryAndCompareStatus[]) => {
             this.contentComboBox.clearSelection(true, false);
 
-            contents.forEach((content: ContentSummary) => {
+            contents.forEach((content: ContentSummaryAndCompareStatus) => {
                 this.contentComboBox.select(this.createSelectorItem(content));
             });
         });
     }
 
-    protected createSelectorItem(content: ContentSummary): ContentTreeSelectorItem {
+    private handleContentUpdatedEvent() {
+        const contentUpdatedListener = (statuses: ContentSummaryAndCompareStatus[], oldPaths?: ContentPath[]) => {
+            if (this.getSelectedOptions().length === 0) {
+                return;
+            }
+
+            statuses.forEach((status: ContentSummaryAndCompareStatus, index: number) => {
+                let selectedOption: SelectedOption<ContentTreeSelectorItem>;
+
+                if (oldPaths) {
+                    selectedOption = this.findSelectedOptionByContentPath(oldPaths[index]);
+                } else {
+                    selectedOption = this.getSelectedOptionsView().getById(status.getContentId().toString());
+                }
+                if (selectedOption) {
+                    this.getContentComboBox().updateOption(selectedOption.getOption(), status);
+                }
+            });
+        };
+
+        const contentMovedListener = (movedItems: MovedContentItem[]) => {
+            if (this.getSelectedOptions().length === 0) {
+                return;
+            }
+
+            movedItems.forEach((movedItem: MovedContentItem) => {
+                const selectedOption: SelectedOption<ContentTreeSelectorItem> = this.findSelectedOptionByContentPath(movedItem.oldPath);
+
+                if (selectedOption) {
+                    this.getContentComboBox().updateOption(selectedOption.getOption(), movedItem.item);
+                }
+            });
+        };
+
+        const handler: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
+        handler.onContentMoved(contentMovedListener);
+        handler.onContentRenamed(contentUpdatedListener);
+        handler.onContentUpdated(contentUpdatedListener);
+
+        this.onRemoved(() => {
+            handler.unContentUpdated(contentUpdatedListener);
+            handler.unContentRenamed(contentUpdatedListener);
+            handler.unContentMoved(contentMovedListener);
+        });
+    }
+
+    private findSelectedOptionByContentPath(contentPath: ContentPath): SelectedOption<ContentTreeSelectorItem> {
+        let selectedOptions = this.getSelectedOptions();
+        for (let i = 0; i < selectedOptions.length; i++) {
+            let option = selectedOptions[i];
+            if (contentPath.equals(this.getContentPath(option.getOption().getDisplayValue()))) {
+                return option;
+            }
+        }
+        return null;
+    }
+
+    private handleContentDeletedEvent() {
+        this.contentDeletedListener = (paths: ContentServerChangeItem[], pending?: boolean) => {
+            if (this.getSelectedOptions().length === 0) {
+                return;
+            }
+
+            let selectedContentIdsMap: {} = {};
+            this.getSelectedOptions().forEach((selectedOption: any) => {
+                if (!!selectedOption.getOption().displayValue && !!selectedOption.getOption().displayValue.getContentId()) {
+                    selectedContentIdsMap[selectedOption.getOption().displayValue.getContentId().toString()] = '';
+                }
+            });
+
+            paths.filter(deletedItem => !pending && selectedContentIdsMap.hasOwnProperty(deletedItem.getContentId().toString()))
+                .forEach((deletedItem) => {
+                    let option = this.getSelectedOptionsView().getById(deletedItem.getContentId().toString());
+                    if (option != null) {
+                        this.getSelectedOptionsView().removeOption(option.getOption(), false);
+                    }
+                });
+        };
+
+        let handler = ContentServerEventsHandler.getInstance();
+        handler.onContentDeleted(this.contentDeletedListener);
+
+        this.onRemoved(() => {
+            handler.unContentDeleted(this.contentDeletedListener);
+        });
+    }
+
+    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): ContentTreeSelectorItem {
+        if (content instanceof  ContentSummaryAndCompareStatus) {
+            return new ContentAndStatusTreeSelectorItem(content);
+        }
+
         return new ContentTreeSelectorItem(content);
     }
 
@@ -178,7 +278,10 @@ export class ContentSelector
         this.newContentButton = new NewContentButton(
             {content: this.context.content, allowedContentTypes: this.allowedContentTypes, project: this.context.project});
         this.newContentButton.setTitle(i18n('action.addNew'));
-        this.newContentButton.onContentAdded((content: ContentSummary) => this.contentComboBox.select(this.createSelectorItem(content)));
+        this.newContentButton.onContentAdded((content: ContentSummary) =>  {
+            const item = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(content, CompareStatus.NEW);
+            this.contentComboBox.select(this.createSelectorItem(item));
+        });
 
         this.comboBoxWrapper.appendChild(this.newContentButton);
     }
@@ -196,12 +299,12 @@ export class ContentSelector
             }
         });
 
-        return this.doLoadContent(contentIds).then((contents: ContentSummary[]) => {
+        return this.doLoadContent(contentIds).then((contents: ContentSummaryAndCompareStatus[]) => {
             this.setupSortable();
 
             //TODO: original value doesn't work because of additional request, so have to select manually
-            contents.forEach((content: ContentSummary) => {
-                this.contentComboBox.select(new ContentTreeSelectorItem(content));
+            contents.forEach((content: ContentSummaryAndCompareStatus) => {
+                this.contentComboBox.select(new ContentAndStatusTreeSelectorItem(content));
             });
 
             this.contentComboBox.getSelectedOptions().forEach((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
@@ -235,13 +338,13 @@ export class ContentSelector
         const comboboxValue: string = this.getValueFromPropertyArray(propertyArray);
 
         return this.doCreateContentComboBoxBuilder()
-                .setComboBoxName(input.getName())
-                .setLoader(optionDataLoader)
-                .setMaximumOccurrences(input.getOccurrences().getMaximum())
-                .setRemoveMissingSelectedOptions(true)
-                .setTreegridDropdownEnabled(this.treeMode)
-                .setTreeModeTogglerAllowed(!this.hideToggleIcon)
-                .setValue(comboboxValue);
+            .setComboBoxName(input.getName())
+            .setLoader(optionDataLoader)
+            .setMaximumOccurrences(input.getOccurrences().getMaximum())
+            .setRemoveMissingSelectedOptions(true)
+            .setTreegridDropdownEnabled(this.treeMode)
+            .setTreeModeTogglerAllowed(!this.hideToggleIcon)
+            .setValue(comboboxValue);
     }
 
     protected doCreateContentComboBox(input: Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
@@ -369,8 +472,8 @@ export class ContentSelector
     }
 
     private static doFetchSummaries() {
-        new GetContentSummaryByIds(ContentSelector.contentIdBatch).sendAndParse().then(
-            (result: ContentSummary[]) => {
+        new ContentSummaryAndCompareStatusFetcher().fetchByIds(ContentSelector.contentIdBatch).then(
+            (result: ContentSummaryAndCompareStatus[]) => {
 
                 ContentSelector.contentIdBatch = []; // empty batch of ids after loading
 
@@ -380,16 +483,16 @@ export class ContentSelector
             });
     }
 
-    protected doLoadContent(contentIds: ContentId[]): Q.Promise<ContentSummary[]> {
+    protected doLoadContent(contentIds: ContentId[]): Q.Promise<ContentSummaryAndCompareStatus[]> {
         ContentSelector.contentIdBatch = ContentSelector.contentIdBatch.concat(contentIds);
 
         if (!ContentSelector.loadSummariesResult) {
-            ContentSelector.loadSummariesResult = Q.defer<ContentSummary[]>();
+            ContentSelector.loadSummariesResult = Q.defer<ContentSummaryAndCompareStatus[]>();
         }
 
         ContentSelector.loadSummaries();
 
-        return ContentSelector.loadSummariesResult.promise.then((result: ContentSummary[]) => {
+        return ContentSelector.loadSummariesResult.promise.then((result: ContentSummaryAndCompareStatus[]) => {
             const contentIdsStr: string[] = contentIds.map((id: ContentId) => id.toString());
             return result.filter(content => contentIdsStr.indexOf(content.getId()) >= 0);
         });
