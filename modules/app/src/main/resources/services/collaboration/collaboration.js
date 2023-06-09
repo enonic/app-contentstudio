@@ -31,7 +31,7 @@ exports.webSocketEvent = function (event) {
         return;
     }
 
-    if (!event.session) {
+    if (!event.session || !event.session.user) {
         return {
             status: 401
         };
