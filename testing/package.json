@@ -37,7 +37,7 @@
     "wdio-chromedriver-service": "^8.1.1",
     "wdio-geckodriver-service": "^5.0.1",
     "@wdio/cli": "^8.10.7",
-    "@wdio/dot-reporter": "^8.10.6",
+    "@wdio/dot-reporter": "^8.11.0",
     "@wdio/mocha-framework": "^8.10.7",
     "@wdio/selenium-standalone-service": "^8.11.0",
     "wdio-html-nice-reporter": "^8.1.0"
