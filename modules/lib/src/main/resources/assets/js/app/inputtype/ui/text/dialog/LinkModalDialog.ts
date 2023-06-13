@@ -103,6 +103,7 @@ export class LinkModalDialog
     private static mediaDownloadPrefix: string = 'media://download/';
     private static mediaInlinePrefix: string = 'media://inline/';
     private static emailPrefix: string = 'mailto:';
+    private static telPrefix: string = 'tel:';
     private static anchorPrefix: string = '#';
     private static fragmentPrefix: string = 'fragment=';
     private static queryParamsPrefix: string = 'query=';
@@ -128,6 +129,7 @@ export class LinkModalDialog
             {title: 'Https', prefix: 'https://', validator: LinkModalDialog.validationRequiredUrl},
             {title: 'Http', prefix: 'http://', validator: LinkModalDialog.validationRequiredUrl},
             {title: 'Ftp', prefix: 'ftp://', validator: LinkModalDialog.validationRequiredFtpUrl},
+            {title: 'Tel', prefix: 'tel:', validator: LinkModalDialog.validationRequiredTel},
             {title: i18n('dialog.link.urlprotocols.relative'), prefix: '', validator: LinkModalDialog.validationRequiredRelativeUrl}
         ];
     }
@@ -227,6 +229,9 @@ export class LinkModalDialog
                 break;
             case 'anchor':
                 this.link = LinkModalDialog.anchorPrefix + this.getOriginalAnchorElem().getValue();
+                break;
+            case 'tel':
+                this.link = LinkModalDialog.telPrefix + this.getOriginalTelElem().getValue();
                 break;
             default: {
                 const val = this.getOriginalUrlElem().getValue();
@@ -413,6 +418,10 @@ export class LinkModalDialog
 
     private static validationRequiredRelativeUrl(input: FormInputEl): string {
         return Validators.required(input) || Validators.validRelativeUrl(input);
+    }
+
+    private static validationRequiredTel(input: FormInputEl): string {
+        return Validators.required(input) || Validators.validTel(input);
     }
 
     private getTarget(isTabSelected: boolean): boolean {
@@ -1214,6 +1223,10 @@ export class LinkModalDialog
 
     private getOriginalEmailElem(): CKEDITOR.ui.dialog.uiElement {
         return (<any>this.getElemFromOriginalDialog('info', 'emailOptions')).getChild(0);
+    }
+
+    private getOriginalTelElem(): CKEDITOR.ui.dialog.uiElement {
+        return (<any>this.getElemFromOriginalDialog('info', 'telOptions')).getChild(0);
     }
 
     private getOriginalSubjElem(): CKEDITOR.ui.dialog.uiElement {
