@@ -8,7 +8,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
-const MetadataStepForm = require('../page_objects/wizardpanel/test.metadata.step.form');
+const MetadataStepForm = require('../page_objects/wizardpanel/wizard-step-form/test.metadata.step.form');
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../libs/app_const');
 

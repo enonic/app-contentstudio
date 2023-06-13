@@ -11,7 +11,7 @@ const MultiSelectionOptionSet = require('../../page_objects/wizardpanel/optionse
 // Multi selection set with HtmlArea:
 const MultiSelectionSetView = require('../../page_objects/wizardpanel/optionset/multi.selection.set.view');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
+const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 
 describe('optionset.multi.selection.checkbox.spec: tests for option set with multi selection checkboxes', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

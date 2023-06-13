@@ -16,13 +16,13 @@ const appConst = require('../../libs/app_const');
 
 describe('Text Component with CKE - insert email link  specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
     let TEST_EMAIL = 'test@mail.com';
-    let CONTROLLER_NAME = 'main region';
+    let CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const EXPECTED_SRC = '<p><a href="mailto:test@mail.com">test</a></p>';
 
 
@@ -38,20 +38,21 @@ describe('Text Component with CKE - insert email link  specification', function 
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
-            //1. Open existing site:
+            // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            //2. Insert new text-component
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert new text-component
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.switchToLiveEditFrame();
-            //3. Open 'Insert Link' dialog and insert email-link:
+            // 4. Open 'Insert Link' dialog and insert email-link:
             await textComponentCke.clickOnInsertLinkButton();
-            await studioUtils.insertEmailLinkInCke("test", TEST_EMAIL);
+            await studioUtils.insertEmailLinkInCke('test', TEST_EMAIL);
             await contentWizard.pause(1000);
             await textComponentCke.switchToLiveEditFrame();
-            //4. Verify inserted link in the page:
-            studioUtils.saveScreenshot('email_link_inserted');
+            // 5. Verify inserted link in the page:
+            await studioUtils.saveScreenshot('email_link_inserted');
             let actualText = await textComponentCke.getTextFromEditor();
             assert.include(actualText, EXPECTED_SRC, 'expected data should be in CKE');
             //Save the changes:
@@ -69,7 +70,7 @@ describe('Text Component with CKE - insert email link  specification', function 
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             //2. Verify that the link is present:
             let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
-            studioUtils.saveScreenshot('email_link_present');
+            await studioUtils.saveScreenshot('email_link_present');
             assert.isTrue(isDisplayed, 'email link should be present in the page');
         });
 
@@ -80,40 +81,41 @@ describe('Text Component with CKE - insert email link  specification', function 
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
-            //1. Open existing site:
+            // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            //2. Insert new text-component
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert new text-component
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.switchToLiveEditFrame();
-            //3. Verify B/I/U buttons
-            await studioUtils.saveScreenshot("bold_italic_buttons_text_component");
+            // 4. Verify B/I/U buttons
+            await studioUtils.saveScreenshot('bold_italic_buttons_text_component');
             await textComponentCke.waitForBoldButtonDisplayed();
             await textComponentCke.waitForItalicButtonDisplayed();
             await textComponentCke.waitForUnderlineButtonDisplayed();
         });
 
-    //Verifies issue: https://github.com/enonic/app-contentstudio/issues/4301
-    //Text Component - text area gets focus only after double click
+    // Verifies issue: https://github.com/enonic/app-contentstudio/issues/4301
+    // Text Component - text area gets focus only after double click
     it("WHEN text component has been inserted in a site THEN text area should be focused in the live edit",
         async () => {
             let pageComponentView = new PageComponentView();
             let textComponent = new TextComponentCke();
             let siteFormPanel = new SiteFormPanel();
-            let contentWizardPanel = new ContentWizardPanel();
+            let contentWizard = new ContentWizardPanel();
             //1. Open new site-wizard, select an application and controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await siteFormPanel.addApplications([appConst.APP_CONTENT_TYPES]);
-            await contentWizardPanel.selectPageDescriptor(CONTROLLER_NAME);
-            //2. Open Component View and insert a text component:
-            await contentWizardPanel.clickOnShowComponentViewToggler();
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             //3. Verify that the text area is focused:
-            await studioUtils.saveScreenshot("text_component_focused");
+            await studioUtils.saveScreenshot('text_component_focused');
             let isFocused = await textComponent.isTextAreaFocused();
-            assert.isTrue(isFocused, "text area should be focused in the text component");
+            assert.isTrue(isFocused, 'text area should be focused in the text component');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

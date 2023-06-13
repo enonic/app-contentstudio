@@ -86,6 +86,10 @@ class ContentWizardPanel extends Page {
         return XPATH.container + XPATH.pathInput;
     }
 
+    get minimizeLiveEditToggler() {
+        return XPATH.wizardStepNavigatorAndToolbar + "//div[contains(@class,'minimize-edit')]";
+    }
+
     get pageEditorTogglerButton() {
         return XPATH.toolbar + XPATH.pageEditorTogglerButton;
     }
@@ -305,23 +309,32 @@ class ContentWizardPanel extends Page {
     }
 
 
-    async clickOnWizardStep(title) {
+    async waitForWizardStepDisplayed(stepName) {
+        let locator = XPATH.wizardStepByTitle(stepName);
+        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    async clickOnWizardStep(stepName) {
         try {
-            let stepXpath = XPATH.wizardStepByTitle(title);
-            await this.clickOnElement(stepXpath);
+            let locator = XPATH.wizardStepByTitle(stepName);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
             return await this.pause(1000);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_"));
-            throw new Error("Error when clicking on the wizard step " + err);
+            let screenshot = appConst.generateRandomName('err_wizard_step');
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error after clicking on the wizard step , screenshot: " + screenshot + ' ' + err);
         }
     }
 
-    waitForWizardStepByTitleNotVisible(title) {
-        let stepXpath = XPATH.wizardStepByTitle(title);
-        return this.waitForElementNotDisplayed(stepXpath, appConst.shortTimeout).catch(err => {
+    async waitForWizardStepByTitleNotVisible(title) {
+        try {
+            let stepXpath = XPATH.wizardStepByTitle(title);
+            return await this.waitForElementNotDisplayed(stepXpath, appConst.shortTimeout);
+        } catch (err) {
             console.log("Wizard step is not visible: " + title);
             return false;
-        })
+        }
     }
 
     async clickOnXdataToggler() {
@@ -516,6 +529,14 @@ class ContentWizardPanel extends Page {
 
     switchToLiveEditFrame() {
         return this.switchToFrame(XPATH.liveEditFrame);
+    }
+
+    waitForLiveEditVisible() {
+        return this.waitForElementDisplayed(XPATH.liveEditFrame, appConst.mediumTimeout);
+    }
+
+    waitForLiveEditNotVisible() {
+        return this.waitForElementNotDisplayed(XPATH.liveEditFrame, appConst.mediumTimeout);
     }
 
     async getLiveFramePosition() {
@@ -775,14 +796,24 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async clickOnMinimizeEditIcon() {
+    async waitForMinimizeLiveEditTogglerNotDisplayed() {
+        return await this.waitForElementNotDisplayed(this.minimizeLiveEditToggler, appConst.mediumTimeout);
+    }
+
+    async waitForMinimizeLiveEditTogglerDisplayed() {
+        await this.waitForElementDisplayed(this.minimizeLiveEditToggler, appConst.mediumTimeout);
+        await this.pause(700);
+    }
+
+    async clickOnMinimizeLiveEditToggler() {
         try {
-            let locatorIcon = XPATH.container + "//div[@class='minimize-edit']";
-            await this.waitForElementDisplayed(locatorIcon, appConst.mediumTimeout);
-            await this.clickOnElement(locatorIcon);
+            await this.waitForMinimizeLiveEditTogglerDisplayed();
+            await this.clickOnElement(this.minimizeLiveEditToggler);
+            await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_minimize_icon');
-            throw new Error(err);
+            let screenshot = appConst.generateRandomName('err_minimize_icon');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Content wizard minimize toggler, screenshot: ' + screenshot + ' ' + err);
         }
     }
 

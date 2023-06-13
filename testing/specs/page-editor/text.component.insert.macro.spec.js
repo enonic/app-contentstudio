@@ -35,39 +35,40 @@ describe('Text Component - insert embed iframe and preview the site', function (
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             let insertMacroModalDialog = new InsertMacroDialog();
+           // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            //1. Insert a text component and type the not valid URL:
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            await pageComponentView.clickOnCloseButton();
-            //Close the details panel
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert a text component and type the not valid URL:
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            // 4. Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
-            //2. Open Insert Macro modal dialog:
+            // 5. Open Insert Macro modal dialog:
             await textComponentCke.clickOnInsertMacroButton();
             await insertMacroModalDialog.waitForDialogLoaded();
-            //3. Select the 'Embed IFrame' option:
+            // 6. Select the 'Embed IFrame' option:
             await insertMacroModalDialog.selectOption("Embed IFrame");
-            //4. Insert iframe in the Configuration Text Area:
+            // 7. Insert iframe in the Configuration Text Area:
             await insertMacroModalDialog.typeTextInConfigurationTextArea(ENONIC_IFRAME);
-            //5. Click on 'Insert' button and close the modal dialog:
+            // 8. Click on 'Insert' button and close the modal dialog:
             await insertMacroModalDialog.clickOnInsertButton();
-            await studioUtils.saveScreenshot("embed_iframe_text_component");
+            await studioUtils.saveScreenshot('embed_iframe_text_component');
             await contentWizard.waitAndClickOnSave();
-            //6. Click on 'Preview' button:
+            // 9. Click on 'Preview' button:
             await contentWizard.clickOnPreviewButton();
             await contentWizard.pause(3000);
-            //7. Switch to the next browser tab:
+            // 10. Switch to the next browser tab:
             await studioUtils.doSwitchToNextTab();
-            //8. Verify that iframe is present in the page:
+            // 11. Verify that iframe is present in the page:
             let isDisplayed = await studioUtils.isElementDisplayed(`//iframe[@src='http://www.enonic.com']`);
             await studioUtils.saveScreenshot('embed_iframe_text_component_preview');
             assert.isTrue(isDisplayed, 'expected iframe should be loaded in the new browser tab');
-            //9. Verify that Embed macro should not allow preview:
+            // 12. Verify that Embed macro should not allow preview:
             await studioUtils.switchToFrameBySrc('http://www.enonic.com');
-            //10. error message should be displayed in the frame:
-            //await studioUtils.waitForElementDisplayed("//div[contains(@id,'sub-frame-error')]");
+            // 13. error message should be displayed in the frame:
+            //await studioUtils.waitForElementDisplayed("//div[@id='sub-frame-error']");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

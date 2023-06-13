@@ -11,18 +11,18 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentFilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 const TextComponentCke = require('../../page_objects/components/text.component');
-const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
+const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const appConst = require('../../libs/app_const');
 
 describe("text.component.image.outbound.spec: Inserts a text component with an image and checks Outbound dependencies", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    let IMAGE_DISPLAY_NAME = 'kotey';
+    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.KOTEY;
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    let CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -39,27 +39,28 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             let contentFilterPanel = new ContentFilterPanel();
             let insertImageDialog = new InsertImageDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Open existing site:
+            // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             //automatic template does not exist, so no need to unlock the editor
-            await contentWizard.clickOnShowComponentViewToggler();
-            //2. Insert new text component:
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Text"]);
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert new text component:
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await contentWizard.switchToLiveEditFrame();
             await textComponent.clickOnInsertImageButton();
-            //3. Insert an image in the text component:
+            // 4. Insert an image in the text component:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            //3. Open dependencies widget
+            // 5. Open dependencies widget
             let wizardDependenciesWidget = await studioUtils.openWizardDependencyWidget();
-            //4. Click on Show Outbound button:
+            // 6. Click on Show Outbound button:
             await wizardDependenciesWidget.clickOnShowOutboundButton();
             await studioUtils.doSwitchToNextTab();
-            //5. 'Dependencies Section' should be present, in the filter panel'
+            // 7. 'Dependencies Section' should be present, in the filter panel'
             await contentFilterPanel.waitForDependenciesSectionVisible();
             await studioUtils.saveScreenshot('text_component_outbound');
             await contentBrowsePanel.waitForSpinnerNotVisible();

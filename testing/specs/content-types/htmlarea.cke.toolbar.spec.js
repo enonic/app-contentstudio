@@ -8,9 +8,9 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
-const InsertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
-const InsertSpecialDialog = require('../../page_objects/wizardpanel/insert.special.character.dialog.cke');
+const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
+const InsertAnchorDialog = require('../../page_objects/wizardpanel/html-area/insert.anchor.dialog.cke');
+const InsertSpecialDialog = require('../../page_objects/wizardpanel/html-area/insert.special.character.dialog.cke');
 const InsertMacroDialog = require('../../page_objects/wizardpanel/macro/insert.macro.dialog.cke');
 const appConst = require('../../libs/app_const');
 const InsertLinkDialogUrlPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
@@ -141,7 +141,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await htmlAreaForm.pause(1000);
             await htmlAreaForm.showToolbarAndClickOnFormatDropDownHandle();
             let result = await htmlAreaForm.getFormatOptions();
-            studioUtils.saveScreenshot('htmlarea_format_options');
+            await studioUtils.saveScreenshot('htmlarea_format_options');
             assert.equal(result[0], "Normal", 'expected option should be visible');
             assert.equal(result[1], "Heading 1", 'Heading 1 option should be visible');
             assert.equal(result[2], "Heading 2", 'Heading 2 option should be visible');
@@ -152,30 +152,30 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
     it(`GIVEN wizard for 'htmlArea 0:1' is opened and text is typed WHEN 'Heading 1' option has been selected THEN expected text should be in area`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            //1. Open new wizard:
+            // 1. Open new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
             await htmlAreaForm.typeTextInHtmlArea("test");
-            //2. Click on the dropdown handle:
+            // 2. Click on the dropdown handle:
             await htmlAreaForm.showToolbarAndClickOnFormatDropDownHandle();
-            //3. Select Heading 1 :
+            // 3. Select Heading 1 :
             await htmlAreaForm.selectFormatOption('Heading 1');
-            //4. Check text in the area:
+            // 4. Check text in the area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            studioUtils.saveScreenshot('heading_1_cke');
+            await studioUtils.saveScreenshot('heading_1_cke');
             assert.equal(result[0], "<h1>test</h1>", 'expected text should be in area');
         });
 
     it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'Table' menu item has been clicked THEN drop down menu with table should appear`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            //new wizard is opened:
+            // new wizard is opened:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //Insert Table button has been pressed:
+            // Insert Table button has been pressed:
             await htmlAreaForm.showToolbarAndClickOnTableButton();
             await studioUtils.saveScreenshot('table_drop_down_menu_cke');
-            //drop down menu with table should appear:
+            // drop down menu with table should appear:
             await htmlAreaForm.isTableMenuItemVisible();
         });
 

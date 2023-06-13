@@ -80,11 +80,11 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
     it(`WHEN existing site(controller is selected) has been clicked THEN 'Preview' button should be enabled in the browse toolbar and in Context menu`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the site(controller is selected)
+            // 1. Select the site(controller is selected)
             await studioUtils.findAndSelectItem(SITE.displayName);
-            //3. Verify that 'Preview' button is enabled in the browse toolbar:
+            // 3. Verify that 'Preview' button is enabled in the browse toolbar:
             await contentBrowsePanel.waitForPreviewButtonEnabled();
-            //4.Verify that Preview menu item is enabled in grid context menu:
+            // 4.Verify that Preview menu item is enabled in grid context menu:
             await contentBrowsePanel.rightClickOnItemByDisplayName(SITE.displayName);
             await studioUtils.saveScreenshot('check-context-menu-preview');
             await contentBrowsePanel.waitForContextMenuItemEnabled('Preview');
@@ -94,18 +94,18 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            //1. Open the site(controller is selected)
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            //2. Expand the menu:
+            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 2. Expand the menu:
             await pageComponentView.openMenu(CONTROLLER_NAME);
-            //3. Click on the 'Reset' menu item:
+            // 3. Click on the 'Reset' menu item:
             await pageComponentView.selectMenuItem(['Reset']);
-            //3. Verify that 'Preview' button gets not visible in the wizard toolbar:
+            // 4. Verify that 'Preview' button gets not visible in the wizard toolbar:
             await contentWizard.waitForPreviewButtonNotDisplayed();
-            //4. Verify that Controller Options Filter input gets visible:
+            // 5. Verify that Controller Options Filter input gets visible:
             await contentWizard.waitForControllerOptionFilterInputVisible();
-            //5. Verify that 'Preview' button is disabled in browse-toolbar:
+            // 6. Verify that 'Preview' button is disabled in browse-toolbar:
             await studioUtils.doSwitchToContentBrowsePanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.waitForPreviewButtonDisabled();
