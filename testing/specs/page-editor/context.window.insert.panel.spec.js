@@ -11,6 +11,7 @@ const InsertablesPanel = require('../../page_objects/wizardpanel/liveform/insert
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const appConst = require('../../libs/app_const');
 
 describe('context.window.insert.panel: tests for insertables panel and wizard toolbar', function () {
@@ -45,12 +46,12 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             assert.equal(apps.length, 2, '2 selected application should be displayed in the form');
         });
 
-    // Verifies https://github.com/enonic/app-contentstudio/issues/3294
-    // Wizard toolbar - button 'Show Component View' should not be visible when a controller is not selected #3294
-    it(`GIVEN wizard for new site is opened WHEN page controller has been selected THEN 'Show Component View' button gets visible`,
+
+    it(`GIVEN wizard for new site is opened WHEN page controller has been selected THEN 'Page Component' wizard step form gets visible`,
         async () => {
             let contentWizard = new ContentWizard();
             let siteFormPanel = new SiteFormPanel();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
@@ -59,11 +60,13 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.APP_CONTENT_TYPES);
             // 2. Application is selected so the site should be automatically saved:
             await contentWizard.waitForNotificationMessage();
-            // 3. Verify that 'Show Component' toggler is not visible, because page controller is not selected:
-            await contentWizard.waitForComponentVewTogglerNotVisible();
+            // 3. Verify that 'Page Component' wizard step form is not visible, because page controller is not selected:
+            await pageComponentsWizardStepForm.waitForNotDisplayed();
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-            // Verify that 'Show Component' toggler appears in the toolbar
-            await contentWizard.waitForShowComponentVewTogglerVisible();
+            // Verify that 'Page Component' wizard step form gets visible in the wizard panel:
+            await pageComponentsWizardStepForm.waitForLoaded();
+            // Verify that 'Page' wizard step is displayed in  Wizard Step Toolbar:
+            await contentWizard.waitForWizardStepDisplayed('Page');
         });
 
     it("WHEN existing site is opened THEN 'Insertables' panel should be loaded AND all expected components should be present",
@@ -82,20 +85,29 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
         });
 
     // verifies the xp#5580 Site Wizard - endless spinner appears when Show-Hide button was pressed in the second time
-    it("GIVEN existing site is opened WHEN 'Hide Page Editor' button has been clicked THEN 'Show Component View' gets not visible",
+    it("GIVEN existing site is opened WHEN 'Hide Page Editor' button has been clicked THEN 'Live Editor' gets not visible",
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 1. Click on 'Hide Page Editor' button
             await contentWizard.clickOnPageEditorToggler();
-            await contentWizard.waitForComponentVewTogglerNotVisible();
-            // 2. Click on 'Show Page Editor' button
+            await studioUtils.saveScreenshot('live_edit_hidden');
+            // 2. Verify that minimize toggler gets not visible in Wizard Step Toolbar:
+            await contentWizard.waitForMinimizeLiveEditTogglerNotDisplayed();
+            // 3. Live Edit should not be visible now:
+            await contentWizard.waitForLiveEditNotVisible();
+            // 4. Click on 'Show Page Editor' button
             await contentWizard.clickOnPageEditorToggler();
+            await studioUtils.saveScreenshot('live_edit_shown');
             await contentWizard.waitForSpinnerNotVisible(appConst.mediumTimeout);
+            // 5. Minimize icon gets visible again in Wizard Step Toolbar
+            await contentWizard.waitForMinimizeLiveEditTogglerDisplayed();
+            // 6. 'Live Edit' should be visible again
+            await contentWizard.waitForLiveEditVisible();
         });
 
-    //verifies https://github.com/enonic/app-contentstudio/issues/335
-    //Site Wizard Context panel - versions widget closes after rollback a version
+    // verifies https://github.com/enonic/app-contentstudio/issues/335
+    // Site Wizard Context panel - versions widget closes after rollback a version
     it(`GIVEN existing site is opened AND Versions widget is opened WHEN rollback a version THEN Versions widget should not be closed`,
         async () => {
             let contentWizard = new ContentWizard();

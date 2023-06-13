@@ -33,19 +33,20 @@ describe('default.error.page.spec tests for Default error page', function () {
             let contentWizard = new ContentWizardPanel();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            //1. Open Page Component View, open the context menu
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 2. open the context menu
             await pageComponentView.openMenu("main");
-            //2. click on the 'Insert Part' menu item:
+            // 3. click on the 'Insert Part' menu item:
             await pageComponentView.selectMenuItem(["Insert", "Part"]);
-            //3. Select the part with errors:
+            // 4. Select the part with errors:
             await liveFormPanel.selectPartByDisplayName("part-with-error");
             await contentWizard.switchToMainFrame();
-            //4. Click on 'Preview' button:
+            // 5. Click on 'Preview' button:
             await contentWizard.clickOnPreviewButton();
             await studioUtils.doSwitchToNextTab();
             await studioUtils.saveScreenshot("default-error-page");
-            //5. Verify that Default Error Page is loaded:
+            // 6. Verify that Default Error Page is loaded:
             let pageSource = await studioUtils.getPageSource();
             assert.isTrue(pageSource.includes("500 - Internal Server Error"), "Expected title should be loaded");
             assert.isTrue(pageSource.includes("D'oh!"), "Expected message should be loaded");

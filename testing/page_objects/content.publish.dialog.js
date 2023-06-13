@@ -456,8 +456,9 @@ class ContentPublishDialog extends Page {
     }
 
 
-    clickOnCancelTopButton() {
-        return this.clickOnElement(this.cancelButtonTop);
+    async clickOnCancelTopButton() {
+        await this.pause(400);
+        await  this.clickOnElement(this.cancelButtonTop);
     }
 
     async typeInOnlineFrom(dateTime) {

@@ -11,16 +11,17 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe("insert.component.workflow.spec - insert a component and click on 'Mark as ready button'", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
-    const TEXT_WITH_SPACES = "test text2   ";
+    const TEXT_WITH_SPACES = 'test text2   ';
 
     it("Precondition - new site should be added",
         async () => {
@@ -35,26 +36,31 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             let textComponentCke = new TextComponentCke();
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Open an existing site (work in progress)
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Open an existing site (work in progress)
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu("main");
-            //2. Insert Text Component with test text and save it:
+            // 3. Insert Text Component with test text and save it:
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
             await textComponentCke.typeTextInCkeEditor("test text");
-            //3. Click on 'Mark as Ready' button:
+            // 4. Click on 'Mark as Ready' button:
             await contentWizard.clickOnMarkAsReadyButton();
             let expectedMessage = appConst.itemMarkedAsReadyMessage(SITE.displayName);
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.equal(actualMessage, expectedMessage, "Item is marked as ready - this message should appear");
+            // Publish Wizard loads automatically , close it :
+            await contentPublishDialog.clickOnCancelTopButton();
             await studioUtils.saveScreenshot("text_component_mark_as_ready_pressed");
-            //4. Verify the workflow state get 'Ready for publishing'
+            // 5. Verify the workflow state get 'Ready for publishing'
+            await contentWizard.clickOnMinimizeLiveEditToggler();
             let actualWorkflow = await contentWizard.getContentWorkflowState();
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
                 "Ready for publishing status should be displayed in the wizard");
-            //5. Verify that Publish button gets displayed in the wizard-toolbar
+            // 6. Verify that Publish button gets displayed in the wizard-toolbar
             await contentWizard.waitForPublishButtonDisplayed();
-            //6. Verify the workflow status in Browse Panel:
+            // 7. Verify the workflow status in Browse Panel:
             await studioUtils.doSwitchToContentBrowsePanel();
             actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE.displayName);
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
@@ -66,27 +72,28 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
             let contentWizard = new ContentWizard();
-            //1. Open an existing site and insert new text component:
+            // 1. Open an existing site and insert new text component:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            //2. insert a text with spaces:
+            // 3. insert a text with spaces:
             await textComponentCke.insertTextInCkeEditor(TEXT_WITH_SPACES);
             await textComponentCke.insertTextInCkeEditor(TEXT_WITH_SPACES);
-            //3. Click on 'Save' button:
+            // 4. Click on 'Save' button:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(2000);
             await studioUtils.saveScreenshot("text_component_saved_button");
-            //4. Verify that Saved button gets visible in the toolbar:
+            // 5. Verify that Saved button gets visible in the toolbar:
             await contentWizard.waitForSavedButtonVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

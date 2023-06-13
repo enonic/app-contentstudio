@@ -11,7 +11,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
-const XDataImageSelector = require('../../page_objects/wizardpanel/xdata.image.selector.wizard.step.form');
+const XDataImageSelector = require('../../page_objects/wizardpanel/wizard-step-form/xdata.image.selector.wizard.step.form');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const CustomRelationshipForm = require('../../page_objects/wizardpanel/custom.relationship.form.panel');
 

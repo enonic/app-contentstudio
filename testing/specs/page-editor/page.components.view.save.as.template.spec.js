@@ -14,7 +14,7 @@ const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/ins
 
 describe('Save as Template specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
@@ -34,8 +34,8 @@ describe('Save as Template specification', function () {
             //Verify that the site should be saved automatically after selecting a controller
             await contentWizard.selectPageDescriptor(COUNTRY_LIST_CONTROLLER);
             await contentWizard.waitForSaveButtonDisabled();
-            //2. Open Page component View
-            await contentWizard.clickOnShowComponentViewToggler();
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
             //3. Open the menu in the root element:
             await pageComponentView.openMenu(COUNTRY_LIST_CONTROLLER);
             //4. Verify menu items
@@ -49,24 +49,24 @@ describe('Save as Template specification', function () {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let pageTemplateForm = new PageTemplateForm();
-            //1. Open existing site
+            // 1. Open existing site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            //2. Open 'Page component View'
-            await contentWizard.clickOnShowComponentViewToggler();
-            //3. Open the menu in the root element:
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Open the menu in the root element:
             await pageComponentView.openMenu(COUNTRY_LIST_CONTROLLER);
             await studioUtils.saveScreenshot("save_as_template_0");
-            //4. Click on 'Save as Template' menu item
+            // 4. Click on 'Save as Template' menu item
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE);
             await pageComponentView.pause(500);
             await studioUtils.doSwitchToNextTab();
-            //5. Verify the path of new template that was opened in new browser tab:
+            // 5. Verify the path of new template that was opened in new browser tab:
             await contentWizard.waitForOpened();
             await studioUtils.saveScreenshot("save_as_template1");
             let expectedPath = "template-" + SITE.displayName;
             let actualPath = await contentWizard.getPath();
             assert.equal(actualPath, expectedPath, "Template's path should contain the name of its site");
-            //6. Verify the support selected option:
+            // 6. Verify the support selected option:
             let support = await pageTemplateForm.getSupportSelectedOptions();
             assert.equal(support.length, 1, "Single item should be in support form");
             assert.equal(support[0], "Site", "Site option should be selected in the selector");
@@ -78,23 +78,23 @@ describe('Save as Template specification', function () {
             let pageComponentView = new PageComponentView();
             let pageTemplateForm = new PageTemplateForm();
             let pageInspectionPanel = new PageInspectionPanel();
-            //1. Open existing site
+            // 1. Open existing site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            //2. Open 'Page component View'
-            await contentWizard.clickOnShowComponentViewToggler();
-            //3. Click on the root element in the modal dialog:
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Click on the root element in the modal dialog:
             await pageComponentView.clickOnComponent(COUNTRY_LIST_CONTROLLER);
             await studioUtils.saveScreenshot("controller_inspection_panel");
-            //4. 'Page inspection' should be loaded, click on 'Save as Template' button:
+            // 4. 'Page inspection' should be loaded, click on 'Save as Template' button:
             await pageInspectionPanel.clickOnSaveAsTemplateButton();
             await studioUtils.doSwitchToNextTab();
-            //5. Verify the path of new template that was opened in new browser tab:
+            // 5. Verify the path of new template that was opened in new browser tab:
             await contentWizard.waitForOpened();
             await studioUtils.saveScreenshot("save_as_template2");
             let expectedPath = "template-" + SITE.displayName + "-1";
             let actualPath = await contentWizard.getPath();
             assert.equal(actualPath, expectedPath, "Template's path should contain the name of its site");
-            //6. Verify the support selected option:
+            // 6. Verify the support selected option:
             let support = await pageTemplateForm.getSupportSelectedOptions();
             assert.equal(support.length, 1, "Single item should be in support form");
             assert.equal(support[0], "Site", "Site option should be selected in the selector");
@@ -104,7 +104,7 @@ describe('Save as Template specification', function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

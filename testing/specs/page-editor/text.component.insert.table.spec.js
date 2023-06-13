@@ -13,7 +13,7 @@ const HtmlTableDialog = require('../../page_objects/wizardpanel/html.table.dialo
 
 describe('Text Component with CKE - insert html table', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -33,40 +33,41 @@ describe('Text Component with CKE - insert html table', function () {
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             let htmlTableDialog = new HtmlTableDialog();
+            // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            //1. Insert a text-component:
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert a text-component:
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            await pageComponentView.clickOnCloseButton();
             await textComponentCke.switchToLiveEditFrame();
-            //2. Click on 'Insert Table' menu-button:
+            // 4. Click on 'Insert Table' menu-button:
             await textComponentCke.clickOnInsertTableButton();
             // menu item for inserting of Html-table gets visible:
             //await textComponentCke.waitForTableDisplayedInCke();
-            //3. Click on More... button and open Table modal dialog
+            // 5. Click on More... button and open Table modal dialog
             await textComponentCke.clickOnMoreButtonInHtmlTableFrame();
             await htmlTableDialog.waitForDialogLoaded();
-            //4. Insert number of columns and rows
+            // 6. Insert number of columns and rows
             await htmlTableDialog.typeTextInRowsInput(3);
             await htmlTableDialog.typeTextInColumnsInput(3);
-            //5. Click on OK button and insert the table:
+            // 7. Click on OK button and insert the table:
             await htmlTableDialog.clickOnOkButton();
             await htmlTableDialog.waitForDialogClosed();
             await contentWizard.pause(500);
-            //6. Save the changes:
+            // 8. Save the changes:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(1000);
-            await studioUtils.saveScreenshot("cke_html_table_inserted");
-            //7. Verify that Saved button is disabled:
+            await studioUtils.saveScreenshot('cke_html_table_inserted');
+            // 9. Verify that 'Saved' button is disabled:
             await contentWizard.waitForSavedButtonVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

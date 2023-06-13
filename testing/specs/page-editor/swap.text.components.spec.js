@@ -10,6 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 
 describe('Swap two Text Component - specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -32,36 +33,37 @@ describe('Swap two Text Component - specification', function () {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            //opens Page Component View dialog
-            await contentWizard.clickOnShowComponentViewToggler();
-            let description = await pageComponentView.getComponentDescription("main region");
-            assert.equal(description, "test region", "Expected description should be displayed");
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            let description = await pageComponentView.getComponentDescription('main region');
+            assert.equal(description, 'test region', "Expected description should be displayed");
         });
 
     it(`GIVEN 2 Text component are inserted  WHEN components have been swapped THEN 2 strings should be displayed in correct order`,
         async () => {
             let contentWizard = new ContentWizard();
-            let pageComponentView = new PageComponentView();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let textComponentCke = new TextComponentCke();
             //1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            //2. Insert the first text component:
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            //await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert the first text component:
+            await pageComponentsWizardStepForm.openMenu("main");
+            await pageComponentsWizardStepForm.selectMenuItem(["Insert", "Text"]);
             await textComponentCke.typeTextInCkeEditor("component1");
             await contentWizard.switchToMainFrame();
-            //3. Insert the second text component:
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            // 4. Insert the second text component:
+            await pageComponentsWizardStepForm.openMenu("main");
+            await pageComponentsWizardStepForm.selectMenuItem(["Insert", "Text"]);
             await textComponentCke.typeTextInCkeEditor("component2");
             await contentWizard.switchToMainFrame();
             await contentWizard.hotKeySave();
             await contentWizard.pause(1200);
-            //4. Swap components:
-            studioUtils.saveScreenshot('text_components_swapped1');
-            await pageComponentView.swapComponents("component1", "component2");
-            studioUtils.saveScreenshot('text_components_swapped2');
+            // 5. Swap components:
+            await studioUtils.saveScreenshot('text_components_swapped1');
+            await pageComponentsWizardStepForm.swapComponents("component1", "component2");
+            await studioUtils.saveScreenshot('text_components_swapped2');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

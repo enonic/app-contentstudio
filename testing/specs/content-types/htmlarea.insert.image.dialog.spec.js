@@ -5,7 +5,7 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
-const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
+const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const appConst = require('../../libs/app_const');
 
@@ -32,10 +32,10 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await contentWizard.pause(700);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
-            studioUtils.saveScreenshot("insert_image_esc_test1");
+            await studioUtils.saveScreenshot("insert_image_esc_test1");
             await insertImageDialog.waitForDialogVisible();
             await contentWizard.pressEscKey();
-            studioUtils.saveScreenshot("insert_image_esc_test2");
+            await studioUtils.saveScreenshot("insert_image_esc_test2");
             await insertImageDialog.waitForDialogClosed();
         });
 
@@ -47,10 +47,8 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await contentWizard.pause(700);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
-            studioUtils.saveScreenshot("insert_image_cancel_test1");
             await insertImageDialog.waitForDialogVisible();
             await insertImageDialog.clickOnCancelButton();
-            await studioUtils.saveScreenshot("insert_image_cancel_test2");
             await insertImageDialog.waitForDialogClosed();
         });
 

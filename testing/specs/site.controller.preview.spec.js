@@ -16,12 +16,12 @@ const appConst = require('../libs/app_const');
 
 describe('site.controller.preview.spec: checks Preview button and options in selector for Page Templates and Controllers', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
-    let CONTROLLER_NAME = "Page";
+    let CONTROLLER_NAME = 'Page';
 
     it(`GIVEN wizard for new site is opened WHEN page controller is not selected THEN 'Preview' button should not be visible in the wizard toolbar`,
         async () => {
@@ -45,7 +45,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             //3. Verify that 'Preview' button is disabled in the browse toolbar:
             await contentBrowsePanel.waitForPreviewButtonDisabled();
             //4. Verify that 'Failed to render content preview' is displayed in Content Item Preview panel:
-            await studioUtils.saveScreenshot("site_preview_not_available");
+            await studioUtils.saveScreenshot('site_preview_not_available');
             let text = await contentItemPreviewPanel.getNoPreviewMessage();
             assert.isTrue(text.includes("Unable to render"),
                 "Expected text should be displayed in Content Item Preview panel");
@@ -80,11 +80,11 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
     it(`WHEN existing site(controller is selected) has been clicked THEN 'Preview' button should be enabled in the browse toolbar and in Context menu`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the site(controller is selected)
+            // 1. Select the site(controller is selected)
             await studioUtils.findAndSelectItem(SITE.displayName);
-            //3. Verify that 'Preview' button is enabled in the browse toolbar:
+            // 3. Verify that 'Preview' button is enabled in the browse toolbar:
             await contentBrowsePanel.waitForPreviewButtonEnabled();
-            //4.Verify that Preview menu item is enabled in grid context menu:
+            // 4.Verify that Preview menu item is enabled in grid context menu:
             await contentBrowsePanel.rightClickOnItemByDisplayName(SITE.displayName);
             await studioUtils.saveScreenshot("check-context-menu-preview");
             await contentBrowsePanel.waitForContextMenuItemEnabled("Preview");
@@ -94,18 +94,18 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            //1. Open the site(controller is selected)
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            //2. Expand the menu:
+            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 2. Expand the menu:
             await pageComponentView.openMenu(CONTROLLER_NAME);
-            //3. Click on the 'Reset' menu item:
-            await pageComponentView.selectMenuItem(["Reset"]);
-            //3. Verify that 'Preview' button gets not visible in the wizard toolbar:
+            // 3. Click on the 'Reset' menu item:
+            await pageComponentView.selectMenuItem(['Reset']);
+            // 4. Verify that 'Preview' button gets not visible in the wizard toolbar:
             await contentWizard.waitForPreviewButtonNotDisplayed();
-            //4. Verify that Controller Options Filter input gets visible:
+            // 5. Verify that Controller Options Filter input gets visible:
             await contentWizard.waitForControllerOptionFilterInputVisible();
-            //5. Verify that 'Preview' button is disabled in browse-toolbar:
+            // 6. Verify that 'Preview' button is disabled in browse-toolbar:
             await studioUtils.doSwitchToContentBrowsePanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.waitForPreviewButtonDisabled();
