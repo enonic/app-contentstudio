@@ -41,8 +41,8 @@ describe('layout.config.inspect.panel.spec: tests for layout with aconfig', func
             // 2. Verify that the site should be saved automatically after selecting a controller
             await contentWizard.selectPageDescriptor(appConst.CONTROLLER_NAME.DEFAULT);
             await contentWizard.waitForSaveButtonDisabled();
-            // 3. Open Component View and insert the layout:
-            await contentWizard.clickOnShowComponentViewToggler();
+            // 3. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_REGION);
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.typeNameAndSelectLayout('Centered');

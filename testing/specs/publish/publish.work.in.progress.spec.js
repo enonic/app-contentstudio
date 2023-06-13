@@ -21,7 +21,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
     }
     let TEST_FOLDER;
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    let CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
 
     it("Precondition - new site should be added",
         async () => {
@@ -110,13 +110,16 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Open an existing site (work in progress)
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');
-            // 2. Insert Text Component with test text and save it:
+            // 3. Insert Text Component with test text and save it:
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.typeTextInCkeEditor('test text');
             await contentWizard.waitAndClickOnSave();
-            // 3. Verify the workflow state in the wizard and in the grid
+            // minimize Live Edit, workflow icon gets visible:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 4. Verify the workflow state in the wizard and in the grid
             let workflowInWizard = await contentWizard.getContentWorkflowState();
             assert.equal(workflowInWizard, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
             await studioUtils.doSwitchToContentBrowsePanel();

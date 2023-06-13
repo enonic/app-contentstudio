@@ -13,6 +13,7 @@ const CountryForm = require('../../page_objects/wizardpanel/country.form.panel')
 const CityForm = require('../../page_objects/wizardpanel/city.form.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../../libs/app_const');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 
 describe('my.first.site.country.spec - Create a site with country content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -45,8 +46,8 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
             await contentWizard.selectPageDescriptor(TEMPLATE.data.controllerDisplayName);
-            // 2. Open 'Page Component View' in template-wizard:
-            await contentWizard.clickOnShowComponentViewToggler();
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the country item and open Context Menu:
             await pageComponentView.openMenu('country');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
@@ -179,9 +180,24 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
-            // 2. Open USA country in master
-            await contentWizard.clickOnShowComponentViewToggler();
+            // 1. Open USA country, open Page Component View modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
             let result = await pageComponentView.getPageComponentsDisplayName();
+            assert.isTrue(result.includes(COUNTRY_TEMPLATE_NAME), 'template(top component)  should be present in the dialog');
+            assert.isTrue(result.includes('City list'), 'City list part should be present in the dialog');
+            assert.isTrue(result.includes('country'), 'country part should be present in the dialog');
+        });
+
+    it("WHEN USA content has been opened  THEN expected components should be displayed in the dialog in Page Component wizard step",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            // 1. Open USA country content:
+            await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Verify that Page Component wizard step is displayed:
+            let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.isTrue(result.includes(COUNTRY_TEMPLATE_NAME), 'template(top component)  should be present in the dialog');
             assert.isTrue(result.includes('City list'), 'City list part should be present in the dialog');
             assert.isTrue(result.includes('country'), 'country part should be present in the dialog');

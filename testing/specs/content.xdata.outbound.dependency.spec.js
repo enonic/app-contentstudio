@@ -6,8 +6,8 @@ const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
-const XDataImageSelector = require('../page_objects/wizardpanel/xdata.image.selector.wizard.step.form');
-const XDataContentSelector = require('../page_objects/wizardpanel/xdata.content.selector');
+const XDataImageSelector = require('../page_objects/wizardpanel/wizard-step-form/xdata.image.selector.wizard.step.form');
+const XDataContentSelector = require('../page_objects/wizardpanel/wizard-step-form/xdata.content.selector');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
@@ -22,7 +22,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
     const CONTENT_WITH_XDATA = contentBuilder.generateRandomName('test');
     const CONTENT_WITH_XDATA_2 = contentBuilder.generateRandomName('test');
     const CONTENT_XDATA_CONTENT_SELECTOR = contentBuilder.generateRandomName('xdata');
-    const IMAGE_DISPLAY_NAME = "kotey";
+    const IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.KOTEY;//"kotey";
 
     it(`Preconditions: new site should be added`,
         async () => {

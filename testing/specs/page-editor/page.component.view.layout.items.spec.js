@@ -33,31 +33,32 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await studioUtils.doAddSite(SITE);
             // 2. reopen the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            // 3. Insert the Layout component (3-column):
+            // 3. Maximize the Live Edit:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 4. Insert the Layout component (3-column):
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await liveFormPanel.selectLayoutByDisplayName(LAYOUT_NAME);
             await contentWizard.waitForNotificationMessage();
             // TODO workaround - expand the collapsed row with the layout component:
             await pageComponentView.clickOnRowExpander('3-col');
-            // 4. Insert text component in the left layout's region
+            // 5. Insert text component in the left layout's region
             await pageComponentView.openMenu('left');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.typeTextInCkeEditor('text left');
-            // 5. Save the site: (layout get collapsed after the saving )
+            // 6. Save the site: (layout get collapsed after the saving )
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('page_component_updated_1');
-            // 6. Expand the layout:
+            // 7. Expand the layout:
             // await pageComponentView.expandItem(LAYOUT_NAME);
-            // 7. Insert 'text component' in the left layout's region
+            // 8. Insert 'text component' in the left layout's region
             await pageComponentView.openMenu('center');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.typeTextInCkeEditor('text center');
-            // 8. Save the site:
+            // 9. Save the site:
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('page_component_updated_2');
-            // 9. Verify that 'right region' item is displayed in Page Component View
+            // 10. Verify that 'right region' item is displayed in Page Component View
             // TODO (uncomment it) workaround - expand the collapsed row with the layout component:
             // await pageComponentView.waitForItemDisplayed('right');
         });

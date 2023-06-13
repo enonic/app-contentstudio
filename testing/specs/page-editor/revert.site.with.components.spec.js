@@ -37,12 +37,12 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             let textComponentCke = new TextComponentCke();
             let liveFormPanel = new LiveFormPanel();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            //1. Open  'Page Component View' dialog:
-            await contentWizard.clickOnShowComponentViewToggler();
-            //2. Open the context menu:
-            await pageComponentView.openMenu("main");
-            //3. Click on the 'Insert Text' menu item:
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            // 1. Click on minimize-toggler, expand 'Live Edit' and open 'Page Component' modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 2. Open the context menu:
+            await pageComponentView.openMenu('main');
+            // 3. Click on the 'Insert Text' menu item:
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.typeTextInCkeEditor(TEXT);
             await contentWizard.waitAndClickOnSave();
             await textComponentCke.switchToLiveEditFrame();
@@ -60,16 +60,16 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             //2. Do right-click on the text-component:
             await contentWizard.switchToLiveEditFrame();
             await liveFormPanel.doRightClickOnTextComponent(TEXT, position.x, position.y);
-            await studioUtils.saveScreenshot("text_component_context_menu");
+            await studioUtils.saveScreenshot('text_component_context_menu');
             //3. Verify menu items:
             let result = await liveFormPanel.getItemViewContextMenuItems();
             assert.equal(result[0], 'Select parent');
             assert.equal(result[1], 'Insert');
             assert.equal(result[2], "Reset");
-            assert.equal(result[3], "Remove");
-            assert.equal(result[4], "Duplicate");
-            assert.equal(result[5], "Save as Fragment");
-            assert.equal(result[6], "Edit");
+            assert.equal(result[3], 'Remove');
+            assert.equal(result[4], 'Duplicate');
+            assert.equal(result[5], 'Save as Fragment');
+            assert.equal(result[6], 'Edit');
         });
 
     //Verifies https://github.com/enonic/xp/issues/7603  (Page changes are not reverted on version revert )
@@ -84,7 +84,7 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             //2. Revert the previous version:
             await versionPanel.clickAndExpandVersion(1);
             await versionPanel.clickOnRevertButton();
-            await studioUtils.saveScreenshot("site_reverted1");
+            await studioUtils.saveScreenshot('site_reverted1');
             await contentWizard.switchToLiveEditFrame();
             //3. After reverting - text-component should not be present in Live Frame
             await liveFormPanel.waitForTextComponentNotDisplayed(TEXT);

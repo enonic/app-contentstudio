@@ -37,21 +37,23 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             let liveFormPanel = new LiveFormPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConst.MY_FIRST_APP]);
+            // add new site:
             await studioUtils.doAddSite(SITE);
 
             TEMPLATE = contentBuilder.buildPageTemplate(COUNTRY_TEMPLATE_NAME, SUPPORT, CONTROLLER);
+            // 1. Expand the site and open wizard for new page-template:
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
             await contentWizard.selectPageDescriptor(TEMPLATE.data.controllerDisplayName);
-            //2. Open 'Page Component View' in template-wizard:
-            await contentWizard.clickOnShowComponentViewToggler();
-            //3.Click on the country item and open Context Menu:
-            await pageComponentView.openMenu("country");
-            await pageComponentView.selectMenuItem(["Insert", "Part"]);
-            await liveFormPanel.selectPartByDisplayName("City Creation");
-            await studioUtils.saveScreenshot("template_sity_creation_part");
+            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3.Click on the country item and open Context Menu:
+            await pageComponentView.openMenu('country');
+            await pageComponentView.selectMenuItem(['Insert', 'Part']);
+            await liveFormPanel.selectPartByDisplayName('City Creation');
+            await studioUtils.saveScreenshot('template_sity_creation_part');
             await contentWizard.switchToMainFrame();
-            //The content should be automatically saved after selecting a part
+            // The content should be automatically saved after selecting a part
             await contentWizard.waitForSaveButtonDisabled();
         });
 
@@ -61,22 +63,22 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             let countryFormPanel = new CountryFormPanel();
             let cityCreationPage = new CityCreationPage();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, "Country");
-            //1. Save new Norway content:
+            // 1. Save new Norway content:
             await contentWizard.typeInPathInput(COUNTRY_CONTENT_PATH);
             await contentWizard.typeDisplayName(COUNTRY_NAME);
             await countryFormPanel.typeDescription("Norway country");
             await countryFormPanel.typePopulation('7000000');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            //2. Open Norway-country content in 'draft' branch - 'City Creation' page should be loaded
+            // 2. Open Norway-country content in 'draft' branch - 'City Creation' page should be loaded
             await studioUtils.openResourceInDraft(SITE.displayName + "/" + COUNTRY_CONTENT_PATH);
-            //3. Fill in the city form and click on SUBMIT button:
+            // 3. Fill in the city form and click on SUBMIT button:
             await cityCreationPage.typeCityName(CITY_NAME);
             await cityCreationPage.typeLocation("1,1");
             await cityCreationPage.typePopulation(CITY_POPULATION);
             await studioUtils.saveScreenshot("city_creation_page");
             await cityCreationPage.clickOnSubmitButton();
-            //4. Navigate to content browse panel again:
+            // 4. Navigate to content browse panel again:
             await studioUtils.doSwitchToHome();
             let launcherPanel = new LauncherPanel();
             await launcherPanel.clickOnContentStudioLink();

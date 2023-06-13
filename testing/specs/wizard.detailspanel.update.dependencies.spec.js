@@ -12,20 +12,20 @@ const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wi
 const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const SiteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
-const InsertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
+const InsertImageDialog = require('../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const appConst = require('../libs/app_const');
 
 describe('Content with image-selector, select images and verify that Outbound dependencies are refreshed ',
     function () {
         this.timeout(appConst.SUITE_TIMEOUT);
-        if (typeof browser === "undefined") {
+        if (typeof browser === 'undefined') {
             webDriverHelper.setupBrowser();
         }
         let contentDisplayName = contentBuilder.generateRandomName('content');
         let CONTENT_NAME2 = contentBuilder.generateRandomName('content');
 
-        let IMAGE_DISPLAY_NAME1 = "Pop_03";
-        let IMAGE_DISPLAY_NAME2 = "Pop_02";
+        let IMAGE_DISPLAY_NAME1 = appConst.TEST_IMAGES.POP_03;
+        let IMAGE_DISPLAY_NAME2 = appConst.TEST_IMAGES.POP_02;
         let SITE;
 
         it(`Precondition: new site should be added`,

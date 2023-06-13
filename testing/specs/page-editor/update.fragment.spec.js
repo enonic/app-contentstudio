@@ -36,29 +36,31 @@ describe('Test for updating text in fragment', function () {
             await siteFormPanel.filterOptionsAndSelectApplication(appConst.TEST_APPS_NAME.SIMPLE_SITE_APP);
             await contentWizard.pause(2000);
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-            await contentWizard.clickOnShowComponentViewToggler();
-            // 2. Insert new text-component
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert new text-component
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.insertTextInCkeEditor(GENERATED_TEXT_1);
-            // 3.  Do not save the site, but save new fragment from the just inserted text:
+            // 4.  Do not save the site, but save new fragment from the just inserted text:
             await pageComponentView.openMenu(GENERATED_TEXT_1);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(700);
-            // 4. Switch to Fragment wizard:
+            // 5. Switch to Fragment wizard:
             await studioUtils.doSwitchToNewWizard();
-            await contentWizard.clickOnShowComponentViewToggler();
+            // 6. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(GENERATED_TEXT_1);
-            // 5. Update the text in the fragment
+            // 7. Update the text in the fragment
             await pageComponentView.selectMenuItem(['Edit']);
             await textComponentCke.insertTextInCkeEditorSection(GENERATED_TEXT_2);
-            // 6. Save the fragment:
+            // 8. Save the fragment:
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('fragment_txt_updated');
-            // 7. Switch to the site again:
+            // 9. Switch to the site again:
             await studioUtils.doSwitchToPrevTab();
             await studioUtils.saveScreenshot('fragment_component_txt');
-            // 8. Verify  that text is updated in the Live Form panel"
+            // 10. Verify  that text is updated in the Live Form panel"
             let actualTxt = await liveFormPanel.getTextInFragmentComponent();
             assert.equal(actualTxt, GENERATED_TEXT_2, 'Site wizard - Text should be updated in the fragment component');
         });

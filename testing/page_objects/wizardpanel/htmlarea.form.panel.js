@@ -4,7 +4,7 @@
 const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const InsertLinkDialog = require('./insert.link.modal.dialog.cke');
+const InsertLinkDialog = require('./html-area/insert.link.modal.dialog.cke');
 
 const XPATH = {
     ckeTextArea: "//div[contains(@id,'cke_TextArea')]",

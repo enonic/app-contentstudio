@@ -7,7 +7,7 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
-const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
+const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const appConst = require('../../libs/app_const');
 

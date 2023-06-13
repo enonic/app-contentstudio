@@ -11,7 +11,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
-const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
+const InsertLinkDialog = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const InsertLinkDialogUrlPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 
@@ -39,12 +39,12 @@ describe('Text Component with CKE - insert link and table specification', functi
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            //1. Insert a text-component:
+            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 2. Insert a text-component:
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            await pageComponentView.clickOnCloseButton();
-            //Close the details panel
+            // Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
             //2. Click on 'Insert Table' menu-button:
@@ -60,26 +60,27 @@ describe('Text Component with CKE - insert link and table specification', functi
             let pageComponentView = new PageComponentView();
             let insertLinkDialog = new InsertLinkDialog();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
+            // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            // 1. Insert a text component and type an invalid URL:
+            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert a text component and type an invalid URL:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await pageComponentView.clickOnCloseButton();
-            // Close the details panel
+            // 4. Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
-            // 2. Open Insert link modal dialog
+            // 5. Open Insert link modal dialog
             await textComponentCke.clickOnInsertLinkButton();
-            // go to url-tab
+            // 6. go to url-tab
             await insertLinkDialog.clickOnBarItem('URL')
             await insertLinkDialog.typeInLinkTextInput('url_link');
-            // 3. Insert invalid URL:
+            // 7. Insert invalid URL:
             await insertLinkDialogUrlPanel.typeUrl(INVALID_URL_SPEC);
-            // 4. Click on 'Insert" in the modal dialog:
+            // 8. Click on 'Insert" in the modal dialog:
             await insertLinkDialog.clickOnInsertButton();
             await studioUtils.saveScreenshot('not_valid_url');
-            // 5. Verify that Validation message gets visible:
+            // 9. Verify that Validation message gets visible:
             await insertLinkDialogUrlPanel.waitForValidationMessage();
             let message = await insertLinkDialogUrlPanel.getValidationMessage();
             assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, "Invalid value entered - should be visible" );
@@ -90,21 +91,22 @@ describe('Text Component with CKE - insert link and table specification', functi
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
+            // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            //1. Insert a text component:
+            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert a text component:
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            await pageComponentView.clickOnCloseButton();
-            //Close the details panel
+            // 4. Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
-            //2. Open Insert Link dialog and add the link:
+            // 5. Open Insert Link dialog and add the link:
             await textComponentCke.clickOnInsertLinkButton();
             await studioUtils.insertUrlLinkInCke("test", 'http://google.com');
             await textComponentCke.switchToLiveEditFrame();
             await studioUtils.saveScreenshot('url_link_inserted');
-            //3. Get and check the text in CKE:
+            // 6. Get and check the text in CKE:
             let result = await textComponentCke.getTextFromEditor();
             assert.isTrue(result.includes(EXPECTED_URL), 'expected URL should appear in CKE');
             await textComponentCke.switchToParentFrame();
@@ -115,10 +117,10 @@ describe('Text Component with CKE - insert link and table specification', functi
     it(`GIVEN site is selected WHEN 'Preview' button has been pressed AND inserted link has been clicked THEN 'Enonic' site should be loaded in the page`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the site and click on Preview button:
+            // 1. Select the site and click on Preview button:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPreviewButton();
-            //2. Switch to the new browser-tab and verify the link:
+            // 2. Switch to the new browser-tab and verify the link:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             await studioUtils.clickOnElement('a=test');
             await contentBrowsePanel.pause(2000);

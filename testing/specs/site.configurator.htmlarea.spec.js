@@ -10,7 +10,7 @@ const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel'
 const contentBuilder = require("../libs/content.builder");
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const SiteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
-const InsertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
+const InsertLinkDialog = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
 const InsertLinkDialogUrlPanel= require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 

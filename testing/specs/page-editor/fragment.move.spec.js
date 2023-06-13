@@ -24,7 +24,7 @@ describe('Move Fragment specification', function () {
     let SITE;
     let CONTROLLER_NAME = 'main region';
     let FRAGMENT_TEXT_DESCRIPTION = "text";
-    let TEST_TEXT = 'text_component_1';
+    let TEST_TEXT_FRAGMENT = 'text_component_1';
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -41,22 +41,23 @@ describe('Move Fragment specification', function () {
             let textComponent = new TextComponent();
             // 1. Open existing site and insert new text component with the text:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await textComponent.typeTextInCkeEditor(TEST_TEXT);
+            await textComponent.typeTextInCkeEditor(TEST_TEXT_FRAGMENT);
             // await contentWizard.switchToMainFrame();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);
             // 2. wait for (1500) the page is rendered and open the menu
-            await pageComponentView.openMenu(TEST_TEXT);
+            await pageComponentView.openMenu(TEST_TEXT_FRAGMENT);
             // 3. Click on Save as Fragment menu item:
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await studioUtils.saveScreenshot('text_saved_as_fragment2');
             // 4. Wait for the description is refreshing:
             await contentWizard.pause(5500);
             // 5. Go to the site-wizard and verify description of the new created fragment
-            let actualDescription = await pageComponentView.getComponentDescription(TEST_TEXT);
+            let actualDescription = await pageComponentView.getComponentDescription(TEST_TEXT_FRAGMENT);
             assert.equal(actualDescription, FRAGMENT_TEXT_DESCRIPTION, 'Expected description should be in the text-fragment');
         });
 
@@ -66,8 +67,8 @@ describe('Move Fragment specification', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             let moveContentDialog = new MoveContentDialog();
             let confirmationDialog = new ConfirmationDialog();
-            // 1. Select the fragment and click on Move button:
-            await studioUtils.findAndSelectItemByDisplayName('text_component_1');
+            // 1. Select the fragment-content and click on Move button:
+            await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
             await contentBrowsePanel.clickOnMoveButton();
             // 2. Verify -  modal dialog is loaded then click on 'Move' button:
             await moveContentDialog.waitForOpened();
@@ -88,8 +89,8 @@ describe('Move Fragment specification', function () {
             let contentWizard = new ContentWizard();
             let deleteContentDialog = new DeleteContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. Select the fragment and delete it:
-            await studioUtils.findAndSelectItemByDisplayName('text_component_1');
+            // 1. Select the fragment-content and delete it:
+            await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
             // Open 'Delete Content' modal dialog:
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();

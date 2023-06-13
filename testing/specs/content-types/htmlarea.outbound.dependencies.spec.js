@@ -8,19 +8,19 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
+const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const appConst = require('../../libs/app_const');
 
 describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a content with Html Area', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
-    let IMAGE_DISPLAY_NAME = "Pop_03";
+    let IMAGE_DISPLAY_NAME = 'Pop_03';
     let CONTENT_NAME = contentBuilder.generateRandomName('htmlarea');
 
     it(`Preconditions: new site should be added`,
@@ -35,17 +35,17 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             let insertImageDialog = new InsertImageDialog();
-            //1. open new wizard with html-area
+            // 1. open new wizard with html-area
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await contentWizard.typeDisplayName(CONTENT_NAME);
             await htmlAreaForm.pause(1500);
-            //2. Insert an image and save:
+            // 2. Insert an image and save:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             await insertImageDialog.clickOnInsertButton();
             await contentWizard.waitAndClickOnSave();
             let actualMessage = await contentWizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot('cke_image_is_inserted');
+            await studioUtils.saveScreenshot('cke_image_is_inserted');
             let expectedMessage = appConst.itemSavedNotificationMessage(CONTENT_NAME);
             assert.equal(actualMessage, expectedMessage, 'expected notification should appear');
         });
@@ -56,12 +56,12 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             let contentWizard = new ContentWizard();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
             let wizardDetailsPanel = new WizardDetailsPanel();
-            //1. Select the content and open dependencies widget:
+            // 1. Select the content and open dependencies widget:
             await studioUtils.selectContentAndOpenWizard(CONTENT_NAME);
             await contentWizard.openDetailsPanel();
             await wizardDetailsPanel.openDependencies();
-            studioUtils.saveScreenshot('htmlarea_with_image');
-            //2. Verify that 'Show outbound' button gets visible in the widget, because image was inserted in htmlarea
+            await studioUtils.saveScreenshot('htmlarea_with_image');
+            // 2. Verify that 'Show outbound' button gets visible in the widget, because image was inserted in htmlarea
             await wizardDependenciesWidget.waitForOutboundButtonVisible();
             let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
             assert.isFalse(isVisible, '`Show Inbound` button should not be visible');
@@ -92,7 +92,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

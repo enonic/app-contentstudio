@@ -9,16 +9,16 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
-const InsertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
+const InsertAnchorDialog = require('../../page_objects/wizardpanel/html-area/insert.anchor.dialog.cke');
 const appConst = require('../../libs/app_const');
 
 describe('Text Component with CKE - insert Anchor specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    let CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     let EXPECTED_DATA_CKE = '<a id="test_anchor" name="test_anchor"></a>';
 
     it(`Preconditions: new site should be created`,
@@ -34,21 +34,22 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
             let insertAnchorDialog = new InsertAnchorDialog();
-            //1. Open existing site and open 'Page Component View':
+            // 1. Open existing site and open 'Page Component View':
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-            //2. Insert new text-component:
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Insert new text-component:
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.switchToLiveEditFrame();
-            //3. Open 'Insert Anchor' dialog and type the text:
+            // 4. Open 'Insert Anchor' dialog and type the text:
             await textComponentCke.clickOnInsertAnchorButton();
             await insertAnchorDialog.typeInTextInput('test_anchor');
-            studioUtils.saveScreenshot('anchor_text_typed');
-            //4. Click on 'Insert' button and close the dialog:
+            await studioUtils.saveScreenshot('anchor_text_typed');
+            // 5. Click on 'Insert' button and close the dialog:
             await insertAnchorDialog.clickOnInsertButtonAndWaitForClosed();
             await contentWizard.switchToLiveEditFrame();
-            //5. Verify the text in CKE:
+            // 6. Verify the text in CKE:
             let actualText = await textComponentCke.getTextFromEditor();
             assert.isTrue(actualText.includes(EXPECTED_DATA_CKE), 'expected text should be in CKE');
         });
@@ -61,14 +62,14 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             let textComponentCke = new TextComponentCke();
             let insertAnchorDialog = new InsertAnchorDialog();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnShowComponentViewToggler();
-
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.switchToLiveEditFrame();
-            //Open Insert Anchor modal dialog:
+            // Open Insert Anchor modal dialog:
             await textComponentCke.clickOnInsertAnchorButton();
-            //Press 'Esc' key
+            // Press 'Esc' key
             await contentWizard.pressEscKey();
             await insertAnchorDialog.waitForDialogClosed();
         });
@@ -79,11 +80,13 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
             let insertAnchorDialog = new InsertAnchorDialog();
+            // 1. Open the site
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            //Insert a text component:
-            await contentWizard.clickOnShowComponentViewToggler();
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            // Insert a text component:
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.switchToLiveEditFrame();
             //Open Insert Anchor modal dialog and type not correct value:
             await textComponentCke.clickOnInsertAnchorButton();
@@ -91,7 +94,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             //Click on the Insert button and insert the anchor:
             await insertAnchorDialog.clickOnInsertButton();
             //Verify the validation message:
-            studioUtils.saveScreenshot('not_valid_text_in_anchor');
+            await studioUtils.saveScreenshot('not_valid_text_in_anchor');
             let isDisplayed = await insertAnchorDialog.waitForValidationMessage();
             assert.isTrue(isDisplayed, 'Validation message should be present in the modal dialog');
         });
@@ -110,7 +113,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
         })
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

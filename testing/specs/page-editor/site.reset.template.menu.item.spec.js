@@ -37,11 +37,11 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-            //2. Open Page Component View in template-wizard:
-            await contentWizard.clickOnShowComponentViewToggler();
-            //3.Click on the item and open Context Menu:
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3.Click on the item and open Context Menu:
             await pageComponentView.openMenu("country");
-            //4. Insert Text Component with 'test text' and save it:
+            // 4. Insert Text Component with 'test text' and save it:
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
             await textComponentCke.typeTextInCkeEditor(TEST_TEXT);
             await contentWizard.waitAndClickOnSave();
@@ -51,30 +51,30 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            //1. Open the site
+            // 1. Open the site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.switchToParentFrame();
-            //2. Unlock the LiveEdit
+            // 2. Unlock the LiveEdit
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
-            //2. Open Page Component View in site-wizard:
-            await contentWizard.clickOnShowComponentViewToggler();
-            //3.Click on the item and open Context Menu:
+            // 3. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 4.Click on the item and open Context Menu:
             await pageComponentView.openMenu(TEST_TEXT);
-            //4. Remove the text component and save it
+            // 5. Remove the text component and save it
             await pageComponentView.selectMenuItem(["Remove"]);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot("site_customized");
-            //5. Verify that  number of components is reduced:
+            // 6. Verify that  number of components is reduced:
             let result1 = await pageComponentView.getPageComponentsDisplayName();
             assert.equal(result1.length, 2, "Number of items in Component View should be reduced after the removing");
-            //6. Expand the controller's menu(the root element) and click on 'Reset' item
+            // 7. Expand the controller's menu(the root element) and click on 'Reset' item
             await pageComponentView.openMenu(CONTROLLER_NAME);
             await pageComponentView.selectMenuItem(["Reset"]);
             await pageComponentView.pause(4000);
             await studioUtils.saveScreenshot("site_reset_to_template");
-            //7. Verify that the site is reset to default template:
+            // 8. Verify that the site is reset to default template:
             let result2 = await pageComponentView.getPageComponentsDisplayName();
             assert.equal(result2.length, 3,
                 "Number of items in 'Component View' should be increased after the resetting to the default template");

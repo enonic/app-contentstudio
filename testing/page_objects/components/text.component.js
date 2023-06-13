@@ -5,9 +5,9 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const utils = require('../../libs/studio.utils');
-const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
-const InsertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
-const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
+const InsertLinkDialog = require('../wizardpanel/html-area/insert.link.modal.dialog.cke');
+const InsertAnchorDialog = require('../wizardpanel/html-area/insert.anchor.dialog.cke');
+const InsertImageDialog = require('../wizardpanel/html-area/insert.image.dialog.cke');
 
 const component = {
     toolbox: `//span[contains(@class,'cke_toolbox')]`,
