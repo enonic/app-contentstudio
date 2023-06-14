@@ -8,6 +8,7 @@ function handleGet() {
     const context = contextLib.get();
     const branch = context.branch;
     const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
+    const excludeDependencies = app.config['publishingWizard.excludeDependencies'] === 'true' || false;
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const hideDefaultProject = app.config['settings.hideDefaultProject'] !== 'false';
@@ -17,14 +18,15 @@ function handleGet() {
         contentType: 'application/json',
         body: {
             allowContentUpdate,
+            excludeDependencies,
             allowPathTransliteration,
             adminUrl: admin.getBaseUri(),
             assetsUri: portal.assetUrl({
                 path: ''
             }),
             toolUri: admin.getToolUrl(
-              app.name,
-              'main'
+                app.name,
+                'main'
             ),
             appId: app.name,
             appVersion: app.version,

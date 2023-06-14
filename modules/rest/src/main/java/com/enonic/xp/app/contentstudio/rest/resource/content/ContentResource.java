@@ -82,6 +82,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.DuplicateConte
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.EffectivePermissionAccessJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.EffectivePermissionJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.EffectivePermissionMemberJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.FindIdsByParentsResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetContentVersionsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDependenciesResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDescendantsOfContents;
@@ -652,6 +653,19 @@ public final class ContentResource
     }
 
     @POST
+    @Path("findIdsByParents")
+    public FindIdsByParentsResultJson findIdsByParents( final ContentIdsJson ids )
+    {
+        final ArrayList<ContentId> childrenIds = new ArrayList<>();
+        ids.getContentIds().stream().forEach( id -> {
+            FindContentByParentParams params = FindContentByParentParams.create().parentId( id ).recursive( true ).build();
+            childrenIds.addAll( this.contentService.findIdsByParent( params ).getContentIds().getSet() );
+        } );
+
+        return FindIdsByParentsResultJson.create().setRequestedContents( ContentIds.from( childrenIds ) ).build();
+    }
+
+    @POST
     @Path("resolvePublishContent")
     public ResolvePublishContentResultJson resolvePublishContent( final ResolvePublishDependenciesJson params )
     {
@@ -661,20 +675,16 @@ public final class ContentResource
         final ContentIds excludeChildrenIds = ContentIds.from( params.getExcludeChildrenIds() );
 
         //Resolves the publish dependencies
-        final CompareContentResults compareResults = contentService.resolvePublishDependencies( ResolvePublishDependenciesParams.create()
-                                                                                                    .target(
-                                                                                                        ContentConstants.BRANCH_MASTER )
-                                                                                                    .contentIds( requestedContentIds )
-                                                                                                    .excludedContentIds( excludeContentIds )
-                                                                                                    .excludeChildrenIds(
-                                                                                                        excludeChildrenIds )
-                                                                                                    .build() );
+        final ResolvePublishDependenciesParams resolveParams =
+            ResolvePublishDependenciesParams.create().target( ContentConstants.BRANCH_MASTER ).contentIds(
+                requestedContentIds ).excludedContentIds( excludeContentIds ).excludeChildrenIds( excludeChildrenIds ).build();
+        final CompareContentResults compareResults = contentService.resolvePublishDependencies( resolveParams );
 
         //Resolved the dependent ContentPublishItem
-        final ContentIds dependentContentIds = ContentIds.from( compareResults.contentIds()
-                                                                    .stream()
-                                                                    .filter( contentId -> !requestedContentIds.contains( contentId ) ).collect(
-                Collectors.toList() ) );
+        final List<ContentId> contentIds =
+            compareResults.contentIds().stream().filter( contentId -> !requestedContentIds.contains( contentId ) ).collect(
+                Collectors.toList() );
+        final ContentIds dependentContentIds = ContentIds.from( contentIds );
 
         final ContentIds fullPublishList = ContentIds.create().addAll( dependentContentIds ).addAll( requestedContentIds ).build();
 

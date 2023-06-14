@@ -1181,6 +1181,24 @@ public class ContentResourceTest
     }
 
     @Test
+    public void find_ids_by_parents()
+        throws Exception
+    {
+        final ContentId childId1 = ContentId.from( "childId1" );
+        final ContentId childId2 = ContentId.from( "childId2" );
+        final ContentIds childrenIds = ContentIds.from( childId1, childId2 );
+
+        Mockito.when( contentService.findIdsByParent( Mockito.isA( FindContentByParentParams.class ) ) ).thenReturn(
+            FindContentIdsByParentResult.create().contentIds( childrenIds ).build() );
+
+        String jsonString = request().path( "content/findIdsByParents" ).entity( readFromFile( "find_ids_by_parents_params.json" ),
+                                                                                 MediaType.APPLICATION_JSON_TYPE ).post().getAsString();
+
+        assertJson( "find_ids_by_parents.json", jsonString );
+
+    }
+
+    @Test
     public void resolve_publish_contents()
         throws Exception
     {

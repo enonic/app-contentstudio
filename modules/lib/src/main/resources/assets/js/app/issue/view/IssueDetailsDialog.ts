@@ -165,7 +165,7 @@ export class IssueDetailsDialog
 
         this.initActions();
 
-        this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
+        this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList(), true);
         this.publishProcessor.setIgnoreSilent(true);
 
         this.commentTextArea = new IssueCommentTextArea();
@@ -813,7 +813,7 @@ export class IssueDetailsDialog
 
     private initItemListTogglers(itemList: PublishDialogItemList): boolean {
         return itemList.getItemViews().reduce((wasAnyIncluded, itemView) => {
-            const isIncluded = itemView.toggleIncludeChildren(this.areChildrenIncludedInIssue(itemView.getContentId()));
+            const isIncluded = itemView.toggleIncludeChildren(this.areChildrenIncludedInIssue(itemView.getContentId())); //
             return isIncluded || wasAnyIncluded;
         }, false);
     }

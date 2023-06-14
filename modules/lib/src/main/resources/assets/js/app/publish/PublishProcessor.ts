@@ -1,6 +1,7 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
 import {CompareStatus} from '../content/CompareStatus';
@@ -9,6 +10,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {SelectionType} from '../dialog/DialogDependantItemsList';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
+import {FindIdsByParentsRequest} from '../resource/FindIdsByParentsRequest';
 import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
 import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
 import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDependenciesResult';
@@ -19,6 +21,11 @@ interface ReloadDependenciesParams {
     resetDependantItems?: boolean;
     resetExclusions?: boolean;
     silent?: boolean;
+}
+
+interface LoadDependenciesParams
+    extends ReloadDependenciesParams {
+    ids: ContentId[];
 }
 
 export type LoadingStartedListener = (checking: boolean) => void;
@@ -63,14 +70,19 @@ export class PublishProcessor {
 
     private instanceId: number;
 
+    private cleanLoad: boolean = true;
+
+    private keepDependencies: boolean;
+
     readonly reloadDependenciesDebounced: (params: ReloadDependenciesParams) => void;
 
     private static debug: boolean = false;
 
-    constructor(itemList: PublishDialogItemList, dependantList: PublishDialogDependantList) {
+    constructor(itemList: PublishDialogItemList, dependantList: PublishDialogDependantList, keepDependencies = false) {
         this.instanceId = 0;
         this.itemList = itemList;
         this.dependantList = dependantList;
+        this.keepDependencies = keepDependencies;
         this.reloadDependenciesDebounced = AppHelper.debounce(this.reloadPublishDependencies.bind(this), 100);
 
         this.initListeners();
@@ -101,7 +113,7 @@ export class PublishProcessor {
         this.itemList.onChildrenListChanged((childrenRemoved) => {
             this.reloadDependenciesDebounced({
                 resetDependantItems: true,
-                resetExclusions: childrenRemoved,
+                resetExclusions: !this.keepDependencies || childrenRemoved,
                 silent: !this.ignoreSilent && !this.itemList.isVisible(),
             });
         });
@@ -151,13 +163,22 @@ export class PublishProcessor {
         });
     }
 
-    reloadPublishDependencies({resetDependantItems, resetExclusions, silent}: ReloadDependenciesParams): void {
+    setKeepDependencies(keepDependencies: boolean): void {
+        this.keepDependencies = keepDependencies;
+    }
+
+    reloadPublishDependencies(params: ReloadDependenciesParams): void {
+        const {resetDependantItems, resetExclusions, silent} = params;
+        const excludeNonRequired = CONFIG.isTrue('excludeDependencies') && !this.keepDependencies;
+
         if (!silent) {
             this.notifyLoadingStarted(true);
         }
 
         const ids = this.getContentToPublishIds();
         const isNoItemsToPublish = ids.length === 0;
+        const needExcludeNonRequired = excludeNonRequired && (this.cleanLoad || resetExclusions) && !isNoItemsToPublish;
+        const isNothingToExclude = !resetExclusions && this.isSomeOrNoneExcluded();
 
         if (resetExclusions) {
             this.resetExcludedIds();
@@ -165,8 +186,10 @@ export class PublishProcessor {
 
         if (isNoItemsToPublish) {
             this.handleNoPublishItemsToLoad(resetDependantItems, silent);
+        } else if (needExcludeNonRequired && !isNothingToExclude) {
+            this.cleanLoadPublishDependencies({...params, ids});
         } else {
-            this.loadPublishDependencies(ids, resetDependantItems, silent);
+            this.loadPublishDependencies({...params, ids});
         }
     }
 
@@ -192,7 +215,8 @@ export class PublishProcessor {
             console.debug('PublishProcessor.reloadPublishDependencies: resolved dependants = ', dependants);
         }
 
-        if (resetDependantItems) { // just opened or first time loading children
+        // just opened or first time loading children
+        if (resetDependantItems) {
             this.dependantList.setItems(dependants);
         } else {
             this.filterDependantItems(dependants);
@@ -201,38 +225,91 @@ export class PublishProcessor {
         this.dependantList.refresh();
     }
 
-    private loadPublishDependencies(ids: ContentId[], resetDependantItems?: boolean, silent?: boolean): void {
+    private async cleanLoadPublishDependencies({ids, resetDependantItems, silent}: LoadDependenciesParams): Promise<void> {
         const instanceId = this.instanceId;
-        this.createResolveDependenciesRequest(ids, this.getExcludedIds()).sendAndParse()
-            .then((result: ResolvePublishDependenciesResult) => {
-                this.processResolveDependenciesResult(result);
-                this.handleExclusionResult();
-            }).then(() => {
-            const hasExcluded = this.getExcludedIds().length > 0;
-            if (hasExcluded) {
-                return this.createResolveDependenciesRequest(ids, []).sendAndParse().then((result: ResolvePublishDependenciesResult) => {
-                    if (instanceId === this.instanceId) {
-                        this.allDependantIds = [...result.getDependants()];
-                    }
-                });
-            } else if (instanceId === this.instanceId) {
-                this.allDependantIds = [...this.dependantIds];
+        this.cleanLoad = false;
+
+        try {
+            const [maxResult, childrenIds] = await Q.all([
+                this.createResolveDependenciesRequest(ids).sendAndParse(),
+                this.findIncludedChildrenIds(),
+            ]);
+
+            const potentialExcludedIds = maxResult.getDependants().filter(id => !this.itemsIncludeId(childrenIds, id));
+
+            const minResult = await this.createResolveDependenciesRequest(ids, potentialExcludedIds).sendAndParse();
+
+            const excludedIds = potentialExcludedIds.filter(id => !this.itemsIncludeId(minResult.getRequired(), id));
+
+            if (instanceId !== this.instanceId) {
+                return;
             }
-        }).then(() => {
-            return this.loadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
-                if (instanceId === this.instanceId) {
-                    this.processResolveDescendantsResult(descendants, resetDependantItems);
-                    if (!silent) {
-                        this.notifyLoadingFinished();
-                    }
-                }
-            });
-        }).catch((reason) => {
+
+            this.setExcludedIds(excludedIds);
+
+            this.processResolveDependenciesResult(minResult);
+            this.handleExclusionResult();
+
+            this.allDependantIds = maxResult.getDependants();
+
+            const descendants = await this.loadDescendants();
+
+            if (instanceId !== this.instanceId) {
+                return;
+            }
+
+            this.processResolveDescendantsResult(descendants, resetDependantItems);
+            if (!silent) {
+                this.notifyLoadingFinished();
+            }
+        } catch (reason) {
             if (instanceId === this.instanceId) {
                 this.notifyLoadingFailed();
                 DefaultErrorHandler.handle(reason);
             }
-        });
+        }
+    }
+
+    private async loadPublishDependencies({ids, resetDependantItems, silent}: LoadDependenciesParams): Promise<void> {
+        const instanceId = this.instanceId;
+        this.cleanLoad = false;
+
+        try {
+            const result = await this.createResolveDependenciesRequest(ids, this.getExcludedIds()).sendAndParse();
+
+            if (instanceId !== this.instanceId) {
+                return;
+            }
+
+            this.processResolveDependenciesResult(result);
+            this.handleExclusionResult();
+
+            const hasExcluded = this.getExcludedIds().length > 0;
+            const allDependantIds = hasExcluded ? await this.createResolveDependenciesRequest(ids).sendAndParse().then(
+                r => r.getDependants()) : this.dependantIds;
+
+            if (instanceId !== this.instanceId) {
+                return;
+            }
+
+            this.allDependantIds = [...allDependantIds];
+
+            const descendants = await this.loadDescendants();
+
+            if (instanceId !== this.instanceId) {
+                return;
+            }
+
+            this.processResolveDescendantsResult(descendants, resetDependantItems);
+            if (!silent) {
+                this.notifyLoadingFinished();
+            }
+        } catch (reason) {
+            if (instanceId === this.instanceId) {
+                this.notifyLoadingFailed();
+                DefaultErrorHandler.handle(reason);
+            }
+        }
     }
 
     updateLoadExcluded(loadExcluded: boolean): void {
@@ -259,7 +336,7 @@ export class PublishProcessor {
         const instanceId = this.instanceId;
         this.notifyLoadingStarted(false);
 
-        this.createResolveDependenciesRequest(ids, []).sendAndParse().then((result: ResolvePublishDependenciesResult) => {
+        this.createResolveDependenciesRequest(ids).sendAndParse().then((result: ResolvePublishDependenciesResult) => {
             if (this.instanceId === instanceId) {
                 this.allDependantIds = [...result.getDependants()];
 
@@ -278,11 +355,21 @@ export class PublishProcessor {
         });
     }
 
-    private createResolveDependenciesRequest(ids: ContentId[], excludedIds: ContentId[]): ResolvePublishDependenciesRequest {
+    private findIncludedChildrenIds(): Q.Promise<ContentId[]> {
+        const parentIds = this.itemList.getIncludeChildrenIds();
+        return parentIds.length === 0 ? Q([]) : new FindIdsByParentsRequest(parentIds).sendAndParse();
+    }
+
+    private createResolveDependenciesRequest(
+        ids: ContentId[],
+        excludedIds: ContentId[] = [],
+        excludedChildrenIds?: ContentId[],
+    ): ResolvePublishDependenciesRequest {
+
         return ResolvePublishDependenciesRequest.create()
             .setIds(ids)
             .setExcludedIds(excludedIds)
-            .setExcludeChildrenIds(this.itemList.getExcludeChildrenIds())
+            .setExcludeChildrenIds(excludedChildrenIds ?? this.getExcludeChildrenIds())
             .build();
     }
 
@@ -314,6 +401,12 @@ export class PublishProcessor {
         if (this.isAnyExcluded(inProgressIds) || this.isAnyExcluded(invalidIds)) {
             NotifyManager.get().showFeedback(i18n('dialog.publish.notAllExcluded'));
         }
+
+        const missingExcludedIds = this.dependantList.getItemsIds().filter(
+            id => !this.itemsIncludeId(this.dependantIds, id) && !this.itemsIncludeId(this.excludedIds, id));
+        if (missingExcludedIds.length > 0) {
+            this.setExcludedIds([...this.excludedIds, ...missingExcludedIds]);
+        }
     }
 
     private itemsIncludeId(sourceIds: ContentId[], targetId: ContentId): boolean {
@@ -326,6 +419,10 @@ export class PublishProcessor {
         }
 
         return this.getExcludedIds().some((excludedId: ContentId) => this.itemsIncludeId(ids, excludedId));
+    }
+
+    private isSomeOrNoneExcluded(): boolean {
+        return !this.allDependantIds.every((dependantId: ContentId) => this.itemsIncludeId(this.getExcludedIds(), dependantId));
     }
 
     getInProgressCount(dependantOnly = false): number {
@@ -368,6 +465,8 @@ export class PublishProcessor {
 
     reset(): void {
         this.instanceId += 1;
+        this.cleanLoad = true;
+
         this.itemList.setExcludeChildrenIds([]);
         this.itemList.setItems([]);
         this.itemList.setReadOnly(false);
