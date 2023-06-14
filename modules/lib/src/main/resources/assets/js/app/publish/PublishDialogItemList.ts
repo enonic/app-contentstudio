@@ -91,7 +91,7 @@ export class PublishDialogItemList
         return !!this.config.allowOnlyItemRemoval || this.getItemCount() > 1;
     }
 
-    public setExcludeChildrenIds(ids: ContentId[]) {
+    setExcludeChildrenIds(ids: ContentId[]) {
         this.excludeChildrenIds = ids;
 
         this.getItemViews().forEach(itemView => {
@@ -103,17 +103,21 @@ export class PublishDialogItemList
         this.debounceNotifyListChanged();
     }
 
-    public getExcludeChildrenIds(): ContentId[] {
+    getExcludeChildrenIds(): ContentId[] {
         return this.excludeChildrenIds.slice();
     }
 
-    public clearExcludeChildrenIds() {
+    clearExcludeChildrenIds() {
         this.excludeChildrenIds = [];
+    }
+
+    getIncludeChildrenIds(): ContentId[] {
+        return this.getItemsIds().filter(id => !ArrayHelper.contains(this.excludeChildrenIds, id));
     }
 
     removeItemsByIds(contentIds: ContentId[]) {
         contentIds.forEach((id: ContentId) => {
-           const item: ContentSummaryAndCompareStatus = this.getItem(id.toString());
+            const item: ContentSummaryAndCompareStatus = this.getItem(id.toString());
 
             if (item) {
                 this.removeItem(item, true);

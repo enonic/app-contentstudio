@@ -166,6 +166,10 @@ export abstract class BasePublishDialog
         this.lockControls();
     }
 
+    setKeepDependencies(keepDependencies: boolean): void {
+        this.publishProcessor.setKeepDependencies(keepDependencies);
+    }
+
     getButtonRow(): DropdownButtonRow {
         return super.getButtonRow() as DropdownButtonRow;
     }

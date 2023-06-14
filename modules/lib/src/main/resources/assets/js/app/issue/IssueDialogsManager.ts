@@ -1,14 +1,14 @@
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {IssueDetailsDialog} from './view/IssueDetailsDialog';
-import {IssueListDialog} from './view/IssueListDialog';
-import {Issue} from './Issue';
-import {CreateIssueDialog} from './view/CreateIssueDialog';
-import {GetIssueRequest} from './resource/GetIssueRequest';
+import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentPublishDialog} from '../publish/ContentPublishDialog';
-import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
-import {IssueServerEventsHandler} from './event/IssueServerEventsHandler';
 import {RequestContentPublishDialog} from '../publish/RequestContentPublishDialog';
+import {IssueServerEventsHandler} from './event/IssueServerEventsHandler';
+import {Issue} from './Issue';
+import {GetIssueRequest} from './resource/GetIssueRequest';
+import {CreateIssueDialog} from './view/CreateIssueDialog';
+import {IssueDetailsDialog} from './view/IssueDetailsDialog';
+import {IssueListDialog} from './view/IssueListDialog';
 
 export class IssueDialogsManager {
 
@@ -56,6 +56,7 @@ export class IssueDialogsManager {
             if (this.detailsDialog.isOpen()) {
                 this.detailsDialog.getEl().focus();
             }
+            this.publishDialog.setKeepDependencies(false);
             this.publishDialog.unClosed(this.publishDialogCloseHandler);
             this.detailsDialog.onClosed(this.detailsDialogCloseHandler);
             IssueServerEventsHandler.getInstance().unIssueUpdated(this.issueUpdateHandler);
@@ -142,6 +143,7 @@ export class IssueDialogsManager {
         ContentPublishPromptEvent.on(() => {
             if (this.detailsDialog.isOpen()) {
                 this.detailsDialog.unClosed(this.detailsDialogCloseHandler);
+                this.publishDialog.setKeepDependencies(true);
                 this.publishDialog.onCloseButtonClicked(this.publishDialogBeforeClosedHandler);
                 this.publishDialog.onClosed(this.publishDialogCloseHandler);
                 this.issue = this.detailsDialog.getIssue();

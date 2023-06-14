@@ -138,9 +138,12 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             // 3. Exclude a dependant item: click on the checkbox:
             await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem(TEST_CONTENT_NAME);
             await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
-            // 4. Click on Publish button, 'Publish Wizard' should be loaded:
+            await issueDetailsDialogItemsTab.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('publish_wizard_content_excluded_0');
+            // 4. Click on 'Publish' button in the 'Issue Details' dialog, 'Publish Wizard' should be loaded:
             let contentPublishDialog = await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
-            // 6. Verify that removed dependant item is not present in the list in 'Content Publish' dialog:
+            await studioUtils.saveScreenshot('publish_wizard_content_excluded_1');
+            // 5. Verify that removed dependant item is not present in the list in 'Content Publish' dialog:
             let result = await contentPublishDialog.getDisplayNameInDependentItems();
             // returns a truthy value for at least one element in the array contains the name. Otherwise, false.
             let isPresent = result.some(el => el.includes(TEST_CONTENT_NAME));
