@@ -57,7 +57,8 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             assert.isTrue(result.includes("Http"), "Http option should be present in the selector");
             assert.isTrue(result.includes("Ftp"), "Ftp option should be present in the selector");
             assert.isTrue(result.includes("Relative"), "Relative option should be present in the selector");
-            assert.equal(result.length, 4, "4 options should be present in the selector");
+            assert.isTrue(result.includes("Tel"), "Tel option should be present in the selector");
+            assert.equal(result.length, 5, "5 options should be present in the selector");
         });
 
     it("WHEN URL tab is open THEN 'Https' menu option should be selected by default",
