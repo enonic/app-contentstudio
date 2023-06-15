@@ -36,8 +36,8 @@ class DoubleForm extends OccurrencesFormView {
         if (inputs.length === 0) {
             throw new Error("Double Form - Double inputs were not found!");
         }
-        let attr = await inputs[index].getAttribute("class");
-        return attr.includes("invalid");
+        let attr = await inputs[index].getAttribute('class');
+        return attr.includes('invalid');
     }
 
     async clickOnRemoveIcon(index) {

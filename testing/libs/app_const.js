@@ -131,6 +131,13 @@ module.exports = Object.freeze({
         DAY: 'day',
         HOUR: 'hour'
     },
+    URL_TYPE_OPTION: {
+        HTTPS: 'Https',
+        HTTP: 'Http',
+        FTP: 'Ftp',
+        TEL: 'Tel',
+        RELATIVE: 'Relative'
+    },
 
     VALIDATION_MESSAGE: {
         TEXT_IS_TOO_LONG: 'Text is too long',
