@@ -18,6 +18,9 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
     let SITE;
 
     const VALID_HTTPS_URL = "https://google.com";
+    const VALID_TEL_VALUE = 'tel:+375293339128';
+    const INVALID_TEL_VALUE = 'tel:+@3375293339128';
+    const EXPECTED_TEL_TEXT = '<a href="tel:+375293339128">';
     const HTTP_URL_ENDS_WITH_SLASH = "http://google.com/";
     const PARAMS_1 = "page?key1=value1&key2=value2";
     const EXPECTED_HTTPS_PART = "<a href=\"https://google.com\">";
@@ -53,11 +56,11 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
             await studioUtils.saveScreenshot('insert_url_opts');
             // 5. Verify that required types are present in the selector:
             let result = await insertLinkDialogUrlPanel.getUrlTypeMenuOptions();
-            assert.isTrue(result.includes("Https"), "Https option should be present in the selector");
-            assert.isTrue(result.includes("Http"), "Http option should be present in the selector");
-            assert.isTrue(result.includes("Ftp"), "Ftp option should be present in the selector");
-            assert.isTrue(result.includes("Relative"), "Relative option should be present in the selector");
-            assert.isTrue(result.includes("Tel"), "Tel option should be present in the selector");
+            assert.isTrue(result.includes(appConst.URL_TYPE_OPTION.HTTPS), "Https option should be present in the selector");
+            assert.isTrue(result.includes(appConst.URL_TYPE_OPTION.HTTP), "Http option should be present in the selector");
+            assert.isTrue(result.includes(appConst.URL_TYPE_OPTION.FTP), "Ftp option should be present in the selector");
+            assert.isTrue(result.includes(appConst.URL_TYPE_OPTION.RELATIVE), "Relative option should be present in the selector");
+            assert.isTrue(result.includes(appConst.URL_TYPE_OPTION.TEL), "Tel option should be present in the selector");
             assert.equal(result.length, 5, "5 options should be present in the selector");
         });
 
@@ -65,16 +68,17 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
-            //1. Open new wizard for htmlArea content:
+            // 1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
+            // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            //3. Go to URL tab:
-            await insertLinkDialog.clickOnBarItem("URL");
-            //4. Verify that https type is selected by default:
+            // 3. Go to URL tab:
+            await insertLinkDialog.clickOnBarItem('URL');
+            // 4. Verify that https type is selected by default:
             let text = await insertLinkDialogUrlPanel.getTextInUrlInput();
             assert.equal(text, "https://", "Expected part of https url should be present by default");
+            // 5. Expand the dropdown options:
             await insertLinkDialogUrlPanel.clickOnUrlTypeButton();
             let result = await insertLinkDialogUrlPanel.isUrlTypeOptionSelected("Https");
             assert.isTrue(result, "Https option should be selected in the dropdown selector by default");
@@ -84,44 +88,117 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
-            //1. Open new wizard for htmlArea content:
+            // 1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
+            // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            //3. Go to URL tab:
-            await insertLinkDialog.clickOnBarItem("URL");
-            //4. Expand url type selector and click on 'Http' option
-            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption("Http");
-            //5. Verify that 'Http' text appears in the input
+            // 3. Go to URL tab:
+            await insertLinkDialog.clickOnBarItem('URL');
+            // 4. Expand url type selector and click on 'Http' option
+            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption(appConst.URL_TYPE_OPTION.HTTP);
+            // 5. Verify that 'Http' text appears in the input
             let text = await insertLinkDialogUrlPanel.getTextInUrlInput();
             assert.equal(text, "http://", "'Http' part should be present in the input");
+            // 6. Expand the dropdown options:
             await insertLinkDialogUrlPanel.clickOnUrlTypeButton();
-            //6. Https menu option should be selected in the dropdown selector:
-            let result = await insertLinkDialogUrlPanel.isUrlTypeOptionSelected("Http");
-            assert.isTrue(result, "Http option should be selected in the dropdown selector");
+            // 7. Https menu option should be selected in the dropdown selector:
+            let result = await insertLinkDialogUrlPanel.isUrlTypeOptionSelected(appConst.URL_TYPE_OPTION.HTTP);
+            assert.isTrue(result, "'Http' option should be selected in the dropdown selector");
+        });
+
+    it("GIVEN URL tab is open WHEN 'Tel' menu option has been selected THEN Tel-part of url should be present in the url input in the modal dialog",
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
+            // 1. Open new wizard for htmlArea content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await htmlAreaForm.pause(1000);
+            // 2. Open 'Insert Link' dialog:
+            let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            // 3. Go to URL tab:
+            await insertLinkDialog.clickOnBarItem('URL');
+            // 4. Expand url type selector and click on 'Tel' option
+            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption(appConst.URL_TYPE_OPTION.TEL);
+            // 5. Verify that 'tel' text appears in the input
+            let text = await insertLinkDialogUrlPanel.getTextInUrlInput();
+            assert.equal(text, "tel:", "'tel' part should be present in the input");
+            // 6. Expand the dropdown options:
+            await insertLinkDialogUrlPanel.clickOnUrlTypeButton();
+            // 7. 'Tel' menu option should be selected in the dropdown selector:
+            let result = await insertLinkDialogUrlPanel.isUrlTypeOptionSelected(appConst.URL_TYPE_OPTION.TEL);
+            assert.isTrue(result, "'Tel' option should be selected in the dropdown selector");
+        });
+
+    it("GIVEN URL tab is open WHEN valid value for 'Tel' url has been inserted THEN expected text should be present in the HtmlArea",
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
+            // 1. Open new wizard for htmlArea content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await htmlAreaForm.pause(1000);
+            // 2. Open 'Insert Link' dialog:
+            let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            await insertLinkDialog.typeInLinkTextInput('tel link');
+            // 3. Go to URL tab, select Tel option in 'Type' dropdown:
+            await insertLinkDialog.clickOnBarItem('URL');
+            // 4. Expand url type selector and click on 'Tel' option
+            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption(appConst.URL_TYPE_OPTION.TEL);
+            // 5. Fill in the URL input with a valid https url:
+            await insertLinkDialogUrlPanel.typeUrl(VALID_TEL_VALUE);
+            await studioUtils.saveScreenshot('insert_valid_tel');
+            // 6. Click on 'Insert' button
+            await insertLinkDialog.clickOnInsertButton();
+            await insertLinkDialog.waitForDialogClosed();
+            // 7. Get and verify the text in html area:
+            let result = await htmlAreaForm.getTextFromHtmlArea();
+            assert.isTrue(result[0].includes(EXPECTED_TEL_TEXT), 'Expected link should be present in HtmlArea');
+        });
+
+    it("GIVEN invalid value for 'Tel' url has been inserted WHEN 'Insert' button has been pressed THEN 'Invalid value entered' message gets visible",
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
+            // 1. Open new wizard for htmlArea content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await htmlAreaForm.pause(1000);
+            // 2. Open 'Insert Link' dialog:
+            let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            await insertLinkDialog.typeInLinkTextInput('tel link');
+            // 3. Go to URL tab, select Tel option in Type dropdown:
+            await insertLinkDialog.clickOnBarItem('URL');
+            // 4. Expand url type selector and click on 'Tel' option
+            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption(appConst.URL_TYPE_OPTION.TEL);
+            // 5. Fill in the URL input with a invalid tel:
+            await insertLinkDialogUrlPanel.typeUrl(INVALID_TEL_VALUE);
+            await studioUtils.saveScreenshot('insert_invalid_tel');
+            // 6. Click on 'Insert' button
+            await insertLinkDialog.clickOnInsertButton();
+            let message = await insertLinkDialogUrlPanel.getUrlInputValidationMessage();
+            // 7. Verify the validation message:
+            assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, "Invalid value entered - message gets visible");
         });
 
     it("GIVEN URL tab is open WHEN 'Https' url has been inserted THEN expected text should be present in the HtmlArea",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
-            //1. Open new wizard for htmlArea content:
+            // 1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
+            // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInLinkTextInput("google url");
-            //3. Go to URL tab:
-            await insertLinkDialog.clickOnBarItem("URL");
-            //4. Fill in the URL input with a valid https url:
+            await insertLinkDialog.typeInLinkTextInput('google url');
+            // 3. Go to URL tab:
+            await insertLinkDialog.clickOnBarItem('URL');
+            // 4. Fill in the URL input with a valid https url:
             await insertLinkDialogUrlPanel.typeUrl(VALID_HTTPS_URL);
             await insertLinkDialogUrlPanel.waitForValidationMessageForUrlInputNotDisplayed();
-            await studioUtils.saveScreenshot("insert_valid_url_1");
-            //5. Click on Insert button
+            await studioUtils.saveScreenshot('insert_valid_url_1');
+            // 5. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.waitForDialogClosed();
-            //6. Get and verify the text in html area:
+            // 6. Get and verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
             assert.isTrue(result[0].includes(EXPECTED_HTTPS_PART), "Expected text should be present in HtmlArea");
         });
@@ -130,22 +207,22 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
-            //1. Open new wizard for htmlArea content:
+            // 1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
+            // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInLinkTextInput("google url");
-            //3. Go to URL tab:
-            await insertLinkDialog.clickOnBarItem("URL");
-            //4. Fill in the URL input with a valid https url:
+            await insertLinkDialog.typeInLinkTextInput('google url');
+            // 3. Go to URL tab:
+            await insertLinkDialog.clickOnBarItem('URL');
+            // 4. Fill in the URL input with a valid https url:
             await insertLinkDialogUrlPanel.typeUrl(HTTPS_URL_WITH_PARAMETERS);
             await studioUtils.saveScreenshot("insert_valid_url_2");
             await insertLinkDialogUrlPanel.waitForValidationMessageForUrlInputNotDisplayed();
-            //5. Click on Insert button
+            // 5. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.waitForDialogClosed();
-            //6. Get and verify the text in html area:
+            // 6. Verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
             assert.isTrue(result[0].includes(EXPECTED_HTTPS_PART_WITH_PARAMS), "Expected text should be present in HtmlArea");
         });
@@ -154,22 +231,22 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
-            //1. Open new wizard for htmlArea content:
+            // 1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
+            // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInLinkTextInput("google url");
-            //3. Go to URL tab:
-            await insertLinkDialog.clickOnBarItem("URL");
-            //4. Fill in the URL input with a valid https url:
+            await insertLinkDialog.typeInLinkTextInput('google url');
+            // 3. Go to URL tab:
+            await insertLinkDialog.clickOnBarItem('URL');
+            // 4. Fill in the URL input with a valid https url:
             await insertLinkDialogUrlPanel.typeUrl(HTTP_URL_ENDS_WITH_SLASH);
             await studioUtils.saveScreenshot("insert_valid_url_3");
             await insertLinkDialogUrlPanel.waitForValidationMessageForUrlInputNotDisplayed();
-            //5. Click on Insert button
+            // 5. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.waitForDialogClosed();
-            //6. Get and verify the text in html area:
+            // 6. Get and verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
             assert.isTrue(result[0].includes(HTTP_URL_ENDS_WITH_SLASH), "Expected text should be present in HtmlArea");
         });
@@ -178,19 +255,20 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
-            //1. Open new wizard for htmlArea content:
+            // 1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
+            // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInLinkTextInput("google url");
-            //3. Go to URL tab:
-            await insertLinkDialog.clickOnBarItem("URL");
-            //4. Fill in the URL input with the invalid(spaces) https url:
+            await insertLinkDialog.typeInLinkTextInput('google url');
+            // 3. Go to URL tab:
+            await insertLinkDialog.clickOnBarItem('URL');
+            // 4. Fill in the URL input with the invalid(spaces) https url:
             await insertLinkDialogUrlPanel.typeUrl(INVALID_HTTPS_URL_WITH_SPACES);
-            //5. Click on Insert button
+            // 5. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             await studioUtils.saveScreenshot('insert_invalid_url_1');
+            // 6. Verify the validation message:
             let message = await insertLinkDialogUrlPanel.getUrlInputValidationMessage();
             assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, "Invalid value entered - message gets visible");
         });
@@ -199,19 +277,20 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
-            //1. Open new wizard for htmlArea content:
+            // 1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
+            // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             await insertLinkDialog.typeInLinkTextInput('google url');
-            //3. Go to URL tab:
+            // 3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem('URL');
-            //4. Fill in the URL input with the invalid(special symbols $) https url:
+            // 4. Fill in the URL input with the invalid(special symbols $) https url:
             await insertLinkDialogUrlPanel.typeUrl(INVALID_HTTPS_URL_WITH_SYMBOLS);
-            //5. Click on Insert button
+            // 5. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             await studioUtils.saveScreenshot('insert_invalid_url_2');
+            // 6. Verify the validation message:
             let message = await insertLinkDialogUrlPanel.getUrlInputValidationMessage();
             assert.equal(message, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, "Invalid value entered - message gets visible");
         });
@@ -220,24 +299,24 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
-            //1. Open new wizard for htmlArea content:
+            // 1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
+            // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeInLinkTextInput("ftp url");
-            //3. Go to URL tab:
-            await insertLinkDialog.clickOnBarItem("URL");
-            //4. Select 'Ftp' option in the dropdown selector:
-            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption("Ftp");
-            //5. Fill in the URL input with the invalid(special symbols) https url:
+            await insertLinkDialog.typeInLinkTextInput('ftp url');
+            // 3. Go to URL tab:
+            await insertLinkDialog.clickOnBarItem('URL');
+            // 4. Select 'Ftp' option in the dropdown selector:
+            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption(appConst.URL_TYPE_OPTION.FTP);
+            // 5. Fill in the URL input with the invalid(special symbols) https url:
             await insertLinkDialogUrlPanel.typeUrl(FTP_URL);
-            //6. Click on Insert button
+            // 6. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             await studioUtils.saveScreenshot("insert_ftp_url_1");
             await insertLinkDialogUrlPanel.waitForValidationMessageForUrlInputNotDisplayed();
             await insertLinkDialog.waitForDialogClosed();
-            //7. Get and verify the text in html area:
+            // 7. Verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
             assert.isTrue(result[0].includes(EXPECTED_FTP_PART), "Expected text should be present in HtmlArea");
             assert.isTrue(result[0].includes(FTP_URL), "Expected text should be present in HtmlArea");
@@ -247,24 +326,24 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
-            //1. Open new wizard for htmlArea content:
+            // 1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
+            // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             await insertLinkDialog.typeInLinkTextInput('ftp url');
-            //3. Go to URL tab:
+            // 3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem('URL');
-            //4. Select 'Ftp' option in the dropdown selector:
-            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption('Ftp');
-            //5. Fill in the URL input with the invalid(special symbols) https url:
+            // 4. Select 'Ftp' option in the dropdown selector:
+            await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption(appConst.URL_TYPE_OPTION.FTP);
+            // 5. Fill in the URL input with the invalid(special symbols) https url:
             await insertLinkDialogUrlPanel.typeUrl(FTP_URL_WITH_PASSWORD);
-            //6. Click on Insert button
+            // 6. Click on Insert button
             await insertLinkDialog.clickOnInsertButton();
             await studioUtils.saveScreenshot('insert_ftp_url_2');
             await insertLinkDialogUrlPanel.waitForValidationMessageForUrlInputNotDisplayed();
             await insertLinkDialog.waitForDialogClosed();
-            //7. Get and verify the text in html area:
+            // 7. Verify the text in html area:
             let result = await htmlAreaForm.getTextFromHtmlArea();
             assert.isTrue(result[0].includes(EXPECTED_FTP_PART), "Expected text should be present in HtmlArea");
             assert.isTrue(result[0].includes(FTP_URL_WITH_PASSWORD),
@@ -274,7 +353,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

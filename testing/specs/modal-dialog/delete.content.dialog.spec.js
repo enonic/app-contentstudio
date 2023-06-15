@@ -14,7 +14,7 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 
 describe('delete.content.dialog.spec:  tests for Delete Content Dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -30,19 +30,19 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             await studioUtils.doAddFolder(FOLDER2);
         });
 
-    //verifies - https://github.com/enonic/app-contentstudio/issues/1032  Delete button is missing a number of items to delete
+    // verifies - https://github.com/enonic/app-contentstudio/issues/1032  Delete button is missing a number of items to delete
     it(`GIVEN two folders are checked WHEN 'Delete Content Dialog' has been opened THEN expected number(2) should be present in the Delete button`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            //1. Select 2 folders
+            // 1. Select 2 folders
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
             await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
-            //2. Click on Delete... button in the toolbar:
+            // 2. Click on Delete... button in the toolbar:
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
-            await studioUtils.saveScreenshot("2_folders_to_delete");
-            //3. Verify the number in Archive button
+            await studioUtils.saveScreenshot('2_folders_to_delete');
+            // 3. Verify the number in Archive button
             let result = await deleteContentDialog.getNumberInArchiveButton();
             assert.equal(result, '2', "Expected number of content (2) should be present in the Delete button");
         });
@@ -52,15 +52,15 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             let contentBrowsePanel = new ContentBrowsePanel();
             let publishContentDialog = new PublishContentDialog();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Select 2 folders
+            // 1. Select 2 folders
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
             await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
-            //2. Click on Mark as ready button
+            // 2. Click on Mark as ready button
             await contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
-            //3. Publish Wizard should be loaded automatically
+            // 3. Publish Wizard should be loaded automatically
             await contentPublishDialog.waitForDialogOpened();
-            await studioUtils.saveScreenshot("2_folders_to_publish");
-            //3. Verify the number of items in 'Publish Now' button
+            await studioUtils.saveScreenshot('2_folders_to_publish');
+            // 3. Verify the number of items in 'Publish Now' button
             let result = await publishContentDialog.getNumberItemsToPublish();
             assert.equal(result, '2', "Expected number of content (2) should be present in the 'Publish now' button");
         });
@@ -72,7 +72,6 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
-
             let status = await deleteContentDialog.getContentStatus(FOLDER1.displayName);
             assert.equal(status, "New", 'New status should be displayed');
 
@@ -95,11 +94,11 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            //1. Open Delete Dialog
+            // 1. Open Delete Dialog
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
-            //2. Click on Cancel button
+            // 2. Click on Cancel button
             await deleteContentDialog.clickOnCancelButton();
             await deleteContentDialog.waitForDialogClosed();
         });
@@ -108,11 +107,11 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            //1. Open Delete Dialog
+            // 1. Open Delete Dialog
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
-            //2. Click on Cancel Top button
+            // 2. Click on Cancel Top button
             await deleteContentDialog.clickOnCancelTopButton();
             await deleteContentDialog.waitForDialogClosed();
         });
@@ -121,16 +120,16 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            //1.Select and publish the folder:
+            // 1.Select and publish the folder:
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
             await studioUtils.openDialogAndPublishSelectedContent();
-            //2. Open Delete Dialog:
+            // 2. Open Delete Dialog:
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
 
             let isDisplayed = await deleteContentDialog.isArchiveButtonDisplayed();
-            assert.isTrue(isDisplayed, "Archive button should be present");
-            //3. Delete menu should be displayed in the dialog:
+            assert.isTrue(isDisplayed, "'Archive' button should be present");
+            // 3. Delete menu should be displayed in the dialog:
             let isDropdownHandleDisplayed = await deleteContentDialog.isArchiveMenuDropDownHandleDisplayed();
             assert.isTrue(isDropdownHandleDisplayed, "Delete menu should appear in the dialog");
 
@@ -142,20 +141,21 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            //1. Click on the checkbox and select the folder:
+            // 1. Click on the checkbox and select the folder:
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
-            //2. Open Delete Dialog:
+            // 2. Open Delete Dialog:
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
-            //3. Click on 'Delete' menu item
+            // 3. Click on 'Delete' menu item
             await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.waitForDialogClosed();
             await contentBrowsePanel.waitForContentNotDisplayed(FOLDER1.displayName);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
