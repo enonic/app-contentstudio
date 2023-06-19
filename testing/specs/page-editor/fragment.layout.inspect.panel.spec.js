@@ -49,7 +49,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
-            //2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            //2. Click on minimize-toggler  expand Live Edit and open 'Page Component view' modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
@@ -61,6 +61,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizardPanel.pause(2000);
             await contentWizardPanel.waitForSpinnerNotVisible();
+            let actualDescription1 = await pageComponentView.getComponentDescription(LAYOUT_2_COL);
             //5. Type new site's name and save:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await contentWizardPanel.typeDisplayName(SITE_1_NAME);
@@ -68,14 +69,14 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await contentWizardPanel.waitAndClickOnSave();
             await contentWizardPanel.waitForSpinnerNotVisible();
             // wait for the description is refreshing:
-            await contentWizardPanel.pause(4000);
+            await contentWizardPanel.pause(3000);
             await studioUtils.saveScreenshot('fragment_path_updated');
             // 6. Fragment Inspection Panel should be loaded automatically in the site wizard. Verify that path is updated in the dropdown:
             let actualPath = await fragmentInspectionPanel.getSelectedOptionPath();
             assert.include(actualPath, SITE_1_NAME, 'Path should be updated in Fragment Inspection Panel');
-            // 7. Verify that expected description should be in the fragment 'component item'
-            let actualDescription = await pageComponentsWizardStepForm.getComponentDescription(LAYOUT_2_COL);
-            assert.equal(actualDescription, FRAGMENT_LAYOUT_DESCRIPTION, "Expected description should be present in 'component item'")
+            // 7. Verify that expected description should be present in the fragment in wizard step:
+            let actualDescription2 = await pageComponentsWizardStepForm.getComponentDescription(LAYOUT_2_COL);
+            assert.equal(actualDescription2, FRAGMENT_LAYOUT_DESCRIPTION, "Expected description should be present in 'layout item'");
         });
 
     it("GIVEN existing site is opened WHEN the second fragment has been saved THEN two options should be in fragment selector in Inspect Panel",

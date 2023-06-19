@@ -142,12 +142,12 @@ export class ItemViewContextMenu
 
     show(): void {
         super.show();
-        Body.get().onClicked(this.outsideClickListener);
+        Body.get()?.onClicked(this.outsideClickListener);
     }
 
     hide(): void {
         super.hide();
-        Body.get().unClicked(this.outsideClickListener);
+        Body.get()?.unClicked(this.outsideClickListener);
     }
 
     moveBy(dx: number, dy: number) {
@@ -201,13 +201,13 @@ export class ItemViewContextMenu
     }
 
     private startDrag(dragListener: (e: MouseEvent) => void, upListener: (e: MouseEvent) => void) {
-        Body.get().onMouseMove(dragListener);
-        Body.get().onMouseUp(upListener);
+        Body.get()?.onMouseMove(dragListener);
+        Body.get()?.onMouseUp(upListener);
     }
 
     private stopDrag(dragListener: (e: MouseEvent) => void, upListener: (e: MouseEvent) => void) {
-        Body.get().unMouseMove(dragListener);
-        Body.get().unMouseUp(upListener);
+        Body.get()?.unMouseMove(dragListener);
+        Body.get()?.unMouseUp(upListener);
     }
 
     private restrainX(x: number): number {

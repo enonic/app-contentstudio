@@ -94,20 +94,20 @@ class BasePageComponentView extends Page {
     }
 
     async isComponentSelected(displayName) {
-        let rowXpath = this.container + lib.slickRowByDisplayName(xpath.container, displayName) + "//div[contains(@class,'slick-cell')]";
+        let rowXpath =  lib.slickRowByDisplayName(this.container, displayName) + "//div[contains(@class,'slick-cell')]";
         await this.waitForElementDisplayed(rowXpath, appConst.shortTimeout);
         let cell = await this.findElement(rowXpath);
-        let attr = await cell.getAttribute("class");
-        return attr.includes("selected");
+        let attr = await cell.getAttribute('class');
+        return attr.includes('selected');
     }
 
     waitForMenuItemPresent(name) {
-        let selector =  xpath.contextMenuItemByName(name);
+        let selector = xpath.contextMenuItemByName(name);
         return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
     waitForMenuItemNotDisplayed(menuItem) {
-        let selector =  xpath.contextMenuItemByName(menuItem);
+        let selector = xpath.contextMenuItemByName(menuItem);
         return this.waitForElementNotDisplayed(selector, appConst.shortTimeout);
     }
 
@@ -128,8 +128,9 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(selector);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_menu_item"));
-            throw new Error("Page Component View: Menu Item still not visible - " + menuItem + " " + err);
+            let screenshot = appConst.generateRandomName('err_menu_item');
+            await this.saveScreenshot(screenshot);
+            throw new Error("Error - Page Component View: Menu Item, screenshot " + screenshot + ' ' + err);
         }
     }
 
@@ -175,9 +176,9 @@ class BasePageComponentView extends Page {
         return this.getTextInDisplayedElements(locator);
     }
 
-    getPageComponentsDisplayName() {
+    async getPageComponentsDisplayName() {
         let locator = this.container + lib.SLICK_VIEW_PORT + xpath.pageComponentsItemViewer + lib.H6_DISPLAY_NAME;
-        return this.getTextInDisplayedElements(locator);
+        return await this.getTextInDisplayedElements(locator);
     }
 
     async waitForItemDisplayed(itemDisplayName) {

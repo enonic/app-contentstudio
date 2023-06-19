@@ -241,8 +241,23 @@ export class PageComponentsTreeGrid
         if (node) {
             this.scrollToRow(this.getGrid().getDataView().getRowById(node.getId()));
             const row = this.getGrid().getDataView().getRowById(node.getId());
-            this.getGrid().getCellNode(row, 0).scrollIntoView();
+            const itemElement = this.getGrid().getCellNode(row, 0);
+
+            if (itemElement && !this.isElementInViewport(itemElement)) {
+                itemElement.scrollIntoView();
+            }
         }
+    }
+
+    private isElementInViewport(element: HTMLElement): boolean {
+        const rect = element.getBoundingClientRect();
+
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
     }
 
     protected isToBeExpanded(node: TreeNode<ItemViewTreeGridWrapper>): boolean {

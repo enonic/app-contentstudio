@@ -6,8 +6,7 @@ const appConst = require('../../../libs/app_const');
 const BasePageComponentView = require('../base.page.components.view');
 const xpath = {
     container: "//div[contains(@id,'PageComponentsView') and contains(@class,'draggable')]",
-    minimizeButton: "//button[@title='Minimize']",
-    maximizeButton: "//button[@title='Maximize']",
+    hideComponentViewButton: "//button[@title='Hide Component View']",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
 };
 
@@ -18,28 +17,49 @@ class PageComponentView extends BasePageComponentView {
         return xpath.container;
     }
 
-    get minimizeButton() {
-        return xpath.container + xpath.minimizeButton;
+    get hideComponentViewButton() {
+        return xpath.container + xpath.hideComponentViewButton;
     }
 
-    get maximizeButton() {
-        return xpath.container + xpath.maximizeButton;
+    get componentViewToggleButton() {
+        return "//div[contains(@id,'PageComponentsView')]//button[contains(@class,'toggle-button')]";
     }
 
-    async clickOnMinimizeButton() {
-        await this.clickOnElement(this.minimizeButton);
+    async clickOnHideComponentViewButton() {
+        await this.waitForHideComponentViewButtonDisplayed();
+        await this.clickOnElement(this.hideComponentViewButton);
+    }
+    waitForHideComponentViewButtonDisplayed() {
+        return this.waitForElementDisplayed(this.hideComponentViewButton, appConst.mediumTimeout);
     }
 
-    async clickOnMaximizeButton() {
-        await this.clickOnElement(this.maximizeButton);
+    waitForComponentViewToggleButtonDisplayed() {
+        return this.waitForElementDisplayed(this.componentViewToggleButton, appConst.mediumTimeout);
+    }
+
+    async clickOnComponentViewToggleButton() {
+        await this.waitForComponentViewToggleButtonDisplayed();
+        await this.clickOnElement(this.componentViewToggleButton);
+        await this.pause(400);
+    }
+
+    waitForComponentViewToggleButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.componentViewToggleButton, appConst.mediumTimeout);
     }
 
     waitForLoaded() {
         return this.waitForElementDisplayed(this.container, appConst.mediumTimeout);
     }
 
-    waitForMinimizeDialogButtonDisplayed() {
-        return this.waitForElementDisplayed(this.minimizeButton, appConst.mediumTimeout);
+    waitForNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.container, appConst.mediumTimeout);
+    }
+
+    async waitForCollapsed() {
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getAttribute(this.container, "class");
+            return result.includes('collapsed');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Page Component View modal dialog should be closed"});
     }
 }
 

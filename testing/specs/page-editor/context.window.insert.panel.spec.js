@@ -62,10 +62,11 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             await contentWizard.waitForNotificationMessage();
             // 3. Verify that 'Page Component' wizard step form is not visible, because page controller is not selected:
             await pageComponentsWizardStepForm.waitForNotDisplayed();
+            // 4. Select a page descriptor:
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
-            // Verify that 'Page Component' wizard step form gets visible in the wizard panel:
+            // 5.  Verify that 'Page Component' wizard step form gets visible in the wizard panel:
             await pageComponentsWizardStepForm.waitForLoaded();
-            // Verify that 'Page' wizard step is displayed in  Wizard Step Toolbar:
+            // 6. Verify that 'Page' wizard step is displayed in  Wizard Step Toolbar:
             await contentWizard.waitForWizardStepDisplayed('Page');
         });
 
