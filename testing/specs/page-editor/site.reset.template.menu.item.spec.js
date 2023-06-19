@@ -13,12 +13,12 @@ const appConst = require('../../libs/app_const');
 
 describe('site.reset.template.menu.item.spec - resets a site to default template', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
     let CONTROLLER_NAME = 'Country Region';
-    let TEST_TEXT = "test text";
+    let TEST_TEXT = 'test text';
     let TEMPLATE;
 
     it(`Preconditions: new site and a page template with a text component should be added`,
@@ -40,21 +40,21 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the item and open Context Menu:
-            await pageComponentView.openMenu("country");
+            await pageComponentView.openMenu('country');
             // 4. Insert Text Component with 'test text' and save it:
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponentCke.typeTextInCkeEditor(TEST_TEXT);
             await contentWizard.waitAndClickOnSave();
         });
 
-    it(`GIVEN text component has been removed in 'Page Component View' WHEN 'Reset' menu item has been clicked in the root element in 'Page Component View' THEN site should be reset to default template`,
+    it(`GIVEN text component has been removed in 'Page Component View' WHEN 'Reset' menu item has been clicked in 'Page Component View' THEN site should be reset to default template`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             // 1. Open the site
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.switchToParentFrame();
-            // 2. Unlock the LiveEdit
+            // 2. Unlock the LiveEdit- click on 'Customize' menu item:
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
             // 3. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
@@ -62,19 +62,23 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             // 4.Click on the item and open Context Menu:
             await pageComponentView.openMenu(TEST_TEXT);
             // 5. Remove the text component and save it
-            await pageComponentView.selectMenuItem(["Remove"]);
+            await pageComponentView.selectMenuItem(['Remove']);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("site_customized");
+            await studioUtils.saveScreenshot('site_txt_component_customized');
             // 6. Verify that  number of components is reduced:
             let result1 = await pageComponentView.getPageComponentsDisplayName();
             assert.equal(result1.length, 2, "Number of items in Component View should be reduced after the removing");
             // 7. Expand the controller's menu(the root element) and click on 'Reset' item
             await pageComponentView.openMenu(CONTROLLER_NAME);
-            await pageComponentView.selectMenuItem(["Reset"]);
+            await pageComponentView.selectMenuItem(['Reset']);
             await pageComponentView.pause(4000);
-            await studioUtils.saveScreenshot("site_reset_to_template");
-            // 8. Verify that the site is reset to default template:
+            // 8. Click on Customize menu item in Live Edit frame:
+            await contentWizard.doUnlockLiveEditor();
+            // 9 Switch to main frame:
+            await contentWizard.switchToMainFrame();
+            await studioUtils.saveScreenshot('site_reset_to_template');
+            // 10. Verify that the site is reset to default template:
             let result2 = await pageComponentView.getPageComponentsDisplayName();
             assert.equal(result2.length, 3,
                 "Number of items in 'Component View' should be increased after the resetting to the default template");
@@ -83,7 +87,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

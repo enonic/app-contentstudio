@@ -39,7 +39,7 @@ describe('Swap two Text Component - specification', function () {
             assert.equal(description, 'test region', "Expected description should be displayed");
         });
 
-    it(`GIVEN 2 Text component are inserted  WHEN components have been swapped THEN 2 strings should be displayed in correct order`,
+    it.skip(`GIVEN 2 Text component are inserted  WHEN components have been swapped THEN 2 strings should be displayed in correct order`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();

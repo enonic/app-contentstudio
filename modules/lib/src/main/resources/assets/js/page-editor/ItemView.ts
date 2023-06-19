@@ -774,16 +774,12 @@ export class ItemView
     }
 
     hideContextMenu() {
-        if (this.contextMenu) {
-            this.contextMenu.hide();
-        }
+        this.contextMenu?.hide();
     }
 
     private invalidateContextMenu() {
-        if (this.contextMenu) {
-            this.contextMenu.remove();
-            this.contextMenu = null;
-        }
+        this.contextMenu?.remove();
+        this.contextMenu = null;
     }
 
     private setItemId(value: ItemViewId) {

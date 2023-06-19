@@ -204,6 +204,8 @@ export class PageModel {
     }
 
     reset(eventSource?: any) {
+        this.setCustomized(false);
+
         if (this.isPageTemplate() || !this.defaultTemplate) {
             let setController = new SetController(eventSource).setDescriptor(null).setConfig(new PropertyTree()).setRegions(
                 Regions.create().build());
@@ -211,8 +213,6 @@ export class PageModel {
         } else {
             this.setAutomaticTemplate(eventSource);
         }
-
-        this.setCustomized(false);
 
         this.notifyReset();
     }

@@ -43,7 +43,8 @@ export class PageComponentsView
 
     private static LOCKED_CLASS: string = 'locked';
     private static COLLAPSED_CLASS: string = 'collapsed';
-    private static COLLAPSE_BUTTON_ICON_CLASS: string = 'icon-down-arrow';
+    private static COLLAPSE_BUTTON_ICON_CLASS: string = 'icon-close';
+    private static EXPAND_BUTTON_ICON_CLASS: string = 'icon-arrow-left2';
     private static PCV_COLLAPSED_KEY: string = 'contentstudio:pcv:collapsed';
 
     private content: Content;
@@ -59,7 +60,8 @@ export class PageComponentsView
     private draggable: boolean;
     private selectedItemId: string;
     private dockedParent: Element;
-    private toggleCollapsedStateButton: Button;
+    private collapseButton: Button;
+    private toggleButton: Button;
 
     private beforeInsertActionListeners: { (event: any): void }[] = [];
 
@@ -102,11 +104,20 @@ export class PageComponentsView
     }
 
     private initElements(): void {
-        this.toggleCollapsedStateButton =
+        this.collapseButton =
             new Button().addClass(`minimize-button ${PageComponentsView.COLLAPSE_BUTTON_ICON_CLASS}`).setTitle(
                 i18n('field.hideComponent')) as Button;
 
-        this.toggleCollapsedStateButton.onClicked((event: MouseEvent) => {
+        this.collapseButton.onClicked((event: MouseEvent) => {
+            event.stopPropagation();
+            event.preventDefault();
+            this.collapse();
+        });
+
+        this.toggleButton =
+            new Button().addClass(`toggle-button ${PageComponentsView.EXPAND_BUTTON_ICON_CLASS}`) as Button;
+
+        this.toggleButton.onClicked((event: MouseEvent) => {
             event.stopPropagation();
             event.preventDefault();
             this.toggleCollapsedState();
@@ -129,10 +140,10 @@ export class PageComponentsView
             }
         });
 
-
         const headerWrapper = new DivEl('header-wrapper');
-        headerWrapper.appendChildren(this.header, this.toggleCollapsedStateButton);
+        headerWrapper.appendChildren(this.header, this.collapseButton);
         this.appendChildren(headerWrapper);
+        this.appendChild(this.toggleButton);
     }
 
     private setupListeners(): void {
@@ -145,10 +156,6 @@ export class PageComponentsView
         });
 
         this.whenRendered(() => this.initLiveEditEvents());
-
-        this.header.onDblClicked(() => {
-            this.toggleCollapsedState();
-        });
     }
 
     show(): void {
@@ -177,6 +184,8 @@ export class PageComponentsView
         } else {
             this.constrainToParent();
         }
+
+        this.toggleButton.setTitle(this.isCollapsed() ? i18n('field.showComponent') : i18n('field.hideComponent'), false);
     }
 
     hide(): void {
@@ -189,12 +198,9 @@ export class PageComponentsView
 
         this.pageView = pageView;
         if (!this.tree && this.content && this.pageView) {
-
             this.createTree(this.content, this.pageView);
             this.initLock();
-
         } else if (this.tree) {
-
             this.tree.deselectAll();
             Highlighter.get().hide();
 
@@ -503,7 +509,6 @@ export class PageComponentsView
 
     private selectItem(item: ItemView): void {
         item.selectWithoutMenu();
-        this.tree.scrollToItem(item.getItemId().toString());
     }
 
     private selectItemById(): void {
@@ -598,7 +603,8 @@ export class PageComponentsView
     private constrainToParent(offset?: { top: number; left: number }): void {
         const el = this.getEl();
 
-        if (!this.draggable) {
+        // no need to update position if PCV is docked or undocked but collapsed
+        if (!this.draggable || this.isCollapsed()) {
             el.setMaxHeight('');
             return;
         }
@@ -824,15 +830,15 @@ export class PageComponentsView
 
     private collapse(): void {
         localStorage.setItem(PageComponentsView.PCV_COLLAPSED_KEY, 'true');
-        this.toggleCollapsedStateButton.setTitle(i18n('field.showComponent'));
         this.toggleClass(PageComponentsView.COLLAPSED_CLASS, true);
+        this.toggleButton.setTitle(i18n('field.showComponent'), false);
         this.hideContextMenu();
     }
 
     private expand(): void {
         localStorage.removeItem(PageComponentsView.PCV_COLLAPSED_KEY);
-        this.toggleCollapsedStateButton.setTitle(i18n('field.hideComponent'));
         this.toggleClass(PageComponentsView.COLLAPSED_CLASS, false);
+        this.toggleButton.setTitle(i18n('field.hideComponent'), false);
         this.constrainToParent(); // not letting PCV to overflow the page
         this.tree.getGrid().resizeCanvas();
     }

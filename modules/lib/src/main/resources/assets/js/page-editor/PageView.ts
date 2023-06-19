@@ -517,9 +517,8 @@ export class PageView
     }
 
     hideContextMenu() {
-        if (this.lockedContextMenu) {
-            this.lockedContextMenu.hide();
-        }
+        this.lockedContextMenu?.hide();
+
         return super.hideContextMenu();
     }
 

@@ -20,7 +20,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
-    const FRAGMENT_NAME = "Text";
+    const FRAGMENT_NAME = 'Text';
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -29,19 +29,49 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await studioUtils.doAddSite(SITE);
         });
 
-    //verifies https://github.com/enonic/app-contentstudio/issues/1108 (tooltip 'Hide Component View' does not appear. )
-    it(`GIVEN existing site is opened WHEN 'Show Component View' toggler has been clicked THEN 'Hide Component View' should appear`,
+    it(`GIVEN existing site is opened WHEN 'Live Edit' has been expanded THEN 'Hide Page Component View' button should be displayed in Page component View modal dialog`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
+            // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.waitForLoaded();
+            await studioUtils.saveScreenshot('maximized_page_component_modal');
+            // 3. 'Hide Page Component View' button should be displayed in the dialog:
+            await pageComponentView.waitForHideComponentViewButtonDisplayed();
+            // 4. Verify that 'Component View' toggle-button is visible:
+            await pageComponentView.waitForComponentViewToggleButtonDisplayed();
+            // 5. Verify that 2 items are displayed in the modal dialog:
+            let result = await pageComponentView.getPageComponentsDisplayName();
+            assert.isTrue(result.includes('main region'), 'main region item should be displayed in the modal dialog');
+            assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
+        });
 
-            await pageComponentView.openMenu('main');
-            // 'Minimize Page Component View' button should appear:
-            await pageComponentView.waitForMinimizeDialogButtonDisplayed();
+    it(`GIVEN 'Live Edit' has been maximized WHEN Hide Page Component view has been clicked THEN 'Page Component View' should be collapsed`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            // 1. Open the site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await pageComponentView.waitForLoaded();
+            // 3. Click on Hide Page Component button:
+            await pageComponentView.clickOnHideComponentViewButton();
+            await studioUtils.saveScreenshot('collapsed_page_component_modal');
+            // 4. 'Page Component View' modal dialog should be collapsed:
+            await pageComponentView.waitForCollapsed();
+            // 5. Verify that 'Component View' toggle-button is visible:
+            await pageComponentView.waitForComponentViewToggleButtonDisplayed();
+            // 6. minimize Live Editor again:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await studioUtils.saveScreenshot('page_component_wizard_step');
+            // 7. Verify that Page Component View wizard step is displayed:
+            await pageComponentsWizardStepForm.waitForLoaded();
+            await pageComponentView.waitForComponentViewToggleButtonNotDisplayed();
         });
 
     // verifies -  Context menu stays open when menu button's dropdown is expanded #5075
@@ -51,19 +81,22 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 1. Click on minimize-toggler, expand Live Edit:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.waitForLoaded();
-            // 2. Open the menu in Page Component View dialog:
+            // 2. Verify that 'Page Component View' modal dialog remains collapsed:
+            await pageComponentView.waitForCollapsed();
+            // 3. Click on 'Components View' toggler button and open the modal dialog:
+            await pageComponentView.clickOnComponentViewToggleButton();
+            // 4. Open the menu in Page Component View dialog:
             await pageComponentView.openMenu('main');
-            // 3. Verify that required items are visible:
+            // 5. Verify that required items are visible:
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
-            // 4. Click on publish-menu button's dropdown:
+            // 6. Click on publish-menu button's dropdown:
             await contentWizard.clickOnPublishMenuDropdownHandle();
             await studioUtils.saveScreenshot('components_menu_closed');
-            // 5. Verify that page-component's menu gets closed:
+            // 7. Verify that page-component's menu gets closed:
             await pageComponentView.waitForMenuItemNotDisplayed(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
-            // 6.  But Publish-menu should be expanded and 'Publish...' menu item is enabled here:
+            // 8.  But Publish-menu should be expanded and 'Publish...' menu item is enabled here:
             await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.PUBLISH);
         });
 
@@ -75,7 +108,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             let pageComponentView = new PageComponentView();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 2. Click on minimize-toggler, expand 'Live Edit', Page Component modal dialog should be loaded:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Open the context menu:
             await pageComponentView.openMenu('main');
@@ -93,7 +126,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
         });
 
-    it(`WHEN existing site with a fragment is opened THEN single fragment should be displayed in Page Components View`,
+    it(`WHEN existing site with a fragment is opened THEN single fragment should be displayed in Page Components wizard step`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
@@ -116,12 +149,12 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await pageComponentsWizardStepForm.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT);
         });
 
-    it(`WHEN existing site with a fragment is opened THEN single fragment should be displayed in Page Components View`,
+    it(`WHEN existing site with a fragment is opened THEN single fragment should be displayed in Page Components View modal dialog`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 1. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 1. Click on minimize-toggler, expand 'Live Edit', Page Component modal dialog should be loaded:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             let result = await pageComponentView.getFragmentsDisplayName();
             // 2. Verify that single expected fragment is displayed in Page Component View:
@@ -145,7 +178,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 1. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 1. Click on minimize-toggler, expand 'Live Edit' 'Page Component' modal dialog should be loaded:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Select the fragment and open the context-menu:
             await pageComponentView.openMenu('Text');
@@ -166,7 +199,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             let siteFormPanel = new SiteFormPanel();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 1. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 1. Click on minimize-toggler, expand 'Live Edit', Page Component modal dialog should be loaded:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Click on the existing component and select it:
             await pageComponentView.clickOnComponent('Text');
@@ -185,7 +218,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 1. Click on minimize-toggler, expand 'Live Edit' and open Page Component modal dialog:
+            // 1. Click on minimize-toggler, expand 'Live Edit', Page Component modal dialog should be loaded:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. the fragment's context menu has been opened:
             await pageComponentView.openMenu('Text');

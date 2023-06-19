@@ -180,25 +180,35 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
-            // 1. Open USA country, open Page Component View modal dialog:
+            // 1. Open USA country content:
             await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 2. 'Page Component View' modal dialog should not be displayed, because the content is not customized:
+            await pageComponentView.waitForNotDisplayed();
+            // 3. Click on Customize menu item in Live Edit frame:
+            await contentWizard.doUnlockLiveEditor();
+            // 4 Switch to main frame:
+            await contentWizard.switchToMainFrame();
+            // 5. Verify that Page Component View modal dialog loads automatically after clicking on 'customize'
+            await pageComponentView.waitForLoaded();
             let result = await pageComponentView.getPageComponentsDisplayName();
-            assert.isTrue(result.includes(COUNTRY_TEMPLATE_NAME), 'template(top component)  should be present in the dialog');
-            assert.isTrue(result.includes('City list'), 'City list part should be present in the dialog');
-            assert.isTrue(result.includes('country'), 'country part should be present in the dialog');
+            assert.isTrue(result.includes(PAGE_CONTROLLER_COUNTRY), "'Country Region'  should be present in the dialog");
+            assert.isTrue(result.includes('City list'), "'City list' part should be present in the dialog");
+            assert.isTrue(result.includes('country'), "'country part' should be present in the dialog");
         });
 
-    it("WHEN USA content has been opened  THEN expected components should be displayed in the dialog in Page Component wizard step",
+    it("WHEN USA content has been opened THEN expected components should be displayed in the dialog in Page Component wizard step",
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open USA country content:
             await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
-            await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 3. Verify that Page Component wizard step is displayed:
+            // 2. Click on Customize menu item in Live Edit frame:
+            await contentWizard.doUnlockLiveEditor();
+            // 3 Switch to main frame:
+            await contentWizard.switchToMainFrame();
+            // 4. Verify that 'Page Component View' wizard step is displayed:
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
-            assert.isTrue(result.includes(COUNTRY_TEMPLATE_NAME), 'template(top component)  should be present in the dialog');
+            assert.isTrue(result.includes(PAGE_CONTROLLER_COUNTRY), 'template(top component)  should be present in the dialog');
             assert.isTrue(result.includes('City list'), 'City list part should be present in the dialog');
             assert.isTrue(result.includes('country'), 'country part should be present in the dialog');
         });

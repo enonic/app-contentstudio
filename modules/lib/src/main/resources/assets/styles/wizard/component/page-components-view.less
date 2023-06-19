@@ -1,5 +1,6 @@
 @button-size: 24px;
-@button-icon-size: 14px;
+@button-toggle-icon-size: 14px;
+@button-minimize-icon-size: 20px;
 
 .page-components-view {
   padding: 10px;
@@ -24,27 +25,34 @@
       line-height: 20px;
       flex-grow: 1;
     }
+  }
 
-    .minimize-button {
-      .button(@admin-dark-gray, transparent);
-      display: none;
-      padding: 0;
-      width: @button-size;
-      height: @button-size;
-      border: 1px solid @admin-dark-gray-border;
-      border-radius: 6px;
-      justify-content: center;
-      align-items: center;
+  .minimize-button, .toggle-button {
+    .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent);
+    display: none;
+    padding: 0;
+    width: @button-size;
+    height: @button-size;
+    border-radius: 6px;
+    justify-content: center;
+    align-items: center;
 
-      &:focus {
-        outline: none;
-      }
+    &:focus {
+      outline: none;
+    }
 
-      &::before {
-        font-size: @button-icon-size;
-        width: @button-icon-size;
-        height: @button-icon-size;
-      }
+    &::before {
+      font-size: @button-minimize-icon-size;
+      width: @button-minimize-icon-size;
+      height: @button-minimize-icon-size;
+    }
+  }
+
+  .toggle-button {
+    &::before {
+      font-size: @button-toggle-icon-size;
+      width: @button-toggle-icon-size;
+      height: @button-toggle-icon-size;
     }
   }
 
@@ -177,23 +185,35 @@
 
       .minimize-button {
         display: flex;
-        margin-right: 7px;
+        margin-right: 8px;
 
         &::before {
           display: block;
-          transform: rotate(45deg);
+          font-size: @button-minimize-icon-size;
+          width: @button-minimize-icon-size;
+          height: @button-minimize-icon-size;
         }
       }
     }
 
-    &.collapsed {
-      width: @button-size;
-      border-radius: 6px;
-      padding: 0;
+    .toggle-button {
+      display: flex;
+      margin-right: 0;
+      border: 1px solid @admin-dark-gray-border;
       position: fixed;
       top: auto !important;
       bottom: 12px !important;
       left: 8px !important;
+
+      &::before {
+        transform: rotate(135deg);
+      }
+    }
+
+    &.collapsed {
+      padding: 0;
+      width: 0;
+      height: 0;
 
       .header-wrapper {
         width: @button-size;
@@ -203,16 +223,18 @@
         }
 
         .minimize-button {
-          margin-right: 0;
-
-          &::before {
-            transform: rotate(225deg);
-          }
+          display: none;
         }
       }
 
       .page-components-tree-grid {
         display: none;
+      }
+    }
+
+    &:not(.collapsed) {
+      .toggle-button {
+        .button-foreground(@admin-button-blue1);
       }
     }
   }
