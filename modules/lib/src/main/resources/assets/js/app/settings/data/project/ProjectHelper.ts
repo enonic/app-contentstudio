@@ -8,6 +8,8 @@ import {ProjectPermissions} from './ProjectPermissions';
 
 export class ProjectHelper {
 
+    public static readonly HIDE_DEFAULT_PROJ_PROP: string = 'hideDefaultProject';
+
     public static isUserProjectOwnerOrEditor(loginResult: LoginResult): Q.Promise<boolean> {
         return new ProjectGetRequest(ProjectContext.get().getProject().getName()).sendAndParse().then((project: Project) => {
             return Q(ProjectHelper.isProjectOwnerOrEditor(loginResult, project));
