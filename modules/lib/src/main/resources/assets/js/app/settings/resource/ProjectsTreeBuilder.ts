@@ -77,13 +77,13 @@ export class ProjectsTreeBuilder {
     }
 
     private filterDefaultProjectIfNeeded(projects: Project[]): Project[] {
-        const hideDefault: boolean = CONFIG.isTrue('hideDefaultProject');
+        const hideDefault: boolean = CONFIG.isTrue(ProjectHelper.HIDE_DEFAULT_PROJ_PROP);
 
-        if (!hideDefault) {
-            return projects;
+        if (hideDefault) {
+            return projects.filter((project: Project) => !this.isFromDefaultTree(project));
         }
 
-        return projects.filter((project: Project) => !this.isFromDefaultTree(project));
+        return projects;
     }
 
     private isFromDefaultTree(project: Project): boolean {

@@ -10,7 +10,7 @@ function handleGet() {
     const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
-    const hideDefaultProject = app.config['settings.hideDefaultProject'] === 'true' || false;
+    const hideDefaultProject = app.config['settings.hideDefaultProject'] !== 'false';
 
     return {
         status: 200,
