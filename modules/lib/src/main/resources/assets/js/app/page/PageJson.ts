@@ -14,6 +14,4 @@ export interface PageJson {
 
     config: PropertyArrayJson[];
 
-    customized: boolean;
-
 }

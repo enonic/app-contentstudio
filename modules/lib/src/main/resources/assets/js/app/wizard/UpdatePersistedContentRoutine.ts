@@ -127,8 +127,7 @@ export class UpdatePersistedContentRoutine
                 .setPageTemplateKey(viewedPage.getTemplate())
                 .setConfig(viewedPage.getConfig())
                 .setRegions(viewedPage.getRegions())
-                .setFragment(viewedPage.getFragment())
-                .setCustomized(viewedPage.isCustomized());
+                .setFragment(viewedPage.getFragment());
         } else if (persistedContent.isPage() && viewedContent.isPage()) {
             const viewedPage = viewedContent.getPage();
             return new UpdatePageRequest(persistedContent.getContentId())
@@ -136,8 +135,7 @@ export class UpdatePersistedContentRoutine
                 .setPageTemplateKey((viewedPage.getTemplate()))
                 .setConfig(viewedPage.getConfig())
                 .setRegions(viewedPage.getRegions())
-                .setFragment(viewedPage.getFragment())
-                .setCustomized(viewedPage.isCustomized());
+                .setFragment(viewedPage.getFragment());
         }
     }
 

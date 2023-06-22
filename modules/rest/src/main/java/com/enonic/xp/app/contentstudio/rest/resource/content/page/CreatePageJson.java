@@ -25,7 +25,7 @@ public class CreatePageJson
     public CreatePageJson( @JsonProperty("contentId") final String contentId, @JsonProperty("controller") String pageDescriptorKey,
                            @JsonProperty("template") final String pageTemplateKey,
                            @JsonProperty("config") final List<PropertyArrayJson> config,
-                           @JsonProperty("regions") final List<RegionJson> regions, @JsonProperty("customized") final boolean customized,
+                           @JsonProperty("regions") final List<RegionJson> regions,
                            @JsonProperty("fragment") final ComponentJson fragment )
     {
         this.createPage = new CreatePageParams().
@@ -34,8 +34,7 @@ public class CreatePageJson
             pageTemplate( pageTemplateKey != null ? PageTemplateKey.from( pageTemplateKey ) : null ).
             config( config != null ? PropertyTreeJson.fromJson( config ) : null ).
             regions( regions != null ? new PageRegionsJson( regions ).getPageRegions() : null ).
-            fragment( fragment != null ? fragment.getComponent() : null ).
-            customized( customized );
+            fragment( fragment != null ? fragment.getComponent() : null );
     }
 
     @JsonIgnore

@@ -22,7 +22,6 @@ import com.enonic.xp.page.PageService;
 import com.enonic.xp.page.UpdatePageParams;
 import com.enonic.xp.security.RoleKeys;
 
-import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
 
