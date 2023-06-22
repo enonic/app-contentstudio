@@ -29,6 +29,9 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ContentId} from '../../app/content/ContentId';
 import {ContentSummary} from '../../app/content/ContentSummary';
+import * as Q from 'q';
+import {LayoutComponent} from '../../app/page/region/LayoutComponent';
+import {PageHelper} from '../../app/util/PageHelper';
 
 export class FragmentComponentViewBuilder
     extends ContentBasedComponentViewBuilder<FragmentComponent> {
@@ -210,11 +213,12 @@ export class FragmentComponentView
         return this.loaded;
     }
 
-    private loadFragmentContent() {
-        const contentId = this.component.getFragment();
+    private loadFragmentContent(): void {
+        const contentId: ContentId = this.component.getFragment();
+
         if (contentId) {
             if (!this.fragmentContent || !contentId.equals(this.fragmentContent.getContentId())) {
-                new GetContentByIdRequest(contentId).sendAndParse().then((content: Content) => {
+                this.fetchFragmentContent(contentId).then((content: Content): void => {
                     this.fragmentContent = content;
                     this.notifyFragmentContentLoaded();
                     new FragmentComponentLoadedEvent(this).fire();
@@ -229,6 +233,21 @@ export class FragmentComponentView
             this.fragmentContent = null;
             this.notifyFragmentContentLoaded();
         }
+    }
+
+    private fetchFragmentContent(contentId: ContentId): Q.Promise<Content> {
+        return new GetContentByIdRequest(contentId).sendAndParse().then((content: Content) => {
+            const component: Component = content.getPage()?.getFragment();
+            const injectPromise: Q.Promise<void> = this.isLayoutComponent(component)
+                                  ? PageHelper.fetchAndInjectLayoutRegions(component as LayoutComponent)
+                                  : Q.resolve();
+
+            return injectPromise.then(() => content);
+        });
+    }
+
+    private isLayoutComponent(component: Component): boolean {
+        return !!component && component instanceof LayoutComponent && !!component.getDescriptorKey();
     }
 
     private parseFragmentComponents(parentElement: Element) {
