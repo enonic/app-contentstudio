@@ -603,7 +603,6 @@ export class LiveFormPanel
             return new PageBuilder()
                 .setController(descriptor.getKey())
                 .setConfig(new PropertyTree())
-                .setCustomized(true)
                 .build();
         }
 

@@ -134,7 +134,8 @@ export class PageModel {
         this.defaultTemplate = defaultTemplate;
         this.defaultTemplateDescriptor = defaultTemplateDescriptor;
         this.mode = pageMode;
-        this.customized = liveEditModel.getContent().isPage() && liveEditModel.getContent().getPage().isCustomized();
+        this.customized = liveEditModel.getContent().isPage() &&
+                          (liveEditModel.getContent().getPage().hasController() || liveEditModel.getContent().getPage().isFragment());
         this.fragment = liveEditModel.getContent().getPage() ? liveEditModel.getContent().getPage().getFragment() : null;
         this.configPropertyChangedHandler = () => {
             if (!this.ignorePropertyChanges) {
@@ -411,11 +412,11 @@ export class PageModel {
             const regions = regionsUnchanged ? null : this.regions;
             const config = null;
 
-            return new PageBuilder().setTemplate(this.getTemplateKey()).setRegions(regions).setConfig(config).setCustomized(
-                this.isCustomized()).setFragment(this.fragment).build();
+            return new PageBuilder().setTemplate(this.getTemplateKey()).setRegions(regions).setConfig(config).setFragment(
+                this.fragment).build();
         } else if (this.mode === PageMode.FORCED_CONTROLLER) {
-            return new PageBuilder().setController(this.controller.getKey()).setRegions(this.regions).setConfig(this.config).setCustomized(
-                this.isCustomized()).setFragment(this.fragment).build();
+            return new PageBuilder().setController(this.controller.getKey()).setRegions(this.regions).setConfig(this.config).setFragment(
+                this.fragment).build();
         } else if (this.mode === PageMode.NO_CONTROLLER) {
             if (this.fragment != null) {
                 return new PageBuilder().setFragment(this.fragment).build();
@@ -423,9 +424,7 @@ export class PageModel {
                 return null;
             }
         } else if (this.mode === PageMode.FRAGMENT) {
-            return new PageBuilder().setRegions(Regions.create().build()).setConfig(this.config).setCustomized(
-                this.isCustomized()).setFragment(
-                this.fragment).build();
+            return new PageBuilder().setRegions(Regions.create().build()).setConfig(this.config).setFragment(this.fragment).build();
         } else {
             throw new Error('Page mode not supported: ' + this.mode);
         }

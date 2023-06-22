@@ -28,17 +28,15 @@ import {ContentId} from '../content/ContentId';
 export class Page
     implements Equitable, Cloneable {
 
-    private controller: DescriptorKey;
+    private readonly controller: DescriptorKey;
 
-    private template: PageTemplateKey;
+    private readonly template: PageTemplateKey;
 
-    private regions: Regions;
+    private readonly regions: Regions;
 
-    private fragment: Component;
+    private readonly fragment: Component;
 
-    private config: PropertyTree;
-
-    private customized: boolean;
+    private readonly config: PropertyTree;
 
     constructor(builder: PageBuilder) {
         this.controller = builder.controller;
@@ -46,7 +44,6 @@ export class Page
         this.regions = builder.regions;
         this.fragment = builder.fragment;
         this.config = builder.config;
-        this.customized = builder.customized;
     }
 
     hasController(): boolean {
@@ -87,10 +84,6 @@ export class Page
 
     getConfig(): PropertyTree {
         return this.config;
-    }
-
-    isCustomized(): boolean {
-        return this.customized;
     }
 
     getFragment(): Component {
@@ -154,7 +147,6 @@ export class Page
             regions: this.regions ? this.regions.toJson() : undefined,
             fragment: componentJson,
             config: this.config ? this.config.toJson() : undefined,
-            customized: this.customized
         };
     }
 
@@ -273,8 +265,6 @@ export class PageBuilder {
 
     config: PropertyTree;
 
-    customized: boolean;
-
     fragment: Component;
 
     constructor(source?: Page) {
@@ -283,7 +273,6 @@ export class PageBuilder {
             this.template = source.getTemplate();
             this.regions = source.getRegions() ? source.getRegions().clone() : Regions.create().build();
             this.config = source.getConfig() ? source.getConfig().copy() : null;
-            this.customized = source.isCustomized();
             this.fragment = source.isFragment() ? source.getFragment().clone() : null;
         }
     }
@@ -295,7 +284,6 @@ export class PageBuilder {
         this.setConfig(json.config != null
                        ? PropertyTree.fromJson(json.config)
                        : null);
-        this.setCustomized(json.customized);
 
         if (json.fragment) {
             let component: Component = ComponentFactory.createFromJson(json.fragment as ComponentTypeWrapperJson, 0, null);
@@ -322,11 +310,6 @@ export class PageBuilder {
 
     public setConfig(value: PropertyTree): PageBuilder {
         this.config = value;
-        return this;
-    }
-
-    public setCustomized(value: boolean): PageBuilder {
-        this.customized = value;
         return this;
     }
 

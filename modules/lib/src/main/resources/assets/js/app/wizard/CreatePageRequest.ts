@@ -27,8 +27,6 @@ export class CreatePageRequest
 
     private fragment: Component;
 
-    private customized: boolean;
-
     constructor(contentId: ContentId) {
         super();
         this.setMethod(HttpMethod.POST);
@@ -61,11 +59,6 @@ export class CreatePageRequest
         return this;
     }
 
-    setCustomized(value: boolean): CreatePageRequest {
-        this.customized = value;
-        return this;
-    }
-
     getParams(): Object {
         return {
             contentId: this.contentId.toString(),
@@ -73,7 +66,6 @@ export class CreatePageRequest
             template: this.template ? this.template.toString() : null,
             config: this.config ? this.config.toJson() : null,
             regions: this.regions != null ? this.regions.toJson() : null,
-            customized: this.customized,
             fragment: this.fragment != null ? this.fragment.toJson() : null
         };
     }
