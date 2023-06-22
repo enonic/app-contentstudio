@@ -23,6 +23,7 @@ import {LayoutComponent} from '../app/page/region/LayoutComponent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {LayoutComponentType} from '../app/page/region/LayoutComponentType';
+import {PageHelper} from '../app/util/PageHelper';
 
 export class LiveEditModel {
 
@@ -223,7 +224,7 @@ export class LiveEditModelInitializer {
                                                     pageModel: PageModel,
                                                     promises: Q.Promise<any>[]): void {
         const pageDescriptorKey: DescriptorKey = pageTemplate.getController();
-        const pageDescriptorPromise: Q.Promise<Descriptor> = this.loadDescriptor(pageDescriptorKey);
+        const pageDescriptorPromise: Q.Promise<Descriptor> = PageHelper.loadDescriptor(pageDescriptorKey);
         pageDescriptorPromise.then((pageDescriptor: Descriptor) => {
 
             const config: PropertyTree = pageTemplate.hasConfig() ? pageTemplate.getPage().getConfig().copy() : new PropertyTree();
@@ -258,7 +259,7 @@ export class LiveEditModelInitializer {
         pageTemplatePromise.then((pageTemplate: PageTemplate) => {
 
             const pageDescriptorKey: DescriptorKey = pageTemplate.getController();
-            const pageDescriptorPromise: Q.Promise<Descriptor> = LiveEditModelInitializer.loadDescriptor(pageDescriptorKey);
+            const pageDescriptorPromise: Q.Promise<Descriptor> = PageHelper.loadDescriptor(pageDescriptorKey);
             pageDescriptorPromise.then((pageDescriptor: Descriptor) => {
 
                 const config: PropertyTree = content.getPage().hasNonEmptyConfig()
@@ -282,7 +283,7 @@ export class LiveEditModelInitializer {
         const pageDescriptorKey: DescriptorKey = page.getController();
 
         if (pageDescriptorKey) {
-            const pageDescriptorPromise: Q.Promise<void> = this.loadDescriptor(pageDescriptorKey).then((pageDescriptor: Descriptor) => {
+            const pageDescriptorPromise: Q.Promise<void> = PageHelper.loadDescriptor(pageDescriptorKey).then((pageDescriptor: Descriptor) => {
                 return this.initPageController(page, pageModel, pageDescriptor).catch(DefaultErrorHandler.handle);
             });
             promises.push(pageDescriptorPromise);
@@ -342,25 +343,9 @@ export class LiveEditModelInitializer {
         const layoutsPromises: Q.Promise<void>[] = existingRegion.getComponents()
             .filter((component: Component) => component instanceof LayoutComponent)
             .filter((layout: LayoutComponent) => layout.getDescriptorKey())
-            .map((layout: LayoutComponent) => this.fetchAndInjectLayoutRegions(layout));
+            .map((layout: LayoutComponent) => PageHelper.fetchAndInjectLayoutRegions(layout));
 
         return Q.all(layoutsPromises).then(() => existingRegion);
-    }
-
-    private static fetchAndInjectLayoutRegions(layout: LayoutComponent): Q.Promise<void> {
-        return this.loadDescriptor(layout.getDescriptorKey(), LayoutComponentType.get()).then((descriptor: Descriptor) => {
-            const builder: RegionsBuilder = Regions.create();
-
-            descriptor.getRegions().forEach((regionDescriptor: RegionDescriptor) => {
-                const regionToAdd: Region = layout.getRegions()?.getRegionByName(regionDescriptor.getName()) ||
-                                            Region.create().setName(regionDescriptor.getName()).setParentPath(layout.getPath()).build();
-                builder.addRegion(regionToAdd);
-            });
-
-            layout.setRegions(builder.build());
-
-            return Q.resolve();
-        });
     }
 
     private static getPageMode(content: Content, defaultTemplatePresents: boolean,
@@ -404,16 +389,6 @@ export class LiveEditModelInitializer {
         return deferred.promise;
     }
 
-    private static loadDescriptor(key: DescriptorKey, type?: ComponentType): Q.Promise<Descriptor> {
-        let deferred: Q.Deferred<Descriptor> = Q.defer<Descriptor>();
-        new GetComponentDescriptorRequest(key.toString(), type).sendAndParse().then((pageDescriptor: Descriptor) => {
-            deferred.resolve(pageDescriptor);
-        }).catch(() => {
-            deferred.reject(new Exception(i18n('live.view.page.error.descriptornotfound', key), ExceptionType.WARNING));
-        }).done();
-        return deferred.promise;
-    }
-
     private static resolvePromises(pageModel: PageModel, promises: Q.Promise<any>[]): Q.Promise<PageModel> {
         let deferred: Q.Deferred<PageModel> = Q.defer<PageModel>();
 
@@ -433,7 +408,7 @@ export class LiveEditModelInitializer {
     private static initFragmentPage(page: Page, pageModel: PageModel, promises: Q.Promise<any>[]): void {
         const component: Component = page.getFragment();
         const promise: Q.Promise<void> = (component instanceof LayoutComponent && component.getDescriptorKey())
-                                         ? this.fetchAndInjectLayoutRegions(component)
+                                         ? PageHelper.fetchAndInjectLayoutRegions(component)
                                          : Q.resolve();
 
         promise.then(() => {
