@@ -10,6 +10,10 @@ const contentBuilder = require("../../libs/content.builder");
 const DefaultPageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/default.page.inspection.panel');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const appConst = require('../../libs/app_const');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const TextComponent = require('../../page_objects/components/text.component');
+const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
+
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -18,9 +22,10 @@ describe('template.config.spec: template config should be displayed in the Inspe
     }
     let SITE;
     let TEMPLATE;
-    let SUPPORT = 'article';
-    let CONTROLLER_NAME = 'Page';
-    let TITLE_TEXT = "My title";
+    const SUPPORT = 'article';
+    const CONTROLLER_NAME = 'Page';
+    const TITLE_TEXT = "My title";
+    const TEST_TEXT = "test text";
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -43,18 +48,46 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let defaultPageInspectionPanel = new DefaultPageInspectionPanel();
             let wizardDetailsPanel = new WizardDetailsPanel();
             let contentWizard = new ContentWizard();
+            // 1. Open new wizard for Article content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
+            // 2. Click on Customize menu item:
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
+            // 3. Inspection Panel should be loaded:
             await wizardDetailsPanel.waitForDetailsPanelLoaded();
             await studioUtils.saveScreenshot('article_details_panel');
-            //Inspection Panel should be automatically opened:
+            // 4. Verify that Text input is displayed in the Inspection panel, insert a text:
             await defaultPageInspectionPanel.waitForTitleInputDisplayed();
             await defaultPageInspectionPanel.typeTitle(TITLE_TEXT);
-            //Click on Apply button in Inspect Panel and save the changes:
+            // 5. Click on 'Apply' button in Inspect Panel and save the changes:
             await defaultPageInspectionPanel.clickOnApplyButton();
+            // 6. Verify that text is applied:
             let result = await defaultPageInspectionPanel.getTitle();
             assert.equal(result, TITLE_TEXT, 'expected and actual title should be equal');
+        });
+
+    it(`GIVEN Customize menu item has been clicked in article wizard WHEN text component has been inserted in Page Component wizard step THEN the text should appear in the LiveEdit frame`,
+        async () => {
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            let textComponent = new TextComponent();
+            let contentWizard = new ContentWizard();
+            let liveFormPanel = new LiveFormPanel();
+            // 1. Open new wizard for Article content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
+            // 2. Click on Customize menu item:
+            await contentWizard.doUnlockLiveEditor();
+            await contentWizard.switchToMainFrame();
+            // 3. Insert text component in Page Component wizard step
+            await pageComponentsWizardStepForm.openMenu('main');
+            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
+            await textComponent.typeTextInCkeEditor(TEST_TEXT);
+            await studioUtils.saveScreenshot('article_content_customized');
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.pause(1500);
+            // 4. Verify that the text is present in LiveEdit frame
+            await contentWizard.switchToLiveEditFrame();
+            let actualText = await liveFormPanel.getTextInTextComponent();
+            assert.equal(actualText[0], TEST_TEXT, 'Expected text should be present in Live Edit panel');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -396,7 +396,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_preview_btn_disabled");
+            let screenshot = appConst.generateRandomName('err_content_should_not_be_displayed');
             await this.saveScreenshot(screenshot);
             throw new Error("Content is still displayed, screenshot :" + screenshot + "  " + err);
         }

@@ -59,7 +59,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await contentWizard.switchToMainFrame();
             // 3. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 4.Click on the item and open Context Menu:
+            // 4. Click on the item and open Context Menu:
             await pageComponentView.openMenu(TEST_TEXT);
             // 5. Remove the text component and save it
             await pageComponentView.selectMenuItem(['Remove']);
@@ -73,7 +73,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await pageComponentView.openMenu(CONTROLLER_NAME);
             await pageComponentView.selectMenuItem(['Reset']);
             await pageComponentView.pause(4000);
-            // 8. Click on Customize menu item in Live Edit frame:
+            // 8. Click on 'Customize' menu item in Live Edit frame:
             await contentWizard.doUnlockLiveEditor();
             // 9 Switch to main frame:
             await contentWizard.switchToMainFrame();
