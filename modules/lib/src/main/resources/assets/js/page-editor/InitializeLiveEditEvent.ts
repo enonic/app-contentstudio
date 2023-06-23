@@ -11,26 +11,19 @@ export class InitializeLiveEditEvent
 
     private readonly liveEditModel: LiveEditModel;
 
-    private readonly modifyPermissions: boolean;
-
     private readonly project: Project;
 
     private readonly config: JSONObject;
 
-    constructor(liveEditModel: LiveEditModel, modifyPermissions: boolean = false) {
+    constructor(liveEditModel: LiveEditModel) {
         super();
         this.liveEditModel = liveEditModel;
-        this.modifyPermissions = modifyPermissions;
         this.project = ProjectContext.get().getProject();
         this.config = CONFIG.getConfig();
     }
 
     getLiveEditModel(): LiveEditModel {
         return this.liveEditModel;
-    }
-
-    hasModifyPermissions(): boolean {
-        return this.modifyPermissions;
     }
 
     getProject(): Project {

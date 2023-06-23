@@ -144,7 +144,7 @@ export class LiveFormPanel
 
     private lockPageAfterProxyLoad: boolean = false;
 
-    private modifyPermissions: boolean = false;
+    private modifyPermissions: boolean;
 
     private contextWindow: ContextWindow;
 
