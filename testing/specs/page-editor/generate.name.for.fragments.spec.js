@@ -19,6 +19,7 @@ const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details
 const FragmentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 
 describe('Generate name for fragments specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -37,13 +38,14 @@ describe('Generate name for fragments specification', function () {
             await studioUtils.doAddSite(SITE);
         });
 
-    //Verifies https://github.com/enonic/app-contentstudio/issues/1455 Text component name should be sanitised
+    // Verifies https://github.com/enonic/app-contentstudio/issues/1455 Text component name should be sanitised
     it(`GIVEN an image is inserted in text-component WHEN the component has been saved as fragment THEN expected fragment-name should be generated`,
         async () => {
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             let insertImageDialog = new InsertImageDialog();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
@@ -64,6 +66,13 @@ describe('Generate name for fragments specification', function () {
             // 5. Verify the generated display name:
             let fragmentContent = await contentWizard.getDisplayName();
             assert.equal(fragmentContent, 'Text', 'Expected display name should be generated in Fragment-Wizard');
+            // 6. Verify that 'Page Component' step wizard is displayed in the fragment-wizard:
+            await pageComponentsWizardStepForm.waitForLoaded();
+            // 7. Only one item should be present in Page Component wizard step
+            let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
+            assert.equal(result.length,1,'One item should be displayed in the Page Component wizard step');
+            assert.isTrue(result.includes('Text'), 'City list part should be present in the dialog');
+
         });
 
     it(`WHEN a fragment-text with an image has been selected AND Show Inbound button has been pressed THEN the parent site should be filtered in the grid`,

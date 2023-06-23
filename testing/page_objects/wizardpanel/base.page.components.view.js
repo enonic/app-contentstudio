@@ -14,14 +14,14 @@ const xpath = {
     contextMenuItemByName: function (name) {
         return `//dl[contains(@id,'TreeContextMenu')]//*[contains(@id,'TreeMenuItem') and text()='${name}']`;
     },
-    componentByName: function (name) {
+    componentByName(name) {
         return `//div[contains(@id,'PageComponentsItemViewer') and descendant::h6[contains(@class,'main-name')  and text()='${name}']]`
     },
-    componentDescriptionByName: function (name) {
+    componentDescriptionByName(name) {
         return `//div[contains(@id,'PageComponentsItemViewer') and descendant::h6[contains(@class,'main-name')  and text()='${name}']]` +
                lib.P_SUB_NAME;
     },
-    componentByDescription: function (description) {
+    componentByDescription(description) {
         return `//div[contains(@id,'PageComponentsItemViewer') and descendant::p[contains(@class,'sub-name')  and contains(.,'${description}')]]`;
     },
     itemExpanderIcon: (name) => `//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and text()='${name}']]//span[@class='toggle icon expand']`,
@@ -94,7 +94,7 @@ class BasePageComponentView extends Page {
     }
 
     async isComponentSelected(displayName) {
-        let rowXpath =  lib.slickRowByDisplayName(this.container, displayName) + "//div[contains(@class,'slick-cell')]";
+        let rowXpath = lib.slickRowByDisplayName(this.container, displayName) + "//div[contains(@class,'slick-cell')]";
         await this.waitForElementDisplayed(rowXpath, appConst.shortTimeout);
         let cell = await this.findElement(rowXpath);
         let attr = await cell.getAttribute('class');
