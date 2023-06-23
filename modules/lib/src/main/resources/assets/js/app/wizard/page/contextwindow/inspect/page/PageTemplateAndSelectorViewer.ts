@@ -11,18 +11,18 @@ export type PageTemplateAndControllerOption = PageTemplateOption | PageControlle
 export class PageTemplateAndSelectorViewer
     extends NamesAndIconViewer<PageTemplateAndControllerOption> {
 
-    private defaultPageTemplate: PageTemplate;
+    private static defaultPageTemplate: PageTemplate;
 
     constructor() {
         super();
     }
 
-    setDefaultPageTemplate(defaultPageTemplate: PageTemplate) {
+    static setDefaultPageTemplate(defaultPageTemplate: PageTemplate) {
         this.defaultPageTemplate = defaultPageTemplate;
     }
 
     getCloneArgs(): any[] {
-        return [this.defaultPageTemplate];
+        return [PageTemplateAndSelectorViewer.defaultPageTemplate];
     }
 
     resolveDisplayName(object: PageTemplateAndControllerOption): string {
@@ -38,8 +38,8 @@ export class PageTemplateAndSelectorViewer
             }
         }
 
-        if (this.defaultPageTemplate) {
-            return '(' + this.defaultPageTemplate.getDisplayName().toString() + ')';
+        if (PageTemplateAndSelectorViewer.defaultPageTemplate) {
+            return '(' + PageTemplateAndSelectorViewer.defaultPageTemplate.getDisplayName().toString() + ')';
         }
 
         return i18n('field.page.template.noDefault');
