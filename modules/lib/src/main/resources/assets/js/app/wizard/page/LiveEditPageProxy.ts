@@ -62,6 +62,7 @@ import {ItemType} from '../../../page-editor/ItemType';
 import {ComponentItemType} from '../../../page-editor/ComponentItemType';
 import * as DOMPurify from 'dompurify';
 import {HTMLAreaHelper} from '../../inputtype/ui/text/HTMLAreaHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class LiveEditPageProxy {
 
@@ -139,7 +140,7 @@ export class LiveEditPageProxy {
 
     private ieObjectHolder: IEObjectHolder;
 
-    private modifyPermissions: boolean = false;
+    private modifyPermissions: boolean;
 
     constructor(contentId: ContentId) {
         this.contentId = contentId;
@@ -149,6 +150,10 @@ export class LiveEditPageProxy {
                 console.debug('LiveEditPageProxy.onLiveEditPageViewReady at ' + new Date().toISOString());
             }
             this.pageView = event.getPageView();
+
+            if (ObjectHelper.isDefined(this.modifyPermissions)) {
+                this.pageView.setModifyPermissions(this.modifyPermissions);
+            }
         });
 
         EmulatedEvent.on((event: EmulatedEvent) => {
@@ -226,9 +231,9 @@ export class LiveEditPageProxy {
         this.liveEditModel = liveEditModel;
     }
 
-    public setModifyPermissions(modifyPermissions: boolean): boolean {
+    public setModifyPermissions(modifyPermissions: boolean): void {
         this.modifyPermissions = modifyPermissions;
-        return this.modifyPermissions;
+        this.pageView?.setModifyPermissions(modifyPermissions);
     }
 
     public setWidth(value: string) {
@@ -408,7 +413,7 @@ export class LiveEditPageProxy {
                 }
 
                 if (this.liveEditModel) {
-                    new InitializeLiveEditEvent(this.liveEditModel, this.modifyPermissions).fire(this.liveEditWindow);
+                    new InitializeLiveEditEvent(this.liveEditModel).fire(this.liveEditWindow);
                 }
             } else {
                 if (LiveEditPageProxy.debug) {

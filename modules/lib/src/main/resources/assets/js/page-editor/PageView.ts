@@ -65,8 +65,6 @@ export class PageViewBuilder {
 
     element: Body;
 
-    modifyPermissions: boolean = false;
-
     setLiveEditModel(value: LiveEditModel): PageViewBuilder {
         this.liveEditModel = value;
         return this;
@@ -84,11 +82,6 @@ export class PageViewBuilder {
 
     setElement(value: Body): PageViewBuilder {
         this.element = value;
-        return this;
-    }
-
-    setModifyPermissions(modifyPermissions: boolean): PageViewBuilder {
-        this.modifyPermissions = modifyPermissions;
         return this;
     }
 
@@ -153,8 +146,6 @@ export class PageView
             .setElement(builder.element)
             .setContextMenuTitle(new PageViewContextMenuTitle(builder.liveEditModel.getContent())));
 
-        this.modifyPermissions = builder.modifyPermissions;
-
         this.setPlaceholder(new PagePlaceholder(this));
 
         this.addPageContextMenuActions();
@@ -186,7 +177,8 @@ export class PageView
         const isCustomized = this.liveEditModel.getPageModel().isCustomized();
         const isFragment = !!this.fragmentView;
         const lockable = !this.pageModel.isPageTemplate() && !isCustomized && !isFragment;
-        if (lockable || !this.modifyPermissions) {
+
+        if (lockable) {
             this.setLocked(true);
         }
     }
@@ -212,6 +204,14 @@ export class PageView
 
     public destroyDraggable(item: JQuery) {
         return DragAndDrop.get().destroyDraggable(item);
+    }
+
+    public setModifyPermissions(modifyPermissions: boolean): void {
+        this.modifyPermissions = modifyPermissions;
+
+        if (!modifyPermissions) {
+            this.setLocked(true);
+        }
     }
 
     private registerPageModel() {
@@ -530,7 +530,11 @@ export class PageView
         this.toggleClass('lock-visible', visible);
     }
 
-    setLocked(locked: boolean) {
+    setLocked(locked: boolean): void {
+        if (locked === this.isLocked()) {
+            return;
+        }
+
         this.toggleClass('locked', locked);
 
         this.hideContextMenu();
