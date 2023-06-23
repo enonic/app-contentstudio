@@ -349,7 +349,18 @@ export class PageModel {
 
         if (this.regions) {
             let regions = setTemplate.descriptor ? setTemplate.descriptor.getRegions() : [];
+            const isAuto = this.getMode() === PageMode.AUTOMATIC;
+            const isIgnored = this.ignorePropertyChanges; // preserving value
+
+            if (isAuto) { // auto template will trigger region changes and resetting mode if not ignored
+                this.setIgnorePropertyChanges(true);
+            }
+
             this.regions.changeRegionsTo(regions);
+
+            if (isAuto && !isIgnored) {
+                this.setIgnorePropertyChanges(false);
+            }
         }
     }
 

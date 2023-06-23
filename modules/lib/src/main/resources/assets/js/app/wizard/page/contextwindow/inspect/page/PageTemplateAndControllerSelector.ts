@@ -52,7 +52,7 @@ export class PageTemplateAndControllerSelector
 
     setModel(model: LiveEditModel) {
         this.liveEditModel = model;
-        this.optionViewer.setDefaultPageTemplate(this.liveEditModel.getPageModel().getDefaultPageTemplate());
+        PageTemplateAndSelectorViewer.setDefaultPageTemplate(this.liveEditModel.getPageModel().getDefaultPageTemplate());
         const pageModel = this.liveEditModel.getPageModel();
         if (!pageModel.isPageTemplate() && pageModel.getMode() !== PageMode.FRAGMENT) {
             this.autoOption = Option.create<PageTemplateOption>()
