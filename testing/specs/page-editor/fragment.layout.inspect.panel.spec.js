@@ -55,13 +55,14 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_2_COL);
             await pageComponentView.pause(500);
+            let actualDescriptionLayout = await pageComponentView.getComponentDescription(LAYOUT_2_COL);
+            assert.equal(actualDescriptionLayout, '2 column layout', 'Expected description should be displayed in the layout item');
             //3. Verify that the site is automatically saved after selecting a layout in the dropdown:
             await pageComponentView.openMenu(LAYOUT_2_COL);
             //4. Click on 'Save as Fragment' menu item. (Save the layout as fragment)
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizardPanel.pause(2000);
             await contentWizardPanel.waitForSpinnerNotVisible();
-            let actualDescription1 = await pageComponentView.getComponentDescription(LAYOUT_2_COL);
             //5. Type new site's name and save:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await contentWizardPanel.typeDisplayName(SITE_1_NAME);
@@ -74,9 +75,9 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             // 6. Fragment Inspection Panel should be loaded automatically in the site wizard. Verify that path is updated in the dropdown:
             let actualPath = await fragmentInspectionPanel.getSelectedOptionPath();
             assert.include(actualPath, SITE_1_NAME, 'Path should be updated in Fragment Inspection Panel');
-            // 7. Verify that expected description should be present in the fragment in wizard step:
-            let actualDescription2 = await pageComponentsWizardStepForm.getComponentDescription(LAYOUT_2_COL);
-            assert.equal(actualDescription2, FRAGMENT_LAYOUT_DESCRIPTION, "Expected description should be present in 'layout item'");
+            // 7. Verify that expected description should be present in the site in wizard step:
+            let actualDescriptionFragment = await pageComponentsWizardStepForm.getComponentDescription(LAYOUT_2_COL);
+            assert.equal(actualDescriptionFragment, FRAGMENT_LAYOUT_DESCRIPTION, "'layout' description should be present in 'fragment item'");
         });
 
     it("GIVEN existing site is opened WHEN the second fragment has been saved THEN two options should be in fragment selector in Inspect Panel",

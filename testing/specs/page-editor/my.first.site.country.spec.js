@@ -202,7 +202,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open USA country content:
             await studioUtils.selectAndOpenContentInWizard(USA_CONTENT_NAME);
-            // 2. Click on Customize menu item in Live Edit frame:
+            // 2. Click on 'Customize' menu item in 'Live Edit' frame:
             await contentWizard.doUnlockLiveEditor();
             // 3 Switch to main frame:
             await contentWizard.switchToMainFrame();

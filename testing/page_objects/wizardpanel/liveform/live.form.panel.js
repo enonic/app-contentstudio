@@ -10,7 +10,7 @@ const xpath = {
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
-    textComponentView: "//div[contains(@id,'TextComponentView')]",
+    sectionTextComponentView: "//section[contains(@id,'TextComponentView')]",
     editableTextComponentView: "//*[contains(@id,'TextComponentView') and @contenteditable='true']",
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
     imageInTextComponentByDisplayName:
@@ -67,9 +67,21 @@ class LiveFormPanel extends Page {
         }
     }
 
+    async getTextInTextComponent() {
+        try {
+            let selector = xpath.sectionTextComponentView + '/p';
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            return await this.getTextInDisplayedElements(selector);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_txt_component');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error, Live Edit frame, text component, screenshot ' + screenshot + ' ' + err);
+        }
+    }
+
     async getTextInLayoutComponent() {
         try {
-            let selector = xpath.layoutComponentView + xpath.textComponentView + '/section/p';
+            let selector = xpath.layoutComponentView + xpath.sectionTextComponentView + '/p';
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(selector);
         } catch (err) {
