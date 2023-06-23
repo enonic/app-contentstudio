@@ -71,7 +71,6 @@ export class LiveEditPage {
         ProjectContext.get().setProject(event.getProject());
         i18nInit(CONFIG.getString('services.i18nUrl'), ['i18n/page-editor']).then(() => {
             const liveEditModel = event.getLiveEditModel();
-            const modifyPermissions = event.hasModifyPermissions();
 
             let body = Body.get().loadExistingChildren();
             try {
@@ -79,7 +78,6 @@ export class LiveEditPage {
                     .setItemViewIdProducer(new ItemViewIdProducer())
                     .setItemViewFactory(new DefaultItemViewFactory())
                     .setLiveEditModel(liveEditModel)
-                    .setModifyPermissions(modifyPermissions)
                     .setElement(body).build();
             } catch (error) {
                 if (LiveEditPage.debug) {
