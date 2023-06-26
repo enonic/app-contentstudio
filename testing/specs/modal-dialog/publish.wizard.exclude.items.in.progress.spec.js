@@ -54,7 +54,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             assert.equal(actualResult, '(1)', "(1) should be displayed in 'In progress' label");
             let note = await contentPublishDialog.waitForExcludedNote();
             assert.equal(note, 'All dependencies are excluded and hidden.', 'Expected note gets visible');
-            // 7. Verify that 'Show excluded items'  button gets visible:
+            // 7. Verify that 'Show excluded'  button gets visible:
             await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
             // 8. Verify that 'Publish now' button remains disabled
             await contentPublishDialog.waitForPublishNowButtonDisabled();
@@ -121,7 +121,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
             await contentPublishDialog.clickOnApplySelectionButton();
-            // 3. Click on 'Show excluded items' and select the checkbox for 'work in progress' item
+            // 3. Click on 'Show excluded' and select the checkbox for 'work in progress' item
             await contentPublishDialog.clickOnShowExcludedButtonItems();
             await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
             // 4. Click on 'Apply selection':
@@ -130,7 +130,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             await studioUtils.saveScreenshot('publish_w_work_in_progress_selected');
             // 5. Verify that 'Exclude items in progress' button gets not visible
             await contentPublishDialog.waitForExcludeItemsInProgressButtonDisplayed();
-            // 6. 'Show Excluded items' button gets hidden now:
+            // 6. 'Show Excluded' button gets hidden now:
             await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
             // 7. 'Mark as ready' button gets visible:
             await contentPublishDialog.markAsReadyButtonDisplayed();
@@ -152,7 +152,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             await studioUtils.saveScreenshot('child_item_marked_as_ready');
             // 4. Verify that 'Exclude items in progress' button gets not visible
             await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
-            // 5. 'Show Excluded items' button should not be displayed:
+            // 5. 'Show Excluded' button should not be displayed:
             await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
             // 6. 'Mark as ready' button gets not visible:
             await contentPublishDialog.waitForMarkAsReadyButtonNotDisplayed();

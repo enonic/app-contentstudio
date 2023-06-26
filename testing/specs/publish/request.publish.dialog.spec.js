@@ -86,7 +86,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             await createRequestPublishDialog.waitForNextButtonDisabled();
         });
 
-    it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'All' checkbox has been unselected AND Apply button has been clicked THEN 'Show excluded items' button should be disabled`,
+    it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'All' checkbox has been unselected AND Apply button has been clicked THEN 'Show excluded' button should be disabled`,
         async () => {
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -101,7 +101,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             // 5. Click on 'Apply selection' button:
             await createRequestPublishDialog.clickOnApplySelectionButton();
             await studioUtils.saveScreenshot('request_publish_exclude_items');
-            // 6. Verify that 'Show excluded items' button gets visible:
+            // 6. Verify that 'Show excluded' button gets visible:
             await createRequestPublishDialog.waitForShowExcludedItemsButtonDisplayed();
             // 7. Dependent items should be hidden:
             let result = await createRequestPublishDialog.getDisplayNameInDependentItems();
@@ -110,7 +110,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             await createRequestPublishDialog.waitForNextButtonEnabled();
         });
 
-    it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'All' checkbox has been unselected AND Apply button has been clicked THEN 'Show excluded items' button gets visible`,
+    it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'All' checkbox has been unselected AND Apply button has been clicked THEN 'Show excluded' button gets visible`,
         async () => {
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -125,7 +125,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             // 5. Click on 'Apply selection' button:
             await createRequestPublishDialog.clickOnApplySelectionButton();
             await studioUtils.saveScreenshot('request_publish_exclude_items');
-            // 6. Verify that 'Show excluded items' button gets visible:
+            // 6. Verify that 'Show excluded' button gets visible:
             await createRequestPublishDialog.waitForShowExcludedItemsButtonDisplayed();
             // 7. Dependent items should be hidden:
             let result = await createRequestPublishDialog.getDisplayNameInDependentItems();

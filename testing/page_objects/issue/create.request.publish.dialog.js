@@ -37,11 +37,11 @@ class CreateRequestPublishDialog extends Page {
     }
 
     get showExcludedItemsButton() {
-        return xpath.container + lib.togglerButton('Show excluded items');
+        return xpath.container + lib.togglerButton('Show excluded');
     }
 
     get hideExcludedItemsButton() {
-        return xpath.container + lib.togglerButton('Hide excluded items');
+        return xpath.container + lib.togglerButton('Hide excluded');
     }
 
     get dependantsBlock() {
