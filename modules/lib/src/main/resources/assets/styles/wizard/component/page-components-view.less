@@ -192,28 +192,21 @@
           font-size: @button-minimize-icon-size;
           width: @button-minimize-icon-size;
           height: @button-minimize-icon-size;
+          transform: rotate(180deg);
         }
       }
     }
 
-    .toggle-button {
-      display: flex;
-      margin-right: 0;
-      border: 1px solid @admin-dark-gray-border;
+    &.collapsed {
+      width: @button-size;
+      border-radius: 6px;
+      padding: 0;
       position: fixed;
       top: auto !important;
       bottom: 12px !important;
       left: 8px !important;
-
-      &::before {
-        transform: rotate(135deg);
-      }
-    }
-
-    &.collapsed {
-      padding: 0;
-      width: 0;
-      height: 0;
+      box-shadow: none;
+      background: transparent;
 
       .header-wrapper {
         width: @button-size;
@@ -223,7 +216,11 @@
         }
 
         .minimize-button {
-          display: none;
+          margin-right: 0;
+
+          &::before {
+            transform: rotate(0deg);
+          }
         }
       }
 
