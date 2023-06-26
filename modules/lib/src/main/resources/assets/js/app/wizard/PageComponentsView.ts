@@ -43,8 +43,7 @@ export class PageComponentsView
 
     private static LOCKED_CLASS: string = 'locked';
     private static COLLAPSED_CLASS: string = 'collapsed';
-    private static COLLAPSE_BUTTON_ICON_CLASS: string = 'icon-close';
-    private static EXPAND_BUTTON_ICON_CLASS: string = 'icon-arrow-left2';
+    private static COLLAPSE_BUTTON_ICON_CLASS: string = 'icon-newtab';
     private static PCV_COLLAPSED_KEY: string = 'contentstudio:pcv:collapsed';
 
     private content: Content;
@@ -60,7 +59,6 @@ export class PageComponentsView
     private draggable: boolean;
     private selectedItemId: string;
     private dockedParent: Element;
-    private collapseButton: Button;
     private toggleButton: Button;
 
     private beforeInsertActionListeners: { (event: any): void }[] = [];
@@ -104,18 +102,9 @@ export class PageComponentsView
     }
 
     private initElements(): void {
-        this.collapseButton =
+        this.toggleButton =
             new Button().addClass(`minimize-button ${PageComponentsView.COLLAPSE_BUTTON_ICON_CLASS}`).setTitle(
                 i18n('field.hideComponent')) as Button;
-
-        this.collapseButton.onClicked((event: MouseEvent) => {
-            event.stopPropagation();
-            event.preventDefault();
-            this.collapse();
-        });
-
-        this.toggleButton =
-            new Button().addClass(`toggle-button ${PageComponentsView.EXPAND_BUTTON_ICON_CLASS}`) as Button;
 
         this.toggleButton.onClicked((event: MouseEvent) => {
             event.stopPropagation();
@@ -141,9 +130,8 @@ export class PageComponentsView
         });
 
         const headerWrapper = new DivEl('header-wrapper');
-        headerWrapper.appendChildren(this.header, this.collapseButton);
+        headerWrapper.appendChildren(this.header, this.toggleButton);
         this.appendChildren(headerWrapper);
-        this.appendChild(this.toggleButton);
     }
 
     private setupListeners(): void {
@@ -400,7 +388,7 @@ export class PageComponentsView
 
             if (selectedItem) {
                 // only if iframe is visible
-                if (!selectedItem.getItemView().isSelected() && this.liveEditPage.getIFrame()?.isVisible()) {
+                if (!selectedItem.getItemView().isSelected()) {
                     this.selectItem(selectedItem.getItemView());
                 }
 
