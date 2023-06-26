@@ -43,7 +43,7 @@ export class ShowLiveEditAction
     private openLiveEdit() {
         this.wizard.getSplitPanel().showSecondPanel();
         const showInspectionPanel = ResponsiveRanges._1920_UP.isFitOrBigger(this.wizard.getEl().getWidthWithBorder());
-        this.wizard.getLivePanel().clearPageViewSelectionAndOpenInspectPage(showInspectionPanel);
+    //    this.wizard.getLivePanel().clearPageViewSelectionAndOpenInspectPage(showInspectionPanel);
         this.wizard.showMinimizeEditButton();
     }
 }
