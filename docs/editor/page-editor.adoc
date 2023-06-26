@@ -28,18 +28,16 @@ For the *Fragment* component, the last action will be replaced with the *Detach 
 
 image::page-editor-menu.png[]
 
-== Components View
-
-This tool opens in a draggable internal window activated by the clipboard icon in the toolbar. It displays a hierarchical tree representation of all the components and regions on the page, including the page itself. This tool is extremely valuable in situations when an unconfigured component does not render or content structure is complex or device resolution is very small.
-
-Selecting a component in the tree will highlight the component in the page editor and display its configuration in the <<../widgets#insert-tab,Components>> widget. The triangle on the right of each component will open a menu of options that can be selected for the component. This menu completely replicates the menu, described in the <<#editing-page,previous>> section.
-
-Components can be rearranged directly in the tree with drag’n’drop function.
-
-In the image below, a part named *Post single* is selected in the Components view and the part is highlighted with a blue mask at the center of the page editor. The *Post single*’s configuration is visible in the components widget on the right.
-
-image::page-editor-components-view.png[]
-
 == Page Editor widgets
 
 When *Page Editor* is available, you'll have access to all default widgets, including <<../widgets#emulator,Emulator>> and <<../widgets#components,Components>> widgets.
+
+== Page Components tree
+
+When the Content form is collapsed (with the "<" icon in the menu toolbar), the Page Components tree will automatically undock and switch into floating mode.
+
+image::wizard-component-view-floating.png[Page Components floating, 75%]
+
+This view can be collapsed with the icon in the view header and the tree will be docked inside the vertical menu toolbar - its icon will appear at the bottom of the toolbar. Clicking the icon will reopen the view again.
+
+image::wizard-component-view-collapsed.png[Page Components collapsed]
