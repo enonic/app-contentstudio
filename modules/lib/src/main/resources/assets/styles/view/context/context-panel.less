@@ -156,6 +156,23 @@
     width: 5px;
     .notSelectable();
   }
+
+
+  &._0-240,
+  &._240-360,
+  &._360-540 {
+    .content-combo-box {
+      .selected-option {
+        .names-and-icon-view {
+          margin-right: 20px;
+        }
+
+        .status {
+          display: none;
+        }
+      }
+    }
+  }
 }
 
 .toolbar > .non-mobile-details-panel-toggle-button {
