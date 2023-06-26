@@ -1,329 +1,46 @@
 = Release Notes
 :toc: right
 
-TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.com/docs/content-studio/3.x/release[here]
+TIP: Release Notes for Content Studio 4.x can be found https://developer.enonic.com/docs/content-studio/4.x/release[here]
 
-== Content Studio 4 Update 5
+== Content Studio 5
 
-IMPORTANT: Content Studio 4.5.x requires XP 7.12.0 or higher.
+IMPORTANT: Content Studio 5.0 requires XP 7.13.0 or higher.
 
-=== Variants for A/B Testing
+=== Default Content Project is hidden by default
 
-A new widget provided by Content Studio+ enables creation of variants for a content item. Variants will be created under
-the original item and marked with a special icon. Variants can be managed (modified, published, duplicated etc.) as regular
-content items, then used in a 3rd party A/B Testing tool.
+<<storage/projects#default_project,Default  Project>> is no longer available in Content Studio by default.
 
-:imagesdir: variants/images
-
-image::variants-grid.png[Variants in Content Grid, 470px]
-image::variants-widget.png[Variants widget, 470px]
-
-Read more about Variants <<variants/index#,here>>.
-
-NOTE: Widget for creating variants is provided by <<../#content_studio,Content Studio+>> application which requires Enonic license.
-
-=== Applications on Content Projects
-
-Content Studio 4.5.0 introduces support of applications for Content Projects. This will enable usage of content types and controller mappings defined in
-the assigned applications when creating or rendering content outside of sites. This is especially useful for headless content management
-as opposed to site-oriented approach.
-
-You can assign applications to a new project inside the New Project Wizard, or do it inside the project settings form for existing projects.
-
-IMPORTANT: Applications assigned to projects will not work for a site or content items inside a site. Assign application(s)
-directly to the site if you want to use them for site contents.
-
-=== Batch exclusion of dependent items from publishing
-
-Publishing Wizard and Publishing requests now support batch exclusion of dependant items.
-"x" icons have been replaced with checkboxes which can be checked off for multiple items, then confirmed with the "Apply" button which will refresh the dependant list. If checkbox next to dependant item is disabled it means that this item is required for publishing.
-Excluded items can be added back to the list from the "Show excluded icons" mode.
-
-:imagesdir: actions/images
-image::dialog-publish-excluded.png[Publishing request, 470px]
-
-:imagesdir: workflow/images
-image::publishing-request-1.png[Publishing request, 470px]
-
-=== Content Editor improvements
-
-`Settings`, `Schedule` and `Permissions` icons were moved from the Content Editor form's navigation toolbar to the <<widgets#details,"Details" widget>>. Fields from the `Settings` section (`Language` and `Owner`) were moved inside the "Properties" section of the widget, while "Schedule" got its own dedicated section right underneath "Properties". Permissions can be modified from the dedicated section of the same widget, as before.
-
-:imagesdir: widgets/images
-
-image::widgets-details.png[Details widget, 450px]
-
-=== Auto-save of localised content
-
-Previously, clicking "Localise" for a content item in a layer would set the layer's language in a content but not save the change,
-which means that the content wouldn't really be localised until user explicitly clicked "Save".
-Starting from this release, "Localise" action will set the language *and* save the content, instantly localising it.
-
-== Content Studio 4 Update 4
-
-IMPORTANT: Content Studio 4.4.x requires XP 7.11.0 or higher.
-
-Content Studio 4.4.0 introduces validation checks in the Archive and Publish dialogs, enables creation of a new content directly from Content Selector and simplifies visualisation of changes done to a published content.
+If you need the Default project (for example, you already have content in it and want to continue working with it after
+upgrading to Content Studio 5), enable it via Content Studio's <<config#enable_default_content_project,config file>>.
 
 
-=== Publishing dialog improvements
+=== Page Components View
 
-:imagesdir: actions/images
-
-If the list of items to be published contains invalid items or items that are still in the "In progress" workflow state or items that current user is not allowed to publish, the warning section will be shown on top of the dialog, displaying all failed validation checks. The "Publish" button will then be disabled and "problematic" items will be shown on top of the list.
-
-image::dialog-publish-invalid.png[Invalid publication, 470px]
-
-User can use links next to each validation check to exclude these items from the publication. All the validation checks will be re-run on every change of the publication contents.
-
-If all the checks have successfully passed, the "Publish" button will be enabled and the warning section will say that everything is ready for publishing.
-
-image::dialog-publish-valid.png[Valid publication, 470px]
-
-=== Archive/Delete dialog improvements
-
-If any of the items in the Archive/Delete dialog has an inbound dependency (is referenced by another content), a warning will be shown on top of the dialog and the action button will be disabled. User can either click "Ignore inbound references" link to ignore the warning and proceed with archiving/deletion, or click "Show references" link for every referenced item and remove the references (the dialog will be automatically refreshed).
-
-image::dialog-archive-references.png[Archive item(s) dialog, 600]
-
-:imagesdir: release/images
-
-=== "Show changes" link for modified content
-
-Previously, to display modifications of a published content user had to use the "Version History" widget and compare versions.
-With the new "Show changes" shortcut link displayed in the Content Navigator's and the Content Wizard's toolbars such comparison can be done in one click.
-
-image::cs44-show-changes.png[Show changes link, 600]
-
-=== Add new content from Content Selector
-
-Content Selector inputs got `[+]` icon next to the selector dropdown which enables adding a new content to the selector without having to go back to the Content Navigator. If the Content Selector is configured (via `allowContentType` config) in such a way that it allows only one content-type, `[+]` icon will instantly create a new content of this type and open a new Content wizard tab. Otherwise, user will be asked to select a content type from the "New Content" modal dialog.
-
-image::cs44-content-selector.png[Content Selector, 400]
-
-=== Improved workflow
-
-Marking content as ready will now automatically open the Publishing wizard for this content.
-
-=== Improvements in HTML Area
-
-* Shortcut for adding non-breaking space (`Ctrl-Space`)
-* Greek characters in "Special char" dialog
-* "More colors" option in the "TextColor" tool
-
-
-== Content Studio 4 Update 3
-
-IMPORTANT: Content Studio 4.3.x requires XP 7.11.0 or higher.
-
-New features in Content Studio 4.3.0 include major improvements of the Insert Link dialog and Version History widget,
-wizard for creating a New content project, RTL support in text inputs and ability to see all current editors on the Content Editor page.
-
-=== Insert Link dialog improvements
+Page Components View, which used to be a floating modal window inside Page Editor, is now made a part
+of the <<editor/content-form#page_components_tree,Content Wizard form>>. It will be automatically undocked whenever the Content Form is collapsed.
 
 :imagesdir: editor/images
 
-The <<editor/rich-text-editor#insertedit_link,Insert Link dialog>> in the HTML editor has been completely revamped to support relative URLs, parameters/anchor for internal URLs and advanced handling of media links.
+image::wizard-component-view-docked.png[Page Components view - Docked, 75%]
+image::wizard-component-view-floating.png[Page Components view - Floating, 75%]
 
-Here's what's new:
+=== Publishing Wizard improvements
 
-* "Content" tab for adding an internal link has been made default
-* Added support for relative links
-* Added support for anchor and parameters in internal links
-* "Download" tab has been removed. Instead, upon selection of a media content, user can now select how the media link should be handled: open the media in a new tab, download or treat it as regular content.
+It's now possible to auto-exclude optional dependencies of selected content from publishing batch via Content Studio's <<config#exclude_optional_dependencies,config file>>.
 
-image::rich-text-editor-link-dialog-3.png[470, Insert Link dialog]
-image::rich-text-editor-link-dialog-1.png[470, Insert Link dialog]
-image::rich-text-editor-link-dialog-2.png[470, Insert Link dialog]
-
-=== Collaboration
-
-This experimental feature that has been introduced in Content Studio 4.1 has now been thoroughly tested in cluster environment and turned on by default.
-
-In <<editor#collaboration, collaboration mode>> Content Wizard's header will display avatar icons of all users simultaneously editing the content or simply having it opened.
-
-:imagesdir: editor/images
-image::content-wizard-collaboration.png[Collaboration, 665]
-
-=== New Project wizard
-
-Creation of a new content project is now done by completing the <<storage/projects#new_project_wizard, multistep wizard>>. This dialog will now automatically pop up for a user that doesn't have access to any existing projects upon logging into Content Studio.
-
-:imagesdir: storage/projects/images
-
-image::new-project-dialog-7.png[New Project summary, 470]
-
-=== RTL support in text inputs
-
-Support of RTL (right-to-left) languages have been added for TextLine, TextArea and HtmlArea input types, as well as for Text components.
-Currently supported RTL languages are: Arabic ('ar'), Dhivehi ('dv'), Persian/Farsi ('fa'), Hausa ('ha'), Hebrew ('he'), Kashmiri ('ks'),
-Kurdish ('ku'), Pashto('ps'), Sindhi ('sd'), Urdu ('ur'), Yiddish ('yi').
-
-If content language is set to one of these languages, inputs of types TextLine, TextArea and HtmlArea, as well as Text components inside Page Editor, will be set to right-to-left direction.
+=== Call links in the Insert Link dialog
 
 :imagesdir: release/images
 
-image::cs43-rtl.png[RTL inputs, 860]
+A new URL type option `Tel` in the Rich Editor's "Insert Link" dialog enables adding call links.
 
-
-=== Version History improvements
-
-:imagesdir: widgets/images
-image:widgets-version-compare-icon.png[Version history, 24] icon now compares the selected version to the previous one, not to the current one.
-
-The widget now displays content versions created for Permissions update, Sort and Move actions.
-
-:imagesdir: release/images
-image::cs43-version-history.png[Version History, 430]
-
-== Content Studio 4 Update 2
-
-Content Studio 4.2.0 comes with several major improvements in the Filter panel.
-
-=== New search parameters
-
-The Filter panel have been expanded with the following parameters:
-
-* Workflow (content that is work in progress)
-* Last Modified By (user who last changed the content)
-* Owner
-* Language
-
-=== Limited number of options in multi-select parameters
-
-The list of Content Types by default shows the 5 most popular types. The entire list can be expanded with the "Show more" link.
-
-=== Search by id
-
-Free-text field can be used for search by content id.
-
-:imagesdir: navigator/images
-image::navigator-search-modifier-expanded.png[Filter panel, 550]
-
-== Content Studio 4 Update 1
-
-IMPORTANT: Content Studio 4.1 requires XP 7.9.0 or higher.
-
-=== Content Security Policy
-
-Content Studio 4.1 enforces <<security#content_security_policy, Content Security Policy>> (CSP) to prevent cross-site scripting, clickjacking and other code injection attacks resulting
-from execution of malicious content in the trusted web page context. CSP can be configured or turned off completely (except for Page Editor) via
-<<config#content_security_policy, config file>>.
-
-=== New widget interface
-
-Support of <<widgets#top_menu_widgets, new widget interface>> allows injection of "full-screen" widgets which will be seamlessly added to the Content Studio top menu.
-
-:imagesdir: widgets/images
-image::widgets-menu-item.png[Top menu widgets,600]
-
-=== Collaboration
-
-In <<editor#collaboration, collaboration mode>> Content Wizard's header will display avatar icons of all users simultaneously editing the content or simply having it opened.
-
-NOTE: This feature is experimental and has to be turned on in the config file.
-
-:imagesdir: release/images
-
-=== "Set default" in date/time pickers
-
-"*Set Default*" button will be displayed for Date, Time and DateTime inputs with `<default>` value set in the schema.
-
-image::cs41-date-selector.png[Set default button, 665]
-
-=== Customisable Numbered and Bulleted lists in HTML Area
-
-It's now possible to change styling of Numbered and Bulleted lists in HTML Area by right-clicking the list and selecting list style from the dropdown.
-
-image::cs41-html-area-list.png[HTML Area List, 665]
+image::cs50-call-links.png[Page Components view - Docked, 75%]
 
 === Other improvements
 
-* Keyboard shortcut for content move (`Alt + M`)
-* Keyboard shortcut for content search (`Shift + F`)
-* Sticky footer in HTML Areas inside Content Wizard form
+* Preview panel won't be auto-expanded for a site until there's at least one controller from apps assigned to the site.
 
-== Content Studio 4
+* Content Selector displays status of selected content items.
 
-IMPORTANT: Content Studio 4.0 requires XP 7.8.0 or higher.
-
-
-=== Content Archive
-
-*Archive* now effectively replaces *Delete* as default action for removing content that is no longer needed. When archived, content will
-be moved to a separate storage where it can safely be restored from, rather than physically deleted. It's still possible to immediately delete
-content using the dropdown menu in the Archive dialog.
-
-Full documentation of the Content Archive feature can be found <<archive#, here>>.
-
-image::cs40-archive-dialog.png[Archive dialog, 600]
-
-NOTE: Access to archived contents and restore operation is provided by <<../#content_studio,Content Studio+>> application which requires Enonic license.
-
-image::cs40-archived-content.png[Archive section, 600]
-image::cs40-restore-content.png[Restore content, 600]
-
-=== Visualisation of inbound references in the Archive dialog
-
-When archiving/deleting content it's important to visualise if the content about to be archived/deleted has any inbound references as
-the archive/delete operation may potentially break rendering of the content structure. Previously, inbound references were displayed only for the items
-selected for deletion (but not for their descendants). Starting from version 4.0 visualisation of inbound references in the Delete/Archive dialog
-has been improved: a special icon will be displayed for all items that have inbound references, and if at least one of the items is referenced
-then there will be a separate warning about that at the top of the dialog.
-
-image::cs40-inbound-references.png[Inbound references in the Archive dialog, 600]
-
-=== Spell check in TextLine and TextArea input types
-
-TextLine and TextArea inputs are now automatically checked for spelling errors.
-
-image::cs40-spellcheck.png[Spell checking in TextLine, 400]
-
-Read more about spell checking https://developer.enonic.com/docs/xp/stable/cms/input-types#spell_checking[here]
-
-=== Support disabling of content path transliteration
-
-By default, content path in the <<editor/content-form#, Content Form>> will be auto-generated based on a value typed into the display name field
-and all the international letters will be automatically transliterated into their english equivalents (for example, "_/øåæ_" becomes "_/oaae_", "_/рыба_" becomes "_/ryba_" etc.)
-
-It's now possible to turn off automatic transliteration by setting `contentWizard.allowPathTransliteration` property to `false` in the
-Content Studio's <<config#, config file>>.
-
-=== Image Component is deprecated
-
-Image Component has been deprecated in favour of <<editor/component-types#text_component, `Text Component`>> which can be used for embedding
-images and has a richer UI than Image Component used to have. Existing image components on your page will continue working, but you won't be able to add a new one.
-
-=== Responsive Context panel
-
-When docked, Context panel will responsively change its width based on available space with 25/75 ratio relative to the Preview panel
-(in the Content Browse view) or Page Editor panel (in the Content Wizard view).
-
-image::cs40-context-panel.png[Responsive Context panel, 600]
-
-=== Bigger dropdowns in selectors
-
-Height of all selector dropdowns has been increased to allow for more visible items
-(9 instead of 4 in Content selectors and 3 in Image selectors).
-
-image:cs40-content-selector.png[Content selector, 400]
-image:cs40-image-selector.png[Image selector, 400]
-
-== Upgrade notes for Content Studio 4.x
-
-=== Admin API
-
-Admin API has been moved from XP core to Content Studio and starting from version 4.0.0 resides directly in the Content Studio app. This will
-help us release Content Studio without having to change XP and release a new version of the platform. URLs of Admin API have been changed as well.
-Admin API was never intended for external use, but beware of that if you had any custom integration with Content Studio's Admin API then
-this will stop working from version 4.0. As this migration affected XP as well, Content Studio 4.x requires XP 7.8.0 or higher.
-
-=== Config allowing <script> tag in the Rich Editor
-
-Due to security concerns, we have removed the https://developer.enonic.com/docs/content-studio/3.x/config#html_editor_xss[configuration setting]
-allowing `<script>` tag in the Rich Editor. If you are using inline scripts in your HtmlArea inputs or Text components, those will be stripped out
-the next time you save the content.
-
-=== Dropped support of Internet Explorer
-
-Internet Explorer is no longer supported by Content Studio.
+* Widgets inside Content Studio have been localised to other languages than English
