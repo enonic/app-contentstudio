@@ -6,22 +6,6 @@ This section describes how to configure Content Studio via the config file.
 
 The file should be called `com.enonic.app.contentstudio.cfg` and placed into the `$XP_HOME/config` folder of your XP installation.
 
-== Disable "Mark as Ready" in the Publishing Wizard
-
-Whenever the Publishing Wizard contains at least one item that is "_Work in progress_", publishing will be disabled. The editor can
-overrule this by applying "*Mark as ready*" bulk action from the button dropdown menu and marking all of such items as "_Ready for Publishing_".
-
-image::publishing-mark-as-ready.png[Mark as ready action in the Publishing Wizard, 410]
-
-To add another level of restriction and prevent accidental publishing of items that are not ready for publishing, the "*Mark as ready*" bulk action
-can be disabled by adding the following parameter to the config file:
-
-.Enable Mark as Ready button in the Publishing Wizard
-[source,properties]
-----
-publishingWizard.allowContentUpdate = false
-----
-
 == Matching mode for content type patterns
 
 Defines matching mode for content type patterns. Can be `MATCH` or `LEGACY`. Default: `MATCH`.
@@ -32,8 +16,6 @@ See https://developer.enonic.com/docs/xp/stable/cms/input-types#allowContentType
 ----
 contentTypePatternMode = MATCH
 ----
-
-:imagesdir: images
 
 == Max file upload size
 
@@ -94,3 +76,45 @@ settings.hideDefaultProject=false
 
 IMPORTANT: If the Default project is hidden (default behaviour) and a logged-in user doesn't have access to any projects and has necessary permissions,
 he/she will be asked to create a new content project using <<storage/projects#new_project_wizard,multistep wizard>>.
+
+== Publishing Wizard
+
+=== Disable "Mark as Ready" action
+
+Whenever the Publishing Wizard contains at least one item that is "_Work in progress_", publishing will be disabled. The editor can solve
+this by clicking the "*Mark as ready*" link on top of the dialog, which will mark all such items as "_Ready for Publishing_".
+
+image::pubwiz-mark-as-ready.png[Mark as ready action in the Publishing Wizard, 410]
+
+To add another level of restriction and prevent accidental publishing of items that are not ready for publishing, the "*Mark as ready*" bulk action
+can be disabled by adding the following parameter to the config file:
+
+.Enable Mark as Ready button in the Publishing Wizard
+[source,properties]
+----
+publishingWizard.allowContentUpdate = false
+----
+
+=== Exclude optional dependencies
+
+By default, all dependencies of content items staged for publishing will also be included to ensure no broken
+references will appear online. Some of these (for example, all the ascendants of selected items or their inbound dependencies)
+are required for publishing and cannot be excluded from the publishing batch, while others (like outbound dependencies) are optional.
+
+image::pubwiz-dependencies-all.png[Publishing Wizard - all dependencies, 75%]
+
+It's possible to overrule the default behaviour of including all the dependencies by setting the `publishingWizard.excludeDependencies` config property to `true`.
+
+.Exclude optional dependencies
+[source,properties]
+----
+publishingWizard.excludeDependencies = true
+----
+
+With this flag turned on, only mandatory dependencies will be included, while optional can be added from the "*Show excluded*" mode.
+
+image::pubwiz-dependencies-mandatory.png[Publishing Wizard - mandatory dependencies, 75%]
+
+image::pubwiz-dependencies-optional.png[Publishing Wizard - optional dependencies, 75%]
+
+IMPORTANT: Use this flag with caution. It makes it very simple to publish a content without its outgoing dependencies which may result in broken references, missing images etc.

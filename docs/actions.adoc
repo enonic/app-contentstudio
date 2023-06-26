@@ -177,7 +177,7 @@ The Publish button in the toolbar has a dropdown menu with various actions for c
 
 NOTE: Default action of the toolbar button is always the first available action from the dropdown menu.
 
-=== Draft and master branches
+=== Draft and Master branches
 
 Content created in Content Studio will originally be created in the *draft* branch with status `New` and workflow state `In progress`.
 This content in the *draft* branch can be edited and previewed until it is ready to be `Published`.
@@ -214,13 +214,16 @@ NOTE: If current user is missing publishing permissions for selected item(s), th
 
 === Dependencies
 
-Children of content items selected for publishing can be added to the publishing batch by clicking the tree icon to the left of the content.
+Child items of the content selected for publishing can be added to the publishing batch by clicking the tree icon to the left of the content.
 
-Dependencies & child items can be excluded from the publishing batch using checkboxes in the dependency list. Confirm your changes by clicking the "Apply" button in the toolbar. Sometimes the checkbox is disabled, this means that the item cannot be excluded, either because it's a dependency required for publishing of the originally selected item(s), or it has its children in the list (and child items cannot be published without publishing all of their ascendants). In the latter case, excluded children first, then parents will be automatically removed.
+Optional dependencies & child items can be excluded from the publishing batch using checkboxes in the dependency list. Confirm your changes by clicking the "Apply" button in the toolbar. Sometimes the checkbox is disabled, this means that the item cannot be excluded, either because it's an inbound dependency required for publishing of the originally selected item(s), or it has its children in the list (and child items cannot be published without publishing all of their ascendants). In the latter case, exclude the children first, apply the changes and then parents will be automatically removed.
 
-TIP: If you want to add back dependent items excluded by mistake, click *Show excluded items* link above the list and all excluded items will reappear in the list. Select the items to you want to add back, and click "Apply".
+TIP: If you want to add back dependent items excluded by mistake, click *Show excluded* link above the list and all excluded items will reappear in the list. Select the items you want to put back, and click "Apply".
 
 image::dialog-publish-excluded.png[Excluded dependencies, 470px]
+
+TIP: It's possible to overrule the default behaviour of including all the dependencies by using the Content Studio's <<config#exclude_optional_dependencies, config file>>.
+In this case only mandatory dependencies will be included, while optional can be added from the "Show excluded" mode.
 
 === Validation
 
