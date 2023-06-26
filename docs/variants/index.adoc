@@ -1,8 +1,5 @@
 = Variants
 :toc: right
-:imagesdir: ../images
-
-image:cs-450.svg[CS 4.5.0,opts=inline]
 
 :imagesdir: images
 
