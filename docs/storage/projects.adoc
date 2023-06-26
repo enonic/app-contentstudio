@@ -34,13 +34,15 @@ CAUTION: Deleting a project will delete its repository and all the data inside. 
 
 == Default Project
 
-In a clean new instance of XP there's only one project (called "Default") which cannot be deleted but can be hidden using a
-<<config#disable_default_project#,configuration file>>. You can modify its display name and description, set default language
+In a clean new instance of XP there's only one content project called "Default", which cannot be deleted and is by default hidden
+in the project selector inside Content Studio. You can modify its display name and description, set default language
 for a new content which will be created in this repository and replace the icon in the "Settings" section.
+
+NOTE: Default project doesn't support project roles or customization of read permissions.
 
 image::default-project.png[Default project, 825]
 
-NOTE: Default project doesn't support project roles or customization of read permissions.
+TIP: You can enable the Default Project in Content Studio via <<config#enable_default_content_project#,configuration file>>.
 
 == New Project wizard
 
@@ -98,9 +100,6 @@ or change their configuration.
 TIP: If an upstream project is selected, you can use "Copy from parent" button to quickly select this setting from the upstream project.
 
 === Applications
-
-:imagesdir: ../images
-image:cs-450.svg[CS 4.5.0,opts=inline]
 
 You may assign applications to the project. This will enable usage of content types and controller mappings defined in
 the assigned applications when creating or rendering content outside of sites. This is especially useful for management of headless content
