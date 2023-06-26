@@ -52,11 +52,11 @@ class ContentPublishDialog extends Page {
     }
 
     get showExcludedItemsButton() {
-        return XPATH.container + lib.togglerButton('Show excluded items');
+        return XPATH.container + lib.togglerButton('Show excluded');
     }
 
     get hideExcludedItemsButton() {
-        return XPATH.container + lib.togglerButton('Hide excluded items');
+        return XPATH.container + lib.togglerButton('Hide excluded');
     }
 
     get logMessageLink() {

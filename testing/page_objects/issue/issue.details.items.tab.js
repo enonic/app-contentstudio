@@ -36,7 +36,7 @@ class IssueDetailsDialogItemsTab extends Page {
     }
 
     get showExcludedItemsButton() {
-        return xpath.container + lib.togglerButton('Show excluded items');
+        return xpath.container + lib.togglerButton('Show excluded');
     }
 
     get contentOptionsFilterInput() {

@@ -119,7 +119,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialogItemsTab.waitForNotificationMessage();
             // 5.'Publish...' button gets enabled, because invalid child is excluded'
             await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
-            // 6. Verify that 'Show excluded items' button gets visible:
+            // 6. Verify that 'Show excluded' button gets visible:
             await issueDetailsDialogItemsTab.waitForShowExcludedItemsButtonDisplayed();
         });
 
