@@ -10,7 +10,7 @@ const xpath = {
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
 };
 
-//Modal Dialog:
+// Modal Dialog:
 class PageComponentView extends BasePageComponentView {
 
     get container() {
@@ -22,7 +22,7 @@ class PageComponentView extends BasePageComponentView {
     }
 
     get componentViewToggleButton() {
-        return "//div[contains(@id,'PageComponentsView')]//button[contains(@class,'toggle-button')]";
+        return "//div[contains(@id,'PageComponentsView')]//button[contains(@class,'minimize-button')]";
     }
 
     async clickOnHideComponentViewButton() {
@@ -57,7 +57,7 @@ class PageComponentView extends BasePageComponentView {
 
     async waitForCollapsed() {
         await this.getBrowser().waitUntil(async () => {
-            let result = await this.getAttribute(this.container, "class");
+            let result = await this.getAttribute(this.container, 'class');
             return result.includes('collapsed');
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Page Component View modal dialog should be closed"});
     }
