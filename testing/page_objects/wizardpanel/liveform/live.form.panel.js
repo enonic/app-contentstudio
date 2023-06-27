@@ -114,6 +114,17 @@ class LiveFormPanel extends Page {
         }
     }
 
+    async waitForTextComponentDisplayed(text) {
+        try {
+            let selector = xpath.textComponentByText(text);
+            return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_txt_component');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Text component should be visible in Live Editor! screenshot:' + screenshot + '  ' + err);
+        }
+    }
+
     async waitForEditableTextComponentDisplayed(text) {
         try {
             let selector = xpath.editableTextComponentByText(text);

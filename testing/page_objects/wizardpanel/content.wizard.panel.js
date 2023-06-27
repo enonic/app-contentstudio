@@ -300,7 +300,7 @@ class ContentWizardPanel extends Page {
         })
     }
 
-    waitForWizardStepPresent(stepName) {
+    isWizardStepPresent(stepName) {
         let stepXpath = XPATH.wizardStepByName(stepName);
         return this.waitForElementDisplayed(stepXpath, appConst.shortTimeout).catch(err => {
             console.log("Wizard step is not visible: " + err);
@@ -308,10 +308,14 @@ class ContentWizardPanel extends Page {
         })
     }
 
-
     async waitForWizardStepDisplayed(stepName) {
         let locator = XPATH.wizardStepByTitle(stepName);
         return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    async waitForWizardStepNotDisplayed(stepName) {
+        let locator = XPATH.wizardStepByTitle(stepName);
+        return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 
     async clickOnWizardStep(stepName) {
@@ -445,6 +449,15 @@ class ContentWizardPanel extends Page {
         } catch (err) {
             await this.saveScreenshot('err_hide_component_view_not_displayed');
             throw new Error("'Hide Component View!' button should appear: " + err);
+        }
+    }
+
+    async waitForHideComponentViewTogglerNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.hideComponentViewToggler, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_component_view');
+            throw new Error("'Hide Component View!' button should not be displayed, screenshot: " + screenshot + ' ' + err);
         }
     }
 
