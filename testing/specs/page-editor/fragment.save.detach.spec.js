@@ -185,7 +185,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             // 3. Open this fragment in new browser-tab:
             await pageComponentView.selectMenuItem(['Edit']);
             await studioUtils.doSwitchToNextTab();
-            let result = await contentWizard.waitForWizardStepPresent('Fragment');
+            let result = await contentWizard.isWizardStepPresent('Fragment');
             assert.isTrue(result, "'Fragment' Wizard Step should be present in the toolbar");
             // parent site is 'Work in progress', so this fragment must have the same state
             let state = await contentWizard.getContentWorkflowState();
