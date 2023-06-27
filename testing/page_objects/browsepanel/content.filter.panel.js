@@ -147,8 +147,8 @@ class BrowseFilterPanel extends Page {
             timeout = ms === undefined ? appConst.mediumTimeout : ms;
             return await this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, timeout)
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_load_dependencies_section"));
-            throw new Error("Filter Panel: Dependencies section should be visible! " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_load_dependencies_section');
+            throw new Error("Filter Panel: Dependencies section should be visible! screenshot " + screenshot + ' ' + err);
         }
     }
 
@@ -170,8 +170,8 @@ class BrowseFilterPanel extends Page {
             await this.clickOnElement(selector);
             return await this.pause(1200);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_content_types_filtering"));
-            throw new Error("Error after clicking on a checkbox in Content Types aggregation block " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_content_types_filtering');
+            throw new Error("Error, checkbox in Content Types aggregation block, screenshot " + screenshot + ' ' + err);
         }
     }
 
@@ -219,7 +219,7 @@ class BrowseFilterPanel extends Page {
 
     // gets a number of items from a checkbox label in an aggregation block(Workflow,modifier)
     async getNumberOfItemsInAggregationView(blockName, checkboxLabel, showMore) {
-        if (typeof showMore !== "undefined") {
+        if (typeof showMore !== 'undefined') {
             if (showMore && await this.isShowMoreButtonDisplayed()) {
                 await this.clickOnShowMoreButton();
             }
@@ -232,8 +232,8 @@ class BrowseFilterPanel extends Page {
             let endIndex = label.indexOf(')');
             return label.substring(startIndex + 1, endIndex);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_numb_in_aggregation"));
-            throw new Error("Error when get the number in aggregation checkbox: " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_numb_in_aggregation');
+            throw new Error('Error, get the number in aggregation checkbox, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -284,9 +284,9 @@ class BrowseFilterPanel extends Page {
             await this.waitForElementDisplayed(okButton, appConst.mediumTimeout);
             await this.clickOnElement(okButton);
             await this.pause(300);
-        }catch(err){
-            await this.saveScreenshot("err_filter_owner");
-            throw new Error("Error when selecting an option in Owner Selector " + err);
+        }catch(err) {
+            await this.saveScreenshot('err_filter_owner');
+            throw new Error("Error when selecting an option in 'Owner Selector' " + err);
         }
     }
 }

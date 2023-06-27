@@ -47,7 +47,7 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             result = await contentWizard.isContentInvalid();
             assert.isFalse(result, 'Red icon should not be displayed, the template gets valid');
             // 8. Verify that "Page Template" wizard's step is present:
-            let isPresent = await contentWizard.waitForWizardStepPresent('Page Template');
+            let isPresent = await contentWizard.isWizardStepPresent('Page Template');
             assert.isTrue(isPresent, 'Page Template step should be displayed');
             // Save the valid template
             await contentWizard.waitAndClickOnSave();
