@@ -690,10 +690,6 @@ export class ContentWizardPanel
             pageView.onPageLocked((locked: boolean) => {
                 if (!locked) { // add PCV when page is unlocked
                     this.addPCV();
-
-                    if (this.isMinimized()) {
-                        this.undockPCV();
-                    }
                 }
             });
         });
@@ -2725,6 +2721,10 @@ export class ContentWizardPanel
             this.addStep(this.pageComponentsWizardStep, false);
             // bug in lib-admin-ui WizardPanel addStep method: it doesn't add step to steps array
             this.getSteps().push(this.pageComponentsWizardStep);
+
+            if (this.isMinimized()) {
+                this.undockPCV();
+            }
         }
     }
 
