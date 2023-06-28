@@ -690,6 +690,10 @@ export class ContentWizardPanel
             pageView.onPageLocked((locked: boolean) => {
                 if (!locked) { // add PCV when page is unlocked
                     this.addPCV();
+
+                    if (!this.isMinimized()) {
+                        this.pageComponentsWizardStep.getTabBarItem().select();
+                    }
                 }
             });
         });
