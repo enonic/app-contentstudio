@@ -879,6 +879,7 @@ export class ContentWizardPanel
     private unloadPage(): Q.Promise<void> {
         this.liveEditModel = null;
         this.livePanel.unloadPage();
+        this.removePCV();
 
         return Q.resolve();
     }
