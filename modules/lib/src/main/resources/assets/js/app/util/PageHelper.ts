@@ -44,7 +44,7 @@ export class PageHelper {
 
     private static cleanUpRegion(region: Region): void {
         region.getComponents()
-            .filter((component: Component) => component instanceof LayoutComponent)
+            .filter((component: Component) => component.getType().getShortName() === LayoutComponentType.get().getShortName())
             .forEach((layoutComponent: LayoutComponent) => this.cleanUpLayout(layoutComponent));
     }
 
@@ -53,8 +53,8 @@ export class PageHelper {
     }
 
     private static cleanUpFragment(fragment: Component): void {
-        if (fragment instanceof LayoutComponent) {
-            return this.cleanUpLayout(fragment);
+        if (fragment.getType().getShortName() === LayoutComponentType.get().getShortName()) {
+            return this.cleanUpLayout(fragment as LayoutComponent);
         }
     }
 
