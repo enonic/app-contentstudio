@@ -137,13 +137,12 @@ describe('template.config.spec: template config should be displayed in the Inspe
         async () => {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let contentWizard = new ContentWizard();
-            let liveFormPanel = new LiveFormPanel();
             // 1. Open the existing customized Article-content:
             await studioUtils.selectAndOpenContentInWizard(ARTICLE_NAME);
             // 2. Click on 'Reset' menu item in the wizard step form:
             await pageComponentsWizardStepForm.openMenu('Page');
             await pageComponentsWizardStepForm.selectMenuItem(['Reset']);
-            await studioUtils.saveScreenshot('cpmponent_step_form_reset');
+            await studioUtils.saveScreenshot('component_step_form_reset');
             // 3. The content should be saved automatically:
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(500);
