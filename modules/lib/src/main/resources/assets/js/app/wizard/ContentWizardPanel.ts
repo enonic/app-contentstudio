@@ -691,8 +691,8 @@ export class ContentWizardPanel
                 if (!locked) { // add PCV when page is unlocked
                     this.addPCV();
 
-                    if (this.isMinimized()) {
-                        this.undockPCV();
+                    if (!this.isMinimized()) {
+                        this.pageComponentsWizardStep.getTabBarItem().select();
                     }
                 }
             });
@@ -883,6 +883,7 @@ export class ContentWizardPanel
     private unloadPage(): Q.Promise<void> {
         this.liveEditModel = null;
         this.livePanel.unloadPage();
+        this.removePCV();
 
         return Q.resolve();
     }
@@ -2725,6 +2726,10 @@ export class ContentWizardPanel
             this.addStep(this.pageComponentsWizardStep, false);
             // bug in lib-admin-ui WizardPanel addStep method: it doesn't add step to steps array
             this.getSteps().push(this.pageComponentsWizardStep);
+
+            if (this.isMinimized()) {
+                this.undockPCV();
+            }
         }
     }
 

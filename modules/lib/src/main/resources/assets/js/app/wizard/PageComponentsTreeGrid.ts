@@ -109,7 +109,7 @@ export class PageComponentsTreeGrid
         dataIds.forEach((dataId) => {
             let node = root.findNode(dataId);
             if (node) {
-                let row = this.getGrid().getDataView().getRowById(node.getId());
+                let row = this.getRowByNodeId(node.getId());
                 stylesHash[row] = {displayName: 'invalid', menu: 'invalid'};
             }
         });
@@ -239,8 +239,8 @@ export class PageComponentsTreeGrid
         const node: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
 
         if (node) {
-            this.scrollToRow(this.getGrid().getDataView().getRowById(node.getId()));
-            const row = this.getGrid().getDataView().getRowById(node.getId());
+            this.scrollToRow(this.getRowByNodeId(node.getId()));
+            const row = this.getRowByNodeId(node.getId());
             const itemElement = this.getGrid().getCellNode(row, 0);
 
             if (itemElement && !this.isElementInViewport(itemElement)) {
@@ -288,4 +288,30 @@ export class PageComponentsTreeGrid
 
         super.deleteNode(node);
     }
+
+    selectItemByDataId(dataId: string): void { // not using selectNode() because it triggers extra selectRow() call
+        if (this.getSelectedItems()[0] !== dataId) { // if not already selected
+            const nodeId: string = this.getRoot().getNodeByDataIdFromCurrent(dataId)?.getId();
+
+            if (nodeId) {
+                this.selectRow(this.getRowByNodeId(nodeId));
+            }
+        }
+    }
+
+    protected selectRow(row: number, debounce?: boolean): void {
+        // TreeGrid does not have select/deselect click handler, so need to handle deselect ourselves
+        const currentlySelectedItem: ItemViewTreeGridWrapper = this.getFirstSelectedItem();
+        super.selectRow(row, debounce);
+        const newlySelectedItem: ItemViewTreeGridWrapper = this.getFirstSelectedItem();
+
+        if (newlySelectedItem === currentlySelectedItem) {
+            this.deselectNodes([currentlySelectedItem.getId()]);
+        }
+    }
+
+    private getRowByNodeId(nodeId: string): number {
+        return this.getGrid().getDataView().getRowById(nodeId);
+    }
+
 }

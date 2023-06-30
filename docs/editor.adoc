@@ -9,8 +9,6 @@ The edit view consists of several parts. On the left is the <<editor/content-for
 image::editor.png[Content Wizard, 1680]
 
 == Collaboration
-:imagesdir: images
-image:cs-430.svg[CS 4.3.0,opts=inline]
 
 Toolbar of the Content Editor will display avatar icons of users who currently have the same content opened in the Content Editor.
 

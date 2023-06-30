@@ -195,7 +195,7 @@ export class PageComponentsView
             this.tree.setPageView(pageView).then(() => {
                 this.initLock();
                 if (this.selectedItemId) {
-                    this.selectItemById();
+                    this.selectItemByDataId(this.selectedItemId);
                 }
             });
         }
@@ -235,7 +235,7 @@ export class PageComponentsView
         this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent): void => {
             if (!event.isNewlyCreated() && !this.pageView.isLocked()) {
                 this.selectedItemId = event.getItemView().getItemId().toString();
-                this.selectItemById();
+                this.selectItemByDataId(this.selectedItemId);
 
                 if (event.getPosition()) { // scroll to item if it was selected in preview
                     this.tree.scrollToItem(this.selectedItemId);
@@ -300,7 +300,8 @@ export class PageComponentsView
 
     private handleComponentAdded(event: ComponentAddedEvent): void {
         if (event.getComponentView().isSelected()) {
-            this.tree.selectNode(event.getComponentView().getItemId().toString());
+            const id: string = event.getComponentView().getItemId().toString();
+            this.selectItemByDataId(id);
         }
 
         if (this.tree.hasChildren(new ItemViewTreeGridWrapper(event.getComponentView()))) {
@@ -394,6 +395,11 @@ export class PageComponentsView
 
                 if (!!this.contextMenu && !this.contextMenu.belongsToItemView(selectedItem.getItemView())) {
                     this.hideContextMenu();
+                }
+            } else { // if item was deselected by clicking in the pcv grid then need to deselect it in the live edit
+                if (this.selectedItemId) {
+                    this.tree.getItemWithDataId(this.selectedItemId)?.getItemView().deselect();
+                    this.selectedItemId = null;
                 }
             }
         });
@@ -499,8 +505,8 @@ export class PageComponentsView
         item.selectWithoutMenu();
     }
 
-    private selectItemById(): void {
-        this.tree.selectNode(this.selectedItemId, true);
+    private selectItemByDataId(dataId: string): void {
+        this.tree.selectItemByDataId(dataId);
     }
 
     isDraggable(): boolean {

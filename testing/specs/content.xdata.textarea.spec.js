@@ -38,7 +38,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            let isDisplayed = await contentWizard.waitForWizardStepPresent(HTML_AREA_X_DATA_NAME);
+            let isDisplayed = await contentWizard.isWizardStepPresent(HTML_AREA_X_DATA_NAME);
             assert.isFalse(isDisplayed, 'Inactive optional x-data should not be visible in the Content Wizard navigation bar');
         });
 
@@ -53,7 +53,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // Click on '+' icon and enable the x-data:
             await contentWizard.clickOnXdataToggler();
-            let isDisplayed = await contentWizard.waitForWizardStepPresent(HTML_AREA_X_DATA_NAME);
+            let isDisplayed = await contentWizard.isWizardStepPresent(HTML_AREA_X_DATA_NAME);
             assert.isTrue(isDisplayed, 'optional x-data should be visible in the Content Wizard navigation bar');
             // Verify that 'This field is required' is not displayed before saving this content:
             await xDataHtmlArea.waitForFormValidationRecordingNotDisplayed();
