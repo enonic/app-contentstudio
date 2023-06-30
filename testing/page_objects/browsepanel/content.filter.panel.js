@@ -213,7 +213,7 @@ class BrowseFilterPanel extends Page {
             return await this.pause(1200);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_click_on_aggregation"));
-            throw new Error("Error when click on the aggregation checkbox: " + err);
+            throw new Error('Error when click on the aggregation checkbox: ' + err);
         }
     }
 

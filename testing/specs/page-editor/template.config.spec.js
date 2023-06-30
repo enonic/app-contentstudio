@@ -13,7 +13,7 @@ const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const TextComponent = require('../../page_objects/components/text.component');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
-
+const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -26,6 +26,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
     const CONTROLLER_NAME = 'Page';
     const TITLE_TEXT = "My title";
     const TEST_TEXT = "test text";
+    const ARTICLE_NAME = contentBuilder.generateRandomName('article');
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -66,7 +67,24 @@ describe('template.config.spec: template config should be displayed in the Inspe
             assert.equal(result, TITLE_TEXT, 'expected and actual title should be equal');
         });
 
-    it(`GIVEN Customize menu item has been clicked in article wizard WHEN text component has been inserted in Page Component wizard step THEN the text should appear in the LiveEdit frame`,
+    it(`WHEN wizard for new article content is opened THEN 'Page Component wizard' step should not be displayed because 'Customize' menu item is not clicked yet`,
+        async () => {
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            let pageComponentView = new PageComponentView();
+            let contentWizard = new ContentWizard();
+            // 1. Open new wizard for Article content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
+            // 2. Verify that 'Page Component wizard' step is not displayed, 'Customize' menu item is not clicked yet:
+            await pageComponentsWizardStepForm.waitForNotDisplayed();
+            // 3. Expand the Live Editor:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 4. Verify that 'Hide Component View' button is not displayed:
+            await contentWizard.waitForHideComponentViewTogglerNotDisplayed();
+            // 5. Verify that 'Page Component' modal dialog is not displayed as well:
+            await pageComponentView.waitForNotDisplayed();
+        });
+
+    it(`GIVEN 'Customize' menu item has been clicked in article wizard WHEN text component has been inserted in 'Page Component wizard' step THEN the text should appear in the LiveEdit frame`,
         async () => {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let textComponent = new TextComponent();
@@ -74,20 +92,64 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let liveFormPanel = new LiveFormPanel();
             // 1. Open new wizard for Article content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
-            // 2. Click on Customize menu item:
+            await contentWizard.typeDisplayName(ARTICLE_NAME);
+            // 2. Click on 'Customize' menu item:
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
-            // 3. Insert text component in Page Component wizard step
+            // 3. Verify that Page item is displayed in the WizardStepNavigator
+            await contentWizard.waitForWizardStepDisplayed('Page');
+            // 4. Insert text component in Page Component wizard step
             await pageComponentsWizardStepForm.openMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
             await textComponent.typeTextInCkeEditor(TEST_TEXT);
             await studioUtils.saveScreenshot('article_content_customized');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);
-            // 4. Verify that the text is present in LiveEdit frame
+            // 5. Verify that the text is present in LiveEdit frame
             await contentWizard.switchToLiveEditFrame();
             let actualText = await liveFormPanel.getTextInTextComponent();
             assert.equal(actualText[0], TEST_TEXT, 'Expected text should be present in Live Edit panel');
+        });
+
+    it(`GIVEN existing customized article content has been opened WHEN text component has been removed in Page Component wizard step THEN the text should not be present in the LiveEdit frame`,
+        async () => {
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            let contentWizard = new ContentWizard();
+            let liveFormPanel = new LiveFormPanel();
+            // 1. Open new wizard for Article content:
+            await studioUtils.selectAndOpenContentInWizard(ARTICLE_NAME);
+            await contentWizard.switchToLiveEditFrame();
+            // 2. Verify that text component is present in LiveEdit
+            await liveFormPanel.waitForTextComponentDisplayed(TEST_TEXT);
+            await contentWizard.switchToMainFrame();
+            // 3. Remove the text component and save it
+            await pageComponentsWizardStepForm.openMenu(TEST_TEXT);
+            await pageComponentsWizardStepForm.selectMenuItem(['Remove']);
+            await studioUtils.saveScreenshot('cpmponent_step_form_txt_removed');
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.pause(1500);
+            // 4. Verify that the text component is not present in LiveEdit frame
+            await contentWizard.switchToLiveEditFrame();
+            await liveFormPanel.waitForTextComponentNotDisplayed(TEST_TEXT);
+        });
+
+    it(`GIVEN existing customized article content has been opened WHEN 'Reset' menu item has been clicked in Page Component wizard step THEN Page Component wizard step gets not visible`,
+        async () => {
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            let contentWizard = new ContentWizard();
+            // 1. Open the existing customized Article-content:
+            await studioUtils.selectAndOpenContentInWizard(ARTICLE_NAME);
+            // 2. Click on 'Reset' menu item in the wizard step form:
+            await pageComponentsWizardStepForm.openMenu('Page');
+            await pageComponentsWizardStepForm.selectMenuItem(['Reset']);
+            await studioUtils.saveScreenshot('component_step_form_reset');
+            // 3. The content should be saved automatically:
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.pause(500);
+            // 4. Verify that 'Page Component wizard' step gets not visible:
+            await pageComponentsWizardStepForm.waitForNotDisplayed();
+            // 5. Verify that 'Page' item is not displayed in the WizardStepNavigator
+            await contentWizard.waitForWizardStepNotDisplayed('Page');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
