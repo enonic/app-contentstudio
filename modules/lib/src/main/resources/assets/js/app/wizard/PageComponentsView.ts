@@ -221,6 +221,7 @@ export class PageComponentsView
 
     setContent(content: Content): void {
         this.content = content;
+
         if (!this.tree && this.content && this.pageView) {
             this.createTree(this.content, this.pageView);
         }
