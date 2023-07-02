@@ -9,7 +9,7 @@ IMPORTANT: Content Studio 5.0 requires XP 7.13.0 or higher.
 
 === Default Content Project is hidden by default
 
-<<storage/projects#default_project,Default  Project>> is no longer available in Content Studio by default.
+<<storage/projects#default_project,Default Project>> is no longer available in Content Studio by default.
 
 If you need the Default project (for example, you already have content in it and want to continue working with it after
 upgrading to Content Studio 5), enable it via Content Studio's <<config#enable_default_content_project,config file>>.
