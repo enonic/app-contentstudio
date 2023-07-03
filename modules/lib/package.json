@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
-    "dompurify": "^3.0.3",
+    "dompurify": "^3.0.4",
     "enonic-admin-artifacts": "^1.8.3",
     "flag-icons": "^6.7.0",
     "hasher": "^1.2.0",
