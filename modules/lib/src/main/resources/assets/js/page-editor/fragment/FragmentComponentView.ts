@@ -236,14 +236,7 @@ export class FragmentComponentView
     }
 
     private fetchFragmentContent(contentId: ContentId): Q.Promise<Content> {
-        return new GetContentByIdRequest(contentId).sendAndParse().then((content: Content) => {
-            const component: Component = content.getPage()?.getFragment();
-            const injectPromise: Q.Promise<void> = this.isLayoutComponent(component)
-                                  ? PageHelper.fetchAndInjectLayoutRegions(component as LayoutComponent)
-                                  : Q.resolve();
-
-            return injectPromise.then(() => content);
-        });
+        return new GetContentByIdRequest(contentId).sendAndParse();
     }
 
     private isLayoutComponent(component: Component): boolean {
