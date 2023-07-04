@@ -1,14 +1,11 @@
-= Content Projects
+= Settings
 :toc: right
-:imagesdir: projects/images
-
-By using Content Projects you can split your content into several independent repositories. Each project can have a default language,
-its own set of permissions and independent access level. When you open Content Studio, you will select a project (or context) you will be working in.
+:imagesdir: settings/images
 
 Management of projects and layers in Content Studio is done from the "_Settings_" section, which can be accessed by clicking the cog icon in
 the left-side menu.
 
-== Project Management
+== Projects
 
 image::top-level-menu.png[Top Level Menu, 642]
 
@@ -32,17 +29,6 @@ You can delete a project by selecting it in the Settings grid and clicking the D
 
 CAUTION: Deleting a project will delete its repository and all the data inside. This action has to be confirmed and cannot be undone.
 
-== Default Project
-
-In a clean new instance of XP there's only one content project called "Default", which cannot be deleted and is by default hidden
-in the project selector inside Content Studio. You can modify its display name and description, set default language
-for a new content which will be created in this repository and replace the icon in the "Settings" section.
-
-NOTE: Default project doesn't support project roles or customization of read permissions.
-
-image::default-project.png[Default project, 825]
-
-TIP: You can enable the Default Project in Content Studio via <<config#enable_default_content_project#,configuration file>>.
 
 == New Project wizard
 
@@ -84,7 +70,7 @@ image::new-project-dialog-3.png[Access Mode, 470]
 
 TIP: If an upstream project is selected, you can use "Copy from parent" button to quickly select this setting from the upstream project.
 
-=== Roles
+=== Project Roles
 
 Every project has a fixed set of roles that can be used to assign different levels of permissions inside a project to users or groups.
 A principal must have at least one of these roles to be able to access the project in the Content Studio.
@@ -107,7 +93,7 @@ as opposed to site-oriented approach.
 
 NOTE: Only applications containing `site.xml` can be assigned to content projects.
 
-:imagesdir: projects/images
+
 image::new-project-dialog-5.png[Applications, 470]
 
 IMPORTANT: Applications assigned to projects will not work for a site or content items inside a site. Assign applications
@@ -139,3 +125,18 @@ Click the "Create" button to create a new project or layer.
 NOTE: If you have created a new layer, the synchronisation job will kick in and inherit content from the upstream project/layer.
 
 
+== The default Project
+
+NOTE: The `default` project is a legacy project structure which does not support modern features such as project roles and layering. 
+
+This project cannot be deleted and is by default hidden
+in Content Studio. 
+
+You can modify its display name and description, set default language
+for a new content which will be created in this repository and replace the icon in the "Settings" section.
+
+NOTE: Default project doesn't support project roles or customization of read permissions.
+
+image::default-project.png[Default project, 825]
+
+TIP: You can enable the Default Project in Content Studio via <<config#enable_default_content_project#,configuration file>>.
