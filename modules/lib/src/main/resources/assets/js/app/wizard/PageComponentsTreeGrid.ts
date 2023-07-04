@@ -29,6 +29,7 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {PageComponentsTreeGridHelper} from './PageComponentsTreeGridHelper';
 import {ComponentType} from '../page/region/ComponentType';
 import {PartComponentType} from '../page/region/PartComponentType';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemViewTreeGridWrapper> {
@@ -297,6 +298,53 @@ export class PageComponentsTreeGrid
                 this.selectRow(this.getRowByNodeId(nodeId));
             }
         }
+    }
+
+    selectItemByComponentView(view: ItemView): void {
+        const dataId: string = view.getItemId().toString();
+
+        this.expandRecursivelyFromTopToView(view.getParentItemView()).then(() => {
+            if (this.getSelectedItems()[0] !== dataId) { // if not already selected
+                const node: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+                if (node) {
+                    this.selectRow(this.getRowByNodeId(node.getId()));
+                }
+            }
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    private expandRecursivelyFromTopToNode(node?: TreeNode<ItemViewTreeGridWrapper>): Q.Promise<boolean> {
+        if (!node) {
+            return Q.resolve(true);
+        }
+
+        const expandParentsPromise: Q.Promise<boolean> =
+            node.hasParent() ? this.expandRecursivelyFromTopToNode(node.getParent()) : Q.resolve(true);
+
+        return expandParentsPromise.then(() => {
+            return node.isExpanded() ? Q.resolve(true) : this.expandNode(node);
+        });
+    }
+
+    private expandRecursivelyFromTopToView(view?: ItemView): Q.Promise<boolean> {
+        if (!view) {
+            return Q.resolve(true);
+        }
+
+        const dataId: string = view.getItemId().toString();
+        const node: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+
+        if (node) { // ItemView's corresponding node is already in the tree
+            return this.expandRecursivelyFromTopToNode(node);
+        }
+
+        // No node in the tree for the ItemView, looking for the first parent ItemView with a node in the tree
+        return this.expandRecursivelyFromTopToView(view.getParentItemView()).then(() => {
+            // after parent items expanded, looking for the node again
+            const node: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+
+            return !!node ? this.expandNode(node) : Q.resolve(false);
+        });
     }
 
     protected selectRow(row: number, debounce?: boolean): void {
