@@ -2,29 +2,29 @@
 :toc: right
 :imagesdir: layers/images
 
-Content Studio is offer an advanced concept called Content Layers. A layer is essentially a <<projects#, Content project>> that inherits content from a parent project. 
+Content Studio is offering an advanced concept called Content Layers. A layer is essentially a <<projects#, Content project>> that inherits content from a parent project.
 
 
 == Concept
 
-Inherited content can be edited in the local layer (localized), renamed, organized differently or even archived. 
+Inherited content can be edited in the local layer (localized), renamed, organized differently or even archived.
 
 New content can be created, modified and published within a layer, just like for any other project.
 
 == How it works
 
 You can have as many layers as you need, for instance: Project *A* can have a child project *B* which has a child
-project *C* (and so on). 
+project *C* (and so on).
 
 There may also exist multiple child layers, so *B'* may also inherit from project *A*.
 
-Content changes will be propagated through the different layers automatically. 
+Content changes will be propagated through the different layers automatically.
 
 For a single content item, propagation will stop if the content has been localized in a specific layer.
 
 == Inheritance model
 
-With the example above, any content created in *A* will be automatically appear in the child *B* and the grand-child *C*. 
+With the example above, any content created in *A* will be automatically appear in the child *B* and the grand-child *C*.
 
 If the content is then modified in *B* it will no longer get updates from *A*, but new modifications will still be synchronised from *B* down to *C*.
 
@@ -32,10 +32,10 @@ If you modify a content in the layer *C*, it will stop inheriting content change
 inherits content changes from its parent project *A*, until it's localised in *B* as well.
 
 
-== Inheritance types 
-To enable different actions on an while keeping as much of the inheritance going, there are 4 different types of values that are supported independently: 
+== Inheritance types
+To enable different actions on an while keeping as much of the inheritance going, there are 4 different types of values that are supported independently:
 
-* content data 
+* content data
 * sorting
 * parent (location in content tree)
 * and name
