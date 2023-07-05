@@ -4,7 +4,7 @@
 
 There are two types of issues in Content Studio: tasks and publish requests.
 
-*Tasks* are useful when you want to give some other user(s) an assignment of sorts, like spellcheck an article, or add new content to a site.
+*Tasks* are used to assign general tasks, like spellcheck an article, or add new content to a site.
 *Publish Requests* are typically used when you have made some changes to a content which you want someone else to approve and publish.
 
 == Issues list
