@@ -2,12 +2,11 @@
 :toc: right
 :imagesdir: images
 
-Content Studio is the ultimate CMS interface for Enonic XP
+Content Management interface for Enonic XP
 
 == Introduction
 
 NOTE: *Install?* Content Studio is available as an application for Enonic XP, and can be installed from https://market.enonic.com/vendors/enonic/content-studio[Enonic Market]
-
 
 == Overview
 
@@ -17,7 +16,10 @@ A core concept is that any content item has a specific <<content-types#,Content 
 A set of standard content types come with the system, but the real benefit lies in custom defined content types.
 Custom content types are defined by developers, and provided through apps.
 
+Content is organized within <<projects#,Content Projects>>. Content can be re-used, localized or augmented across different projects through a feature called <<layers#, content layering>>.
+
 Editors will commonly use the <<navigator#,navigator panel>> to browse, search and perform actions on one or more items.
+
 <<issues#,Issues>> can be created and assigned to users of Content Studio in order to get stuff done, and assist with workflow related tasks, such as getting content published.
 
 == Browser support

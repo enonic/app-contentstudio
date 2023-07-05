@@ -1,0 +1,14 @@
+= Upgrading
+:toc: right
+:imagesdir: images
+
+== XP version requirement
+
+IMPORTANT: Content Studio 5.x requires XP 7.13.0 or newer.
+
+=== Default Content Project
+
+Default Content Project is no longer available in Content Studio by default.
+
+If you need the Default project, enable it via Content Studio's <<../config#enable_default_content_project,config file>> before upgrading to Content Studio 5.
+
