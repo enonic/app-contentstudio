@@ -1,11 +1,11 @@
 {
   "menuItems": [
     {
-      "title": "Content Navigator",
+      "title": "Navigator",
       "document": "navigator"
     },
     {
-      "title": "Content Editor",
+      "title": "Editor",
       "document": "editor",
       "menuItems": [
         {
@@ -31,11 +31,11 @@
       ]
     },
     {
-      "title": "Content Projects",
+      "title": "Projects",
       "document": "projects"
     },
     {
-      "title": "Content layering",
+      "title": "Layers",
       "document" : "layers"
     },
     {

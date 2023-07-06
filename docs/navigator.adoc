@@ -2,12 +2,10 @@
 :toc: right
 :imagesdir: navigator/images
 
-The navigator is the default page of the *Content Studio*. It consists of Menu Toolbar on top and two or three panels underneath.
-On the left is the *Content tree grid* where all the sites and content can be found. To the right of the tree grid is the
-<<#_preview-panel,Preview panel>> which displays a preview of the selected content. On the far right is the <<widgets#,Widgets>> panel
-that may be toggled on and off with the **burger** icon in the top right corner, next to the `Publish` button inside the Toolbar.
+The navigator is the default page of *Content Studio*. 
+It consists of an action toolbar on top, followed by up to four panels that can be open at once depending on the size of your screen. From the left: Search panel, Content tree grid, Preview panel and finally <<widgets#,the Widget panel>> providing additional info or functionality related to the selected item.
 
-image::navigator.png[Content Navigator, 975]
+image::navigator.png[Content Navigator, 1951]
 
 
 == Toolbar
@@ -32,7 +30,7 @@ dialog with selected content and all descendants
  * If selected content is not published and current user doesn't have publishing permissions: *Request Publishing:*, opens the <<actions#unpublish,Unpublish Wizard>> dialog for taking the item offline;
  * If no content is selected: *Create Task*, opens the <<issues#create_a_task,New Task>> dialog
 
-image::navigator-toolbar.png[]
+image::navigator-toolbar.png[Toolbar, 1078w]
 
 These options are also available in the context menu that appears when right-clicking on a content item in the tree grid panel.
 
@@ -45,7 +43,7 @@ The content tree can also be navigated with the keyboard arrow keys.
 
 The top of the content tree has a button to refresh the tree and a checkbox to select (_checked_) or deselect (_unchecked_) all the content items in the grid.
 
-image::navigator-grid.png[]
+image::navigator-grid.png[Listing content items, 1184w]
 
 Information about the content is displayed in four columns. The number of columns may vary, depending on the content tree width.
 
@@ -77,7 +75,7 @@ The search panel can be toggled with the `magnifying glass` icon at the far left
  * Owner
  * Language
 
-image::navigator-search.png[550]
+image::navigator-search.png[Search and filtering, 1094w]
 
 Search results are instantly updated in the tree grid as search parameters are changed. Children of matching content items will also be displayed in the tree grid but won’t be visible unless the parent node is expanded.
 
@@ -85,13 +83,13 @@ The number of hits will appear below the search field, along with a `Clear` butt
 
 Each content type that has at least one matching content will appear in the <<content-types#,Content Types>> filter list with the number of matches in parenthesis `()`. Checking the box next to a content type will hide the results that do not match that type. Multiple content types can be selected. By default, only the 5 most popular content types will be shown, followed by "Show more" link to expand the entire list.
 
-image::navigator-search-expanded.png[550]
+image::navigator-search-expanded.png[Full content type list, 1080w]
 
 The *Last Modified* list works in a similar manner. It is used to limit results to content that has been modified in the last month, week, day or hour. This list may not appear if other search parameters have limited results to content that was modified more than a month ago.
 
 Filter aggregations for *Last modified by* and *Owner* are dropdowns with the list of users who last modified content or are content owners. To simplify search for the current user, there's *Me* checkbox in both aggregations which serves as an alias for the current user. Selected users will be displayed as checkboxes above the dropdown.
 
-image::navigator-search-modifier-expanded.png[550]
+image::navigator-search-modifier-expanded.png[Listing all modifiers, 1089w]
 
 TIP: Search results remain in the tree grid when the search panel is collapsed. Don’t forget to clear the search when you are done with your search.
 
@@ -105,7 +103,7 @@ NOTE: Only the *Draft* version of content is visible in the preview panel.
 
 Preview panel has a toolbar which shows status and last modifier of the content, as well as the list of open publishing issues the content is currently a part of. The newest issue is shown by default and the entire list can be expanded via a dropdown. Clicking on the issue name will open the <<issues#updating-issue,Issue Details>> dialog.
 
-image::navigator-preview.png[]
+image::navigator-preview.png[Showing content preview, 1089w]
 
 
 == Widgets
