@@ -13,4 +13,4 @@ image::editor.png[Content Wizard, 1680]
 Toolbar of the Content Editor will display avatar icons of users who currently have the same content opened in the Content Editor.
 
 :imagesdir: editor/images
-image::content-wizard-collaboration.png[Collaboration, 665]
+image::content-wizard-collaboration.png[Collaboration, 1331]
