@@ -17,17 +17,17 @@ import {DragEventData, GridDragHandler} from '@enonic/lib-admin-ui/ui/grid/GridD
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
-import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
+import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
 
 export class PageComponentsGridDragHandler
-    extends GridDragHandler<ItemViewTreeGridWrapper> {
+    extends GridDragHandler<ComponentsTreeItem> {
 
     protected handleDragInit(e: DragEvent) {
         const row: ElementHelper = this.getRowByTarget(new ElementHelper(<HTMLElement>e.target));
-        const data: ItemViewTreeGridWrapper = this.contentGrid.getDataByRow(this.getRowIndex(row));
+        const data: ComponentsTreeItem = this.contentGrid.getDataByRow(this.getRowIndex(row));
 
         // prevent the grid from cancelling drag'n'drop by default
-        if (!!data && data.getItemView().isDraggableView() && !BrowserHelper.isMobile()) {
+        if (!!data && data.getItemView()?.isDraggableView() && !BrowserHelper.isMobile()) {
             e.stopImmediatePropagation();
         }
     }
@@ -60,7 +60,7 @@ export class PageComponentsGridDragHandler
     }
 
     protected handleBeforeMoveRows(event: Event, data: any): boolean {
-        const dataList: ItemViewTreeGridWrapper[] = this.contentGrid.getCurrentData();
+        const dataList: ComponentsTreeItem[] = this.contentGrid.getCurrentData();
 
         const draggableRow: number = data.rows[0];
         const insertBefore: number = data.insertBefore;
@@ -83,9 +83,9 @@ export class PageComponentsGridDragHandler
     }
 
     protected makeMovementInNodes(draggableRow: number, insertBefore: number): number {
-        const dataList: ItemViewTreeGridWrapper[] = this.contentGrid.getCurrentData();
+        const dataList: ComponentsTreeItem[] = this.contentGrid.getCurrentData();
 
-        const item: ItemViewTreeGridWrapper = dataList.slice(draggableRow, draggableRow + 1)[0];
+        const item: ComponentsTreeItem = dataList.slice(draggableRow, draggableRow + 1)[0];
         const insertPosition: number = (draggableRow > insertBefore) ? insertBefore : insertBefore + 1;
 
         this.moveIntoNewParent(item, insertPosition, dataList);
@@ -96,16 +96,16 @@ export class PageComponentsGridDragHandler
         return dataList.indexOf(item);
     }
 
-    protected getModelId(model: ItemViewTreeGridWrapper) {
-        return model ? model.getItemView().getItemId() : null;
+    protected getModelId(model: ComponentsTreeItem) {
+        return model ? model.getItemView()?.getItemId() : null;
     }
 
-    protected moveIntoNewParent(item: ItemViewTreeGridWrapper, insertBefore: number, data: ItemViewTreeGridWrapper[]) {
+    protected moveIntoNewParent(item: ComponentsTreeItem, insertBefore: number, data: ComponentsTreeItem[]) {
         const insertData: InsertData = this.getParentPosition(insertBefore, data);
         const regionPosition: number = insertData.parentPosition;
         let insertIndex: number = insertData.insertIndex;
 
-        let newParent: ItemViewTreeGridWrapper = data[regionPosition];
+        let newParent: ComponentsTreeItem = data[regionPosition];
 
         if (!newParent.getItemView().getType().equals(RegionItemType.get())) {
             return;
@@ -125,11 +125,11 @@ export class PageComponentsGridDragHandler
         return data[regionPosition];
     }
 
-    private updateDragHelperStatus(draggableRow: number, insertBeforePos: number, data: ItemViewTreeGridWrapper[]) {
+    private updateDragHelperStatus(draggableRow: number, insertBeforePos: number, data: ComponentsTreeItem[]) {
 
         const parentPosition: number = this.getParentPosition(insertBeforePos, data).parentPosition;
-        const parentComponentView: ItemViewTreeGridWrapper = data[parentPosition];
-        const draggableComponentView: ItemViewTreeGridWrapper = data[draggableRow];
+        const parentComponentView: ComponentsTreeItem = data[parentPosition];
+        const draggableComponentView: ComponentsTreeItem = data[draggableRow];
 
         if (parentComponentView) {
 
@@ -173,12 +173,12 @@ export class PageComponentsGridDragHandler
         }
     }
 
-    private getParentPosition(insertBeforePos: number, data: ItemViewTreeGridWrapper[]): InsertData {
+    private getParentPosition(insertBeforePos: number, data: ComponentsTreeItem[]): InsertData {
         let parentPosition: number = insertBeforePos;
         let insertIndex: number = 0;
 
-        const current: ItemViewTreeGridWrapper = data[insertBeforePos];
-        const previous: ItemViewTreeGridWrapper = data[insertBeforePos - 1];
+        const current: ComponentsTreeItem = data[insertBeforePos];
+        const previous: ComponentsTreeItem = data[insertBeforePos - 1];
 
         if (!previous) {
             return {parentPosition: 0, insertIndex: 0};
@@ -189,9 +189,9 @@ export class PageComponentsGridDragHandler
         const isFirstChildPosition = (current ? this.contentGrid.getDataLevel(previous) < this.contentGrid.getDataLevel(current) : false)
                                      || (ObjectHelper.iFrameSafeInstanceOf(previous.getItemView(), RegionView));
 
-        let parentComponentView: ItemViewTreeGridWrapper;
+        let parentComponentView: ComponentsTreeItem;
 
-        const check = (view: ItemViewTreeGridWrapper) => {
+        const check = (view: ComponentsTreeItem) => {
             return !(ObjectHelper.iFrameSafeInstanceOf(view.getItemView(), RegionView)
                    // lets drag items inside the 'main' region between layouts
                    || (ObjectHelper.iFrameSafeInstanceOf(view.getItemView(), LayoutComponentView)

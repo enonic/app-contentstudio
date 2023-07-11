@@ -64,7 +64,7 @@ export class PageHelper {
 
             descriptor.getRegions().forEach((regionDescriptor: RegionDescriptor) => {
                 const regionToAdd: Region = layout.getRegions()?.getRegionByName(regionDescriptor.getName()) ||
-                                            Region.create().setName(regionDescriptor.getName()).setParentPath(layout.getPath()).build();
+                                            Region.create().setName(regionDescriptor.getName()).setParent(layout).build();
                 builder.addRegion(regionToAdd);
             });
 

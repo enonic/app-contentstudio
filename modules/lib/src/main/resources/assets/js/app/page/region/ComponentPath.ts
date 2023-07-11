@@ -7,91 +7,51 @@ export class ComponentPath
 
     private static DIVIDER: string = '/';
 
-    private regionAndComponentList: ComponentPathRegionAndComponent[];
+    private readonly parentPath?: ComponentPath;
 
-    private refString: string;
+    private readonly path: string | number;
 
-    constructor(regionAndComponentList: ComponentPathRegionAndComponent[]) {
-
-        this.regionAndComponentList = regionAndComponentList;
-
-        this.refString = '';
-        this.regionAndComponentList.forEach((regionAndComponent: ComponentPathRegionAndComponent, index: number) => {
-            this.refString += regionAndComponent.toString();
-            if (index < this.regionAndComponentList.length - 1) {
-                this.refString += ComponentPath.DIVIDER;
-            }
-        });
+    constructor(path: string | number, parentPath?: ComponentPath) {
+        this.path = path;
+        this.parentPath = parentPath;
     }
 
-    numberOfLevels(): number {
-        return this.regionAndComponentList.length;
+    getPath(): string | number {
+        return this.path;
     }
 
-    getFirstLevel(): ComponentPathRegionAndComponent {
-        return this.regionAndComponentList[0];
-    }
-
-    getLastLevel(): ComponentPathRegionAndComponent {
-        return this.regionAndComponentList[this.regionAndComponentList.length - 1];
-    }
-
-    getLevels(): ComponentPathRegionAndComponent [] {
-        return this.regionAndComponentList;
-    }
-
-    getComponentIndex(): number {
-        return this.getLastLevel().getComponentIndex();
-    }
-
-    public removeFirstLevel(): ComponentPath {
-        if (this.numberOfLevels() <= 1) {
-            return null;
-        }
-
-        let newRegionAndComponentList: ComponentPathRegionAndComponent[] = [];
-        for (let i = 1; i < this.regionAndComponentList.length; i++) {
-            newRegionAndComponentList.push(this.regionAndComponentList[i]);
-        }
-        return new ComponentPath(newRegionAndComponentList);
+    getParentPath(): ComponentPath | undefined {
+        return this.parentPath;
     }
 
     public toString(): string {
-        return this.refString;
+        if (this.isRoot()) {
+            return this.path.toString();
+        }
+
+        if (this.parentPath?.isRoot()) {
+            return `${this.parentPath.toString()}${this.path}`;
+        }
+
+        return `${this.parentPath.toString()}${ComponentPath.DIVIDER}${this.path}`;
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ComponentPath)) {
             return false;
         }
 
-        let other = <ComponentPath>o;
+        const other = <ComponentPath>o;
 
-        if (!ObjectHelper.stringEquals(this.refString, other.refString)) {
-            return false;
-        }
-
-        return true;
+        return ObjectHelper.stringEquals(this.toString(), other.toString());
     }
 
-    public static fromString(str: string): ComponentPath {
+    isRoot(): boolean {
+        return !this.parentPath && this.path === ComponentPath.DIVIDER;
+    }
 
-        if (!str) {
-            return null;
-        }
-
-        let elements: string[] = StringHelper.removeEmptyStrings(str.split(ComponentPath.DIVIDER));
-
-        let regionAndComponentList: ComponentPathRegionAndComponent[] = [];
-        for (let i = 0; i < elements.length - 1; i += 2) {
-            let regionName = elements[i];
-            let componentIndexAsString = elements[i + 1];
-            let regionAndComponent = new ComponentPathRegionAndComponent(regionName, parseInt(componentIndexAsString, 10));
-            regionAndComponentList.push(regionAndComponent);
-        }
-
-        return new ComponentPath(regionAndComponentList);
+    public static root(): ComponentPath {
+        return new ComponentPath(ComponentPath.DIVIDER);
     }
 }
 

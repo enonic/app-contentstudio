@@ -40,31 +40,8 @@ export class LayoutComponent
     }
 
     private initRegions(regions: Regions) {
-        const result: Regions = !!regions ? this.updateRegionsParentPath(regions) : Regions.create().build();
+        const result: Regions = regions || Regions.create().build();
         this.setRegions(result);
-    }
-
-    private updateRegionsParentPath(regions: Regions): Regions {
-        const newPath: ComponentPath = this.getPath();
-        regions.getRegions().forEach((region: Region) => region.setParentPath(newPath));
-
-        return regions;
-    }
-
-    public getComponent(path: ComponentPath): Component {
-        const first: ComponentPathRegionAndComponent = path.getFirstLevel();
-        const region = this.regions.getRegionByName(first.getRegionName());
-        const component = region.getComponentByIndex(first.getComponentIndex());
-
-        if (path.numberOfLevels() === 1) {
-            return component;
-        }
-
-        if (!ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-            throw new Error('Expected component to be a LayoutComponent: ' + ClassHelper.getClassName(component));
-        }
-
-        return (<LayoutComponent> component).getComponent(path.removeFirstLevel());
     }
 
     public getRegions(): Regions {
@@ -90,11 +67,7 @@ export class LayoutComponent
     }
 
     setIndex(value: number) {
-        const indexChanged: boolean = value !== this.getIndex();
         super.setIndex(value);
-        if (indexChanged && !!this.regions) {
-            this.updateRegionsParentPath(this.regions);
-        }
     }
 
     setDescriptor(descriptor: Descriptor) {
@@ -156,7 +129,7 @@ export class LayoutComponent
 }
 
 export class LayoutComponentBuilder
-    extends DescriptorBasedComponentBuilder<LayoutComponent> {
+    extends DescriptorBasedComponentBuilder {
 
     regions: Regions;
 
@@ -171,7 +144,7 @@ export class LayoutComponentBuilder
         this.setType(LayoutComponentType.get());
     }
 
-    public setRegions(value: Regions): LayoutComponentBuilder {
+    public setRegions(value: Regions): this {
         this.regions = value;
         return this;
     }

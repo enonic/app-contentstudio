@@ -3,12 +3,13 @@ import {Component} from './Component';
 import {Region} from './Region';
 import {PartComponentBuilder} from './PartComponent';
 import {ImageComponentBuilder} from './ImageComponent';
-import {LayoutComponentBuilder} from './LayoutComponent';
+import {LayoutComponent, LayoutComponentBuilder} from './LayoutComponent';
 import {TextComponentBuilder} from './TextComponent';
 import {FragmentComponentBuilder} from './FragmentComponent';
 import {RegionJson} from './RegionJson';
 import {Regions} from './Regions';
 import {ComponentPath} from './ComponentPath';
+import {Page} from '../Page';
 
 export class ComponentFactory {
 
@@ -19,11 +20,11 @@ export class ComponentFactory {
         } else if (json.ImageComponent) {
             return new ImageComponentBuilder().fromJson(json.ImageComponent).setParent(region).build();
         } else if (json.LayoutComponent) {
-            const hasPath = !!region && componentIndex >= 0;
-            const path = hasPath ? Component.fromRegionPathAndComponentIndex(region.getPath(), componentIndex) : null;
-            const regions = ComponentFactory.createRegionsFromJson(json.LayoutComponent.regions, path);
-            return new LayoutComponentBuilder().setRegions(regions).fromJson(json.LayoutComponent).setParent(region).setIndex(
+            const layout = new LayoutComponentBuilder().fromJson(json.LayoutComponent).setParent(region).setIndex(
                 componentIndex).build();
+            const regions = ComponentFactory.createRegionsFromJson(json.LayoutComponent.regions, layout);
+            layout.setRegions(regions);
+            return layout;
         } else if (json.TextComponent) {
             return new TextComponentBuilder().fromJson(json.TextComponent).setParent(region).setIndex(componentIndex).build();
         } else if (json.FragmentComponent) {
@@ -33,10 +34,9 @@ export class ComponentFactory {
         }
     }
 
-    public static createRegionsFromJson(regionsJson: RegionJson[], parentPath?: ComponentPath): Regions {
-
+    public static createRegionsFromJson(regionsJson: RegionJson[], parent?: LayoutComponent | Page): Regions {
         return Regions.create().setRegions(regionsJson.map((regionJson: RegionJson) => {
-            const region = Region.create().setName(regionJson.name).setParentPath(parentPath || null).build();
+            const region = Region.create().setName(regionJson.name).setParent(parent).build();
 
             regionJson.components.forEach((componentJson: ComponentTypeWrapperJson, componentIndex: number) => {
                 let component: Component = ComponentFactory.createFromJson(componentJson, componentIndex, region);

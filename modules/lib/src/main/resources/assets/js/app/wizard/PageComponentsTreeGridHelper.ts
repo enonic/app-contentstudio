@@ -5,28 +5,27 @@ import {PageComponentsItemViewer} from './PageComponentsItemViewer';
 import {ItemView} from '../../page-editor/ItemView';
 import {PageView} from '../../page-editor/PageView';
 import {RegionView} from '../../page-editor/RegionView';
-import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {GridColumn, GridColumnBuilder} from '@enonic/lib-admin-ui/ui/grid/GridColumn';
 import {GridOptions, GridOptionsBuilder} from '@enonic/lib-admin-ui/ui/grid/GridOptions';
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
+import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
 
 export class PageComponentsTreeGridHelper {
 
-    public static generateColumns(content: Content): GridColumn<TreeNode<ItemViewTreeGridWrapper>>[] {
+    public static generateColumns(): GridColumn<TreeNode<ComponentsTreeItem>>[] {
         return [
-            new GridColumnBuilder<TreeNode<ItemViewTreeGridWrapper>>()
+            new GridColumnBuilder<TreeNode<ComponentsTreeItem>>()
                 .setName(i18n('field.name'))
                 .setId('displayName')
                 .setField('displayName')
-                .setFormatter(PageComponentsTreeGridHelper.nameFormatter.bind(null, content))
+                .setFormatter(PageComponentsTreeGridHelper.nameFormatter)
                 .setMinWidth(250)
                 .setBehavior('selectAndMove')
                 .setResizable(true)
                 .build(),
-            new GridColumnBuilder<TreeNode<ItemViewTreeGridWrapper>>()
+            new GridColumnBuilder<TreeNode<ComponentsTreeItem>>()
                 .setName(i18n('field.menu'))
                 .setId('menu')
                 .setMinWidth(30)
@@ -38,8 +37,8 @@ export class PageComponentsTreeGridHelper {
         ];
     }
 
-    public static generateOptions(): GridOptions<TreeNode<ItemViewTreeGridWrapper>> {
-        return new GridOptionsBuilder<TreeNode<ItemViewTreeGridWrapper>>()
+    public static generateOptions(): GridOptions<TreeNode<ComponentsTreeItem>> {
+        return new GridOptionsBuilder<TreeNode<ComponentsTreeItem>>()
             .setShowHeaderRow(false)
             .setHideColumnHeaders(true)
             .setForceFitColumns(true)
@@ -66,11 +65,11 @@ export class PageComponentsTreeGridHelper {
         return wrapper.toString();
     }
 
-    private static nameFormatter(content: Content, row: number, cell: number, value: any, columnDef: any,
-                                 node: TreeNode<ItemViewTreeGridWrapper>) {
-        const viewer: PageComponentsItemViewer = <PageComponentsItemViewer>node.getViewer('name') || new PageComponentsItemViewer(content);
+    private static nameFormatter(row: number, cell: number, value: any, columnDef: any,
+                                 node: TreeNode<ComponentsTreeItem>) {
+        const viewer: PageComponentsItemViewer = <PageComponentsItemViewer>node.getViewer('name') || new PageComponentsItemViewer();
         node.setViewer('name', viewer);
-        const itemWrapper: ItemViewTreeGridWrapper = node.getData();
+        const itemWrapper: ComponentsTreeItem = node.getData();
         const data: ItemView = itemWrapper.getItemView();
         viewer.setObject(itemWrapper);
 

@@ -348,7 +348,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     getName(): string {
-        return this.component && this.component.getName() ? this.component.getName().toString() : null;
+        return this.component?.getName()?.toString();
     }
 
     getParentItemView(): RegionView {
@@ -445,7 +445,7 @@ export class ComponentView<COMPONENT extends Component>
 
         this.moving = false;
 
-        if (parentRegionView.getRegionPath().equals(toRegionView.getRegionPath()) &&
+        if (parentRegionView.getPath().equals(toRegionView.getPath()) &&
             toIndex === parentRegionView.getComponentViewIndex(this)) {
 
             if (ComponentView.debug) {

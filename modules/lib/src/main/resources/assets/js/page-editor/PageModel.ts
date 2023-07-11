@@ -519,6 +519,14 @@ export class PageModel {
         return !!this.getDescriptor() || !!this.getTemplate() || this.getPage()?.isFragment();
     }
 
+    getFragment(): Component {
+        return this.fragment;
+    }
+
+    hasFragment(): boolean {
+        return !!this.fragment;
+    }
+
     private registerRegionsListeners(regions: Regions) {
         regions.onComponentPropertyChanged(this.componentPropertyChangedEventHandler);
         regions.onChanged(this.regionsChangedEventHandler);

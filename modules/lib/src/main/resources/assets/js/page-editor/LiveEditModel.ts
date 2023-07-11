@@ -29,8 +29,6 @@ export class LiveEditModel {
 
     private readonly siteModel: SiteModel;
 
-    private readonly parentContent: Content;
-
     private content: Content;
 
     private readonly formContext: ContentFormContext;
@@ -39,7 +37,6 @@ export class LiveEditModel {
 
     constructor(builder: LiveEditModelBuilder) {
         this.siteModel = builder.siteModel;
-        this.parentContent = builder.parentContent;
         this.content = builder.content;
         this.formContext = builder.formContext;
     }
@@ -53,17 +50,8 @@ export class LiveEditModel {
             });
     }
 
-    isPageRenderable(): boolean {
-        return !!this.pageModel && (this.pageModel.hasController() ||
-                                    this.pageModel.getMode() !== PageMode.NO_CONTROLLER);
-    }
-
     setContent(value: Content): void {
         this.content = value;
-    }
-
-    getParentContent(): Content {
-        return this.parentContent;
     }
 
     getFormContext(): ContentFormContext {
@@ -116,19 +104,12 @@ export class LiveEditModelBuilder {
 
     siteModel: SiteModel;
 
-    parentContent: Content;
-
     content: Content;
 
     formContext: ContentFormContext;
 
     setSiteModel(value: SiteModel): LiveEditModelBuilder {
         this.siteModel = value;
-        return this;
-    }
-
-    setParentContent(value: Content): LiveEditModelBuilder {
-        this.parentContent = value;
         return this;
     }
 

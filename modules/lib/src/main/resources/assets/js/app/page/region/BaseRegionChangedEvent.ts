@@ -1,14 +1,15 @@
 import {RegionPath} from './RegionPath';
+import {ComponentPath} from './ComponentPath';
 
 export class BaseRegionChangedEvent {
 
-    private path: RegionPath;
+    private readonly path: ComponentPath;
 
-    constructor(path: RegionPath) {
+    constructor(path: ComponentPath) {
         this.path = path;
     }
 
-    public getPath(): RegionPath {
+    public getPath(): ComponentPath {
         return this.path;
     }
 }

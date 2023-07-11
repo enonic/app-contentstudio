@@ -1,12 +1,13 @@
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {RegionPath} from './RegionPath';
+import {ComponentPath} from './ComponentPath';
 
 export class RegionPropertyValueChangedEvent
     extends BaseRegionChangedEvent {
 
-    private propertyName: string;
+    private readonly propertyName: string;
 
-    constructor(path: RegionPath, propertyName: string) {
+    constructor(path: ComponentPath, propertyName: string) {
         super(path);
         this.propertyName = propertyName;
     }

@@ -79,7 +79,7 @@ export class FragmentComponent
 }
 
 export class FragmentComponentBuilder
-    extends ConfigBasedComponentBuilder<FragmentComponent> {
+    extends ConfigBasedComponentBuilder {
 
     fragment: ContentId;
 
@@ -93,12 +93,12 @@ export class FragmentComponentBuilder
         this.setType(FragmentComponentType.get());
     }
 
-    public setFragment(value: ContentId): FragmentComponentBuilder {
+    public setFragment(value: ContentId): this {
         this.fragment = value;
         return this;
     }
 
-    public fromJson(json: FragmentComponentJson): FragmentComponentBuilder {
+    public fromJson(json: FragmentComponentJson): this {
         super.fromJson(json);
 
         if (json.fragment) {

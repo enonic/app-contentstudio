@@ -65,24 +65,20 @@ export class LayoutComponentView
         return DragAndDrop.get().isDragging();
     }
 
-    getComponentViewByPath(path: ComponentPath): ComponentView<Component> {
+    getComponentViewByPath(path: ComponentPath): ItemView {
+        let result: ItemView = null;
 
-        let firstLevelOfPath = path.getFirstLevel();
-
-        for (let i = 0; i < this.regionViews.length; i++) {
-            let regionView = this.regionViews[i];
-            if (firstLevelOfPath.getRegionName() === regionView.getRegionName()) {
-                if (path.numberOfLevels() === 1) {
-                    return regionView.getComponentViewByIndex(firstLevelOfPath.getComponentIndex());
-                } else {
-                    const index = firstLevelOfPath.getComponentIndex();
-                    const layoutView: LayoutComponentView = <LayoutComponentView>regionView.getComponentViewByIndex(index);
-                    return layoutView.getComponentViewByPath(path.removeFirstLevel());
-                }
+        this.regionViews.some((regionView: RegionView) => {
+            if (regionView.getPath().equals(path)) {
+                result = regionView;
+            } else {
+                result = regionView.getComponentViewByPath(path);
             }
-        }
 
-        return null;
+            return !!result;
+        });
+
+        return result;
     }
 
     setComponent(layoutComponent: LayoutComponent) {

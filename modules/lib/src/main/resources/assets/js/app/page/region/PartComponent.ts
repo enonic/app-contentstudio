@@ -39,7 +39,7 @@ export class PartComponent
 }
 
 export class PartComponentBuilder
-    extends DescriptorBasedComponentBuilder<PartComponent> {
+    extends DescriptorBasedComponentBuilder {
 
     constructor(source?: PartComponent) {
         super(source);

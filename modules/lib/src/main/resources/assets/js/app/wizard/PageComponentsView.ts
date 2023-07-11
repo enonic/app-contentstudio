@@ -35,8 +35,9 @@ import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
+import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 
 export class PageComponentsView
     extends DivEl {
@@ -295,8 +296,9 @@ export class PageComponentsView
     }
 
     private addComponent(event: ComponentAddedEvent): Q.Promise<boolean> {
-        this.tree.addComponentToParent(event.getComponentView(), event.getParentRegionView());
-        return this.tree.expandNodeByDataId(event.getParentRegionView().getItemId().toString());
+        return this.tree.addComponentToParent(event.getComponentView(), event.getParentRegionView()).then(() => {
+            return this.tree.expandNodeByDataId(event.getParentRegionView().getItemId().toString());
+        });
     }
 
     private handleComponentAdded(event: ComponentAddedEvent): void {
@@ -305,7 +307,7 @@ export class PageComponentsView
             this.selectItemByDataId(id);
         }
 
-        if (this.tree.hasChildren(new ItemViewTreeGridWrapper(event.getComponentView()))) {
+        if (this.tree.hasComponentChildren(event.getComponentView().getComponent())) {
             const componentDataId = event.getComponentView().getItemId().toString();
 
             if (event.isDragged()) {
@@ -320,7 +322,7 @@ export class PageComponentsView
     }
 
     private createTree(content: Content, pageView: PageView): void {
-        this.tree = new PageComponentsTreeGrid(content, pageView);
+        this.tree = new PageComponentsTreeGrid(pageView);
 
         this.clickListener = (event, data): void => {
             const elem: ElementHelper = new ElementHelper(event.target);
@@ -385,13 +387,12 @@ export class PageComponentsView
         });
 
         this.tree.onSelectionChanged(() => {
-            const currentSelection: ItemViewTreeGridWrapper[] = this.tree.getCurrentSelection();
-            const selectedItem: ItemViewTreeGridWrapper = currentSelection[0];
+            const currentSelection: ComponentsTreeItem[] = this.tree.getCurrentSelection();
+            const selectedItem: ComponentsTreeItem = currentSelection[0];
 
             if (selectedItem) {
-                // only if iframe is visible
                 if (!selectedItem.getItemView().isSelected()) {
-                    this.selectItem(selectedItem.getItemView());
+                    this.liveEditPage.selectComponentByPath(selectedItem.getPath());
                 }
 
                 if (!!this.contextMenu && !this.contextMenu.belongsToItemView(selectedItem.getItemView())) {
@@ -399,7 +400,7 @@ export class PageComponentsView
                 }
             } else { // if item was deselected by clicking in the pcv grid then need to deselect it in the live edit
                 if (this.selectedItemId) {
-                    this.tree.getItemWithDataId(this.selectedItemId)?.getItemView().deselect();
+                    this.liveEditPage.deselectComponentByPath();
                     this.selectedItemId = null;
                 }
             }
@@ -420,7 +421,7 @@ export class PageComponentsView
             this.subscribeOnFragmentLoadError();
         });
 
-        this.tree.onDataChanged((event: DataChangedEvent<ItemViewTreeGridWrapper>) => {
+        this.tree.onDataChanged((event: DataChangedEvent<ComponentsTreeItem>) => {
             if (event.getType() !== DataChangedType.UPDATED) {
                 this.constrainToParent();
             }
@@ -458,10 +459,10 @@ export class PageComponentsView
     }
 
     private subscribeOnFragmentLoadError(): void {
-        this.tree.getGrid().getDataView().getItems().map((dataItem) => {
+        this.tree.getGrid().getDataView().getItems().map((dataItem: TreeNode<ComponentsTreeItem>) => {
             return dataItem.getData().getItemView();
         }).filter((itemView: ItemView) => {
-            return ObjectHelper.iFrameSafeInstanceOf(itemView, FragmentComponentView);
+            return itemView && ObjectHelper.iFrameSafeInstanceOf(itemView, FragmentComponentView);
         }).forEach((fragmentComponentView: FragmentComponentView) => {
             this.bindFragmentLoadErrorHandler(fragmentComponentView);
         });
@@ -469,7 +470,7 @@ export class PageComponentsView
 
     private bindTreeFragmentNodeUpdateOnComponentLoaded(fragmentComponentView: FragmentComponentView): void {
         fragmentComponentView.onFragmentContentLoaded((e) => {
-            this.tree.updateNodeByData(new ItemViewTreeGridWrapper(e.getFragmentComponentView()));
+            // this.tree.updateNodeByData(new ComponentsTreeItem(e.getFragmentComponentView()));
         });
     }
 
@@ -481,7 +482,7 @@ export class PageComponentsView
 
     private initKeyBoardBindings(): void {
         const removeHandler = () => {
-            const itemViewWrapper: ItemViewTreeGridWrapper = this.tree.getFirstSelectedItem();
+            const itemViewWrapper: ComponentsTreeItem = this.tree.getFirstSelectedItem();
 
             if (itemViewWrapper) {
                 if (ObjectHelper.iFrameSafeInstanceOf(itemViewWrapper, ComponentView)) {
@@ -622,7 +623,7 @@ export class PageComponentsView
         el.setMaxHeightPx(parentEl.getHeight() - 48);
 
         const top =
-                Math.max(parentOffset.top, Math.min(elOffset.top, parentOffset.top + parentEl.getHeight() - el.getHeightWithBorder()), 48);
+            Math.max(parentOffset.top, Math.min(elOffset.top, parentOffset.top + parentEl.getHeight() - el.getHeightWithBorder()), 48);
         const left =
             Math.max(parentOffset.left, Math.min(elOffset.left, parentOffset.left + parentEl.getWidth() - el.getWidthWithBorder()), 48);
 
@@ -767,9 +768,9 @@ export class PageComponentsView
         } else {
             const elementHelper = new ElementHelper(rowElement);
             const dimensions = elementHelper.getDimensions();
-            const data: ItemViewTreeGridWrapper = this.tree.getDataByRow(new ElementHelper(rowElement).getSiblingIndex());
+            const data: ComponentsTreeItem = this.tree.getDataByRow(new ElementHelper(rowElement).getSiblingIndex());
 
-            if (data) {
+            if (data && data.getItemView()) {
                 if (!BrowserHelper.isMobile()) {
                     Highlighter.get().highlightElement(dimensions,
                         data.getItemView().getType().getConfig().getHighlighterStyle());

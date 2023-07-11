@@ -24,9 +24,10 @@ import {ComponentJson} from './region/ComponentJson';
 import {ConfigBasedComponent} from './region/ConfigBasedComponent';
 import {DescriptorKey} from './DescriptorKey';
 import {ContentId} from '../content/ContentId';
+import {PageItem} from './region/PageItem';
 
 export class Page
-    implements Equitable, Cloneable {
+    implements Equitable, Cloneable, PageItem {
 
     private readonly controller: DescriptorKey;
 
@@ -44,6 +45,8 @@ export class Page
         this.regions = builder.regions;
         this.fragment = builder.fragment;
         this.config = builder.config;
+
+        this.regions?.getRegions().forEach((region: Region) => region.setParent(this));
     }
 
     hasController(): boolean {
@@ -92,6 +95,10 @@ export class Page
 
     isFragment(): boolean {
         return this.fragment != null;
+    }
+
+    getPath(): ComponentPath {
+        return ComponentPath.root();
     }
 
     equals(o: Equitable): boolean {
