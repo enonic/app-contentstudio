@@ -120,7 +120,6 @@ class BasePageComponentView extends Page {
         return result;
     }
 
-
     async clickOnMenuItem(menuItem) {
         try {
             let selector = xpath.contextMenuItemByName(menuItem);
@@ -133,7 +132,6 @@ class BasePageComponentView extends Page {
             throw new Error("Error - Page Component View: Menu Item, screenshot " + screenshot + ' ' + err);
         }
     }
-
 
     async swapComponents(sourceName, destinationName) {
         let sourceElem = this.container + xpath.componentByName(sourceName);
