@@ -47,8 +47,6 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await liveFormPanel.selectLayoutByDisplayName(LAYOUT_NAME);
             await contentWizard.waitForNotificationMessage();
-            // TODO workaround - expand the collapsed row with the layout component:
-            //await pageComponentView.clickOnRowExpander('3-col');
             // 4. Insert text component in the left layout's region
             await pageComponentView.openMenu('left');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
@@ -56,8 +54,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 5. Save the site: (layout get collapsed after the saving )
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('page_component_updated_1');
-            // 6. Expand the layout item in Page Component View:
-            await pageComponentView.expandItem(LAYOUT_NAME);
+            // 6. Do not need to expand the layouts items, because the text component is selected in Live Edit now:
             // 7. Insert 'text component' in the left layout's region
             await pageComponentView.openMenu('center');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);

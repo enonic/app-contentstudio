@@ -236,7 +236,7 @@ export class PageComponentsView
         this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent): void => {
             if (!event.isNewlyCreated() && !this.pageView.isLocked()) {
                 this.selectedItemId = event.getItemView().getItemId().toString();
-                this.selectItemByDataId(this.selectedItemId);
+                this.tree.selectItemByComponentView(event.getItemView());
 
                 if (event.getPosition()) { // scroll to item if it was selected in preview
                     this.tree.scrollToItem(this.selectedItemId);
