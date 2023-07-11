@@ -2095,7 +2095,6 @@ export class ContentWizardPanel
 
     private initLiveEditModel(content: Content): Q.Promise<LiveEditModel> {
         const liveEditModel: LiveEditModel = LiveEditModel.create()
-            .setParentContent(this.parentContent)
             .setContent(content)
             .setContentFormContext(this.formContext)
             .setSiteModel(this.siteModel)

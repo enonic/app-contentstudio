@@ -290,21 +290,21 @@ export class LiveFormPanel
             if (ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), DescriptorBasedComponent)) {
                 if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
 
-                    const componentView = this.pageView.getComponentViewByPath(event.getPath());
-                    if (componentView) {
-                        if (ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
-                            const partView = <PartComponentView>componentView;
+                    const itemView = this.pageView.getComponentViewByPath(event.getPath());
+                    if (itemView) {
+                        if (ObjectHelper.iFrameSafeInstanceOf(itemView, PartComponentView)) {
+                            const partView = <PartComponentView>itemView;
                             const partComponent: PartComponent = partView.getComponent();
                             if (partComponent.hasDescriptor()) {
                                 this.contentWizardPanel.setMarkedAsReady(false);
-                                this.saveAndReloadOnlyComponent(componentView);
+                                this.saveAndReloadOnlyComponent(itemView as PartComponentView);
                             }
-                        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
-                            const layoutView = <LayoutComponentView>componentView;
+                        } else if (ObjectHelper.iFrameSafeInstanceOf(itemView, LayoutComponentView)) {
+                            const layoutView = <LayoutComponentView>itemView;
                             const layoutComponent: LayoutComponent = layoutView.getComponent();
                             if (layoutComponent.hasDescriptor()) {
                                 this.contentWizardPanel.setMarkedAsReady(false);
-                                this.saveAndReloadOnlyComponent(componentView);
+                                this.saveAndReloadOnlyComponent(itemView as LayoutComponentView);
                             }
                         }
                     } else {
@@ -313,18 +313,18 @@ export class LiveFormPanel
                 }
             } else if (ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), ImageComponent)) {
                 if (event.getPropertyName() === ImageComponent.PROPERTY_IMAGE && !event.getComponent().isEmpty()) {
-                    const componentView = this.pageView.getComponentViewByPath(event.getPath());
-                    if (componentView) {
+                    const itemView = this.pageView.getComponentViewByPath(event.getPath());
+                    if (itemView) {
                         this.contentWizardPanel.setMarkedAsReady(false);
-                        this.saveAndReloadOnlyComponent(componentView);
+                        this.saveAndReloadOnlyComponent(itemView as ImageComponentView);
                     }
                 }
             } else if (ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), FragmentComponent)) {
                 if (event.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT && !event.getComponent().isEmpty()) {
-                    const componentView = this.pageView.getComponentViewByPath(event.getPath());
-                    if (componentView) {
+                    const itemView = this.pageView.getComponentViewByPath(event.getPath());
+                    if (itemView) {
                         this.contentWizardPanel.setMarkedAsReady(false);
-                        this.saveAndReloadOnlyComponent(componentView);
+                        this.saveAndReloadOnlyComponent(itemView as FragmentComponentView);
                     }
                 }
             }
@@ -765,22 +765,14 @@ export class LiveFormPanel
                     textEditorCursorPos = (<TextComponentView>selected).getCursorPosition();
                 }
             } else if (ObjectHelper.iFrameSafeInstanceOf(selected, RegionView)) {
-                path = (<RegionView>selected).getRegionPath();
-            }
-
-            if (path && BrowserHelper.isIE()) {
-                path = path.toString();
+                path = (<RegionView>selected).getPath();
             }
         });
 
         const restoreSelection = () => {
             if (path) {
-                if (BrowserHelper.isIE()) {
-                    path = isComponentView ? ComponentPath.fromString(path) : RegionPath.fromString(path);
-                }
-                const selected: ComponentView<Component> | RegionView = ObjectHelper.iFrameSafeInstanceOf(path, ComponentPath)
-                                                                        ? this.pageView.getComponentViewByPath(path)
-                                                                        : this.pageView.getRegionViewByPath(path);
+                const selected = this.pageView.getComponentViewByPath(path);
+
                 if (selected) {
                     selected.selectWithoutMenu(true);
                     selected.scrollComponentIntoView();

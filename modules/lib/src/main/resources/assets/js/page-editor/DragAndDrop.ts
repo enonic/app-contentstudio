@@ -98,7 +98,7 @@ export class DragAndDrop {
 
         // Make sure no other region has the over class
         this.pageView.getItemViewsByType(RegionItemType.get()).forEach((region: RegionView) => {
-            region.toggleClass(this.DRAGGED_OVER_CLASS, region.getRegionPath().equals(regionView.getRegionPath()));
+            region.toggleClass(this.DRAGGED_OVER_CLASS, region.getPath().equals(regionView.getPath()));
         });
 
         // Need to update empty state if the only item

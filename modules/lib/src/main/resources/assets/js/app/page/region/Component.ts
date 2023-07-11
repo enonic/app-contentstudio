@@ -14,6 +14,7 @@ import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ComponentJson} from './ComponentJson';
 import {RegionPath} from './RegionPath';
 import {assert, assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
+import {PageItem} from './PageItem';
 
 export type ComponentPropertyChangedEventHandler =  (event: ComponentPropertyChangedEvent) => void;
 export type ComponentChangedEventHandler =  (event: ComponentChangedEvent) => void;
@@ -21,7 +22,7 @@ export type ComponentPropertyValueChangedEventHandler =  (event: ComponentProper
 export type ComponentResetEventHandler =  (event: ComponentResetEvent) => void;
 
 export abstract class Component
-    implements Equitable, Cloneable {
+    implements Equitable, Cloneable, PageItem {
 
     public static PROPERTY_NAME: string = 'name';
 
@@ -41,7 +42,7 @@ export abstract class Component
 
     private readonly type: ComponentType;
 
-    protected constructor(builder: ComponentBuilder<Component>) {
+    protected constructor(builder: ComponentBuilder) {
 
         this.name = builder.name;
         this.index = builder.index;
@@ -70,21 +71,7 @@ export abstract class Component
     }
 
     getPath(): ComponentPath {
-        return this.hasPath() ? Component.fromRegionPathAndComponentIndex(this.parent.getPath(), this.index) : null;
-    }
-
-    public static fromRegionPathAndComponentIndex(regionPath: RegionPath, componentIndex: number): ComponentPath {
-        assertNotNull(regionPath, 'regionPath cannot be null');
-        assert(componentIndex >= 0, 'componentIndex must be zero or more');
-
-        let regionAndComponentList: ComponentPathRegionAndComponent[] = [];
-        if (regionPath.getParentComponentPath()) {
-            regionPath.getParentComponentPath().getLevels().forEach((regionAndComponent: ComponentPathRegionAndComponent) => {
-                regionAndComponentList.push(regionAndComponent);
-            });
-        }
-        regionAndComponentList.push(new ComponentPathRegionAndComponent(regionPath.getRegionName(), componentIndex));
-        return new ComponentPath(regionAndComponentList);
+        return new ComponentPath(this.index, this.parent?.getPath());
     }
 
     getName(): ComponentName {
@@ -244,7 +231,7 @@ export abstract class Component
     }
 }
 
-export class ComponentBuilder<COMPONENT extends Component> {
+export abstract class ComponentBuilder {
 
     name: ComponentName;
 
@@ -254,7 +241,7 @@ export class ComponentBuilder<COMPONENT extends Component> {
 
     type: ComponentType;
 
-    constructor(source?: Component) {
+    protected constructor(source?: Component) {
         if (source) {
             this.name = source.getName();
             this.parent = source.getParent();
@@ -263,33 +250,31 @@ export class ComponentBuilder<COMPONENT extends Component> {
         }
     }
 
-    public setIndex(value: number): ComponentBuilder<COMPONENT> {
+    public setIndex(value: number): this {
         this.index = value;
         return this;
     }
 
-    public setName(value: ComponentName): ComponentBuilder<COMPONENT> {
+    public setName(value: ComponentName): this {
         this.name = value;
         return this;
     }
 
-    public setParent(value: Region): ComponentBuilder<COMPONENT> {
+    public setParent(value: Region): this {
         this.parent = value;
         return this;
     }
 
-    public setType(value: ComponentType): ComponentBuilder<COMPONENT> {
+    public setType(value: ComponentType): this {
         this.type = value;
         return this;
     }
 
-    public fromJson(json: ComponentJson): ComponentBuilder<COMPONENT> {
+    public fromJson(json: ComponentJson): this {
         this.setName(json.name ? new ComponentName(json.name) : null);
 
         return this;
     }
 
-    public build(): COMPONENT {
-        throw new Error('Must be implemented by inheritor');
-    }
+    public abstract build(): Component;
 }

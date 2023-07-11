@@ -7,17 +7,16 @@ import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
 import {RegionPropertyValueChangedEvent} from './RegionPropertyValueChangedEvent';
 import {ComponentAddedEvent} from './ComponentAddedEvent';
-import {RegionPath} from './RegionPath';
 import {ComponentPath} from './ComponentPath';
 import {RegionJson} from './RegionJson';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
-import {LayoutComponentType} from './LayoutComponentType';
 import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
 import {assertState} from '@enonic/lib-admin-ui/util/Assert';
 import {ComponentChangedEvent} from './ComponentChangedEvent';
+import {PageItem} from './PageItem';
 
 export class Region
-    implements Equitable, Cloneable {
+    implements Equitable, Cloneable, PageItem {
 
     public static debug: boolean = false;
 
@@ -25,7 +24,7 @@ export class Region
 
     private components: Component[] = [];
 
-    private parentPath: ComponentPath;
+    private parent: PageItem;
 
     private changedListeners: { (event: BaseRegionChangedEvent): void }[] = [];
 
@@ -43,7 +42,7 @@ export class Region
 
     constructor(builder: RegionBuilder) {
         this.name = builder.name;
-        this.parentPath = builder.parentPath;
+        this.parent = builder.parent;
 
         this.componentChangedEventHandler = (event: any) => {
             if (Region.debug) {
@@ -59,20 +58,20 @@ export class Region
         });
     }
 
+    setParent(parent: PageItem) {
+        this.parent = parent;
+    }
+
     getName(): string {
         return this.name;
     }
 
-    setParentPath(value: ComponentPath) {
-        this.parentPath = value;
+    getParent(): PageItem {
+        return this.parent;
     }
 
-    getParentPath(): ComponentPath {
-        return this.parentPath;
-    }
-
-    getPath(): RegionPath {
-        return new RegionPath(this.parentPath, this.name);
+    getPath(): ComponentPath {
+        return new ComponentPath(this.name, this.parent?.getPath());
     }
 
     isEmpty(): boolean {
@@ -172,13 +171,6 @@ export class Region
         return new RegionBuilder(this).build();
     }
 
-    private checkIllegalLayoutComponentWithinLayoutComponent(component: Component) {
-        if (this.parentPath && component.getType() === LayoutComponentType.get()) {
-            throw new Error('Not allowed to have a LayoutComponent within a LayoutComponent: ' +
-                            component.getPath().toString());
-        }
-    }
-
     private refreshIndexes(start?: number) {
         for (let i = Math.min(0, start); i < this.components.length; i++) {
             this.components[i].setIndex(i);
@@ -189,7 +181,6 @@ export class Region
         if (Region.debug) {
             console.debug(this.toString() + '.registerComponent: ' + component.toString() + ' at ' + component.getIndex());
         }
-        this.checkIllegalLayoutComponentWithinLayoutComponent(component);
 
         if (index >= 0 && index < this.components.length) {
 
@@ -258,7 +249,7 @@ export class Region
     }
 
     private notifyComponentAdded(componentPath: ComponentPath) {
-        let event = new ComponentAddedEvent(this.getPath(), componentPath);
+        let event = new ComponentAddedEvent(componentPath);
         this.componentAddedListeners.forEach((listener: (event: ComponentAddedEvent) => void) => {
             listener(event);
         });
@@ -277,7 +268,7 @@ export class Region
     }
 
     private notifyComponentRemoved(componentPath: ComponentPath) {
-        let event = new ComponentRemovedEvent(this.getPath(), componentPath);
+        let event = new ComponentRemovedEvent(componentPath);
         this.componentRemovedListeners.forEach((listener: (event: ComponentRemovedEvent) => void) => {
             listener(event);
         });
@@ -331,12 +322,12 @@ export class RegionBuilder {
 
     components: Component[] = [];
 
-    parentPath: ComponentPath;
+    parent: PageItem;
 
     constructor(source?: Region) {
         if (source) {
             this.name = source.getName();
-            this.parentPath = source.getParentPath(); //TODO; Should clone have same parent at all times?
+            this.parent = source.getParent();
             source.getComponents().forEach((component: Component) => {
                 this.components.push(component.clone());
             });
@@ -348,8 +339,8 @@ export class RegionBuilder {
         return this;
     }
 
-    public setParentPath(value: ComponentPath): RegionBuilder {
-        this.parentPath = value;
+    public setParent(value: PageItem): RegionBuilder {
+        this.parent = value;
         return this;
     }
 

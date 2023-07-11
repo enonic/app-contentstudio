@@ -121,7 +121,7 @@ export class ImageComponent
 }
 
 export class ImageComponentBuilder
-    extends ConfigBasedComponentBuilder<ImageComponent> {
+    extends ConfigBasedComponentBuilder {
 
     image: ContentId;
 
@@ -135,12 +135,12 @@ export class ImageComponentBuilder
         this.setType(ImageComponentType.get());
     }
 
-    public setImage(value: ContentId): ImageComponentBuilder {
+    public setImage(value: ContentId): this {
         this.image = value;
         return this;
     }
 
-    public fromJson(json: ImageComponentJson): ImageComponentBuilder {
+    public fromJson(json: ImageComponentJson): this {
         super.fromJson(json);
 
         if (json.image) {

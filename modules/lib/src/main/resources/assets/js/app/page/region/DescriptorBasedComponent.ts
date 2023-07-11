@@ -14,16 +14,10 @@ export abstract class DescriptorBasedComponent
 
     private descriptorKey: DescriptorKey;
 
-    private description: string;
-
-    private icon: string;
-
-    constructor(builder: DescriptorBasedComponentBuilder<DescriptorBasedComponent>) {
+    protected constructor(builder: DescriptorBasedComponentBuilder) {
         super(builder);
 
         this.descriptorKey = builder.descriptor;
-        this.description = builder.description;
-        this.icon = builder.icon;
     }
 
     hasDescriptor(): boolean {
@@ -38,10 +32,7 @@ export abstract class DescriptorBasedComponent
         const oldDescriptorKeyValue = this.descriptorKey;
         this.descriptorKey = descriptor ? descriptor.getKey() : null;
 
-        this.icon = descriptor ? descriptor.getIcon() : null;
-
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
-        this.description = descriptor ? descriptor.getDescription() : null;
 
         if (!ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
             this.notifyPropertyChanged(DescriptorBasedComponent.PROPERTY_DESCRIPTOR);
@@ -61,22 +52,6 @@ export abstract class DescriptorBasedComponent
         if (!ObjectHelper.equals(oldValue, config)) {
             this.notifyPropertyChanged(ConfigBasedComponent.PROPERTY_CONFIG);
         }
-    }
-
-    getDescription(): string {
-        return this.description;
-    }
-
-    setDescription(value: string) {
-        this.description = value;
-    }
-
-    getIcon(): string {
-        return this.icon;
-    }
-
-    setIcon(value: string) {
-        this.icon = value;
     }
 
     doReset() {
@@ -111,8 +86,8 @@ export abstract class DescriptorBasedComponent
     }
 }
 
-export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends DescriptorBasedComponent>
-    extends ConfigBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+export abstract class DescriptorBasedComponentBuilder
+    extends ConfigBasedComponentBuilder {
 
     descriptor: DescriptorKey;
 
@@ -120,16 +95,14 @@ export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends 
 
     icon: string;
 
-    constructor(source?: DescriptorBasedComponent) {
+    protected constructor(source?: DescriptorBasedComponent) {
         super(source);
         if (source) {
             this.descriptor = source.getDescriptorKey();
-            this.description = source.getDescription();
-            this.icon = source.getIcon();
         }
     }
 
-    public fromJson(json: DescriptorBasedComponentJson): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+    public fromJson(json: DescriptorBasedComponentJson): this {
         super.fromJson(json);
 
         if (json.descriptor) {
@@ -139,17 +112,17 @@ export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends 
         return this;
     }
 
-    public setDescriptor(value: DescriptorKey): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+    public setDescriptor(value: DescriptorKey): this {
         this.descriptor = value;
         return this;
     }
 
-    public setDescription(value: string): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+    public setDescription(value: string): this {
         this.description = value;
         return this;
     }
 
-    public setIcon(value: string): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+    public setIcon(value: string): this {
         this.icon = value;
         return this;
     }

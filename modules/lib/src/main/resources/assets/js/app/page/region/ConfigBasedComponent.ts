@@ -20,7 +20,7 @@ export abstract class ConfigBasedComponent
 
     protected configChangedHandler: (event: PropertyEvent) => void;
 
-    constructor(builder: ConfigBasedComponentBuilder<ConfigBasedComponent>) {
+    protected constructor(builder: ConfigBasedComponentBuilder) {
         super(builder);
 
         this.config = builder.config;
@@ -60,12 +60,12 @@ export abstract class ConfigBasedComponent
     }
 }
 
-export class ConfigBasedComponentBuilder<T extends ConfigBasedComponent>
-    extends ComponentBuilder<T> {
+export abstract class ConfigBasedComponentBuilder
+    extends ComponentBuilder {
 
     config: PropertyTree;
 
-    constructor(source?: ConfigBasedComponent) {
+    protected constructor(source?: ConfigBasedComponent) {
         super(source);
 
         if (source) {
@@ -75,12 +75,12 @@ export class ConfigBasedComponentBuilder<T extends ConfigBasedComponent>
         }
     }
 
-    public setConfig(value: PropertyTree): ConfigBasedComponentBuilder<T> {
+    public setConfig(value: PropertyTree): this {
         this.config = value;
         return this;
     }
 
-    public fromJson(json: ConfigBasedComponentJson): ConfigBasedComponentBuilder<T> {
+    public fromJson(json: ConfigBasedComponentJson): this {
         super.fromJson(json);
 
         if (json.config) {

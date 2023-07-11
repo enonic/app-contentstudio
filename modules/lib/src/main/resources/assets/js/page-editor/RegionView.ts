@@ -152,7 +152,7 @@ export class RegionView
 
         this.componentAddedListener = (event: ComponentAddedEvent) => {
             if (RegionView.debug) {
-                console.log('RegionView.handleComponentAdded: ' + event.getComponentPath().toString());
+                console.log('RegionView.handleComponentAdded: ' + event.getPath().toString());
             }
 
             this.refreshEmptyState();
@@ -161,7 +161,7 @@ export class RegionView
 
         this.componentRemovedListener = (event: ComponentRemovedEvent) => {
             if (RegionView.debug) {
-                console.log('RegionView.handleComponentRemoved: ' + event.getComponentPath().toString());
+                console.log('RegionView.handleComponentRemoved: ' + event.getPath().toString());
             }
 
             this.refreshEmptyState();
@@ -199,7 +199,7 @@ export class RegionView
     }
 
     memorizeLastMouseDownTarget(event: MouseEvent) {
-        this.mouseDownLastTarget = <HTMLElement> event.target;
+        this.mouseDownLastTarget = <HTMLElement>event.target;
     }
 
     private addRegionContextMenuActions() {
@@ -250,26 +250,17 @@ export class RegionView
     }
 
     getRegionName(): string {
-        return this.getRegionPath() ? this.getRegionPath().getRegionName() : null;
+        return this.getPath()?.getPath().toString();
     }
 
-    getRegionPath(): RegionPath {
-        return this.region ? this.region.getPath() : null;
+    getPath(): ComponentPath {
+        return this.region?.getPath();
     }
 
     getName(): string {
         return this.getRegionName() ? this.getRegionName().toString() : i18n('live.view.itemview.noname');
     }
 
-    /*
-            highlight() {
-                // Don't highlight region on hover
-            }
-
-            unhighlight() {
-                // Don't highlight region on hover
-            }
-    */
     highlightSelected() {
         if (!this.textMode && !this.isDragging()) {
             super.highlightSelected();
@@ -295,12 +286,14 @@ export class RegionView
     }
 
     select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
-        config.newlyCreated = false;
-        config.rightClicked = false;
+        if (config) {
+            config.newlyCreated = false;
+            config.rightClicked = false;
+        }
 
         super.select(config, menuPosition);
 
-        new RegionSelectedEvent(this, config.rightClicked).fire();
+        new RegionSelectedEvent(this, config?.rightClicked).fire();
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {
@@ -311,8 +304,8 @@ export class RegionView
 
     toString() {
         let extra = '';
-        if (this.getRegionPath()) {
-            extra = ' : ' + this.getRegionPath().toString();
+        if (this.getPath()) {
+            extra = ' : ' + this.getPath().toString();
         }
         return super.toString() + extra;
     }
@@ -401,33 +394,20 @@ export class RegionView
         return this.componentViews.indexOf(view);
     }
 
-    getComponentViewByIndex(index: number): ComponentView<Component> {
+    getComponentViewByPath(path: ComponentPath): ItemView {
+        let result: ItemView = null;
 
-        return this.componentViews[index];
-    }
-
-    getComponentViewByPath(path: ComponentPath): ComponentView<Component> {
-
-        const firstLevelOfPath = path.getFirstLevel();
-
-        if (path.numberOfLevels() === 1) {
-
-            return this.componentViews[firstLevelOfPath.getComponentIndex()];
-        }
-
-        for (let i = 0; i < this.componentViews.length; i++) {
-            const componentView = this.componentViews[i];
-            if (componentView.getType().equals(LayoutItemType.get())) {
-
-                const layoutView = <LayoutComponentView>componentView;
-                const match = layoutView.getComponentViewByPath(path.removeFirstLevel());
-                if (match) {
-                    return match;
-                }
+        this.componentViews.some((componentView: ComponentView<Component>) => {
+            if (componentView.isLayout()) {
+                result = (<LayoutComponentView>componentView).getComponentViewByPath(path);
+            } else if (path.equals(componentView.getComponentPath())) {
+                result = componentView;
             }
-        }
 
-        return null;
+            return !!result;
+        });
+
+        return result;
     }
 
     hasOnlyMovingComponentViews(): boolean {
@@ -545,7 +525,7 @@ export class RegionView
                 component = region.getComponentByIndex(this.componentIndex++);
                 if (component) {
                     // reuse existing component view
-                    componentView = <ComponentView<Component>> childElement;
+                    componentView = <ComponentView<Component>>childElement;
                     // update view's data
                     componentView.setComponent(component);
                     // register it again because we unregistered everything before parsing

@@ -33,7 +33,7 @@ import {RegionItemType} from './RegionItemType';
 import {PageItemType} from './PageItemType';
 import {Content} from '../app/content/Content';
 import {Component, ComponentBuilder} from '../app/page/region/Component';
-import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from '../app/page/region/DescriptorBasedComponent';
+import {DescriptorBasedComponentBuilder} from '../app/page/region/DescriptorBasedComponent';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {FragmentComponentBuilder} from '../app/page/region/FragmentComponent';
 import {FragmentComponentType} from '../app/page/region/FragmentComponentType';
@@ -1044,27 +1044,35 @@ export class ItemView
         let builder = this.createBuilder(componentType).setName(componentType.getDefaultName());
 
         if (ObjectHelper.iFrameSafeInstanceOf(builder, DescriptorBasedComponentBuilder)) {
-            let descriptorBuilder = <DescriptorBasedComponentBuilder<DescriptorBasedComponent>>builder;
+            let descriptorBuilder = <DescriptorBasedComponentBuilder>builder;
             descriptorBuilder.setConfig(new PropertyTree());
         }
 
         return builder.build();
     }
 
-    private createBuilder(componentType: ComponentType): ComponentBuilder<Component> {
+    private createBuilder(componentType: ComponentType): ComponentBuilder {
         if (ObjectHelper.iFrameSafeInstanceOf(componentType, FragmentComponentType)) {
             return new FragmentComponentBuilder();
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, ImageComponentType)) {
-            return new ImageComponentBuilder();
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, LayoutComponentType)) {
-            return new LayoutComponentBuilder();
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, PartComponentType)) {
-            return new PartComponentBuilder();
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, TextComponentType)) {
-            return new TextComponentBuilder();
-        } else {
-            return new ComponentBuilder();
         }
+
+        if (ObjectHelper.iFrameSafeInstanceOf(componentType, ImageComponentType)) {
+            return new ImageComponentBuilder();
+        }
+
+        if (ObjectHelper.iFrameSafeInstanceOf(componentType, LayoutComponentType)) {
+            return new LayoutComponentBuilder();
+        }
+
+        if (ObjectHelper.iFrameSafeInstanceOf(componentType, PartComponentType)) {
+            return new PartComponentBuilder();
+        }
+
+        if (ObjectHelper.iFrameSafeInstanceOf(componentType, TextComponentType)) {
+            return new TextComponentBuilder();
+        }
+
+        throw new Error('Unknown component type: ' + componentType?.getShortName());
     }
 
     private getInsertActions(liveEditModel: LiveEditModel): Action[] {

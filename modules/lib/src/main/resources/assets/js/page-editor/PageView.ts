@@ -415,6 +415,10 @@ export class PageView
         });
     }
 
+    getPath(): ComponentPath {
+        return ComponentPath.root();
+    }
+
     select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
         config.newlyCreated = false;
         config.rightClicked = false;
@@ -840,48 +844,24 @@ export class PageView
         return null;
     }
 
-    getRegionViewByPath(path: RegionPath): RegionView {
-
-        for (let i = 0; i < this.regionViews.length; i++) {
-            const regionView = this.regionViews[i];
-
-            if (path.hasParentComponentPath()) {
-                const componentView = this.getComponentViewByPath(path.getParentComponentPath());
-                if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
-                    const layoutView = <LayoutComponentView>componentView;
-                    layoutView.getRegionViewByName(path.getRegionName());
-                }
-            } else {
-                if (path.getRegionName() === regionView.getRegionName()) {
-                    return regionView;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    getComponentViewByPath(path: ComponentPath): ComponentView<Component> {
+    getComponentViewByPath(path: ComponentPath): ItemView {
         if (!path) {
             return this.fragmentView;
         }
 
-        const firstLevelOfPath = path.getFirstLevel();
+        let result: ItemView = null;
 
-        for (let i = 0; i < this.regionViews.length; i++) {
-            const regionView = this.regionViews[i];
-            if (firstLevelOfPath.getRegionName() === regionView.getRegionName()) {
-                if (path.numberOfLevels() === 1) {
-                    return regionView.getComponentViewByIndex(firstLevelOfPath.getComponentIndex());
-                } else {
-                    const view = regionView.getComponentViewByIndex(firstLevelOfPath.getComponentIndex());
-                    const layoutView: LayoutComponentView = <LayoutComponentView>view;
-                    return layoutView.getComponentViewByPath(path.removeFirstLevel());
-                }
+        this.regionViews.some((regionView: RegionView) => {
+            if (regionView.getPath().equals(path)) {
+                result = regionView;
+            } else {
+                result = regionView.getComponentViewByPath(path);
             }
-        }
 
-        return null;
+            return !!result;
+        });
+
+        return result;
     }
 
     private registerItemView(view: ItemView) {

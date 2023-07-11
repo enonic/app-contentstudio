@@ -42,17 +42,13 @@ import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {Component} from '../../page/region/Component';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
-import {Regions} from '../../page/region/Regions';
 import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {GLOBAL, GlobalLibAdmin, Store} from '@enonic/lib-admin-ui/store/Store';
-import {IEObjectHolder} from './IEObjectHolder';
 import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
 import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
-import {Descriptor} from '../../page/Descriptor';
 import {ContentId} from '../../content/ContentId';
 import {CreateHtmlAreaMacroDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaMacroDialogEvent';
 import {CreateHtmlAreaContentDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
@@ -63,6 +59,7 @@ import {ComponentItemType} from '../../../page-editor/ComponentItemType';
 import * as DOMPurify from 'dompurify';
 import {HTMLAreaHelper} from '../../inputtype/ui/text/HTMLAreaHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ComponentPath} from '../../page/region/ComponentPath';
 
 export class LiveEditPageProxy {
 
@@ -137,8 +134,6 @@ export class LiveEditPageProxy {
     private createHtmlAreaDialogListeners: { (event: CreateHtmlAreaDialogEvent): void; }[] = [];
 
     private static debug: boolean = false;
-
-    private ieObjectHolder: IEObjectHolder;
 
     private modifyPermissions: boolean;
 
@@ -324,10 +319,6 @@ export class LiveEditPageProxy {
         let contentId = this.contentId.toString();
         let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT);
 
-        if (BrowserHelper.isIE()) {
-            this.copyObjectsBeforeFrameReloadForIE();
-        }
-
         if (!this.liveEditWindow) {
             this.liveEditIFrame.setSrc(pageUrl);
         } else {
@@ -404,10 +395,6 @@ export class LiveEditPageProxy {
 
                 this.listenToPage(this.liveEditWindow);
 
-                if (BrowserHelper.isIE()) {
-                    this.resetObjectsAfterFrameReloadForIE();
-                    this.disableLinksInLiveEditForIE();
-                }
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
                 }
@@ -428,6 +415,29 @@ export class LiveEditPageProxy {
 
         // Notify loaded no matter the result
         this.notifyLoaded();
+    }
+
+    selectComponentByPath(path: ComponentPath): void {
+        if (!path) {
+            return;
+        }
+
+        const itemView = this.pageView?.getPath().equals(path) ? this.pageView : this.pageView?.getComponentViewByPath(path);
+
+        if (itemView && !itemView.isSelected()) {
+            itemView.selectWithoutMenu();
+        }
+    }
+
+    deselectComponentByPath(path?: ComponentPath): void {
+        if (!path) {
+            return;
+        }
+        const itemView = this.pageView?.getPath().equals(path) ? this.pageView : this.pageView?.getComponentViewByPath(path);
+
+        if (itemView && !itemView.isSelected()) {
+            itemView.deselect();
+        }
     }
 
     public loadComponent(componentView: ComponentView<Component>, componentUrl: string,
@@ -965,39 +975,6 @@ export class LiveEditPageProxy {
 
     private notifyEditContent(event: EditContentEvent) {
         this.editContentListeners.forEach((listener) => listener(event));
-    }
-
-    private copyObjectsBeforeFrameReloadForIE() {
-        const controller: Descriptor = this.liveEditModel.getPageModel().getController();
-        const regions: Regions = this.liveEditModel.getPageModel().getRegions();
-
-        this.ieObjectHolder = new IEObjectHolder();
-        this.ieObjectHolder.setController(controller);
-        this.ieObjectHolder.setRegions(regions);
-    }
-
-    private resetObjectsAfterFrameReloadForIE() {
-        this.resetControllerForIE();
-        this.resetRegionsForIE();
-        this.ieObjectHolder.reset();
-    }
-
-    private resetControllerForIE() {
-        if (this.ieObjectHolder.hasController()) {
-            this.liveEditModel.getPageModel().setControllerDescriptor(this.ieObjectHolder.getPageDescriptorCopy());
-        }
-    }
-
-    private resetRegionsForIE() {
-        if (this.ieObjectHolder.hasRegionsCopy()) {
-            this.liveEditModel.getPageModel().setRegions(this.ieObjectHolder.getRegionsCopy());
-        }
-    }
-
-    private disableLinksInLiveEditForIE() {
-        if (this.livejq) {
-            this.livejq('a').attr('disabled', 'disabled'); // this works only in IE
-        }
     }
 
 }

@@ -11,6 +11,7 @@ import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {RegionPath} from './RegionPath';
 import {RegionDescriptor} from '../RegionDescriptor';
 import {ComponentPropertyChangedEventHandler} from './Component';
+import {ComponentPath} from './ComponentPath';
 
 export class Regions
     implements Equitable {
@@ -186,7 +187,7 @@ export class Regions
         this.notifyChanged(event);
     }
 
-    private notifyRegionAdded(regionPath: RegionPath) {
+    private notifyRegionAdded(regionPath: ComponentPath) {
         const event: RegionAddedEvent = new RegionAddedEvent(regionPath);
 
         if (Regions.debug) {
@@ -196,7 +197,7 @@ export class Regions
         this.notifyChanged(event);
     }
 
-    private notifyRegionRemoved(regionPath: RegionPath) {
+    private notifyRegionRemoved(regionPath: ComponentPath) {
         const event: RegionRemovedEvent = new RegionRemovedEvent(regionPath);
 
         if (Regions.debug) {
@@ -207,7 +208,6 @@ export class Regions
     }
 
     public static create(): RegionsBuilder {
-
         return new RegionsBuilder();
     }
 }
