@@ -45,6 +45,13 @@ task copyConfig( type: Copy ) {
     mustRunAfter unpackDistro
 }
 
+task copyCustomConfig( type: Copy ) {
+    println "$appDir${File.separator}custom-config"
+    from "$appDir${File.separator}custom-config"
+    include '**.*.cfg'
+    into file( configDir )
+}
+
 task copyApps( type: Copy ) {
     println '*********************************************************'
     println '* task started:copyApps  *'
@@ -151,6 +158,11 @@ task testPublishIssues( type: NpmTask, dependsOn: [npmInstall, startServer, copy
 }
 task testModalDialog( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_modal_dialog']
+    finalizedBy stopServer
+}
+
+task testHiddenDefaultProject( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, copyCustomConfig] ) {
+    args = ['run-script', 'test_hide_default_project']
     finalizedBy stopServer
 }
 
