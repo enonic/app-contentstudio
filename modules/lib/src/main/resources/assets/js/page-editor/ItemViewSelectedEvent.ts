@@ -3,6 +3,7 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ItemView} from './ItemView';
 import {ClickPosition} from './ClickPosition';
 import {SelectedByClickEvent} from './SelectedByClickEvent';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 
 export interface ItemViewSelectedEventConfig {
     itemView: ItemView;
@@ -37,6 +38,10 @@ export class ItemViewSelectedEvent
 
     getItemView(): ItemView {
         return this.pageItemView;
+    }
+
+    getPath(): ComponentPath {
+        return this.pageItemView.getPath();
     }
 
     getPosition(): ClickPosition {

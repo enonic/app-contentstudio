@@ -363,6 +363,10 @@ export class ComponentView<COMPONENT extends Component>
         return this.moving;
     }
 
+    getPath(): ComponentPath {
+        return this.component?.getPath();
+    }
+
     clone(): ComponentView<COMPONENT> {
         const isFragmentContent: boolean = this.liveEditModel.getContent().getType().isFragment();
         const index: number = isFragmentContent ? 0 : this.getParentItemView().getComponentViewIndex(this);

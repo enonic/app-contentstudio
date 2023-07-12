@@ -66,10 +66,6 @@ export class LayoutComponent
         }
     }
 
-    setIndex(value: number) {
-        super.setIndex(value);
-    }
-
     setDescriptor(descriptor: Descriptor) {
         super.setDescriptor(descriptor);
 

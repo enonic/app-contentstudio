@@ -37,6 +37,7 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {Content} from '../content/Content';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ComponentPath} from '../page/region/ComponentPath';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ComponentsTreeItem> {
@@ -351,8 +352,8 @@ export class PageComponentsTreeGrid
         super.doUpdateNodeByData(nodeToUpdate, data);
     }
 
-    scrollToItem(dataId: string) {
-        const node: TreeNode<ComponentsTreeItem> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+    scrollToItem(path: ComponentPath) {
+        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
 
         if (node) {
             this.scrollToRow(this.getRowByNodeId(node.getId()));
@@ -364,6 +365,21 @@ export class PageComponentsTreeGrid
             }
         }
     }
+
+    isItemSelected(path: ComponentPath): boolean {
+        if (!this.hasSelectedItems()) {
+            return false;
+        }
+
+        return this.getSelectedDataList().some((item: ComponentsTreeItem) => item.getPath().equals(path));
+    }
+
+    private getNodeByPath(path: ComponentPath): TreeNode<ComponentsTreeItem> {
+        return this.getRoot().getAllDefaultRootNodes().find((node: TreeNode<ComponentsTreeItem>) => {
+            return node.getData().getComponent()?.getItem().getPath().equals(path);
+        });
+    }
+
 
     private isElementInViewport(element: HTMLElement): boolean {
         const rect = element.getBoundingClientRect();
@@ -405,22 +421,10 @@ export class PageComponentsTreeGrid
         super.deleteNode(node);
     }
 
-    selectItemByDataId(dataId: string): void { // not using selectNode() because it triggers extra selectRow() call
-        if (this.getSelectedItems()[0] !== dataId) { // if not already selected
-            const nodeId: string = this.getRoot().getNodeByDataIdFromCurrent(dataId)?.getId();
-
-            if (nodeId) {
-                this.selectRow(this.getRowByNodeId(nodeId));
-            }
-        }
-    }
-
-    selectItemByComponentView(view: ItemView): void {
-        const dataId: string = view.getItemId().toString();
-
-        this.expandRecursivelyFromTopToView(view.getParentItemView()).then(() => {
-            if (this.getSelectedItems()[0] !== dataId) { // if not already selected
-                const node: TreeNode<ComponentsTreeItem> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+    selectItemByPath(path: ComponentPath): void {
+        this.expandRecursivelyFromTopToView(path.getParentPath()).then(() => {
+            if (!this.isItemSelected(path)) { // if not already selected
+                const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
                 if (node) {
                     this.selectRow(this.getRowByNodeId(node.getId()));
                 }
@@ -441,22 +445,21 @@ export class PageComponentsTreeGrid
         });
     }
 
-    private expandRecursivelyFromTopToView(view?: ItemView): Q.Promise<boolean> {
-        if (!view) {
+    private expandRecursivelyFromTopToView(path?: ComponentPath): Q.Promise<boolean> {
+        if (!path) {
             return Q.resolve(true);
         }
 
-        const dataId: string = view.getItemId().toString();
-        const node: TreeNode<ComponentsTreeItem> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
 
         if (node) { // ItemView's corresponding node is already in the tree
             return this.expandRecursivelyFromTopToNode(node);
         }
 
         // No node in the tree for the ItemView, looking for the first parent ItemView with a node in the tree
-        return this.expandRecursivelyFromTopToView(view.getParentItemView()).then(() => {
+        return this.expandRecursivelyFromTopToView(path.getParentPath()).then(() => {
             // after parent items expanded, looking for the node again
-            const node: TreeNode<ComponentsTreeItem> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+            const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
 
             return !!node ? this.expandNode(node) : Q.resolve(false);
         });
@@ -475,6 +478,14 @@ export class PageComponentsTreeGrid
 
     private getRowByNodeId(nodeId: string): number {
         return this.getGrid().getDataView().getRowById(nodeId);
+    }
+
+    deleteItemByPath(path: ComponentPath): void {
+        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
+
+        if (node) {
+            this.deleteNode(node);
+        }
     }
 
 }
