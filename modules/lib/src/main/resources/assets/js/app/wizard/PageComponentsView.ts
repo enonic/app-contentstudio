@@ -58,7 +58,6 @@ export class PageComponentsView
     private header: Element;
     private modal: boolean;
     private draggable: boolean;
-    private selectedItemId: string;
     private dockedParent: Element;
     private toggleButton: Button;
 
@@ -195,9 +194,6 @@ export class PageComponentsView
 
             this.tree.setPageView(pageView).then(() => {
                 this.initLock();
-                if (this.selectedItemId) {
-                    this.selectItemByDataId(this.selectedItemId);
-                }
             });
         }
 
@@ -235,19 +231,17 @@ export class PageComponentsView
 
     private initLiveEditEvents() {
         this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent): void => {
-            if (!event.isNewlyCreated() && !this.pageView.isLocked()) {
-                this.selectedItemId = event.getItemView().getItemId().toString();
-                this.tree.selectItemByComponentView(event.getItemView());
+            if (!event.isNewlyCreated() && !this.tree.isItemSelected(event.getPath())) {
+                this.tree.selectItemByPath(event.getPath());
 
                 if (event.getPosition()) { // scroll to item if it was selected in preview
-                    this.tree.scrollToItem(this.selectedItemId);
+                    this.tree.scrollToItem(event.getPath());
                 }
             }
         });
 
         this.liveEditPage.onItemViewDeselected((event: ItemViewDeselectedEvent): void => {
             this.tree.deselectNodes([event.getItemView().getItemId().toString()]);
-            this.selectedItemId = null;
         });
 
         this.liveEditPage.onComponentAdded((event: ComponentAddedEvent): void => {
@@ -257,13 +251,13 @@ export class PageComponentsView
         });
 
         this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent): void => {
-            this.tree.deleteNodeByDataId(event.getComponentView().getItemId().toString());
+            this.tree.deleteItemByPath(event.getPath());
             this.highlightInvalidItems();
         });
 
         this.liveEditPage.onComponentLoaded((event: ComponentLoadedEvent): void => {
             this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView());
-            this.tree.scrollToItem(event.getNewComponentView().getItemId().toString());
+            this.tree.scrollToItem(event.getNewComponentView().getComponent().getPath());
 
             if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), FragmentComponentView)) {
                 this.bindTreeFragmentNodeUpdateOnComponentLoaded(<FragmentComponentView>event.getNewComponentView());
@@ -303,8 +297,7 @@ export class PageComponentsView
 
     private handleComponentAdded(event: ComponentAddedEvent): void {
         if (event.getComponentView().isSelected()) {
-            const id: string = event.getComponentView().getItemId().toString();
-            this.selectItemByDataId(id);
+            this.tree.selectItemByPath(event.getPath());
         }
 
         if (this.tree.hasComponentChildren(event.getComponentView().getComponent())) {
@@ -391,18 +384,13 @@ export class PageComponentsView
             const selectedItem: ComponentsTreeItem = currentSelection[0];
 
             if (selectedItem) {
-                if (!selectedItem.getItemView().isSelected()) {
-                    this.liveEditPage.selectComponentByPath(selectedItem.getPath());
-                }
+                this.liveEditPage.selectComponentByPath(selectedItem.getPath());
 
                 if (!!this.contextMenu && !this.contextMenu.belongsToItemView(selectedItem.getItemView())) {
                     this.hideContextMenu();
                 }
             } else { // if item was deselected by clicking in the pcv grid then need to deselect it in the live edit
-                if (this.selectedItemId) {
-                    this.liveEditPage.deselectComponentByPath();
-                    this.selectedItemId = null;
-                }
+                this.liveEditPage.deselectComponentByPath();
             }
         });
 
@@ -501,14 +489,6 @@ export class PageComponentsView
 
     private bindMouseListeners(): void {
         this.lockedViewClickHandler = this.lockedViewClickHandler.bind(this);
-    }
-
-    private selectItem(item: ItemView): void {
-        item.selectWithoutMenu();
-    }
-
-    private selectItemByDataId(dataId: string): void {
-        this.tree.selectItemByDataId(dataId);
     }
 
     isDraggable(): boolean {
@@ -774,9 +754,6 @@ export class PageComponentsView
                 if (!BrowserHelper.isMobile()) {
                     Highlighter.get().highlightElement(dimensions,
                         data.getItemView().getType().getConfig().getHighlighterStyle());
-                }
-                if (BrowserHelper.isIOS()) {
-                    this.selectItem(data.getItemView());
                 }
             }
         }

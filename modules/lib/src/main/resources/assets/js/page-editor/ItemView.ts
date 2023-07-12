@@ -53,6 +53,7 @@ import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
 import {ContentIconUrlResolver} from '../app/content/ContentIconUrlResolver';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 
 export interface ElementDimensions {
     top: number;
@@ -141,7 +142,7 @@ export class ItemViewBuilder {
     }
 }
 
-export class ItemView
+export abstract class ItemView
     extends Element implements IDentifiable {
 
     protected liveEditModel: LiveEditModel;
@@ -630,6 +631,8 @@ export class ItemView
     getCurrentContextMenu(): ItemViewContextMenu {
         return this.contextMenu;
     }
+
+    abstract getPath(): ComponentPath;
 
     handleClick(event: MouseEvent) {
         event.stopPropagation();

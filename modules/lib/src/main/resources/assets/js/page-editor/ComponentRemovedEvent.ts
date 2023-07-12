@@ -3,6 +3,7 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 import {RegionView} from './RegionView';
 import {Component} from '../app/page/region/Component';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 
 export class ComponentRemovedEvent
     extends Event {
@@ -18,6 +19,10 @@ export class ComponentRemovedEvent
 
     getComponentView(): ComponentView<Component> {
         return this.componentView;
+    }
+
+    getPath(): ComponentPath {
+        return this.componentView.getComponentPath();
     }
 
     getParentRegionView(): RegionView {

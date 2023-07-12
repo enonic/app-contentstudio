@@ -60,12 +60,15 @@ import * as DOMPurify from 'dompurify';
 import {HTMLAreaHelper} from '../../inputtype/ui/text/HTMLAreaHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ComponentPath} from '../../page/region/ComponentPath';
+import {ItemView} from '../../../page-editor/ItemView';
 
 export class LiveEditPageProxy {
 
     private liveEditModel?: LiveEditModel;
 
     private pageView?: PageView;
+
+    private selectedView?: ItemView;
 
     private liveEditIFrame?: IFrameEl;
 
@@ -430,13 +433,14 @@ export class LiveEditPageProxy {
     }
 
     deselectComponentByPath(path?: ComponentPath): void {
-        if (!path) {
-            return;
-        }
-        const itemView = this.pageView?.getPath().equals(path) ? this.pageView : this.pageView?.getComponentViewByPath(path);
+        if (path) {
+            const itemView = this.pageView?.getPath().equals(path) ? this.pageView : this.pageView?.getComponentViewByPath(path);
 
-        if (itemView && !itemView.isSelected()) {
-            itemView.deselect();
+            if (itemView && !itemView.isSelected()) {
+                itemView.deselect();
+            }
+        } else {
+            this.selectedView?.deselect();
         }
     }
 
@@ -778,10 +782,12 @@ export class LiveEditPageProxy {
     }
 
     private notifyItemViewSelected(event: ItemViewSelectedEvent) {
+        this.selectedView = event.getItemView();
         this.itemViewSelectedListeners.forEach((listener) => listener(event));
     }
 
     onItemViewDeselected(listener: { (event: ItemViewDeselectedEvent): void; }) {
+        this.selectedView = null;
         this.itemViewDeselectedListeners.push(listener);
     }
 
