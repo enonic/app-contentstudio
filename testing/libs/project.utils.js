@@ -148,6 +148,10 @@ module.exports = {
             throw new Error("Error when saving a project, screenshot:" + screenshot + "  " + err);
         }
     },
+    async waitForElementDisplayed(locator, ms) {
+        let element = await this.getBrowser().$(locator);
+        return await element.waitForDisplayed(ms);
+    },
     async fillFormsWizardAndClickOnCreateButton(project) {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         let summaryStep = new ProjectWizardDialogSummaryStep();
