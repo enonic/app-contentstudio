@@ -24,6 +24,7 @@ import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ProjectContext} from '../app/project/ProjectContext';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {SaveAsTemplateAction} from '../app/wizard/action/SaveAsTemplateAction';
 
 export class LiveEditPage {
 

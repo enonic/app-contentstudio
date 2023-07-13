@@ -6,7 +6,6 @@ import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveMa
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {LiveEditModel} from './LiveEditModel';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemView, ItemViewBuilder} from './ItemView';
@@ -47,13 +46,13 @@ import {ModalDialog} from '../app/inputtype/ui/text/dialog/ModalDialog';
 import {Content} from '../app/content/Content';
 import {Component} from '../app/page/region/Component';
 import {PageMode, PageTemplateDisplayName} from '../app/page/PageMode';
-import {RegionPath} from '../app/page/region/RegionPath';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {ContentSummaryViewer} from '../app/content/ContentSummaryViewer';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
+import {SaveAsTemplateEvent} from './SaveAsTemplateEvent';
 
 export class PageViewBuilder {
 
@@ -254,10 +253,12 @@ export class PageView
     }
 
     private addPageContextMenuActions() {
+        const actions: Action[] = [];
+
         const pageModel = this.liveEditModel.getPageModel();
-        const inspectAction = new Action(i18n('live.view.inspect')).onExecuted(() => {
+        actions.push(new Action(i18n('live.view.inspect')).onExecuted(() => {
             new PageInspectedEvent().fire();
-        });
+        }));
 
         this.resetAction = new Action(i18n('live.view.reset')).onExecuted(() => {
             if (PageView.debug) {
@@ -268,11 +269,17 @@ export class PageView
             this.setIgnorePropertyChanges(false);
         });
 
+        actions.push(this.resetAction);
+
         if (pageModel.getMode() === PageMode.AUTOMATIC || pageModel.getMode() === PageMode.NO_CONTROLLER) {
             this.resetAction.setEnabled(false);
         }
 
-        this.addContextMenuActions([inspectAction, this.resetAction]);
+        actions.push(new Action(i18n('live.view.saveAs.template')).onExecuted(() => {
+            new SaveAsTemplateEvent().fire();
+        }));
+
+        this.addContextMenuActions(actions);
     }
 
     private initListeners() {
@@ -546,7 +553,7 @@ export class PageView
         if (locked) {
             this.shade();
 
-            new PageLockedEvent(this).fire();
+            new PageLockedEvent().fire();
         } else {
             this.unshade();
 
@@ -691,23 +698,7 @@ export class PageView
     }
 
     getName(): string {
-        const pageTemplateDisplayName = PageTemplateDisplayName;
-        if (this.pageModel.hasTemplate()) {
-            return this.pageModel.getTemplate().getDisplayName();
-        }
-        if (this.pageModel.isPageTemplate() && this.pageModel.getController()) {
-            return this.pageModel.getController().getDisplayName();
-        }
-        if (this.pageModel.isCustomized()) {
-            return this.pageModel.hasController()
-                   ? this.pageModel.getController().getDisplayName()
-                   : pageTemplateDisplayName[pageTemplateDisplayName.Custom];
-        }
-        if (this.pageModel.getMode() === PageMode.AUTOMATIC) {
-            return this.pageModel.getDefaultPageTemplate().getDisplayName();
-        }
-
-        return pageTemplateDisplayName[pageTemplateDisplayName.Automatic];
+        return this.pageModel.getPageName();
     }
 
     getIconUrl(content: Content): string {
@@ -715,19 +706,7 @@ export class PageView
     }
 
     getIconClass(): string {
-        const largeIconCls = ' icon-large';
-
-        if (this.pageModel.hasTemplate()) {
-            return 'icon-page-template' + largeIconCls;
-        }
-        if (this.pageModel.isPageTemplate() && this.pageModel.getController()) {
-            return 'icon-file' + largeIconCls;
-        }
-        if (this.pageModel.isCustomized()) {
-            return 'icon-file' + largeIconCls;
-        }
-
-        return 'icon-wand' + largeIconCls;
+        return this.pageModel.getIconClass();
     }
 
     getParentItemView(): ItemView {

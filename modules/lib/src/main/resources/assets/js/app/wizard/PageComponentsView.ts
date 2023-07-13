@@ -12,7 +12,6 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {LiveEditPageProxy} from './page/LiveEditPageProxy';
 import {PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
-import {PageView} from '../../page-editor/PageView';
 import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
 import {Highlighter} from '../../page-editor/Highlighter';
 import {ItemViewSelectedEvent} from '../../page-editor/ItemViewSelectedEvent';
@@ -38,6 +37,12 @@ import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
+import {ComponentPath} from '../page/region/ComponentPath';
+import {ComponentItem} from '../../page-editor/TreeComponent';
+import {Page} from '../page/Page';
+import {PageEventsManager} from './PageEventsManager';
+import {PageModel} from '../../page-editor/PageModel';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class PageComponentsView
     extends DivEl {
@@ -47,16 +52,15 @@ export class PageComponentsView
     private static COLLAPSE_BUTTON_ICON_CLASS: string = 'icon-newtab';
     private static PCV_COLLAPSED_KEY: string = 'contentstudio:pcv:collapsed';
 
-    private content: Content;
-    private pageView: PageView;
+    private pageModel: PageModel;
     private liveEditPage: LiveEditPageProxy;
     private contextMenu: ItemViewContextMenu;
+    private contextMenuItemPath: ComponentPath;
 
     private responsiveItem: ResponsiveItem;
 
     private tree: PageComponentsTreeGrid;
     private header: Element;
-    private modal: boolean;
     private draggable: boolean;
     private dockedParent: Element;
     private toggleButton: Button;
@@ -91,6 +95,8 @@ export class PageComponentsView
         this.currentUserHasCreateRights = null;
 
         this.initElements();
+
+        this.createTree();
 
         this.setupListeners();
 
@@ -138,7 +144,7 @@ export class PageComponentsView
         this.onHidden(() => this.hideContextMenu());
 
         this.onShown(() => {
-            if (this.pageView?.isLocked()) {
+            if (this.liveEditPage?.isLocked()) {
                 this.addClass(PageComponentsView.LOCKED_CLASS);
             }
         });
@@ -181,34 +187,11 @@ export class PageComponentsView
         KeyBindings.get().unbindKeys(this.keyBinding);
     }
 
-    setPageView(pageView: PageView): void {
-        this.removeClass(PageComponentsView.LOCKED_CLASS);
-
-        this.pageView = pageView;
-        if (!this.tree && this.content && this.pageView) {
-            this.createTree(this.content, this.pageView);
-            this.initLock();
-        } else if (this.tree) {
-            this.tree.deselectAll();
-            Highlighter.get().hide();
-
-            this.tree.setPageView(pageView).then(() => {
-                this.initLock();
-            });
-        }
-
-        this.pageView.onRemoved((): void => {
-            ResponsiveManager.unAvailableSizeChangedByItem(this.responsiveItem);
-        });
-
-        this.pageView.onPageLocked(this.pageLockedHandler.bind(this));
-    }
-
     private initLock(): void {
         this.unContextMenu(this.lockedViewClickHandler);
         this.unClicked(this.lockedViewClickHandler);
 
-        if (this.pageView.isLocked()) {
+        if (this.liveEditPage.isLocked()) {
             this.addClass(PageComponentsView.LOCKED_CLASS);
         }
 
@@ -216,12 +199,14 @@ export class PageComponentsView
         this.onClicked(this.lockedViewClickHandler);
     }
 
-    setContent(content: Content): void {
-        this.content = content;
+    setPageModel(pageModel: PageModel): void {
+        this.tree.setPageModel(pageModel);
+        this.tree.deselectAll();
+        Highlighter.get().hide();
 
-        if (!this.tree && this.content && this.pageView) {
-            this.createTree(this.content, this.pageView);
-        }
+        this.tree.reload().then(() => {
+            this.initLock();
+        }).catch(DefaultErrorHandler.handle);
     }
 
     setModifyPermissions(modifyPermissions: boolean): boolean {
@@ -230,7 +215,9 @@ export class PageComponentsView
     }
 
     private initLiveEditEvents() {
-        this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent): void => {
+        const eventsManager = PageEventsManager.get();
+
+        eventsManager.onItemViewSelected((event: ItemViewSelectedEvent): void => {
             if (!event.isNewlyCreated() && !this.tree.isItemSelected(event.getPath())) {
                 this.tree.selectItemByPath(event.getPath());
 
@@ -240,22 +227,22 @@ export class PageComponentsView
             }
         });
 
-        this.liveEditPage.onItemViewDeselected((event: ItemViewDeselectedEvent): void => {
+        eventsManager.onItemViewDeselected((event: ItemViewDeselectedEvent): void => {
             this.tree.deselectNodes([event.getItemView().getItemId().toString()]);
         });
 
-        this.liveEditPage.onComponentAdded((event: ComponentAddedEvent): void => {
+        eventsManager.onComponentAdded((event: ComponentAddedEvent): void => {
             this.addComponent(event).then(() => {
                 this.handleComponentAdded(event);
             });
         });
 
-        this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent): void => {
+        eventsManager.onComponentRemoved((event: ComponentRemovedEvent): void => {
             this.tree.deleteItemByPath(event.getPath());
             this.highlightInvalidItems();
         });
 
-        this.liveEditPage.onComponentLoaded((event: ComponentLoadedEvent): void => {
+        eventsManager.onComponentLoaded((event: ComponentLoadedEvent): void => {
             this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView());
             this.tree.scrollToItem(event.getNewComponentView().getComponent().getPath());
 
@@ -272,7 +259,7 @@ export class PageComponentsView
             }
         });
 
-        this.liveEditPage.onComponentReset((event: ComponentResetEvent): void => {
+        eventsManager.onComponentReset((event: ComponentResetEvent): void => {
             const oldDataId: string = event.getOldComponentView().getItemId().toString();
 
             this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView(), true);
@@ -280,12 +267,20 @@ export class PageComponentsView
             this.removeFromInvalidItems(oldDataId);
         });
 
-        this.liveEditPage.onBeforeLoad(() => {
+        eventsManager.onBeforeLoad(() => {
             this.addClass('loading');
         });
 
-        this.liveEditPage.onLoaded(() => {
+        eventsManager.onLoaded(() => {
             this.removeClass('loading');
+        });
+
+        eventsManager.onPageLocked(() => {
+            this.pageLockedHandler(true);
+        });
+
+        eventsManager.onPageUnlocked(() => {
+            this.pageLockedHandler(false);
         });
     }
 
@@ -314,8 +309,8 @@ export class PageComponentsView
         this.highlightInvalidItems();
     }
 
-    private createTree(content: Content, pageView: PageView): void {
-        this.tree = new PageComponentsTreeGrid(pageView);
+    private createTree(): void {
+        this.tree = new PageComponentsTreeGrid();
 
         this.clickListener = (event, data): void => {
             const elem: ElementHelper = new ElementHelper(event.target);
@@ -335,7 +330,7 @@ export class PageComponentsView
         };
 
         this.dblClickListener = (event, data): void => {
-            if (this.pageView.isLocked()) {
+            if (this.liveEditPage.isLocked()) {
                 return;
             }
 
@@ -367,8 +362,7 @@ export class PageComponentsView
                 rowElement = rowElement.parentElement;
             }
 
-            if (!this.pageView.isLocked()) {
-                this.highlightRow(rowElement, selected);
+            if (!this.liveEditPage.isLocked()) {
                 if (this.isMenuIcon(event.target) && BrowserHelper.isIOS()) {
                     this.showContextMenu(new ElementHelper(rowElement).getSiblingIndex(), {x: event.pageX, y: event.pageY});
                 }
@@ -386,7 +380,7 @@ export class PageComponentsView
             if (selectedItem) {
                 this.liveEditPage.selectComponentByPath(selectedItem.getPath());
 
-                if (!!this.contextMenu && !this.contextMenu.belongsToItemView(selectedItem.getItemView())) {
+                if (this.contextMenuItemPath && !this.contextMenuItemPath.equals(selectedItem.getPath())) {
                     this.hideContextMenu();
                 }
             } else { // if item was deselected by clicking in the pcv grid then need to deselect it in the live edit
@@ -402,8 +396,6 @@ export class PageComponentsView
 
             this.showContextMenu(cell.row, {x: event.pageX, y: event.pageY});
         });
-
-        this.appendChild(this.tree);
 
         this.tree.onLoaded((): void => {
             this.subscribeOnFragmentLoadError();
@@ -424,6 +416,8 @@ export class PageComponentsView
         });
 
         this.tree.setNodeExpandedHandler(() => this.constrainToParent()); // not letting PCV to overflow the page
+
+        this.appendChild(this.tree);
     }
 
     private highlightInvalidItems(): void {
@@ -611,29 +605,22 @@ export class PageComponentsView
         el.setLeft(`${left}px`);
     }
 
-    isModal(): boolean {
-        return this.modal;
-    }
-
     setModal(modal: boolean): PageComponentsView {
         this.toggleClass('modal', modal);
         if (this.tree) {
             // tree may not be yet initialized
             this.tree.getGrid().resizeCanvas();
         }
-        this.modal = modal;
+
         return this;
     }
 
     private pageLockedHandler(lock: boolean): void {
         this.toggleClass(PageComponentsView.LOCKED_CLASS, lock);
-        if (this.tree) {
-            this.tree.reload();
-        }
     }
 
     private lockedViewClickHandler(event: MouseEvent): void {
-        const isUnlocked = !(this.pageView.isLocked() && this.modifyPermissions);
+        const isUnlocked = !(this.liveEditPage.isLocked() && this.modifyPermissions);
 
         if (isUnlocked) {
             return;
@@ -654,23 +641,11 @@ export class PageComponentsView
     }
 
     private showContextMenu(row: number, clickPosition: ClickPosition): void {
-        let node = this.tree.getGrid().getDataView().getItem(row);
-        let itemView: ItemView;
-        let pageView: PageView;
+        const item: ComponentsTreeItem = this.tree.getGrid().getDataView().getItem(row)?.getData();
+        this.contextMenuItemPath = item?.getPath();
 
-        if (node) {
-            itemView = node.getData().getItemView();
-            pageView = itemView.getPageView();
-        } else {
-            pageView = this.pageView;
-        }
-        let contextMenuActions: Action[];
-
-        if (pageView.isLocked()) {
-            contextMenuActions = pageView.getLockedMenuActions();
-        } else {
-            contextMenuActions = itemView.getContextMenuActions();
-        }
+        const contextMenuActions: Action[] = this.liveEditPage.isLocked() ?
+                                             this.getLockedPageActions() : this.getItemContextMenuActions(item);
 
         if (!this.contextMenu) {
             this.contextMenu = new ItemViewContextMenu(null, contextMenuActions, false);
@@ -678,7 +653,6 @@ export class PageComponentsView
         } else {
             this.contextMenu.setActions(contextMenuActions);
         }
-        this.contextMenu.setItemView(itemView || pageView);
 
         if (this.beforeActionHandler) {
             this.contextMenu.getMenu().unBeforeAction(this.beforeActionHandler);
@@ -726,6 +700,46 @@ export class PageComponentsView
         this.contextMenu.showAt(x, y, false);
     }
 
+    private getLockedPageActions(): Action[] {
+        const unlockAction = new Action(i18n('live.view.page.customize'));
+
+        unlockAction.onExecuted(() => {
+            this.liveEditPage.setLocked(false);
+        });
+
+        return [unlockAction];
+    }
+
+    private getItemContextMenuActions(item: ComponentsTreeItem): Action[] {
+        if (!item || !item.getComponent()) {
+            return [];
+        }
+
+        const component: ComponentItem = item.getComponent().getItem();
+
+        if (component instanceof Page) {
+            return this.getPageActions();
+        }
+
+        return [];
+    }
+
+    private getPageActions(): Action[] {
+        const inspectAction = new Action(i18n('action.component.inspect')).onExecuted(() => {
+            PageEventsManager.get().notifyPageInspected();
+        });
+
+        const resetAction = new Action(i18n('action.component.reset')).onExecuted(() => {
+            PageEventsManager.get().notifyPageResetRequested();
+        });
+
+        const saveAsTemplateAction = new Action(i18n('action.saveAsTemplate')).onExecuted(() => {
+            SaveAsTemplateAction.get().execute();
+        });
+
+        return [inspectAction, resetAction, saveAsTemplateAction];
+    }
+
     private setMenuOpenStyleOnMenuIcon(row: number): void {
         let stylesHash = {};
         stylesHash[row] = {menu: 'menu-open'};
@@ -739,23 +753,6 @@ export class PageComponentsView
     private hideContextMenu(): void {
         if (this.contextMenu?.isVisible()) {
             this.contextMenu.hide();
-        }
-    }
-
-    private highlightRow(rowElement: HTMLElement, selected: boolean): void {
-        if (selected) {
-            Highlighter.get().hide();
-        } else {
-            const elementHelper = new ElementHelper(rowElement);
-            const dimensions = elementHelper.getDimensions();
-            const data: ComponentsTreeItem = this.tree.getDataByRow(new ElementHelper(rowElement).getSiblingIndex());
-
-            if (data && data.getItemView()) {
-                if (!BrowserHelper.isMobile()) {
-                    Highlighter.get().highlightElement(dimensions,
-                        data.getItemView().getType().getConfig().getHighlighterStyle());
-                }
-            }
         }
     }
 

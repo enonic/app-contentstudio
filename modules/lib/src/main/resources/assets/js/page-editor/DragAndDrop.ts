@@ -482,7 +482,7 @@ export class DragAndDrop {
             curr(componentView);
         });
 
-        new ComponentViewDragStartedEvent(componentView).fire();
+        new ComponentViewDragStartedEvent(componentView.getComponentPath()).fire();
     }
 
     onDragStopped(listener: (componentView: ComponentView<Component>) => void) {
@@ -506,7 +506,7 @@ export class DragAndDrop {
             curr(componentView);
         });
 
-        new ComponentViewDragStoppedEvent(componentView).fire();
+        new ComponentViewDragStoppedEvent(componentView.getPath()).fire();
     }
 
     onDropped(listener: (componentView: ComponentView<Component>, regionView: RegionView) => void) {

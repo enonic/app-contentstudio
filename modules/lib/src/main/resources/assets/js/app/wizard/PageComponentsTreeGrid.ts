@@ -3,7 +3,6 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {PageComponentsGridDragHandler} from './PageComponentsGridDragHandler';
 import {ItemView} from '../../page-editor/ItemView';
-import {PageView} from '../../page-editor/PageView';
 import {RegionView} from '../../page-editor/RegionView';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
@@ -42,10 +41,11 @@ import {ComponentPath} from '../page/region/ComponentPath';
 export class PageComponentsTreeGrid
     extends TreeGrid<ComponentsTreeItem> {
 
-    private pageView: PageView;
     private nodeExpandedHandler?: ()=> void;
 
-    constructor(pageView: PageView) {
+    private pageModel: PageModel;
+
+    constructor() {
         super(new TreeGridBuilder<ComponentsTreeItem>()
             .setColumns(PageComponentsTreeGridHelper.generateColumns())
             .setOptions(PageComponentsTreeGridHelper.generateOptions())
@@ -53,8 +53,6 @@ export class PageComponentsTreeGrid
             .setAutoLoad(true)
             .prependClasses('page-components-tree-grid')
         );
-
-        this.pageView = pageView;
 
         (new PageComponentsGridDragHandler(this));
     }
@@ -103,9 +101,8 @@ export class PageComponentsTreeGrid
         return this;
     }
 
-    setPageView(pageView: PageView): Q.Promise<void> {
-        this.pageView = pageView;
-        return this.reload();
+    setPageModel(pageModel: PageModel): void {
+        this.pageModel = pageModel;
     }
 
     setNodeExpandedHandler(handler: () => void) {
@@ -147,7 +144,7 @@ export class PageComponentsTreeGrid
     }
 
     fetchRoot(): Q.Promise<ComponentsTreeItem[]> {
-        if (this.pageView.getModel().hasFragment()) {
+        if (this.pageModel.hasFragment()) {
             return this.fetchRootFragment().then((rootFragment: ComponentsTreeItem) => [rootFragment]);
         }
 
@@ -155,7 +152,7 @@ export class PageComponentsTreeGrid
     }
 
     private fetchRootFragment(): Q.Promise<ComponentsTreeItem> {
-        const component: Component = this.pageView.getModel().getFragment();
+        const component: Component = this.pageModel.getFragment();
 
         return this.fetchDescriptor(component).then((descriptor) => {
             const fullComponent: TreeComponent = TreeComponent.create()
@@ -165,21 +162,19 @@ export class PageComponentsTreeGrid
                 .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
                 .build();
 
-            return new ComponentsTreeItem(fullComponent, this.pageView);
+            return new ComponentsTreeItem(fullComponent, null);
         });
     }
 
     private makeRootPageItem(): ComponentsTreeItem {
-        const pageModel: PageModel = this.pageView.getModel();
-
         const fullComponent: TreeComponent = TreeComponent.create()
-            .setItem(pageModel.getPage())
-            .setDisplayName(this.pageView.getName())
-            .setDescription(pageModel.getDescriptor()?.getDescription() || this.makeNoDescriptionText())
-            .setIconClass(this.pageView.getIconClass())
+            .setItem(this.pageModel.getPage())
+            .setDisplayName(this.pageModel.getPageName())
+            .setDescription(this.pageModel.getDescriptor()?.getDescription() || this.makeNoDescriptionText())
+            .setIconClass(this.pageModel.getIconClass())
             .build();
 
-        return new ComponentsTreeItem(fullComponent, this.pageView);
+        return new ComponentsTreeItem(fullComponent, null);
     }
 
     private makeNoDescriptionText(): string {
@@ -213,9 +208,8 @@ export class PageComponentsTreeGrid
             .setIconClass(ItemViewIconClassResolver.resolveByType(RegionItemType.get().getShortName()))
             .build();
 
-        const regionView: ItemView = this.pageView.getComponentViewByPath(region.getPath());
 
-        return new ComponentsTreeItem(fullComponent, regionView);
+        return new ComponentsTreeItem(fullComponent, null);
     }
 
     private fetchRegionItems(region: Region, regionView?: RegionView): Q.Promise<ComponentsTreeItem[]> {

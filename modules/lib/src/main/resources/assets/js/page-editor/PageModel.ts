@@ -2,7 +2,7 @@ import {LiveEditModel} from './LiveEditModel';
 import {PageModeChangedEvent} from './PageModeChangedEvent';
 import {PageTemplate} from '../app/content/PageTemplate';
 import {Regions} from '../app/page/region/Regions';
-import {PageMode} from '../app/page/PageMode';
+import {PageMode, PageTemplateDisplayName} from '../app/page/PageMode';
 import {Component, ComponentPropertyChangedEventHandler} from '../app/page/region/Component';
 import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropertyChangedEvent';
 import {Page, PageBuilder} from '../app/page/Page';
@@ -634,4 +634,40 @@ export class PageModel {
         this.unReset(listener);
     }
 
+    getPageName(): string {
+        const pageTemplateDisplayName = PageTemplateDisplayName;
+        if (this.hasTemplate()) {
+            return this.getTemplate().getDisplayName();
+        }
+        if (this.isPageTemplate() && this.getController()) {
+            return this.getController().getDisplayName();
+        }
+        if (this.isCustomized()) {
+            return this.hasController()
+                   ? this.getController().getDisplayName()
+                   : pageTemplateDisplayName[pageTemplateDisplayName.Custom];
+        }
+        if (this.getMode() === PageMode.AUTOMATIC) {
+            return this.getDefaultPageTemplate().getDisplayName();
+        }
+
+        return pageTemplateDisplayName[pageTemplateDisplayName.Automatic];
+    }
+
+    getIconClass(): string {
+        const largeIconCls = ' icon-large';
+
+        if (this.hasTemplate()) {
+            return 'icon-page-template' + largeIconCls;
+        }
+        if (this.isPageTemplate() && this.getController()) {
+            return 'icon-file' + largeIconCls;
+        }
+        if (this.isCustomized()) {
+            return 'icon-file' + largeIconCls;
+        }
+
+        return 'icon-wand' + largeIconCls;
+
+    }
 }

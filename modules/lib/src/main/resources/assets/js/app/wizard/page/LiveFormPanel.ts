@@ -100,6 +100,7 @@ import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 import {GetComponentDescriptorsRequest} from '../../resource/GetComponentDescriptorsRequest';
 import {PageComponentType} from '../../page/region/PageComponentType';
+import {PageEventsManager} from '../PageEventsManager';
 
 export interface LiveFormPanelConfig {
 
@@ -408,7 +409,7 @@ export class LiveFormPanel
 
 
     private addPageProxyLoadEventListeners(): void {
-        this.liveEditPageProxy.onLoaded(() => {
+        PageEventsManager.get().onLoaded(() => {
             this.hideLoadMaskHandler();
             this.pageLoading = false;
 
@@ -419,15 +420,6 @@ export class LiveFormPanel
 
             this.imageInspectionPanel.refresh();
         });
-
-        if (BrowserHelper.isIE()) { // have to cleanup objects loaded by current live edit frame so IE won't fail after frame reload
-            this.liveEditPageProxy.onBeforeLoad(() => {
-                this.fragmentInspectionPanel.cleanUp();
-                this.imageInspectionPanel.cleanUp();
-                this.partInspectionPanel.cleanUp();
-                this.layoutInspectionPanel.cleanUp();
-            });
-        }
     }
 
     private listenControllerSelected(): void {
@@ -713,9 +705,9 @@ export class LiveFormPanel
         if (clearInspection) {
             let clearInspectionFn = () => {
                 this.contextWindow.clearSelection();
-                this.liveEditPageProxy.unLoaded(clearInspectionFn);
+                PageEventsManager.get().unLoaded(clearInspectionFn);
             };
-            this.liveEditPageProxy.onLoaded(clearInspectionFn);
+            PageEventsManager.get().onLoaded(clearInspectionFn);
         }
     }
 
@@ -740,7 +732,9 @@ export class LiveFormPanel
     }
 
     private addPageProxyEventListeners() {
-        this.liveEditPageProxy.onPageLocked(() => {
+        const eventsManager = PageEventsManager.get();
+
+        eventsManager.onPageLocked(() => {
             this.inspectPage(false);
         });
 
@@ -785,7 +779,7 @@ export class LiveFormPanel
             }
         };
 
-        this.liveEditPageProxy.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
+        eventsManager.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
             this.pageView = event.getPageView();
 
             // disable insert tab if there is no page for some reason (i.e. error occurred)
@@ -794,7 +788,6 @@ export class LiveFormPanel
             this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView && pageModelRenderable);
 
             if (this.pageView) {
-                this.pageView.getContextMenuActions().push(SaveAsTemplateAction.get());
                 restoreSelection();
 
                 this.notifyPageViewReady(this.pageView);
@@ -803,15 +796,20 @@ export class LiveFormPanel
             }
         });
 
-        this.liveEditPageProxy.onPageSelected((event: PageSelectedEvent) => {
+        eventsManager.onPageSaveAsTemplate(() => {
+            console.log('here');
+            SaveAsTemplateAction.get().execute();
+        });
+
+        eventsManager.onPageSelected((event: PageSelectedEvent) => {
             this.inspectPage(!event.isRightClicked());
         });
 
-        this.liveEditPageProxy.onRegionSelected((event: RegionSelectedEvent) => {
+        eventsManager.onRegionSelected((event: RegionSelectedEvent) => {
             this.inspectRegion(event.getRegionView(), !event.isRightClicked());
         });
 
-        this.liveEditPageProxy.onItemViewSelected((event: ItemViewSelectedEvent) => {
+        eventsManager.onItemViewSelected((event: ItemViewSelectedEvent) => {
             const itemView = event.getItemView();
             const defaultClicked = !event.isRightClicked();
             const newSelection = !event.isRestoredSelection();
@@ -835,11 +833,11 @@ export class LiveFormPanel
             }
         });
 
-        this.liveEditPageProxy.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
+        eventsManager.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
             this.clearSelection();
         });
 
-        this.liveEditPageProxy.onComponentRemoved((event: ComponentRemovedEvent) => {
+        eventsManager.onComponentRemoved((event: ComponentRemovedEvent) => {
 
             if (!this.pageModel.isPageTemplate() && this.pageModel.getMode() === PageMode.AUTOMATIC) {
                 this.pageModel.initializePageFromDefault(this);
@@ -848,7 +846,7 @@ export class LiveFormPanel
             this.clearSelection();
         });
 
-        this.liveEditPageProxy.onComponentViewDragDropped((event: ComponentViewDragDroppedEvent) => {
+        eventsManager.onComponentViewDragDropped((event: ComponentViewDragDroppedEvent) => {
 
             let componentView = event.getComponentView();
             if (!componentView.isEmpty()) {
@@ -856,21 +854,21 @@ export class LiveFormPanel
             }
         });
 
-        this.liveEditPageProxy.onComponentDuplicated((event: ComponentDuplicatedEvent) => {
+        eventsManager.onComponentDuplicated((event: ComponentDuplicatedEvent) => {
             this.contentWizardPanel.setMarkedAsReady(false);
             this.saveAndReloadOnlyComponent(event.getDuplicatedComponentView());
         });
 
-        this.liveEditPageProxy.onComponentInspected((event: ComponentInspectedEvent) => {
+        eventsManager.onComponentInspected((event: ComponentInspectedEvent) => {
             let componentView = event.getComponentView();
             this.inspectComponent(componentView);
         });
 
-        this.liveEditPageProxy.onPageInspected((event: PageInspectedEvent) => {
+        eventsManager.onPageInspected(() => {
             this.inspectPage(true);
         });
 
-        this.liveEditPageProxy.onComponentFragmentCreated((event: ComponentFragmentCreatedEvent) => {
+        eventsManager.onComponentFragmentCreated((event: ComponentFragmentCreatedEvent) => {
             let fragmentView: FragmentComponentView = event.getComponentView();
             let componentType = event.getSourceComponentType().getShortName();
             let componentName = fragmentView.getComponent().getName().toString();
@@ -882,43 +880,28 @@ export class LiveFormPanel
             new EditContentEvent([summaryAndStatus]).fire();
         });
 
-        this.liveEditPageProxy.onComponentDetached((event: ComponentDetachedFromFragmentEvent) => {
+        eventsManager.onComponentDetached((event: ComponentDetachedFromFragmentEvent) => {
             showSuccess(i18n('notify.component.detached', event.getComponentView().getName()));
 
             this.saveMarkedContentAndReloadOnlyComponent(event.getComponentView());
         });
 
-        this.liveEditPageProxy.onFragmentReloadRequired((event: FragmentComponentReloadRequiredEvent) => {
-            let fragmentView = event.getFragmentComponentView();
-
-            let componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(), fragmentView.getComponentPath(),
-                RenderingMode.EDIT);
-
-            fragmentView.showLoadingSpinner();
-            this.liveEditPageProxy.loadComponent(fragmentView, componentUrl).catch((errorMessage: any) => {
-                DefaultErrorHandler.handle(errorMessage);
-
-                fragmentView.hideLoadingSpinner();
-                fragmentView.showRenderingError(componentUrl, errorMessage);
-            });
-        });
-
-        this.liveEditPageProxy.onShowWarning((event: ShowWarningLiveEditEvent) => {
+        eventsManager.onShowWarning((event: ShowWarningLiveEditEvent) => {
             showWarning(event.getMessage());
         });
 
-        this.liveEditPageProxy.onEditContent((event: EditContentEvent) => {
+        eventsManager.onEditContent((event: EditContentEvent) => {
             new EditContentEvent(event.getModels()).fire();
         });
 
-        this.liveEditPageProxy.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {
+        eventsManager.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {
             showError(event.getMessage(), false);
             this.contentWizardPanel.showForm();
         });
 
-        this.liveEditPageProxy.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {
+        eventsManager.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {
             const modalDialog: ModalDialog = HTMLAreaDialogHandler.createAndOpenDialog(event);
-            this.liveEditPageProxy.notifyLiveEditPageDialogCreated(modalDialog, event.getConfig());
+            eventsManager.notifyDialogCreated(modalDialog, event.getConfig());
         });
     }
 
