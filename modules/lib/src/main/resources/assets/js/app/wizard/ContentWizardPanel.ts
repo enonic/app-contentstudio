@@ -140,6 +140,7 @@ import {LiveEditPageProxy} from './page/LiveEditPageProxy';
 import {PageComponentsView} from './PageComponentsView';
 import {PageView} from '../../page-editor/PageView';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
+import {PageEventsManager} from './PageEventsManager';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -684,20 +685,6 @@ export class ContentWizardPanel
         this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
         this.liveMask = new LoadMask(this.livePanel);
 
-        liveFormPanel.onPageViewReady((pageView: PageView) => {
-            this.pageComponentsView.setPageView(pageView);
-
-            pageView.onPageLocked((locked: boolean) => {
-                if (!locked) { // add PCV when page is unlocked
-                    this.addPCV();
-
-                    if (!this.isMinimized()) {
-                        this.pageComponentsWizardStep.getTabBarItem().select();
-                    }
-                }
-            });
-        });
-
         return liveFormPanel;
     }
 
@@ -1157,6 +1144,18 @@ export class ContentWizardPanel
                 this.wizardActions.suspendActions(event.isMask());
             }
         });
+
+        PageEventsManager.get().onPageResetRequested(() => {
+            this.liveEditModel?.getPageModel()?.reset();
+        });
+
+        PageEventsManager.get().onPageUnlocked(() => {
+            this.addPCV();
+
+            if (!this.isMinimized()) {
+                this.pageComponentsWizardStep.getTabBarItem().select();
+            }
+        });
     }
 
     private onFileUploaded(event: UploadedEvent<Content>) {
@@ -1594,7 +1593,7 @@ export class ContentWizardPanel
                            const needsReload = !this.isSaving();
                            if (livePanel) {
                                livePanel.setModel(this.liveEditModel);
-                               this.pageComponentsView?.setContent(this.liveEditModel.getContent());
+                               this.pageComponentsView?.setPageModel(this.liveEditModel.getPageModel());
                                if (reloadPage) {
                                    livePanel.clearSelectionAndInspect(true, true);
                                }
@@ -1709,7 +1708,7 @@ export class ContentWizardPanel
             const showPanel: boolean = wasNotRenderable && this.isRenderable();
             this.getLivePanel().setModel(this.liveEditModel);
             this.getLivePanel().clearSelectionAndInspect(showPanel, false);
-            this.pageComponentsView?.setContent(this.liveEditModel.getContent());
+            this.pageComponentsView?.setPageModel(this.liveEditModel.getPageModel());
             this.debouncedEditorReload(false);
 
             return Q(null);
