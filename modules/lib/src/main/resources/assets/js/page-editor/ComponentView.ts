@@ -178,7 +178,7 @@ export class ComponentView<COMPONENT extends Component>
             clone.select();
             clone.hideContextMenu();
 
-            new UIComponentResetEvent(clone, this).fire();
+            new UIComponentResetEvent(this.getPath()).fire();
         };
 
         this.onRemoved(event => {

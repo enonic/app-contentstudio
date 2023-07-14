@@ -1110,6 +1110,10 @@ export abstract class ItemView
         return PartItemType.get().equals(this.getType());
     }
 
+    isText(): boolean {
+        return TextItemType.get().equals(this.getType());
+    }
+
     getPageView(): PageView {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let itemView: ItemView = this;

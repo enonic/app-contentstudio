@@ -17,17 +17,10 @@ import {Highlighter} from '../../page-editor/Highlighter';
 import {ItemViewSelectedEvent} from '../../page-editor/ItemViewSelectedEvent';
 import {ItemViewDeselectedEvent} from '../../page-editor/ItemViewDeselectedEvent';
 import {ComponentAddedEvent} from '../../page-editor/ComponentAddedEvent';
-import {TextComponentView} from '../../page-editor/text/TextComponentView';
-import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
-import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
 import {ComponentRemovedEvent} from '../../page-editor/ComponentRemovedEvent';
-import {ComponentLoadedEvent} from '../../page-editor/ComponentLoadedEvent';
-import {ComponentResetEvent} from '../../page-editor/ComponentResetEvent';
-import {ItemView} from '../../page-editor/ItemView';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {ClickPosition} from '../../page-editor/ClickPosition';
 import {PageViewController} from '../../page-editor/PageViewController';
-import {Content} from '../content/Content';
 import {DataChangedEvent, DataChangedType} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
@@ -36,13 +29,16 @@ import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {ComponentItem} from '../../page-editor/TreeComponent';
 import {Page} from '../page/Page';
 import {PageEventsManager} from './PageEventsManager';
 import {PageModel} from '../../page-editor/PageModel';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {TextComponent} from '../page/region/TextComponent';
+import {PageActionsHelper} from './PageActionsHelper';
+import {Component} from '../page/region/Component';
+import {Region} from '../page/region/Region';
 
 export class PageComponentsView
     extends DivEl {
@@ -52,7 +48,6 @@ export class PageComponentsView
     private static COLLAPSE_BUTTON_ICON_CLASS: string = 'icon-newtab';
     private static PCV_COLLAPSED_KEY: string = 'contentstudio:pcv:collapsed';
 
-    private pageModel: PageModel;
     private liveEditPage: LiveEditPageProxy;
     private contextMenu: ItemViewContextMenu;
     private contextMenuItemPath: ComponentPath;
@@ -75,7 +70,7 @@ export class PageComponentsView
     private mouseDown: boolean = false;
     public static debug: boolean = false;
 
-    private invalidItemIds: string[] = [];
+    private invalidItemsPaths: ComponentPath[] = [];
 
     private currentUserHasCreateRights: Boolean;
 
@@ -150,6 +145,10 @@ export class PageComponentsView
         });
 
         this.whenRendered(() => this.initLiveEditEvents());
+
+        PageEventsManager.get().onFragmentLoadError((path: ComponentPath) => {
+            this.addToInvalidItems(path);
+        });
     }
 
     show(): void {
@@ -242,29 +241,13 @@ export class PageComponentsView
             this.highlightInvalidItems();
         });
 
-        eventsManager.onComponentLoaded((event: ComponentLoadedEvent): void => {
-            this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView());
-            this.tree.scrollToItem(event.getNewComponentView().getComponent().getPath());
-
-            if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), FragmentComponentView)) {
-                this.bindTreeFragmentNodeUpdateOnComponentLoaded(<FragmentComponentView>event.getNewComponentView());
-                this.bindFragmentLoadErrorHandler(<FragmentComponentView>event.getNewComponentView());
-                return;
-            }
-
-            if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), LayoutComponentView)) {
-                const componentDataId = event.getNewComponentView().getItemId().toString();
-                this.tree.expandNodeByDataId(componentDataId);
-                return;
-            }
+        eventsManager.onComponentLoaded((path: ComponentPath): void => {
+            this.tree.reloadItemByPath(path);
         });
 
-        eventsManager.onComponentReset((event: ComponentResetEvent): void => {
-            const oldDataId: string = event.getOldComponentView().getItemId().toString();
-
-            this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView(), true);
-
-            this.removeFromInvalidItems(oldDataId);
+        eventsManager.onComponentReset((path: ComponentPath): void => {
+            this.tree.resetComponentByPath(path);
+            this.removeFromInvalidItems(path);
         });
 
         eventsManager.onBeforeLoad(() => {
@@ -334,11 +317,10 @@ export class PageComponentsView
                 return;
             }
 
-            const clickedItemView: ItemView = this.tree.getGrid().getDataView().getItem(data.row).getData().getItemView();
-            const isTextComponent: boolean = ObjectHelper.iFrameSafeInstanceOf(clickedItemView, TextComponentView);
+            const clickedItem: ComponentItem = this.tree.getGrid().getDataView().getItem(data.row).getData()?.getComponent()?.getItem();
 
-            if (isTextComponent) {
-                this.editTextComponent(clickedItemView);
+            if (clickedItem instanceof TextComponent) {
+                this.editTextComponent(clickedItem);
             }
         };
 
@@ -397,10 +379,6 @@ export class PageComponentsView
             this.showContextMenu(cell.row, {x: event.pageX, y: event.pageY});
         });
 
-        this.tree.onLoaded((): void => {
-            this.subscribeOnFragmentLoadError();
-        });
-
         this.tree.onDataChanged((event: DataChangedEvent<ComponentsTreeItem>) => {
             if (event.getType() !== DataChangedType.UPDATED) {
                 this.constrainToParent();
@@ -421,45 +399,23 @@ export class PageComponentsView
     }
 
     private highlightInvalidItems(): void {
-        this.tree.setInvalid(this.invalidItemIds);
+        this.tree.setInvalid(this.invalidItemsPaths);
     }
 
-    private removeFromInvalidItems(itemId: string): void {
-        this.invalidItemIds = this.invalidItemIds.filter((curr) => {
-            return curr !== itemId;
+    private removeFromInvalidItems(path: ComponentPath): void {
+        this.invalidItemsPaths = this.invalidItemsPaths.filter((curr) => {
+            return !curr.equals(path);
         });
         this.highlightInvalidItems();
     }
 
-    private addToInvalidItems(itemId: string): void {
-        this.invalidItemIds.push(itemId);
+    private addToInvalidItems(path: ComponentPath): void {
+        this.invalidItemsPaths.push(path);
         this.highlightInvalidItems();
     }
 
     private isMenuIcon(element: HTMLElement): boolean {
         return element?.className?.indexOf('menu-icon') > -1;
-    }
-
-    private subscribeOnFragmentLoadError(): void {
-        this.tree.getGrid().getDataView().getItems().map((dataItem: TreeNode<ComponentsTreeItem>) => {
-            return dataItem.getData().getItemView();
-        }).filter((itemView: ItemView) => {
-            return itemView && ObjectHelper.iFrameSafeInstanceOf(itemView, FragmentComponentView);
-        }).forEach((fragmentComponentView: FragmentComponentView) => {
-            this.bindFragmentLoadErrorHandler(fragmentComponentView);
-        });
-    }
-
-    private bindTreeFragmentNodeUpdateOnComponentLoaded(fragmentComponentView: FragmentComponentView): void {
-        fragmentComponentView.onFragmentContentLoaded((e) => {
-            // this.tree.updateNodeByData(new ComponentsTreeItem(e.getFragmentComponentView()));
-        });
-    }
-
-    private bindFragmentLoadErrorHandler(fragmentComponentView: FragmentComponentView): void {
-        fragmentComponentView.onFragmentLoadError((e) => {
-            this.addToInvalidItems(e.getFragmentComponentView().getItemId().toString());
-        });
     }
 
     private initKeyBoardBindings(): void {
@@ -718,26 +674,18 @@ export class PageComponentsView
         const component: ComponentItem = item.getComponent().getItem();
 
         if (component instanceof Page) {
-            return this.getPageActions();
+            return PageActionsHelper.getPageActions();
+        }
+
+        if (component instanceof Component) {
+            return PageActionsHelper.getLayoutActions(component);
+        }
+
+        if (component instanceof Region) {
+            return PageActionsHelper.getRegionActions(component);
         }
 
         return [];
-    }
-
-    private getPageActions(): Action[] {
-        const inspectAction = new Action(i18n('action.component.inspect')).onExecuted(() => {
-            PageEventsManager.get().notifyPageInspected();
-        });
-
-        const resetAction = new Action(i18n('action.component.reset')).onExecuted(() => {
-            PageEventsManager.get().notifyPageResetRequested();
-        });
-
-        const saveAsTemplateAction = new Action(i18n('action.saveAsTemplate')).onExecuted(() => {
-            SaveAsTemplateAction.get().execute();
-        });
-
-        return [inspectAction, resetAction, saveAsTemplateAction];
     }
 
     private setMenuOpenStyleOnMenuIcon(row: number): void {
@@ -772,18 +720,8 @@ export class PageComponentsView
         });
     }
 
-    private editTextComponent(textComponent: ItemView): void {
-        const contextMenuActions: Action[] = textComponent.getContextMenuActions();
-        let editAction: Action;
-
-        contextMenuActions.some((action: Action) => {
-            if (action.getLabel() === i18n('action.edit')) {
-                editAction = action;
-                return true;
-            }
-        });
-
-        editAction?.execute();
+    private editTextComponent(textComponent: TextComponent): void {
+        this.liveEditPage.editTextComponentByPath(textComponent.getPath());
     }
 
     getEl(): ElementHelper {
