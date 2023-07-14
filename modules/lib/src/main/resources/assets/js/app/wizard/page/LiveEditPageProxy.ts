@@ -64,14 +64,14 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {LiveEditPageDialogCreatedEvent} from '../../../page-editor/LiveEditPageDialogCreatedEvent';
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {SaveAsTemplateEvent} from '../../../page-editor/SaveAsTemplateEvent';
+import {TextComponentView} from '../../../page-editor/text/TextComponentView';
+import {FragmentLoadErrorEvent} from '../../../page-editor/FragmentLoadErrorEvent';
 
 export class LiveEditPageProxy {
 
     private liveEditModel?: LiveEditModel;
 
     private pageView?: PageView;
-
-    private selectedView?: ItemView;
 
     private liveEditIFrame?: IFrameEl;
 
@@ -377,22 +377,38 @@ export class LiveEditPageProxy {
             return;
         }
 
-        const itemView = this.pageView?.getPath().equals(path) ? this.pageView : this.pageView?.getComponentViewByPath(path);
+        const itemView = this.getItemViewByPath(path);
 
         if (itemView && !itemView.isSelected()) {
             itemView.selectWithoutMenu();
         }
     }
 
+    private getItemViewByPath(path: ComponentPath): ItemView {
+        if (!path) {
+            return;
+        }
+
+        return this.pageView?.getPath().equals(path) ? this.pageView : this.pageView?.getComponentViewByPath(path);
+    }
+
     deselectComponentByPath(path?: ComponentPath): void {
         if (path) {
-            const itemView = this.pageView?.getPath().equals(path) ? this.pageView : this.pageView?.getComponentViewByPath(path);
+            const itemView = this.getItemViewByPath(path);
 
             if (itemView && !itemView.isSelected()) {
                 itemView.deselect();
             }
         } else {
-            this.selectedView?.deselect();
+            this.pageView.getSelectedView()?.deselect(true);
+        }
+    }
+
+    editTextComponentByPath(path: ComponentPath): void {
+        const itemView = this.getItemViewByPath(path);
+
+        if (itemView?.isText()) {
+            (<TextComponentView>itemView).startPageTextEditMode();
         }
     }
 
@@ -432,7 +448,7 @@ export class LiveEditPageProxy {
 
                 componentView.replaceWith(newComponentView);
 
-                const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView, componentView);
+                const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
                 event.fire(this.liveEditWindow);
 
                 const config = <ItemViewSelectedEventConfig>{itemView: newComponentView, position: null, avoidInspectComponentRefresh};
@@ -595,7 +611,7 @@ export class LiveEditPageProxy {
         }, contextWindow);
 
         PageInspectedEvent.on(() => {
-            eventsManager.notifyPageInspected();
+            eventsManager.notifyPageInspectedRequested();
         }, contextWindow);
 
         ComponentFragmentCreatedEvent.on((event: ComponentFragmentCreatedEvent) => {
@@ -619,11 +635,11 @@ export class LiveEditPageProxy {
         }, contextWindow);
 
         ComponentLoadedEvent.on((event: ComponentLoadedEvent) => {
-            eventsManager.notifyComponentLoaded(event);
+            eventsManager.notifyComponentLoaded(event.getPath());
         }, contextWindow);
 
         ComponentResetEvent.on((event: ComponentResetEvent) => {
-            eventsManager.notifyComponentReset(event);
+            eventsManager.notifyComponentReset(event.getPath());
         }, contextWindow);
 
         LiveEditPageViewReadyEvent.on((event: LiveEditPageViewReadyEvent) => {
@@ -652,6 +668,10 @@ export class LiveEditPageProxy {
 
         SaveAsTemplateEvent.on(() => {
             eventsManager.notifyPageSaveAsTemplate();
+        }, contextWindow);
+
+        FragmentLoadErrorEvent.on((event: FragmentLoadErrorEvent) => {
+            eventsManager.notifyFragmentLoadError(event.getFragmentComponentView().getPath());
         }, contextWindow);
     }
 

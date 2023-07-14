@@ -2,25 +2,24 @@ import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 import {Component} from '../app/page/region/Component';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 
 export class ComponentLoadedEvent
     extends Event {
 
-    private newComponentView: ComponentView<Component>;
-    private oldComponentView: ComponentView<Component>;
+    private readonly newComponentView: ComponentView<Component>;
 
-    constructor(newComponentView: ComponentView<Component>, oldComponentView: ComponentView<Component>) {
+    constructor(newComponentView: ComponentView<Component>) {
         super();
         this.newComponentView = newComponentView;
-        this.oldComponentView = oldComponentView;
     }
 
     getNewComponentView(): ComponentView<Component> {
         return this.newComponentView;
     }
 
-    getOldComponentView(): ComponentView<Component> {
-        return this.oldComponentView;
+    getPath(): ComponentPath {
+        return this.newComponentView.getPath();
     }
 
     static on(handler: (event: ComponentLoadedEvent) => void, contextWindow: Window = window) {

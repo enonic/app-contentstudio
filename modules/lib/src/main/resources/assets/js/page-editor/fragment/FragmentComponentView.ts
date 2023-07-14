@@ -52,8 +52,6 @@ export class FragmentComponentView
 
     private fragmentContentLoadedListeners: { (event: FragmentComponentLoadedEvent): void }[];
 
-    private fragmentLoadErrorListeners: { (event: FragmentLoadErrorEvent): void }[];
-
     private loaded: boolean = false;
 
     constructor(builder: FragmentComponentViewBuilder) {
@@ -63,7 +61,6 @@ export class FragmentComponentView
         this.fragmentContainsLayout = false;
         this.fragmentContent = null;
         this.fragmentContentLoadedListeners = [];
-        this.fragmentLoadErrorListeners = [];
 
         this.setPlaceholder(new FragmentPlaceholder(this));
 
@@ -312,20 +309,7 @@ export class FragmentComponentView
         });
     }
 
-    onFragmentLoadError(listener: (event: FragmentLoadErrorEvent) => void) {
-        this.fragmentLoadErrorListeners.push(listener);
-    }
-
-    unFragmentLoadError(listener: (event: FragmentLoadErrorEvent) => void) {
-        this.fragmentLoadErrorListeners = this.fragmentLoadErrorListeners.filter((curr) => {
-            return curr !== listener;
-        });
-    }
-
-    notifyFragmentLoadError() {
-        let event = new FragmentLoadErrorEvent(this);
-        this.fragmentLoadErrorListeners.forEach((listener) => {
-            listener(event);
-        });
+    private notifyFragmentLoadError() {
+         new FragmentLoadErrorEvent(this).fire();
     }
 }

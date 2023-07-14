@@ -260,6 +260,10 @@ export class Page
 
         return null;
     }
+
+    getParent(): PageItem {
+        return null;
+    }
 }
 
 export class PageBuilder {

@@ -15,7 +15,6 @@ import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
 import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorRequest';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {Descriptor} from '../page/Descriptor';
-import {TextItemType} from '../../page-editor/text/TextItemType';
 import {TextComponentView} from '../../page-editor/text/TextComponentView';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {PageComponentsTreeGridHelper} from './PageComponentsTreeGridHelper';
@@ -109,17 +108,15 @@ export class PageComponentsTreeGrid
         this.nodeExpandedHandler = handler;
     }
 
-    setInvalid(dataIds: string[]) {
-        let root = this.getRoot().getCurrentRoot();
+    setInvalid(paths: ComponentPath[]) {
+        const nodes: TreeNode<ComponentsTreeItem>[] = paths.map((path: ComponentPath) => this.getNodeByPath(path));
         let stylesHash = {};
 
-        dataIds.forEach((dataId) => {
-            let node = root.findNode(dataId);
-            if (node) {
-                let row = this.getRowByNodeId(node.getId());
-                stylesHash[row] = {displayName: 'invalid', menu: 'invalid'};
-            }
+        nodes.filter((node: TreeNode<ComponentsTreeItem>) => !!node).forEach((node: TreeNode<ComponentsTreeItem>) => {
+            const row: number = this.getRowByNodeId(node.getId());
+            stylesHash[row] = {displayName: 'invalid', menu: 'invalid'};
         });
+
         this.getGrid().setCellCssStyles('invalid-highlight', stylesHash);
     }
 
@@ -316,9 +313,25 @@ export class PageComponentsTreeGrid
 
     }
 
-    refreshComponentNode(componentView: ComponentView<Component>, oldComponentView: ComponentView<Component>, clean?: boolean): Q.Promise<void> {
-        const oldDataId: string = oldComponentView.getItemId().toString();
-        const oldNode: TreeNode<ComponentsTreeItem> = this.getRoot().getNodeByDataIdFromCurrent(oldDataId);
+    reloadItemByPath(path: ComponentPath): void {
+        this.refreshComponentNode(path);
+        this.scrollToItem(path);
+
+        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
+        const item: ComponentItem = node.getData().getComponent().getItem();
+
+        if (item instanceof LayoutComponent) {
+            this.expandNode(node);
+            return;
+        }
+    }
+
+    refreshComponentNode(path: ComponentPath, clean?: boolean): Q.Promise<void> {
+        const oldNode: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
+
+        if (oldNode) {
+            return Q.resolve();
+        }
 
         if (clean) {
             oldNode.getChildren().forEach((childNode: TreeNode<ComponentsTreeItem>) => {
@@ -326,19 +339,17 @@ export class PageComponentsTreeGrid
             });
         }
 
-        return this.fetchComponentItem(componentView.getComponent()).then((fullComponent: TreeComponent) => {
-            this.updateNodeByData(new ComponentsTreeItem(fullComponent, componentView), oldDataId);
+        return this.fetchComponentItem(null).then((fullComponent: TreeComponent) => {
+            this.updateNodeByData(new ComponentsTreeItem(fullComponent, null), oldNode.getDataId());
 
-            const dataId: string = componentView.getItemId().toString();
-
-            if (componentView.isSelected()) {
-                this.selectNode(dataId);
-            }
-
-            if (ObjectHelper.iFrameSafeInstanceOf(componentView.getType(), TextItemType)) {
-                this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>componentView);
+            if (this.isItemSelected(path)) {
+                this.selectItemByPath(path);
             }
         });
+    }
+
+    resetComponentByPath(path: ComponentPath): void {
+
     }
 
     protected doUpdateNodeByData(nodeToUpdate: TreeNode<ComponentsTreeItem>, data: ComponentsTreeItem): void {

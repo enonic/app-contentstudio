@@ -2,25 +2,20 @@ import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 import {Component} from '../app/page/region/Component';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 
 export class ComponentResetEvent
     extends Event {
 
-    private newComponentView: ComponentView<Component>;
-    private oldComponentView: ComponentView<Component>;
+    private readonly path: ComponentPath;
 
-    constructor(newComponentView: ComponentView<Component>, oldComponentView: ComponentView<Component>) {
+    constructor(path: ComponentPath) {
         super();
-        this.newComponentView = newComponentView;
-        this.oldComponentView = oldComponentView;
+        this.path = path;
     }
 
-    getNewComponentView(): ComponentView<Component> {
-        return this.newComponentView;
-    }
-
-    getOldComponentView(): ComponentView<Component> {
-        return this.oldComponentView;
+    getPath(): ComponentPath {
+        return this.path;
     }
 
     static on(handler: (event: ComponentResetEvent) => void, contextWindow: Window = window) {

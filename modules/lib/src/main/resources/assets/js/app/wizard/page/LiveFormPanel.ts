@@ -864,7 +864,7 @@ export class LiveFormPanel
             this.inspectComponent(componentView);
         });
 
-        eventsManager.onPageInspected(() => {
+        eventsManager.onPageInspectedRequested(() => {
             this.inspectPage(true);
         });
 
