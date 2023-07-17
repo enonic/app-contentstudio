@@ -39,7 +39,7 @@ export abstract class PropertiesWidgetItemView
         //
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null> {
         if (!item.getContentSummary().equals(this.item?.getContentSummary())) {
             this.item = item;
             this.helper.setItem(item);

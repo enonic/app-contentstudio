@@ -73,7 +73,7 @@ export class DependenciesWidgetItemView
         return button;
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         if (DependenciesWidgetItemView.debug) {
             console.debug('DependenciesWidgetItemView.setItem: ', item);
         }
@@ -172,7 +172,7 @@ export class DependenciesWidgetItemView
     /**
      * Perform request to resolve dependency items of given item.
      */
-    private resolveDependencies(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    private resolveDependencies(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
 
         const resolveDependenciesRequest = new ResolveDependenciesRequest([item.getContentId()]);
 

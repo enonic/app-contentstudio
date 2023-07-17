@@ -38,7 +38,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
         return this;
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         let content = item.getContentSummary();
         if (AttachmentsWidgetItemView.debug) {
             console.debug('AttachmentsWidgetItemView.setContent: ', content);
@@ -47,7 +47,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
             this.content = content;
             return this.layout();
         }
-        return Q<any>(null);
+        return Q();
     }
 
     public layout(): Q.Promise<any> {

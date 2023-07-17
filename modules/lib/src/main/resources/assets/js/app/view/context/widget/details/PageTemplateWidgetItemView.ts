@@ -52,7 +52,7 @@ export class PageTemplateWidgetItemView
         super('page-template-widget-item-view');
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null | void> {
         const content = item.getContentSummary();
         if (!content.equals(this.content)) {
             if (!this.content) {
@@ -63,7 +63,7 @@ export class PageTemplateWidgetItemView
             return this.loadAndLayout();
         }
 
-        return Q<any>(null);
+        return Q();
     }
 
     private loadAndLayout(): Q.Promise<void> {

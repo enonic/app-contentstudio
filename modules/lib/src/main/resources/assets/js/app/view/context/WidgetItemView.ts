@@ -29,7 +29,7 @@ export class WidgetItemView
         return Q();
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null | void> {
         return Q();
     }
 
