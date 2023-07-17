@@ -15,7 +15,7 @@ export class StatusWidgetItemView extends WidgetItemView {
         super('status-widget-item-view');
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         let compareStatus = item.getCompareStatus();
         let publishStatus = item.getPublishStatus();
         if (StatusWidgetItemView.debug) {
@@ -31,7 +31,7 @@ export class StatusWidgetItemView extends WidgetItemView {
             this.content = item;
             return this.layout();
         }
-        return Q<any>(null);
+        return Q();
     }
 
     private getCompareStatus() : CompareStatus {
