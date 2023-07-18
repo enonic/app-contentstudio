@@ -116,9 +116,10 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             //1. open new wizard and fill in the name input:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_2);
             let result = await comboBoxForm.getSelectedOptionValues();
-            assert.isTrue(result.includes(OPTION_A), "Expected option should be selected");
-            assert.isTrue(result.includes(OPTION_B), "Expected option should be selected");
-            await studioUtils.saveScreenshot("combobox_2_options");
+            await studioUtils.saveScreenshot('combobox_2_4__2_opt_selected');
+            assert.isTrue(result.includes(OPTION_A), "'option A' should be selected");
+            assert.isTrue(result.includes(OPTION_B), "'option B' should be selected");
+            await studioUtils.saveScreenshot('combobox_2_options');
             //2. Remove the selected option:
             await comboBoxForm.clickOnRemoveSelectedOptionButton(1);
             //3. Verify that the content gets not valid even after removing a required selected option:
