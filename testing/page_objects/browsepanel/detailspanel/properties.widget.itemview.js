@@ -64,7 +64,7 @@ class PropertiesItemView extends Page {
             await this.clickOnElement(this.editSettingsButton);
             await this.pause(300);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('prop_widget_edit');
+            let screenshot = appConst.generateRandomName('err_prop_widget_edit');
             await this.saveScreenshot(screenshot);
             throw new Error(`Properties Widget, Edit button is not displayed ${screenshot} ` + err);
         }

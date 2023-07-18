@@ -116,7 +116,7 @@ class EditSettingDialog extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getText(selector);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_pr_wizard_language'));
+            await this.saveScreenshot(appConst.generateRandomName('err_setting_dialog_language'));
             throw new Error('Edit Setting dialog, error during getting the selected language. ' + err);
         }
     }
