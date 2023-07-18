@@ -123,8 +123,8 @@ export class Regions
 
         let other = <Regions>o;
 
-        let thisRegions = this.getRegions();
-        let otherRegions = other.getRegions();
+        let thisRegions = this.getRegions()?.filter((region: Region) => !region.isEmpty());
+        let otherRegions = other.getRegions()?.filter((region: Region) => !region.isEmpty());
 
         if (!ObjectHelper.arrayEquals(thisRegions, otherRegions)) {
             return false;

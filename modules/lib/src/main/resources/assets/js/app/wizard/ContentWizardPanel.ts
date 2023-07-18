@@ -2282,7 +2282,7 @@ export class ContentWizardPanel
 
     private assembleViewedPage(): Page {
         return (this.getPersistedItem().getPage() && !this.isRenderable()) ?
-               this.getPersistedItem().getPage() : PageHelper.getPageWithoutEmptyRegions(this.getLivePanel()?.getPage());
+               this.getPersistedItem().getPage() : this.getLivePanel()?.getPage();
     }
 
     private resolveContentNameForUpdateRequest(): ContentName {
