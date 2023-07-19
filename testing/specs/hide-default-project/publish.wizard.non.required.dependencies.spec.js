@@ -12,6 +12,11 @@ const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
 const TextComponentCke = require('../../page_objects/components/text.component');
+const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
+const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
+const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
+const ProjectNotAvailableDialog = require('../../page_objects/project/project.not.available.dialog');
+const projectUtils = require('../../libs/project.utils');
 
 describe('publish.wizard.non.required.dependencies.spec - tests for config with excludeDependencies=true', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -22,6 +27,39 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
     let SITE;
     let TEST_FOLDER;
     const CONTENT_LINK_TITLE = appConst.generateRandomName('link');
+    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+
+    it("Precondition: click on 'Start Wizard' button then create a project",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            let projectNotAvailableDialog = new ProjectNotAvailableDialog();
+            await projectUtils.saveScreenshot('step_1_create_project');
+            // 1. Project Not Available Dialog should be loaded
+            await projectNotAvailableDialog.waitForDialogLoaded();
+            // 2. Click on Start button in the modal dialog:
+            await projectNotAvailableDialog.clickOnStartWizardButton();
+            // 3. Skip the language step
+            await languageStep.waitForLoaded();
+            await languageStep.clickOnSkipButton();
+            // 4. Select 'Private' access mode in the fours step:
+            let permissionsStep = await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PRIVATE);
+            await permissionsStep.waitForLoaded();
+            // 5. skip the permissions step:
+            await permissionsStep.clickOnSkipButton();
+            // 6. Skip the applications step
+            if (await applicationsStep.isLoaded()) {
+                await applicationsStep.clickOnSkipButton();
+            }
+            // 7. Fill in the name input
+            let summaryStep = await projectUtils.fillNameAndDescriptionStep(PROJECT_DISPLAY_NAME);
+            await summaryStep.waitForLoaded();
+            // 8. Click on 'Create Project' button and wait for the dialog is closed:
+            await summaryStep.clickOnCreateProjectButton();
+            await summaryStep.waitForDialogClosed();
+            await settingsBrowsePanel.waitForNotificationMessage();
+        });
 
     it("Precondition: ready for publishing site should be added",
         async () => {
@@ -110,7 +148,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             assert.isTrue(depItems[0].includes('_templates'), 'non-required dependency should not be displayed in the list');
         });
 
-    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    beforeEach(() => studioUtils.navigateToContentStudioWithProjects());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
