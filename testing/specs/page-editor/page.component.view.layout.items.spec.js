@@ -32,6 +32,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await studioUtils.doAddSite(SITE);
         });
 
+    // verifies task: issue-6485, Expand Page Components View tree to the item selected in Live Edit
     it(`GIVEN 3-column layout has been inserted in new site WHEN text has been inserted in left and center layout's regions THEN expected items should be displayed in the Page Component View`,
         async () => {
             let contentWizard = new ContentWizard();

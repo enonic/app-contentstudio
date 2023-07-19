@@ -373,16 +373,17 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.includeChildrenToogler);
             return await this.pause(700);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_include_children'));
-            throw new Error('Error when clicking on Include Children toggler ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_include_children');
+            throw new Error('Error when clicking on Include Children toggler, screenshot :' + screenshot + ' ' + err);
         }
     }
 
-
-    waitForScheduleButtonDisplayed() {
-        return this.waitForElementDisplayed(this.scheduleButton, appConst.shortTimeout).catch(err => {
+    async waitForScheduleButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.scheduleButton, appConst.shortTimeout)
+        } catch (err) {
             throw new Error("'Schedule' button should be visible!" + err);
-        })
+        }
     }
 
     async getContentStatus(name) {
@@ -458,7 +459,7 @@ class ContentPublishDialog extends Page {
 
     async clickOnCancelTopButton() {
         await this.pause(400);
-        await  this.clickOnElement(this.cancelButtonTop);
+        await this.clickOnElement(this.cancelButtonTop);
     }
 
     async typeInOnlineFrom(dateTime) {
@@ -526,6 +527,11 @@ class ContentPublishDialog extends Page {
     async getDisplayNameInDependentItems() {
         let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
         return await this.getTextInElements(locator);
+    }
+
+    async waitForDependenciesListDisplayed() {
+        let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+        return await this.waitForElementDisplayed(locator);
     }
 
     async clickOnCloseScheduleFormButton() {

@@ -12,13 +12,13 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('inputs.custom.validation.spec: tests for content with custom validation', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
     const CONTENT_NAME = contentBuilder.generateRandomName('content');
-    const NOT_ALLOWED_OPTION = "Arabic (Egypt)";
-    const ALLOWED_OPTION = "English (United States)";
+    const NOT_ALLOWED_OPTION = 'Arabic (Egypt)';
+    const ALLOWED_OPTION = 'English (United States)';
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -31,21 +31,21 @@ describe('inputs.custom.validation.spec: tests for content with custom validatio
         async () => {
             let localeCodeCustomValidationForm = new LocaleCodeCustomValidationForm();
             let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
+            // 1. open new wizard and fill in the name input:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LOCALE_CODE);
             await contentWizard.typeDisplayName(CONTENT_NAME);
-            //2. Fill in the first text input with valid value
-            await localeCodeCustomValidationForm.typeTextInTextInput("en-En");
-            //3. Select a not allowed option:
+            // 2. Fill in the first text input with valid value
+            await localeCodeCustomValidationForm.typeTextInTextInput('en-En');
+            // 3. Select a not allowed option:
             await localeCodeCustomValidationForm.typeTextAndSelectOption(NOT_ALLOWED_OPTION);
-            //4. Click on 'Save' button
+            // 4. Click on 'Save' button
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("custom_validation_not_allowed_option");
-            //5. Verify that validation message:
+            await studioUtils.saveScreenshot('custom_validation_not_allowed_option');
+            // 5. Verify that validation message:
             let actualMessage = await localeCodeCustomValidationForm.getSelectorValidationMessage();
             assert.equal(actualMessage, 'Invalid value selected', "Expected validation message should be displayed");
-            //6. Verify that the content remains invalid
+            // 6. Verify that the content remains invalid
             let isInValid = await contentWizard.isContentInvalid();
             assert.isTrue(isInValid, 'the content should be invalid, this value is invalid');
         });
@@ -54,17 +54,17 @@ describe('inputs.custom.validation.spec: tests for content with custom validatio
         async () => {
             let localeCodeCustomValidationForm = new LocaleCodeCustomValidationForm();
             let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
+            // 1. open new wizard and fill in the name input:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-            //2. Remove the invalid selected option:
+            // 2. Remove the invalid selected option:
             await localeCodeCustomValidationForm.removeSelectedOption(NOT_ALLOWED_OPTION);
-            //3. Select the valid option:
+            // 3. Select the valid option:
             await localeCodeCustomValidationForm.typeTextAndSelectOption(ALLOWED_OPTION);
-            //4. Click on 'Save' button
+            // 4. Click on 'Save' button
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("custom_validation_allowed_option");
-            //4. Verify that the content gets valid
+            await studioUtils.saveScreenshot('custom_validation_allowed_option');
+            // 4. Verify that the content gets valid
             let isInValid = await contentWizard.isContentInvalid();
             assert.isFalse(isInValid, 'the content should be valid');
         });
@@ -72,7 +72,7 @@ describe('inputs.custom.validation.spec: tests for content with custom validatio
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
