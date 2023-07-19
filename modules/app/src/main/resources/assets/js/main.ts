@@ -88,7 +88,7 @@ function getApplication(): Application {
 function processApplicationPath(): Path {
     const path: Path = Router.getPath();
 
-    if (path.getElement(0) !== UrlAction.ISSUE) {
+    if (path.getElement(0) !== UrlAction[UrlAction.ISSUE]) {
         return path;
     }
 
@@ -345,7 +345,7 @@ async function startApplication() {
                 handleProjectDeletedEvent(event.getProjectName());
             });
         })
-        .catch((reason: any) => {
+        .catch((reason) => {
             DefaultErrorHandler.handle(reason);
             NotifyManager.get().showWarning(i18n('notify.settings.project.initFailed'));
         })
@@ -492,16 +492,12 @@ async function startContentWizard() {
         });
     });
 
-    WindowDOM.get().onBeforeUnload(event => {
+    WindowDOM.get().onBeforeUnload((event: object) => {
         if (wizard.isContentDeleted() || !connectionDetector?.isConnected() || !connectionDetector?.isAuthenticated()) {
             return;
         }
         if (wizard.hasUnsavedChanges() && !wizard.isReadOnly()) {
-            let message = i18n('dialog.wizard.unsavedChanges');
-            // Hack for IE. returnValue is boolean
-            const e: any = event || window.event || {returnValue: ''};
-            e['returnValue'] = message;
-            return message;
+            event['returnValue'] = i18n('dialog.wizard.unsavedChanges');
         }
     });
 
@@ -517,7 +513,7 @@ async function startContentWizard() {
 
 function getTheme(): string {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return CONFIG.has('theme') ? (`theme-${CONFIG.get('theme')}` || '') : '';
+    return CONFIG.has('theme') ? (`theme-${CONFIG.getString('theme')}` || '') : '';
 }
 
 async function startContentBrowser() {
@@ -569,16 +565,16 @@ async function startContentBrowser() {
 
                                 newContentDialog.setParentContent(newParentContent);
                                 newContentDialog.open();
-                            }).catch((reason: any) => {
+                            }).catch((reason) => {
                             DefaultErrorHandler.handle(reason);
                         }).done();
                     } else {
                         newContentDialog.setParentContent(newParentContent);
                         newContentDialog.open();
                     }
-                }).catch((reason: any) => {
-                DefaultErrorHandler.handle(reason);
-            }).done();
+                }).catch((reason) => {
+                    DefaultErrorHandler.handle(reason);
+                }).done();
         } else {
             newContentDialog.setParentContent(null);
             newContentDialog.open();
