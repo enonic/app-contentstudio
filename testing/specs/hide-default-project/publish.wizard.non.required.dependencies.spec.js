@@ -148,6 +148,18 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             assert.isTrue(depItems[0].includes('_templates'), 'non-required dependency should not be displayed in the list');
         });
 
+    it("Post condition - test project should be deleted",
+        async () => {
+            // 1. Open Setting panel
+            await studioUtils.openSettingsPanel();
+            // 2. Select and delete the project:
+            await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+            let projectNotAvailableDialog = new ProjectNotAvailableDialog();
+            await projectUtils.saveScreenshot('the_only_one_project_deleted_2');
+            // 3. Verify that Project Not Available modal Dialog is automatically loaded
+            await projectNotAvailableDialog.waitForDialogLoaded();
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioWithProjects());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
