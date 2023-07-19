@@ -41,7 +41,7 @@ const ScheduleWidgetItem = require('../page_objects/browsepanel/detailspanel/sch
 const EditSettingDialog = require('../page_objects/details_panel/edit.settings.dialog');
 const EditScheduleDialog = require('../page_objects/details_panel/edit.schedule.dialog');
 const InsertLinkDialogContentPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
-const InsertLinkDialogUrlPanel= require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
+const InsertLinkDialogUrlPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 
 module.exports = {
 
@@ -131,10 +131,13 @@ module.exports = {
         return await insertLinkDialog.pause(700);
     },
 
-    async insertContentLinkInCke(text, contentDisplayName) {
+    async insertContentLinkInCke(text, contentDisplayName, entireProject) {
         let insertLinkDialog = new InsertLinkDialog();
         let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
         await insertLinkDialog.typeInLinkTextInput(text);
+        if (entireProject) {
+            await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
+        }
         await insertLinkDialogContentPanel.selectTargetInContentSelector(contentDisplayName);
         this.saveScreenshot('content_link_dialog');
         await insertLinkDialog.clickOnInsertButton();

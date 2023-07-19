@@ -55,7 +55,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             // 2. Click on 'Page' tab in Inspection panel:
             await contextWindow.clickOnTabBarItem('Page');
             // 3. Select new controller(Automatic)
-            await pageInspectionPanel.selectPageTemplateOrController("Automatic");
+            await pageInspectionPanel.selectPageTemplateOrController('Automatic');
             // 4. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
             let question = await confirmationDialog.getQuestion();

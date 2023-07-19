@@ -47,8 +47,9 @@ class PageComponentView extends BasePageComponentView {
         return this.waitForElementNotDisplayed(this.componentViewToggleButton, appConst.mediumTimeout);
     }
 
-    waitForLoaded() {
-        return this.waitForElementDisplayed(this.container, appConst.mediumTimeout);
+    async waitForLoaded() {
+        await this.waitForElementDisplayed(this.container, appConst.mediumTimeout);
+        await this.pause(700);
     }
 
     waitForNotDisplayed() {

@@ -70,10 +70,15 @@ class LocaleCodeCustomValidationForm extends Page {
     }
 
     async removeSelectedOption(option) {
-        let locator = XPATH.comboboxSelectedOption(option) + lib.REMOVE_ICON;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-        return await this.pause(400);
+        try {
+            let locator = XPATH.comboboxSelectedOption(option) + lib.REMOVE_ICON;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            return await this.pause(400);
+        } catch (err) {
+            let screenshot = this.saveScreenshotUniqueName('err_custom_validation_combo');
+            throw new Error('Locale Code, custom validation, remove the selected option, screenshot: ' + screenshot + ' ' + err);
+        }
     }
 }
 
