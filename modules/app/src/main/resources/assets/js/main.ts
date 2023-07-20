@@ -88,7 +88,7 @@ function getApplication(): Application {
 function processApplicationPath(): Path {
     const path: Path = Router.getPath();
 
-    if (path.getElement(0) !== UrlAction[UrlAction.ISSUE]) {
+    if (path.getElement(0) !== UrlAction.ISSUE.toString()) {
         return path;
     }
 
@@ -492,12 +492,15 @@ async function startContentWizard() {
         });
     });
 
-    WindowDOM.get().onBeforeUnload((event: object) => {
+    WindowDOM.get().onBeforeUnload((event: UIEvent) => {
         if (wizard.isContentDeleted() || !connectionDetector?.isConnected() || !connectionDetector?.isAuthenticated()) {
             return;
         }
         if (wizard.hasUnsavedChanges() && !wizard.isReadOnly()) {
-            event['returnValue'] = i18n('dialog.wizard.unsavedChanges');
+            const message = i18n('dialog.wizard.unsavedChanges');
+            const e: UIEvent | object = event || {returnValue: ''};
+            e['returnValue'] = message;
+            return message;
         }
     });
 
