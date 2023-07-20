@@ -55,7 +55,7 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async typeTextInContentOptionsFilterInput(text) {
-        let locator = XPATH.container + XPATH.contentCombobox + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        let locator = XPATH.container + lib.CONTENT_COMBOBOX + lib.COMBO_BOX_OPTION_FILTER_INPUT;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.typeTextInInput(locator, text);
         return await this.pause(1000);

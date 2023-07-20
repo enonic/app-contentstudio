@@ -127,8 +127,9 @@ class CreateIssueDialog extends Page {
         return this.clickOnElement(this.cancelTopButton);
     }
 
-    waitForDialogLoaded() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+    async waitForDialogLoaded() {
+        await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+        await this.pause(1000);
     }
 
     waitForDialogClosed() {
@@ -174,7 +175,7 @@ class CreateIssueDialog extends Page {
     async selectUserInAssignees(userName) {
         try {
             let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(userName, XPATH.assigneesComboBox);
+            return await loaderComboBox.typeTextAndSelectOption(userName, XPATH.assigneesComboboxDiv);
         } catch (err) {
             throw new Error("Create issue Dialog  " + err);
         }
