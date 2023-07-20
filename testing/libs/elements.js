@@ -11,6 +11,7 @@ module.exports = Object.freeze({
     TIME_PICKER_INPUT: "//div[contains(@id,'TimePicker')]//input[contains(@id,'TextInput')]",
     DATE_PICKER_INPUT: "//div[contains(@id,'DatePicker') and contains(@class,'date-time-picker')]//input[contains(@id,'TextInput')]",
     CONTENT_SELECTOR: "//div[contains(@id,'ContentSelector')]",
+    CONTENT_COMBOBOX: "//div[contains(@id,'ContentComboBox')]",
     NEW_CONTENT_BUTTON: "//button[contains(@class,'new-content-button')]",
     SELECTED_LOCALE: `//div[contains(@id,'LocaleSelectedOptionView')]`,
     SLICK_VIEW_PORT: `//div[contains(@class,'slick-viewport')]`,

@@ -13,7 +13,7 @@ const XPATH = {
     openInNewTabCheckboxDiv: "//div[contains(@id,'Checkbox') and child::label[contains(.,'Open in new tab')]]",
     showContentCheckboxLabel: "//div[contains(@id,'Checkbox')]//label[contains(.,'Show content from the entire')]",
     openInNewTabCheckboxLabel: "//div[contains(@id,'Checkbox')]//label[contains(.,'Open in new tab')]",
-    contentCombobox: "//div[contains(@id,'ContentComboBox')]",
+
 };
 
 class InsertLinkDialogContentPanel extends Page {
@@ -27,11 +27,11 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     get contentDropDownHandler() {
-        return XPATH.contentPanel + XPATH.contentCombobox + lib.DROP_DOWN_HANDLE;
+        return XPATH.contentPanel + lib.CONTENT_COMBOBOX + lib.DROP_DOWN_HANDLE;
     }
 
     get contentSelectorModeTogglerButton() {
-        return XPATH.contentPanel + XPATH.contentCombobox + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
+        return XPATH.contentPanel + lib.CONTENT_COMBOBOX + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
     }
 
     get addAnchorButton() {

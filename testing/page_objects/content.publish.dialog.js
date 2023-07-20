@@ -317,7 +317,8 @@ class ContentPublishDialog extends Page {
     async clickOnShowExcludedItemsButton() {
         try {
             await this.waitForShowExcludedItemsButtonDisplayed();
-            return await this.clickOnElement(this.showExcludedItemsButton);
+            await this.clickOnElement(this.showExcludedItemsButton);
+            await this.pause(400);
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_show_excluded_btn');
             await this.saveScreenshot(screenshot);
@@ -364,6 +365,16 @@ class ContentPublishDialog extends Page {
             let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
             await this.saveScreenshot(screenshot);
             throw new Error(`'Hide excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
+    async waitForHideExcludedItemsButtonNotDisplayed() {
+        try {
+            return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + +err)
         }
     }
 
@@ -589,7 +600,7 @@ class ContentPublishDialog extends Page {
         return this.getText(locator);
     }
 
-    async clickOnShowExcludedButtonItems() {
+    async clickOnShowExcludedItemsButton() {
         await this.waitForShowExcludedItemsButtonDisplayed()
         await this.clickOnElement(this.showExcludedItemsButton);
         return await this.pause(1000);

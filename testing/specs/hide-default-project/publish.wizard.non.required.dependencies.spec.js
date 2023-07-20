@@ -17,6 +17,7 @@ const ProjectWizardDialogLanguageStep = require('../../page_objects/project/proj
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const ProjectNotAvailableDialog = require('../../page_objects/project/project.not.available.dialog');
 const projectUtils = require('../../libs/project.utils');
+const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 
 describe('publish.wizard.non.required.dependencies.spec - tests for config with excludeDependencies=true', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -110,7 +111,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             // 3. Verify that 'show excluded' button is displayed:
             await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
             // 4. Click on 'show excluded' button:
-            await contentPublishDialog.clickOnShowExcludedButtonItems();
+            await contentPublishDialog.clickOnShowExcludedItemsButton();
             // 5. Verify that 'show excluded' button is not displayed now:
             await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
             // 6. Verify that the only one dependency item is shown in the list:
@@ -128,12 +129,10 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             // 1. Select the existing site with a dependency click on 'Mark as Ready' button::
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
-            //await contentBrowsePanel.waitForNotificationMessage();
             // 2. Publish wizard should be automatically loaded:
             await contentPublishDialog.waitForDialogOpened();
             // 3. Click on 'show excluded' button:
-            // TODO rename the method:
-            await contentPublishDialog.clickOnShowExcludedButtonItems();
+            await contentPublishDialog.clickOnShowExcludedItemsButton();
             // 5. Verify that 'show excluded' button is not displayed now:
             await contentPublishDialog.clickOnHideExcludedItemsButton();
             // 6. Verify that the dependency items are not shown in the list:
@@ -146,6 +145,45 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 1, 'non-required dependency should not be displayed in the list');
             assert.isTrue(depItems[0].includes('_templates'), 'non-required dependency should not be displayed in the list');
+        });
+
+    it("GIVEN site with non-required dependency item is selected AND 'Create Issue' dialog has been opened WHEN 'Show excluded' button has been clicked THEN dependent item gets visible and is not selected",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let createIssueDialog = new CreateIssueDialog();
+            // 1. Select the existing site with a dependency click on 'Mark as Ready' button::
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+            // 2. 'Create Issue' dialog should be loaded:
+            await createIssueDialog.waitForDialogLoaded();
+            // 3. Verify that 'show excluded' button is displayed:
+            await createIssueDialog.waitForShowExcludedItemsButtonDisplayed();
+            // 4. Click on 'show excluded' button:
+            await createIssueDialog.clickOnShowExcludedItemsButton();
+            // 5. Verify that the only one dependency item is shown in the list:
+            let depItems = await createIssueDialog.getDisplayNameInDependentItems();
+            assert.equal(depItems.length, 1, 'The only one dependent item should be in the dependencies list');
+            // 6. Verify that the checkbox for the dependency item is not selected:
+            let isCheckboxSelected = await createIssueDialog.isDependantCheckboxSelected(TEST_FOLDER.displayName);
+            assert.isFalse(isCheckboxSelected, 'Checkbox for the dependent item should not be selected');
+        });
+
+    it("GIVEN Site is selected AND 'Create Issue' dialog has been opened WHEN dependant item has been selected in 'Items' combobox THEN non-required dependency item gets not visible in the modal dialog",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let createIssueDialog = new CreateIssueDialog();
+            // 1. Select the existing site with a dependency click on 'Mark as Ready' button::
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+            // 2. Create issue dialog should be loaded:
+            await createIssueDialog.waitForDialogLoaded();
+            await createIssueDialog.selectItemsInContentCombobox(TEST_FOLDER.displayName);
+            // 3. Verify - 'show excluded' button should be hidden:
+            await createIssueDialog.waitForShowExcludedItemsButtonNotDisplayed();
+            // 4. Verify that 'hide excluded' button is not displayed as well:
+            await createIssueDialog.waitForHideExcludedItemsButtonNotDisplayed();
+            // 5. Verify that the 'dependency items' list is not displayed in the dialog:
+            await createIssueDialog.waitForDependenciesListNotDisplayed();
         });
 
     it("Post condition - test project should be deleted",
