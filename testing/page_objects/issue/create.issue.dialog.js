@@ -218,7 +218,7 @@ class CreateIssueDialog extends Page {
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_show_excluded_should_be_hidden');
             await this.saveScreenshot(screenshot);
-            throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + +err)
+            throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + err);
         }
     }
 
