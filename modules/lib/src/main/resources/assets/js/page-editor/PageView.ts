@@ -6,10 +6,9 @@ import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveMa
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {LiveEditModel} from './LiveEditModel';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
-import {ItemView, ItemViewBuilder} from './ItemView';
+import {ItemView, ItemViewBuilder, BaseComponent} from './ItemView';
 import {RegionView, RegionViewBuilder} from './RegionView';
 import {ComponentView} from './ComponentView';
 import {ItemViewAddedEvent} from './ItemViewAddedEvent';

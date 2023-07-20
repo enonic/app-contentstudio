@@ -8,7 +8,7 @@ import {TogglableStatusSelectionItem} from '../dialog/TogglableStatusSelectionIt
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 
-export interface PublishDialogItemList
+export interface PublishDialogItemListConfig
     extends DialogTogglableItemListConfig {
 
     allowOnlyItemRemoval?: boolean;
@@ -19,9 +19,9 @@ export class PublishDialogItemList
 
     private excludeChildrenIds: ContentId[] = [];
 
-    protected config: PublishDialogItemList;
+    protected config: PublishDialogItemListConfig;
 
-    constructor(config: Pick<PublishDialogItemList, 'allowOnlyItemRemoval'> = {}) {
+    constructor(config: Pick<PublishDialogItemListConfig, 'allowOnlyItemRemoval'> = {}) {
         super({
             ...config,
             className: 'publish-dialog-item-list',

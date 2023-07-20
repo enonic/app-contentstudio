@@ -1,4 +1,4 @@
-import {ItemView} from './ItemView';
+import {ItemView, BaseComponent} from './ItemView';
 import {CreateFragmentViewConfig, CreateItemViewConfig} from './CreateItemViewConfig';
 import {FragmentComponentView, FragmentComponentViewBuilder} from './fragment/FragmentComponentView';
 import {RegionView, RegionViewBuilder} from './RegionView';
@@ -17,13 +17,13 @@ import {Region} from '../app/page/region/Region';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export interface ItemViewFactory {
-    createView(type: ItemType, config: CreateItemViewConfig<ItemView, any>): ItemView;
+    createView(type: ItemType, config: CreateItemViewConfig<ItemView, BaseComponent>): ItemView;
 }
 
 export class DefaultItemViewFactory
     implements ItemViewFactory {
 
-    public createView(type: ItemType, config: CreateItemViewConfig<ItemView, any>): ItemView {
+    public createView(type: ItemType, config: CreateItemViewConfig<ItemView, BaseComponent>): ItemView {
         switch (type.getShortName()) {
         case 'fragment':
             return this.createFragmentView(<CreateFragmentViewConfig>config);
@@ -108,7 +108,7 @@ export class DefaultItemViewFactory
             .setElement(config.element));
     }
 
-    private createContentView(config: CreateItemViewConfig<PartComponentView, any>): ContentView {
+    private createContentView(config: CreateItemViewConfig<PartComponentView, Content>): ContentView {
         return new ContentView(new ContentViewBuilder()
             .setParentPartComponentView(config.parentView)
             .setParentElement(config.parentElement)

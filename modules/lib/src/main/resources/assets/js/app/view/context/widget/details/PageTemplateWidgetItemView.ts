@@ -126,7 +126,7 @@ export class PageTemplateWidgetItemView
         serverEvents.onContentDeleted(onContentDeleted);
     }
 
-    public layout(): Q.Promise<any> {
+    public layout(): Q.Promise<void> {
         if (PageTemplateWidgetItemView.debug) {
             console.debug('PageTemplateWidgetItemView.layout');
         }

@@ -675,7 +675,7 @@ export class ImageEditor
     private WHEEL_PAGE_HEIGHT: number = 800;
 
     // https://github.com/facebook/fixed-data-table/blob/master/dist/fixed-data-table.js#L2052
-    private normalizeWheel(event: (WheelEvent | any)) {
+    private normalizeWheel(event: WheelEvent) {
         let spinX = 0;
         let spinY = 0;
 
@@ -684,12 +684,6 @@ export class ImageEditor
         if ('wheelDelta' in event) { spinY = -event.wheelDelta / 120; }
         if ('wheelDeltaY' in event) { spinY = -event.wheelDeltaY / 120; }
         if ('wheelDeltaX' in event) { spinX = -event.wheelDeltaX / 120; }
-
-        // side scrolling on FF with DOMMouseScroll
-        if ('axis' in event && event.axis === event.HORIZONTAL_AXIS) {
-            spinX = spinY;
-            spinY = 0;
-        }
 
         let pixelX = spinX * this.WHEEL_PIXEL_STEP;
         let pixelY = spinY * this.WHEEL_PIXEL_STEP;
@@ -864,15 +858,15 @@ export class ImageEditor
 
     private editContainerButtonsResponsiveHandler(applyButton: Button) {
         this.responsiveItem.update();
-        
+
         const isMobileMode: boolean = this.responsiveItem.isInRangeOrSmaller(ResponsiveRanges._360_540);
-        
+
         if (this.wasMobileMode === isMobileMode) {
             return;
         }
 
         this.wasMobileMode = isMobileMode;
-        
+
         let applyButtonLabel: string;
         let resetButtonLabel: string;
         const editResetButtonLabel: string = this.getEditResetLabel();
@@ -2330,18 +2324,18 @@ export class ImageEditor
     private getEditResetLabel(): string {
         let resetLabel: string = i18n('button.reset');
 
-        if (this.isFocusEditMode()) { 
-            resetLabel = i18n('editor.resetautofocus'); 
+        if (this.isFocusEditMode()) {
+            resetLabel = i18n('editor.resetautofocus');
         }
 
-        if (this.isCropEditMode()) { 
-            resetLabel = i18n('editor.resetmask'); 
+        if (this.isCropEditMode()) {
+            resetLabel = i18n('editor.resetmask');
         }
 
         if (this.responsiveItem.isInRangeOrSmaller(ResponsiveRanges._360_540)) {
             resetLabel = i18n('button.reset');
         }
-        
+
         return resetLabel;
     }
 }

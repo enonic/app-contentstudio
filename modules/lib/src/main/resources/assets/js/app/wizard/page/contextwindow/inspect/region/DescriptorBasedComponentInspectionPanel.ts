@@ -184,7 +184,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
             } else {
                 this.createGetDescriptorRequest(key).sendAndParse().then((receivedDescriptor: Descriptor) => {
                     this.setSelectorValue(receivedDescriptor);
-                }).catch((reason: any) => {
+                }).catch((reason) => {
                     if (this.isNotFoundError(reason)) {
                         this.setSelectorValue(null);
                     } else {
@@ -220,7 +220,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
         setTimeout(() =>
             this.formView.layout(false)
-                .catch((reason: any) => DefaultErrorHandler.handle(reason))
+                .catch((reason) => DefaultErrorHandler.handle(reason))
                 .finally(() => {
                     this.unmask();
                     this.component.setDisableEventForwarding(false);

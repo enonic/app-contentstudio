@@ -29,7 +29,7 @@ export class ComponentFactory {
         } else if (json.FragmentComponent) {
             return new FragmentComponentBuilder().fromJson(json.FragmentComponent).setParent(region).setIndex(componentIndex).build();
         } else {
-            throw new Error('Not a component that can be placed in a Region: ' + json);
+            throw new Error('Not a component that can be placed in a Region: ' + JSON.stringify(json));
         }
     }
 

@@ -26,7 +26,6 @@ import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
-import {ContentSummaryViewer} from '../../../content/ContentSummaryViewer';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
@@ -56,7 +55,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
     protected treeModeToggler?: ModeTogglerButton;
 
-    private statusColumn: GridColumn<any>;
+    private statusColumn: GridColumn<Slick.SlickData>;
 
     constructor(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
         super(builder);
@@ -107,29 +106,29 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
     private removeStatusColumnIfShown() {
         if (this.isStatusColumnShown()) {
-            const newColumns: GridColumn<any>[] = this.getColumnsWithoutCheckbox()
-                .filter((column: GridColumn<any>) => column.id !== 'status');
+            const newColumns: GridColumn<Slick.SlickData>[] = this.getColumnsWithoutCheckbox()
+                .filter((column: GridColumn<Slick.SlickData>) => column.id !== 'status');
             this.getDataGrid().setColumns(newColumns, true);
         }
     }
 
     private addStatusColumnIfHidden() {
         if (!this.isStatusColumnShown()) {
-            const newColumns: GridColumn<any>[] = [...this.getColumnsWithoutCheckbox(), this.statusColumn];
+            const newColumns: GridColumn<Slick.SlickData>[] = [...this.getColumnsWithoutCheckbox(), this.statusColumn];
             this.getDataGrid().setColumns(newColumns, true);
         }
     }
 
-    private getDataGrid(): Grid<any> {
+    private getDataGrid(): Grid<ContentTreeSelectorItem> {
         return this.getComboBox().getComboBoxDropdownGrid().getGrid();
     }
 
-    private getColumnsWithoutCheckbox(): GridColumn<any>[] {
-        return this.getDataGrid().getColumns().filter((column: GridColumn<any>) => column.id !== '_checkbox_selector');
+    private getColumnsWithoutCheckbox(): GridColumn<Slick.SlickData>[] {
+        return this.getDataGrid().getColumns().filter((column: GridColumn<Slick.SlickData>) => column.id !== '_checkbox_selector');
     }
 
     private isStatusColumnShown(): boolean {
-        return this.getColumnsWithoutCheckbox().some((column: GridColumn<any>) => column.id === 'status');
+        return this.getColumnsWithoutCheckbox().some((column: GridColumn<Slick.SlickData>) => column.id === 'status');
     }
 
     protected createComboboxConfig(builder: ContentComboBoxBuilder<ITEM_TYPE>): ComboBoxConfig<ContentTreeSelectorItem> {
@@ -271,7 +270,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         return this.optionsFactory.createOptions(items);
     }
 
-    protected createOption(data: Object, readOnly?: boolean): Option<ITEM_TYPE> {
+    protected createOption(data: ContentSummary | ContentTreeSelectorItem, readOnly?: boolean): Option<ITEM_TYPE> {
         const item: ITEM_TYPE = ObjectHelper.iFrameSafeInstanceOf(data, ContentTreeSelectorItem) ?
             <ITEM_TYPE>data :
             <ITEM_TYPE>new ContentTreeSelectorItem(<ContentSummary>data);
@@ -279,14 +278,14 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         return this.optionsFactory.createOption(item, readOnly);
     }
 
-    protected reload(inputValue: string): Q.Promise<any> {
+    protected reload(inputValue: string): Q.Promise<ContentTreeSelectorItem[]> {
 
-        const deferred = Q.defer<void>();
+        const deferred = Q.defer<ContentTreeSelectorItem[]>();
 
         if (this.ifFlatLoadingMode(inputValue)) {
             this.getLoader().search(inputValue).then(() => {
-                deferred.resolve(null);
-            }).catch((reason: any) => {
+                deferred.resolve();
+            }).catch((reason) => {
                 DefaultErrorHandler.handle(reason);
             }).done();
         } else {
@@ -300,8 +299,8 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
                 this.notifyLoaded(this.getComboBox().getOptions().map(option => option.getDisplayValue()));
 
-                deferred.resolve(null);
-            }).catch((reason: any) => {
+                deferred.resolve();
+            }).catch((reason) => {
                 DefaultErrorHandler.handle(reason);
             }).done();
         }
@@ -510,8 +509,8 @@ export class ContentComboBoxBuilder<ITEM_TYPE extends ContentTreeSelectorItem>
         return this;
     }
 
-    setOptionDisplayValueViewer(value: Viewer<any>): this {
-        super.setOptionDisplayValueViewer(value ? value : new ContentSummaryViewer());
+    setOptionDisplayValueViewer(value: Viewer<ContentTreeSelectorItem>): this {
+        super.setOptionDisplayValueViewer(value || new ContentTreeSelectorItemViewer());
         return this;
     }
 

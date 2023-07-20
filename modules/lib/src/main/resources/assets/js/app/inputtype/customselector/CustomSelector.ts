@@ -181,7 +181,7 @@ export class CustomSelector
             this.handleValueChanged(false);
         });
 
-        comboBox.onOptionMoved((moved: SelectedOption<any>, fromIndex: number) => this.handleMove(moved, fromIndex));
+        comboBox.onOptionMoved((moved: SelectedOption<CustomSelectorItem>, fromIndex: number) => this.handleMove(moved, fromIndex));
 
         comboBox.onValueLoaded(() => this.handleValueChanged(false));
 
@@ -220,7 +220,7 @@ export class CustomSelector
         this.updateSelectedOptionStyle();
     }
 
-    private handleMove(moved: SelectedOption<any>, fromIndex: number) {
+    private handleMove(moved: SelectedOption<CustomSelectorItem>, fromIndex: number) {
         this.getPropertyArray().move(fromIndex, moved.getIndex());
     }
 

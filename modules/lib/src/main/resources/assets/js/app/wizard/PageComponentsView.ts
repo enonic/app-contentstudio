@@ -61,13 +61,13 @@ export class PageComponentsView
     private dockedParent: Element;
     private toggleButton: Button;
 
-    private beforeInsertActionListeners: { (event: any): void }[] = [];
+    private beforeInsertActionListeners: { (): void }[] = [];
 
     private mouseDownListener: (event: MouseEvent) => void;
     private mouseUpListener: (event?: MouseEvent) => void;
     private mouseMoveListener: (event: MouseEvent) => void;
-    private clickListener: (event: any, data: any) => void;
-    private dblClickListener: (event: any, data: any) => void;
+    private clickListener: (event: MouseEvent, data: Slick.Cell) => void;
+    private dblClickListener: (event: MouseEvent, data: Slick.Cell) => void;
     private mouseDown: boolean = false;
     public static debug: boolean = false;
 
@@ -322,8 +322,8 @@ export class PageComponentsView
     private createTree(content: Content, pageView: PageView): void {
         this.tree = new PageComponentsTreeGrid(content, pageView);
 
-        this.clickListener = (event, data): void => {
-            const elem: ElementHelper = new ElementHelper(event.target);
+        this.clickListener = (event: MouseEvent, data: Slick.Cell): void => {
+            const elem: ElementHelper = new ElementHelper(event.target as HTMLElement);
 
             this.hideContextMenu();
 
@@ -781,18 +781,18 @@ export class PageComponentsView
         }
     }
 
-    onBeforeInsertAction(listener: (event: any) => void): void {
+    onBeforeInsertAction(listener: () => void): void {
         this.beforeInsertActionListeners.push(listener);
     }
 
-    unBeforeInsertAction(listener: (event: any) => void): void {
-        this.beforeInsertActionListeners = this.beforeInsertActionListeners.filter((currentListener: (event: any) => void) => {
+    unBeforeInsertAction(listener: () => void): void {
+        this.beforeInsertActionListeners = this.beforeInsertActionListeners.filter((currentListener: () => void) => {
             return listener !== currentListener;
         });
     }
 
     private notifyBeforeInsertAction(): void {
-        this.beforeInsertActionListeners.forEach((listener: (event: any) => void) => {
+        this.beforeInsertActionListeners.forEach((listener: () => void) => {
             listener.call(this);
         });
     }

@@ -23,11 +23,11 @@ export class ContentWidgetItemView
         return this.viewer;
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         if (item) {
             this.viewer.setObject(item);
         }
 
-        return Q(item);
+        return Q();
     }
 }

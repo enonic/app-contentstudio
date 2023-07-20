@@ -48,7 +48,7 @@ export class ProjectTypeFormItem
     protected initListeners(): void {
         this.getRadioGroup().onValueChanged((event: ValueChangedEvent) => {
             const newValue: string = event.getNewValue();
-            const isLayer: boolean = newValue === PARENT_TYPE.LAYER;
+            const isLayer: boolean = newValue === PARENT_TYPE.LAYER.toString();
             const isToBeVisible: boolean = isLayer || !!this.projectsCombobox.getValue();
 
             this.projectsCombobox.setEnabled(isLayer);
@@ -70,11 +70,11 @@ export class ProjectTypeFormItem
 
     hasData(): boolean {
         const selectedType: string = this.getRadioGroup().getValue();
-        return selectedType === PARENT_TYPE.PROJECT || (selectedType === PARENT_TYPE.LAYER && !!this.projectsCombobox.getValue());
+        return selectedType === PARENT_TYPE.PROJECT.toString() || (selectedType === PARENT_TYPE.LAYER.toString() && !!this.projectsCombobox.getValue());
     }
 
     getSelectedProject(): Project {
-        return this.getRadioGroup().getValue() === PARENT_TYPE.LAYER ? this.projectsCombobox.getSelectedDisplayValues()[0] : null;
+        return this.getRadioGroup().getValue() === PARENT_TYPE.LAYER.toString() ? this.projectsCombobox.getSelectedDisplayValues()[0] : null;
     }
 
     onRadioValueChanged(listener: () => void): void {

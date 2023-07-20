@@ -148,7 +148,7 @@ export class PageTemplateAndControllerSelector
                 .then((pageDescriptor: Descriptor) => {
                     const setTemplate = new SetTemplate(this).setTemplate(pageTemplate, pageDescriptor);
                     pageModel.setTemplate(setTemplate, true);
-                }).catch((reason: any) => {
+                }).catch((reason) => {
                 DefaultErrorHandler.handle(reason);
             }).done();
         } else if (pageModel.hasDefaultPageTemplate()) {

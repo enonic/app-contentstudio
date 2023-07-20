@@ -7,6 +7,7 @@ import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ResultMetadata} from './ResultMetadata';
+import {Content} from '../content/Content';
 
 export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends ContentSelectorRequest<CONTENT> {
@@ -66,12 +67,12 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
 
         const contentsAsJson: ContentSummaryJson[] = responseResult.contents;
 
-        let contents: CONTENT[];
+        let contents: (ContentSummary | Content)[];
 
         if (this.getExpand() === Expand.SUMMARY) {
-            contents = <any[]>this.fromJsonToContentSummaryArray(contentsAsJson);
+            contents = this.fromJsonToContentSummaryArray(contentsAsJson);
         } else {
-            contents = <any[]>this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
+            contents = this.fromJsonToContentArray(<ContentJson[]>contentsAsJson) as ContentSummary[];
         }
 
         if (this.from === 0) {
@@ -81,7 +82,7 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         this.from += responseResult.metadata.hits;
         this.loaded = this.from >= responseResult.metadata.totalHits;
 
-        this.results = this.results.concat(contents);
+        this.results = this.results.concat(contents as CONTENT[]);
 
         return this.results;
     }

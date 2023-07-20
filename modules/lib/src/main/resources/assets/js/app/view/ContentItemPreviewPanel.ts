@@ -179,16 +179,16 @@ export class ContentItemPreviewPanel
     }
 
     private getLinkClicked(event: UIEvent): string {
-        if (event.target && (<any>event.target).tagName.toLowerCase() === 'a') {
-            return (<any>event.target).href;
+        if (event.target && (event.target as HTMLElement).tagName.toLowerCase() === 'a') {
+            return (event.target as HTMLLinkElement).href;
         }
 
-        let el: Element = <Element>event.target;
+        let el = event.target as HTMLElement;
         if (el) {
             while (el.parentNode) {
-                el = <Element>el.parentNode;
+                el = el.parentNode as HTMLElement;
                 if (el.tagName && el.tagName.toLowerCase() === 'a') {
-                    return (<any>el).href;
+                    return (el as HTMLLinkElement).href;
                 }
             }
         }

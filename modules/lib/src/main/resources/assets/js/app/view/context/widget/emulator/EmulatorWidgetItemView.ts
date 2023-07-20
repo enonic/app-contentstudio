@@ -59,7 +59,7 @@ export class EmulatorWidgetItemView
     }
 
     private initEmulationGrid() {
-        const dataView = new DataView<any>();
+        const dataView = new DataView<Slick.SlickData>();
         const grid = new EmulatorGrid(dataView);
 
         dataView.setItems(this.devicesRows);

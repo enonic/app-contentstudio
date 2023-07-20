@@ -22,6 +22,10 @@ import {ContentId} from '../../../../../content/ContentId';
 import {ContentPath} from '../../../../../content/ContentPath';
 import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {ComponentPropertyChangedEventHandler} from '../../../../../page/region/Component';
+import {ContentTreeSelectorItem} from '../../../../../item/ContentTreeSelectorItem';
+import {
+    ImageSelectorSelectedOptionsView
+} from '../../../../../inputtype/ui/selector/image/ImageSelectorSelectedOptionsView';
 
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {
@@ -44,7 +48,7 @@ export class ImageInspectionPanel
         this.imageSelector = ImageContentComboBox
             .create()
             .setMaximumOccurrences(1)
-            .setSelectedOptionsView(new ContentSelectedOptionsView() as SelectedOptionsView<any>)
+            .setSelectedOptionsView(new ImageSelectorSelectedOptionsView() as unknown as SelectedOptionsView<MediaTreeSelectorItem>)
             .build();
 
         this.imageSelectorForm = new ImageSelectorForm(this.imageSelector, i18n('field.image'));
@@ -87,7 +91,7 @@ export class ImageInspectionPanel
                 new GetContentSummaryByIdRequest(contentId).sendAndParse().then((receivedImage: ContentSummary) => {
                     this.imageSelector.clearSelection(true);
                     this.setImage(receivedImage);
-                }).catch((reason: any) => {
+                }).catch((reason) => {
                     if (this.isNotFoundError(reason)) {
                         this.setSelectorValue(null);
                         this.setupComponentForm(this.component);
@@ -132,7 +136,7 @@ export class ImageInspectionPanel
         this.appendChild(this.formView);
         this.formView.setVisible(this.component.hasImage());
         imageComponent.setDisableEventForwarding(true);
-        this.formView.layout().catch((reason: any) => {
+        this.formView.layout().catch((reason) => {
             DefaultErrorHandler.handle(reason);
         }).finally(() => {
             imageComponent.setDisableEventForwarding(false);

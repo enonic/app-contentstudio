@@ -23,7 +23,6 @@ import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
 import {HTMLAreaHelper} from './HTMLAreaHelper';
 import {CreateHtmlAreaDialogEventGenerator} from './CreateHtmlAreaDialogEventGenerator';
 import eventInfo = CKEDITOR.eventInfo;
-import widget = CKEDITOR.plugins.widget;
 import editor = CKEDITOR.editor;
 
 export interface HtmlEditorCursorPosition {
@@ -40,7 +39,16 @@ export interface FullScreenDialogParams {
 
 export interface MacroDialogParams {
     editor: editor,
-    macro: any
+    macro: Macro
+}
+
+export interface Macro {
+    macroText: string;
+    name: string;
+    attributes: string[];
+    element: CKEDITOR.dom.element;
+    index: number,
+    body?: string;
 }
 
 /**
@@ -94,7 +102,7 @@ export class HtmlEditor {
 
     private modifyImagePluginUpcastDowncastFunctions(e: eventInfo) {
         const originalUpcastFunction: Function = e.data.upcast;
-        const newUpcastFunction = function (el: CKEDITOR.htmlParser.element, data: any) {
+        const newUpcastFunction = function (el: CKEDITOR.htmlParser.element, data) {
             const result: CKEDITOR.htmlParser.element = originalUpcastFunction(el, data);
 
             if (el.name === 'figure' && el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
@@ -105,7 +113,7 @@ export class HtmlEditor {
                 return null;
             }
 
-            if (result && result.name === 'a' && (<any>result).parent.name !== 'figure') { // standalone image wrapped with link
+            if (result && result.name === 'a' && result['parent'].name !== 'figure') { // standalone image wrapped with link
                 return null;
             }
 
@@ -247,11 +255,11 @@ export class HtmlEditor {
         const editor = this.editor;
 
         this.editor.on('instanceReady', function () {
-            (<any>editor.widgets.registered.uploadimage).onUploaded = function (upload: any) {
+            editor.widgets.registered.uploadimage['onUploaded'] = function (upload) {
                 const imageId: string = StringHelper.substringBetween(upload.url, 'image/', '?');
                 const dataSrc: string = ImageUrlResolver.URL_PREFIX_RENDER + imageId;
 
-                this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
+                this['replaceWith'](`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
                                  `<img src="${upload.url}" data-src="${dataSrc}" style="width:100%">` +
                                  '<figcaption> </figcaption>' +
                                  '</figure>');
@@ -269,7 +277,7 @@ export class HtmlEditor {
 
                 if (exists) {
                     NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
-                    (<any>evt.editor.document.findOne('.cke_widget_uploadimage')).remove(); // removing upload preview image
+                    evt.editor.document.findOne('.cke_widget_uploadimage').remove(); // removing upload preview image
                 } else {
                     this.uploadFile(fileLoader);
                 }
@@ -289,7 +297,7 @@ export class HtmlEditor {
         });
     }
 
-    private uploadFile(fileLoader: any) {
+    private uploadFile(fileLoader) {
         const formData = new FormData();
         const xhr = fileLoader.xhr;
 
@@ -426,7 +434,7 @@ export class HtmlEditor {
     }
 
     private isSingleElementSelected(): boolean {
-        const selectionRange: any = this.editor.getSelection().getRanges()[0];
+        const selectionRange = this.editor.getSelection().getRanges()[0];
 
         return selectionRange.startContainer.equals(selectionRange.endContainer);
     }
@@ -479,7 +487,8 @@ export class HtmlEditor {
             const figure: CKEDITOR.dom.element = selectedElement.findOne('figure');
 
             if (e.data.name === 'justifyblock') {
-                const imageWidget: widget = (<any>this.editor.widgets).getByElement(selectedElement);
+                const imageWidgets: CKEDITOR.plugins.widget.repository = this.editor.widgets;
+                const imageWidget: CKEDITOR.plugins.widget = imageWidgets.getByElement(selectedElement, false);
                 imageWidget.setData('align', 'none');
 
                 figure.addClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS);
@@ -532,11 +541,11 @@ export class HtmlEditor {
             // Do not show the default notification
             evt.cancel();
 
-            if ((<any>evt.editor).disableNotification) {
+            if (evt.editor['disableNotification']) {
                 return;
             }
 
-            const notification: any = evt.data.notification;
+            const notification = evt.data.notification;
 
             switch (notification.type) {
             case 'success':
@@ -583,7 +592,7 @@ export class HtmlEditor {
 
     private setupDialogsToOpen() {
         this.editor.addCommand('openMacroDialog', {
-            exec: (editor, data: any) => {
+            exec: (editor, data) => {
                 new CreateHtmlAreaDialogEventGenerator(this.editorParams).generateMacroEventAndFire({editor: editor, macro: data});
                 return true;
             }
@@ -840,7 +849,7 @@ class HtmlEditorConfigBuilder {
     private disabledTools: string[] = [];
     private enabledTools: string[] = [];
 
-    private tools: any[] = [
+    private tools: string[][]  = [
         ['Styles', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
@@ -981,7 +990,7 @@ class HtmlEditorConfigBuilder {
             return;
         }
 
-        const customStyleSet: any[] = [];
+        const customStyleSet = [];
 
         customStyleSet.push({name: i18n('text.htmlEditor.styles.p'), element: 'p'});
 
@@ -996,7 +1005,7 @@ class HtmlEditorConfigBuilder {
             customStyleSet.push({name: i18n('text.htmlEditor.styles.code'), element: 'code'});
         }
 
-        CKEDITOR.stylesSet.add(customStyleSetID, <any>customStyleSet);
+        CKEDITOR.stylesSet.add(customStyleSetID, customStyleSet as unknown);
     }
 
     private getPluginsToRemove(): string {

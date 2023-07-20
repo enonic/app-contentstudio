@@ -4,6 +4,7 @@ import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {ProjectReadAccessJson} from './json/ProjectReadAccessJson';
 
 export class UpdateProjectReadAccessRequest
     extends ProjectResourceRequest<TaskId> {
@@ -28,8 +29,8 @@ export class UpdateProjectReadAccessRequest
         return this;
     }
 
-    getParams(): Object {
-        const params: any = {
+    getParams(): object {
+        const params: {name: string, readAccess?: ProjectReadAccessJson} = {
             name: this.name
         };
 

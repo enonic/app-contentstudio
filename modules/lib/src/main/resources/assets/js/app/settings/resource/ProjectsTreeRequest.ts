@@ -1,6 +1,6 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ProjectsTreeItemJson} from './json/ProjectsTreeItemJson';
+import {ProjectsTreeItemJson, ProjectsTreeItemJsonContainer} from './json/ProjectsTreeItemJson';
 import {ProjectsTreeItem} from '../data/project/ProjectsTreeItem';
 
 export class ProjectsTreeRequest extends ProjectResourceRequest<ProjectsTreeItem[]> {
@@ -20,8 +20,7 @@ export class ProjectsTreeRequest extends ProjectResourceRequest<ProjectsTreeItem
         };
     }
 
-    protected parseResponse(response: JsonResponse<ProjectsTreeItemJson[]>): ProjectsTreeItem[] {
-        return (<any>response.getResult())['entries'].map(ProjectsTreeItem.fromJson);
+    protected parseResponse(response: JsonResponse<ProjectsTreeItemJsonContainer>): ProjectsTreeItem[] {
+        return response.getResult().entries.map(ProjectsTreeItem.fromJson);
     }
-
 }

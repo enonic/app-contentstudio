@@ -1,13 +1,13 @@
 import * as Q from 'q';
 import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import {SaveAction} from '@enonic/lib-admin-ui/app/wizard/SaveAction';
-import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ContentWizardPanel} from '../ContentWizardPanel';
 
 export class SaveAndCloseAction
     extends Action {
 
-    constructor(wizardPanel: WizardPanel<any>) {
+    constructor(wizardPanel: ContentWizardPanel) {
         super('SaveAndClose', 'mod+enter', true);
 
         this.onExecuted(() => {

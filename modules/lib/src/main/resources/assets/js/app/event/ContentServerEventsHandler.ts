@@ -100,7 +100,7 @@ export class ContentServerEventsHandler {
 
     private hasDraftBranchChanges(changeItems: ContentServerChangeItem[]): boolean {
         return changeItems.some(changeItem => {
-            return changeItem.getBranch() === Branch.DRAFT;
+            return changeItem.getBranch() === Branch.DRAFT.toString();
         });
     }
 
@@ -474,7 +474,7 @@ export class ContentServerEventsHandler {
     }
 
     private handleDeleteAndUnPublish(changeItems: ContentServerChangeItem[]) {
-        const deletedItems: ContentServerChangeItem[] = changeItems.filter(d => d.getBranch() === Branch.DRAFT);
+        const deletedItems: ContentServerChangeItem[] = changeItems.filter(d => d.getBranch() === Branch.DRAFT.toString());
         if (deletedItems.length) {
             this.handleContentDeleted(deletedItems);
         }

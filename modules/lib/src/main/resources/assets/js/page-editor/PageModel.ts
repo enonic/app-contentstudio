@@ -1,4 +1,4 @@
-import {LiveEditModel} from './LiveEditModel';
+import {LiveEditModel, LiveEditModelInitializer} from './LiveEditModel';
 import {PageModeChangedEvent} from './PageModeChangedEvent';
 import {PageTemplate} from '../app/content/PageTemplate';
 import {Regions} from '../app/page/region/Regions';
@@ -11,10 +11,19 @@ import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Descriptor} from '../app/page/Descriptor';
+import {DescriptorKey} from '../app/page/DescriptorKey';
+import {
+    PageTemplateAndControllerSelector
+} from '../app/wizard/page/contextwindow/inspect/page/PageTemplateAndControllerSelector';
+import {PageView} from './PageView';
+import {LiveFormPanel} from '../app/wizard/page/LiveFormPanel';
+
+type ControllerKey = DescriptorKey | PageTemplateKey | Regions | PropertyTree;
+type EventSource = PageTemplateAndControllerSelector | PageView | PageModel | LiveFormPanel | LiveEditModelInitializer;
 
 export class SetController {
 
-    eventSource: any;
+    eventSource: Object;
 
     descriptor: Descriptor;
 
@@ -22,7 +31,7 @@ export class SetController {
 
     config: PropertyTree;
 
-    constructor(eventSource: any) {
+    constructor(eventSource: Object) {
         this.eventSource = eventSource;
     }
 
@@ -44,7 +53,7 @@ export class SetController {
 
 export class SetTemplate {
 
-    eventSource: any;
+    eventSource: EventSource;
 
     template: PageTemplate;
 
@@ -54,7 +63,7 @@ export class SetTemplate {
 
     config: PropertyTree;
 
-    constructor(eventSource: any) {
+    constructor(eventSource: EventSource) {
         this.eventSource = eventSource;
     }
 
@@ -178,7 +187,7 @@ export class PageModel {
         this.ignorePropertyChanges = value;
     }
 
-    initializePageFromDefault(eventSource?: any) {
+    initializePageFromDefault(eventSource?: EventSource) {
 
         let skip = false;
         if (this.hasTemplate()) {
@@ -204,7 +213,7 @@ export class PageModel {
         }
     }
 
-    reset(eventSource?: any) {
+    reset(eventSource?: EventSource) {
         this.setCustomized(false);
 
         if (this.isPageTemplate() || !this.defaultTemplate) {
@@ -230,8 +239,8 @@ export class PageModel {
 
     setController(setController: SetController, silent?: boolean): PageModel {
         let oldControllerKey = this.controller ? this.controller.getKey() : null;
-        let newControllerKey = setController.descriptor ? setController.descriptor.getKey() : null;
-        let controllerChanged = !ObjectHelper.equals(oldControllerKey, newControllerKey);
+        const newControllerKey = setController.descriptor ? setController.descriptor.getKey() : null;
+        const controllerChanged = !ObjectHelper.equals(oldControllerKey, newControllerKey);
 
         this.setControllerData(setController);
 
@@ -288,15 +297,15 @@ export class PageModel {
         this.setController(setController, silent);
     }
 
-    setAutomaticTemplate(eventSource?: any, ignoreRegionChanges: boolean = false): PageModel {
+    setAutomaticTemplate(eventSource?: EventSource, ignoreRegionChanges: boolean = false): PageModel {
 
-        let config = this.defaultTemplate.hasConfig() ? this.defaultTemplate.getConfig().copy() : new PropertyTree();
+        const config = this.defaultTemplate.hasConfig() ? this.defaultTemplate.getConfig().copy() : new PropertyTree();
 
-        let regions = this.defaultTemplate.hasRegions()
+        const regions = this.defaultTemplate.hasRegions()
                       ? this.defaultTemplate.getRegions().clone()
                       : Regions.create().build();
 
-        let setTemplate = new SetTemplate(eventSource).setTemplate(null, this.defaultTemplateDescriptor).setRegions(regions).setConfig(
+        const setTemplate = new SetTemplate(eventSource).setTemplate(null, this.defaultTemplateDescriptor).setRegions(regions).setConfig(
             config);
 
         this.setTemplate(setTemplate, ignoreRegionChanges);
@@ -365,7 +374,7 @@ export class PageModel {
         }
     }
 
-    setRegions(value: Regions, eventOrigin?: any, ignoreRegionChanges: boolean = false): PageModel {
+    setRegions(value: Regions, eventOrigin?: Object, ignoreRegionChanges: boolean = false): PageModel {
         let oldValue = this.regions;
         if (oldValue) {
             this.unregisterRegionsListeners(oldValue);
@@ -382,8 +391,8 @@ export class PageModel {
         return this;
     }
 
-    setConfig(value: PropertyTree, eventOrigin?: any): PageModel {
-        let oldValue = this.config;
+    setConfig(value: PropertyTree, eventOrigin?: Object): PageModel {
+        const oldValue = this.config;
         if (oldValue) {
             oldValue.unChanged(this.configPropertyChangedHandler);
         }
@@ -560,7 +569,7 @@ export class PageModel {
         });
     }
 
-    private notifyPropertyChanged(property: string, oldValue: any, newValue: any, origin: any) {
+    private notifyPropertyChanged(property: string, oldValue: ControllerKey, newValue: ControllerKey, origin: Object) {
         let event = new PropertyChangedEvent(property, oldValue, newValue, origin);
         this.propertyChangedListeners.forEach((listener: (event: PropertyChangedEvent) => void) => {
             listener(event);

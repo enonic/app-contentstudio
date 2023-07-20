@@ -27,6 +27,11 @@ export interface ProgressBarManagerConfig {
     createProcessingMessage?: () => Element;
 }
 
+type ProgressInfoJson = {
+    state: string,
+    message: string
+};
+
 export class ProgressBarManager {
 
     static processingClass: string = 'is-processing';
@@ -230,7 +235,7 @@ export class ProgressBarManager {
     }
 
     private handleTaskFinished(taskInfo: TaskInfo) {
-        const progressInfoJson: any = this.getProgressInfoJson(taskInfo.getProgress());
+        const progressInfoJson: ProgressInfoJson = this.getProgressInfoJson(taskInfo.getProgress());
 
         switch (progressInfoJson.state) {
         case 'ERROR':
@@ -248,7 +253,7 @@ export class ProgressBarManager {
     }
 
     private handleTaskFailed(taskInfo: TaskInfo) {
-        const progressInfoJson: any = this.getProgressInfoJson(taskInfo.getProgress());
+        const progressInfoJson: ProgressInfoJson = this.getProgressInfoJson(taskInfo.getProgress());
         this.handleFailed(progressInfoJson.message);
 
         TaskEvent.un(this.taskHandler);
@@ -261,7 +266,7 @@ export class ProgressBarManager {
         this.setProgressValue(taskInfo.getProgressPercentage());
     }
 
-    private getProgressInfoJson(taskProgress: TaskProgress): any {
+    private getProgressInfoJson(taskProgress: TaskProgress): ProgressInfoJson {
         let progressJson;
         try {
             progressJson = JSON.parse(taskProgress.getInfo());

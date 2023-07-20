@@ -144,7 +144,7 @@ export class SortContentDialog
         this.saveSortOrder().catch(DefaultErrorHandler.handle).done(this.onAfterSetOrder.bind(this));
     }
 
-    private saveSortOrder(): Q.Promise<any> {
+    private saveSortOrder(): Q.Promise<Content | void> {
         this.showLoadingSpinner();
 
         if (this.sortContentMenu.isInheritedItemSelected()) {
@@ -192,7 +192,7 @@ export class SortContentDialog
         }
     }
 
-    private fetchParentLayerContent(): Q.Promise<any> {
+    private fetchParentLayerContent(): Q.Promise<ContentSummaryAndCompareStatus> {
         const parentProject: string = ProjectContext.get().getProject().getParent();
 
        return new ContentsExistRequest([this.selectedContent.getId()])
@@ -281,7 +281,7 @@ export class SortContentDialog
             .sendAndParse();
     }
 
-    private saveInheritedOrder(): Q.Promise<any> {
+    private saveInheritedOrder(): Q.Promise<void> {
         return new RestoreInheritRequest()
             .setContentId(this.selectedContent.getContentId())
             .setInherit([ContentInheritType.SORT])

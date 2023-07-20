@@ -1,14 +1,16 @@
 import {Regions} from '../../page/region/Regions';
 import {IEObjectProcessor} from './IEObjectProcessor';
 import {Descriptor} from '../../page/Descriptor';
+import {RegionJson} from '../../page/region/RegionJson';
+import {DescriptorJson} from '../../page/DescriptorJson';
 
 export class IEObjectHolder {
 
     private objectsProcessor: IEObjectProcessor = new IEObjectProcessor();
 
-    private regionsCopy: any;
+    private regionsCopy: RegionJson[];
 
-    private pageDescriptorCopy: any;
+    private pageDescriptorCopy: DescriptorJson;
 
     setRegions(regions: Regions) {
         this.regionsCopy = !!regions ? this.objectsProcessor.copyRegions(regions) : null;

@@ -153,11 +153,11 @@ export class WidgetView
         }
     }
 
-    private layout(): Q.Promise<any> {
+    private layout(): Q.Promise<void[]> {
 
         this.slideOut();
 
-        let layoutTasks: Q.Promise<any>[] = [];
+        let layoutTasks: Q.Promise<void>[] = [];
 
         this.widgetItemViews.forEach((itemView: WidgetItemView) => {
             this.appendChild(itemView);

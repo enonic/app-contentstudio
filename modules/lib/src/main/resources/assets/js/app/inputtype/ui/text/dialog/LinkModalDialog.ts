@@ -93,7 +93,13 @@ export class LinkModalDialog
     private contentId?: ContentId;
     private parentSitePath?: string;
 
-    private tabNames: any;
+    private tabNames: {
+        url: string,
+        content: string,
+        download: string,
+        email: string,
+        anchor: string
+    };
 
     private paramsFormIds: FormParam[];
 
@@ -206,20 +212,14 @@ export class LinkModalDialog
             return true;
         }
 
-        if (selectedElement.is('a')) {
-            return true;
-        }
-
-        return false;
+        return (selectedElement.is('a'));
     }
 
-    private getAnchors(): any[] {
-        const anchors: any[] = CKEDITOR.plugins.link.getEditorAnchors(this.getEditor())
-            .filter((anchor: any) => !!anchor.id) // filter anchors with missing id's
-            .map((anchor: any) => anchor.id)
+    private getAnchors(): string[] {
+        return CKEDITOR.plugins.link.getEditorAnchors(this.getEditor())
+            .filter((anchor: CKEDITOR.dom.element) => !!anchor['id']) // filter anchors with missing id's
+            .map((anchor: CKEDITOR.dom.element) => anchor['id'])
             .filter((item, pos, self) => self.indexOf(item) === pos); // filter duplicates cke returns;
-
-        return anchors;
     }
 
     protected setDialogInputValues() {
@@ -393,7 +393,7 @@ export class LinkModalDialog
     }
 
     private isMediaRadioValueOpenOrLink(selectedValue: string): boolean {
-        return selectedValue === MediaContentRadioAction.OPEN || selectedValue === MediaContentRadioAction.LINK;
+        return selectedValue === MediaContentRadioAction.OPEN.toString() || selectedValue === MediaContentRadioAction.LINK.toString();
     }
 
     private static validationAlwaysValid(): string {
@@ -847,7 +847,7 @@ export class LinkModalDialog
         dockedPanel.addItem(this.tabNames.url, true, this.createUrlPanel());
         dockedPanel.addItem(this.tabNames.email, true, this.createEmailPanel());
 
-        const anchors: any[] = this.getAnchors();
+        const anchors = this.getAnchors();
 
         if (anchors.length > 0) {
             dockedPanel.addItem(this.tabNames.anchor, true, this.createAnchorPanel(anchors), this.isAnchor());
@@ -1114,21 +1114,21 @@ export class LinkModalDialog
         const mediaContentRadioSelectedOption: string = this.getMediaRadioGroup().doGetValue();
         const contentSelectorValue: string = this.getContentSelectorValue();
 
-        if (mediaContentRadioSelectedOption === MediaContentRadioAction.OPEN) {
+        if (mediaContentRadioSelectedOption === MediaContentRadioAction.OPEN.toString()) {
             return {
                 url: LinkModalDialog.mediaInlinePrefix + contentSelectorValue,
                 target: this.getContentLinkTarget()
             };
         }
 
-        if (mediaContentRadioSelectedOption === MediaContentRadioAction.DOWNLOAD) {
+        if (mediaContentRadioSelectedOption === MediaContentRadioAction.DOWNLOAD.toString()) {
             return {
                 url: LinkModalDialog.mediaDownloadPrefix + contentSelectorValue,
                 target: ''
             };
         }
 
-        if (mediaContentRadioSelectedOption === MediaContentRadioAction.LINK) {
+        if (mediaContentRadioSelectedOption === MediaContentRadioAction.LINK.toString()) {
             return {
                 url: this.getContentLinkUrl(contentSelectorValue),
                 target: this.getContentLinkTarget()
@@ -1218,19 +1218,20 @@ export class LinkModalDialog
     }
 
     private getOriginalUrlElem(): CKEDITOR.ui.dialog.uiElement {
-        return (<any>this.getElemFromOriginalDialog('info', 'urlOptions')).getChild([0, 1]);
+        return (this.getElemFromOriginalDialog('info', 'urlOptions') as CKEDITOR.ui.dialog.vbox)
+                .getChild([0, 1]) as unknown as CKEDITOR.ui.dialog.uiElement;
     }
 
     private getOriginalEmailElem(): CKEDITOR.ui.dialog.uiElement {
-        return (<any>this.getElemFromOriginalDialog('info', 'emailOptions')).getChild(0);
+        return (this.getElemFromOriginalDialog('info', 'emailOptions') as CKEDITOR.ui.dialog.vbox).getChild(0);
     }
 
     private getOriginalTelElem(): CKEDITOR.ui.dialog.uiElement {
-        return (<any>this.getElemFromOriginalDialog('info', 'telOptions')).getChild(0);
+        return (this.getElemFromOriginalDialog('info', 'telOptions') as CKEDITOR.ui.dialog.vbox).getChild(0);
     }
 
     private getOriginalSubjElem(): CKEDITOR.ui.dialog.uiElement {
-        return (<any>this.getElemFromOriginalDialog('info', 'emailOptions')).getChild(1);
+        return (this.getElemFromOriginalDialog('info', 'emailOptions') as CKEDITOR.ui.dialog.hbox).getChild(1);
     }
 
     private getOriginalTitleElem(): CKEDITOR.ui.dialog.uiElement {
@@ -1238,11 +1239,13 @@ export class LinkModalDialog
     }
 
     private getOriginalAnchorElem(): CKEDITOR.ui.dialog.uiElement {
-        return (<any>this.getElemFromOriginalDialog('info', 'anchorOptions')).getChild([0, 0, 0]);
+        return (this.getElemFromOriginalDialog('info', 'anchorOptions') as CKEDITOR.ui.dialog.vbox)
+            .getChild([0, 0, 0]) as unknown as CKEDITOR.ui.dialog.uiElement;
     }
 
     private getOriginalProtocolElem(): CKEDITOR.ui.dialog.uiElement {
-        return (<any>this.getElemFromOriginalDialog('info', 'urlOptions')).getChild([0, 0]);
+        return (this.getElemFromOriginalDialog('info', 'urlOptions') as CKEDITOR.ui.dialog.vbox)
+            .getChild([0, 0]) as unknown as CKEDITOR.ui.dialog.uiElement;
     }
 
     private createFormItemWithPostponedValue(id: string, label: string, getValueFn: Function,

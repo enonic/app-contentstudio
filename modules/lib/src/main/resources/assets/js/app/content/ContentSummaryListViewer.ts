@@ -138,7 +138,7 @@ class ImageRequest
     private doSend(): Q.Promise<ImageResponse> {
         return this.send().then((response: Response) => {
             return this.request.status === 200 ? this.encodeImageAsURL(response) : Q({status: this.request.status});
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             return Q({error: reason});
         });
     }
@@ -153,7 +153,7 @@ class ImageRequest
         };
 
         try {
-            reader.readAsDataURL(<any>response);
+            reader.readAsDataURL(response as unknown as Blob);
         } catch (e) {
             deferred.reject(e);
         }
@@ -168,6 +168,6 @@ interface ImageResponse {
 
     imageAsUrl?: string;
 
-    error?: any;
+    error?: string;
 
 }

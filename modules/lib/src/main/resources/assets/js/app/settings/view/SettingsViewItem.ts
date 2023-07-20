@@ -6,9 +6,7 @@ import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 export abstract class SettingsViewItem
     implements ViewItem {
 
-    protected constructor(builder: SettingsTreeItemBuilder) {
-        return;
-    }
+    protected constructor(builder: SettingsTreeItemBuilder) { }
 
     equals(o: Equitable): boolean {
         if (!ObjectHelper.iFrameSafeInstanceOf(o, SettingsViewItem)) {

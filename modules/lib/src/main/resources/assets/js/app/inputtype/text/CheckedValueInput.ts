@@ -45,7 +45,7 @@ export abstract class CheckedValueInput
 
     private isCheckInProgress: boolean;
 
-    private debouncedValueCheckHandler: (...args: any[]) => void;
+    private debouncedValueCheckHandler: () => void;
 
     private stateUpdatedListeners: { (state: ValueValidationState): void }[] = [];
 
@@ -88,9 +88,9 @@ export abstract class CheckedValueInput
                     this.setIsCheckInProgress(false);
                 }
             })
-            .catch((e: any) => {
+            .catch((reason) => {
                 this.handlerError();
-                DefaultErrorHandler.handle(e);
+                DefaultErrorHandler.handle(reason);
             });
     }
 

@@ -55,7 +55,7 @@ export class ProjectReadAccessFormItem
     protected initListeners(): void {
         this.getRadioGroup().onValueChanged((event: ValueChangedEvent) => {
             const newValue: string = event.getNewValue();
-            this.principalsCombobox.setEnabled(newValue === ProjectReadAccessType.CUSTOM);
+            this.principalsCombobox.setEnabled(newValue === ProjectReadAccessType.CUSTOM.toString());
             this.updateCopyButtonState();
         });
 
@@ -109,11 +109,11 @@ export class ProjectReadAccessFormItem
     getReadAccess(): ProjectReadAccess {
         const readAccessString: string = this.getRadioGroup().getValue();
 
-        if (readAccessString === ProjectReadAccessType.PUBLIC) {
+        if (readAccessString === ProjectReadAccessType.PUBLIC.toString()) {
             return new ProjectReadAccess(ProjectReadAccessType.PUBLIC);
         }
 
-        if (readAccessString === ProjectReadAccessType.CUSTOM) {
+        if (readAccessString === ProjectReadAccessType.CUSTOM.toString()) {
             const principals: PrincipalKey[] =
                 this.principalsCombobox.getSelectedDisplayValues().map((principal: Principal) => principal.getKey());
 
@@ -130,11 +130,11 @@ export class ProjectReadAccessFormItem
     getReadAccessType(): ProjectReadAccessType {
         const readAccessString: string = this.getRadioGroup().getValue();
 
-        if (readAccessString === ProjectReadAccessType.PUBLIC) {
+        if (readAccessString === ProjectReadAccessType.PUBLIC.toString()) {
             return ProjectReadAccessType.PUBLIC;
         }
 
-        if (readAccessString === ProjectReadAccessType.CUSTOM) {
+        if (readAccessString === ProjectReadAccessType.CUSTOM.toString()) {
             return ProjectReadAccessType.CUSTOM;
         }
 
@@ -143,7 +143,7 @@ export class ProjectReadAccessFormItem
 
 
     setPrincipalComboboxEnabled(value: boolean): void {
-        this.principalsCombobox?.setEnabled(value && this.getRadioGroup().getValue() === ProjectReadAccessType.CUSTOM);
+        this.principalsCombobox?.setEnabled(value && this.getRadioGroup().getValue() === ProjectReadAccessType.CUSTOM.toString());
     }
 
     protected doCopyFromParent(): void {

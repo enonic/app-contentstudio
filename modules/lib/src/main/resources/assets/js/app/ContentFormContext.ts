@@ -74,7 +74,7 @@ export class ContentFormContext
         return this.applicationKey;
     }
 
-    createInputTypeViewContext(inputTypeConfig: any, parentPropertyPath: PropertyPath, input: Input): ContentInputTypeViewContext {
+    createInputTypeViewContext(inputTypeConfig: object, parentPropertyPath: PropertyPath, input: Input): ContentInputTypeViewContext {
         const viewContext = <ContentInputTypeViewContext> {
             formContext: this,
             input: input,

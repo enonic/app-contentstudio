@@ -39,7 +39,7 @@ export abstract class PropertiesWidgetItemView
         //
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         if (!item.getContentSummary().equals(this.item?.getContentSummary())) {
             this.item = item;
             this.helper.setItem(item);
@@ -60,7 +60,7 @@ export abstract class PropertiesWidgetItemView
         return true;
     }
 
-    public layout(): Q.Promise<any> {
+    public layout(): Q.Promise<void> {
         if (PropertiesWidgetItemView.debug) {
             console.debug('PropertiesWidgetItemView.layout');
         }

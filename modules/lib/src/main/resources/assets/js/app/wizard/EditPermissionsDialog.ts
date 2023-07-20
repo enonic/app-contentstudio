@@ -236,13 +236,13 @@ export class EditPermissionsDialog
         if (parentPath && parentPath.isNotRoot()) {
             new GetContentByPathRequest(parentPath).sendAndParse().then((content: Content) => {
                 deferred.resolve(content.getPermissions());
-            }).catch((reason: any) => {
+            }).catch((reason) => {
                 deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));
             }).done();
         } else {
             new GetContentRootPermissionsRequest().sendAndParse().then((rootPermissions: AccessControlList) => {
                 deferred.resolve(rootPermissions);
-            }).catch((reason: any) => {
+            }).catch((reason) => {
                 deferred.reject(new Error(i18n('notify.permissions.inheritError', this.contentPath.toString())));
             }).done();
         }

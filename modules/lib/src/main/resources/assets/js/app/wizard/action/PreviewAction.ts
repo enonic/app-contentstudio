@@ -26,7 +26,7 @@ export class PreviewAction
         if (this.writePermissions && this.wizard.hasUnsavedChanges()) {
             this.wizard.setRequireValid(true);
             this.wizard.saveChanges().then(content => this.helper.openWindow(content)).catch(
-                (reason: any) => DefaultErrorHandler.handle(reason)).done();
+                (reason) => DefaultErrorHandler.handle(reason)).done();
         } else {
             this.helper.openWindow(this.wizard.getPersistedItem());
         }

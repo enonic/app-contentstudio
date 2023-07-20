@@ -25,7 +25,7 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         super(context, className);
     }
 
-    protected getContentComboBox(): RichComboBox<any> {
+    protected getContentComboBox(): RichComboBox<RAW_VALUE_TYPE> {
         throw new Error('Should be overridden by inheritor');
     }
 

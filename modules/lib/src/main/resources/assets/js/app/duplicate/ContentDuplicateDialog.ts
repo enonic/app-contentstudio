@@ -109,7 +109,7 @@ export class ContentDuplicateDialog
                 this.updateTabbable();
                 this.actionButton.giveFocus();
             });
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             DefaultErrorHandler.handle(reason);
         });
     }

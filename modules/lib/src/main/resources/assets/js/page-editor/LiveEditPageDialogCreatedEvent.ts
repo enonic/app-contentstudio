@@ -1,6 +1,7 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {HtmlAreaDialogConfig} from '../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 
 export type LiveEditPageDialogCreatedEventHandler = (event: LiveEditPageDialogCreatedEvent) => void;
 
@@ -9,9 +10,9 @@ export class LiveEditPageDialogCreatedEvent
 
     private readonly dialog: ModalDialog;
 
-    private readonly config: any;
+    private readonly config: HtmlAreaDialogConfig;
 
-    constructor(dialog: ModalDialog, config: any) {
+    constructor(dialog: ModalDialog, config: HtmlAreaDialogConfig) {
         super();
         this.dialog = dialog;
         this.config = config;
@@ -21,7 +22,7 @@ export class LiveEditPageDialogCreatedEvent
         return this.dialog;
     }
 
-    getConfig(): any {
+    getConfig(): HtmlAreaDialogConfig {
         return this.config;
     }
 

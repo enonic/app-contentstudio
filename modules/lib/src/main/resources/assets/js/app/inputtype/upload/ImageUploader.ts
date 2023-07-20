@@ -183,7 +183,7 @@ export class ImageUploader
                     );
 
 
-                }).catch((reason: any) => {
+                }).catch((reason) => {
                     DefaultErrorHandler.handle(reason);
                 });
         } else if (this.imageUploader.isDirty()) {

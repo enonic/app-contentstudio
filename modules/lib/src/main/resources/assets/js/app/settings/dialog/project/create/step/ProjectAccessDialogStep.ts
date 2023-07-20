@@ -36,11 +36,11 @@ export class ProjectAccessDialogStep
             return data;
         }
 
-        if (readAccessString === ProjectReadAccessType.PUBLIC) {
+        if (readAccessString === ProjectReadAccessType.PUBLIC.toString()) {
             return data.setAccess(ProjectReadAccessType.PUBLIC);
         }
 
-        if (readAccessString === ProjectReadAccessType.CUSTOM) {
+        if (readAccessString === ProjectReadAccessType.CUSTOM.toString()) {
             const principals: Principal[] =
                 this.getFormItem().getPrincipalComboBox().getSelectedDisplayValues();
 

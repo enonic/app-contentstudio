@@ -45,7 +45,7 @@ export class UserAccessWidgetItemView
         }, 200));
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         const contentId = item.getContentId();
         if (UserAccessWidgetItemView.debug) {
             console.debug('UserAccessWidgetItemView.setContentId: ', contentId);
@@ -118,27 +118,27 @@ export class UserAccessWidgetItemView
         });
     }
 
-    public layout(): Q.Promise<any> {
+    public layout(): Q.Promise<void> {
         if (UserAccessWidgetItemView.debug) {
             console.debug('UserAccessWidgetItemView.layout');
         }
 
         this.showLoadMask();
 
-        return super.layout().then(this.layoutUserAccess.bind(this)).finally(() => {
-            this.hideLoadMask();
-        });
+        return super.layout()
+            .then(() => this.layoutUserAccess())
+            .finally(() => this.hideLoadMask());
     }
 
-    private layoutUserAccess(): Q.Promise<any> {
+    private layoutUserAccess(): Q.Promise<void> {
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             if (this.contentId) {
                 return new GetContentByIdRequest(this.contentId).sendAndParse().then((content: Content) => {
                     if (content) {
                         this.layoutHeader(content);
-                        return this.layoutList(content, loginResult).then(() => {
-                            this.layoutBottom(content, loginResult);
-                        });
+                        return this.layoutList(content, loginResult).then(() =>
+                            this.layoutBottom(content, loginResult)
+                        );
                     }
                 });
             }

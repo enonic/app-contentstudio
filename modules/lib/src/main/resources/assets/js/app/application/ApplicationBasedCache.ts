@@ -18,8 +18,8 @@ export interface CacheableRequest {
 export class ApplicationBasedCache<T extends Descriptor> {
 
     static registerCache<T extends Descriptor>(descriptor: typeof Descriptor, Request: CacheableRequest): ApplicationBasedCache<T> {
-        const w = WindowDOM.get();
-        const topWindow: any = w.getTopParent() == null ? w.asWindow() : w.getTopParent().asWindow();
+        const w: WindowDOM = WindowDOM.get();
+        const topWindow: Window = w.getTopParent() == null ? w.asWindow() : w.getTopParent().asWindow();
 
         const cacheName = `${ClassHelper.getFunctionName(descriptor)}Cache`;
 

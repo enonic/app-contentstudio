@@ -1,3 +1,16 @@
+type CustomSelectorItemJson = {
+    id: string;
+    displayName: string;
+    description: string;
+    iconUrl: string;
+    icon: CustomSelectorItemIcon;
+};
+
+type CustomSelectorItemIcon = {
+    data: string;
+    type: string;
+};
+
 export class CustomSelectorItem {
 
     id: string;
@@ -9,7 +22,7 @@ export class CustomSelectorItem {
         type: string;
     };
 
-    constructor(json: any) {
+    constructor(json: CustomSelectorItemJson) {
         this.id = json.id;
         this.displayName = json.displayName;
         this.description = json.description;

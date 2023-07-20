@@ -58,7 +58,7 @@ export class PageComponentsTreeGridHelper {
             .setDragAndDrop(true).build();
     }
 
-    private static menuFormatter(row: number, cell: number, value: any, columnDef: any, node: TreeNode<ContentSummaryAndCompareStatus>) {
+    private static menuFormatter(row: number, cell: number, value: unknown, columnDef: Slick.Column<ItemViewTreeGridWrapper>, node: TreeNode<ContentSummaryAndCompareStatus>) {
         const wrapper: SpanEl = new SpanEl();
 
         const icon: DivEl = new DivEl('menu-icon icon-menu2');
@@ -66,7 +66,7 @@ export class PageComponentsTreeGridHelper {
         return wrapper.toString();
     }
 
-    private static nameFormatter(content: Content, row: number, cell: number, value: any, columnDef: any,
+    private static nameFormatter(content: Content, row: number, cell: number, value: unknown, columnDef: Slick.Column<ItemViewTreeGridWrapper>,
                                  node: TreeNode<ItemViewTreeGridWrapper>) {
         const viewer: PageComponentsItemViewer = <PageComponentsItemViewer>node.getViewer('name') || new PageComponentsItemViewer(content);
         node.setViewer('name', viewer);

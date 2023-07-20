@@ -84,12 +84,12 @@ export class TooltipHelper {
             }, 100);
         }
 
-        function removeTooltip(e: any): void {
+        function removeTooltip(e: JQuery.MouseEventBase | object): void {
             const tooltip = $(`#${ID}`);
             if (!tooltip.length) {
                 return;
             }
-            const target = e.currentTarget || e.target;
+            const target = (e as JQuery.MouseEventBase).currentTarget || (e as JQuery.MouseEventBase).target;
             $(target).off('click', removeTooltipOnClick);
 
             const oldTitle = $(target).data(DATA);
@@ -105,7 +105,7 @@ export class TooltipHelper {
             unRemovedOrHidden();
             clearInterval(isVisibleCheckInterval);
             if (newTitle) {
-                addTooltip(e, target);
+                addTooltip(<JQuery.MouseEventBase>e, target);
             }
         }
 

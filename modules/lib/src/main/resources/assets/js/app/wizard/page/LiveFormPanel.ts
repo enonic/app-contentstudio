@@ -37,13 +37,10 @@ import {RegionView} from '../../../page-editor/RegionView';
 import {PageSelectedEvent} from '../../../page-editor/PageSelectedEvent';
 import {RegionSelectedEvent} from '../../../page-editor/RegionSelectedEvent';
 import {ItemViewSelectedEvent} from '../../../page-editor/ItemViewSelectedEvent';
-import {ItemViewDeselectedEvent} from '../../../page-editor/ItemViewDeselectedEvent';
 import {TextComponentView} from '../../../page-editor/text/TextComponentView';
-import {ComponentRemovedEvent} from '../../../page-editor/ComponentRemovedEvent';
 import {ComponentViewDragDroppedEvent} from '../../../page-editor/ComponentViewDragDroppedEventEvent';
 import {ComponentDuplicatedEvent} from '../../../page-editor/ComponentDuplicatedEvent';
 import {ComponentInspectedEvent} from '../../../page-editor/ComponentInspectedEvent';
-import {PageInspectedEvent} from '../../../page-editor/PageInspectedEvent';
 import {ComponentFragmentCreatedEvent} from '../../../page-editor/ComponentFragmentCreatedEvent';
 import {FragmentComponentView} from '../../../page-editor/fragment/FragmentComponentView';
 import {FragmentComponentReloadRequiredEvent} from '../../../page-editor/FragmentComponentReloadRequiredEvent';
@@ -168,7 +165,7 @@ export class LiveFormPanel
 
     private errorMessages: { type: ErrorType, message: string }[] = [];
 
-    private contentEventListener: (event: any) => void;
+    private contentEventListener: (event: ContentUpdatedEvent | ContentDeletedEvent) => void;
 
     private hasContentEventListeners: boolean;
 
@@ -341,7 +338,7 @@ export class LiveFormPanel
 
                 if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER && !ObjectHelper.objectEquals(oldValue, newValue)) {
                     this.contentWizardPanel.setMarkedAsReady(false);
-                    this.contentWizardPanel.saveChanges().catch((error: any) => {
+                    this.contentWizardPanel.saveChanges().catch((error) => {
                         DefaultErrorHandler.handle(error);
                     });
                 }
@@ -355,7 +352,7 @@ export class LiveFormPanel
                         this.pageInspectionPanel.refreshInspectionHandler();
                         this.lockPageAfterProxyLoad = true;
                         this.contentWizardPanel.setMarkedAsReady(false);
-                        this.contentWizardPanel.saveChanges().catch((error: any) => {
+                        this.contentWizardPanel.saveChanges().catch((error) => {
                             DefaultErrorHandler.handle(error);
                         });
                     }
@@ -481,7 +478,7 @@ export class LiveFormPanel
                 }
             }
 
-            this.contentWizardPanel.saveChanges().catch((error: any) => {
+            this.contentWizardPanel.saveChanges().catch((error) => {
                 DefaultErrorHandler.handle(error);
             });
         });
@@ -574,7 +571,7 @@ export class LiveFormPanel
             const message = this.errorMessages.sort(
                 (e1, e2) => e1.type - e2.type)[0].message;
             this.previewMessageEl.removeChildren();
-            this.previewMessageEl.appendChildren<any>(
+            this.previewMessageEl.appendChildren(
                 SpanEl.fromText(i18n('field.preview.failed')),
                 new BrEl(),
                 SpanEl.fromText(i18n(message))
@@ -731,7 +728,7 @@ export class LiveFormPanel
             this.pageSkipReload = false;
             componentView.showLoadingSpinner();
             return this.liveEditPageProxy.loadComponent(componentView, componentUrl, avoidInspectComponentRefresh);
-        }).catch((error: any) => {
+        }).catch((error) => {
             DefaultErrorHandler.handle(error);
 
             componentView.hideLoadingSpinner();
@@ -758,7 +755,7 @@ export class LiveFormPanel
             const selected: ItemView = this.pageView.getSelectedView();
 
             if (ObjectHelper.iFrameSafeInstanceOf(selected, ComponentView)) {
-                path = (<ComponentView<any>>selected).getComponentPath();
+                path = (<ComponentView<Component>>selected).getComponentPath();
                 isComponentView = true;
 
                 if (this.pageView.isTextEditMode() && ObjectHelper.iFrameSafeInstanceOf(selected, TextComponentView)) {
@@ -843,11 +840,11 @@ export class LiveFormPanel
             }
         });
 
-        this.liveEditPageProxy.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
+        this.liveEditPageProxy.onItemViewDeselected(() => {
             this.clearSelection();
         });
 
-        this.liveEditPageProxy.onComponentRemoved((event: ComponentRemovedEvent) => {
+        this.liveEditPageProxy.onComponentRemoved(() => {
 
             if (!this.pageModel.isPageTemplate() && this.pageModel.getMode() === PageMode.AUTOMATIC) {
                 this.pageModel.initializePageFromDefault(this);
@@ -874,7 +871,7 @@ export class LiveFormPanel
             this.inspectComponent(componentView);
         });
 
-        this.liveEditPageProxy.onPageInspected((event: PageInspectedEvent) => {
+        this.liveEditPageProxy.onPageInspected(() => {
             this.inspectPage(true);
         });
 
@@ -903,7 +900,7 @@ export class LiveFormPanel
                 RenderingMode.EDIT);
 
             fragmentView.showLoadingSpinner();
-            this.liveEditPageProxy.loadComponent(fragmentView, componentUrl).catch((errorMessage: any) => {
+            this.liveEditPageProxy.loadComponent(fragmentView, componentUrl).catch((errorMessage) => {
                 DefaultErrorHandler.handle(errorMessage);
 
                 fragmentView.hideLoadingSpinner();

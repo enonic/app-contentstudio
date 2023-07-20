@@ -5,7 +5,7 @@ import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 import {ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
 
 export class GetContentIdsByParentRequest
-    extends CmsContentResourceRequest<any> {
+    extends CmsContentResourceRequest<ContentId[]> {
 
     private parentId: ContentId;
 

@@ -17,7 +17,7 @@ export class CustomSelectorComboBox
         super(builder);
     }
 
-    protected reload(inputValue: string): Q.Promise<any> {
+    protected reload(inputValue: string): Q.Promise<CustomSelectorItem[]> {
         const loader: BaseLoader<CustomSelectorItem> = this.getLoader();
 
         if (loader.isLoaded() && loader.getSearchString() === inputValue) {

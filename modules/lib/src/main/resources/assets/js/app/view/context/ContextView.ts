@@ -323,7 +323,7 @@ export class ContextView
             return this.updateActiveWidget();
         }
 
-        return Q<any>(null);
+        return Q();
     }
 
     getItem(): ContentSummaryAndCompareStatus {
@@ -340,7 +340,7 @@ export class ContextView
         }
 
         if (!this.activeWidget) {
-            return Q<any>(null);
+            return Q();
         }
 
         return this.activeWidget.updateWidgetItemViews().then(() => {
@@ -451,13 +451,13 @@ export class ContextView
         return getWidgetsByInterfaceRequest.sendAndParse();
     }
 
-    private fetchAndInitCustomWidgetViews(): Q.Promise<any> {
+    private fetchAndInitCustomWidgetViews(): Q.Promise<void> {
         return this.fetchCustomWidgetViews().then((widgets: Widget[]) => {
             widgets.forEach((widget) => {
-                let widgetView = WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
+                const widgetView = WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
                 this.addWidget(widgetView);
             });
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             const msg = reason ? reason.message : i18n('notify.widget.error');
             showError(msg);
         });
@@ -471,7 +471,7 @@ export class ContextView
                 }
             }
             return null;
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             const msg = reason ? reason.message : i18n('notify.widget.error');
             showError(msg);
             return null;

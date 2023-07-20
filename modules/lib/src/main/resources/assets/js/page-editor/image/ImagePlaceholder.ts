@@ -1,6 +1,7 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {ImageComponentView} from './ImageComponentView';
 import {ImageContentComboBox} from '../../app/inputtype/ui/selector/image/ImageContentComboBox';
@@ -86,8 +87,7 @@ export class ImagePlaceholder
 
     private initImageComboboxWrapper() {
         this.comboboxWrapper = new DivEl('rich-combobox-wrapper');
-        this.comboboxWrapper.appendChild(this.comboBox);
-        this.comboboxWrapper.appendChild(<any>this.imageUploader);
+        this.comboboxWrapper.appendChildren(...[this.comboBox, this.imageUploader] as Element[]);
         this.appendChild(this.comboboxWrapper);
     }
 

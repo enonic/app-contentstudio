@@ -112,7 +112,7 @@ export class HTMLAreaHelper {
             }
 
             return ProjectHelper.isUserProjectOwnerOrEditor(loginResult);
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             DefaultErrorHandler.handle(reason);
             return Q(false);
         });

@@ -36,7 +36,7 @@ import {CreateItemViewConfig} from '../../../page-editor/CreateItemViewConfig';
 import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/SkipLiveEditReloadConfirmationEvent';
 import {LiveEditPageDialogCreatedEvent} from '../../../page-editor/LiveEditPageDialogCreatedEvent';
 import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/ComponentDetachedFromFragmentEvent';
-import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
@@ -74,7 +74,7 @@ export class LiveEditPageProxy {
 
     private contentId: ContentId;
 
-    private liveEditWindow: any;
+    private liveEditWindow: Window;
 
     private livejq: JQueryStatic;
 
@@ -501,7 +501,7 @@ export class LiveEditPageProxy {
         return fragmentWrapperEl;
     }
 
-    public stopListening(contextWindow: any) {
+    public stopListening(contextWindow: Window) {
 
         ComponentViewDragStartedEvent.un(null, contextWindow);
 
@@ -554,7 +554,7 @@ export class LiveEditPageProxy {
         CreateHtmlAreaDialogEvent.un(null, contextWindow);
     }
 
-    public listenToPage(contextWindow: any) {
+    public listenToPage(contextWindow: Window) {
 
         MinimizeWizardPanelEvent.on(() => {
             new MinimizeWizardPanelEvent().fire(contextWindow);
@@ -903,7 +903,7 @@ export class LiveEditPageProxy {
         this.createHtmlAreaDialogListeners.forEach((listener) => listener(event));
     }
 
-    notifyLiveEditPageDialogCreated(modalDialog: ModalDialog, config: any) {
+    notifyLiveEditPageDialogCreated(modalDialog: ModalDialog, config: HtmlAreaDialogConfig) {
         new LiveEditPageDialogCreatedEvent(modalDialog, config).fire(this.liveEditWindow);
     }
 

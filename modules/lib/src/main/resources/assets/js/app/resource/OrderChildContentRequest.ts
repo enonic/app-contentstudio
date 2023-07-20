@@ -5,9 +5,10 @@ import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
 import {ChildOrder} from './order/ChildOrder';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {Content} from '../content/Content';
 
 export class OrderChildContentRequest
-    extends CmsContentResourceRequest<any> {
+    extends CmsContentResourceRequest<Content> {
 
     private silent: boolean = false;
 
@@ -58,9 +59,5 @@ export class OrderChildContentRequest
             childOrder: this.childOrder ? this.childOrder.toJson() : undefined,
             reorderChildren: this.contentMovements.toArrayJson()
         };
-    }
-
-    protected parseResponse(response: JsonResponse<any>): any {
-        return response.getResult();
     }
 }

@@ -16,7 +16,7 @@ export class SettingsItemRowFormatter {
         return viewer ? viewer.toString() : '';
     }
 
-    private static getViewerForSettingsItem(dataContext: TreeNode<SettingsViewItem>): Viewer<any> | null {
+    private static getViewerForSettingsItem(dataContext: TreeNode<SettingsViewItem>): Viewer<Project | SettingsViewItem> | null {
         if (ObjectHelper.iFrameSafeInstanceOf(dataContext.getData(), ProjectViewItem)) {
             const viewer: Viewer<Project> = dataContext.getViewer('displayName') || new ProjectViewer();
             viewer.setObject((<ProjectViewItem>dataContext.getData()).getData());

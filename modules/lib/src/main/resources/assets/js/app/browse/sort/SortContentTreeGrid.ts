@@ -52,7 +52,7 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
         this.getOptions().setHeight('100%');
     }
 
-    public static nameFormatter(row: number, cell: number, value: any, columnDef: any, node: TreeNode<ContentSummaryAndCompareStatus>) {
+    public static nameFormatter(row: number, cell: number, value: unknown, columnDef: Slick.Column<ContentSummaryAndCompareStatus>, node: TreeNode<ContentSummaryAndCompareStatus>) {
         const data = node.getData();
         if (data.getContentSummary()) {
             let viewer: ContentSummaryViewer = <ContentSummaryViewer>node.getViewer('name');

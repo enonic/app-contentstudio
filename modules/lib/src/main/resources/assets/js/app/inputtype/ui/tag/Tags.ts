@@ -163,7 +163,7 @@ export class Tags
                 this.tagSuggestions.show();
                 this.preservedValue = searchString;
             }
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             DefaultErrorHandler.handle(reason);
             return [];
         }).done();

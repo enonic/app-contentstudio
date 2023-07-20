@@ -23,9 +23,9 @@ export class Regions
 
     private componentPropertyChangedListeners: ComponentPropertyChangedEventHandler[] = [];
 
-    private readonly regionChangedEventHandler: (event: any) => void;
+    private readonly regionChangedEventHandler: (event: BaseRegionChangedEvent) => void;
 
-    private readonly componentPropertyChangedEventHandler: (event: any) => void;
+    private readonly componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
 
     constructor(builder: RegionsBuilder) {
 

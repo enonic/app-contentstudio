@@ -8,9 +8,9 @@ import {H5El} from '@enonic/lib-admin-ui/dom/H5El';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 
 export class EmulatorGrid
-    extends Grid<any> {
+    extends Grid<Slick.SlickData> {
 
-    protected createOptions(): GridOptions<any> {
+    protected createOptions(): GridOptions<Slick.SlickData> {
         return new GridOptionsBuilder()
             .setHideColumnHeaders(true)
             .setRowHeight(50)
@@ -19,7 +19,7 @@ export class EmulatorGrid
             .build();
     }
 
-    protected createColumns(): GridColumn<any>[] {
+    protected createColumns(): GridColumn<Slick.SlickData>[] {
         return [
             new GridColumnBuilder()
                 .setName('device')

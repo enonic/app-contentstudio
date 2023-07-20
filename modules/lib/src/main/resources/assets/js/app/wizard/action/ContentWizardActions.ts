@@ -265,7 +265,7 @@ export class ContentWizardActions
         return this.stateManager.isActionEnabled(name);
     }
 
-    refreshPendingDeleteDecorations(): Q.Promise<any> {
+    refreshPendingDeleteDecorations(): Q.Promise<void> {
         const isPendingDelete = this.isPendingDelete();
 
         this.actionsMap.UNDO_PENDING_DELETE.setVisible(isPendingDelete);
@@ -291,7 +291,7 @@ export class ContentWizardActions
             }
         }
 
-        return Q(null);
+        return Q();
     }
 
     isPendingDelete(): boolean {
@@ -308,7 +308,7 @@ export class ContentWizardActions
         (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(true);
     }
 
-    enableActionsForExisting(existing: Content): Q.Promise<any> {
+    enableActionsForExisting(existing: Content): Q.Promise<void> {
         this.persistedContent = existing;
 
         this.enableActions({
@@ -352,7 +352,7 @@ export class ContentWizardActions
         });
     }
 
-    private enableActionsForExistingByPermissions(existing: Content): Q.Promise<any> {
+    private enableActionsForExistingByPermissions(existing: Content): Q.Promise<void> {
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
 
             this.userCanModify = PermissionHelper.hasPermission(Permission.MODIFY, loginResult, existing.getPermissions());

@@ -98,7 +98,7 @@ export class ConfirmValueDialog
             this.appendChildToHeader(this.subheader);
 
             const confirmationText = new PEl('confirm-value-text');
-            confirmationText.appendChildren<any>(
+            confirmationText.appendChildren(
                 SpanEl.fromText(i18n('dialog.confirmValue.enterValue')),
                 this.hintEl,
                 SpanEl.fromText(i18n('dialog.confirmValue.enterValue.ending'))

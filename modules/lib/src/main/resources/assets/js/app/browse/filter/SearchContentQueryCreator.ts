@@ -64,32 +64,32 @@ export class SearchContentQueryCreator {
     protected appendAggregationsAndFilter(contentAggregations?: string[]): void {
         const hasAllAggregations: boolean = !contentAggregations;
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.CONTENT_TYPE)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.CONTENT_TYPE.toString())) {
             this.appendContentTypeFilter();
             this.appendContentTypesAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.WORKFLOW)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.WORKFLOW.toString())) {
             this.appendWorkflowFilter();
             this.appendWorkflowAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.MODIFIED_BY)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.MODIFIED_BY.toString())) {
             this.appendModifierFilter();
             this.appendModifierAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.OWNER)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.OWNER.toString())) {
             this.appendOwnerFilter();
             this.appendOwnerAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.LAST_MODIFIED)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.LAST_MODIFIED.toString())) {
             this.appendLastModifiedFilter();
             this.appendLastModifiedAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.LANGUAGE)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.LANGUAGE.toString())) {
             this.appendLanguageFilter();
             this.appendLanguageAggregationQuery();
         }
@@ -270,7 +270,7 @@ export class SearchContentQueryCreator {
         selectedBuckets.forEach((bucket: Bucket) => {
             booleanFilter.addShould(new ValueFilter('workflow.state',bucket.getKey().toUpperCase()));
 
-            if (bucket.key === WorkflowState.READY) {
+            if (bucket.key === WorkflowState.READY.toString()) {
                 booleanFilter.addShould(this.createWorkflowNotExistsFilter());
             }
         });

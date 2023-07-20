@@ -1,6 +1,6 @@
 import * as Q from 'q';
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
-import {Delta, DiffPatcher, formatters} from 'jsondiffpatch';
+import {Delta, DiffPatcher, formatters, HtmlFormatter} from 'jsondiffpatch';
 import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
@@ -27,6 +27,7 @@ import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {VersionHistoryHelper} from '../view/context/widget/version/VersionHistoryHelper';
 import {ContentVersion} from '../ContentVersion';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ContentJson} from '../content/ContentJson';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -61,7 +62,7 @@ export class CompareContentVersionsDialog
 
     private diffPatcher: DiffPatcher;
 
-    private htmlFormatter: any;
+    private htmlFormatter: HtmlFormatter;
 
     private readonly versionsLoader: ContentVersionsLoader;
 
@@ -245,7 +246,7 @@ export class CompareContentVersionsDialog
             rightContainer.appendChildren<Element>(this.rightLabel, this.rightDropdown, this.revertRightButton);
 
             const bottomContainer = new DivEl('container bottom');
-            this.htmlFormatter = (<any>formatters.html);
+            this.htmlFormatter = formatters.html;
             this.htmlFormatter.showUnchanged(false, null, 0);
             const changesCheckbox = new CheckboxBuilder().setLabelText(i18n('field.content.showEntire')).build();
             changesCheckbox.onValueChanged(event => {
@@ -255,7 +256,7 @@ export class CompareContentVersionsDialog
             this.appendChildToFooter(bottomContainer);
 
             return this.reloadVersions().then(() => {
-                this.toolbar.appendChildren<any>(leftContainer, rightContainer);
+                this.toolbar.appendChildren(leftContainer, rightContainer);
 
                 this.appendChildToHeader(this.toolbar);
                 this.appendChildToContentPanel(this.comparisonContainer);
@@ -729,7 +730,7 @@ export class CompareContentVersionsDialog
         return VersionContext.isActiveVersion(this.content.getId(), version.getId());
     }
 
-    private processContent(contentJson: any, versionId: string): Object {
+    private processContent(contentJson: ContentJson, versionId: string): ContentJson {
         [
             '_id', 'creator', 'createdTime', 'hasChildren'
         ].forEach(e => delete contentJson[e]);

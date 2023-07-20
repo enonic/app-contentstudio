@@ -188,7 +188,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
         this.getAction(ActionName.TOGGLE_SEARCH_PANEL).setVisible(false);
 
-        const parallelPromises: Q.Promise<any>[] = [
+        const parallelPromises: Q.Promise<void>[] = [
             this.doUpdateActionsEnabledState(items)
         ];
 
@@ -209,7 +209,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         defaultActions.forEach(action => action.setVisible(true));
     }
 
-    private doUpdateActionsEnabledState(items: ContentSummaryAndCompareStatus[]): Q.Promise<any> {
+    private doUpdateActionsEnabledState(items: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
         return this.getAllowedPermissions(items).then((permissions: Permission[]) => {
             const state: ContentTreeGridItemsState = new ContentTreeGridItemsState(items, permissions);
             this.toggleActions(state);
@@ -287,7 +287,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
                     this.getAction(ActionName.SORT).setEnabled(false);
                 }
 
-                return Q(null);
+                return Q();
             }));
         }
 

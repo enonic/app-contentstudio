@@ -42,7 +42,7 @@ export class StatusWidgetItemView extends WidgetItemView {
         return this.content ? this.content.getPublishStatus() : null;
     }
 
-    public layout(): Q.Promise<any> {
+    public layout(): Q.Promise<void> {
         if (StatusWidgetItemView.debug) {
             console.debug('StatusWidgetItemView.layout');
         }

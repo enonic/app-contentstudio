@@ -33,7 +33,7 @@ export class ContentSaveAction
         return <ContentSaveAction>super.setEnabled(value);
     }
 
-    protected saveChanges(wizardPanel: ContentWizardPanel): Q.Promise<any> {
+    protected saveChanges(wizardPanel: ContentWizardPanel): Q.Promise<void> {
         this.setLabel(i18n('action.saving'));
 
         return wizardPanel.saveChanges().then(() => {
@@ -41,7 +41,7 @@ export class ContentSaveAction
 
             this.toggleIconClass(ContentSaveAction.CLASS_NAME_SAVED, true);
 
-        }, (reason: any) => {
+        }, (reason) => {
             this.setLabel(i18n('action.save'));
             this.setEnabled(true);
 

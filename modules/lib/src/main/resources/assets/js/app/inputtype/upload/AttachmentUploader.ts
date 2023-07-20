@@ -128,7 +128,7 @@ export class AttachmentUploader
             name: this.context.input.getName(),
             showCancel: false,
             allowMultiSelection: this.getInput().getOccurrences().getMaximum() !== 1,
-            hideDefaultDropZone: !!(<any>(this.context.inputConfig)).hideDropZone,
+            hideDefaultDropZone: !!this.context.inputConfig.hideDropZone,
             deferred: true,
             attachmentRemoveCallback: this.removeItemCallback.bind(this),
             getTotalAllowedToUpload: this.getTotalAllowedToUpload.bind(this),

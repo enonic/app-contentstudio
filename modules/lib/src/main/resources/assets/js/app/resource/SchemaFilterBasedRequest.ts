@@ -13,7 +13,7 @@ export abstract class SchemaFilterBasedRequest<T>
         this.addRequestPathElements('schema', 'filter');
     }
 
-    getParams(): Object {
+    getParams(): object {
         return {
             contentId: this.contentId?.toString()
         };
