@@ -26,7 +26,7 @@ export class IssueDialogForm
 
     private description: TextArea;
 
-    private contentItemsSelector: RichComboBox<any>;
+    private contentItemsSelector: RichComboBox<ContentTreeSelectorItem>;
 
     private title: TextInput;
 
@@ -74,12 +74,12 @@ export class IssueDialogForm
 
         this.contentItemsSelector.onOptionSelected((option) => {
             this.notifyContentItemsAdded(
-                [<ContentTreeSelectorItem>option.getSelectedOption().getOption().getDisplayValue()]);
+                [option.getSelectedOption().getOption().getDisplayValue()]);
         });
 
         this.contentItemsSelector.onOptionDeselected((option) => {
             this.notifyContentItemsRemoved(
-                [<ContentTreeSelectorItem>option.getSelectedOption().getOption().getDisplayValue()]);
+                [option.getSelectedOption().getOption().getDisplayValue()]);
         });
     }
 
@@ -216,18 +216,18 @@ export class IssueDialogForm
             return;
         }
         this.toggleContentItemsSelector(contents && contents.length > 0);
-        contents.forEach((value) => {
-            this.contentItemsSelector.select(value, false, silent);
-        });
+        contents.forEach((value) =>
+            this.contentItemsSelector.select(new ContentTreeSelectorItem(value), false, silent)
+        );
     }
 
     public deselectContentItems(contents: ContentSummary[], silent: boolean = false) {
         if (!contents) {
             return;
         }
-        contents.forEach((value) => {
-            this.contentItemsSelector.deselect(value, silent);
-        });
+        contents.forEach((value) =>
+            this.contentItemsSelector.deselect(new ContentTreeSelectorItem(value), silent)
+        );
         this.toggleContentItemsSelector(this.contentItemsSelector.getSelectedValues().length > 0);
     }
 

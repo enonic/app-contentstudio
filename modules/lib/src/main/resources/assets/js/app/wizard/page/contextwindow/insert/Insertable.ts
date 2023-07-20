@@ -45,9 +45,4 @@ export class Insertable {
     public getIconCls(): string {
         return this.iconCls;
     }
-
-    // TS fix: common fields with Slick.SlickData
-    public test(): any { /* empty */
-    }
-
 }

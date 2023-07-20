@@ -183,7 +183,7 @@ export class FragmentInspectionPanel
             } else {
                 new GetContentSummaryByIdRequest(contentId).sendAndParse().then((receivedFragment: ContentSummary) => {
                     this.setSelectorValue(receivedFragment);
-                }).catch((reason: any) => {
+                }).catch((reason) => {
                     if (this.isNotFoundError(reason)) {
                         this.setSelectorValue(null);
                     } else {

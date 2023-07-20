@@ -72,7 +72,7 @@ export class ProjectOptionDataLoader
         this.modeChangeListener(isTreeMode);
     }
 
-    unLoadModeChanged(listener: (isTreeMode: boolean) => void): any {
+    unLoadModeChanged(listener: (isTreeMode: boolean) => void): void {
     //
     }
 

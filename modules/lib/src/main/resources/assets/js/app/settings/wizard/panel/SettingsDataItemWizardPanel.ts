@@ -186,7 +186,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     private saveAndClose() {
         this.saveChanges().then(() => {
             this.close();
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             if (this.isValid()) {
                 this.wizardActions.getSaveAction().setEnabled(true);
             }
@@ -289,7 +289,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
             this.getPersistedItem() ? this.getPersistedItem().getIconUrl() : null);
     }
 
-    protected updateIcon(): Q.Promise<any> {
+    protected updateIcon(): Q.Promise<void> {
         throw new Exception('Must be implemented by inheritor.', ExceptionType.ERROR);
     }
 
@@ -362,7 +362,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         });
 
         this.wizardActions.getSaveAction().onExecuted(() => {
-            this.saveChanges().catch((reason: any) => {
+            this.saveChanges().catch((reason) => {
                 this.wizardActions.getSaveAction().setEnabled(true);
                 DefaultErrorHandler.handle(reason);
             });

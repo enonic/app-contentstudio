@@ -8,8 +8,6 @@ import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/Sel
 import {ImageSelectorSelectedOptionView} from './ImageSelectorSelectedOptionView';
 import {SelectionToolbar} from './SelectionToolbar';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
-import {MediaSelectorDisplayValue} from '../media/MediaSelectorDisplayValue';
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentSelectedOptionsView} from '../ContentComboBox';
 
@@ -238,7 +236,7 @@ export class ImageSelectorSelectedOptionsView
 
     private setOutsideClickListener() {
         this.mouseClickListener = (event: MouseEvent) => {
-            for (let element = event.target; element; element = (<any>element).parentNode) {
+            for (let element: ParentNode = event.target as HTMLElement; element; element = element.parentNode) {
                 if (element === this.getHTMLElement()) {
                     return;
                 }

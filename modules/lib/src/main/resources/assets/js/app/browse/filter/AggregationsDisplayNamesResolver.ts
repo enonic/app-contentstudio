@@ -33,7 +33,7 @@ export class AggregationsDisplayNamesResolver {
     }
 
     private updateWorkflowAggregations(aggregations: Aggregation[]) {
-        const workflowAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.WORKFLOW);
+        const workflowAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.WORKFLOW.toString());
 
         if (workflowAggr) {
             this.updateWorkflowAggregation(<BucketAggregation>workflowAggr);
@@ -55,7 +55,7 @@ export class AggregationsDisplayNamesResolver {
     }
 
     protected isPrincipalAggregation(aggregation: Aggregation): boolean {
-        return aggregation.getName() === ContentAggregation.MODIFIED_BY || aggregation.getName() === ContentAggregation.OWNER;
+        return aggregation.getName() === ContentAggregation.MODIFIED_BY.toString() || aggregation.getName() === ContentAggregation.OWNER.toString();
     }
 
     private updatePrincipalsAggregation(principalsAggregation: BucketAggregation): Q.Promise<void> {
@@ -110,7 +110,7 @@ export class AggregationsDisplayNamesResolver {
     }
 
     updateLanguageAggregations(aggregations: Aggregation[]): Q.Promise<void> {
-        const langAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.LANGUAGE);
+        const langAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.LANGUAGE.toString());
 
         return !!langAggr ? this.updateLanguageAggregation(<BucketAggregation>langAggr) : Q.resolve(null);
     }
@@ -136,7 +136,7 @@ export class AggregationsDisplayNamesResolver {
     }
 
     updateContentTypeAggregations(aggregations: Aggregation[]): Q.Promise<void> {
-        const contentTypeAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.CONTENT_TYPE);
+        const contentTypeAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.CONTENT_TYPE.toString());
 
         return !!contentTypeAggr ? this.updateContentTypeAggregation(<BucketAggregation>contentTypeAggr) : Q.resolve(null);
     }

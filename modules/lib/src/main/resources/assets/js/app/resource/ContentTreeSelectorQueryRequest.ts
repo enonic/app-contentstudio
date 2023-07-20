@@ -57,7 +57,7 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
     protected parseResponse(response: JsonResponse<ContentTreeSelectorListJson>): DATA[] {
         if (response.getResult() && response.getResult().items.length > 0) {
             this.metadata = ResultMetadata.fromJson(response.getResult().metadata);
-            return response.getResult().items.map(json => <any>ContentTreeSelectorItem.fromJson(json));
+            return response.getResult().items.map(json => ContentTreeSelectorItem.fromJson(json)) as DATA[];
         }
 
         this.metadata = new ResultMetadata(0, 0);

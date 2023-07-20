@@ -13,7 +13,6 @@ import {Regions, RegionsBuilder} from '../app/page/region/Regions';
 import {PageTemplateKey} from '../app/page/PageTemplateKey';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
-import {GetComponentDescriptorRequest} from '../app/resource/GetComponentDescriptorRequest';
 import {Descriptor} from '../app/page/Descriptor';
 import {DescriptorKey} from '../app/page/DescriptorKey';
 import {RegionDescriptor} from '../app/page/RegionDescriptor';
@@ -21,9 +20,9 @@ import {Region} from '../app/page/region/Region';
 import {Component} from '../app/page/region/Component';
 import {LayoutComponent} from '../app/page/region/LayoutComponent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ComponentType} from '../app/page/region/ComponentType';
-import {LayoutComponentType} from '../app/page/region/LayoutComponentType';
 import {PageHelper} from '../app/util/PageHelper';
+
+type ComponentDescriptor = Descriptor | PageTemplate | PageModel | void;
 
 export class LiveEditModel {
 
@@ -169,7 +168,7 @@ export class LiveEditModelInitializer {
     static initPageModel(liveEditModel: LiveEditModel, content: Content, defaultPageTemplate: PageTemplate,
                          defaultTemplateDescriptor: Descriptor): Q.Promise<PageModel> {
 
-        const promises: Q.Promise<any>[] = [];
+        const promises: Q.Promise<PageModel>[] = [];
 
         return this.loadForcedPageTemplate(content).then(forcedPageTemplate => {
             const pageMode = LiveEditModelInitializer.getPageMode(content, !!defaultPageTemplate, forcedPageTemplate);
@@ -191,7 +190,7 @@ export class LiveEditModelInitializer {
         });
     }
 
-    private static initPageTemplate(content: Content, pageMode: PageMode, pageModel: PageModel, promises: Q.Promise<any>[]): void {
+    private static initPageTemplate(content: Content, pageMode: PageMode, pageModel: PageModel, promises: Q.Promise<ComponentDescriptor>[]): void {
         let pageTemplate: PageTemplate = <PageTemplate>content;
         if (pageMode === PageMode.FORCED_CONTROLLER) {
             this.initForcedControllerPageTemplate(pageTemplate, pageModel, promises);
@@ -202,7 +201,7 @@ export class LiveEditModelInitializer {
         }
     }
 
-    private static initPage(content: Content, pageMode: PageMode, pageModel: PageModel, promises: Q.Promise<any>[],
+    private static initPage(content: Content, pageMode: PageMode, pageModel: PageModel, promises: Q.Promise<ComponentDescriptor>[],
                             forcedPageTemplate: PageTemplate): void {
         const page: Page = content.getPage();
         if (pageMode === PageMode.FORCED_TEMPLATE) {
@@ -222,7 +221,7 @@ export class LiveEditModelInitializer {
 
     private static initForcedControllerPageTemplate(pageTemplate: PageTemplate,
                                                     pageModel: PageModel,
-                                                    promises: Q.Promise<any>[]): void {
+                                                    promises: Q.Promise<ComponentDescriptor>[]): void {
         const pageDescriptorKey: DescriptorKey = pageTemplate.getController();
         const pageDescriptorPromise: Q.Promise<Descriptor> = PageHelper.loadDescriptor(pageDescriptorKey);
         pageDescriptorPromise.then((pageDescriptor: Descriptor) => {
@@ -251,7 +250,7 @@ export class LiveEditModelInitializer {
     private static initForcedTemplatePage(content: Content,
                                           page: Page,
                                           pageModel: PageModel,
-                                          promises: Q.Promise<any>[], forcedPageTemplate?: PageTemplate): void {
+                                          promises: Q.Promise<ComponentDescriptor>[], forcedPageTemplate?: PageTemplate): void {
         const pageTemplateKey: PageTemplateKey = page.getTemplate();
         const pageTemplatePromise: Q.Promise<PageTemplate> = !forcedPageTemplate ? this.loadPageTemplate(pageTemplateKey) : Q(
             forcedPageTemplate);
@@ -279,7 +278,7 @@ export class LiveEditModelInitializer {
         promises.push(pageTemplatePromise);
     }
 
-    private static initForcedControllerPage(page: Page, pageModel: PageModel, promises: Q.Promise<any>[]): void {
+    private static initForcedControllerPage(page: Page, pageModel: PageModel, promises: Q.Promise<ComponentDescriptor>[]): void {
         const pageDescriptorKey: DescriptorKey = page.getController();
 
         if (pageDescriptorKey) {
@@ -389,13 +388,13 @@ export class LiveEditModelInitializer {
         return deferred.promise;
     }
 
-    private static resolvePromises(pageModel: PageModel, promises: Q.Promise<any>[]): Q.Promise<PageModel> {
+    private static resolvePromises(pageModel: PageModel, promises: Q.Promise<PageModel>[]): Q.Promise<PageModel> {
         let deferred: Q.Deferred<PageModel> = Q.defer<PageModel>();
 
         if (promises.length > 0) {
             Q.all(promises).then(() => {
                 deferred.resolve(pageModel);
-            }).catch((reason: any) => {
+            }).catch((reason) => {
                 deferred.reject(reason);
             }).done();
         } else {
@@ -405,7 +404,7 @@ export class LiveEditModelInitializer {
         return deferred.promise;
     }
 
-    private static initFragmentPage(page: Page, pageModel: PageModel, promises: Q.Promise<any>[]): void {
+    private static initFragmentPage(page: Page, pageModel: PageModel, promises: Q.Promise<ComponentDescriptor>[]): void {
         const component: Component = page.getFragment();
         const promise: Q.Promise<void> = (component instanceof LayoutComponent && component.getDescriptorKey())
                                          ? PageHelper.fetchAndInjectLayoutRegions(component)

@@ -54,7 +54,7 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
 
     placeholder: ItemViewPlaceholder;
 
-    viewer: Viewer<any>;
+    viewer: Viewer<Component>;
 
     inspectActionRequired: boolean;
 
@@ -119,7 +119,7 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
         return this;
     }
 
-    setViewer(value: Viewer<any>): ComponentViewBuilder<COMPONENT> {
+    setViewer(value: Viewer<Component>): ComponentViewBuilder<COMPONENT> {
         this.viewer = value;
         return this;
     }

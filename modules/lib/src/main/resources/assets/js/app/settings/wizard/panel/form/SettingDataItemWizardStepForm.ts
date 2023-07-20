@@ -7,8 +7,11 @@ import * as Q from 'q';
 import {SettingsDataViewItem} from '../../../view/SettingsDataViewItem';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
 import {SettingsType} from '../../../data/type/SettingsType';
+import {ProjectViewItem} from '../../../view/ProjectViewItem';
+import {Project} from '../../../data/project/Project';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 
-export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataViewItem<any>>
+export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataViewItem<Equitable>>
     extends WizardStepForm {
 
     protected item?: ITEM;

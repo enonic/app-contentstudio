@@ -17,13 +17,13 @@ import {MacrosLoader} from '../../../../macro/resource/MacrosLoader';
 import {GetMacrosRequest} from '../../../../macro/resource/GetMacrosRequest';
 import {MacroComboBox} from '../../../../macro/MacroComboBox';
 import * as DOMPurify from 'dompurify';
-import {MacroDialogParams} from '../HtmlEditor';
+import {MacroDialogParams, Macro} from '../HtmlEditor';
 import {HTMLAreaHelper} from '../HTMLAreaHelper';
 
 export interface MacroModalDialogConfig
     extends HtmlAreaModalDialogConfig {
     applicationKeys: ApplicationKey[];
-    selectedMacro: SelectedMacro;
+    selectedMacro: Macro;
     content: ContentSummary;
 }
 
@@ -34,7 +34,7 @@ export class MacroModalDialog
 
     private applicationKeys: ApplicationKey[];
 
-    private selectedMacro: SelectedMacro;
+    private selectedMacro: Macro;
 
     private macroFormItem: FormItem;
 
@@ -163,7 +163,7 @@ export class MacroModalDialog
     private getSelectedMacroDescriptor(): Q.Promise<MacroDescriptor> {
         return this.fetchMacros().then((macros: MacroDescriptor[]) => {
             return macros.filter((macro: MacroDescriptor) => macro.getKey().getName() === this.selectedMacro.name).pop();
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             DefaultErrorHandler.handle(reason);
             return null;
         });
@@ -215,7 +215,7 @@ export class MacroModalDialog
             }
 
             this.close();
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             DefaultErrorHandler.handle(reason);
             showError(i18n('dialog.macro.error'));
         });
@@ -259,13 +259,4 @@ export class MacroModalDialog
 
         this.getEditor().focusManager.unlock();
     }
-}
-
-export interface SelectedMacro {
-    macroText: string;
-    name: string;
-    attributes: any[];
-    element: CKEDITOR.dom.element;
-    index: number,
-    body?: string;
 }

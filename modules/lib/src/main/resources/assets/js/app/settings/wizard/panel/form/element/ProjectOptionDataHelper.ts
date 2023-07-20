@@ -18,8 +18,8 @@ export class ProjectOptionDataHelper
         return this.projects.some((project: Project) => project.getParent() === data.getName());
     }
 
-    isDescendingPath(childOption: Project, parentOption: Project): any {
-        //
+    isDescendingPath(childOption: Project, parentOption: Project): boolean {
+        return false;
     }
 
     isExpandable(data: Project): boolean {

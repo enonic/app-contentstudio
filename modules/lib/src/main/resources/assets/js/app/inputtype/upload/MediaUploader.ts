@@ -216,14 +216,10 @@ export class MediaUploader
             predefinedAllowTypes = this.getAllowTypeFromFileName(attachmentFileName);
         }
 
-        let allowTypesConfig: MediaUploaderConfigAllowType[] = predefinedAllowTypes ||
-                                                               (<any>(this.config.inputConfig)).allowExtensions ||
-            [];
-        let allowExtensions = allowTypesConfig.map((allowType: MediaUploaderConfigAllowType) => {
+        const allowTypesConfig: MediaUploaderConfigAllowType[] = predefinedAllowTypes || this.config.inputConfig.allowExtensions || [];
+        const allowExtensions = allowTypesConfig.map((allowType: MediaUploaderConfigAllowType) => {
             return {title: allowType.name, extensions: allowType.extensions};
         });
-
-        let hideDropZone = (<any>(this.config.inputConfig)).hideDropZone;
 
         return new MediaUploaderEl({
             params: {
@@ -233,7 +229,7 @@ export class MediaUploader
             allowExtensions: allowExtensions,
             name: this.getContext().input.getName(),
             allowMultiSelection: false,
-            hideDefaultDropZone: hideDropZone != null ? hideDropZone : true,
+            hideDefaultDropZone: !!this.context.inputConfig.hideDropZone,
             deferred: true,
             hasUploadButton: false,
             project: this.config.project

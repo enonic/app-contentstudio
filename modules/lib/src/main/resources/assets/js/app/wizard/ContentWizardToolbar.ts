@@ -25,7 +25,7 @@ import {ContentActionCycleButton} from './ContentActionCycleButton';
 export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateManager;
-    compareVersionsPreHook?: () => Q.Promise<any>
+    compareVersionsPreHook?: () => Q.Promise<void>
 }
 
 export class ContentWizardToolbar
@@ -131,7 +131,7 @@ export class ContentWizardToolbar
     private addHomeButton(): void {
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
             this.addProjectButton(projects);
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             this.addProjectButton([Project.create()
                 .setName(ProjectContext.get().getProject().getName())
                 .build()

@@ -21,12 +21,12 @@ export class DeleteIssueCommentRequest
     }
 
     sendAndParse(): Q.Promise<boolean> {
-        return this.send().then((response: JsonResponse<any>) => {
+        return this.send().then((response: JsonResponse<boolean>) => {
             return response.getResult()['ids'].length > 0;
         });
     }
 
-    parseResponse(response: JsonResponse<any>): boolean {
+    parseResponse(response: JsonResponse<boolean>): boolean {
         return response.getResult()['ids'].length > 0;
     }
 }

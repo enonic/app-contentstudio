@@ -77,7 +77,7 @@ export class DragAndDrop {
     constructor(pageView: PageView) {
         this.pageView = pageView;
         this.SORTABLE_ITEMS_SELECTOR = this.createSortableItemsSelector();
-        this.createSortable(this.REGION_SELECTOR);
+        this.createSortable($(this.REGION_SELECTOR));
     }
 
     isDragging(): boolean {
@@ -113,7 +113,7 @@ export class DragAndDrop {
         regionView.refreshEmptyState().removeClass(this.DRAGGED_OVER_CLASS);
     }
 
-    createSortable(selector: any): void {
+    createSortable(selector: JQuery<HTMLElement>): void {
 
         $(selector).sortable({
             // append helper to pageView so it doesn't jump when sortable jumps
@@ -626,7 +626,7 @@ export class DragAndDrop {
         return sortableItemsSelector.toString();
     }
 
-    private updateScrollSensitivity(selector: any): void {
+    private updateScrollSensitivity(selector: Element): void {
         let scrollSensitivity = this.calculateScrollSensitivity();
         $(selector).sortable('option', 'scrollSensitivity', scrollSensitivity);
     }

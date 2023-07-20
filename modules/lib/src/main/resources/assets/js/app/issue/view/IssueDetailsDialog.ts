@@ -740,7 +740,7 @@ export class IssueDetailsDialog
             this.clearListItems(true);
             this.setListItems(items);
         }).catch(
-            (reason: any) => DefaultErrorHandler.handle(reason)
+            (reason) => DefaultErrorHandler.handle(reason)
         )
         .finally(
             () => this.hideLoadMask()
@@ -1027,7 +1027,7 @@ export class IssueDetailsDialog
                 this.notifyIssueUpdated(updatedIssue);
                 this.skipNextServerUpdatedEvent = true;
             })
-            .catch((reason: any) => DefaultErrorHandler.handle(reason));
+            .catch((reason) => DefaultErrorHandler.handle(reason));
     }
 
     private createPublishRequest(): PublishRequest {

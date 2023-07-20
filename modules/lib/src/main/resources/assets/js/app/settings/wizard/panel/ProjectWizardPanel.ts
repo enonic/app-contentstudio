@@ -178,7 +178,7 @@ export class ProjectWizardPanel
             .sendAndParse();
     }
 
-    protected updateIcon(): Q.Promise<any> {
+    protected updateIcon(): Q.Promise<void> {
         const icon: File = this.getFormIcon().getThumbnailFile();
 
         return new ProjectUpdateIconRequest()

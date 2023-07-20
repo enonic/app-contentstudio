@@ -20,6 +20,7 @@ import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
 import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {ContentAppBar} from '../bar/ContentAppBar';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel {
@@ -71,7 +72,7 @@ export class SettingsAppPanel
         this.getAppBarTabMenu().deselectNavigationItem();
     }
 
-    private getWizardPanelForEdit(item: SettingsViewItem, tabId: AppBarTabId): SettingsDataItemWizardPanel<SettingsDataViewItem<any>> {
+    private getWizardPanelForEdit(item: SettingsViewItem, tabId: AppBarTabId): SettingsDataItemWizardPanel<SettingsDataViewItem<Equitable>> {
         if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
             const projectItem: ProjectViewItem = <ProjectViewItem>item;
             const wizard: ProjectWizardPanel = new ProjectWizardPanel({
@@ -106,7 +107,7 @@ export class SettingsAppPanel
             this.selectPanel(tabMenuItem);
         } else {
             const unnamedTabMenuText: string = NamePrettyfier.prettifyUnnamed();
-            const wizard: SettingsDataItemWizardPanel<SettingsDataViewItem<any>> = this.getWizardPanelForEdit(item, tabId);
+            const wizard: SettingsDataItemWizardPanel<SettingsDataViewItem<Equitable>> = this.getWizardPanelForEdit(item, tabId);
             const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                 .setLabel(item.getDisplayName())
                 .setTabId(wizard.getTabId())

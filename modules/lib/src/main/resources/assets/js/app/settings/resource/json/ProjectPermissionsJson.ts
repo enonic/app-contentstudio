@@ -7,4 +7,6 @@ export interface ProjectPermissionsJson {
     editor: string[];
 
     owner: string[];
+
+    viewer?: string[];
 }

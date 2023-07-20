@@ -84,7 +84,7 @@ export class MacroDockedPanel
                         this.previewResolved = true;
                         this.macroPreview = macroPreview;
                         this.renderPreview(macroPreview);
-                    }).catch((reason: any) => {
+                    }).catch((reason) => {
                         DefaultErrorHandler.handle(reason);
                         this.renderPreviewWithMessage(this.previewLoadErrorMessage);
                     }).finally(() => {
@@ -139,7 +139,7 @@ export class MacroDockedPanel
             this.configPanelLoadMask.show();
             this.fetchMacroString().then((macroString: string) => {
                 deferred.resolve(macroString);
-            }).catch((reason: any) => {
+            }).catch((reason) => {
                 deferred.reject(reason);
             }).finally(() => {
                 this.configPanelLoadMask.hide();

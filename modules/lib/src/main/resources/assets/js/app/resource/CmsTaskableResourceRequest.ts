@@ -74,7 +74,7 @@ export class CmsTaskableResourceRequest<PARSED_TYPE>
         return Q.resolve(null);
     }
 
-    protected handleTaskFailed(taskInfo: TaskInfo): any {
-        return null;
+    protected handleTaskFailed(taskInfo: TaskInfo): void {
+        return;
     }
 }

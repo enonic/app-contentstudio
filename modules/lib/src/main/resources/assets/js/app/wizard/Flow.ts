@@ -1,4 +1,5 @@
 import {Content} from '../content/Content';
+import {ContentWizardPanel} from './ContentWizardPanel';
 
 export class RoutineContext {
 
@@ -11,13 +12,13 @@ export class RoutineContext {
 
 export class Flow {
 
-    private thisOfProducer: any;
+    private readonly thisOfProducer: ContentWizardPanel;
 
-    constructor(thisOfProducer: any) {
+    constructor(thisOfProducer: ContentWizardPanel) {
         this.thisOfProducer = thisOfProducer;
     }
 
-    getThisOfProducer(): any {
+    getThisOfProducer(): ContentWizardPanel {
         return this.thisOfProducer;
     }
 

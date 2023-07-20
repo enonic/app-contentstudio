@@ -22,11 +22,11 @@ export class SpecialCharDialog
     protected initListeners() {
         super.initListeners();
 
-        this.onClicked((event: any) => {
-            const isSpecialCharClicked: boolean = event.target.classList.contains('chars-block__char');
+        this.onClicked((event: MouseEvent) => {
+            const isSpecialCharClicked: boolean = (event.target as HTMLElement).classList.contains('chars-block__char');
 
             if (isSpecialCharClicked) {
-                const char: string = event.target.textContent;
+                const char: string = (event.target as Node).textContent;
                 if (char === HtmlEditor.SPECIAL_CHAR_NBSP) {
                     this.getEditor().insertHtml('&nbsp;', 'text');
                 } else {
@@ -50,7 +50,7 @@ export class SpecialCharDialog
         const charsBlock: DivEl = new DivEl('chars-block');
         const specialChars: (string | [string, string])[] = this.getEditor().config.specialChars || [];
 
-        const lang: any = this.getEditor().lang.specialchar;
+        const lang = this.getEditor().lang.specialchar;
         let character: string | [string, string];
         let charDesc: string;
 

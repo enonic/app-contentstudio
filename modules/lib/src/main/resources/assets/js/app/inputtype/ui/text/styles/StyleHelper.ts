@@ -1,6 +1,6 @@
 export class StyleHelper {
 
-    public static STYLE: any = {
+    public static STYLE = {
         ALIGNMENT: {
             JUSTIFY: {
                 CLASS: 'editor-align-justify',

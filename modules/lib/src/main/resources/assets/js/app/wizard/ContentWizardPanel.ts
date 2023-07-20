@@ -68,10 +68,10 @@ import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEven
 import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
 import {Property} from '@enonic/lib-admin-ui/data/Property';
-import {FormItemSet} from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
 import {FieldSet} from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
 import {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
 import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
+import {FormItem, FormItemParent} from '@enonic/lib-admin-ui/form/FormItem';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
@@ -132,7 +132,6 @@ import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ContentSummary} from '../content/ContentSummary';
 import {GetApplicationsRequest} from '../resource/GetApplicationsRequest';
-import {PageHelper} from '../util/PageHelper';
 import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {PageComponentsWizardStep} from './PageComponentsWizardStep';
 import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
@@ -377,7 +376,7 @@ export class ContentWizardPanel
                                     showWarning(message);
                                 }
                             })
-                        .catch((reason: any) => { //app was uninstalled
+                        .catch((reason) => { //app was uninstalled
                             showWarning(message);
                         });
 
@@ -1673,27 +1672,24 @@ export class ContentWizardPanel
         });
     }
 
-    private getHtmlAreasInForm(formItemContainer: FormItemContainer): string[] {
+    private getHtmlAreasInForm(formItemContainer: Form | FormItemParent): string[] {
         let result: string[] = [];
 
-        formItemContainer.getFormItems().forEach((item) => {
-            if (ObjectHelper.iFrameSafeInstanceOf(item, FormItemSet) ||
-                ObjectHelper.iFrameSafeInstanceOf(item, FieldSet) ||
-                ObjectHelper.iFrameSafeInstanceOf(item, FormOptionSet) ||
-                ObjectHelper.iFrameSafeInstanceOf(item, FormOptionSetOption)) {
-                result = result.concat(this.getHtmlAreasInForm(<any>item));
-            } else if (ObjectHelper.iFrameSafeInstanceOf(item, Input)) {
-                let input = <Input>item;
+        formItemContainer.getFormItems().forEach((item: FormItemParent | Input) => {
+            if (ObjectHelper.iFrameSafeInstanceOf(item, Input)) {
+                const input = <Input>item;
                 if (input.getInputType().getName() === 'HtmlArea') {
                     result.push(input.getPath().toString());
                 }
+            } else {
+                result = result.concat(this.getHtmlAreasInForm(item as FormItemParent));
             }
         });
 
         return result;
     }
 
-    private updateLiveEditModel(content: Content): Q.Promise<any> {
+    private updateLiveEditModel(content: Content): Q.Promise<void> {
         const site: Site = content.isSite() ? <Site>content : this.site;
 
         if (this.siteModel) {
@@ -1712,7 +1708,7 @@ export class ContentWizardPanel
             this.pageComponentsView?.setContent(this.liveEditModel.getContent());
             this.debouncedEditorReload(false);
 
-            return Q(null);
+            return Q();
         });
     }
 
@@ -1736,14 +1732,13 @@ export class ContentWizardPanel
         return PermissionHelper.hasPermission(Permission.MODIFY, loginResult, this.getPersistedItem().getPermissions());
     }
 
-    saveChangesWithoutValidation(reloadPageEditor?: boolean): Q.Promise<Content> {
+    saveChangesWithoutValidation(reloadPageEditor?: boolean): Q.Promise<void> {
         this.skipValidation = true;
         this.reloadPageEditorOnSave = reloadPageEditor;
 
-        return this.saveChanges().then((content: Content) => {
+        return this.saveChanges().then(() => {
             this.skipValidation = false;
             this.reloadPageEditorOnSave = true;
-            return content;
         });
     }
 
@@ -2246,7 +2241,7 @@ export class ContentWizardPanel
                     this.xDataWizardStepForms.resetState();
                 });
 
-            }).catch((reason: any) => {
+            }).catch((reason) => {
             DefaultErrorHandler.handle(reason);
         }).finally(() => {
             if (--this.applicationLoadCount === 0) {

@@ -33,7 +33,7 @@ export class VersionHistoryView extends WidgetItemView {
         this.managePublishEvent();
     }
 
-    public layout(): Q.Promise<any> {
+    public layout(): Q.Promise<void> {
         if (VersionHistoryView.debug) {
             console.debug('VersionsWidgetItemView.layout');
         }
@@ -73,7 +73,7 @@ export class VersionHistoryView extends WidgetItemView {
         }
 
         if (!this.versionListView) {
-            return Q<any>(null);
+            return Q();
         }
 
         this.statusBlock.setClass(`status ${content.getStatusClass()}`);

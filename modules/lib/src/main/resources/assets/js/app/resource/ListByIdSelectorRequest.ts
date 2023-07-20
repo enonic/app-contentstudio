@@ -53,7 +53,8 @@ export class ListByIdSelectorRequest<DATA extends ContentTreeSelectorItem>
     protected parseResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): DATA[] {
         if (response.getResult() && response.getResult().contents.length > 0) {
             this.metadata = ResultMetadata.fromJson(response.getResult().metadata);
-            return response.getResult().contents.map(json => <any>ContentTreeSelectorItem.from(ContentSummary.fromJson(json), true, true));
+            return response.getResult().contents.map(json =>
+                ContentTreeSelectorItem.from(ContentSummary.fromJson(json), true, true)) as DATA[];
         }
 
         this.metadata = new ResultMetadata(0, 0);

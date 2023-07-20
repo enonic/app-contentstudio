@@ -17,6 +17,7 @@ import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 import {ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
 import {ContentId} from '../content/ContentId';
+import {Content} from '../content/Content';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends CmsContentResourceRequest<ContentQueryResult<CONTENT, CONTENT_JSON>> {
@@ -76,17 +77,15 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         let aggregations = BucketAggregation.fromJsonArray(responseResult.aggregations);
         let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
         let metadata = new ResultMetadata(response.getResult().metadata.hits, response.getResult().metadata.totalHits);
-        let contents: CONTENT[];
+        let contents: (ContentSummary | Content)[];
 
-        if (this.expand === Expand.NONE) {
-            contents = <any[]> this.fromJsonToContentIdBaseItemArray(contentsAsJson);
-        } else if (this.expand === Expand.SUMMARY) {
-            contents = <any[]>this.fromJsonToContentSummaryArray(contentsAsJson);
+        if (this.expand === Expand.SUMMARY) {
+            contents = this.fromJsonToContentSummaryArray(contentsAsJson);
         } else {
-            contents = <any[]>this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
+            contents = this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
         }
 
-        this.updateStateAfterLoad(contents, metadata);
+        this.updateStateAfterLoad(contents as CONTENT[], metadata);
 
         return new ContentQueryResult<CONTENT, CONTENT_JSON>(this.results, aggregations, <CONTENT_JSON[]>contentsAsJson, metadata);
     }

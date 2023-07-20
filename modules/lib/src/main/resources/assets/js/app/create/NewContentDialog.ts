@@ -215,7 +215,7 @@ export class NewContentDialog
     setParentContent(parent: ContentSummary): NewContentDialog {
         this.parentContent = parent;
 
-        const params: { [key: string]: any } = {
+        const params: object = {
             parent: parent ? parent.getPath().toString() : ContentPath.getRoot().toString()
         };
 

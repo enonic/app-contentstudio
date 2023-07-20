@@ -51,7 +51,7 @@ export class NewContentUploader
         return this;
     }
 
-    setUploaderParams(params: { [key: string]: any }): NewContentUploader {
+    setUploaderParams(params: object): NewContentUploader {
         this.mediaUploaderEl.setParams(params);
         return this;
     }

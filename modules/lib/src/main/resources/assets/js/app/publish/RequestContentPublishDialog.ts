@@ -224,12 +224,12 @@ export class RequestContentPublishDialog
         this.createIssuesRequest().sendAndParse().then((issue: Issue) => {
             showSuccess(i18n('notify.publishRequest.created'));
             this.notifyIssueCreated(issue);
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             this.handleErrorOnPublishRequest(reason);
         });
     }
 
-    private handleErrorOnPublishRequest(reason: any): void {
+    private handleErrorOnPublishRequest(reason): void {
         this.unlockControls();
         this.close();
 

@@ -1,6 +1,6 @@
 export interface IssueSummaryJson {
 
-    id: any;
+    id: string;
 
     index: number;
 
@@ -8,9 +8,9 @@ export interface IssueSummaryJson {
 
     name: string;
 
-    creator: any;
+    creator: string;
 
-    modifier: any;
+    modifier: string;
 
     modifiedTime: string;
 

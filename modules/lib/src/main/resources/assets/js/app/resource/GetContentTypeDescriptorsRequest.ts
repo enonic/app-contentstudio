@@ -4,6 +4,8 @@ import {ContentTypeSummaryListJson} from '@enonic/lib-admin-ui/schema/content/Co
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {SchemaFilterBasedRequest} from './SchemaFilterBasedRequest';
 
+type GetContentTypeDescriptorsRequestParams = {contentId: string, allowedContentTypes?: string[]};
+
 export class GetContentTypeDescriptorsRequest
     extends SchemaFilterBasedRequest<ContentTypeSummary> {
 
@@ -16,7 +18,7 @@ export class GetContentTypeDescriptorsRequest
     }
 
     getParams(): Object {
-        const params = <any>super.getParams();
+        const params = super.getParams() as GetContentTypeDescriptorsRequestParams;
         params.allowedContentTypes = this.allowedContentTypes;
 
         return params;

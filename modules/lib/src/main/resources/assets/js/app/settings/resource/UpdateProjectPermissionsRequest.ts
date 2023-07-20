@@ -4,6 +4,7 @@ import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ProjectPermissionsJson} from './json/ProjectPermissionsJson';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {ProjectReadAccessJson} from './json/ProjectReadAccessJson';
 
 export class UpdateProjectPermissionsRequest
     extends ProjectResourceRequest<ProjectPermissions> {
@@ -36,16 +37,16 @@ export class UpdateProjectPermissionsRequest
     }
 
     getParams(): Object {
-        const params: any = {
+        const params: {name: string, permissions?: ProjectPermissionsJson} = {
             name: this.name
         };
 
         if (this.permissions) {
             params.permissions = this.permissions.toJson();
-        }
 
-        if (this.viewers) {
-            params.permissions.viewer = this.viewers.map((key: PrincipalKey) => key.toString());
+            if (this.viewers) {
+                params.permissions.viewer = this.viewers.map((key: PrincipalKey) => key.toString());
+            }
         }
 
         return params;

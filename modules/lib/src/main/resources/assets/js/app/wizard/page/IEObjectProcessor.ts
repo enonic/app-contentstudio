@@ -7,11 +7,14 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
 import {Descriptor} from '../../page/Descriptor';
+import {DescriptorJson} from '../../page/DescriptorJson';
+import {RegionJson} from '../../page/region/RegionJson';
+import {JSONObject} from '@enonic/lib-admin-ui/types';
 
 export class IEObjectProcessor {
     private componentNames: Map<string, string> = new Map();
 
-    copyRegions(regions: Regions): any {
+    copyRegions(regions: Regions): RegionJson[] {
         regions.getRegions().forEach((region: Region) => this.processRegion(region));
 
         return JSON.parse(JSON.stringify(regions.toJson()));
@@ -33,15 +36,15 @@ export class IEObjectProcessor {
         }
     }
 
-    copyPageDescriptor(pageDescriptor: Descriptor): any {
-        const pageDescriptorCopy: any = JSON.parse(JSON.stringify(pageDescriptor));
+    copyPageDescriptor(pageDescriptor: Descriptor): DescriptorJson {
+        const pageDescriptorCopy: DescriptorJson = JSON.parse(JSON.stringify(pageDescriptor));
         pageDescriptorCopy.key = pageDescriptor.getKey().toString();
         pageDescriptorCopy.config = JSON.parse(JSON.stringify(pageDescriptor.getConfig().toJson()));
 
         return pageDescriptorCopy;
     }
 
-    restoreRegionsFromCopy(copy: any): Regions {
+    restoreRegionsFromCopy(copy: RegionJson[]): Regions {
         const regions: Regions = ComponentFactory.createRegionsFromJson(copy);
 
         regions.getRegions().forEach((region: Region) => this.restoreNamesInRegion(region));
@@ -61,7 +64,7 @@ export class IEObjectProcessor {
         component.setName(new ComponentName(this.componentNames.get(component.getPath().toString())));
     }
 
-    restorePageDescriptorFromCopy(copy: any): Descriptor {
+    restorePageDescriptorFromCopy(copy: DescriptorJson): Descriptor {
         return Descriptor.fromJson(copy);
     }
 }

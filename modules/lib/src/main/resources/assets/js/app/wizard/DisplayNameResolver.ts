@@ -2,7 +2,7 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {DisplayNameGenerator} from '@enonic/lib-admin-ui/app/wizard/DisplayNameGenerator';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
+import {FormItem, FormItemParent} from '@enonic/lib-admin-ui/form/FormItem';
 import {Form} from '@enonic/lib-admin-ui/form/Form';
 import {FieldSet} from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
 import {FormItemSet} from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
@@ -56,7 +56,7 @@ export class DisplayNameResolver
         return this.excludedInputTypes.indexOf(inputType.getName().toLowerCase()) > -1;
     }
 
-    private getFormItems(container: any): FormItem[] {
+    private getFormItems(container: Form | FormItemParent): FormItem[] {
         let formItems = [];
         if (ObjectHelper.iFrameSafeInstanceOf(container, Form) ||
             ObjectHelper.iFrameSafeInstanceOf(container, FieldSet) ||

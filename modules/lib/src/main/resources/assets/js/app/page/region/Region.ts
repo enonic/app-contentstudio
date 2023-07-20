@@ -45,14 +45,14 @@ export class Region
         this.name = builder.name;
         this.parentPath = builder.parentPath;
 
-        this.componentChangedEventHandler = (event: any) => {
+        this.componentChangedEventHandler = (event: ComponentPropertyChangedEvent) => {
             if (Region.debug) {
                 console.debug(this.toString() + '.handleComponentChanged: ', event);
             }
             this.notifyRegionPropertyValueChanged('components');
         };
 
-        this.componentPropertyChangedEventHandler = (event: any) => this.forwardComponentPropertyChangedEvent(event);
+        this.componentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => this.forwardComponentPropertyChangedEvent(event);
 
         builder.components.forEach((component: Component) => {
             this.registerComponent(component);

@@ -50,7 +50,7 @@ export class RowSelector
         });
     }
 
-    private static comboBoxFilter(item: Option<string>, args: any) {
+    private static comboBoxFilter(item: Option<string>, args: { searchString: string }) {
         // Do not change to one-liner `return !(...);`. Bugs expected with UglifyJs + SlickGrid filter compilation.
         const isEmptyInput = args == null || args.searchString == null;
         return isEmptyInput || item.getDisplayValue().toUpperCase().indexOf(args.searchString.toUpperCase()) !== -1;
@@ -90,7 +90,7 @@ export class RowSelector
     private handleClickOutside() {
         const mouseClickListener: (event: MouseEvent) => void = (event: MouseEvent) => {
             if (this.comboBox.isVisible()) {
-                for (let target = event.target; target; target = (<any>target).parentNode) {
+                for (let target: ParentNode = event.target as HTMLElement; target; target = target.parentNode) {
                     if (target === this.comboBox.getHTMLElement()) {
                         return;
                     }

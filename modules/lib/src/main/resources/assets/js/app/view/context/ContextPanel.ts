@@ -28,7 +28,7 @@ export class ContextPanel
         // must be implemented by children
     }
 
-    public setItem(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    public setItem(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         return this.contextView.setItem(item);
     }
 

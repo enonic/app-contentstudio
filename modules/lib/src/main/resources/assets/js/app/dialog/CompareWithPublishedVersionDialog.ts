@@ -1,6 +1,6 @@
 import * as Q from 'q';
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
-import {Delta, DiffPatcher, formatters} from 'jsondiffpatch';
+import {Delta, DiffPatcher, formatters, HtmlFormatter} from 'jsondiffpatch';
 import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
@@ -36,7 +36,7 @@ export class CompareWithPublishedVersionDialog
 
     private diffPatcher: DiffPatcher;
 
-    private htmlFormatter: any;
+    private htmlFormatter: HtmlFormatter;
 
     private isLoading: boolean;
 
@@ -51,7 +51,7 @@ export class CompareWithPublishedVersionDialog
 
         this.versionsLoader = new ContentVersionsLoader();
         this.diffPatcher = new DiffPatcher();
-        this.htmlFormatter = (<any>formatters.html);
+        this.htmlFormatter = formatters.html;
     }
 
     protected initListeners() {

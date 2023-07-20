@@ -38,7 +38,7 @@ export abstract class BasePublishAction
                     if (content != null && !canMarkOnly) {
                         this.firePromptEvent();
                     }
-                }).catch((reason: any) => {
+                }).catch((reason) => {
                     DefaultErrorHandler.handle(reason);
                 }).finally(() => this.setEnabled(true)).done();
 

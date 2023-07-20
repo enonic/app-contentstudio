@@ -3,14 +3,15 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 
 export class StatisticsBlockColumn extends DivEl {
 
     private header: H6El;
 
-    private itemsList: ListBox<any>;
+    private itemsList: ListBox<string | Principal>;
 
-    constructor(headerText: string, itemsList: ListBox<any>) {
+    constructor(headerText: string, itemsList: ListBox<string | Principal>) {
         super();
 
         this.header = new H6El('stats-column-header');
@@ -18,7 +19,7 @@ export class StatisticsBlockColumn extends DivEl {
         this.itemsList = itemsList;
     }
 
-    setItems(items: any[]) {
+    setItems(items: (string | Principal)[]) {
         this.itemsList.setItems(items);
 
         this.toggleClass('empty', items.length === 0);

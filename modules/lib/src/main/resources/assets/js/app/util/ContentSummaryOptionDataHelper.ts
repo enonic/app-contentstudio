@@ -12,7 +12,7 @@ export class ContentSummaryOptionDataHelper
         return data ? data.getId() : '';
     }
 
-    isDescendingPath(childOption: ContentTreeSelectorItem, parentOption: ContentTreeSelectorItem) {
+    isDescendingPath(childOption: ContentTreeSelectorItem, parentOption: ContentTreeSelectorItem): boolean {
         return childOption.getPath().isDescendantOf(parentOption.getPath());
     }
 

@@ -215,7 +215,7 @@ export class HtmlArea
             }
 
             this.handleEditorValueChanged(id, textAreaWrapper);
-            new HtmlAreaResizeEvent(<any>this).fire();
+            new HtmlAreaResizeEvent(this).fire();
         };
 
         const blurHandler = (e) => {
@@ -324,11 +324,11 @@ export class HtmlArea
     }
 
     private getTools(enabled: boolean): string[] {
-        const toolsObj: any = this.getContext().inputConfig[enabled ? 'include' : 'exclude'];
+        const toolsObj: Record<string, string>[] = this.getContext().inputConfig[enabled ? 'include' : 'exclude'];
         const result: string[] = [];
 
         if (toolsObj && toolsObj instanceof Array) {
-            toolsObj.forEach((tool: any) => {
+            toolsObj.forEach((tool: { value: string }) => {
                 result.push(...tool.value.trim().split(/\s+/).filter((v: string) => v));
             });
         }

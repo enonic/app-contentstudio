@@ -169,7 +169,7 @@ export class FragmentComponentView
             const component = this.getFragmentRootComponent();
             const componentType = this.getFragmentRootType();
 
-            const componentView = <ComponentView<any>>this.createView(
+            const componentView = <ComponentView<FragmentComponent>>this.createView(
                 ItemType.fromComponentType(componentType),
                 new CreateItemViewConfig<RegionView, Component>()
                     .setData(component)
@@ -222,7 +222,7 @@ export class FragmentComponentView
                     this.fragmentContent = content;
                     this.notifyFragmentContentLoaded();
                     new FragmentComponentLoadedEvent(this).fire();
-                }).catch((reason: any) => {
+                }).catch((reason) => {
                     this.fragmentContent = null;
                     this.notifyFragmentContentLoaded();
                     this.notifyFragmentLoadError();

@@ -120,7 +120,7 @@ export class ContentBrowseFilterPanel
     }
 
     private createGroupView(name: string): AggregationGroupView {
-        if (name === ContentAggregation.OWNER || name === ContentAggregation.MODIFIED_BY) {
+        if (name === ContentAggregation.OWNER.toString() || name === ContentAggregation.MODIFIED_BY.toString()) {
             return new FilterableAggregationGroupView(name, i18n(`field.${name}`));
         }
 

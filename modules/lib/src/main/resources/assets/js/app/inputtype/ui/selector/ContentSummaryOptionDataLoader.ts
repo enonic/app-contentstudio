@@ -211,7 +211,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
                     const contentAndCompareStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
                         item.getContent(), compareResult.getCompareStatus(), compareResult.getPublishStatus());
 
-                    return <any>new ContentAndStatusTreeSelectorItem(contentAndCompareStatus, item.isSelectable());
+                    return new ContentAndStatusTreeSelectorItem(contentAndCompareStatus, item.isSelectable()) as unknown as DATA;
                 });
             });
     }

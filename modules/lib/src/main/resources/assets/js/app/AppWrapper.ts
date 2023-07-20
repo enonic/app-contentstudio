@@ -87,7 +87,7 @@ export class AppWrapper
 
     private createStudioWidget(): Widget {
         return Widget.create()
-            .setWidgetDescriptorKey(`${CONFIG.get('appId')}:main`)
+            .setWidgetDescriptorKey(`${CONFIG.getString('appId')}:main`)
             .setDisplayName(i18n('app.admin.widget.main'))
             .setUrl(UrlAction.BROWSE)
             .setConfig(new WidgetConfig().setContext('project'))
@@ -142,7 +142,7 @@ export class AppWrapper
     }
 
     private updateUrl(widget: Widget): void {
-        if (widget.getUrl() === UrlAction.BROWSE) {
+        if (widget.getUrl() === UrlAction.BROWSE.toString()) {
             Router.get().setHash(UrlAction.BROWSE);
             return;
         }
@@ -206,7 +206,7 @@ export class AppWrapper
                 return;
             }
 
-            for (let element = event.target; element; element = (<any>element).parentNode) {
+            for (let element = event.target; element; element = (<HTMLElement>element).parentNode) {
                 if (element === this.sidebar.getHTMLElement() || element === this.toggleSidebarButton.getHTMLElement()) {
                     return;
                 }

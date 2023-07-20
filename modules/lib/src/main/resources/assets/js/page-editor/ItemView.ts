@@ -53,6 +53,8 @@ import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
 import {ContentIconUrlResolver} from '../app/content/ContentIconUrlResolver';
+import {Region} from '../app/page/region/Region';
+import {ContentSummary} from '../app/content/ContentSummary';
 
 export interface ElementDimensions {
     top: number;
@@ -60,6 +62,8 @@ export interface ElementDimensions {
     width: number;
     height: number;
 }
+
+export type BaseComponent = Component | Region | Content | ContentSummary;
 
 export class ItemViewBuilder {
 
@@ -83,7 +87,7 @@ export class ItemViewBuilder {
 
     placeholder: ItemViewPlaceholder;
 
-    viewer: Viewer<any>;
+    viewer: Viewer<BaseComponent>;
 
     setLiveEditModel(value: LiveEditModel): ItemViewBuilder {
         this.liveEditModel = value;
@@ -115,7 +119,7 @@ export class ItemViewBuilder {
         return this;
     }
 
-    setViewer(value: Viewer<any>): ItemViewBuilder {
+    setViewer(value: Viewer<BaseComponent>): ItemViewBuilder {
         this.viewer = value;
         return this;
     }
@@ -164,7 +168,7 @@ export class ItemView
 
     private contextMenuActions: Action[];
 
-    private viewer: Viewer<any>;
+    private readonly viewer: Viewer<BaseComponent>;
 
     private mouseOver: boolean;
 
@@ -944,7 +948,7 @@ export class ItemView
         return this.liveEditModel;
     }
 
-    getViewer(): Viewer<any> {
+    getViewer(): Viewer<BaseComponent> {
         return this.viewer;
     }
 

@@ -30,7 +30,7 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {CreateHtmlAreaDialogEvent} from '../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder<TextComponent> {
@@ -65,7 +65,7 @@ export class TextComponentView
     private lastClicked: number = 0;
 
     private modalDialog: ModalDialog;
-    private currentDialogConfig: any;
+    private currentDialogConfig: HtmlAreaDialogConfig;
 
     private authRequest: Q.Promise<void>;
     private editableSourceCode: boolean;

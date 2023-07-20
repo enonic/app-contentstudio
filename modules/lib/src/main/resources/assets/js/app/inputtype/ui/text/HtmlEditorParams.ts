@@ -18,7 +18,7 @@ export class HtmlEditorParams {
     private readonly blurHandler: (e: FocusEvent) => void;
     private readonly mouseLeaveHandler: (e: MouseEvent, mousePressed?: boolean) => void;
     private readonly keydownHandler: (e: KeyboardEvent) => void;
-    private readonly nodeChangeHandler: (e: any) => void;
+    private readonly nodeChangeHandler: () => void;
     private readonly editorLoadedHandler: () => void;
     private readonly editorReadyHandler: () => void;
     private readonly saveHandler?: () => void;
@@ -116,7 +116,7 @@ export class HtmlEditorParams {
         return !!this.nodeChangeHandler;
     }
 
-    getNodeChangeHandler(): (e: any) => void {
+    getNodeChangeHandler(): () => void {
         return this.nodeChangeHandler;
     }
 
@@ -211,7 +211,7 @@ export class HtmlEditorParamsBuilder {
 
     keydownHandler: (e: KeyboardEvent) => void;
 
-    nodeChangeHandler: (e: any) => void;
+    nodeChangeHandler: () => void;
 
     editorLoadedHandler: () => void;
 
@@ -286,10 +286,8 @@ export class HtmlEditorParamsBuilder {
         return this;
     }
 
-    setNodeChangeHandler(nodeChangeHandler: (e: any) => void): HtmlEditorParamsBuilder {
-        this.nodeChangeHandler = AppHelper.debounce((e) => {
-            nodeChangeHandler(e);
-        }, 200);
+    setNodeChangeHandler(nodeChangeHandler: () => void): HtmlEditorParamsBuilder {
+        this.nodeChangeHandler = AppHelper.debounce(() => nodeChangeHandler(), 200);
 
         return this;
     }

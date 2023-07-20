@@ -51,6 +51,7 @@ import {Project} from '../../../../../settings/data/project/Project';
 import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import eventInfo = CKEDITOR.eventInfo;
 import {ContentPath} from '../../../../../content/ContentPath';
+import {ContentTreeSelectorItem} from '../../../../../item/ContentTreeSelectorItem';
 
 export class ImageModalDialog
     extends OverrideNativeDialog {
@@ -73,7 +74,7 @@ export class ImageModalDialog
     private editorWidth: number;
     protected config: ImageModalDialogConfig;
 
-    static readonly defaultStyles: any = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS];
+    static readonly defaultStyles: string[] = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS];
 
     constructor(config: eventInfo, content: ContentSummary, project?: Project) {
         super(<ImageModalDialogConfig>{
@@ -184,7 +185,7 @@ export class ImageModalDialog
                 });
                 this.previewImage(imageContent, presetStyles);
                 this.imageSelectorFormItem.addClass('selected-item-preview');
-            }).catch((reason: any) => {
+            }).catch((reason) => {
             this.presetImageEl = null;
             this.imageSelector.show();
             DefaultErrorHandler.handle(reason);
@@ -233,7 +234,7 @@ export class ImageModalDialog
             .setProject(this.config.project)
             .setMaximumOccurrences(1))
             .setContent(this.content)
-            .setSelectedOptionsView(new ContentSelectedOptionsView() as SelectedOptionsView<any>)
+            .setSelectedOptionsView(new ContentSelectedOptionsView() as unknown as SelectedOptionsView<MediaTreeSelectorItem>)
             .build();
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id, i18n('dialog.image.formitem.image')).setValidator(
@@ -535,7 +536,7 @@ export class ImageModalDialog
     }
 
     private updateEditorElements() {
-        const imageEl: CKEDITOR.dom.element = (<any>this.ckeOriginalDialog).widget.parts.image;
+        const imageEl: CKEDITOR.dom.element = this.ckeOriginalDialog['widget'].parts.image;
         const figureEl: CKEDITOR.dom.element = <CKEDITOR.dom.element>imageEl.getAscendant('figure');
         const figureCaptionEl: CKEDITOR.dom.element = figureEl.findOne('figcaption');
 
@@ -583,7 +584,7 @@ export class ImageModalDialog
     }
 
     private getOriginalUrlElem(): CKEDITOR.ui.dialog.uiElement {
-        return (<any>this.getElemFromOriginalDialog('info', undefined)).getChild(0);
+        return (this.getElemFromOriginalDialog('info', undefined) as CKEDITOR.ui.dialog.hbox).getChild(0);
     }
 
     private getOriginalAltTextElem(): CKEDITOR.ui.dialog.uiElement {
@@ -595,7 +596,7 @@ export class ImageModalDialog
     }
 
     private getOriginalAlignmentElem(): CKEDITOR.ui.dialog.uiElement {
-        return (<any>this.getElemFromOriginalDialog('info', 'alignment')).getChild(0);
+        return (this.getElemFromOriginalDialog('info', 'alignment') as CKEDITOR.ui.dialog.hbox).getChild(0);
     }
 
     isDirty(): boolean {

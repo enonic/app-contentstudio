@@ -10,6 +10,7 @@ import {Content} from '../content/Content';
 import {Page} from '../page/Page';
 import {WorkflowState} from '../content/WorkflowState';
 import {Workflow} from '../content/Workflow';
+import {ContentWizardPanel} from './ContentWizardPanel';
 
 export class UpdatePersistedContentRoutine
     extends Flow {
@@ -22,7 +23,7 @@ export class UpdatePersistedContentRoutine
 
     private workflowState: WorkflowState;
 
-    constructor(thisOfProducer: any, persistedContent: Content, viewedContent: Content) {
+    constructor(thisOfProducer: ContentWizardPanel, persistedContent: Content, viewedContent: Content) {
         super(thisOfProducer);
         this.persistedContent = persistedContent;
         this.viewedContent = viewedContent;

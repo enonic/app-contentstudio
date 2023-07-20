@@ -68,7 +68,7 @@ export class ContentSummaryRequest
     send(): Q.Promise<JsonResponse<ContentQueryResultJson<ContentSummaryJson>>> {
         this.buildSearchQueryExpr();
 
-        return <any>this.request.send();
+        return this.request.send() as Q.Promise<JsonResponse<ContentQueryResultJson<ContentSummaryJson>>>;
     }
 
     sendAndParse(): Q.Promise<ContentSummary[]> {

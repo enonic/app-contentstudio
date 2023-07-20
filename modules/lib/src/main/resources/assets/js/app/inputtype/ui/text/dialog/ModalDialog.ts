@@ -62,7 +62,7 @@ export interface HtmlAreaModalDialogConfig
     extends ModalDialogConfig {
     editor: CKEDITOR.editor;
 
-    dialog?: any; // for cke backed dialogs
+    dialog?: CKEDITOR.dialog; // for cke backed dialogs
 }
 
 export abstract class ModalDialog
@@ -231,9 +231,9 @@ export abstract class ModalDialog
                 (<TextInput>formItemEl).onValueChanged(this.onValidatedFieldValueChanged.bind(this, formItem));
             }
             if (ObjectHelper.iFrameSafeInstanceOf(formItemEl, RichComboBox)) {
-                (<RichComboBox<any>>formItemEl).onOptionSelected(this.onValidatedFieldValueChanged.bind(this,
+                (<RichComboBox<unknown>>formItemEl).onOptionSelected(this.onValidatedFieldValueChanged.bind(this,
                     formItem));
-                (<RichComboBox<any>>formItemEl).onOptionDeselected(this.onValidatedFieldValueChanged.bind(this,
+                (<RichComboBox<unknown>>formItemEl).onOptionDeselected(this.onValidatedFieldValueChanged.bind(this,
                     formItem));
             }
         }

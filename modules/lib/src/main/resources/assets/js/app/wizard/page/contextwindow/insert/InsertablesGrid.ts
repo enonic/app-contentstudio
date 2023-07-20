@@ -7,6 +7,7 @@ import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {DataView} from '@enonic/lib-admin-ui/ui/grid/DataView';
 import {FontIcon} from '../../../../icon/FontIcon';
 import {Insertable} from './Insertable';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 
 export interface InsertablesGridOptions {
     draggableRows?: boolean;
@@ -32,7 +33,7 @@ export class InsertablesGrid
         });
     }
 
-    protected createOptions(): GridOptions<any> {
+    protected createOptions(): GridOptions<Insertable> {
         return new GridOptionsBuilder()
             .setHideColumnHeaders(true)
             .setRowHeight(50)
@@ -55,7 +56,7 @@ export class InsertablesGrid
         ];
     }
 
-    private buildRow(row: number, cell: number, value: any, columnDef: any, insertable: Insertable): DivEl {
+    private buildRow(row: number, cell: number, value: unknown, columnDef: Slick.Column<Insertable>, insertable: Insertable): DivEl {
         let rowEl = new DivEl();
         rowEl.getEl().setData('portal-component-type', insertable.getName());
         if (this.componentGridOptions.draggableRows) {

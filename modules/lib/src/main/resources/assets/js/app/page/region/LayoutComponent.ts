@@ -11,15 +11,17 @@ import {LayoutComponentType} from './LayoutComponentType';
 import {LayoutRegionsMerger} from './LayoutRegionsMerger';
 import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './DescriptorBasedComponent';
 import {Descriptor} from '../Descriptor';
+import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
+import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 
 export class LayoutComponent
     extends DescriptorBasedComponent {
 
     private regions: Regions;
 
-    private componentPropertyChangedEventHandler: (event: any) => void;
+    private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
 
-    private regionsChangedEventHandler: (event: any) => void;
+    private regionsChangedEventHandler: (event: BaseRegionChangedEvent) => void;
 
     constructor(builder: LayoutComponentBuilder) {
         super(builder);
@@ -29,9 +31,9 @@ export class LayoutComponent
     }
 
     private initRegionsListeners() {
-        this.componentPropertyChangedEventHandler = (event: any) => this.forwardComponentPropertyChangedEvent(event);
+        this.componentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => this.forwardComponentPropertyChangedEvent(event);
 
-        this.regionsChangedEventHandler = (event: any) => {
+        this.regionsChangedEventHandler = (event: BaseRegionChangedEvent) => {
             if (LayoutComponent.debug) {
                 console.debug('LayoutComponent[' + this.getPath().toString() + '].onChanged: ', event);
             }

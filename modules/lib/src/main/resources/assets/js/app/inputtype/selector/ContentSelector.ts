@@ -161,9 +161,9 @@ export class ContentSelector
             }
 
             let selectedContentIdsMap: {} = {};
-            this.getSelectedOptions().forEach((selectedOption: any) => {
-                if (!!selectedOption.getOption().displayValue && !!selectedOption.getOption().displayValue.getContentId()) {
-                    selectedContentIdsMap[selectedOption.getOption().displayValue.getContentId().toString()] = '';
+            this.getSelectedOptions().forEach((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
+                if (selectedOption.getOption().getDisplayValue()?.getContentId()) {
+                    selectedContentIdsMap[selectedOption.getOption().getDisplayValue().getContentId().toString()] = '';
                 }
             });
 
@@ -412,7 +412,7 @@ export class ContentSelector
 
     update(propertyArray: PropertyArray, unchangedOnly: boolean): Q.Promise<void> {
         if (ContentSelector.debug) {
-            console.log('update(' + propertyArray.toJson() + ')');
+            console.log('update(' + JSON.stringify(propertyArray.toJson()) + ')');
         }
 
         return super.update(propertyArray, unchangedOnly).then(() => {

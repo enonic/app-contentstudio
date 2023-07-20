@@ -110,7 +110,7 @@ export class MediaUploaderEl
         const name: string = this.generateUniqueName(imgSrc);
         const parent: string = this.config.params.parent;
 
-        const uploadItem = new UploadItem<Content>(<any>{name: name});
+        const uploadItem = new UploadItem<Content>({name: name});
         this.notifyFileUploadStarted([uploadItem]);
 
         new CreateMediaFromUrlRequest()
@@ -119,9 +119,9 @@ export class MediaUploaderEl
             .setUrl(imgSrc)
             .setParent(parent)
             .sendAndParse().then((content: Content) => {
-                uploadItem.setModel(<any>content);
+                uploadItem.setModel(content);
                 this.notifyFileUploaded(uploadItem);
-            }).catch((reason: any) => {
+            }).catch((reason) => {
             DefaultErrorHandler.handle(reason);
         }).done();
     }

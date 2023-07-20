@@ -21,7 +21,7 @@ export class PageTemplateAndSelectorViewer
         this.defaultPageTemplate = defaultPageTemplate;
     }
 
-    getCloneArgs(): any[] {
+    getCloneArgs(): PageTemplate[] {
         return [PageTemplateAndSelectorViewer.defaultPageTemplate];
     }
 

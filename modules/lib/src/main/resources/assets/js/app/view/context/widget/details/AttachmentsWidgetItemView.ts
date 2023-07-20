@@ -50,7 +50,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
         return Q();
     }
 
-    public layout(): Q.Promise<any> {
+    public layout(): Q.Promise<void> {
         if (AttachmentsWidgetItemView.debug) {
             console.debug('AttachmentsWidgetItemView.layout');
         }
@@ -68,7 +68,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
         });
     }
 
-    private layoutAttachments(): Q.Promise<Attachments> {
+    private layoutAttachments(): Q.Promise<void> {
         return new GetContentAttachmentsRequest(this.content.getContentId()).setContentRootPath(this.contentRootPath).sendAndParse().then(
             (attachments: Attachments) => {
 
@@ -98,8 +98,6 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
                     this.placeholder = new SpanEl('att-placeholder').setHtml(i18n('field.widget.noAttachments'));
                     this.appendChild(this.placeholder);
                 }
-
-                return attachments;
             });
     }
 

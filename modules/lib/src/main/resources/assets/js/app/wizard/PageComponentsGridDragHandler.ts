@@ -49,7 +49,7 @@ export class PageComponentsGridDragHandler
         this.contentGrid.onMouseEnter(this.handleMouseEnter);
     }
 
-    protected handleDragEnd(event: Event, data: any) {
+    protected handleDragEnd(event: Event, data: DragEventData) {
         Body.get().unMouseMove(this.handleHelperMove);
         Body.get().removeChild(DragHelper.get());
 
@@ -59,7 +59,7 @@ export class PageComponentsGridDragHandler
         super.handleDragEnd(event, data);
     }
 
-    protected handleBeforeMoveRows(event: Event, data: any): boolean {
+    protected handleBeforeMoveRows(event: Event, data: DragEventData): boolean {
         const dataList: ItemViewTreeGridWrapper[] = this.contentGrid.getCurrentData();
 
         const draggableRow: number = data.rows[0];

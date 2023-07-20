@@ -50,7 +50,7 @@ export class Style {
     }
 
     isForImage(): boolean {
-        return this.element === StyleType.IMAGE;
+        return this.element === StyleType.IMAGE.toString();
     }
 
 }

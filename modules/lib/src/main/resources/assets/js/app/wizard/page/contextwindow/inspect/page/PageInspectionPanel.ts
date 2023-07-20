@@ -154,7 +154,7 @@ class BaseInspectionHandler {
         this.configForm.setLazyRender(false);
         this.pageInspectionPanel.appendChild(this.configForm);
         this.liveEditModel.getPageModel().setIgnorePropertyChanges(true);
-        this.configForm.layout().catch((reason: any) => {
+        this.configForm.layout().catch((reason) => {
             DefaultErrorHandler.handle(reason);
         }).finally(() => {
             this.liveEditModel.getPageModel().setIgnorePropertyChanges(false);

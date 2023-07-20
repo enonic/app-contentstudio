@@ -25,7 +25,7 @@ export class SyncLayersRequest
         return super.handleTaskFinished(taskInfo);
     }
 
-    protected handleTaskFailed(taskInfo: TaskInfo): any {
+    protected handleTaskFailed(taskInfo: TaskInfo): void {
         if (this.failedHandler) {
             this.failedHandler();
         }

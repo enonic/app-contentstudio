@@ -55,7 +55,7 @@ export class ContentSummaryAndCompareStatusFetcher {
                     (compareResults: CompareContentResults) => {
                         const contents: ContentSummaryAndCompareStatus[] = this.updateCompareStatus(response.getContents(), compareResults);
 
-                        const promises: Q.Promise<any>[] = [];
+                        const promises: Q.Promise<boolean>[] = [];
                         promises.push(this.updateReadOnly(contents));
 
                         return Q.all([promises]).then(() => {
@@ -79,7 +79,7 @@ export class ContentSummaryAndCompareStatusFetcher {
                         const result: ContentSummaryAndCompareStatus = this.updateCompareStatus([content],
                             compareResults)[0];
 
-                        const promises: Q.Promise<any>[] = [];
+                        const promises: Q.Promise<boolean>[] = [];
                         promises.push(this.updateReadOnly([result], projectName));
 
                         return Q.all(promises).then(() => {
@@ -110,7 +110,7 @@ export class ContentSummaryAndCompareStatusFetcher {
                 return CompareContentRequest.fromContentSummaries(contentSummaries, null, this.contentRootPath).sendAndParse().then(
                     (compareResults: CompareContentResults) => {
                         const contents: ContentSummaryAndCompareStatus[] = this.updateCompareStatus(contentSummaries, compareResults);
-                        const promises: Q.Promise<any>[] = [];
+                        const promises: Q.Promise<boolean>[] = [];
                         promises.push(this.updateReadOnly(contents));
 
                         return Q.all(promises).then(() => {
@@ -150,7 +150,7 @@ export class ContentSummaryAndCompareStatusFetcher {
         return list;
     }
 
-    updateReadOnly(contents: ContentSummaryAndCompareStatus[], projectName?: string): Q.Promise<any> {
+    updateReadOnly(contents: ContentSummaryAndCompareStatus[], projectName?: string): Q.Promise<boolean> {
         return new IsContentReadOnlyRequest(contents.map(content => content.getContentId()))
             .setRequestProjectName(projectName)
             .setContentRootPath(this.contentRootPath)

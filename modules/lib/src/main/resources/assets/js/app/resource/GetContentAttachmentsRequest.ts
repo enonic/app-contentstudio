@@ -5,7 +5,7 @@ import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetContentAttachmentsRequest
-    extends CmsContentResourceRequest<any> {
+    extends CmsContentResourceRequest<Attachments> {
 
     private contentId: ContentId;
 

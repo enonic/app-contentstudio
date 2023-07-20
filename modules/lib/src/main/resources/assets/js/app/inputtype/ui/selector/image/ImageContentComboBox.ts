@@ -39,7 +39,7 @@ export class ImageContentComboBox
     }
 
     private updateGalleryModeColumnsNumber() {
-        const options: GridOptions<any> = this.getComboBox().getComboBoxDropdownGrid().getGrid().getOptions();
+        const options = this.getComboBox().getComboBoxDropdownGrid().getGrid().getOptions();
 
         if (options.enableGalleryMode) {
             const columnsFitInRow: number = this.getGalleryModeColumnsNumber();
@@ -98,7 +98,7 @@ export class ImageContentComboBox
     }
 
     private doToggleGridOptions(treeMode: boolean, columns: number) {
-        const grid: Grid<any> = this.getComboBox().getComboBoxDropdownGrid().getGrid();
+        const grid = this.getComboBox().getComboBoxDropdownGrid().getGrid();
         grid.toggleClass('tree-mode', treeMode);
 
         grid.getOptions().setRowHeight(treeMode ? 40 : 198)

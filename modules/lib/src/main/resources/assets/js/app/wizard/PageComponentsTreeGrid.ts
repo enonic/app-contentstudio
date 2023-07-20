@@ -153,7 +153,7 @@ export class PageComponentsTreeGrid
             return Q.resolve(itemViewWrapper);
         }
 
-        const component: DescriptorBasedComponent = (<ComponentView<any>>itemView).getComponent();
+        const component: DescriptorBasedComponent = (<ComponentView<DescriptorBasedComponent>>itemView).getComponent();
         if (!component || !component.hasDescriptor()) {
             return Q.resolve(itemViewWrapper);
         }

@@ -118,20 +118,20 @@ export class ContentTreeGrid
         });
     }
 
-    private handleGridClick(event: any) {
+    private handleGridClick(event: JQuery.EventBase) {
         const elem: ElementHelper = new ElementHelper(event.target);
         if (elem.hasClass('sort-dialog-trigger')) {
             new SortContentEvent(this.getSelectedDataList()).fire();
         }
     }
 
-    private handleGridDoubleClick(event: any, data: any) {
+    private handleGridDoubleClick(event: JQuery.EventBase, data: Slick.OnDblClickEventArgs<ContentSummaryAndCompareStatus>) {
         if (this.isActive() && this.isEditAllowed(event, data)) {
             const node: TreeNode<ContentSummaryAndCompareStatus> = this.getGrid().getDataView().getItem(data.row);
             if (!node.getData().isPendingDelete()) {
                 /*
                  * Empty node double-clicked. Additional %MAX_FETCH_SIZE%
-                 * nodes will be loaded and displayed. If the any other
+                 * nodes will be loaded and displayed. If any other
                  * node is clicked, edit event will be triggered by default.
                  */
                 this.editItem(node);
@@ -139,16 +139,12 @@ export class ContentTreeGrid
         }
     }
 
-    private isEditAllowed(event: any, data: any): boolean {
+    private isEditAllowed(event: JQuery.EventBase, data: Slick.OnDblClickEventArgs<ContentSummaryAndCompareStatus>): boolean {
         if (data?.cell === 0) {
             return false;
         }
 
-        if (event?.target?.classList?.contains('toggle')) {
-            return false;
-        }
-
-        return true;
+        return !event?.target?.classList?.contains('toggle');
     }
 
     setState(state: State) {
@@ -430,7 +426,7 @@ export class ContentTreeGrid
                     this.doSelectNodeByPath(targetNode, targetPath);
                 });
             }
-        }).catch((reason: any) => {
+        }).catch((reason) => {
             this.handleError(reason);
         }).done();
     }

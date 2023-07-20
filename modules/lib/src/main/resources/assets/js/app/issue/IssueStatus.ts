@@ -23,7 +23,7 @@ export class IssueStatusFormatter {
     }
 
     static parseStatus(value: string): IssueStatus | undefined {
-        return (<any>IssueStatus)[value];
+        return IssueStatus[value];
     }
 
     static parseStatusName(value: IssueStatus): string {
@@ -33,16 +33,8 @@ export class IssueStatusFormatter {
 
     static getStatuses(): IssueStatus[] {
         const statuses = [];
-
-        // Polyfill for browsers not supporting ES6
-        Number.isInteger = Number.isInteger || function (value: any) {
-            return typeof value === 'number' &&
-                   isFinite(value) &&
-                   Math.floor(value) === value;
-        };
-
         for (let key in IssueStatus) {
-            if (Number.isInteger(<any>IssueStatus[key]) && IssueStatus.hasOwnProperty(key)) {
+            if (Number.isInteger(IssueStatus[key]) && IssueStatus.hasOwnProperty(key)) {
                 statuses.push(IssueStatus[key]);
             }
         }

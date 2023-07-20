@@ -27,7 +27,7 @@ export class ProjectReadAccessWizardStepForm
             return Q(null);
         }
 
-        const layoutPromises: Q.Promise<any>[] = [];
+        const layoutPromises: Q.Promise<void>[] = [];
 
         layoutPromises.push(this.layoutLanguage(item.getLanguage()));
 
@@ -35,7 +35,7 @@ export class ProjectReadAccessWizardStepForm
             layoutPromises.push(this.readAccessFormItem.layoutReadAccess(item.getReadAccess(), item.getPermissions()));
         }
 
-        return Q.all(layoutPromises).spread<void>(() => Q<void>(null));
+        return Q.all(layoutPromises).spread(() => Q());
     }
 
     private layoutLanguage(language: string): Q.Promise<void> {
@@ -194,12 +194,12 @@ export class ProjectReadAccessWizardStepForm
         const newValue: string = event.getNewValue();
         const oldValue: string = event.getOldValue();
 
-        return ((oldValue === ProjectReadAccessType.PUBLIC && newValue !== ProjectReadAccessType.PUBLIC) ||
-                (oldValue !== ProjectReadAccessType.PUBLIC && newValue === ProjectReadAccessType.PUBLIC));
+        return ((oldValue === ProjectReadAccessType.PUBLIC.toString() && newValue !== ProjectReadAccessType.PUBLIC.toString()) ||
+                (oldValue !== ProjectReadAccessType.PUBLIC.toString() && newValue === ProjectReadAccessType.PUBLIC.toString()));
     }
 
     private handleAccessValueChanged(newValue: string) {
-        this.readAccessFormItem.setPrincipalComboboxEnabled(newValue === ProjectReadAccessType.CUSTOM);
+        this.readAccessFormItem.setPrincipalComboboxEnabled(newValue === ProjectReadAccessType.CUSTOM.toString());
         this.readAccessFormItem.validate(new ValidationResult(), true);
         this.notifyDataChanged();
     }

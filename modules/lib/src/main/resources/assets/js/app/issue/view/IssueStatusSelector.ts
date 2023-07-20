@@ -127,7 +127,7 @@ export class IssueStatusSelector
     private handleClickOutside() {
         const mouseClickListener: (event: MouseEvent) => void = (event: MouseEvent) => {
             if (this.isVisible()) {
-                for (let element = event.target; element; element = (<any>element).parentNode) {
+                for (let element = event.target; element; element = (element as HTMLElement).parentNode) {
                     if (element === this.getHTMLElement()) {
                         return;
                     }
