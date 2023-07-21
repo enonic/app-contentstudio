@@ -14,8 +14,6 @@ import {PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
 import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
 import {Highlighter} from '../../page-editor/Highlighter';
-import {ItemViewSelectedEvent} from '../../page-editor/ItemViewSelectedEvent';
-import {ItemViewDeselectedEvent} from '../../page-editor/ItemViewDeselectedEvent';
 import {ComponentAddedEvent} from '../../page-editor/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../../page-editor/ComponentRemovedEvent';
 import {ComponentView} from '../../page-editor/ComponentView';
@@ -39,9 +37,14 @@ import {TextComponent} from '../page/region/TextComponent';
 import {PageActionsHelper} from './PageActionsHelper';
 import {Component} from '../page/region/Component';
 import {Region} from '../page/region/Region';
+import {PageNavigationHandler} from './PageNavigationHandler';
+import {PageNavigationEvent} from './PageNavigationEvent';
+import {PageNavigationMediator} from './PageNavigationMediator';
+import {PageNavigationEventType} from './PageNavigationEventType';
+import {PageNavigationEventData} from './PageNavigationEventData';
 
 export class PageComponentsView
-    extends DivEl {
+    extends DivEl implements PageNavigationHandler {
 
     private static LOCKED_CLASS: string = 'locked';
     private static COLLAPSED_CLASS: string = 'collapsed';
@@ -88,6 +91,8 @@ export class PageComponentsView
         this.liveEditPage = liveEditPage;
 
         this.currentUserHasCreateRights = null;
+
+        PageNavigationMediator.get().addPageNavigationHandler(this);
 
         this.initElements();
 
@@ -216,24 +221,13 @@ export class PageComponentsView
     private initLiveEditEvents() {
         const eventsManager = PageEventsManager.get();
 
-        eventsManager.onItemViewSelected((event: ItemViewSelectedEvent): void => {
-            if (!event.isNewlyCreated() && !this.tree.isItemSelected(event.getPath())) {
-                this.tree.selectItemByPath(event.getPath());
-
-                if (event.getPosition()) { // scroll to item if it was selected in preview
-                    this.tree.scrollToItem(event.getPath());
-                }
-            }
-        });
-
-        eventsManager.onItemViewDeselected((event: ItemViewDeselectedEvent): void => {
-            this.tree.deselectNodes([event.getItemView().getItemId().toString()]);
-        });
-
         eventsManager.onComponentAdded((event: ComponentAddedEvent): void => {
+            /*
             this.addComponent(event).then(() => {
                 this.handleComponentAdded(event);
             });
+            */
+
         });
 
         eventsManager.onComponentRemoved((event: ComponentRemovedEvent): void => {
@@ -268,12 +262,18 @@ export class PageComponentsView
     }
 
     private addComponent(event: ComponentAddedEvent): Q.Promise<boolean> {
+        /*
         return this.tree.addComponentToParent(event.getComponentView(), event.getParentRegionView()).then(() => {
             return this.tree.expandNodeByDataId(event.getParentRegionView().getItemId().toString());
         });
+
+         */
+
+        return null;
     }
 
     private handleComponentAdded(event: ComponentAddedEvent): void {
+        /*
         if (event.getComponentView().isSelected()) {
             this.tree.selectItemByPath(event.getPath());
         }
@@ -287,6 +287,7 @@ export class PageComponentsView
                 this.tree.expandNodeByDataId(componentDataId);
             }
         }
+        */
 
         this.constrainToParent();
         this.highlightInvalidItems();
@@ -360,13 +361,15 @@ export class PageComponentsView
             const selectedItem: ComponentsTreeItem = currentSelection[0];
 
             if (selectedItem) {
-                this.liveEditPage.selectComponentByPath(selectedItem.getPath());
+                PageNavigationMediator.get().notify(
+                    new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(selectedItem.getPath())), this);
 
                 if (this.contextMenuItemPath && !this.contextMenuItemPath.equals(selectedItem.getPath())) {
                     this.hideContextMenu();
                 }
             } else { // if item was deselected by clicking in the pcv grid then need to deselect it in the live edit
-                this.liveEditPage.deselectComponentByPath();
+                PageNavigationMediator.get().notify(
+                    new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()), this);
             }
         });
 
@@ -678,7 +681,7 @@ export class PageComponentsView
         }
 
         if (component instanceof Component) {
-            return PageActionsHelper.getLayoutActions(component);
+            return PageActionsHelper.getComponentActions(component);
         }
 
         if (component instanceof Region) {
@@ -749,5 +752,19 @@ export class PageComponentsView
         this.toggleButton.setTitle(i18n('field.hideComponent'), false);
         this.constrainToParent(); // not letting PCV to overflow the page
         this.tree.getGrid().resizeCanvas();
+    }
+
+    handle(event: PageNavigationEvent): void {
+        if (event.getType() === PageNavigationEventType.SELECT) {
+            this.tree.selectItemByPath(event.getData().getPath()).then(() => {
+                this.tree.scrollToItem(event.getData().getPath());
+            }).catch(DefaultErrorHandler.handle);
+
+            return;
+        }
+
+        if (event.getType() === PageNavigationEventType.DESELECT) {
+            this.tree.deselectAll();
+        }
     }
 }

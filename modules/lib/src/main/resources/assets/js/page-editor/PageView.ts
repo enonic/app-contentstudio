@@ -427,12 +427,14 @@ export class PageView
     }
 
     select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
-        config.newlyCreated = false;
-        config.rightClicked = false;
+        if (config) {
+            config.newlyCreated = false;
+            config.rightClicked = false;
+        }
 
         super.select(config, menuPosition);
 
-        new PageSelectedEvent(this, config.rightClicked).fire();
+        new PageSelectedEvent(this, config?.rightClicked).fire();
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {

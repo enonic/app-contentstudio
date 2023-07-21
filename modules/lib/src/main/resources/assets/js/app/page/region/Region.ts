@@ -130,6 +130,23 @@ export class Region
         return component;
     }
 
+    getComponentByPath(path: ComponentPath): PageItem {
+        let result = null;
+
+        this.components.some((component: Component) => {
+            if (component.getPath().equals(path)) {
+                result = component;
+                return true;
+            }
+
+            result = component.getComponentByPath(path);
+
+            return !!result;
+        });
+
+        return result;
+    }
+
     toJson(): RegionJson {
 
         let componentJsons: ComponentTypeWrapperJson[] = [];

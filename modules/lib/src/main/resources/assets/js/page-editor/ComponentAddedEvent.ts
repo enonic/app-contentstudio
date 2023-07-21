@@ -8,27 +8,28 @@ import {ComponentPath} from '../app/page/region/ComponentPath';
 export class ComponentAddedEvent
     extends Event {
 
-    private componentView: ComponentView<Component>;
-    private parentRegionView: RegionView;
-    private dragged: boolean;
+    private readonly path: ComponentPath;
+    private readonly type: string;
+    private readonly dragged: boolean;
 
-    constructor(componentView: ComponentView<Component>, regionView: RegionView, dragged: boolean = false) {
+    constructor(path: ComponentPath, type: string, dragged: boolean = false) {
         super();
-        this.componentView = componentView;
-        this.parentRegionView = regionView;
+
+        this.path = path;
+        this.type = type;
         this.dragged = dragged;
     }
 
     getPath(): ComponentPath {
-        return this.componentView.getPath();
+        return this.path;
     }
 
-    getComponentView(): ComponentView<Component> {
-        return this.componentView;
+    getPathAsString(): string {
+        return this.path.toString();
     }
 
-    getParentRegionView(): RegionView {
-        return this.parentRegionView;
+    getType(): string {
+        return this.type;
     }
 
     isDragged(): boolean {

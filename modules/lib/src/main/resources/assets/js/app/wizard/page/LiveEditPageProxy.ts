@@ -66,8 +66,17 @@ import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {SaveAsTemplateEvent} from '../../../page-editor/SaveAsTemplateEvent';
 import {TextComponentView} from '../../../page-editor/text/TextComponentView';
 import {FragmentLoadErrorEvent} from '../../../page-editor/FragmentLoadErrorEvent';
+import {PageNavigationHandler} from '../PageNavigationHandler';
+import {PageNavigationEvent} from '../PageNavigationEvent';
+import {PageNavigationMediator} from '../PageNavigationMediator';
+import {PageNavigationEventType} from '../PageNavigationEventType';
+import {PageNavigationEventData} from '../PageNavigationEventData';
+import {HtmlEditorCursorPosition} from '../../inputtype/ui/text/HtmlEditor';
+import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
+import {ItemViewContextMenuPosition} from '../../../page-editor/ItemViewContextMenuPosition';
 
-export class LiveEditPageProxy {
+// This class is responsible for communication between the live edit iframe and the main iframe
+export class LiveEditPageProxy implements PageNavigationHandler {
 
     private liveEditModel?: LiveEditModel;
 
@@ -81,6 +90,8 @@ export class LiveEditPageProxy {
 
     private livejq: JQueryStatic;
 
+    private textEditorCursorPos: HtmlEditorCursorPosition;
+
     private dragMask: DragMask;
 
     private static debug: boolean = false;
@@ -90,11 +101,20 @@ export class LiveEditPageProxy {
     constructor(contentId: ContentId) {
         this.contentId = contentId;
 
+        this.initListeners();
+    }
+
+    private initListeners(): void {
+        PageNavigationMediator.get().addPageNavigationHandler(this);
+
         PageEventsManager.get().onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
             if (LiveEditPageProxy.debug) {
                 console.debug('LiveEditPageProxy.onLiveEditPageViewReady at ' + new Date().toISOString());
             }
+
             this.pageView = event.getPageView();
+
+            restoreSelection();
 
             if (ObjectHelper.isDefined(this.modifyPermissions)) {
                 this.pageView.setModifyPermissions(this.modifyPermissions);
@@ -115,6 +135,54 @@ export class LiveEditPageProxy {
                 this.updateLiveEditFrameContainerHeight(event.getDevice().getHeight());
             }
         });
+
+        let path: ComponentPath;
+
+        BeforeContentSavedEvent.on(() => {
+            path = null;
+            this.textEditorCursorPos = null;
+
+            if (!this.pageView) {
+                return;
+            }
+            const selected: ItemView = this.pageView.getSelectedView();
+
+            if (ObjectHelper.iFrameSafeInstanceOf(selected, ComponentView)) {
+                path = (<ComponentView<any>>selected).getComponentPath();
+
+                if (this.pageView.isTextEditMode() && ObjectHelper.iFrameSafeInstanceOf(selected, TextComponentView)) {
+                    this.textEditorCursorPos = (<TextComponentView>selected).getCursorPosition();
+                }
+            } else if (ObjectHelper.iFrameSafeInstanceOf(selected, RegionView)) {
+                path = (<RegionView>selected).getPath();
+            }
+        });
+
+        const restoreSelection = () => {
+            if (path) {
+                const selected = this.pageView.getComponentViewByPath(path);
+
+                if (selected) {
+                    selected.selectWithoutMenu(true);
+                    selected.scrollComponentIntoView();
+
+                    if (this.textEditorCursorPos && ObjectHelper.iFrameSafeInstanceOf(selected, TextComponentView)) {
+                        this.setCursorPositionInTextComponent(<TextComponentView>selected, this.textEditorCursorPos);
+                        this.textEditorCursorPos = null;
+                    }
+                }
+            }
+        };
+    }
+
+    private setCursorPositionInTextComponent(textComponentView: TextComponentView, cursorPosition: HtmlEditorCursorPosition): void {
+        this.pageView.appendContainerForTextToolbar();
+        textComponentView.startPageTextEditMode();
+        $(textComponentView.getHTMLElement()).simulate('click');
+
+        textComponentView.onEditorReady(() =>
+            setTimeout(() => textComponentView.setCursorPosition(cursorPosition), 100)
+        );
     }
 
     private createLiveEditIFrame(): IFrameEl {
@@ -372,36 +440,12 @@ export class LiveEditPageProxy {
         PageEventsManager.get().notifyLoaded();
     }
 
-    selectComponentByPath(path: ComponentPath): void {
-        if (!path) {
-            return;
-        }
-
-        const itemView = this.getItemViewByPath(path);
-
-        if (itemView && !itemView.isSelected()) {
-            itemView.selectWithoutMenu();
-        }
-    }
-
     private getItemViewByPath(path: ComponentPath): ItemView {
         if (!path) {
             return;
         }
 
         return this.pageView?.getPath().equals(path) ? this.pageView : this.pageView?.getComponentViewByPath(path);
-    }
-
-    deselectComponentByPath(path?: ComponentPath): void {
-        if (path) {
-            const itemView = this.getItemViewByPath(path);
-
-            if (itemView && !itemView.isSelected()) {
-                itemView.deselect();
-            }
-        } else {
-            this.pageView.getSelectedView()?.deselect(true);
-        }
     }
 
     editTextComponentByPath(path: ComponentPath): void {
@@ -587,11 +631,16 @@ export class LiveEditPageProxy {
         }, contextWindow);
 
         ItemViewSelectedEvent.on((event: ItemViewSelectedEvent) => {
-            eventsManager.notifyItemViewSelected(event);
+            const pathAsString: string = event.getComponentPathAsString();
+            const path: ComponentPath = ComponentPath.fromString(pathAsString);
+
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)), this);
         }, contextWindow);
 
-        ItemViewDeselectedEvent.on((event: ItemViewDeselectedEvent) => {
-            eventsManager.notifyItemViewDeselected(event);
+        ItemViewDeselectedEvent.on(() => {
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()), this);
         }, contextWindow);
 
         ComponentAddedEvent.on((event: ComponentAddedEvent) => {
@@ -607,7 +656,11 @@ export class LiveEditPageProxy {
         }, contextWindow);
 
         ComponentInspectedEvent.on((event: ComponentInspectedEvent) => {
-            eventsManager.notifyComponentInspected(event);
+            const pathAsString: string = event.getComponentPathAsString();
+            const path: ComponentPath = ComponentPath.fromString(pathAsString);
+
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(path)));
         }, contextWindow);
 
         PageInspectedEvent.on(() => {
@@ -696,4 +749,39 @@ export class LiveEditPageProxy {
         });
     }
 
+    handle(event: PageNavigationEvent): void {
+        if (event.getType() === PageNavigationEventType.SELECT) {
+            this.selectComponentByPath(event.getData().getPath());
+            return;
+        }
+
+        if (event.getType() === PageNavigationEventType.DESELECT) {
+            this.deselectComponentByPath(event.getData().getPath());
+            return;
+        }
+    }
+
+    private selectComponentByPath(path: ComponentPath): void {
+        if (!path) {
+            return;
+        }
+
+        const itemView = this.getItemViewByPath(path);
+
+        if (itemView && !itemView.isSelected()) {
+            itemView.select(null, ItemViewContextMenuPosition.NONE);
+        }
+    }
+
+    private deselectComponentByPath(path?: ComponentPath): void {
+        if (path) {
+            const itemView = this.getItemViewByPath(path);
+
+            if (itemView && !itemView.isSelected()) {
+                itemView.deselect(true);
+            }
+        } else {
+            this.pageView.getSelectedView()?.deselect(true);
+        }
+    }
 }

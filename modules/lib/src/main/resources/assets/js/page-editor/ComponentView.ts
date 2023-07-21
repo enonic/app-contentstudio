@@ -218,7 +218,7 @@ export class ComponentView<COMPONENT extends Component>
 
         if (inspectActionRequired) {
             actions.push(new Action(i18n('live.view.inspect')).onExecuted(() => {
-                new ComponentInspectedEvent(this).fire();
+                new ComponentInspectedEvent(this.getComponentPath()).fire();
             }));
         }
 

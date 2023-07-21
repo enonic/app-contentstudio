@@ -64,10 +64,6 @@ export class ImageInspectionPanel
         this.appendChild(this.imageSelectorForm);
     }
 
-    setImageComponentView(imageView: ImageComponentView) {
-        (/*<any>*/this.imageSelector.getLoader()).setContent(imageView.getLiveEditModel().getContent());
-    }
-
     setImageComponent(component: ImageComponent) {
         this.unregisterComponentListeners();
 

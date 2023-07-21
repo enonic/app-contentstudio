@@ -4,13 +4,8 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PageEventsManager} from './PageEventsManager';
 import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
 import {LayoutComponent} from '../page/region/LayoutComponent';
-import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
 import {FragmentComponent} from '../page/region/FragmentComponent';
 import {ComponentItem} from '../../page-editor/TreeComponent';
-import {PartItemType} from '../../page-editor/part/PartItemType';
-import {LayoutItemType} from '../../page-editor/layout/LayoutItemType';
-import {TextItemType} from '../../page-editor/text/TextItemType';
-import {ItemType} from '../../page-editor/ItemType';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {Component} from '../page/region/Component';
 import {Region} from '../page/region/Region';
@@ -21,6 +16,11 @@ import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {TextComponentType} from '../page/region/TextComponentType';
 import {FragmentComponentType} from '../page/region/FragmentComponentType';
 import {ComponentPath} from '../page/region/ComponentPath';
+import {PageNavigationMediator} from './PageNavigationMediator';
+import {PageNavigationEvent} from './PageNavigationEvent';
+import {PageNavigationEventType} from './PageNavigationEventType';
+import {PageNavigationEventData} from './PageNavigationEventData';
+import {ContentUrlHelper} from '../util/ContentUrlHelper';
 
 export class PageActionsHelper {
 
@@ -40,7 +40,7 @@ export class PageActionsHelper {
         return [inspectAction, resetAction, saveAsTemplateAction];
     }
 
-    static getLayoutActions(component: Component): Action[] {
+    static getComponentActions(component: Component): Action[] {
         const actions: Action[] = [];
 
         if (component.getParent()) {
@@ -49,7 +49,8 @@ export class PageActionsHelper {
         }
 
         actions.push(new Action(i18n('action.component.inspect')).onExecuted(() => {
-            PageEventsManager.get().notifyComponentInspectRequested(component);
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(component.getPath())));
         }));
 
         actions.push(new Action(i18n('action.component.reset')).onExecuted(() => {
@@ -71,6 +72,10 @@ export class PageActionsHelper {
                 actions.push(new Action(i18n('action.component.detach.fragment')).onExecuted(() => {
                     PageEventsManager.get().notifyComponentDetachFragmentRequested(component.getPath());
                 }));
+
+                actions.push(new Action(i18n('action.edit')).onExecuted(() => {
+                    ContentUrlHelper.openEditContentTab(component.getFragment());
+                }));
             }
         } else {
             if (PageActionsHelper.isCreateFragmentAllowed(component)) {
@@ -83,12 +88,13 @@ export class PageActionsHelper {
         return actions;
     }
 
-    private static createSelectParentAction(item: ComponentItem): Action {
+    private static createSelectParentAction(component: ComponentItem): Action {
         const action = new Action(i18n('action.component.select.parent'));
 
         action.setSortOrder(0);
         action.onExecuted(() => {
-            PageEventsManager.get().notifyComponentSelectRequested(item.getPath().getParentPath());
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(component.getParent().getPath())));
         });
 
         return action;

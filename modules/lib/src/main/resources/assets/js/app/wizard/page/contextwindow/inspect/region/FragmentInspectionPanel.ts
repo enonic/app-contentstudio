@@ -26,11 +26,11 @@ import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
 import {ContentPath} from '../../../../../content/ContentPath';
 import {ComponentPropertyChangedEventHandler} from '../../../../../page/region/Component';
+import {PageItem} from '../../../../../page/region/PageItem';
+import {LayoutComponent} from '../../../../../page/region/LayoutComponent';
 
 export class FragmentInspectionPanel
     extends ComponentInspectionPanel<FragmentComponent> {
-
-    private fragmentView: FragmentComponentView;
 
     private fragmentSelector: FragmentDropdown;
 
@@ -161,10 +161,6 @@ export class FragmentInspectionPanel
         }
     }
 
-    setFragmentComponentView(fragmentView: FragmentComponentView) {
-        this.fragmentView = fragmentView;
-    }
-
     setFragmentComponent(fragment: FragmentComponent) {
         this.unregisterComponentListeners();
 
@@ -247,15 +243,18 @@ export class FragmentInspectionPanel
     }
 
     private isInsideLayout(): boolean {
-        let parentRegion = this.fragmentView.getParentItemView();
+        const parentRegion = this.component.getParent();
         if (!parentRegion) {
             return false;
         }
-        let parent = parentRegion.getParentItemView();
+
+        const parent: PageItem = parentRegion.getParent();
+
         if (!parent) {
             return false;
         }
-        return ObjectHelper.iFrameSafeInstanceOf(parent.getType(), LayoutItemType);
+
+        return parent instanceof LayoutComponent;
     }
 
     cleanUp() {
