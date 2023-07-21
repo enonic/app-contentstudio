@@ -12,7 +12,6 @@ const xpath = {
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependantsDiv: "//div[@class='dependants']",
-    contentComboboxDiv: "//div[contains(@id,'ContentComboBox')]",
     editEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'edit-entry')]",
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     selectionItemByDisplayName:
@@ -28,7 +27,7 @@ const xpath = {
 class IssueDetailsDialogItemsTab extends Page {
 
     get dropdownHandle() {
-        return xpath.container + xpath.contentComboboxDiv + lib.DROP_DOWN_HANDLE;
+        return xpath.container + lib.CONTENT_COMBOBOX + lib.DROP_DOWN_HANDLE;
     }
 
     get applySelectionButton() {
@@ -141,7 +140,7 @@ class IssueDetailsDialogItemsTab extends Page {
 
     async clickOnCheckboxInDropdown(index) {
         let loaderComboBox = new LoaderComboBox();
-        await loaderComboBox.clickOnCheckboxInDropdown(index, xpath.contentComboboxDiv);
+        await loaderComboBox.clickOnCheckboxInDropdown(index, lib.CONTENT_COMBOBOX);
     }
 
     async clickOnApplyButtonInCombobox() {

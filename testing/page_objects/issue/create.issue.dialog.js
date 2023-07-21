@@ -10,11 +10,12 @@ const XPATH = {
     container: `//div[contains(@id,'CreateIssueDialog')]`,
     dialogTitle: "//div[contains(@id,'DefaultModalDialogHeader') and child::h2[@class='title']]",
     createIssueButton: `//button[contains(@class,'dialog-button') and child::span[contains(.,'Create Issue')]]`,
-    cancelButton: `//button[contains(@class,'button-bottom')]`,
     titleFormItem: "//div[contains(@id,'FormItem') and child::label[text()='Title']]",
     addItemsButton: "//button[contains(@id,'button') and child::span[text()='Add items']]",
-    itemsComboBox: `//div[contains(@id,'LoaderComboBox') and @name='contentSelector']`,
+    assigneesComboboxDiv: "//div[contains(@id,'PrincipalComboBox')]",
     assigneesComboBox: `//div[contains(@id,'LoaderComboBox') and @name='principalSelector']`,
+    dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
+    dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     selectionItemByDisplayName:
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::span[contains(@class,'display-name') and text()='${text}']]`,
 };
@@ -25,8 +26,8 @@ class CreateIssueDialog extends Page {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
 
-    get cancelBottomButton() {
-        return XPATH.container + XPATH.cancelButton;
+    get cancelButton() {
+        return XPATH.container + lib.dialogButton('Cancel');
     }
 
     get titleInputValidationMessage() {
@@ -42,7 +43,7 @@ class CreateIssueDialog extends Page {
     }
 
     get itemsOptionFilterInput() {
-        return XPATH.container + XPATH.itemsComboBox + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container + lib.CONTENT_COMBOBOX + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
     get assigneesOptionFilterInput() {
@@ -59,6 +60,14 @@ class CreateIssueDialog extends Page {
 
     getDialogTitle() {
         return this.getText(XPATH.container + XPATH.dialogTitle);
+    }
+
+    get showExcludedItemsButton() {
+        return XPATH.container + lib.togglerButton('Show excluded');
+    }
+
+    get hideExcludedItemsButton() {
+        return XPATH.container + lib.togglerButton('Hide excluded');
     }
 
     async clickOnCreateIssueButton() {
@@ -80,13 +89,14 @@ class CreateIssueDialog extends Page {
         });
     }
 
-    clickOnCancelBottomButton() {
-        return this.clickOnElement(this.cancelBottomButton).then(() => {
-            return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
-        }).catch(err => {
-            this.saveScreenshot('err_close_issue_dialog');
-            throw new Error('Create Issue dialog must be closed! ' + err);
-        })
+    async clickOnCancelButton() {
+        try {
+            await this.clickOnElement(this.cancelButton);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot('err_close_issue_dialog');
+            throw new Error('Create Issue dialog, Error during Clicking on Cancel button, ' + err);
+        }
     }
 
     async clickOnIncludeChildrenToggler(contentName) {
@@ -117,8 +127,9 @@ class CreateIssueDialog extends Page {
         return this.clickOnElement(this.cancelTopButton);
     }
 
-    waitForDialogLoaded() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+    async waitForDialogLoaded() {
+        await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+        await this.pause(1000);
     }
 
     waitForDialogClosed() {
@@ -142,7 +153,7 @@ class CreateIssueDialog extends Page {
     }
 
     isCancelButtonBottomDisplayed() {
-        return this.isElementDisplayed(this.cancelBottomButton);
+        return this.isElementDisplayed(this.cancelButton);
     }
 
     isAddItemsButtonDisplayed() {
@@ -164,10 +175,95 @@ class CreateIssueDialog extends Page {
     async selectUserInAssignees(userName) {
         try {
             let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(userName, XPATH.container);
+            return await loaderComboBox.typeTextAndSelectOption(userName, XPATH.assigneesComboboxDiv);
         } catch (err) {
             throw new Error("Create issue Dialog  " + err);
         }
+    }
+
+    async selectItemsInContentCombobox(contentName) {
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            return await loaderComboBox.typeTextAndSelectOption(contentName, lib.CONTENT_COMBOBOX);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_items_combo');
+            throw new Error("Create issue Dialog, items combobox, screenshot:  " + screenshot + ' ' + err);
+        }
+    }
+
+    async clickOnShowExcludedItemsButton() {
+        try {
+            await this.waitForShowExcludedItemsButtonDisplayed();
+            await this.clickOnElement(this.showExcludedItemsButton);
+            await this.pause(400);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Create Issue dialog, Show Excluded button, screenshot  ' + screenshot + ' ' + err);
+        }
+    }
+
+    async waitForShowExcludedItemsButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`Create Issue, 'Show excluded button' should be visible! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
+    async waitForShowExcludedItemsButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_show_excluded_should_be_hidden');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async clickOnHideExcludedItemsButton() {
+        try {
+            await this.waitForHideExcludedItemsButtonDisplayed();
+            await this.clickOnElement(this.hideExcludedItemsButton);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Create issue dialog, Hide Excluded button, screenshot  ' + screenshot + ' ' + err);
+        }
+    }
+
+    async waitForHideExcludedItemsButtonNotDisplayed() {
+        try {
+            return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
+    async getDisplayNameInDependentItems() {
+        let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
+        return await this.getTextInElements(locator);
+    }
+
+    async isDependantCheckboxSelected(displayName) {
+        let checkBoxInputLocator = XPATH.container + XPATH.dependentItemToPublish(displayName) + lib.CHECKBOX_INPUT;
+        await this.waitForElementDisplayed(XPATH.container + XPATH.dependentItemToPublish(displayName), appConst.mediumTimeout);
+        return await this.isSelected(checkBoxInputLocator);
+    }
+
+    async waitForDependenciesListDisplayed() {
+        let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+        return await this.waitForElementDisplayed(locator);
+    }
+
+    async waitForDependenciesListNotDisplayed() {
+        let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+        return await this.waitForElementNotDisplayed(locator);
     }
 }
 
