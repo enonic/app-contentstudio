@@ -85,6 +85,8 @@ export class PageComponentsView
 
     private modifyPermissions: boolean = false;
 
+    private lastSelectedPath: ComponentPath;
+
     constructor(liveEditPage: LiveEditPageProxy) {
         super('page-components-view');
 
@@ -361,8 +363,10 @@ export class PageComponentsView
             const selectedItem: ComponentsTreeItem = currentSelection[0];
 
             if (selectedItem) {
-                PageNavigationMediator.get().notify(
-                    new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(selectedItem.getPath())), this);
+                if (!this.lastSelectedPath) { // not spawning event if item was selected as a result of the same event
+                    PageNavigationMediator.get().notify(
+                        new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(selectedItem.getPath())), this);
+                }
 
                 if (this.contextMenuItemPath && !this.contextMenuItemPath.equals(selectedItem.getPath())) {
                     this.hideContextMenu();
@@ -371,6 +375,8 @@ export class PageComponentsView
                 PageNavigationMediator.get().notify(
                     new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()), this);
             }
+
+            this.lastSelectedPath = null;
         });
 
         this.tree.getGrid().subscribeOnContextMenu((event): void => {
@@ -756,6 +762,8 @@ export class PageComponentsView
 
     handle(event: PageNavigationEvent): void {
         if (event.getType() === PageNavigationEventType.SELECT) {
+            this.lastSelectedPath = event.getData().getPath();
+
             this.tree.selectItemByPath(event.getData().getPath()).then(() => {
                 this.tree.scrollToItem(event.getData().getPath());
             }).catch(DefaultErrorHandler.handle);

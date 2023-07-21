@@ -821,13 +821,13 @@ export abstract class ItemView
         return this.getEl().hasAttribute('data-live-edit-selected');
     }
 
-    select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
+    select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition, silent?: boolean) {
 
         Highlighter.get().hide();
         this.selectItem();
         this.showContextMenu(config?.position, menuPosition);
 
-        if (config) {
+        if (!silent && config) {
             new ItemViewSelectedEvent(config).fire();
         }
     }

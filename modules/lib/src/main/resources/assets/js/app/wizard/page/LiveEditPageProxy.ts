@@ -751,7 +751,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
     handle(event: PageNavigationEvent): void {
         if (event.getType() === PageNavigationEventType.SELECT) {
-            this.selectComponentByPath(event.getData().getPath());
+            this.selectComponentByPath(event.getData().getPath(), true);
             return;
         }
 
@@ -761,7 +761,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         }
     }
 
-    private selectComponentByPath(path: ComponentPath): void {
+    private selectComponentByPath(path: ComponentPath, silent?: boolean): void {
         if (!path) {
             return;
         }
@@ -769,7 +769,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         const itemView = this.getItemViewByPath(path);
 
         if (itemView && !itemView.isSelected()) {
-            itemView.select(null, ItemViewContextMenuPosition.NONE);
+            itemView.select(null, ItemViewContextMenuPosition.NONE, silent);
         }
     }
 
