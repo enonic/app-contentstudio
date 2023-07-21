@@ -158,7 +158,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.clickOnExcludeItemsInProgressButton();
             // 5. 'Show Excluded' button should be visible:
             await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
-            await contentPublishDialog.clickOnShowExcludedButtonItems();
+            await contentPublishDialog.clickOnShowExcludedItemsButton();
             // 6. The number of dependant items should be increased:
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 3, 'Three dependent items should be displayed');

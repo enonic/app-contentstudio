@@ -122,7 +122,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
             await contentPublishDialog.clickOnApplySelectionButton();
             // 3. Click on 'Show excluded' and select the checkbox for 'work in progress' item
-            await contentPublishDialog.clickOnShowExcludedButtonItems();
+            await contentPublishDialog.clickOnShowExcludedItemsButton();
             await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
             // 4. Click on 'Apply selection':
             await contentPublishDialog.waitForPublishNowButtonDisabled();
