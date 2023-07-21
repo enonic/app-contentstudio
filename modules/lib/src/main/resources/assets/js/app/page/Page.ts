@@ -230,35 +230,21 @@ export class Page
         return counter;
     }
 
-    findComponentByPath(componentPath: ComponentPath, regions?: Region[]): Component {
-        if (componentPath == null) {
-            return null;
-        }
+    getComponentByPath(path: ComponentPath, regions?: Region[]): PageItem {
+        let result = null;
 
-        const regionsList = regions != null ? regions : this.getRegions().getRegions();
-
-        for (let i = 0; i < regionsList.length; i++) {
-            const regionPath = `${regionsList[i].getPath().toString()}/`;
-            if (componentPath.toString().indexOf(regionPath) !== 0) {
-                continue;
+        this.regions.getRegions().some((region: Region) => {
+            if (region.getPath().equals(path)) {
+                result = region;
+                return true;
             }
 
-            const components = regionsList[i].getComponents();
-            for (let j = 0; j < components.length; j++) {
-                const component = components[j];
-                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), ComponentType)) {
-                    if ((component).getPath().equals(componentPath)) {
-                        return component;
-                    }
-                }
-                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), LayoutComponentType)) {
-                    const layout = <LayoutComponent>component;
-                    return this.findComponentByPath(componentPath, layout.getRegions().getRegions());
-                }
-            }
-        }
+            result = region.getComponentByPath(path);
 
-        return null;
+            return !!result;
+        });
+
+        return result;
     }
 
     getParent(): PageItem {

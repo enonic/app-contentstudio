@@ -2566,7 +2566,7 @@ export class ContentWizardPanel
                 this.onPageChanged(listener);
             }
 
-            this.getLivePanel().onPageViewReady(() => {
+            PageEventsManager.get().onLiveEditPageViewReady(() => {
                 this.checkIfRenderable().then(() => {
                     this.onPageChanged(listener);
                 });

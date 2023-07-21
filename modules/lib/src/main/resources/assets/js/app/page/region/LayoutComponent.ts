@@ -1,16 +1,15 @@
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Regions} from './Regions';
 import {Region} from './Region';
-import {ComponentPath, ComponentPathRegionAndComponent} from './ComponentPath';
-import {Component} from './Component';
+import {ComponentPath} from './ComponentPath';
 import {LayoutComponentJson} from './LayoutComponentJson';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {LayoutComponentType} from './LayoutComponentType';
 import {LayoutRegionsMerger} from './LayoutRegionsMerger';
 import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './DescriptorBasedComponent';
 import {Descriptor} from '../Descriptor';
+import {PageItem} from './PageItem';
 
 export class LayoutComponent
     extends DescriptorBasedComponent {
@@ -106,6 +105,23 @@ export class LayoutComponent
         }
 
         return super.equals(o);
+    }
+
+    getComponentByPath(path: ComponentPath): PageItem {
+        let result = null;
+
+        this.regions.getRegions().some((region: Region) => {
+            if (region.getPath().equals(path)) {
+                result = region;
+                return true;
+            }
+
+            result = region.getComponentByPath(path);
+
+            return !!result;
+        });
+
+        return result;
     }
 
     clone(): LayoutComponent {

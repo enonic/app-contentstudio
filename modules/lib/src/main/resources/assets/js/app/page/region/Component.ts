@@ -9,11 +9,9 @@ import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
 import {ComponentPropertyValueChangedEvent} from './ComponentPropertyValueChangedEvent';
 import {ComponentResetEvent} from './ComponentResetEvent';
 import {ComponentType} from './ComponentType';
-import {ComponentPath, ComponentPathRegionAndComponent} from './ComponentPath';
+import {ComponentPath} from './ComponentPath';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ComponentJson} from './ComponentJson';
-import {RegionPath} from './RegionPath';
-import {assert, assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {PageItem} from './PageItem';
 
 export type ComponentPropertyChangedEventHandler =  (event: ComponentPropertyChangedEvent) => void;
@@ -136,6 +134,10 @@ export abstract class Component
         }
 
         return true;
+    }
+
+    getComponentByPath(path: ComponentPath): PageItem {
+        return null;
     }
 
     clone(): Component {

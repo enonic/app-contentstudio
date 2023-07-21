@@ -24,7 +24,7 @@ export class ComponentPath
         return this.parentPath;
     }
 
-    public toString(): string {
+    toString(): string {
         if (this.isRoot()) {
             return this.path.toString();
         }
@@ -50,36 +50,25 @@ export class ComponentPath
         return !this.parentPath && this.path === ComponentPath.DIVIDER;
     }
 
-    public static root(): ComponentPath {
+    static root(): ComponentPath {
         return new ComponentPath(ComponentPath.DIVIDER);
     }
-}
 
-export class ComponentPathRegionAndComponent {
+    static fromString(path: string): ComponentPath {
+        if (StringHelper.isBlank(path)) {
+            return ComponentPath.root();
+        }
 
-    private static DIVIDER: string = '/';
+        const pathParts = path.split(ComponentPath.DIVIDER);
 
-    private regionName: string;
+        let parentPath: ComponentPath | undefined = undefined;
+        let pathPart: string | number = pathParts[0] || ComponentPath.DIVIDER
 
-    private componentIndex: number;
+        for (let i = 1; i < pathParts.length; i++) {
+            parentPath = new ComponentPath(pathPart, parentPath);
+            pathPart = pathParts[i];
+        }
 
-    private refString: string;
-
-    constructor(regionName: string, componentIndex: number) {
-        this.regionName = regionName;
-        this.componentIndex = componentIndex;
-        this.refString = regionName + ComponentPathRegionAndComponent.DIVIDER + this.componentIndex;
-    }
-
-    getRegionName(): string {
-        return this.regionName;
-    }
-
-    getComponentIndex(): number {
-        return this.componentIndex;
-    }
-
-    toString(): string {
-        return this.refString;
+        return new ComponentPath(pathPart, parentPath);
     }
 }

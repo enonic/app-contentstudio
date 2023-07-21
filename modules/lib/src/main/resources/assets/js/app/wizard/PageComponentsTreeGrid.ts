@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {PageComponentsGridDragHandler} from './PageComponentsGridDragHandler';
-import {ItemView} from '../../page-editor/ItemView';
 import {RegionView} from '../../page-editor/RegionView';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
@@ -186,7 +185,7 @@ export class PageComponentsTreeGrid
         }
 
         if (ObjectHelper.iFrameSafeInstanceOf(component, Region)) {
-            return this.fetchRegionItems(<Region>component, parentNode.getData().getItemView() as RegionView);
+            return this.fetchRegionItems(<Region>component);
         }
 
         if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
@@ -209,20 +208,19 @@ export class PageComponentsTreeGrid
         return new ComponentsTreeItem(fullComponent, null);
     }
 
-    private fetchRegionItems(region: Region, regionView?: RegionView): Q.Promise<ComponentsTreeItem[]> {
+    private fetchRegionItems(region: Region): Q.Promise<ComponentsTreeItem[]> {
         const promises: Q.Promise<ComponentsTreeItem>[] = [];
 
         region.getComponents().forEach((component: Component) => {
-           promises.push(this.fetchTreeItem(component, regionView));
+           promises.push(this.fetchTreeItem(component));
         });
 
         return Q.all(promises);
     }
 
-    private fetchTreeItem(component: Component, parentRegionView?: RegionView): Q.Promise<ComponentsTreeItem> {
+    private fetchTreeItem(component: Component): Q.Promise<ComponentsTreeItem> {
         return this.fetchComponentItem(component).then((fullComponent: TreeComponent) => {
-            const itemView: ItemView = parentRegionView?.getComponentViewByPath(component.getPath());
-            return new ComponentsTreeItem(fullComponent, itemView);
+            return new ComponentsTreeItem(fullComponent);
         });
     }
 
@@ -305,7 +303,6 @@ export class PageComponentsTreeGrid
             return;
         }
 
-        debugger;
         return this.fetchComponentItem(componentView.getComponent()).then((fullComponent: TreeComponent) => {
             const item: ComponentsTreeItem = new ComponentsTreeItem(fullComponent, componentView);
             this.insertDataToParentNode(item, parentNode, index);
@@ -426,15 +423,15 @@ export class PageComponentsTreeGrid
         super.deleteNode(node);
     }
 
-    selectItemByPath(path: ComponentPath): void {
-        this.expandRecursivelyFromTopToView(path.getParentPath()).then(() => {
+    selectItemByPath(path: ComponentPath): Q.Promise<void> {
+        return this.expandRecursivelyFromTopToView(path.getParentPath()).then(() => {
             if (!this.isItemSelected(path)) { // if not already selected
                 const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
                 if (node) {
                     this.selectRow(this.getRowByNodeId(node.getId()));
                 }
             }
-        }).catch(DefaultErrorHandler.handle);
+        });
     }
 
     private expandRecursivelyFromTopToNode(node?: TreeNode<ComponentsTreeItem>): Q.Promise<boolean> {

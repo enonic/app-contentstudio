@@ -36,22 +36,15 @@ import {LayoutComponentView} from '../../../page-editor/layout/LayoutComponentVi
 import {RegionView} from '../../../page-editor/RegionView';
 import {PageSelectedEvent} from '../../../page-editor/PageSelectedEvent';
 import {RegionSelectedEvent} from '../../../page-editor/RegionSelectedEvent';
-import {ItemViewSelectedEvent} from '../../../page-editor/ItemViewSelectedEvent';
-import {ItemViewDeselectedEvent} from '../../../page-editor/ItemViewDeselectedEvent';
-import {TextComponentView} from '../../../page-editor/text/TextComponentView';
 import {ComponentRemovedEvent} from '../../../page-editor/ComponentRemovedEvent';
 import {ComponentViewDragDroppedEvent} from '../../../page-editor/ComponentViewDragDroppedEventEvent';
 import {ComponentDuplicatedEvent} from '../../../page-editor/ComponentDuplicatedEvent';
-import {ComponentInspectedEvent} from '../../../page-editor/ComponentInspectedEvent';
-import {PageInspectedEvent} from '../../../page-editor/PageInspectedEvent';
 import {ComponentFragmentCreatedEvent} from '../../../page-editor/ComponentFragmentCreatedEvent';
 import {FragmentComponentView} from '../../../page-editor/fragment/FragmentComponentView';
-import {FragmentComponentReloadRequiredEvent} from '../../../page-editor/FragmentComponentReloadRequiredEvent';
 import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEditEvent';
 import {ImageComponentView} from '../../../page-editor/image/ImageComponentView';
 import {PageModel} from '../../../page-editor/PageModel';
 import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/ComponentDetachedFromFragmentEvent';
-import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
 import {HTMLAreaDialogHandler} from '../../inputtype/ui/text/dialog/HTMLAreaDialogHandler';
 import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {UriHelper} from '../../rendering/UriHelper';
@@ -73,21 +66,16 @@ import {ImageComponent} from '../../page/region/ImageComponent';
 import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {PageMode} from '../../page/PageMode';
-import {RegionPath} from '../../page/region/RegionPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentIds} from '../../content/ContentIds';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {BrEl} from '@enonic/lib-admin-ui/dom/BrEl';
 import {ContentId} from '../../content/ContentId';
-import {ItemView} from '../../../page-editor/ItemView';
-import {HtmlEditorCursorPosition} from '../../inputtype/ui/text/HtmlEditor';
-import * as $ from 'jquery';
 import {InspectEvent} from '../../event/InspectEvent';
 import {ContextSplitPanel} from '../../view/context/ContextSplitPanel';
 import {ContextPanelStateEvent} from '../../view/context/ContextPanelStateEvent';
@@ -101,6 +89,12 @@ import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 import {GetComponentDescriptorsRequest} from '../../resource/GetComponentDescriptorsRequest';
 import {PageComponentType} from '../../page/region/PageComponentType';
 import {PageEventsManager} from '../PageEventsManager';
+import {PageNavigationHandler} from '../PageNavigationHandler';
+import {PageNavigationEvent} from '../PageNavigationEvent';
+import {PageNavigationMediator} from '../PageNavigationMediator';
+import {PageNavigationEventType} from '../PageNavigationEventType';
+import {TextComponent} from '../../page/region/TextComponent';
+import {ComponentItem} from '../../../page-editor/TreeComponent';
 
 export interface LiveFormPanelConfig {
 
@@ -121,7 +115,7 @@ enum ErrorType {
 }
 
 export class LiveFormPanel
-    extends Panel {
+    extends Panel implements PageNavigationHandler {
 
     public static debug: boolean = false;
 
@@ -183,8 +177,6 @@ export class LiveFormPanel
     private contentPermissionsUpdatedHandler: (contentIds: ContentIds) => void;
     private applicationRemovedHandler: (event: ApplicationRemovedEvent) => void;
 
-    private pageViewReadyListeners: { (pageView: PageView): void }[] = [];
-
     constructor(config: LiveFormPanelConfig) {
         super('live-form-panel');
 
@@ -193,6 +185,8 @@ export class LiveFormPanel
         this.content = config.content;
         this.contentType = config.contentType;
         this.liveEditPageProxy = config.liveEditPage;
+
+        PageNavigationMediator.get().addPageNavigationHandler(this);
 
         this.initElements();
         this.initEventHandlers();
@@ -738,47 +732,6 @@ export class LiveFormPanel
             this.inspectPage(false);
         });
 
-        let path;
-        let isComponentView: boolean = false;
-        let textEditorCursorPos: HtmlEditorCursorPosition;
-
-        BeforeContentSavedEvent.on(() => {
-            path = null;
-            textEditorCursorPos = null;
-
-            if (!this.pageView) {
-                return;
-            }
-            const selected: ItemView = this.pageView.getSelectedView();
-
-            if (ObjectHelper.iFrameSafeInstanceOf(selected, ComponentView)) {
-                path = (<ComponentView<any>>selected).getComponentPath();
-                isComponentView = true;
-
-                if (this.pageView.isTextEditMode() && ObjectHelper.iFrameSafeInstanceOf(selected, TextComponentView)) {
-                    textEditorCursorPos = (<TextComponentView>selected).getCursorPosition();
-                }
-            } else if (ObjectHelper.iFrameSafeInstanceOf(selected, RegionView)) {
-                path = (<RegionView>selected).getPath();
-            }
-        });
-
-        const restoreSelection = () => {
-            if (path) {
-                const selected = this.pageView.getComponentViewByPath(path);
-
-                if (selected) {
-                    selected.selectWithoutMenu(true);
-                    selected.scrollComponentIntoView();
-
-                    if (textEditorCursorPos && ObjectHelper.iFrameSafeInstanceOf(selected, TextComponentView)) {
-                        this.setCursorPositionInTextComponent(<TextComponentView>selected, textEditorCursorPos);
-                        textEditorCursorPos = null;
-                    }
-                }
-            }
-        };
-
         eventsManager.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
             this.pageView = event.getPageView();
 
@@ -787,11 +740,7 @@ export class LiveFormPanel
             const pageModelRenderable = this.pageModel?.isRenderable();
             this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView && pageModelRenderable);
 
-            if (this.pageView) {
-                restoreSelection();
-
-                this.notifyPageViewReady(this.pageView);
-            } else {
+            if (!this.pageView) {
                 this.setErrorRenderingFailed();
             }
         });
@@ -809,34 +758,6 @@ export class LiveFormPanel
             this.inspectRegion(event.getRegionView(), !event.isRightClicked());
         });
 
-        eventsManager.onItemViewSelected((event: ItemViewSelectedEvent) => {
-            const itemView = event.getItemView();
-            const defaultClicked = !event.isRightClicked();
-            const newSelection = !event.isRestoredSelection();
-
-            if (event.shouldAvoidInspectComponentRefresh()) {
-                return;
-            }
-
-            itemView.scrollComponentIntoView();
-            if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                this.inspectComponent(<ComponentView<Component>>itemView, newSelection,
-                    newSelection && defaultClicked && !this.pageView.isTextEditMode());
-
-                if (textEditorCursorPos && this.pageView.isTextEditMode() &&
-                    ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentView)) {
-                    this.setCursorPositionInTextComponent(<TextComponentView>itemView, textEditorCursorPos);
-                    textEditorCursorPos = null;
-                }
-            } else {
-                this.inspectionsPanel.updateButtonsVisibility();
-            }
-        });
-
-        eventsManager.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
-            this.clearSelection();
-        });
-
         eventsManager.onComponentRemoved((event: ComponentRemovedEvent) => {
 
             if (!this.pageModel.isPageTemplate() && this.pageModel.getMode() === PageMode.AUTOMATIC) {
@@ -847,21 +768,15 @@ export class LiveFormPanel
         });
 
         eventsManager.onComponentViewDragDropped((event: ComponentViewDragDroppedEvent) => {
-
             let componentView = event.getComponentView();
             if (!componentView.isEmpty()) {
-                this.inspectComponent(componentView);
+                this.inspectComponentByPath(componentView.getPath());
             }
         });
 
         eventsManager.onComponentDuplicated((event: ComponentDuplicatedEvent) => {
             this.contentWizardPanel.setMarkedAsReady(false);
             this.saveAndReloadOnlyComponent(event.getDuplicatedComponentView());
-        });
-
-        eventsManager.onComponentInspected((event: ComponentInspectedEvent) => {
-            let componentView = event.getComponentView();
-            this.inspectComponent(componentView);
         });
 
         eventsManager.onPageInspectedRequested(() => {
@@ -905,16 +820,6 @@ export class LiveFormPanel
         });
     }
 
-    private setCursorPositionInTextComponent(textComponentView: TextComponentView, cursorPosition: HtmlEditorCursorPosition): void {
-        this.pageView.appendContainerForTextToolbar();
-        textComponentView.startPageTextEditMode();
-        $(textComponentView.getHTMLElement()).simulate('click');
-
-        textComponentView.onEditorReady(() =>
-            setTimeout(() => textComponentView.setCursorPosition(cursorPosition), 100)
-        );
-    }
-
     private saveMarkedContentAndReloadOnlyComponent(componentView: ComponentView<Component>) {
         const componentPath = componentView.getComponentPath();
         const canMarkContentAsReady = this.canMarkContentAsReady(componentPath);
@@ -941,13 +846,13 @@ export class LiveFormPanel
         const viewedPage = this.getPage().clone();
         const serverPage = persistedContent.getPage().clone();
 
-        const component = viewedPage.findComponentByPath(componentPath);
-        const originalComponent = serverPage.findComponentByPath(componentPath);
+        const component = viewedPage.getComponentByPath(componentPath);
+        const originalComponent = serverPage.getComponentByPath(componentPath);
 
-        if (component) {
+        if (component && component instanceof  Component) {
             component.remove();
         }
-        if (originalComponent) {
+        if (originalComponent && originalComponent instanceof Component) {
             originalComponent.remove();
         }
 
@@ -1016,7 +921,7 @@ export class LiveFormPanel
         );
     }
 
-    private doInspectComponent(componentView: ComponentView<Component>, showWidget: boolean, showPanel: boolean) {
+    private doInspectComponent(component: Component, showWidget: boolean, showPanel: boolean) {
         const showInspectionPanel = (panel: BaseInspectionPanel) =>
             this.contextWindow.showInspectionPanel(
                 getInspectParameters({
@@ -1027,31 +932,29 @@ export class LiveFormPanel
                     silent: true
                 })
             );
-        if (ObjectHelper.iFrameSafeInstanceOf(componentView, ImageComponentView)) {
+        if (component instanceof ImageComponent) {
             showInspectionPanel(this.imageInspectionPanel);
-            this.imageInspectionPanel.setImageComponentView(<ImageComponentView>componentView);
-            this.imageInspectionPanel.setImageComponent(<ImageComponent>componentView.getComponent());
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
+            this.imageInspectionPanel.setImageComponent(component);
+        } else if (component instanceof PartComponent) {
             showInspectionPanel(this.partInspectionPanel);
-            this.partInspectionPanel.setDescriptorBasedComponent(<PartComponent>componentView.getComponent());
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
+            this.partInspectionPanel.setDescriptorBasedComponent(component);
+        } else if (component instanceof LayoutComponent) {
             showInspectionPanel(this.layoutInspectionPanel);
-            this.layoutInspectionPanel.setDescriptorBasedComponent(<LayoutComponent>componentView.getComponent());
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentView)) {
+            this.layoutInspectionPanel.setDescriptorBasedComponent(component);
+        } else if (component instanceof TextComponent) {
             showInspectionPanel(this.textInspectionPanel);
-            this.textInspectionPanel.setTextComponent(<TextComponentView>componentView);
+            this.textInspectionPanel.setTextComponent(component);
             this.inspectionsPanel.setButtonContainerVisible(this.pageView?.getPageViewController().isTextEditMode());
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, FragmentComponentView)) {
+        } else if (component instanceof FragmentComponent) {
             showInspectionPanel(this.fragmentInspectionPanel);
-            this.fragmentInspectionPanel.setFragmentComponentView(<FragmentComponentView>componentView);
-            this.fragmentInspectionPanel.setFragmentComponent(<FragmentComponent>componentView.getComponent());
+            this.fragmentInspectionPanel.setFragmentComponent(component);
         } else {
-            throw new Error('ComponentView cannot be selected: ' + ClassHelper.getClassName(componentView));
+            throw new Error('Component cannot be selected: ' + ClassHelper.getClassName(component));
         }
     }
 
-    private inspectComponent(componentView: ComponentView<Component>, showWidget: boolean = true, showPanel: boolean = true) {
-        assertNotNull(componentView, 'componentView cannot be null');
+    private inspectComponent(component: Component, showWidget: boolean = true, showPanel: boolean = true) {
+        assertNotNull(component, 'componentView cannot be null');
 
         const waitForContextPanel = showPanel && ContextSplitPanel.isCollapsed();
 
@@ -1060,7 +963,7 @@ export class LiveFormPanel
             const stateChangeHandler = (event: ContextPanelStateEvent) => {
                 if (ContextSplitPanel.isExpanded()) {
                     setTimeout(() => {
-                        this.doInspectComponent(componentView, showWidget, showPanel);
+                        this.doInspectComponent(component, showWidget, showPanel);
                     }, 500);
                 }
                 ContextPanelStateEvent.un(stateChangeHandler);
@@ -1068,7 +971,7 @@ export class LiveFormPanel
             ContextPanelStateEvent.on(stateChangeHandler);
         }
 
-        if (this.isPanelSelectable(componentView)) {
+        if (this.isPanelSelectable(component)) {
             new InspectEvent(showWidget, showPanel).fire();
         }
 
@@ -1076,31 +979,15 @@ export class LiveFormPanel
             return;
         }
 
-        this.doInspectComponent(componentView, showWidget, showPanel);
+        this.doInspectComponent(component, showWidget, showPanel);
     }
 
-    private isPanelSelectable(componentView: ComponentView<Component>): boolean {
-        return !ObjectHelper.iFrameSafeInstanceOf(componentView, PageView) || this.getPageMode() !== PageMode.FRAGMENT;
+    private isPanelSelectable(component: Component): boolean {
+        return this.getPageMode() !== PageMode.FRAGMENT;
     }
 
     isShown(): boolean {
         return !ObjectHelper.stringEquals(this.getHTMLElement().style.display, 'none');
-    }
-
-    onPageViewReady(listener: (pageView: PageView) => void) {
-        this.pageViewReadyListeners.push(listener);
-    }
-
-    unPageViewReady(listener: (pageView: PageView) => void) {
-        this.pageViewReadyListeners = this.pageViewReadyListeners.filter((curr) => {
-            return curr !== listener;
-        });
-    }
-
-    private notifyPageViewReady(pageView: PageView) {
-        this.pageViewReadyListeners.forEach(listener => {
-            listener(pageView);
-        });
     }
 
     setEnabled(enabled: boolean): void {
@@ -1150,5 +1037,25 @@ export class LiveFormPanel
 
     getContextWindow(): ContextWindow {
         return this.contextWindow;
+    }
+
+    handle(event: PageNavigationEvent): void {
+        if (event.getType() === PageNavigationEventType.DESELECT) {
+            this.clearSelection();
+            return;
+        }
+
+        if (event.getType() === PageNavigationEventType.INSPECT) {
+            this.inspectComponentByPath(event.getData().getPath());
+            return;
+        }
+    }
+
+    private inspectComponentByPath(path: ComponentPath): void {
+        const component: ComponentItem = this.pageModel.getComponentByPath(path);
+
+        if (component && component instanceof Component) {
+            this.inspectComponent(component);
+        }
     }
 }

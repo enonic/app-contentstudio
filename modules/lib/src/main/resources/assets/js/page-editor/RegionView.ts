@@ -18,14 +18,12 @@ import {ComponentRemovedEvent as PageEditorComponentRemovedEvent} from './Compon
 import {ItemType} from './ItemType';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {PageViewController} from './PageViewController';
-import {LayoutItemType} from './layout/LayoutItemType';
 import {ComponentView} from './ComponentView';
 import {PageView} from './PageView';
 import {LayoutComponentView} from './layout/LayoutComponentView';
 import {DragAndDrop} from './DragAndDrop';
 import {Region} from '../app/page/region/Region';
 import {Component} from '../app/page/region/Component';
-import {RegionPath} from '../app/page/region/RegionPath';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {ComponentAddedEvent} from '../app/page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../app/page/region/ComponentRemovedEvent';
@@ -365,7 +363,7 @@ export class RegionView
         this.insertChild(componentView, index);
         this.registerComponentView(componentView, index, newlyCreated || dragged);
 
-        new PageEditorComponentAddedEvent(componentView, this, dragged).fire();
+        new PageEditorComponentAddedEvent(componentView.getPath(), componentView.getType().getShortName(), dragged).fire();
     }
 
     removeComponentView(componentView: ComponentView<Component>, silent: boolean = false) {

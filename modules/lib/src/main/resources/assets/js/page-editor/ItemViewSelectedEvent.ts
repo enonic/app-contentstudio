@@ -44,6 +44,10 @@ export class ItemViewSelectedEvent
         return this.pageItemView.getPath();
     }
 
+    getComponentPathAsString(): string {
+        return this.pageItemView.getPath().toString();
+    }
+
     getPosition(): ClickPosition {
         return this.position;
     }

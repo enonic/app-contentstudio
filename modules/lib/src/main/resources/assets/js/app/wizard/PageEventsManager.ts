@@ -54,12 +54,6 @@ export class PageEventsManager {
 
     private regionSelectedListeners: { (event: RegionSelectedEvent): void; }[] = [];
 
-    // Item events
-
-    private itemViewSelectedListeners: { (event: ItemViewSelectedEvent): void; }[] = [];
-
-    private itemViewDeselectedListeners: { (event: ItemViewDeselectedEvent): void; }[] = [];
-
     // Component events
 
     private componentAddedListeners: { (event: ComponentAddedEvent): void; }[] = [];
@@ -68,12 +62,9 @@ export class PageEventsManager {
 
     private componentDuplicatedListeners: { (event: ComponentDuplicatedEvent): void; }[] = [];
 
-    private componentInspectedListeners: { (event: ComponentInspectedEvent): void; }[] = [];
-
     private componentLoadedListeners: { (path: ComponentPath): void; }[] = [];
 
     private componentResetListeners: { (path: ComponentPath): void; }[] = [];
-
 
 
     private liveEditPageViewReadyListeners: { (event: LiveEditPageViewReadyEvent): void; }[] = [];
@@ -238,30 +229,6 @@ export class PageEventsManager {
         this.regionSelectedListeners.forEach((listener) => listener(event));
     }
 
-    onItemViewSelected(listener: { (event: ItemViewSelectedEvent): void; }) {
-        this.itemViewSelectedListeners.push(listener);
-    }
-
-    unItemViewSelected(listener: { (event: ItemViewSelectedEvent): void; }) {
-        this.itemViewSelectedListeners = this.itemViewSelectedListeners.filter((curr) => (curr !== listener));
-    }
-
-    notifyItemViewSelected(event: ItemViewSelectedEvent) {
-        this.itemViewSelectedListeners.forEach((listener) => listener(event));
-    }
-
-    onItemViewDeselected(listener: { (event: ItemViewDeselectedEvent): void; }) {
-        this.itemViewDeselectedListeners.push(listener);
-    }
-
-    unItemViewDeselected(listener: { (event: ItemViewDeselectedEvent): void; }) {
-        this.itemViewDeselectedListeners = this.itemViewDeselectedListeners.filter((curr) => (curr !== listener));
-    }
-
-    notifyItemViewDeselected(event: ItemViewDeselectedEvent) {
-        this.itemViewDeselectedListeners.forEach((listener) => listener(event));
-    }
-
     onComponentAdded(listener: { (event: ComponentAddedEvent): void; }) {
         this.componentAddedListeners.push(listener);
     }
@@ -296,18 +263,6 @@ export class PageEventsManager {
 
     notifyComponentDuplicated(event: ComponentDuplicatedEvent) {
         this.componentDuplicatedListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentInspected(listener: { (event: ComponentInspectedEvent): void; }) {
-        this.componentInspectedListeners.push(listener);
-    }
-
-    unComponentInspected(listener: { (event: ComponentInspectedEvent): void; }) {
-        this.componentInspectedListeners = this.componentInspectedListeners.filter((curr) => (curr !== listener));
-    }
-
-    notifyComponentInspected(event: ComponentInspectedEvent) {
-        this.componentInspectedListeners.forEach((listener) => listener(event));
     }
 
     onPageInspectedRequested(listener: { (): void; }) {

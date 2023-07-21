@@ -11,6 +11,9 @@ import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Descriptor} from '../app/page/Descriptor';
+import {ComponentItem} from './TreeComponent';
+import {ComponentPath} from '../app/page/region/ComponentPath';
+import {Region} from '../app/page/region/Region';
 
 export class SetController {
 
@@ -669,5 +672,22 @@ export class PageModel {
 
         return 'icon-wand' + largeIconCls;
 
+    }
+
+    getComponentByPath(path: ComponentPath): Component | Region {
+        let result = null;
+
+        this.regions.getRegions().some((region: Region) => {
+            if (region.getPath().equals(path)) {
+                result = region;
+                return true;
+            }
+
+            result = region.getComponentByPath(path);
+
+            return !!result;
+        });
+
+        return result;
     }
 }
