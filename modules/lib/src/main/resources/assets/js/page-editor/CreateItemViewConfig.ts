@@ -14,6 +14,8 @@ export class CreateItemViewConfig<PARENT extends ItemView, DATA> {
 
     itemViewFactory: ItemViewFactory;
 
+    liveEditParams: LiveEditParams;
+
     parentView: PARENT;
 
     parentElement: Element;
@@ -65,6 +67,11 @@ export class CreateItemViewConfig<PARENT extends ItemView, DATA> {
      */
     setPositionIndex(value: number): CreateItemViewConfig<PARENT, DATA> {
         this.positionIndex = value;
+        return this;
+    }
+
+    setLiveEditParams(value: LiveEditParams): CreateItemViewConfig<PARENT, DATA> {
+        this.liveEditParams = value;
         return this;
     }
 }

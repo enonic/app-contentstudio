@@ -31,11 +31,7 @@ export class PartComponentView
     }
 
     private createPlaceholder() {
-        let placeholder = new PartPlaceholder(this);
-        placeholder.setDisplayName(this.getComponent().getName().toString());
-
-        this.setPlaceholder(placeholder);
-
+        this.setPlaceholder(new PartPlaceholder(this));
     }
 
     private resetHrefForRootLink(builder: PartComponentViewBuilder) {

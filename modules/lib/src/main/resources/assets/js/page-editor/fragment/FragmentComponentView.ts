@@ -63,7 +63,7 @@ export class FragmentComponentView
 
         this.setPlaceholder(new FragmentPlaceholder(this));
 
-        this.component.onPropertyValueChanged((e: ComponentPropertyValueChangedEvent) => {
+        this.component?.onPropertyValueChanged((e: ComponentPropertyValueChangedEvent) => {
             if (e.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT) {
                 this.loadFragmentContent();
             }
@@ -210,7 +210,7 @@ export class FragmentComponentView
     }
 
     private loadFragmentContent(): void {
-        const contentId: ContentId = this.component.getFragment();
+        const contentId: ContentId = this.component?.getFragment();
 
         if (contentId) {
             if (!this.fragmentContent || !contentId.equals(this.fragmentContent.getContentId())) {

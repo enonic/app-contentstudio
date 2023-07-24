@@ -28,6 +28,7 @@ import {ComponentAddedEvent} from '../app/page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../app/page/region/ComponentRemovedEvent';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {assert} from '@enonic/lib-admin-ui/util/Assert';
+import {LiveEditParams} from './LiveEditParams';
 
 export class RegionViewBuilder {
 
@@ -38,6 +39,10 @@ export class RegionViewBuilder {
     region: Region;
 
     element: Element;
+
+    name: string;
+
+    liveEditParams: LiveEditParams;
 
     setParentElement(value: Element): RegionViewBuilder {
         this.parentElement = value;
@@ -58,16 +63,26 @@ export class RegionViewBuilder {
         this.element = value;
         return this;
     }
+
+    setName(value: string): RegionViewBuilder {
+        this.name = value;
+        return this;
+    }
+
+    setLiveEditParams(value: LiveEditParams): RegionViewBuilder {
+        this.liveEditParams = value;
+        return this;
+    }
 }
 
 export class RegionView
     extends ItemView {
 
-    private region: Region;
-
     private componentViews: ComponentView<Component>[];
 
     private componentIndex: number;
+
+    private name: string;
 
     private itemViewAddedListeners: { (event: ItemViewAddedEvent): void }[];
 
@@ -95,15 +110,16 @@ export class RegionView
         super(new ItemViewBuilder()
             .setItemViewIdProducer(builder.parentView.getItemViewIdProducer())
             .setItemViewFactory(builder.parentView.getItemViewFactory())
-            .setLiveEditParams(builder.parentView.getLiveEditParams())
+            .setLiveEditParams(builder.liveEditParams || builder.parentView?.getLiveEditParams())
             .setType(RegionItemType.get())
             .setElement(builder.element)
-            .setPlaceholder(new RegionPlaceholder(builder.region))
+            .setPlaceholder(new RegionPlaceholder())
             .setViewer(new RegionComponentViewer())
             .setParentElement(builder.parentElement)
             .setParentView(builder.parentView)
-            .setContextMenuTitle(new RegionViewContextMenuTitle(builder.region)));
+            .setContextMenuTitle(new RegionViewContextMenuTitle(builder.name)));
 
+        this.name = builder.name;
         this.addClassEx('region-view');
 
         this.componentViews = [];
@@ -115,8 +131,6 @@ export class RegionView
             this.empty();
         });
         this.initListeners();
-
-        this.setRegion(builder.region);
 
         this.addRegionContextMenuActions();
 
@@ -213,39 +227,12 @@ export class RegionView
         }
     }
 
-    setRegion(region: Region) {
-        if (region) {
-            if (this.region) {
-                this.region.unComponentAdded(this.componentAddedListener);
-                this.region.unComponentRemoved(this.componentRemovedListener);
-            }
-            this.region = region;
-
-            this.region.onComponentAdded(this.componentAddedListener);
-            this.region.onComponentRemoved(this.componentRemovedListener);
-
-            const components = region.getComponents();
-            const componentViews = this.getComponentViews();
-
-            componentViews.forEach((view: ComponentView<Component>, index: number) => {
-                view.setComponent(components[index]);
-            });
-        }
-
-        this.refreshEmptyState();
-        this.handleResetContextMenuAction();
-    }
-
-    getRegion(): Region {
-        return this.region;
-    }
-
     getRegionName(): string {
         return this.getPath()?.getPath().toString();
     }
 
     getPath(): ComponentPath {
-        return this.region?.getPath();
+        return new ComponentPath(this.name, this.getParentItemView()?.getPath());
     }
 
     getName(): string {
@@ -349,9 +336,6 @@ export class RegionView
         if (RegionView.debug) {
             console.log('RegionView[' + this.toString() + ']addComponentView: ' + componentView.toString() + ' at ' + index);
         }
-        if (componentView.getComponent()) {
-            this.region.addComponent(componentView.getComponent(), index);
-        }
 
         this.insertChild(componentView, index);
         this.registerComponentView(componentView, index, newlyCreated || dragged);
@@ -409,7 +393,7 @@ export class RegionView
 
     isEmpty(): boolean {
         const onlyMoving = this.hasOnlyMovingComponentViews();
-        const empty = !this.region || this.region.isEmpty();
+        const empty = !this.componentViews?.length || this.componentViews.every((view: ComponentView<Component>) => view.isEmpty());
 
         return empty || onlyMoving;
     }
@@ -502,43 +486,30 @@ export class RegionView
     }
 
     private doParseComponentViews(parentElement?: Element) {
-
         const children = parentElement ? parentElement.getChildren() : this.getChildren();
-        const region = this.getRegion();
 
         children.forEach((childElement: Element) => {
             const itemType = ItemType.fromElement(childElement);
             const isComponentView = ObjectHelper.iFrameSafeInstanceOf(childElement, ComponentView);
-            let component: Component;
             let componentView;
 
             if (isComponentView) {
-                component = region.getComponentByIndex(this.componentIndex++);
-                if (component) {
-                    // reuse existing component view
-                    componentView = <ComponentView<Component>>childElement;
-                    // update view's data
-                    componentView.setComponent(component);
-                    // register it again because we unregistered everything before parsing
-                    this.registerComponentView(componentView, this.componentIndex);
-                }
+                //
             } else if (itemType) {
                 assert(itemType.isComponentType(),
                     'Expected ItemView beneath a Region to be a Component: ' + itemType.getShortName());
                 // components may be nested on different levels so use region wide var for count
-                component = region.getComponentByIndex(this.componentIndex++);
-                if (component) {
 
                     componentView = <ComponentView<Component>>this.createView(
                         itemType,
                         new CreateItemViewConfig<RegionView, Component>()
                             .setParentView(this)
-                            .setData(component)
                             .setElement(childElement)
+                            .setLiveEditParams(this.liveEditParams)
                             .setParentElement(parentElement ? parentElement : this));
 
                     this.registerComponentView(componentView, this.componentIndex);
-                }
+
             } else {
                 this.doParseComponentViews(childElement);
             }

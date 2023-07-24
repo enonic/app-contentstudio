@@ -95,6 +95,7 @@ import {PageNavigationMediator} from '../PageNavigationMediator';
 import {PageNavigationEventType} from '../PageNavigationEventType';
 import {TextComponent} from '../../page/region/TextComponent';
 import {ComponentItem} from '../../../page-editor/TreeComponent';
+import {Region} from '../../page/region/Region';
 
 export interface LiveFormPanelConfig {
 
@@ -755,7 +756,7 @@ export class LiveFormPanel
         });
 
         eventsManager.onRegionSelected((event: RegionSelectedEvent) => {
-            this.inspectRegion(event.getRegionView(), !event.isRightClicked());
+            this.inspectRegion(event.getComponentPath(), !event.isRightClicked());
         });
 
         eventsManager.onComponentRemoved((event: ComponentRemovedEvent) => {
@@ -907,9 +908,8 @@ export class LiveFormPanel
         this.inspectPage(showPanel);
     }
 
-    private inspectRegion(regionView: RegionView, showPanel: boolean) {
-
-        let region = regionView.getRegion();
+    private inspectRegion(regionPath: ComponentPath, showPanel: boolean) {
+        const region: Region = this.pageModel.getComponentByPath(regionPath) as Region;
 
         this.regionInspectionPanel.setRegion(region);
         this.contextWindow.showInspectionPanel(

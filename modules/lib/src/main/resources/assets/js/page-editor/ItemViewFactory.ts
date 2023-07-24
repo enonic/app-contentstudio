@@ -53,6 +53,7 @@ export class DefaultItemViewFactory
             .setParentElement(config.parentElement)
             .setElement(config.element)
             .setComponent(config.data)
+            .setLiveEditParams(config.liveEditParams)
             .setPositionIndex(config.positionIndex));
     }
 
@@ -64,6 +65,7 @@ export class DefaultItemViewFactory
             .setParentElement(config.parentElement)
             .setElement(config.element)
             .setComponent(config.data)
+            .setLiveEditParams(config.liveEditParams)
             .setPositionIndex(config.positionIndex));
     }
 
@@ -75,6 +77,7 @@ export class DefaultItemViewFactory
             .setParentElement(config.parentElement)
             .setComponent(config.data)
             .setElement(config.element)
+            .setLiveEditParams(config.liveEditParams)
             .setPositionIndex(config.positionIndex));
     }
 
@@ -86,6 +89,7 @@ export class DefaultItemViewFactory
             .setParentElement(config.parentElement)
             .setComponent(config.data)
             .setElement(config.element)
+            .setLiveEditParams(config.liveEditParams)
             .setPositionIndex(config.positionIndex));
     }
 
@@ -97,6 +101,7 @@ export class DefaultItemViewFactory
             .setParentElement(config.parentElement)
             .setComponent(config.data)
             .setElement(config.element)
+            .setLiveEditParams(config.liveEditParams)
             .setPositionIndex(config.positionIndex));
     }
 
@@ -105,6 +110,7 @@ export class DefaultItemViewFactory
             .setParentView(config.parentView)
             .setParentElement(config.parentElement)
             .setRegion(config.data)
+            .setLiveEditParams(config.liveEditParams)
             .setElement(config.element));
     }
 

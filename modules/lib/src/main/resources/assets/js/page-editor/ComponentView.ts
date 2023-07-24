@@ -26,6 +26,7 @@ import {ComponentPath} from '../app/page/region/ComponentPath';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {CreateComponentRequestedEvent} from './event/CreateComponentRequestedEvent';
+import {LiveEditParams} from './LiveEditParams';
 
 export class ComponentViewBuilder<COMPONENT extends Component> {
 
@@ -53,10 +54,12 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
 
     inspectActionRequired: boolean;
 
+    liveEditParams: LiveEditParams;
+
     /**
      * Optional. The ItemViewIdProducer of parentRegionView will be used if not set.
      */
-    setItemViewIdProducer(value: ItemViewIdProducer): ComponentViewBuilder<COMPONENT> {
+    setItemViewIdProducer(value: ItemViewIdProducer): this {
         this.itemViewIdProducer = value;
         return this;
     }
@@ -64,58 +67,63 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
     /**
      * Optional. The ItemViewFactory of parentRegionView will be used if not set.
      */
-    setItemViewFactory(value: ItemViewFactory): ComponentViewBuilder<COMPONENT> {
+    setItemViewFactory(value: ItemViewFactory): this {
         this.itemViewFactory = value;
         return this;
     }
 
-    setType(value: ComponentItemType): ComponentViewBuilder<COMPONENT> {
+    setType(value: ComponentItemType): this {
         this.type = value;
         return this;
     }
 
-    setParentRegionView(value: RegionView): ComponentViewBuilder<COMPONENT> {
+    setParentRegionView(value: RegionView): this {
         this.parentRegionView = value;
         return this;
     }
 
-    setParentElement(value: Element): ComponentViewBuilder<COMPONENT> {
+    setParentElement(value: Element): this {
         this.parentElement = value;
         return this;
     }
 
-    setComponent(value: COMPONENT): ComponentViewBuilder<COMPONENT> {
+    setComponent(value: COMPONENT): this {
         this.component = value;
         return this;
     }
 
-    setElement(value: Element): ComponentViewBuilder<COMPONENT> {
+    setElement(value: Element): this {
         this.element = value;
         return this;
     }
 
-    setPositionIndex(value: number): ComponentViewBuilder<COMPONENT> {
+    setPositionIndex(value: number): this {
         this.positionIndex = value;
         return this;
     }
 
-    setContextMenuActions(actions: Action[]): ComponentViewBuilder<COMPONENT> {
+    setContextMenuActions(actions: Action[]): this {
         this.contextMenuActions = actions;
         return this;
     }
 
-    setPlaceholder(value: ItemViewPlaceholder): ComponentViewBuilder<COMPONENT> {
+    setPlaceholder(value: ItemViewPlaceholder): this {
         this.placeholder = value;
         return this;
     }
 
-    setInspectActionRequired(value: boolean): ComponentViewBuilder<COMPONENT> {
+    setInspectActionRequired(value: boolean): this {
         this.inspectActionRequired = value;
         return this;
     }
 
-    setViewer(value: Viewer<any>): ComponentViewBuilder<COMPONENT> {
+    setViewer(value: Viewer<any>): this {
         this.viewer = value;
+        return this;
+    }
+
+    setLiveEditParams(value: LiveEditParams): this {
+        this.liveEditParams = value;
         return this;
     }
 }
@@ -153,6 +161,7 @@ export class ComponentView<COMPONENT extends Component>
             .setElement(builder.element)
             .setParentView(builder.parentRegionView)
             .setParentElement(builder.parentElement)
+            .setLiveEditParams(builder.liveEditParams)
             .setContextMenuTitle(new ComponentViewContextMenuTitle(builder.component, builder.type))
         );
 

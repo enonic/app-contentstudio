@@ -8,7 +8,6 @@ import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveMa
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {ItemType} from './ItemType';
-import {LiveEditModel} from './LiveEditModel';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
@@ -1038,6 +1037,7 @@ export abstract class ItemView
             config = new CreateItemViewConfig<ItemView, Component>()
                 .setParentView(regionView)
                 .setParentElement(regionView)
+                .setLiveEditParams(regionView.getLiveEditParams())
                 .setData(newComponent);
         }
         return this.itemViewFactory.createView(type, config);

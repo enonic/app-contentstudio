@@ -870,7 +870,8 @@ export class PageView
             if (itemType && RegionItemType.get().equals(itemType)) {
                 regionView =
                     new RegionView(new RegionViewBuilder()
-                        .setParentView(this).setRegion(null)
+                        .setParentView(this)
+                        .setName(RegionItemType.getRegionName(childElement))
                         .setElement(childElement));
 
                 this.registerRegionView(regionView);
@@ -894,6 +895,7 @@ export class PageView
                     .setParentView(this)
                     .setData(null)
                     .setElement(childElement)
+                    .setLiveEditParams(this.liveEditParams)
                     .setParentElement(parentElement ? parentElement : this);
                 componentView = <ComponentView<Component>>this.createView(itemType, itemViewConfig);
 
