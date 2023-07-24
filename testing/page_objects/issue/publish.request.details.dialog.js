@@ -100,16 +100,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         })
     }
 
-    getNumberInDependentItemsLink() {
-        return this.getText(this.showDependentItemsLink).then(result => {
-            let startIndex = result.indexOf('(');
-            let endIndex = result.indexOf(')');
-            return result.substring(startIndex + 1, endIndex);
-        }).catch(err => {
-            throw new Error('Items Tab:error when getting number in the link : ' + err)
-        })
-    }
-
     getItemDisplayNames() {
         return this.getTextInElements(this.itemNamesToPublish).catch(err => {
             throw new Error('Items Tab:error when getting display names of items: ' + err)
@@ -121,25 +111,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         let result = await this.getDisplayedElements(selector);
         return await this.getBrowser().getElementText(result[0].elementId);
     };
-
-
-    //Show dependent items
-    async clickOnShowDependentItems(text) {
-        try {
-            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout);
-            await this.clickOnElement(this.showDependentItemsLink);
-            return await this.pause(400);
-        } catch (err) {
-            throw new Error('error when clicking on `Show dependent items`: ' + err)
-        }
-    }
-
-    isShowDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout).catch(err => {
-            console.log(err);
-            return false;
-        })
-    }
 
     clickOnIncludeChildItems(displayName) {
         let includeIcon = xpath.selectionItemByDisplayName(displayName) + xpath.includeChildrenToggler;
