@@ -99,7 +99,7 @@ class IssueDetailsDialogItemsTab extends Page {
             await this.clickOnElement(selector);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_click_on_dependent');
+            await this.saveScreenshot('err_click_on_dependent');
             throw new Error('Error when clicking on dependant ' + displayName + ' ' + err);
         }
     }
@@ -167,17 +167,6 @@ class IssueDetailsDialogItemsTab extends Page {
         })
     }
 
-    getNumberInShowDependentItemsLink() {
-        return this.getText(this.showDependentItemsLink).then(result => {
-            let startIndex = result.indexOf('(');
-            let endIndex = result.indexOf(')');
-            return result.substring(startIndex + 1, endIndex);
-        }).catch(err => {
-            throw new Error('Items Tab:error when getting number in the link : ' + err)
-        })
-    }
-
-
     getItemDisplayNames() {
         return this.getTextInElements(this.itemNamesToPublish).catch(err => {
             throw new Error('Items Tab:error when getting display names of items: ' + err)
@@ -237,7 +226,7 @@ class IssueDetailsDialogItemsTab extends Page {
 
     async getDisplayNameInDependentItems() {
         let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements(locator);
+        return await this.getTextInElements(locator);
     }
 
     async waitForIncludeChildrenIsOn(contentName) {

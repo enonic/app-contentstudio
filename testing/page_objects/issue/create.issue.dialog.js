@@ -5,6 +5,7 @@ const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
 const LoaderComboBox = require('../components/loader.combobox');
+const DependantsControls = require('./dependant.controls');
 
 const XPATH = {
     container: `//div[contains(@id,'CreateIssueDialog')]`,
@@ -21,6 +22,11 @@ const XPATH = {
 };
 
 class CreateIssueDialog extends Page {
+
+    constructor() {
+        super();
+        this.dependantsControls = new DependantsControls(XPATH.container);
+    }
 
     get cancelTopButton() {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
@@ -60,14 +66,6 @@ class CreateIssueDialog extends Page {
 
     getDialogTitle() {
         return this.getText(XPATH.container + XPATH.dialogTitle);
-    }
-
-    get showExcludedItemsButton() {
-        return XPATH.container + lib.togglerButton('Show excluded');
-    }
-
-    get hideExcludedItemsButton() {
-        return XPATH.container + lib.togglerButton('Hide excluded');
     }
 
     async clickOnCreateIssueButton() {
@@ -191,69 +189,49 @@ class CreateIssueDialog extends Page {
         }
     }
 
-    async clickOnShowExcludedItemsButton() {
-        try {
-            await this.waitForShowExcludedItemsButtonDisplayed();
-            await this.clickOnElement(this.showExcludedItemsButton);
-            await this.pause(400);
-        } catch (err) {
-            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
-            await this.saveScreenshot(screenshot);
-            throw new Error('Create Issue dialog, Show Excluded button, screenshot  ' + screenshot + ' ' + err);
-        }
-    }
-
+    // Dependants controls:
     async waitForShowExcludedItemsButtonDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
-        } catch (err) {
-            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
-            await this.saveScreenshot(screenshot);
-            throw new Error(`Create Issue, 'Show excluded button' should be visible! screenshot: ${screenshot} ` + +err)
-        }
+        return await this.dependantsControls.waitForShowExcludedItemsButtonDisplayed()
     }
 
     async waitForShowExcludedItemsButtonNotDisplayed() {
-        try {
-            return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
-        } catch (err) {
-            let screenshot = appConst.generateRandomName('err_show_excluded_should_be_hidden');
-            await this.saveScreenshot(screenshot);
-            throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + err);
-        }
+        return await this.dependantsControls.waitForShowExcludedItemsButtonNotDisplayed();
+    }
+
+    async clickOnShowExcludedItemsButton() {
+        await this.dependantsControls.clickOnShowExcludedItemsButton();
+    }
+
+    async waitForApplySelectionButtonDisplayed() {
+        return await this.dependantsControls.waitForApplySelectionButtonDisplayed();
+    }
+
+    async waitForCancelSelectionButtonDisplayed() {
+        return await this.dependantsControls.waitForCancelSelectionButtonDisplayed();
+    }
+
+    async clickOnCheckboxInDependentItem(displayName) {
+        return await this.dependantsControls.clickOnCheckboxInDependentItem(displayName);
     }
 
     async clickOnHideExcludedItemsButton() {
-        try {
-            await this.waitForHideExcludedItemsButtonDisplayed();
-            await this.clickOnElement(this.hideExcludedItemsButton);
-            return await this.pause(1000);
-        } catch (err) {
-            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
-            await this.saveScreenshot(screenshot);
-            throw new Error('Create issue dialog, Hide Excluded button, screenshot  ' + screenshot + ' ' + err);
-        }
+        return await this.dependantsControls.clickOnHideExcludedItemsButton();
     }
 
     async waitForHideExcludedItemsButtonNotDisplayed() {
-        try {
-            return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
-        } catch (err) {
-            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
-            await this.saveScreenshot(screenshot);
-            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + +err)
-        }
+        return await this.dependantsControls.waitForHideExcludedItemsButtonNotDisplayed();
     }
 
     async getDisplayNameInDependentItems() {
-        let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
-        return await this.getTextInElements(locator);
+        return await this.dependantsControls.getDisplayNameInDependentItems();
     }
 
     async isDependantCheckboxSelected(displayName) {
-        let checkBoxInputLocator = XPATH.container + XPATH.dependentItemToPublish(displayName) + lib.CHECKBOX_INPUT;
-        await this.waitForElementDisplayed(XPATH.container + XPATH.dependentItemToPublish(displayName), appConst.mediumTimeout);
-        return await this.isSelected(checkBoxInputLocator);
+        return await this.dependantsControls.isDependantCheckboxSelected(displayName);
+    }
+
+    async isDependantCheckboxEnabled(displayName) {
+        return await this.dependantsControls.isDependantCheckboxEnabled(displayName);
     }
 
     async waitForDependenciesListDisplayed() {
