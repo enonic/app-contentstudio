@@ -86,6 +86,11 @@ class DependantsControls extends Page {
         await this.clickOnElement(this.allDependantsCheckbox + '//label');
     }
 
+    async getNumberInAllCheckbox() {
+        let locator = this.allDependantsCheckbox + '//label';
+        return await this.getText(locator);
+    }
+
     async waitForDependantsBlockDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.dependantsBlock, appConst.mediumTimeout);
