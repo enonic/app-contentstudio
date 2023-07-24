@@ -418,10 +418,6 @@ class ContentPublishDialog extends Page {
         return this.getText(locator);
     }
 
-    async getNumberInAllCheckbox() {
-        let locator = this.allDependantsCheckbox + '//label';
-        return await this.getText(locator);
-    }
 
     async getNumberOfInvalidItems() {
         let locator = XPATH.container + XPATH.dialogStateBarDiv + "//span[contains(.,'Invalid item(s)')]";
@@ -454,6 +450,10 @@ class ContentPublishDialog extends Page {
         return await this.dependantsControls.waitForShowExcludedItemsButtonNotDisplayed();
     }
 
+    async getNumberInAllCheckbox() {
+        return await this.dependantsControls.getNumberInAllCheckbox();
+    }
+
     async waitForAllDependantsCheckboxDisplayed() {
         return await this.dependantsControls.waitForAllDependantsCheckboxDisplayed();
     }
@@ -466,8 +466,8 @@ class ContentPublishDialog extends Page {
         return await this.dependantsControls.waitForAllDependantsCheckboxEnabled();
     }
 
-    waitForAllDependantsCheckboxNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
+    async waitForAllDependantsCheckboxNotDisplayed() {
+        return await this.dependantsControls.waitForAllDependantsCheckboxNotDisplayed();
     }
 
     async clickOnAllCheckbox() {
