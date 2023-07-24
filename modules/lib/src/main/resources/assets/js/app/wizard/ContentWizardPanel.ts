@@ -465,7 +465,7 @@ export class ContentWizardPanel
             this.stepNavigator.setScrollEnabled(false);
 
             this.scrollPosition = scroll;
-            this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.Pixels(40));
+            this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.PIXELS(40));
             this.splitPanel.hideSplitter();
             this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
             this.undockPCV();
@@ -611,7 +611,7 @@ export class ContentWizardPanel
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
 
         this.contextSplitPanel = ContentWizardContextSplitPanel.create(leftPanel, rightPanel)
-            .setSecondPanelSize(SplitPanelSize.Percents(this.livePanel ? 16 : 38))
+            .setSecondPanelSize(SplitPanelSize.PERCENTS(this.livePanel ? 16 : 38))
             .setContextView(this.contextView)
             .setLiveFormPanel(this.getLivePanel())
             .setWizardFormPanel(this.formPanel)
@@ -625,7 +625,7 @@ export class ContentWizardPanel
             this.contextSplitPanel.onModeChanged((mode: ContextPanelMode) => {
                 if (!this.isMinimized()) {
                     const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 46 : 38;
-                    this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(formPanelSizePercents));
+                    this.splitPanel.setFirstPanelSize(SplitPanelSize.PERCENTS(formPanelSizePercents));
                     this.splitPanel.distribute(true);
                 }
             });
@@ -636,11 +636,11 @@ export class ContentWizardPanel
                 }
 
                 if (state === ContextPanelState.COLLAPSED) {
-                    this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(38));
+                    this.splitPanel.setFirstPanelSize(SplitPanelSize.PERCENTS(38));
                     this.splitPanel.distribute(true);
                 } else {
                     const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 46 : 38;
-                    this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(formPanelSizePercents));
+                    this.splitPanel.setFirstPanelSize(SplitPanelSize.PERCENTS(formPanelSizePercents));
                     this.splitPanel.distribute(true);
                 }
             });
@@ -791,11 +791,11 @@ export class ContentWizardPanel
 
     private createSplitFormAndLivePanel(firstPanel: Panel, secondPanel: Panel): SplitPanel {
         const builder: SplitPanelBuilder = new SplitPanelBuilder(firstPanel, secondPanel)
-            .setFirstPanelMinSize(SplitPanelSize.Pixels(280))
+            .setFirstPanelMinSize(SplitPanelSize.PIXELS(280))
             .setAlignment(SplitPanelAlignment.VERTICAL);
 
         if ($(window).width() > this.splitPanelThreshold) {
-            builder.setFirstPanelSize(SplitPanelSize.Percents(38));
+            builder.setFirstPanelSize(SplitPanelSize.PERCENTS(38));
         }
 
         this.splitPanel = builder.build();

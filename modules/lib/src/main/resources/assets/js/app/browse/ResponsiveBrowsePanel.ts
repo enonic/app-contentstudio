@@ -49,7 +49,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
 
         this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel)
-            .setSecondPanelSize(SplitPanelSize.Percents(25))
+            .setSecondPanelSize(SplitPanelSize.PERCENTS(25))
             .setContextView(this.contextView)
             .build();
 

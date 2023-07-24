@@ -44,7 +44,7 @@ export class ContextSplitPanel
         this.contextView = splitPanelBuilder.contextView;
         this.dockedContextPanel = splitPanelBuilder.getSecondPanel();
         this.dockedModeSize = splitPanelBuilder.getSecondPanelSize();
-        this.floatModeSize = SplitPanelSize.Pixels(ContextSplitPanel.CONTEXT_MIN_WIDTH + this.getSplitterThickness() / 2);
+        this.floatModeSize = SplitPanelSize.PIXELS(ContextSplitPanel.CONTEXT_MIN_WIDTH + this.getSplitterThickness() / 2);
 
         this.initListeners();
     }
@@ -119,7 +119,7 @@ export class ContextSplitPanel
         this.switchPanelModeIfNeeded();
 
         if (this.isContextPanelLessThanMin()) {
-            this.setActiveWidthPxOfSecondPanel(SplitPanelSize.Pixels(ContextSplitPanel.CONTEXT_MIN_WIDTH));
+            this.setActiveWidthPxOfSecondPanel(SplitPanelSize.PIXELS(ContextSplitPanel.CONTEXT_MIN_WIDTH));
         }
 
         this.showSecondPanel();
@@ -273,7 +273,7 @@ export class ContextSplitPanelBuilder
         super(firstPanel, secondPanel);
 
         this.setAlignment(SplitPanelAlignment.VERTICAL);
-        this.setSecondPanelMinSize(SplitPanelSize.Pixels(ContextSplitPanel.CONTEXT_MIN_WIDTH));
+        this.setSecondPanelMinSize(SplitPanelSize.PIXELS(ContextSplitPanel.CONTEXT_MIN_WIDTH));
         this.setAnimationDelay(600);
         this.setSecondPanelShouldSlideRight(true);
     }
