@@ -57,7 +57,6 @@ export class FragmentComponentView
     constructor(builder: FragmentComponentViewBuilder) {
         super(<FragmentComponentViewBuilder>builder.setViewer(new FragmentComponentViewer()).setInspectActionRequired(true));
 
-        this.liveEditModel = builder.parentRegionView.getLiveEditModel();
         this.fragmentContainsLayout = false;
         this.fragmentContent = null;
         this.fragmentContentLoadedListeners = [];

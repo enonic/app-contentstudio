@@ -25,6 +25,7 @@ import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ProjectContext} from '../app/project/ProjectContext';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {SaveAsTemplateAction} from '../app/wizard/action/SaveAsTemplateAction';
+import {Project} from '../app/settings/data/project/Project';
 
 export class LiveEditPage {
 
@@ -69,16 +70,15 @@ export class LiveEditPage {
         }
 
         CONFIG.setConfig(event.getConfig());
-        ProjectContext.get().setProject(event.getProject());
-        i18nInit(CONFIG.getString('services.i18nUrl'), ['i18n/page-editor']).then(() => {
-            const liveEditModel = event.getLiveEditModel();
+        ProjectContext.get().setProject(Project.fromJson(event.getProjectJson()));
 
-            let body = Body.get().loadExistingChildren();
+        i18nInit(CONFIG.getString('services.i18nUrl'), ['i18n/page-editor']).then(() => {
+            const body = Body.get().loadExistingChildren();
             try {
                 this.pageView = new PageViewBuilder()
                     .setItemViewIdProducer(new ItemViewIdProducer())
                     .setItemViewFactory(new DefaultItemViewFactory())
-                    .setLiveEditModel(liveEditModel)
+                    .setLiveEditParams(event.getParams())
                     .setElement(body).build();
             } catch (error) {
                 if (LiveEditPage.debug) {

@@ -32,7 +32,7 @@ export class FragmentPlaceholder
 
         this.comboboxWrapper = new DivEl('rich-combobox-wrapper');
 
-        let sitePath = this.fragmentComponentView.getLiveEditModel().getSiteModel().getSite().getPath().toString();
+        let sitePath = this.fragmentComponentView.getLiveEditParams().sitePath;
         let loader = new FragmentOptionDataLoader().setParentSitePath(sitePath);
 
         this.comboBox = ContentComboBox.create()

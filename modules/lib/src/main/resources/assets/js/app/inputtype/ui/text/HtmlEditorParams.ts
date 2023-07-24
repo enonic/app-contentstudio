@@ -2,7 +2,6 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
 import {ContentSummary} from '../../../content/ContentSummary';
-import {ContentPath} from '../../../content/ContentPath';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {Project} from '../../../settings/data/project/Project';
 

@@ -26,11 +26,7 @@ export class PartComponentView
         super(builder.setViewer(new PartComponentViewer()).setInspectActionRequired(true));
 
         this.createPlaceholder();
-
-        this.liveEditModel = builder.parentRegionView.getLiveEditModel();
-
         this.resetHrefForRootLink(builder);
-
         this.disableLinks();
     }
 

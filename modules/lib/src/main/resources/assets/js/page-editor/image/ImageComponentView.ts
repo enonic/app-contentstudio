@@ -27,11 +27,7 @@ export class ImageComponentView
         super(<ImageComponentViewBuilder>builder.setViewer(new ImageComponentViewer()).setInspectActionRequired(true));
 
         this.setPlaceholder(new ImagePlaceholder(this));
-
-        this.liveEditModel = builder.parentRegionView.getLiveEditModel();
-
         this.initializeImage();
-
         this.handleContentRemovedEvent();
     }
 

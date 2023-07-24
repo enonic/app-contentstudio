@@ -54,6 +54,7 @@ import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
 import {ContentIconUrlResolver} from '../app/content/ContentIconUrlResolver';
 import {ComponentPath} from '../app/page/region/ComponentPath';
+import {LiveEditParams} from './LiveEditParams';
 
 export interface ElementDimensions {
     top: number;
@@ -64,9 +65,9 @@ export interface ElementDimensions {
 
 export class ItemViewBuilder {
 
-    liveEditModel: LiveEditModel;
-
     itemViewIdProducer: ItemViewIdProducer;
+
+    liveEditParams: LiveEditParams;
 
     itemViewFactory: ItemViewFactory;
 
@@ -86,58 +87,58 @@ export class ItemViewBuilder {
 
     viewer: Viewer<any>;
 
-    setLiveEditModel(value: LiveEditModel): ItemViewBuilder {
-        this.liveEditModel = value;
-        return this;
-    }
-
-    setItemViewIdProducer(value: ItemViewIdProducer): ItemViewBuilder {
+    setItemViewIdProducer(value: ItemViewIdProducer): this {
         this.itemViewIdProducer = value;
         return this;
     }
 
-    setItemViewFactory(value: ItemViewFactory): ItemViewBuilder {
+    setItemViewFactory(value: ItemViewFactory): this {
         this.itemViewFactory = value;
         return this;
     }
 
-    setType(value: ItemType): ItemViewBuilder {
+    setType(value: ItemType): this {
         this.type = value;
         return this;
     }
 
-    setElement(value: Element): ItemViewBuilder {
+    setElement(value: Element): this {
         this.element = value;
         return this;
     }
 
-    setPlaceholder(value: ItemViewPlaceholder): ItemViewBuilder {
+    setPlaceholder(value: ItemViewPlaceholder): this {
         this.placeholder = value;
         return this;
     }
 
-    setViewer(value: Viewer<any>): ItemViewBuilder {
+    setViewer(value: Viewer<any>): this {
         this.viewer = value;
         return this;
     }
 
-    setParentView(value: ItemView): ItemViewBuilder {
+    setParentView(value: ItemView): this {
         this.parentView = value;
         return this;
     }
 
-    setParentElement(value: Element): ItemViewBuilder {
+    setParentElement(value: Element): this {
         this.parentElement = value;
         return this;
     }
 
-    setContextMenuActions(actions: Action[]): ItemViewBuilder {
+    setContextMenuActions(actions: Action[]): this {
         this.contextMenuActions = actions;
         return this;
     }
 
-    setContextMenuTitle(title: ItemViewContextMenuTitle): ItemViewBuilder {
+    setContextMenuTitle(title: ItemViewContextMenuTitle): this {
         this.contextMenuTitle = title;
+        return this;
+    }
+
+    setLiveEditParams(value: LiveEditParams): this {
+        this.liveEditParams = value;
         return this;
     }
 }
@@ -145,9 +146,9 @@ export class ItemViewBuilder {
 export abstract class ItemView
     extends Element implements IDentifiable {
 
-    protected liveEditModel: LiveEditModel;
-
     protected placeholder?: ItemViewPlaceholder;
+
+    protected liveEditParams: LiveEditParams;
 
     private itemViewIdProducer: ItemViewIdProducer;
 
@@ -190,7 +191,7 @@ export abstract class ItemView
 
     public static debug: boolean;
 
-    constructor(builder: ItemViewBuilder) {
+    protected constructor(builder: ItemViewBuilder) {
         assertNotNull(builder.type, 'type cannot be null');
 
         let props: ElementBuilder = null;
@@ -211,8 +212,8 @@ export abstract class ItemView
         super(props);
 
         this.type = builder.type;
+        this.liveEditParams = builder.liveEditParams
         this.parentItemView = builder.parentView;
-        this.liveEditModel = builder.liveEditModel ? builder.liveEditModel : builder.parentView.getLiveEditModel();
         this.itemViewIdProducer = builder.itemViewIdProducer;
         this.itemViewFactory = builder.itemViewFactory;
         this.contextMenuTitle = builder.contextMenuTitle;
@@ -727,6 +728,10 @@ export abstract class ItemView
         return this.itemViewFactory;
     }
 
+    getLiveEditParams(): LiveEditParams {
+        return this.liveEditParams;
+    }
+
     showContextMenu(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition) {
         if (PageViewController.get().isContextMenuDisabled()) {
             return;
@@ -943,10 +948,6 @@ export abstract class ItemView
         return this.getItemId().toNumber() + ' : ' + this.getType().getShortName();
     }
 
-    getLiveEditModel(): LiveEditModel {
-        return this.liveEditModel;
-    }
-
     getViewer(): Viewer<any> {
         return this.viewer;
     }
@@ -1078,10 +1079,10 @@ export abstract class ItemView
         throw new Error('Unknown component type: ' + componentType?.getShortName());
     }
 
-    private getInsertActions(liveEditModel: LiveEditModel): Action[] {
-        let isFragmentContent = liveEditModel.getContent().getType().isFragment();
+    private getInsertActions(): Action[] {
+        const isFragmentContent = this.liveEditParams.isFragment;
 
-        let actions = [this.createInsertSubAction('part', PartItemType.get())];
+        const actions = [this.createInsertSubAction('part', PartItemType.get())];
 
         let isInRegion = this.getRegionView().getType().equals(RegionItemType.get());
         if (isInRegion && !this.getRegionView().hasParentLayoutComponentView() && !isFragmentContent) {
@@ -1124,7 +1125,7 @@ export abstract class ItemView
     }
 
     protected createInsertAction(): Action {
-        return new Action(i18n('widget.components.insert')).setChildActions(this.getInsertActions(this.liveEditModel)).setVisible(false);
+        return new Action(i18n('widget.components.insert')).setChildActions(this.getInsertActions()).setVisible(false);
     }
 
     protected createSelectParentAction(): Action {

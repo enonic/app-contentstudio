@@ -1,4 +1,3 @@
-import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
@@ -17,20 +16,16 @@ import {ComponentDuplicatedEvent} from './ComponentDuplicatedEvent';
 import {FragmentItemType} from './fragment/FragmentItemType';
 import {ComponentResetEvent as UIComponentResetEvent} from './ComponentResetEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
-import {CreateFragmentViewConfig, CreateItemViewConfig} from './CreateItemViewConfig';
+import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {ItemViewFactory} from './ItemViewFactory';
 import {PageItemType} from './PageItemType';
 import {RegionView} from './RegionView';
 import {PageView} from './PageView';
-import {ComponentFragmentCreatedEvent} from './ComponentFragmentCreatedEvent';
-import {FragmentComponentView} from './fragment/FragmentComponentView';
-import {CreateFragmentRequest} from './CreateFragmentRequest';
-import {Content} from '../app/content/Content';
 import {Component, ComponentPropertyChangedEventHandler, ComponentResetEventHandler} from '../app/page/region/Component';
-import {FragmentComponent} from '../app/page/region/FragmentComponent';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {CreateComponentRequestedEvent} from './event/CreateComponentRequestedEvent';
 
 export class ComponentViewBuilder<COMPONENT extends Component> {
 
@@ -205,7 +200,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     protected addComponentContextMenuActions(inspectActionRequired: boolean) {
-        let isFragmentContent = this.liveEditModel.getContent().getType().isFragment();
+        let isFragmentContent = this.getLiveEditParams().isFragment;
         let parentIsPage = this.getParentItemView().getType().equals(PageItemType.get());
         let isTopFragmentComponent = parentIsPage && isFragmentContent;
 
@@ -247,30 +242,11 @@ export class ComponentView<COMPONENT extends Component>
 
         let isFragmentComponent = this.getType().equals(FragmentItemType.get());
 
-        if (!isFragmentComponent && this.liveEditModel.isFragmentAllowed()) {
+        if (!isFragmentComponent && this.getLiveEditParams().isFragmentAllowed) {
             actions.push(new Action(i18n('live.view.saveAs.fragment')).onExecuted(() => {
                 this.deselect();
-                this.createFragment().then((content: Content): void => {
-                    // replace created fragment in place of source component
 
-                    const regionView = this.getRegionView();
-                    let newComponent = <FragmentComponent>this.createComponent(FragmentItemType.get().toComponentType());
-                    newComponent.setFragment(content.getContentId(), content.getDisplayName());
-
-                    let fragmentCmpView = this.createView(FragmentItemType.get(),
-                        new CreateFragmentViewConfig()
-                            .setFragmentContent(content)
-                            .setSourceComponentType(this.getComponent().getType())
-                            .setParentView(regionView)
-                            .setParentElement(regionView)
-                            .setData(newComponent));
-
-                    this.addComponentView(<ComponentView<COMPONENT>>fragmentCmpView, this.getNewItemIndex());
-                    this.remove();
-
-                    new ComponentFragmentCreatedEvent(<FragmentComponentView>fragmentCmpView, this.getComponent().getType(),
-                        content).fire();
-                });
+                new CreateComponentRequestedEvent(this.getPath()).fire();
             }));
         }
 
@@ -368,7 +344,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     clone(): ComponentView<COMPONENT> {
-        const isFragmentContent: boolean = this.liveEditModel.getContent().getType().isFragment();
+        const isFragmentContent: boolean = this.getLiveEditParams().isFragment;
         const index: number = isFragmentContent ? 0 : this.getParentItemView().getComponentViewIndex(this);
 
         return <ComponentView<COMPONENT>>this.createView(this.getType(),
@@ -392,19 +368,6 @@ export class ComponentView<COMPONENT extends Component>
         parentView.addComponentView(duplicateView, index + 1);
 
         return duplicateView;
-    }
-
-    private createFragment(): Q.Promise<Content> {
-        const contentId = this.getPageView().getLiveEditModel().getContent().getContentId();
-        const config = this.getPageView().getLiveEditModel().getPageModel().getConfig();
-
-        const request: CreateFragmentRequest =
-            new CreateFragmentRequest(contentId)
-                .setConfig(config)
-                .setComponent(this.getComponent())
-                .setWorkflow(this.getPageView().getLiveEditModel().getContent().getWorkflow());
-
-        return request.sendAndParse();
     }
 
     toString() {

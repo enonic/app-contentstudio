@@ -87,6 +87,25 @@ export class Project
         return this.siteConfigs;
     }
 
+    toJson(): ProjectJson {
+        return {
+            name: this.name,
+            displayName: this.displayName,
+            description: this.description,
+            parent: this.parent,
+            language: this.language,
+            icon: this.icon ? this.icon.toJson() : null,
+            permissions: this.permissions ? this.permissions.toJson() : null,
+            readAccess: this.readAccess ? this.readAccess.toJson() : null,
+            siteConfigs: this.siteConfigs?.map((config: ApplicationConfig) => {
+                return {
+                    key: config?.getApplicationKey().toString(),
+                    config: config?.getConfig().toJson(),
+                }
+            })
+        }
+    }
+
     equals(o: Equitable): boolean {
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Project)) {
             return false;

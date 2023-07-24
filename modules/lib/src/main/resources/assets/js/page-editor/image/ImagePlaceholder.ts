@@ -39,7 +39,6 @@ export class ImagePlaceholder
     private initImageCombobox(imageView: ImageComponentView) {
         this.comboBox = ImageContentComboBox.create()
             .setMaximumOccurrences(1)
-            .setContent(imageView.getLiveEditModel().getContent())
             .setTreegridDropdownEnabled(false)
             .setMinWidth(270)
             .build();
@@ -61,7 +60,7 @@ export class ImagePlaceholder
     private initImageUploader(imageView: ImageComponentView) {
         this.imageUploader = new ImageUploaderEl({
             params: {
-                parent: imageView.getLiveEditModel().getContent().getContentId().toString()
+                parent: this.imageComponentView.getLiveEditParams().contentId
             },
             operation: MediaUploaderElOperation.create,
             name: 'image-selector-placeholder-upload',

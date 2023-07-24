@@ -74,6 +74,14 @@ import {PageNavigationEventData} from '../PageNavigationEventData';
 import {HtmlEditorCursorPosition} from '../../inputtype/ui/text/HtmlEditor';
 import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
 import {ItemViewContextMenuPosition} from '../../../page-editor/ItemViewContextMenuPosition';
+import {LiveEditParams} from '../../../page-editor/LiveEditParams';
+import {PageModel, SetController} from '../../../page-editor/PageModel';
+import {CreateComponentRequestedEvent} from '../../../page-editor/event/CreateComponentRequestedEvent';
+import {PageResetEvent} from '../../../page-editor/event/PageResetEvent';
+import {PageMode} from '../../page/PageMode';
+import {PageDescriptorSelectedEvent} from '../../../page-editor/event/PageDescriptorSelectedEvent';
+import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescriptorRequest';
+import {Descriptor} from '../../page/Descriptor';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -423,7 +431,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
                 }
 
                 if (this.liveEditModel) {
-                    new InitializeLiveEditEvent(this.liveEditModel).fire(this.liveEditWindow);
+                    new InitializeLiveEditEvent(this.createLiveEditParams()).fire(this.liveEditWindow);
                 }
             } else {
                 if (LiveEditPageProxy.debug) {
@@ -438,6 +446,40 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
         // Notify loaded no matter the result
         PageEventsManager.get().notifyLoaded();
+    }
+
+    private createLiveEditParams(): LiveEditParams {
+        const pageModel: PageModel = this.liveEditModel.getPageModel();
+        const isFragment = this.liveEditModel.getContent().getType().isFragment();
+        const displayName = this.liveEditModel.getContent().getDisplayName();
+        const locked = !this.liveEditModel.getPageModel().isPageTemplate() && !pageModel.isCustomized() && !isFragment;
+        const isFragmentAllowed = this.liveEditModel.isFragmentAllowed();
+        const isResetEnabled = pageModel.getMode() !== PageMode.AUTOMATIC && pageModel.getMode() !== PageMode.NO_CONTROLLER;
+        const pageName = pageModel.getPageName();
+        const pageIconClass = pageModel.getIconClass();
+        const isPageEmpty = !pageModel || pageModel.getMode() === PageMode.NO_CONTROLLER ||
+                            (pageModel.isPageTemplate() && !pageModel.getController());
+        const applicationKeys = this.liveEditModel.getSiteModel().getSite().getApplicationKeys().map((key) => key.toString());
+        const contentId = this.liveEditModel.getContent().getId();
+        const language = this.liveEditModel.getContent()?.getLanguage();
+        const contentType = this.liveEditModel.getContent().getType()?.toString();
+        const sitePath: string = this.liveEditModel.getSiteModel().getSite().getPath().toString();
+
+        return  {
+            isFragment,
+            displayName,
+            locked,
+            isFragmentAllowed,
+            isResetEnabled,
+            pageName,
+            pageIconClass,
+            isPageEmpty,
+            applicationKeys,
+            contentId,
+            language,
+            contentType,
+            sitePath,
+        };
     }
 
     private getItemViewByPath(path: ComponentPath): ItemView {
@@ -725,6 +767,23 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
         FragmentLoadErrorEvent.on((event: FragmentLoadErrorEvent) => {
             eventsManager.notifyFragmentLoadError(event.getFragmentComponentView().getPath());
+        }, contextWindow);
+
+        CreateComponentRequestedEvent.on((event: CreateComponentRequestedEvent) => {
+
+        }, contextWindow);
+
+        PageResetEvent.on((event: PageResetEvent) => {
+
+        }, contextWindow);
+
+        // Remove page placeholder from live edit and use one entry point (LiveEditPagePlaceholder) in liveformpanel
+        PageDescriptorSelectedEvent.on((event: PageDescriptorSelectedEvent) => {
+            new GetComponentDescriptorRequest(event.getDescriptor()).sendAndParse()
+                .then((pageDescriptor: Descriptor) => {
+                    const setController: SetController = new SetController(this).setDescriptor(pageDescriptor);
+                    this.liveEditModel.getPageModel().setController(setController);
+                }).catch(DefaultErrorHandler.handle);
         }, contextWindow);
     }
 

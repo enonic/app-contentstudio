@@ -74,8 +74,6 @@ export class TextComponentView
     constructor(builder: TextComponentViewBuilder) {
         super(builder.setViewer(new TextComponentViewer()).setComponent(builder.component));
 
-        this.liveEditModel = builder.parentRegionView.getLiveEditModel();
-
         this.addTextContextMenuActions();
         this.addClassEx('text-view');
         this.setContentEditable(true); // https://ckeditor.com/docs/ckeditor4/latest/guide/dev_inline.html#enabling-inline-editing
@@ -170,18 +168,6 @@ export class TextComponentView
         this.unhighlight();
     }
 
-    private getContent(): ContentSummary {
-        return this.liveEditModel.getContent();
-    }
-
-    private getContentPath(): ContentPath {
-        return this.liveEditModel.getContent().getPath();
-    }
-
-    private getApplicationKeys(): ApplicationKey[] {
-        return this.liveEditModel.getSiteModel().getSite().getApplicationKeys();
-    }
-
     highlight() {
         if (!this.isEditMode() && !this.isDragging()) {
             super.highlight();
@@ -200,7 +186,7 @@ export class TextComponentView
 
     private fetchStylesAndInitEditor(): void {
         // convert image urls in text component for web
-        StylesRequest.fetchStyles(this.getContent().getId()).then(() => {
+        StylesRequest.fetchStyles(this.getLiveEditParams().contentId).then(() => {
             this.initEditor();
         }).catch(DefaultErrorHandler.handle);
     }
@@ -426,9 +412,9 @@ export class TextComponentView
             .setNodeChangeHandler(this.processEditorValue.bind(this))
             .setEditorReadyHandler(this.handleEditorCreated.bind(this))
             .setFixedToolbarContainer(PageViewController.get().getEditorToolbarContainerId())
-            .setContent(this.getContent())
+            .setContent(null)
             .setEditableSourceCode(this.editableSourceCode)
-            .setApplicationKeys(this.getApplicationKeys())
+            .setApplicationKeys(this.getLiveEditParams().applicationKeys?.map(key => ApplicationKey.fromString(key)))
             .setLangDirection(this.getLangDirection())
             .build();
 
@@ -443,7 +429,7 @@ export class TextComponentView
 
     private handleEditorCreated() {
         const data: string = this.component.getText() ?
-                             HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText(), this.getContent().getId()) :
+                             HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText(), this.getLiveEditParams().contentId) :
                              TextComponentView.DEFAULT_TEXT;
         this.htmlAreaEditor.setData(data);
 
@@ -580,7 +566,7 @@ export class TextComponentView
     }
 
     private getLangDirection(): LangDirection {
-        const lang: string = this.getContent().getLanguage();
+        const lang: string = this.getLiveEditParams().language;
 
         if (Locale.supportsRtl(lang)) {
             return LangDirection.RTL;

@@ -41,7 +41,6 @@ export class LayoutComponentView
         this.setPlaceholder(new LayoutPlaceholder(this));
         this.regionViews = [];
 
-        this.liveEditModel = builder.parentRegionView.getLiveEditModel();
         LayoutComponentView.debug = false;
 
         this.itemViewAddedListener = (event: ItemViewAddedEvent) => this.notifyItemViewAdded(event.getView(), event.isNewlyCreated());

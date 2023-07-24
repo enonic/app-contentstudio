@@ -7,7 +7,6 @@ import {RegionItemType} from './RegionItemType';
 import {RegionViewContextMenuTitle} from './RegionViewContextMenuTitle';
 import {RegionComponentViewer} from './RegionComponentViewer';
 import {RegionPlaceholder} from './RegionPlaceholder';
-import {LiveEditModel} from './LiveEditModel';
 import {ItemViewAddedEvent} from './ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
@@ -32,8 +31,6 @@ import {assert} from '@enonic/lib-admin-ui/util/Assert';
 
 export class RegionViewBuilder {
 
-    liveEditModel: LiveEditModel;
-
     parentElement: Element;
 
     parentView: ItemView;
@@ -41,11 +38,6 @@ export class RegionViewBuilder {
     region: Region;
 
     element: Element;
-
-    setLiveEditModel(value: LiveEditModel): RegionViewBuilder {
-        this.liveEditModel = value;
-        return this;
-    }
 
     setParentElement(value: Element): RegionViewBuilder {
         this.parentElement = value;
@@ -103,6 +95,7 @@ export class RegionView
         super(new ItemViewBuilder()
             .setItemViewIdProducer(builder.parentView.getItemViewIdProducer())
             .setItemViewFactory(builder.parentView.getItemViewFactory())
+            .setLiveEditParams(builder.parentView.getLiveEditParams())
             .setType(RegionItemType.get())
             .setElement(builder.element)
             .setPlaceholder(new RegionPlaceholder(builder.region))

@@ -6,6 +6,7 @@ import {RegionView} from './RegionView';
 import {Content} from '../app/content/Content';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {FragmentComponent} from '../app/page/region/FragmentComponent';
+import {LiveEditParams} from './LiveEditParams';
 
 export class CreateItemViewConfig<PARENT extends ItemView, DATA> {
 
