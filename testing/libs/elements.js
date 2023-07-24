@@ -37,15 +37,16 @@ module.exports = Object.freeze({
     OCCURRENCE_VIEW: "//div[contains(@id,'InputOccurrenceView')]",
     ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton') and @title='Add new']",
     EDIT_ICON: "//a[@class='edit']",
-    COMBOBOX:{
+    CHECKBOX_DIV: "//div[contains(@id,'Checkbox')]",
+    COMBOBOX: {
         MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
     },
-    INPUTS:{
+    INPUTS: {
         TEXT_INPUT: "//input[@type='text']",
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
     },
-    BUTTONS:{
+    BUTTONS: {
         BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
         NEW_CONTENT_BUTTON: "//button[contains(@class,'new-content-button')]",
         REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
