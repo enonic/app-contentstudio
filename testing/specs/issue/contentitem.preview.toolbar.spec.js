@@ -120,7 +120,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check it in the 
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             // 2. Verify that issue-button gets visible in the 'Content Item Preview Toolbar' then click on the button:
             await contentItemPreviewPanel.clickOnIssueMenuButton();
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             await studioUtils.saveScreenshot('task_menu_button_clicked');
             let title = await issueDetailsDialog.getIssueTitle();
             assert.equal(title, secondIssueTitle, 'required task-name should be loaded in the modal dialog');
@@ -134,7 +134,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check it in the 
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentItemPreviewPanel.clickOnIssueMenuDropDownHandle();
             await contentItemPreviewPanel.clickOnIssueMenuItem(firstIssueTitle);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             await studioUtils.saveScreenshot('task_menu_item_clicked');
             let title = await issueDetailsDialog.getIssueTitle();
             assert.equal(title, firstIssueTitle, 'required task-name should be loaded in the modal dialog');
@@ -164,7 +164,7 @@ describe('contentItem.preview.toolbar.spec: create an issue and check it in the 
             // 1. Select the folder and open Task Details dialog:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentItemPreviewPanel.clickOnIssueMenuButton();
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Close the issue:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             // 3. Close the modal dialog:

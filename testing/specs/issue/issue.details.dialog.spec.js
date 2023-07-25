@@ -38,7 +38,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             let commentsTab = new IssueDetailsDialogCommentsTab();
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             //1. Verify that Comments tab is active by default
             let isActive = await issueDetailsDialog.isCommentsTabBarItemActive();
             assert.isTrue(isActive, 'Comments Tab should be active');
@@ -59,7 +59,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             let commentsTab = new IssueDetailsDialogCommentsTab();
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 1. Fill in the comment textarea
             await commentsTab.typeComment(MY_COMMENT);
             await studioUtils.saveScreenshot('issue_comment_typed');
@@ -78,7 +78,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await studioUtils.openIssuesListDialog();
             // 1. Open Issue Details dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Verify that Comments Tab is automatically loaded and 'No comments yet' is displayed in this tab:
             await commentsTab.waitForNoCommentsYetMessageDisplayed();
             // 3. Type text in comment area and click on 'Comment' button:
@@ -105,7 +105,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             // 2. Open Task Details Dialog:
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             let result = await commentsTab.isCommentPresent(MY_COMMENT);
             await studioUtils.saveScreenshot('issue_comment_added');
             assert.isTrue(result, 'Comment with the name should be present ');
@@ -119,7 +119,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await studioUtils.openIssuesListDialog();
             // 1. Open Task Details Dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Update the text in comment
             await commentsTab.clickOnEditCommentMenuItem(MY_COMMENT);
             await commentsTab.updateComment(MY_COMMENT, newText);
@@ -140,7 +140,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             // 1. Click on the task and open Task Details Dialog:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             //2. Expand menu and click on Delete Comment:
             await commentsTab.clickOnDeleteCommentMenuItem(newText);
             // 3. Confirm the deleting:

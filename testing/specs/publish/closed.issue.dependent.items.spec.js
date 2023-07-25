@@ -37,7 +37,7 @@ describe('closed.issue.dependent.items.spec - tests for dependent items in close
             await createIssueDialog.typeTitle(ISSUE_NAME);
             await createIssueDialog.clickOnCreateIssueButton();
             // 5. Go to 'Items' tab
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 6. Verify that 'All' checkbox is displayed
             await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();

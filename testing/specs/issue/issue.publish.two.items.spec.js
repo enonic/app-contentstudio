@@ -79,7 +79,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await studioUtils.openIssuesListDialog();
             // 1. Open Issue Details Dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Go to Items tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // Click on Publish... button and open Publishing Wizard

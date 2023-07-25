@@ -35,7 +35,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
         await createIssueDialog.typeTitle(ISSUE_TITLE);
         await createIssueDialog.clickOnCreateIssueButton();
         // issue details dialog should be loaded
-        await issueDetailsDialog.waitForDialogOpened();
+        await issueDetailsDialog.waitForDialogLoaded();
     });
 
     it(`GIVEN existing 'open' issue AND Issue Details Dialog is opened WHEN 'Status menu' has been expanded and 'Closed'-item selected THEN issue gets 'Closed' and 'Reopen Issue' button gets visible`,
@@ -45,7 +45,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             // 1. Select the folder and click on the task-name in the Preview Toolbar:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentItemPreviewPanel.clickOnIssueMenuButton();
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Expand the status menu and close the task:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await studioUtils.saveScreenshot('status_menu_closed_task');
@@ -63,7 +63,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             await issueListDialog.clickOnClosedButton();
             // 2. Click on the closed task and open task-details dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 3.  the task should not be editable, because this task is closed:
             await issueDetailsDialog.waitForIssueTitleInputNotEditable();
         });
@@ -77,7 +77,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             await issueListDialog.clickOnClosedButton();
             //2. Click on the task:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await taskDetailsDialog.waitForDialogOpened();
+            await taskDetailsDialog.waitForDialogLoaded();
             //3. Click on 'Open' menu item:
             await taskDetailsDialog.clickOnIssueStatusSelectorAndOpenIssue();
             await studioUtils.saveScreenshot('status_menu_task_reopened');
@@ -95,7 +95,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentItemPreviewPanel.clickOnIssueMenuButton();
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
 
             await issueDetailsDialog.clickOnEditTitle();
             await issueDetailsDialog.pause(5000);

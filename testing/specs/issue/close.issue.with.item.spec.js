@@ -45,7 +45,7 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             await createIssueDialog.typeTitle(issueTitle);
             //3. Save the issue:
             await createIssueDialog.clickOnCreateIssueButton();
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
         });
 
     it(`GIVEN folder is selected in grid AND 'Issue Details Dialog' is opened WHEN 'Close Issue' button has been pressed THEN issue-menu button gets not visible in Preview Panel`,
@@ -54,7 +54,7 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentItemPreviewPanel.clickOnIssueMenuButton();
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // the issue has been closed:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             // modal dialog has been closed:

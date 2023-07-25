@@ -38,7 +38,7 @@ describe('publish.close.task.spec: publish a content and close the task.', funct
             await createIssueDialog.typeTitle(ISSUE_TITLE);
             // Click on 'Create Issue' button and create new issue:
             await createIssueDialog.clickOnCreateIssueButton();
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
         });
 
     // Verifies: Issue is not closed after publishing (#1301).
@@ -50,7 +50,7 @@ describe('publish.close.task.spec: publish a content and close the task.', funct
             // 1. Open issues-list dialog and click on the task:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Go to Items tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 3. Click on Publish... button and open Publish Wizard dialog:

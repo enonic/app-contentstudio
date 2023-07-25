@@ -45,7 +45,7 @@ describe('wizard.publish.menu.issue.item.spec - tests for Publish menu in wizard
             // New menu item should appear in the Wizard Publish Menu:
             await contentWizard.openPublishMenuSelectItem(ISSUE_TITLE);
             // Issue details dialog should be loaded after clicking on the menu item:
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
         });
 
     // verifies Task Details Dialog switches to the Comments tab after save #1571

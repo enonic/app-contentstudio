@@ -206,6 +206,10 @@ class CreateIssueDialog extends Page {
         return await this.dependantsControls.waitForApplySelectionButtonDisplayed();
     }
 
+    async clickOnApplySelectionButton() {
+        return await this.dependantsControls.clickOnApplySelectionButton();
+    }
+
     async waitForCancelSelectionButtonDisplayed() {
         return await this.dependantsControls.waitForCancelSelectionButtonDisplayed();
     }
