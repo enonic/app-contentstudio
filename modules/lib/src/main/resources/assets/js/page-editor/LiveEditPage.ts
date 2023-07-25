@@ -26,6 +26,14 @@ import {ProjectContext} from '../app/project/ProjectContext';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {SaveAsTemplateAction} from '../app/wizard/action/SaveAsTemplateAction';
 import {Project} from '../app/settings/data/project/Project';
+import {CreateComponentRequestedEvent} from './event/CreateComponentRequestedEvent';
+import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
+import {SelectComponentRequestedEvent} from './event/SelectComponentRequestedEvent';
+import {ComponentPath} from '../app/page/region/ComponentPath';
+import {ItemView} from './ItemView';
+import {DeselectComponentRequestedEvent} from './event/DeselectComponentRequestedEvent';
+import {EditTextComponentRequested} from './event/EditTextComponentRequested';
+import {TextComponentView} from './text/TextComponentView';
 
 export class LiveEditPage {
 
@@ -48,6 +56,12 @@ export class LiveEditPage {
     private dragStartedListener: () => void;
 
     private dragStoppedListener: () => void;
+
+    private selectComponentRequestedListener: (event: SelectComponentRequestedEvent) => void;
+
+    private deselectComponentRequestedListener: (event: DeselectComponentRequestedEvent) => void;
+
+    private editTextComponentRequestedListener: (event: EditTextComponentRequested) => void;
 
     private static debug: boolean = false;
 
@@ -185,6 +199,58 @@ export class LiveEditPage {
 
         ComponentViewDragStoppedEvent.on(this.dragStoppedListener);
 
+        this.selectComponentRequestedListener = (event: SelectComponentRequestedEvent): void => {
+            if (!event.getPath()) {
+                return;
+            }
+
+            const path: ComponentPath = ComponentPath.fromString(event.getPath());
+            const itemView: ItemView = this.getItemViewByPath(path);
+
+            if (itemView && !itemView.isSelected()) {
+                itemView.select(null, ItemViewContextMenuPosition.NONE, event.isSilent());
+            }
+        };
+
+        SelectComponentRequestedEvent.on(this.selectComponentRequestedListener);
+
+        this.deselectComponentRequestedListener = (event: DeselectComponentRequestedEvent): void => {
+            const path: ComponentPath = event.getPath() ? ComponentPath.fromString(event.getPath()) : null;
+
+            if (path) {
+                const itemView = this.getItemViewByPath(path);
+
+                if (itemView && !itemView.isSelected()) {
+                    itemView.deselect(true);
+                }
+            } else {
+                this.pageView.getSelectedView()?.deselect(true);
+            }
+        };
+
+        DeselectComponentRequestedEvent.on(this.deselectComponentRequestedListener);
+
+        this.editTextComponentRequestedListener = (event: EditTextComponentRequested): void => {
+            const path: ComponentPath = event.getPath() ? ComponentPath.fromString(event.getPath()) : null;
+
+            if (path) {
+                const itemView: ItemView = this.getItemViewByPath(path);
+
+                if (itemView?.isText()) {
+                    (<TextComponentView>itemView).startPageTextEditMode();
+                }
+            }
+        };
+
+        EditTextComponentRequested.on(this.editTextComponentRequestedListener);
+    }
+
+    private getItemViewByPath(path: ComponentPath): ItemView {
+        if (!path) {
+            return;
+        }
+
+        return this.pageView?.getPath().equals(path) ? this.pageView : this.pageView?.getComponentViewByPath(path);
     }
 
     private unregisterGlobalListeners(): void {
@@ -201,6 +267,11 @@ export class LiveEditPage {
 
         ComponentViewDragStoppedEvent.un(this.dragStoppedListener);
 
+        SelectComponentRequestedEvent.un(this.selectComponentRequestedListener);
+
+        DeselectComponentRequestedEvent.un(this.deselectComponentRequestedListener);
+
+        EditTextComponentRequested.un(this.editTextComponentRequestedListener);
     }
 
 }

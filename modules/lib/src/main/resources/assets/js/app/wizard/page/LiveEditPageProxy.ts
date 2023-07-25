@@ -82,6 +82,9 @@ import {PageMode} from '../../page/PageMode';
 import {PageDescriptorSelectedEvent} from '../../../page-editor/event/PageDescriptorSelectedEvent';
 import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescriptorRequest';
 import {Descriptor} from '../../page/Descriptor';
+import {SelectComponentRequestedEvent} from '../../../page-editor/event/SelectComponentRequestedEvent';
+import {DeselectComponentRequestedEvent} from '../../../page-editor/event/DeselectComponentRequestedEvent';
+import {EditTextComponentRequested} from '../../../page-editor/event/EditTextComponentRequested';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -156,7 +159,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             const selected: ItemView = this.pageView.getSelectedView();
 
             if (ObjectHelper.iFrameSafeInstanceOf(selected, ComponentView)) {
-                path = (<ComponentView<any>>selected).getComponentPath();
+                path = (<ComponentView<any>>selected).getPath();
 
                 if (this.pageView.isTextEditMode() && ObjectHelper.iFrameSafeInstanceOf(selected, TextComponentView)) {
                     this.textEditorCursorPos = (<TextComponentView>selected).getCursorPosition();
@@ -482,20 +485,8 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         };
     }
 
-    private getItemViewByPath(path: ComponentPath): ItemView {
-        if (!path) {
-            return;
-        }
-
-        return this.pageView?.getPath().equals(path) ? this.pageView : this.pageView?.getComponentViewByPath(path);
-    }
-
     editTextComponentByPath(path: ComponentPath): void {
-        const itemView = this.getItemViewByPath(path);
-
-        if (itemView?.isText()) {
-            (<TextComponentView>itemView).startPageTextEditMode();
-        }
+        new EditTextComponentRequested(path.toString()).fire(this.liveEditWindow);
     }
 
     isLocked(): boolean {
@@ -796,7 +787,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
     private reloadFragment(event: FragmentComponentReloadRequiredEvent): void {
         let fragmentView = event.getFragmentComponentView();
 
-        let componentUrl = UriHelper.getComponentUri(fragmentView.getContentId().toString(), fragmentView.getComponentPath(),
+        let componentUrl = UriHelper.getComponentUri(fragmentView.getContentId().toString(), fragmentView.getPath(),
             RenderingMode.EDIT);
 
         fragmentView.showLoadingSpinner();
@@ -810,37 +801,13 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
     handle(event: PageNavigationEvent): void {
         if (event.getType() === PageNavigationEventType.SELECT) {
-            this.selectComponentByPath(event.getData().getPath(), true);
+            new SelectComponentRequestedEvent(event.getData().getPath()?.toString()).fire(this.liveEditWindow);
             return;
         }
 
         if (event.getType() === PageNavigationEventType.DESELECT) {
-            this.deselectComponentByPath(event.getData().getPath());
+            new DeselectComponentRequestedEvent(event.getData().getPath()?.toString()).fire(this.liveEditWindow);
             return;
-        }
-    }
-
-    private selectComponentByPath(path: ComponentPath, silent?: boolean): void {
-        if (!path) {
-            return;
-        }
-
-        const itemView = this.getItemViewByPath(path);
-
-        if (itemView && !itemView.isSelected()) {
-            itemView.select(null, ItemViewContextMenuPosition.NONE, silent);
-        }
-    }
-
-    private deselectComponentByPath(path?: ComponentPath): void {
-        if (path) {
-            const itemView = this.getItemViewByPath(path);
-
-            if (itemView && !itemView.isSelected()) {
-                itemView.deselect(true);
-            }
-        } else {
-            this.pageView.getSelectedView()?.deselect(true);
         }
     }
 }

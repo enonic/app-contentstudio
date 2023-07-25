@@ -27,6 +27,7 @@ import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {CreateComponentRequestedEvent} from './event/CreateComponentRequestedEvent';
 import {LiveEditParams} from './LiveEditParams';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export class ComponentViewBuilder<COMPONENT extends Component> {
 
@@ -134,6 +135,8 @@ export class ComponentView<COMPONENT extends Component>
 
     protected component: COMPONENT;
 
+    protected empty: boolean;
+
     private moving: boolean = false;
 
     private itemViewAddedListeners: { (event: ItemViewAddedEvent): void }[] = [];
@@ -165,6 +168,7 @@ export class ComponentView<COMPONENT extends Component>
             .setContextMenuTitle(new ComponentViewContextMenuTitle(builder.component, builder.type))
         );
 
+        this.empty = StringHelper.isEmpty(builder.element.getHtml());
         this.initListeners();
         this.setComponent(builder.component);
         this.addComponentContextMenuActions(builder.inspectActionRequired);
@@ -222,7 +226,7 @@ export class ComponentView<COMPONENT extends Component>
 
         if (inspectActionRequired) {
             actions.push(new Action(i18n('live.view.inspect')).onExecuted(() => {
-                new ComponentInspectedEvent(this.getComponentPath()).fire();
+                new ComponentInspectedEvent(this.getPath()).fire();
             }));
         }
 
@@ -324,14 +328,6 @@ export class ComponentView<COMPONENT extends Component>
         return this.component;
     }
 
-    hasComponentPath(): boolean {
-        return this.component && this.component.hasPath();
-    }
-
-    getComponentPath(): ComponentPath {
-        return this.hasComponentPath() ? this.component.getPath() : null;
-    }
-
     getName(): string {
         return this.component?.getName()?.toString();
     }
@@ -349,7 +345,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     getPath(): ComponentPath {
-        return this.component?.getPath();
+        return new ComponentPath(this.getParentItemView().getComponentViewIndex(this), this.getParentItemView()?.getPath());
     }
 
     clone(): ComponentView<COMPONENT> {
@@ -380,11 +376,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     toString() {
-        let extra = '';
-        if (this.hasComponentPath()) {
-            extra = ' : ' + this.getComponentPath().toString();
-        }
-        return super.toString() + extra;
+        return super.toString() + ' : ' + this.getPath().toString();
     }
 
     replaceWith(replacement: ComponentView<COMPONENT>) {
@@ -491,7 +483,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     isEmpty(): boolean {
-        return !this.component || this.component.isEmpty();
+        return this.empty;
     }
 
     private skipInitOnAdd(): void {

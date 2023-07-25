@@ -306,10 +306,7 @@ export class DragAndDrop {
                 regionView.addComponentView(this.draggedComponentView, componentIndex, true);
 
             } else {
-                // Move component to other region
-                if (this.draggedComponentView.hasComponentPath()) {
-                    this.draggedComponentView.moveToRegion(regionView, componentIndex);
-                }
+                this.draggedComponentView.moveToRegion(regionView, componentIndex);
             }
 
             this.notifyDropped(this.draggedComponentView, regionView);
@@ -482,7 +479,7 @@ export class DragAndDrop {
             curr(componentView);
         });
 
-        new ComponentViewDragStartedEvent(componentView.getComponentPath()).fire();
+        new ComponentViewDragStartedEvent(componentView.getPath()).fire();
     }
 
     onDragStopped(listener: (componentView: ComponentView<Component>) => void) {

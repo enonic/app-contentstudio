@@ -43,8 +43,4 @@ export class PartComponentView
     protected isDragging(): boolean {
         return DragAndDrop.get().isDragging();
     }
-
-    isEmpty(): boolean {
-        return !this.getComponent() || this.getComponent().isEmpty();
-    }
 }

@@ -37,7 +37,7 @@ export class ComponentPath
     }
 
     equals(o: Equitable): boolean {
-        if (!ObjectHelper.iFrameSafeInstanceOf(o, ComponentPath)) {
+        if (!(o instanceof ComponentPath)) {
             return false;
         }
 

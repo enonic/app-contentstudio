@@ -711,7 +711,7 @@ export class LiveFormPanel
         this.pageSkipReload = true;
 
         const componentUrl: string = UriHelper.getComponentUri(this.content.getContentId().toString(),
-            componentView.getComponentPath(),
+            componentView.getPath(),
             RenderingMode.EDIT);
 
         this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
@@ -822,7 +822,7 @@ export class LiveFormPanel
     }
 
     private saveMarkedContentAndReloadOnlyComponent(componentView: ComponentView<Component>) {
-        const componentPath = componentView.getComponentPath();
+        const componentPath = componentView.getPath();
         const canMarkContentAsReady = this.canMarkContentAsReady(componentPath);
         this.contentWizardPanel.setMarkedAsReady(canMarkContentAsReady);
         this.saveAndReloadOnlyComponent(componentView);

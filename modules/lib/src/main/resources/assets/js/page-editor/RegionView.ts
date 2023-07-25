@@ -135,6 +135,7 @@ export class RegionView
         this.addRegionContextMenuActions();
 
         this.parseComponentViews();
+        this.refreshEmptyState();
     }
 
     private initListeners() {
@@ -375,7 +376,7 @@ export class RegionView
         this.componentViews.some((componentView: ComponentView<Component>) => {
             if (componentView.isLayout()) {
                 result = (<LayoutComponentView>componentView).getComponentViewByPath(path);
-            } else if (path.equals(componentView.getComponentPath())) {
+            } else if (path.equals(componentView.getPath())) {
                 result = componentView;
             }
 
@@ -508,7 +509,7 @@ export class RegionView
                             .setLiveEditParams(this.liveEditParams)
                             .setParentElement(parentElement ? parentElement : this));
 
-                    this.registerComponentView(componentView, this.componentIndex);
+                    this.registerComponentView(componentView, this.componentIndex++);
 
             } else {
                 this.doParseComponentViews(childElement);

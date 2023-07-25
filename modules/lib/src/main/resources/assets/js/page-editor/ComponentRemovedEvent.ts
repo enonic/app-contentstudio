@@ -22,7 +22,7 @@ export class ComponentRemovedEvent
     }
 
     getPath(): ComponentPath {
-        return this.componentView.getComponentPath();
+        return this.componentView.getPath();
     }
 
     getParentRegionView(): RegionView {
