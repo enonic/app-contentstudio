@@ -3,6 +3,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const LoaderComboBox = require('../components/loader.combobox');
+const DependantsControls = require('./dependant.controls');
 
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
@@ -13,7 +14,6 @@ const xpath = {
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependantsDiv: "//div[@class='dependants']",
     editEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'edit-entry')]",
-    dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     selectionItemByDisplayName:
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${text}')]]`,
 
@@ -25,6 +25,11 @@ const xpath = {
 };
 
 class IssueDetailsDialogItemsTab extends Page {
+
+    constructor() {
+        super();
+        this.dependantsControls = new DependantsControls(xpath.container);
+    }
 
     get dropdownHandle() {
         return xpath.container + lib.CONTENT_COMBOBOX + lib.DROP_DOWN_HANDLE;
@@ -52,44 +57,6 @@ class IssueDetailsDialogItemsTab extends Page {
 
     get itemNamesToPublish() {
         return xpath.container + xpath.itemsToPublish + lib.H6_DISPLAY_NAME;
-    }
-
-    get allDependantsCheckbox() {
-        return xpath.container + xpath.dependantsDiv + lib.checkBoxDiv('All');
-    }
-
-    waitForAllDependantsCheckboxDisplayed() {
-        return this.waitForElementDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
-    }
-
-    waitForAllDependantsCheckboxNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
-    }
-
-    async clickOnAllCheckbox() {
-        await this.waitForAllDependantsCheckboxDisplayed();
-        await this.clickOnElement(this.allDependantsCheckbox + "//label[contains(.,'All')]");
-    }
-
-    async waitForApplySelectionButtonDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.applySelectionButton, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_apply_btn');
-            throw new Error(`Apply selection button is not displayed, screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    async getNumberInAllCheckbox() {
-        let locator = this.allDependantsCheckbox + '//label';
-        return await this.getText(locator);
-    }
-
-    async isAllDependantsCheckboxSelected() {
-        // 1. div-checkbox should be displayed:
-        await this.waitForAllDependantsCheckboxDisplayed();
-        // 2. Check the input:
-        return await this.isSelected(this.allDependantsCheckbox + lib.CHECKBOX_INPUT);
     }
 
     async clickOnIncludeChildrenToggler(displayName) {
@@ -123,13 +90,6 @@ class IssueDetailsDialogItemsTab extends Page {
 
     isPublishButtonEnabled() {
         return this.isElementEnabled(this.publishButton);
-    }
-
-    async clickOnCheckboxInDependentItem(displayName) {
-        let selector = xpath.dependentItemToPublish(displayName) + "//div[contains(@id,'Checkbox')]";
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        await this.clickOnElement(selector);
-        return await this.pause(400);
     }
 
     async clickOnDropdownHandle() {
@@ -191,11 +151,6 @@ class IssueDetailsDialogItemsTab extends Page {
         }
     }
 
-    async clickOnApplySelectionButton() {
-        await this.waitForApplySelectionButtonDisplayed();
-        await this.clickOnElement(this.applySelectionButton);
-    }
-
     async excludeItem(displayName) {
         let removeIcon = xpath.selectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
         try {
@@ -224,11 +179,6 @@ class IssueDetailsDialogItemsTab extends Page {
         }
     }
 
-    async getDisplayNameInDependentItems() {
-        let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
-        return await this.getTextInElements(locator);
-    }
-
     async waitForIncludeChildrenIsOn(contentName) {
         let locator = xpath.container + xpath.selectionItemByDisplayName(contentName) + lib.INCLUDE_CHILDREN_TOGGLER;
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
@@ -236,14 +186,83 @@ class IssueDetailsDialogItemsTab extends Page {
         return result.includes('include-children-toggler on');
     }
 
+    // Dependants controls:
+    async clickOnAllCheckbox() {
+        return await this.dependantsControls.clickOnAllCheckbox();
+    }
+
+    async waitForAllDependantsCheckboxDisplayed() {
+        return await this.dependantsControls.waitForAllDependantsCheckboxDisplayed();
+    }
+
+    async isAllDependantsCheckboxSelected() {
+        return await this.dependantsControls.isAllDependantsCheckboxSelected();
+    }
+
+    async getNumberInAllCheckbox() {
+        return await this.dependantsControls.getNumberInAllCheckbox();
+    }
+
+    async waitForAllDependantsCheckboxNotDisplayed() {
+        return await this.dependantsControls.waitForAllDependantsCheckboxNotDisplayed();
+    }
+
     async waitForShowExcludedItemsButtonDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
-        } catch (err) {
-            let screenshot = await appConst.generateRandomName('err_show_excluded_btn');
-            await this.saveScreenshot(screenshot);
-            throw new Error(`Issue Details tab - 'Show excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
-        }
+        return await this.dependantsControls.waitForShowExcludedItemsButtonDisplayed()
+    }
+
+    async waitForShowExcludedItemsButtonNotDisplayed() {
+        return await this.dependantsControls.waitForShowExcludedItemsButtonNotDisplayed();
+    }
+
+    async clickOnShowExcludedItemsButton() {
+        await this.dependantsControls.clickOnShowExcludedItemsButton();
+    }
+
+    async waitForApplySelectionButtonDisplayed() {
+        return await this.dependantsControls.waitForApplySelectionButtonDisplayed();
+    }
+
+    async clickOnApplySelectionButton() {
+        return await this.dependantsControls.clickOnApplySelectionButton();
+    }
+
+    async waitForCancelSelectionButtonDisplayed() {
+        return await this.dependantsControls.waitForCancelSelectionButtonDisplayed();
+    }
+
+    async clickOnCheckboxInDependentItem(displayName) {
+        return await this.dependantsControls.clickOnCheckboxInDependentItem(displayName);
+    }
+
+    async clickOnHideExcludedItemsButton() {
+        return await this.dependantsControls.clickOnHideExcludedItemsButton();
+    }
+
+    async waitForHideExcludedItemsButtonNotDisplayed() {
+        return await this.dependantsControls.waitForHideExcludedItemsButtonNotDisplayed();
+    }
+
+    async getDisplayNameInDependentItems() {
+        return await this.dependantsControls.getDisplayNameInDependentItems();
+    }
+
+    async isDependantCheckboxSelected(displayName) {
+        return await this.dependantsControls.isDependantCheckboxSelected(displayName);
+    }
+
+    async isDependantCheckboxEnabled(displayName) {
+        return await this.dependantsControls.isDependantCheckboxEnabled(displayName);
+    }
+
+    async waitForDependenciesListDisplayed() {
+        let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+        return await this.waitForElementDisplayed(locator);
+    }
+
+    async waitForDependenciesListNotDisplayed() {
+        let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+        return await this.waitForElementNotDisplayed(locator);
     }
 }
 
