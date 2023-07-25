@@ -248,7 +248,7 @@ export class PublishProcessor {
             this.setExcludedIds(excludedIds);
 
             this.processResolveDependenciesResult(minResult);
-            this.handleExclusionResult();
+            this.handleExclusionResult(minResult.getDependants());
 
             this.allDependantIds = maxResult.getDependants();
 
@@ -395,15 +395,15 @@ export class PublishProcessor {
         return new ContentSummaryAndCompareStatusFetcher().fetchByIds(slicedIds);
     }
 
-    private handleExclusionResult(): void {
+    private handleExclusionResult(dependantsIds?: ContentId[]): void {
         const inProgressIds = this.getInProgressIdsWithoutInvalid();
         const invalidIds = this.getInvalidIds();
         if (this.isAnyExcluded(inProgressIds) || this.isAnyExcluded(invalidIds)) {
             NotifyManager.get().showFeedback(i18n('dialog.publish.notAllExcluded'));
         }
 
-        const missingExcludedIds = this.dependantList.getItemsIds().filter(
-            id => !this.itemsIncludeId(this.dependantIds, id) && !this.itemsIncludeId(this.excludedIds, id));
+        const missingExcludedIds = (dependantsIds ?? this.dependantList.getItemsIds())
+            .filter(id => !this.itemsIncludeId(this.dependantIds, id) && !this.itemsIncludeId(this.excludedIds, id));
         if (missingExcludedIds.length > 0) {
             this.setExcludedIds([...this.excludedIds, ...missingExcludedIds]);
         }
