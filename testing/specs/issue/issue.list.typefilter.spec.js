@@ -38,7 +38,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await createIssueDialog.typeTitle(ISSUE_TITLE);
             //2. Create new issue:
             await createIssueDialog.clickOnCreateIssueButton();
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
         });
 
     it(`Precondition: new request publish should be added`,
@@ -109,7 +109,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             let filterInputNumberBeforeClose = await issueListDialog.getNumberInSelectedOption();
             //2. Click on the issue, open Issue Details dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             //3. Close the issue:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await issueDetailsDialog.clickOnBackButton();
@@ -140,7 +140,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             let filterInputNumberBeforeReopen = await issueListDialog.getNumberInSelectedOption();
             // 2. Click on 'Closed' button, load Closed-issues then click on the closed task( open 'Task Details' dialog):
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 3. Click on 'Reopen Task' button and reopen the task:
             await issueDetailsDialog.clickOnReopenIssueButton();
             // 4. Go to Issue List  dialog:

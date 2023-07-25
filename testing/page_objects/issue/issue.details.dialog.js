@@ -34,7 +34,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         return XPATH.container + XPATH.itemsTabBarItem;
     }
 
-    async waitForDialogOpened() {
+    async waitForDialogLoaded() {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
             return await this.pause(300);

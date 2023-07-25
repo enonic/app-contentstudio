@@ -57,7 +57,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await createIssueDialog.clickOnCreateIssueButton();
             let message = await contentBrowsePanel.waitForNotificationMessage();
             assert.equal(message, appConst.ISSUE_CREATED_MESSAGE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
@@ -90,7 +90,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await studioUtils.openIssuesListDialog();
             // 3. Click on the issue and load Issue Details Dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 4. Expand the status selector
             await issueDetailsDialog.clickOnStatusSelectorMenu();
             // 5. Click on "Closed" menu item:

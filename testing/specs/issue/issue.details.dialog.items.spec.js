@@ -35,7 +35,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             // 3. Click on 'Create Issue' button(new task is created):
             await createIssueDialog.clickOnCreateIssueButton();
             // 4. Task Details dialog should be loaded:
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             let result = await issueDetailsDialog.getNumberOfItems();
             assert.equal(result, '1', '1 should be present in the `Items` tab link');
         });
@@ -49,7 +49,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             await studioUtils.openIssuesListDialog();
             // 2. Click on the task and open Task Details dialog:
             await issueListDialog.clickOnIssue(TASK_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 3. Click on 'Items' tab bar item:
             await issueDetailsDialog.clickOnItemsTabBarItem();
 
@@ -69,7 +69,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             // 1. Click on the task and open Task Details dialog:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(TASK_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Click on Items tab bar item
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 3. Click on 'Include Child' icon:
@@ -93,7 +93,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             // 1. Open Task Details dialog:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(TASK_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Click on Items tab
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // `All` link should be displayed
@@ -112,7 +112,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             // 1. Open task details dialog(dependent items are included)
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(TASK_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 3. Unselect  'All' checkbox
@@ -131,7 +131,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             // 1. Open Task Details dialog:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(TASK_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 3. Exclude children(click on the toggler):
@@ -149,7 +149,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             // 1. Open Issue Details dialog:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(TASK_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 3. Add one more item:

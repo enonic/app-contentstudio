@@ -19,6 +19,8 @@ const ProjectNotAvailableDialog = require('../../page_objects/project/project.no
 const projectUtils = require('../../libs/project.utils');
 const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
+const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
+const IssueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
 
 describe('publish.wizard.non.required.dependencies.spec - tests for config with excludeDependencies=true', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -230,6 +232,35 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             // 6. Verify that Show/Hide excluded buttons are not displayed:
             await createRequestPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
             await createRequestPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
+        });
+
+    it("GIVEN a site with non-required dependant is selected AND new issue has been created WHEN 'Items tab' in 'Issue Details' has been opened THEN 'Show Excluded' button should be visible in Items tab",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let createIssueDialog = new CreateIssueDialog();
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
+            // 1. Select the existing site with a dependency click on 'Mark as Ready' button::
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+            // 2. Create issue dialog should be loaded:
+            await createIssueDialog.waitForDialogLoaded();
+            // 3. Fill in the title and click on 'Create Issue' button:
+            await createIssueDialog.typeTitle('test issue');
+            await createIssueDialog.clickOnCreateIssueButton();
+            await createIssueDialog.waitForNotificationMessage();
+            // 4. Issue Details dialog should be loaded:
+            await issueDetailsDialog.waitForDialogLoaded();
+            // 5. Go to 'Items' tab:
+            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await studioUtils.saveScreenshot('issue_show_excluded');
+            // 6. Verify that 'show excluded' button is displayed in the 'Items' tab:
+            await issueDetailsDialogItemsTab.waitForShowExcludedItemsButtonDisplayed();
+            // 7. Verify that 'hide excluded' button is not displayed in the 'Items' tab:
+            await issueDetailsDialogItemsTab.waitForHideExcludedItemsButtonNotDisplayed();
+            // 8. Verify that the 'dependency items' list is not displayed in the 'Items' tab:
+            await issueDetailsDialogItemsTab.waitForDependenciesListNotDisplayed();
+            await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxNotDisplayed();
         });
 
     it("Post condition - test project should be deleted",

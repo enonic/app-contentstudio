@@ -26,7 +26,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await createIssueDialog.typeTitle(issueTitle);
             // 2. Click on Create Issue:
             await createIssueDialog.clickOnCreateIssueButton();
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // Click on Items-tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             let result = await issueDetailsDialog.isNoActionLabelPresent();
@@ -40,7 +40,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await studioUtils.openIssuesListDialog();
             // 1. Click on the task and open Task Details dialog:
             await issueListDialog.clickOnIssue(issueTitle);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Click on 'Close Issue' button:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await studioUtils.saveScreenshot('empty_issue_closed');
@@ -56,7 +56,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             // 1. Click on 'Closed' button and load 'closed' issues:
             await issueListDialog.clickOnClosedButton();
             await issueListDialog.clickOnIssue(issueTitle);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Reopen the issue:
             await issueDetailsDialog.clickOnReopenIssueButton();
             await studioUtils.saveScreenshot('empty_issue_reopened');
@@ -74,7 +74,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await studioUtils.openIssuesListDialog();
             // 2. Open Issue Details Dialog:
             await issueListDialog.clickOnIssue(issueTitle);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 3. Click on Esc:
             await issueDetailsDialog.pressEscKey();
             await studioUtils.saveScreenshot('issue_details_esc_key');
@@ -92,7 +92,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await studioUtils.openIssuesListDialog();
             // 2. Open Task Details Dialog:
             await issueListDialog.clickOnIssue(issueTitle);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 3. Click on Back button:
             await issueDetailsDialog.clickOnBackButton();
             await studioUtils.saveScreenshot('issue_details_back_clicked');

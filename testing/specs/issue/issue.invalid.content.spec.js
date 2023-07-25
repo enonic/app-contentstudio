@@ -43,7 +43,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             // 4. click on 'create issue' button:
             await createIssueDialog.clickOnCreateIssueButton();
             // 5. Go to 'Items' tab
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             await issueDetailsDialog.clickOnItemsTabBarItem()
             await studioUtils.saveScreenshot('issue_details_items_2_parent_selected');
             await issueDetailsDialog.pause(1000);
@@ -76,7 +76,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             // 3. click on create issue button:
             await createIssueDialog.clickOnCreateIssueButton();
             await studioUtils.saveScreenshot('issue_details_should_be_loaded');
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             await issueDetailsDialog.pause(1000);
             // 4. 12 items should be in the issue-details dialog:
             let result = await issueDetailsDialog.getNumberOfItems();
@@ -92,7 +92,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await studioUtils.openIssuesListDialog();
             // 2. Click on the issue and open Issue Details dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 3. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             await studioUtils.saveScreenshot('publish_close_issue_should_be_disabled');
@@ -110,7 +110,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await studioUtils.openIssuesListDialog();
             // 2. Click on the issue and open Issue Details dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 3. Go to 'Items' tab:
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 4. Exclude the invalid content:
@@ -132,7 +132,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             // 1. Open Issues Details dialog dialog:
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogOpened();
+            await issueDetailsDialog.waitForDialogLoaded();
             // 2. Go to 'Items' tab(IssueDetails dialog):
             await issueDetailsDialog.clickOnItemsTabBarItem();
             // 3. Exclude a dependant item: click on the checkbox:
