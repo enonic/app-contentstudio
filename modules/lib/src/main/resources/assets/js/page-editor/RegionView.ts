@@ -12,7 +12,7 @@ import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
 import {RegionSelectedEvent} from './RegionSelectedEvent';
-import {ComponentAddedEvent as PageEditorComponentAddedEvent} from './ComponentAddedEvent';
+import {ComponentViewAddedEvent as PageEditorComponentAddedEvent} from './ComponentViewAddedEvent';
 import {ComponentRemovedEvent as PageEditorComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ItemType} from './ItemType';
 import {CreateItemViewConfig} from './CreateItemViewConfig';

@@ -16,7 +16,7 @@ import {PageTextModeStartedEvent} from '../../../page-editor/PageTextModeStarted
 import {RegionSelectedEvent} from '../../../page-editor/RegionSelectedEvent';
 import {ItemViewSelectedEvent, ItemViewSelectedEventConfig} from '../../../page-editor/ItemViewSelectedEvent';
 import {ItemViewDeselectedEvent} from '../../../page-editor/ItemViewDeselectedEvent';
-import {ComponentAddedEvent} from '../../../page-editor/ComponentAddedEvent';
+import {ComponentViewAddedEvent} from '../../../page-editor/ComponentViewAddedEvent';
 import {ComponentRemovedEvent} from '../../../page-editor/ComponentRemovedEvent';
 import {ComponentDuplicatedEvent} from '../../../page-editor/ComponentDuplicatedEvent';
 import {ComponentInspectedEvent} from '../../../page-editor/ComponentInspectedEvent';
@@ -73,7 +73,6 @@ import {PageNavigationEventType} from '../PageNavigationEventType';
 import {PageNavigationEventData} from '../PageNavigationEventData';
 import {HtmlEditorCursorPosition} from '../../inputtype/ui/text/HtmlEditor';
 import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
-import {ItemViewContextMenuPosition} from '../../../page-editor/ItemViewContextMenuPosition';
 import {LiveEditParams} from '../../../page-editor/LiveEditParams';
 import {PageModel, SetController} from '../../../page-editor/PageModel';
 import {CreateComponentRequestedEvent} from '../../../page-editor/event/CreateComponentRequestedEvent';
@@ -86,6 +85,7 @@ import {SelectComponentRequestedEvent} from '../../../page-editor/event/SelectCo
 import {DeselectComponentRequestedEvent} from '../../../page-editor/event/DeselectComponentRequestedEvent';
 import {EditTextComponentRequested} from '../../../page-editor/event/EditTextComponentRequested';
 import {PageState} from './PageState';
+import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -186,7 +186,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             }
         };
 
-        PageState.get().onComponentAdded((event) => {
+        PageState.get().onComponentAdded((event: ComponentAddedEvent): void => {
 
         });
     }
@@ -598,7 +598,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
         ItemViewDeselectedEvent.un(null, contextWindow);
 
-        ComponentAddedEvent.un(null, contextWindow);
+        ComponentViewAddedEvent.un(null, contextWindow);
 
         ComponentRemovedEvent.un(null, contextWindow);
 
@@ -681,7 +681,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
                 new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()), this);
         }, contextWindow);
 
-        ComponentAddedEvent.on((event: ComponentAddedEvent) => {
+        ComponentViewAddedEvent.on((event: ComponentViewAddedEvent) => {
             eventsManager.notifyComponentAdded(event);
         }, contextWindow);
 
