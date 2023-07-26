@@ -11,12 +11,6 @@ export class PartComponent
 
     constructor(builder: PartComponentBuilder) {
         super(builder);
-        debugger;
-    }
-
-    setParent(parent: Region) {
-        super.setParent(parent);
-        debugger;
     }
 
     toJson(): ComponentTypeWrapperJson {

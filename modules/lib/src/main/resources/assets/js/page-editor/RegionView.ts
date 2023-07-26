@@ -349,10 +349,6 @@ export class RegionView
         if (!silent) {
             this.removeChild(componentView);
         }
-
-        if (componentView.getComponent()) {
-            componentView.getComponent().remove();
-        }
     }
 
     getComponentViews(): ComponentView<Component>[] {

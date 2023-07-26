@@ -2,8 +2,6 @@ import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {PageComponentsGridDragHandler} from './PageComponentsGridDragHandler';
-import {RegionView} from '../../page-editor/RegionView';
-import {ComponentView} from '../../page-editor/ComponentView';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
 import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
@@ -21,8 +19,7 @@ import {PartComponentType} from '../page/region/PartComponentType';
 import {Region} from '../page/region/Region';
 import {Page} from '../page/Page';
 import {LayoutComponent} from '../page/region/LayoutComponent';
-import {ComponentItem, TreeComponent} from '../../page-editor/TreeComponent';
-import {PageModel} from '../../page-editor/PageModel';
+import {ComponentItem, ComponentItemType, TreeComponent} from '../../page-editor/TreeComponent';
 import {RegionItemType} from '../../page-editor/RegionItemType';
 import {FragmentComponent} from '../page/region/FragmentComponent';
 import {FragmentComponentType} from '../page/region/FragmentComponentType';
@@ -33,8 +30,8 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {Content} from '../content/Content';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ComponentPath} from '../page/region/ComponentPath';
+import {PageItem} from '../page/region/PageItem';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ComponentsTreeItem> {
@@ -74,7 +71,7 @@ export class PageComponentsTreeGrid
 
     private bindTreeTextNodeUpdateOnTextComponentModify(textComponentView: TextComponentView) {
         const handler = AppHelper.debounce((event) => {
-            this.updateNodeByData(new ComponentsTreeItem(this.makeTextComponentItem(textComponentView.getComponent()), textComponentView));
+            this.updateNodeByData(new ComponentsTreeItem(this.makeTextComponentItem(textComponentView.getComponent())));
         }, 500, false);
 
         new MutationObserver(handler).observe(textComponentView.getHTMLElement(), {subtree: true, childList: true, characterData: true});
@@ -120,20 +117,22 @@ export class PageComponentsTreeGrid
     }
 
     hasChildren(data: ComponentsTreeItem): boolean {
-        return this.hasComponentChildren(data.getComponent().getItem());
+        return this.hasComponentChildren(data.getComponent().getPath());
     }
 
-    hasComponentChildren(item: ComponentItem): boolean {
-        if (ObjectHelper.iFrameSafeInstanceOf(item, Page)) {
-            return !(<Page>item).getRegions().isEmpty();
+    private hasComponentChildren(path: ComponentPath): boolean {
+        const item: PageItem = path.isRoot() ? this.page : this.page.getComponentByPath(path);
+
+        if (item instanceof Page) {
+            return !item.getRegions().isEmpty();
         }
 
-        if (ObjectHelper.iFrameSafeInstanceOf(item, Region)) {
-            return (<Region>item).getComponents().length > 0;
+        if (item instanceof Region) {
+            return item.getComponents().length > 0;
         }
 
-        if (ObjectHelper.iFrameSafeInstanceOf(item, LayoutComponent)) {
-            return !(<LayoutComponent>item).getRegions().isEmpty();
+        if (item instanceof LayoutComponent) {
+            return !item.getRegions().isEmpty();
         }
 
         return false;
@@ -152,26 +151,28 @@ export class PageComponentsTreeGrid
 
         return this.fetchDescriptor(component).then((descriptor) => {
             const fullComponent: TreeComponent = TreeComponent.create()
-                .setItem(component)
                 .setDisplayName(descriptor?.getDisplayName())
                 .setDescription(descriptor?.getDescription() || component.getType().getShortName())
                 .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
+                .setType(component.getType())
+                .setPath(component.getPath())
                 .build();
 
-            return new ComponentsTreeItem(fullComponent, null);
+            return new ComponentsTreeItem(fullComponent);
         });
     }
 
     private fetchRootPageItem(): Q.Promise<ComponentsTreeItem> {
         return new GetComponentDescriptorRequest(this.page.getController().toString()).sendAndParse().then((descriptor) => {
             const fullComponent: TreeComponent = TreeComponent.create()
-                .setItem(this.page)
                 .setDisplayName(descriptor?.getDisplayName())
                 .setDescription(descriptor?.getDescription() || this.makeNoDescriptionText())
                 .setIconClass('icon-file')
+                .setType('page')
+                .setPath(ComponentPath.root())
                 .build();
 
-            return new ComponentsTreeItem(fullComponent, null);
+            return new ComponentsTreeItem(fullComponent);
         });
     }
 
@@ -180,19 +181,19 @@ export class PageComponentsTreeGrid
     }
 
     fetchChildren(parentNode: TreeNode<ComponentsTreeItem>): Q.Promise<ComponentsTreeItem[]> {
-        const component: ComponentItem = parentNode.getData().getComponent().getItem();
+        const path: ComponentPath = parentNode.getData().getComponent().getPath();
+        const component: PageItem = path.isRoot() ? this.page : this.page.getComponentByPath(path);
 
-        if (ObjectHelper.iFrameSafeInstanceOf(component, Page)) {
-            return Q.resolve((<Page>component).getRegions().getRegions().map((region: Region) => this.regionToComponentsTreeItem(region)));
+        if (component instanceof Page) {
+            return Q.resolve(component.getRegions().getRegions().map((region: Region) => this.regionToComponentsTreeItem(region)));
         }
 
-        if (ObjectHelper.iFrameSafeInstanceOf(component, Region)) {
-            return this.fetchRegionItems(<Region>component);
+        if (component instanceof Region) {
+            return this.fetchRegionItems(component);
         }
 
-        if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-            return Q.resolve(
-                (<LayoutComponent>component).getRegions().getRegions().map((region: Region) => this.regionToComponentsTreeItem(region)));
+        if (component instanceof LayoutComponent) {
+            return Q.resolve(component.getRegions().getRegions().map((region: Region) => this.regionToComponentsTreeItem(region)));
         }
 
         return Q.resolve([]);
@@ -200,14 +201,14 @@ export class PageComponentsTreeGrid
 
     private regionToComponentsTreeItem(region: Region): ComponentsTreeItem {
         const fullComponent: TreeComponent = TreeComponent.create()
-            .setItem(region)
             .setDisplayName(region.getName())
             .setDescription(RegionItemType.get().getShortName())
             .setIconClass(ItemViewIconClassResolver.resolveByType(RegionItemType.get().getShortName()))
+            .setType('region')
+            .setPath(region.getPath())
             .build();
 
-
-        return new ComponentsTreeItem(fullComponent, null);
+        return new ComponentsTreeItem(fullComponent);
     }
 
     private fetchRegionItems(region: Region): Q.Promise<ComponentsTreeItem[]> {
@@ -239,8 +240,8 @@ export class PageComponentsTreeGrid
             return Q.resolve(this.makeTextComponentItem(<TextComponent>component));
         }
 
-        return Q.resolve(TreeComponent.create().setItem(component).setDisplayName(component.getName().toString()).setDescription(
-            component.getType().getShortName()).build());
+        return Q.resolve(TreeComponent.create().setDisplayName(component.getName().toString()).setDescription(
+            component.getType().getShortName()).setPath(component.getPath()).setType(component.getType()).build());
     }
 
     private fetchFragmentItem(fragmentComponent: FragmentComponent): Q.Promise<TreeComponent> {
@@ -249,10 +250,11 @@ export class PageComponentsTreeGrid
 
         return fragmentPromise.then((content: Content | null) => {
             return TreeComponent.create()
-                .setItem(fragmentComponent)
                 .setDisplayName(content?.getDisplayName() || fragmentComponent.getName().toString())
                 .setDescription(content?.getPage()?.getFragment()?.getType().getShortName() || fragmentComponent.getType().getShortName())
                 .setIconClass(ItemViewIconClassResolver.resolveByType(FragmentComponentType.get().getShortName()))
+                .setType(FragmentComponentType.get())
+                .setPath(fragmentComponent.getPath())
                 .build();
         });
     }
@@ -260,21 +262,23 @@ export class PageComponentsTreeGrid
     private fetchDescriptorBasedComponent(component: DescriptorBasedComponent): Q.Promise<TreeComponent> {
         return this.fetchDescriptor(component).then((descriptor) => {
             return TreeComponent.create()
-                .setItem(component)
                 .setDisplayName(descriptor?.getDisplayName() || component.getName().toString())
                 .setDescription(descriptor?.getDescription() || this.makeNoDescriptionText())
                 .setIconUrl(descriptor?.getIcon())
                 .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
+                .setType(component.getType())
+                .setPath(component.getPath())
                 .build();
         });
     }
 
     private makeTextComponentItem(component: TextComponent): TreeComponent {
         return TreeComponent.create()
-            .setItem(component)
             .setDisplayName(StringHelper.htmlToString(component.getText()) || component.getName().toString())
             .setDescription(TextComponentType.get().getShortName())
             .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
+            .setType(TextComponentType.get())
+            .setPath(component.getPath())
             .build();
     }
 
@@ -319,9 +323,9 @@ export class PageComponentsTreeGrid
         this.scrollToItem(path);
 
         const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
-        const item: ComponentItem = node.getData().getComponent().getItem();
+        const type: ComponentItemType = node.getData().getComponent().getType();
 
-        if (item instanceof LayoutComponent) {
+        if (type instanceof LayoutComponentType) {
             this.expandNode(node);
             return;
         }
@@ -341,7 +345,7 @@ export class PageComponentsTreeGrid
         }
 
         return this.fetchComponentItem(null).then((fullComponent: TreeComponent) => {
-            this.updateNodeByData(new ComponentsTreeItem(fullComponent, null), oldNode.getDataId());
+            this.updateNodeByData(new ComponentsTreeItem(fullComponent), oldNode.getDataId());
 
             if (this.isItemSelected(path)) {
                 this.selectItemByPath(path);
@@ -382,10 +386,9 @@ export class PageComponentsTreeGrid
 
     private getNodeByPath(path: ComponentPath): TreeNode<ComponentsTreeItem> {
         return this.getRoot().getAllDefaultRootNodes().find((node: TreeNode<ComponentsTreeItem>) => {
-            return node.getData().getComponent()?.getItem().getPath().equals(path);
+            return node.getData().getComponent()?.getPath().equals(path);
         });
     }
-
 
     private isElementInViewport(element: HTMLElement): boolean {
         const rect = element.getBoundingClientRect();
@@ -399,9 +402,12 @@ export class PageComponentsTreeGrid
     }
 
     protected isToBeExpanded(node: TreeNode<ComponentsTreeItem>): boolean {
-        const item: ComponentItem = node.getData().getComponent().getItem();
-        return super.isToBeExpanded(node) || !ObjectHelper.iFrameSafeInstanceOf(item, LayoutComponent) ||
-               !(<LayoutComponent>item).getParent();
+        const path: ComponentPath = node.getData().getComponent().getPath();
+        const item: PageItem = path.isRoot() ? this.page : this.page.getComponentByPath(path);
+
+        return super.isToBeExpanded(node) ||
+               !(item instanceof LayoutComponent) ||
+               !item.getParent();
     }
 
     mask() {

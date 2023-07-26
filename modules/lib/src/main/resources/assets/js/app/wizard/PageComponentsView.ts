@@ -26,7 +26,7 @@ import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {ComponentPath} from '../page/region/ComponentPath';
-import {ComponentItem} from '../../page-editor/TreeComponent';
+import {ComponentItem, ComponentItemType, TreeComponent} from '../../page-editor/TreeComponent';
 import {Page} from '../page/Page';
 import {PageEventsManager} from './PageEventsManager';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -42,6 +42,7 @@ import {PageNavigationEventData} from './PageNavigationEventData';
 import {PageState} from './page/PageState';
 import {ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
+import {PageItem} from '../page/region/PageItem';
 
 export class PageComponentsView
     extends DivEl implements PageNavigationHandler {
@@ -310,10 +311,11 @@ export class PageComponentsView
                 return;
             }
 
-            const clickedItem: ComponentItem = this.tree.getGrid().getDataView().getItem(data.row).getData()?.getComponent()?.getItem();
+            const clickedItem: TreeComponent = this.tree.getGrid().getDataView().getItem(data.row).getData()?.getComponent();
+            const type: ComponentItemType = clickedItem?.getType();
 
-            if (clickedItem instanceof TextComponent) {
-                this.editTextComponent(clickedItem);
+            if (type instanceof TextComponent) {
+                this.editTextComponent(clickedItem.getPath());
             }
         };
 
@@ -670,18 +672,20 @@ export class PageComponentsView
             return [];
         }
 
-        const component: ComponentItem = item.getComponent().getItem();
+        const path: ComponentPath = item.getPath();
+        const page: Page = PageState.get().getPage();
+        const pageItem: PageItem = path.isRoot() ? page : page.getComponentByPath(path);
 
-        if (component instanceof Page) {
+        if (pageItem instanceof Page) {
             return PageActionsHelper.getPageActions();
         }
 
-        if (component instanceof Component) {
-            return PageActionsHelper.getComponentActions(component);
+        if (pageItem instanceof Component) {
+            return PageActionsHelper.getComponentActions(pageItem);
         }
 
-        if (component instanceof Region) {
-            return PageActionsHelper.getRegionActions(component);
+        if (pageItem instanceof Region) {
+            return PageActionsHelper.getRegionActions(pageItem);
         }
 
         return [];
@@ -719,8 +723,8 @@ export class PageComponentsView
         });
     }
 
-    private editTextComponent(textComponent: TextComponent): void {
-        this.liveEditPage.editTextComponentByPath(textComponent.getPath());
+    private editTextComponent(path: ComponentPath): void {
+        this.liveEditPage.editTextComponentByPath(path);
     }
 
     getEl(): ElementHelper {

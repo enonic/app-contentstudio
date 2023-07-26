@@ -1,13 +1,17 @@
-import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {Page} from '../app/page/Page';
 import {Region} from '../app/page/region/Region';
 import {Component} from '../app/page/region/Component';
+import {ComponentType} from '../app/page/region/ComponentType';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 
 export type ComponentItem = Page | Region | Component;
+export type ComponentItemType = 'page' | 'region' | ComponentType;
 
 export class TreeComponent {
 
-    private readonly item: ComponentItem;
+    private readonly type: ComponentItemType;
+
+    private readonly path: ComponentPath;
 
     private readonly displayName: string;
 
@@ -18,17 +22,12 @@ export class TreeComponent {
     private readonly iconClass?: string;
 
     constructor(builder: FullComponentBuilder) {
-        assertNotNull(builder.item, 'Component cannot be null');
-
-        this.item = builder.item;
         this.displayName = builder.displayName;
         this.description = builder.description;
         this.iconUrl = builder.iconUrl;
         this.iconClass = builder.iconClass;
-    }
-
-    getItem(): ComponentItem {
-        return this.item;
+        this.type = builder.type;
+        this.path = builder.path;
     }
 
     getDisplayName(): string {
@@ -47,6 +46,14 @@ export class TreeComponent {
         return this.iconClass;
     }
 
+    getType(): ComponentItemType {
+        return this.type;
+    }
+
+    getPath(): ComponentPath {
+        return this.path;
+    }
+
     static create(): FullComponentBuilder {
         return new FullComponentBuilder();
     }
@@ -54,7 +61,9 @@ export class TreeComponent {
 
 class FullComponentBuilder {
 
-    item: ComponentItem;
+    type: ComponentItemType;
+
+    path: ComponentPath;
 
     displayName: string;
 
@@ -63,11 +72,6 @@ class FullComponentBuilder {
     iconUrl?: string;
 
     iconClass?: string;
-
-    setItem(item: ComponentItem): this {
-        this.item = item;
-        return this;
-    }
 
     setDisplayName(displayName: string): this {
         this.displayName = displayName;
@@ -86,6 +90,16 @@ class FullComponentBuilder {
 
     setIconClass(iconClass: string): this {
         this.iconClass = iconClass;
+        return this;
+    }
+
+    setType(type: ComponentItemType): this {
+        this.type = type;
+        return this;
+    }
+
+    setPath(path: ComponentPath): this {
+        this.path = path;
         return this;
     }
 

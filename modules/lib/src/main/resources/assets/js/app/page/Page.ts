@@ -171,7 +171,7 @@ export class Page
         return new PageBuilder(this).build();
     }
 
-    getComponentByPath(path: ComponentPath, regions?: Region[]): PageItem {
+    getComponentByPath(path: ComponentPath): PageItem {
         let result = null;
 
         this.regions.getRegions().some((region: Region) => {

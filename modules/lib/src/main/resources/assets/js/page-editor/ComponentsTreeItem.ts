@@ -1,9 +1,10 @@
 import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
 import {ItemView} from './ItemView';
-import {TreeComponent} from './TreeComponent';
+import {ComponentItemType, TreeComponent} from './TreeComponent';
 import {ComponentIdProducer} from './ComponentIdProducer';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 
+// Wrapper around TreeComponent to bring id
 export class ComponentsTreeItem
     implements IDentifiable {
 
@@ -11,18 +12,19 @@ export class ComponentsTreeItem
 
     private readonly component: TreeComponent;
 
-    private readonly itemView?: ItemView;
-
     private readonly id: number;
 
-    constructor(component: TreeComponent, itemView?: ItemView) {
+    constructor(component: TreeComponent) {
         this.component = component;
-        this.itemView = itemView;
         this.id = ComponentsTreeItem.ID_PRODUCER.next();
     }
 
     getItemView(): ItemView {
-        return this.itemView;
+        return null;
+    }
+
+    getType(): ComponentItemType {
+        return this.component.getType();
     }
 
     getComponent(): TreeComponent {
@@ -34,6 +36,6 @@ export class ComponentsTreeItem
     }
 
     getPath(): ComponentPath {
-        return this.component.getItem().getPath();
+        return this.component.getPath();
     }
 }
