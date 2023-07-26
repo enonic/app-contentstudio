@@ -25,7 +25,7 @@ import {Component, ComponentPropertyChangedEventHandler, ComponentResetEventHand
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {CreateComponentRequestedEvent} from './event/CreateComponentRequestedEvent';
+import {CreateComponentFragmentRequestedEvent} from './event/CreateComponentFragmentRequestedEvent';
 import {LiveEditParams} from './LiveEditParams';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
@@ -257,7 +257,7 @@ export class ComponentView<COMPONENT extends Component>
             actions.push(new Action(i18n('live.view.saveAs.fragment')).onExecuted(() => {
                 this.deselect();
 
-                new CreateComponentRequestedEvent(this.getPath()).fire();
+                new CreateComponentFragmentRequestedEvent(this.getPath()).fire();
             }));
         }
 

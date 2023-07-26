@@ -5,7 +5,6 @@ import {PageLockedEvent} from '../../page-editor/PageLockedEvent';
 import {PageUnlockedEvent} from '../../page-editor/PageUnlockedEvent';
 import {PageTextModeStartedEvent} from '../../page-editor/PageTextModeStartedEvent';
 import {RegionSelectedEvent} from '../../page-editor/RegionSelectedEvent';
-import {ComponentViewAddedEvent} from '../../page-editor/ComponentViewAddedEvent';
 import {ComponentRemovedEvent} from '../../page-editor/ComponentRemovedEvent';
 import {ComponentDuplicatedEvent} from '../../page-editor/ComponentDuplicatedEvent';
 import {LiveEditPageViewReadyEvent} from '../../page-editor/LiveEditPageViewReadyEvent';
@@ -52,8 +51,6 @@ export class PageEventsManager {
     private regionSelectedListeners: { (event: RegionSelectedEvent): void; }[] = [];
 
     // Component events
-
-    private componentAddedListeners: { (event: ComponentViewAddedEvent): void; }[] = [];
 
     private componentRemovedListeners: { (event: ComponentRemovedEvent): void; }[] = [];
 
@@ -224,18 +221,6 @@ export class PageEventsManager {
 
     notifyRegionSelected(event: RegionSelectedEvent) {
         this.regionSelectedListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentAdded(listener: { (event: ComponentViewAddedEvent): void; }) {
-        this.componentAddedListeners.push(listener);
-    }
-
-    unComponentAdded(listener: { (event: ComponentViewAddedEvent): void; }) {
-        this.componentAddedListeners = this.componentAddedListeners.filter((curr) => (curr !== listener));
-    }
-
-    notifyComponentAdded(event: ComponentViewAddedEvent) {
-        this.componentAddedListeners.forEach((listener) => listener(event));
     }
 
     onComponentRemoved(listener: { (event: ComponentRemovedEvent): void; }) {

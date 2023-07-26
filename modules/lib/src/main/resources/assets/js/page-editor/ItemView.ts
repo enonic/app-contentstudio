@@ -54,6 +54,7 @@ import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
 import {ContentIconUrlResolver} from '../app/content/ContentIconUrlResolver';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {LiveEditParams} from './LiveEditParams';
+import {AddComponentRequest} from './event/AddComponentRequest';
 
 export interface ElementDimensions {
     top: number;
@@ -1022,11 +1023,11 @@ export abstract class ItemView
         }
     }
 
-    protected addComponentView(componentView: ItemView, index?: number, newlyCreated: boolean = false) {
+    addComponentView(componentView: ItemView, index?: number, newlyCreated: boolean = false) {
         throw new Error('Must be implemented by inheritors');
     }
 
-    protected getNewItemIndex(): number {
+    getNewItemIndex(): number {
         throw new Error('Must be implemented by inheritors');
     }
 
@@ -1150,9 +1151,8 @@ export abstract class ItemView
     }
 
     private createInsertSubAction(label: string, componentItemType: ItemType): Action {
-        let action = new Action(i18n('widget.components.insert.' + label)).onExecuted(() => {
-            let componentView = this.createView(componentItemType);
-            this.addComponentView(componentView, this.getNewItemIndex(), true);
+        const action = new Action(i18n('widget.components.insert.' + label)).onExecuted(() => {
+            new AddComponentRequest(this.getPath(), componentItemType.toComponentType()).fire();
         });
 
         action.setVisible(false).setIconClass(StyleHelper.getCommonIconCls(label));

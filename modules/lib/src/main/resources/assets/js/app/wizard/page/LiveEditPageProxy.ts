@@ -16,7 +16,6 @@ import {PageTextModeStartedEvent} from '../../../page-editor/PageTextModeStarted
 import {RegionSelectedEvent} from '../../../page-editor/RegionSelectedEvent';
 import {ItemViewSelectedEvent, ItemViewSelectedEventConfig} from '../../../page-editor/ItemViewSelectedEvent';
 import {ItemViewDeselectedEvent} from '../../../page-editor/ItemViewDeselectedEvent';
-import {ComponentViewAddedEvent} from '../../../page-editor/ComponentViewAddedEvent';
 import {ComponentRemovedEvent} from '../../../page-editor/ComponentRemovedEvent';
 import {ComponentDuplicatedEvent} from '../../../page-editor/ComponentDuplicatedEvent';
 import {ComponentInspectedEvent} from '../../../page-editor/ComponentInspectedEvent';
@@ -75,7 +74,7 @@ import {HtmlEditorCursorPosition} from '../../inputtype/ui/text/HtmlEditor';
 import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
 import {LiveEditParams} from '../../../page-editor/LiveEditParams';
 import {PageModel, SetController} from '../../../page-editor/PageModel';
-import {CreateComponentRequestedEvent} from '../../../page-editor/event/CreateComponentRequestedEvent';
+import {CreateComponentFragmentRequestedEvent} from '../../../page-editor/event/CreateComponentFragmentRequestedEvent';
 import {PageResetEvent} from '../../../page-editor/event/PageResetEvent';
 import {PageMode} from '../../page/PageMode';
 import {PageDescriptorSelectedEvent} from '../../../page-editor/event/PageDescriptorSelectedEvent';
@@ -86,6 +85,9 @@ import {DeselectComponentRequestedEvent} from '../../../page-editor/event/Desele
 import {EditTextComponentRequested} from '../../../page-editor/event/EditTextComponentRequested';
 import {PageState} from './PageState';
 import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
+import {AddComponentRequest} from '../../../page-editor/event/AddComponentRequest';
+import {ComponentType} from '../../page/region/ComponentType';
+import {AddItemViewRequest} from '../../../page-editor/event/AddItemViewRequest';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -185,10 +187,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
                 }
             }
         };
-
-        PageState.get().onComponentAdded((event: ComponentAddedEvent): void => {
-
-        });
     }
 
     private setCursorPositionInTextComponent(textComponentView: TextComponentView, cursorPosition: HtmlEditorCursorPosition): void {
@@ -598,8 +596,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
         ItemViewDeselectedEvent.un(null, contextWindow);
 
-        ComponentViewAddedEvent.un(null, contextWindow);
-
         ComponentRemovedEvent.un(null, contextWindow);
 
         ComponentDuplicatedEvent.un(null, contextWindow);
@@ -679,10 +675,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         ItemViewDeselectedEvent.on(() => {
             PageNavigationMediator.get().notify(
                 new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()), this);
-        }, contextWindow);
-
-        ComponentViewAddedEvent.on((event: ComponentViewAddedEvent) => {
-            eventsManager.notifyComponentAdded(event);
         }, contextWindow);
 
         ComponentRemovedEvent.on((event: ComponentRemovedEvent) => {
@@ -765,7 +757,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             eventsManager.notifyFragmentLoadError(event.getFragmentComponentView().getPath());
         }, contextWindow);
 
-        CreateComponentRequestedEvent.on((event: CreateComponentRequestedEvent) => {
+        CreateComponentFragmentRequestedEvent.on((event: CreateComponentFragmentRequestedEvent) => {
 
         }, contextWindow);
 
@@ -781,11 +773,22 @@ export class LiveEditPageProxy implements PageNavigationHandler {
                     this.liveEditModel.getPageModel().setController(setController);
                 }).catch(DefaultErrorHandler.handle);
         }, contextWindow);
+
+        AddComponentRequest.on((event: AddComponentRequest) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
+
+            PageEventsManager.get().notifyComponentInsertRequested(path, type);
+        }, contextWindow);
     }
 
     private listenToMainFrameEvents() {
         PageEventsManager.get().onDialogCreated((modalDialog: ModalDialog, config: any) => {
             new LiveEditPageDialogCreatedEvent(modalDialog, config).fire(this.liveEditWindow);
+        });
+
+        PageState.get().onComponentAdded((event: ComponentAddedEvent): void => {
+            new AddItemViewRequest(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
         });
     }
 

@@ -12,7 +12,6 @@ import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
 import {RegionSelectedEvent} from './RegionSelectedEvent';
-import {ComponentViewAddedEvent as PageEditorComponentAddedEvent} from './ComponentViewAddedEvent';
 import {ComponentRemovedEvent as PageEditorComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ItemType} from './ItemType';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
@@ -340,8 +339,6 @@ export class RegionView
 
         this.insertChild(componentView, index);
         this.registerComponentView(componentView, index, newlyCreated || dragged);
-
-        new PageEditorComponentAddedEvent(componentView.getPath(), componentView.getType().getShortName(), dragged).fire();
     }
 
     removeComponentView(componentView: ComponentView<Component>, silent: boolean = false) {

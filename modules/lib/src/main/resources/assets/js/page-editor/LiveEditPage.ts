@@ -26,7 +26,7 @@ import {ProjectContext} from '../app/project/ProjectContext';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {SaveAsTemplateAction} from '../app/wizard/action/SaveAsTemplateAction';
 import {Project} from '../app/settings/data/project/Project';
-import {CreateComponentRequestedEvent} from './event/CreateComponentRequestedEvent';
+import {CreateComponentFragmentRequestedEvent} from './event/CreateComponentFragmentRequestedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {SelectComponentRequestedEvent} from './event/SelectComponentRequestedEvent';
 import {ComponentPath} from '../app/page/region/ComponentPath';
@@ -34,6 +34,10 @@ import {ItemView} from './ItemView';
 import {DeselectComponentRequestedEvent} from './event/DeselectComponentRequestedEvent';
 import {EditTextComponentRequested} from './event/EditTextComponentRequested';
 import {TextComponentView} from './text/TextComponentView';
+import {AddItemViewRequest} from './event/AddItemViewRequest';
+import {ComponentType} from '../app/page/region/ComponentType';
+import {RegionView} from './RegionView';
+import {ItemType} from './ItemType';
 
 export class LiveEditPage {
 
@@ -62,6 +66,8 @@ export class LiveEditPage {
     private deselectComponentRequestedListener: (event: DeselectComponentRequestedEvent) => void;
 
     private editTextComponentRequestedListener: (event: EditTextComponentRequested) => void;
+
+    private addItemViewRequestListener: (event: AddItemViewRequest) => void;
 
     private static debug: boolean = false;
 
@@ -243,6 +249,19 @@ export class LiveEditPage {
         };
 
         EditTextComponentRequested.on(this.editTextComponentRequestedListener);
+
+        this.addItemViewRequestListener = (event: AddItemViewRequest) => {
+            const path = ComponentPath.fromString(event.getComponentPath().toString());
+            const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
+            const viewType = ItemType.fromComponentType(type);
+            const parentView: ItemView = this.getItemViewByPath(path.getParentPath());
+
+            if (parentView) {
+                parentView.addComponentView(parentView.createView(viewType), path.getPath() as number);
+            }
+        };
+
+        AddItemViewRequest.on(this.addItemViewRequestListener);
     }
 
     private getItemViewByPath(path: ComponentPath): ItemView {
@@ -272,6 +291,8 @@ export class LiveEditPage {
         DeselectComponentRequestedEvent.un(this.deselectComponentRequestedListener);
 
         EditTextComponentRequested.un(this.editTextComponentRequestedListener);
+
+        AddItemViewRequest.un(this.addItemViewRequestListener);
     }
 
 }
