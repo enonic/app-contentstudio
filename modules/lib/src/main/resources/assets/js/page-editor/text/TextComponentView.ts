@@ -477,10 +477,19 @@ export class TextComponentView
 
         const text: string = this.isEditorEmpty() ? TextComponentView.DEFAULT_TEXT :
                              HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData());
-        this.component.setText(text);
+
+        this.refreshEmptyState();
+    }
+
+    isEmpty(): boolean {
+        return this.isEditorEmpty();
     }
 
     private isEditorEmpty(): boolean {
+        if (!this.htmlAreaEditor) {
+            return true;
+        }
+
         const editorContent = this.htmlAreaEditor.getData();
         return editorContent.trim() === '' || editorContent === '<h2>&nbsp;</h2>';
     }

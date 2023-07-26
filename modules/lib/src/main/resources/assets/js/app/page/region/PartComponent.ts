@@ -4,12 +4,19 @@ import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './Descr
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {PartComponentJson} from './PartComponentJson';
 import {PartComponentType} from './PartComponentType';
+import {Region} from './Region';
 
 export class PartComponent
     extends DescriptorBasedComponent {
 
     constructor(builder: PartComponentBuilder) {
         super(builder);
+        debugger;
+    }
+
+    setParent(parent: Region) {
+        super.setParent(parent);
+        debugger;
     }
 
     toJson(): ComponentTypeWrapperJson {

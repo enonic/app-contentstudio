@@ -28,6 +28,8 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {CreateComponentFragmentRequestedEvent} from './event/CreateComponentFragmentRequestedEvent';
 import {LiveEditParams} from './LiveEditParams';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {AddComponentRequest} from './event/AddComponentRequest';
+import {RemoveComponentRequest} from './event/RemoveComponentRequest';
 
 export class ComponentViewBuilder<COMPONENT extends Component> {
 
@@ -168,7 +170,7 @@ export class ComponentView<COMPONENT extends Component>
             .setContextMenuTitle(new ComponentViewContextMenuTitle(builder.component, builder.type))
         );
 
-        this.empty = StringHelper.isEmpty(builder.element.getHtml());
+        this.empty = StringHelper.isEmpty(builder.element?.getHtml());
         this.initListeners();
         this.setComponent(builder.component);
         this.addComponentContextMenuActions(builder.inspectActionRequired);
@@ -236,9 +238,9 @@ export class ComponentView<COMPONENT extends Component>
 
         if (!isTopFragmentComponent) {
             actions.push(new Action(i18n('live.view.remove')).onExecuted(() => {
-                this.deselect();
-                this.remove();
+                new RemoveComponentRequest(this.getPath()).fire();
             }));
+
             actions.push(new Action(i18n('live.view.duplicate')).onExecuted(() => {
                 this.deselect();
 

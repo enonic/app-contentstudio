@@ -14,12 +14,14 @@ import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ComponentJson} from './ComponentJson';
 import {PageItem} from './PageItem';
 import {ComponentAddedEvent} from './ComponentAddedEvent';
+import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 
-export type ComponentPropertyChangedEventHandler =  (event: ComponentPropertyChangedEvent) => void;
-export type ComponentChangedEventHandler =  (event: ComponentChangedEvent) => void;
-export type ComponentPropertyValueChangedEventHandler =  (event: ComponentPropertyValueChangedEvent) => void;
-export type ComponentResetEventHandler =  (event: ComponentResetEvent) => void;
-export type ComponentAddedEventHandler =  (event: ComponentAddedEvent) => void;
+export type ComponentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => void;
+export type ComponentChangedEventHandler = (event: ComponentChangedEvent) => void;
+export type ComponentPropertyValueChangedEventHandler = (event: ComponentPropertyValueChangedEvent) => void;
+export type ComponentResetEventHandler = (event: ComponentResetEvent) => void;
+export type ComponentAddedEventHandler = (event: ComponentAddedEvent) => void;
+export type ComponentRemovedEventHandler = (event: ComponentRemovedEvent) => void;
 
 export abstract class Component
     implements Equitable, Cloneable, PageItem {

@@ -38,6 +38,7 @@ import {AddItemViewRequest} from './event/AddItemViewRequest';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {RegionView} from './RegionView';
 import {ItemType} from './ItemType';
+import {RemoveItemViewRequest} from './event/RemoveItemViewRequest';
 
 export class LiveEditPage {
 
@@ -68,6 +69,8 @@ export class LiveEditPage {
     private editTextComponentRequestedListener: (event: EditTextComponentRequested) => void;
 
     private addItemViewRequestListener: (event: AddItemViewRequest) => void;
+
+    private removeItemViewRequestListener: (event: RemoveItemViewRequest) => void;
 
     private static debug: boolean = false;
 
@@ -262,6 +265,22 @@ export class LiveEditPage {
         };
 
         AddItemViewRequest.on(this.addItemViewRequestListener);
+
+        this.removeItemViewRequestListener = (event: RemoveItemViewRequest) => {
+            const path = ComponentPath.fromString(event.getComponentPath().toString());
+
+            const view: ItemView = this.getItemViewByPath(path);
+
+            if (view) {
+                if (view.isSelected()) {
+                    view.deselect(true);
+                }
+
+                view.remove();
+            }
+        };
+
+        RemoveItemViewRequest.on(this.removeItemViewRequestListener);
     }
 
     private getItemViewByPath(path: ComponentPath): ItemView {
@@ -293,6 +312,8 @@ export class LiveEditPage {
         EditTextComponentRequested.un(this.editTextComponentRequestedListener);
 
         AddItemViewRequest.un(this.addItemViewRequestListener);
+
+        RemoveItemViewRequest.un(this.removeItemViewRequestListener);
     }
 
 }

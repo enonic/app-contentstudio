@@ -291,6 +291,12 @@ export class Region
         this.notifyChangedEvent(event);
     }
 
+    notifyComponentRemovedEvent(event: ComponentRemovedEvent) {
+        this.componentRemovedListeners.forEach((listener: (event: ComponentRemovedEvent) => void) => {
+            listener(event);
+        });
+    }
+
     onComponentPropertyChangedEvent(listener: ComponentPropertyChangedEventHandler) {
         this.componentPropertyChangedListeners.push(listener);
     }

@@ -33,10 +33,8 @@ import {LiveEditPageViewReadyEvent} from '../../../page-editor/LiveEditPageViewR
 import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/LiveEditPageInitializationErrorEvent';
 import {PartComponentView} from '../../../page-editor/part/PartComponentView';
 import {LayoutComponentView} from '../../../page-editor/layout/LayoutComponentView';
-import {RegionView} from '../../../page-editor/RegionView';
 import {PageSelectedEvent} from '../../../page-editor/PageSelectedEvent';
 import {RegionSelectedEvent} from '../../../page-editor/RegionSelectedEvent';
-import {ComponentRemovedEvent} from '../../../page-editor/ComponentRemovedEvent';
 import {ComponentViewDragDroppedEvent} from '../../../page-editor/ComponentViewDragDroppedEventEvent';
 import {ComponentDuplicatedEvent} from '../../../page-editor/ComponentDuplicatedEvent';
 import {ComponentFragmentCreatedEvent} from '../../../page-editor/ComponentFragmentCreatedEvent';
@@ -96,6 +94,7 @@ import {PageNavigationEventType} from '../PageNavigationEventType';
 import {TextComponent} from '../../page/region/TextComponent';
 import {ComponentItem} from '../../../page-editor/TreeComponent';
 import {Region} from '../../page/region/Region';
+import {PageState} from './PageState';
 
 export interface LiveFormPanelConfig {
 
@@ -759,8 +758,7 @@ export class LiveFormPanel
             this.inspectRegion(event.getComponentPath(), !event.isRightClicked());
         });
 
-        eventsManager.onComponentRemoved((event: ComponentRemovedEvent) => {
-
+        PageState.get().onComponentRemoved(() => {
             if (!this.pageModel.isPageTemplate() && this.pageModel.getMode() === PageMode.AUTOMATIC) {
                 this.pageModel.initializePageFromDefault(this);
             }

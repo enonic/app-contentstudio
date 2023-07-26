@@ -14,7 +14,6 @@ import {PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
 import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
 import {Highlighter} from '../../page-editor/Highlighter';
-import {ComponentRemovedEvent} from '../../page-editor/ComponentRemovedEvent';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {ClickPosition} from '../../page-editor/ClickPosition';
 import {PageViewController} from '../../page-editor/PageViewController';
@@ -42,6 +41,7 @@ import {PageNavigationEventType} from './PageNavigationEventType';
 import {PageNavigationEventData} from './PageNavigationEventData';
 import {PageState} from './page/PageState';
 import {ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
+import {ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
 
 export class PageComponentsView
     extends DivEl implements PageNavigationHandler {
@@ -223,11 +223,6 @@ export class PageComponentsView
     private initLiveEditEvents() {
         const eventsManager = PageEventsManager.get();
 
-        eventsManager.onComponentRemoved((event: ComponentRemovedEvent): void => {
-            this.tree.deleteItemByPath(event.getPath());
-            this.highlightInvalidItems();
-        });
-
         eventsManager.onComponentLoaded((path: ComponentPath): void => {
             this.tree.reloadItemByPath(path);
         });
@@ -255,6 +250,11 @@ export class PageComponentsView
 
         PageState.get().onComponentAdded((event: ComponentAddedEvent) => {
             this.addComponent(event.getComponent()).catch(DefaultErrorHandler.handle);
+        });
+
+        PageState.get().onComponentRemoved((event: ComponentRemovedEvent) => {
+            this.tree.deleteItemByPath(event.getPath());
+            this.highlightInvalidItems();
         });
     }
 

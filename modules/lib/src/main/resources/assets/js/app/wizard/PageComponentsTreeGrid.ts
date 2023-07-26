@@ -100,7 +100,7 @@ export class PageComponentsTreeGrid
     }
 
     setPage(page: Page): void {
-        this.page = page;
+        this.page = page?.clone();
     }
 
     setNodeExpandedHandler(handler: () => void) {

@@ -10,9 +10,10 @@ import {RegionJson} from './RegionJson';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {RegionPath} from './RegionPath';
 import {RegionDescriptor} from '../RegionDescriptor';
-import {Component, ComponentAddedEventHandler, ComponentPropertyChangedEventHandler} from './Component';
+import {Component, ComponentAddedEventHandler, ComponentPropertyChangedEventHandler, ComponentRemovedEventHandler} from './Component';
 import {ComponentPath} from './ComponentPath';
 import {ComponentAddedEvent} from './ComponentAddedEvent';
+import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 
 export class Regions
     implements Equitable {
@@ -26,6 +27,8 @@ export class Regions
     private componentPropertyChangedListeners: ComponentPropertyChangedEventHandler[] = [];
 
     private componentAddedListeners: ComponentAddedEventHandler[] = [];
+
+    private componentRemovedListeners: ComponentRemovedEventHandler[] = [];
 
     private readonly regionChangedEventHandler: (event: any) => void;
 
@@ -56,6 +59,7 @@ export class Regions
         region.onChanged(this.regionChangedEventHandler);
         region.onComponentPropertyChangedEvent(this.componentPropertyChangedEventHandler);
         region.onComponentAdded((event: ComponentAddedEvent) => this.notifyComponentAdded(event.getComponent()));
+        region.onComponentRemoved((event: ComponentRemovedEvent) => this.notifyComponentRemoved(event.getPath()));
     }
 
     private unregisterRegionListeners(region: Region) {
@@ -224,6 +228,23 @@ export class Regions
     notifyComponentAdded(component: Component): void {
         let event = new ComponentAddedEvent(component);
         this.componentAddedListeners.forEach((listener: ComponentAddedEventHandler) => {
+            listener(event);
+        });
+    }
+
+    onComponentRemoved(listener: ComponentRemovedEventHandler): void {
+        this.componentRemovedListeners.push(listener);
+    }
+
+    unComponentRemoved(listener: ComponentRemovedEventHandler): void {
+        this.componentRemovedListeners = this.componentRemovedListeners.filter((curr: ComponentRemovedEventHandler) => {
+            return listener !== curr;
+        });
+    }
+
+    notifyComponentRemoved(path: ComponentPath): void {
+        const event = new ComponentRemovedEvent(path);
+        this.componentRemovedListeners.forEach((listener: ComponentRemovedEventHandler) => {
             listener(event);
         });
     }

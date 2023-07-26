@@ -26,6 +26,7 @@ import {DescriptorKey} from './DescriptorKey';
 import {ContentId} from '../content/ContentId';
 import {PageItem} from './region/PageItem';
 import {ComponentAddedEvent} from './region/ComponentAddedEvent';
+import {ComponentRemovedEvent} from './region/ComponentRemovedEvent';
 
 export class Page
     implements Equitable, Cloneable, PageItem {
@@ -197,6 +198,14 @@ export class Page
 
     unComponentAdded(listener: (event: ComponentAddedEvent) => void) {
         this.regions.unComponentAdded(listener);
+    }
+
+    onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
+        this.regions.onComponentRemoved(listener);
+    }
+
+    unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
+        this.regions.unComponentRemoved(listener);
     }
 }
 

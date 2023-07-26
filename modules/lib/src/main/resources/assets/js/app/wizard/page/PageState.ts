@@ -20,7 +20,7 @@ export class PageState {
 
     private componentAddedListeners: { (event: ComponentAddedEvent): void }[] = [];
 
-    private componentRemovedListeners: { (path: ComponentPath): void }[] = [];
+    private componentRemovedListeners: { (event: ComponentRemovedEvent): void }[] = [];
 
     private constructor() {
         this.initListeners();
@@ -35,6 +35,15 @@ export class PageState {
 
             this.addComponent(parentPath, type);
         });
+
+        PageEventsManager.get().onComponentRemoveRequested((path: ComponentPath) => {
+            if (!this.page) {
+                console.warn('Unable to remove a component: Page is not set');
+                return;
+            }
+
+            this.removeComponent(path);
+        });
     }
 
     private addComponent(parentPath: ComponentPath, type: ComponentType): void {
@@ -48,6 +57,14 @@ export class PageState {
             const parentRegion: Region = item.getParent();
             const index: number = item.getIndex();
             parentRegion.addComponent(ComponentFactory.createByType(parentRegion, type), index + 1);
+        }
+    }
+
+    private removeComponent(path: ComponentPath): void {
+        const item: PageItem = this.page.getComponentByPath(path);
+
+        if (item instanceof Component) {
+            item.remove();
         }
     }
 
@@ -73,6 +90,10 @@ export class PageState {
         this.page.onComponentAdded((event: ComponentAddedEvent) => {
             this.notifyComponentAdded(event);
         });
+
+        this.page.onComponentRemoved((event: ComponentRemovedEvent) => {
+            this.notifyComponentRemoved(event);
+        });
     }
 
     onComponentAdded(listener: (event: ComponentAddedEvent) => void) {
@@ -88,16 +109,16 @@ export class PageState {
         this.componentAddedListeners.forEach(listener => listener(event));
     }
 
-    onComponentRemoved(listener: (path: ComponentPath) => void) {
+    onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
         this.componentRemovedListeners.push(listener);
     }
 
-    unComponentRemoved(listener: (path: ComponentPath) => void) {
+    unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
         this.componentRemovedListeners = this.componentRemovedListeners.filter(l => l !== listener);
 
     }
 
-    notifyComponentRemoved(path: ComponentPath) {
-        this.componentRemovedListeners.forEach(listener => listener(path));
+    notifyComponentRemoved(event: ComponentRemovedEvent) {
+        this.componentRemovedListeners.forEach(listener => listener(event));
     }
 }

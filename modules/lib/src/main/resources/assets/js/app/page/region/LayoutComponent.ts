@@ -11,6 +11,7 @@ import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './Descr
 import {Descriptor} from '../Descriptor';
 import {PageItem} from './PageItem';
 import {ComponentAddedEvent} from './ComponentAddedEvent';
+import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 
 export class LayoutComponent
     extends DescriptorBasedComponent {
@@ -129,13 +130,14 @@ export class LayoutComponent
         return new LayoutComponentBuilder(this).build();
     }
 
-    private registerRegionsListeners() {
+    private registerRegionsListeners(): void {
         this.regions.onChanged(this.regionsChangedEventHandler);
         this.regions.onComponentPropertyChanged(this.componentPropertyChangedEventHandler);
         this.regions.onComponentAdded((event: ComponentAddedEvent) => this.getParent()?.notifyComponentAddedEvent(event));
+        this.regions.onComponentRemoved((event: ComponentRemovedEvent) => this.getParent()?.notifyComponentRemovedEvent(event));
     }
 
-    private unregisterRegionsListeners() {
+    private unregisterRegionsListeners(): void {
         this.regions.unChanged(this.regionsChangedEventHandler);
         this.regions.unComponentPropertyChanged(this.componentPropertyChangedEventHandler);
     }

@@ -23,55 +23,12 @@ import {ImageComponent} from '../page/region/ImageComponent';
 
 export class PageHelper {
 
-    public static getPageWithoutEmptyRegions(source: Page): Page {
-        if (!source) {
-            return null;
-        }
-
-        const page: Page = source.clone(); // making sure that working with cloned obj
-
-        if (page.getRegions()) {
-            this.cleanUpRegions(page.getRegions());
-        }
-
-        if (page.getFragment()) {
-            this.cleanUpFragment(page.getFragment());
-        }
-
-        return page;
-    }
-
-    private static cleanUpRegions(source: Regions): void {
-        const emptyRegions: Region[] = source.getRegions().filter((region: Region) => region.isEmpty());
-        source.removeRegions(emptyRegions);
-
-        source.getRegions()
-            .filter((region: Region) => !region.isEmpty())
-            .forEach((region: Region) => this.cleanUpRegion(region));
-    }
-
-    private static cleanUpRegion(region: Region): void {
-        region.getComponents()
-            .filter((component: Component) => component.getType().getShortName() === LayoutComponentType.get().getShortName())
-            .forEach((layoutComponent: LayoutComponent) => this.cleanUpLayout(layoutComponent));
-    }
-
-    private static cleanUpLayout(layoutComponent: LayoutComponent): void {
-        this.cleanUpRegions(layoutComponent.getRegions());
-    }
-
-    private static cleanUpFragment(fragment: Component): void {
-        if (fragment.getType().getShortName() === LayoutComponentType.get().getShortName()) {
-            return this.cleanUpLayout(fragment as LayoutComponent);
-        }
-    }
-
     public static fetchAndInjectLayoutRegions(layout: LayoutComponent): Q.Promise<void> {
         return this.loadDescriptor(layout.getDescriptorKey(), LayoutComponentType.get()).then((descriptor: Descriptor) => {
             const builder: RegionsBuilder = Regions.create();
 
             descriptor.getRegions().forEach((regionDescriptor: RegionDescriptor) => {
-                const regionToAdd: Region = layout.getRegions()?.getRegionByName(regionDescriptor.getName()) ||
+                const regionToAdd: Region = layout.getRegions()?.getRegionByName(regionDescriptor.getName())?.clone() ||
                                             Region.create().setName(regionDescriptor.getName()).setParent(layout).build();
                 builder.addRegion(regionToAdd);
             });
@@ -104,7 +61,7 @@ export class PageHelper {
         return PageHelper.loadDescriptor(page.getController()).then((pageDescriptor: Descriptor) => {
             //fetching descriptor, adding empty regions to page, traversing layouts and adding empty regions to them
             const regionsFetchPromises: Q.Promise<Region>[] = pageDescriptor.getRegions().map((regionDesc: RegionDescriptor) => {
-                const existingRegion: Region = page.getRegions()?.getRegionByName(regionDesc.getName());
+                const existingRegion: Region = page.getRegions()?.getRegionByName(regionDesc.getName())?.clone();
 
                 if (existingRegion) {
                     return this.updateExistingRegion(existingRegion);
