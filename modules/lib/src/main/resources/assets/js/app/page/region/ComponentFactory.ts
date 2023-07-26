@@ -10,6 +10,13 @@ import {RegionJson} from './RegionJson';
 import {Regions} from './Regions';
 import {ComponentPath} from './ComponentPath';
 import {Page} from '../Page';
+import {ComponentType} from './ComponentType';
+import {FragmentComponentType} from './FragmentComponentType';
+import {LayoutComponentType} from './LayoutComponentType';
+import {PartComponentType} from './PartComponentType';
+import {TextComponentType} from './TextComponentType';
+import {ImageComponentType} from './ImageComponentType';
+import {PageComponentType} from './PageComponentType';
 
 export class ComponentFactory {
 
@@ -45,5 +52,29 @@ export class ComponentFactory {
 
             return region;
         })).build();
+    }
+
+    public static createByType(parentRegion: Region, type: ComponentType): Component {
+        if (type instanceof FragmentComponentType) {
+            return new FragmentComponentBuilder().setParent(parentRegion).setName(type.getDefaultName()).build();
+        }
+
+        if (type instanceof LayoutComponentType) {
+            return new LayoutComponentBuilder().setParent(parentRegion).setName(type.getDefaultName()).build();
+        }
+
+        if (type instanceof PartComponentType) {
+            return new PartComponentBuilder().setParent(parentRegion).setName(type.getDefaultName()).build();
+        }
+
+        if (type instanceof TextComponentType) {
+            return new TextComponentBuilder().setParent(parentRegion).setName(type.getDefaultName()).build();
+        }
+
+        if (type instanceof ImageComponentType) {
+            return new ImageComponentBuilder().setParent(parentRegion).setName(type.getDefaultName()).build();
+        }
+
+        throw new Error('Unable to create component with type: ' + type);
     }
 }

@@ -141,6 +141,7 @@ import {PageComponentsView} from './PageComponentsView';
 import {PageView} from '../../page-editor/PageView';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
 import {PageEventsManager} from './PageEventsManager';
+import {PageState} from './page/PageState';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -530,6 +531,10 @@ export class ContentWizardPanel
                     if (this.params.displayAsNew) {
                         showFeedback(i18n('notify.content.created'));
                     }
+
+                    PageHelper.injectEmptyRegionsIntoPage(loader.content.getPage()?.clone()).then((fullPage: Page) => {
+                        PageState.get().setPage(fullPage);
+                    }).catch(DefaultErrorHandler.handle);
                 }
                 this.defaultModels = loader.defaultModels;
                 this.site = loader.siteContent;
@@ -1593,7 +1598,7 @@ export class ContentWizardPanel
                            const needsReload = !this.isSaving();
                            if (livePanel) {
                                livePanel.setModel(this.liveEditModel);
-                               this.pageComponentsView?.setPageModel(this.liveEditModel.getPageModel());
+                               this.pageComponentsView?.setPageModel();
                                if (reloadPage) {
                                    livePanel.clearSelectionAndInspect(true, true);
                                }
@@ -1708,7 +1713,7 @@ export class ContentWizardPanel
             const showPanel: boolean = wasNotRenderable && this.isRenderable();
             this.getLivePanel().setModel(this.liveEditModel);
             this.getLivePanel().clearSelectionAndInspect(showPanel, false);
-            this.pageComponentsView?.setPageModel(this.liveEditModel.getPageModel());
+            this.pageComponentsView?.setPageModel();
             this.debouncedEditorReload(false);
 
             return Q(null);

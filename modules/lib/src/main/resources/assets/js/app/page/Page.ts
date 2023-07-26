@@ -25,6 +25,7 @@ import {ConfigBasedComponent} from './region/ConfigBasedComponent';
 import {DescriptorKey} from './DescriptorKey';
 import {ContentId} from '../content/ContentId';
 import {PageItem} from './region/PageItem';
+import {ComponentAddedEvent} from './region/ComponentAddedEvent';
 
 export class Page
     implements Equitable, Cloneable, PageItem {
@@ -42,7 +43,7 @@ export class Page
     constructor(builder: PageBuilder) {
         this.controller = builder.controller;
         this.template = builder.template;
-        this.regions = builder.regions;
+        this.regions = builder.regions || Regions.create().build();
         this.fragment = builder.fragment;
         this.config = builder.config;
 
@@ -65,12 +66,8 @@ export class Page
         return this.template;
     }
 
-    hasRegions(): boolean {
-        return this.regions != null;
-    }
-
     hasNonEmptyRegions(): boolean {
-        return this.hasRegions() && !this.getRegions().isEmpty();
+        return this.regions != null && !this.getRegions().isEmpty();
     }
 
     getRegions(): Regions {
@@ -170,64 +167,7 @@ export class Page
     }
 
     clone(): Page {
-
         return new PageBuilder(this).build();
-    }
-
-    public doesFragmentContainId(id: ContentId): boolean {
-        let containsId = false;
-        const fragmentCmp = this.getFragment();
-        if (fragmentCmp && ObjectHelper.iFrameSafeInstanceOf(fragmentCmp.getType(), ImageComponentType)) {
-            const imageCmp: ImageComponent = <ImageComponent>fragmentCmp;
-            containsId = imageCmp.hasImage() && imageCmp.getImage().equals(id);
-        }
-
-        return containsId;
-    }
-
-    public doRegionsContainId(regions: Region[], id: ContentId, fragments: ContentId[] = []): boolean {
-        return regions.some((region: Region) => {
-            return region.getComponents().some((component: Component) => {
-                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), FragmentComponentType)) {
-                    const contentId = (<FragmentComponent>component).getFragment();
-                    if (contentId) {
-                        fragments.push(contentId);
-                    }
-                }
-                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), ImageComponentType)) {
-                    return (<ImageComponent>component).getImage().equals(id);
-                }
-                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), LayoutComponentType)) {
-                    return this.doRegionsContainId((<LayoutComponent>component).getRegions().getRegions(),
-                        id,
-                        fragments);
-                }
-                return false;
-            });
-        });
-    }
-
-    public getPropertyValueUsageCount(container: Page | LayoutComponent, name: string, value: string, startFrom: number = 0): number {
-        let counter: number = startFrom;
-        const regions: Region[] = container.getRegions().getRegions();
-
-        regions.forEach((region: Region) => {
-            region.getComponents().forEach((component: Component) => {
-                if (ObjectHelper.iFrameSafeInstanceOf(component, ConfigBasedComponent)) {
-                    const config: PropertyTree = (<ConfigBasedComponent>component).getConfig();
-
-                    if (config.getProperty(name)?.getString() === value) {
-                        counter++;
-                    }
-                }
-
-                if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-                    counter = this.getPropertyValueUsageCount(<LayoutComponent>component, name, value, counter);
-                }
-            });
-        });
-
-        return counter;
     }
 
     getComponentByPath(path: ComponentPath, regions?: Region[]): PageItem {
@@ -249,6 +189,14 @@ export class Page
 
     getParent(): PageItem {
         return null;
+    }
+
+    onComponentAdded(listener: (event: ComponentAddedEvent) => void) {
+        this.regions.onComponentAdded(listener);
+    }
+
+    unComponentAdded(listener: (event: ComponentAddedEvent) => void) {
+        this.regions.unComponentAdded(listener);
     }
 }
 

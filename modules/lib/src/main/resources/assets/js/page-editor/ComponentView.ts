@@ -231,9 +231,7 @@ export class ComponentView<COMPONENT extends Component>
         }
 
         actions.push(new Action(i18n('live.view.reset')).onExecuted(() => {
-            if (this.component) {
-                this.component.reset();
-            }
+            //
         }));
 
         if (!isTopFragmentComponent) {

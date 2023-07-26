@@ -41,7 +41,7 @@ export class PageComponentsTreeGrid
 
     private nodeExpandedHandler?: ()=> void;
 
-    private pageModel: PageModel;
+    private page: Page;
 
     constructor() {
         super(new TreeGridBuilder<ComponentsTreeItem>()
@@ -99,8 +99,8 @@ export class PageComponentsTreeGrid
         return this;
     }
 
-    setPageModel(pageModel: PageModel): void {
-        this.pageModel = pageModel;
+    setPage(page: Page): void {
+        this.page = page;
     }
 
     setNodeExpandedHandler(handler: () => void) {
@@ -140,15 +140,15 @@ export class PageComponentsTreeGrid
     }
 
     fetchRoot(): Q.Promise<ComponentsTreeItem[]> {
-        if (this.pageModel.hasFragment()) {
+        if (this.page.getFragment()) {
             return this.fetchRootFragment().then((rootFragment: ComponentsTreeItem) => [rootFragment]);
         }
 
-        return Q([this.makeRootPageItem()]);
+        return this.fetchRootPageItem().then((rootPageItem: ComponentsTreeItem) => [rootPageItem]);
     }
 
     private fetchRootFragment(): Q.Promise<ComponentsTreeItem> {
-        const component: Component = this.pageModel.getFragment();
+        const component: Component = this.page.getFragment();
 
         return this.fetchDescriptor(component).then((descriptor) => {
             const fullComponent: TreeComponent = TreeComponent.create()
@@ -162,15 +162,17 @@ export class PageComponentsTreeGrid
         });
     }
 
-    private makeRootPageItem(): ComponentsTreeItem {
-        const fullComponent: TreeComponent = TreeComponent.create()
-            .setItem(this.pageModel.getPage())
-            .setDisplayName(this.pageModel.getPageName())
-            .setDescription(this.pageModel.getDescriptor()?.getDescription() || this.makeNoDescriptionText())
-            .setIconClass(this.pageModel.getIconClass())
-            .build();
+    private fetchRootPageItem(): Q.Promise<ComponentsTreeItem> {
+        return new GetComponentDescriptorRequest(this.page.getController().toString()).sendAndParse().then((descriptor) => {
+            const fullComponent: TreeComponent = TreeComponent.create()
+                .setItem(this.page)
+                .setDisplayName(descriptor?.getDisplayName())
+                .setDescription(descriptor?.getDescription() || this.makeNoDescriptionText())
+                .setIconClass('icon-file')
+                .build();
 
-        return new ComponentsTreeItem(fullComponent, null);
+            return new ComponentsTreeItem(fullComponent, null);
+        });
     }
 
     private makeNoDescriptionText(): string {
@@ -292,20 +294,22 @@ export class PageComponentsTreeGrid
         return new GetComponentDescriptorRequest(descriptorKey, type).sendAndParse();
     }
 
-    addComponentToParent(componentView: ComponentView<Component>, parent: RegionView): Q.Promise<void> {
-        const parentNode: TreeNode<ComponentsTreeItem> = this.getRoot().getNodeByDataIdFromCurrent(parent.getItemId().toString());
+    addComponent(component: Component): Q.Promise<ComponentsTreeItem> {
+        const parentNode: TreeNode<ComponentsTreeItem> = this.getNodeByPath(component.getParent().getPath());
         if (!parentNode) {
             return;
         }
 
-        const index: number = parent.getComponentViews().indexOf(componentView);
+        const index: number = component.getIndex();
         if (index < 0) {
             return;
         }
 
-        return this.fetchComponentItem(componentView.getComponent()).then((fullComponent: TreeComponent) => {
-            const item: ComponentsTreeItem = new ComponentsTreeItem(fullComponent, componentView);
+        return this.fetchComponentItem(component).then((fullComponent: TreeComponent) => {
+            const item: ComponentsTreeItem = new ComponentsTreeItem(fullComponent);
             this.insertDataToParentNode(item, parentNode, index);
+
+            return item;
         });
 
     }

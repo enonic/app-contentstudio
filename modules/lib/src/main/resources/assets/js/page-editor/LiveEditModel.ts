@@ -297,7 +297,7 @@ export class LiveEditModelInitializer {
 
     private static fetchAndInjectPageRegions(page: Page, pageDescriptor?: Descriptor): Q.Promise<Regions> {
         if (!pageDescriptor) {
-            const regions: Regions = page.hasRegions() ? page.getRegions().clone() : Regions.create().build();
+            const regions: Regions = page.hasNonEmptyRegions() ? page.getRegions().clone() : Regions.create().build();
             return Q.resolve(regions);
         }
 

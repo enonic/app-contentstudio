@@ -14,6 +14,7 @@ import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
 import {assertState} from '@enonic/lib-admin-ui/util/Assert';
 import {ComponentChangedEvent} from './ComponentChangedEvent';
 import {PageItem} from './PageItem';
+import {ComponentType} from './ComponentType';
 
 export class Region
     implements Equitable, Cloneable, PageItem {
@@ -95,7 +96,7 @@ export class Region
         }
 
         this.registerComponent(component, index);
-        this.notifyComponentAdded(component.getPath());
+        this.notifyComponentAdded(component);
 
         return component;
     }
@@ -128,6 +129,10 @@ export class Region
         assertState(component.getIndex() === index,
             'Index of Component is not as expected. Expected [' + index + '], was: ' + component.getIndex());
         return component;
+    }
+
+    getComponentIndex(component: Component): number {
+        return this.components.indexOf(component);
     }
 
     getComponentByPath(path: ComponentPath): PageItem {
@@ -188,12 +193,6 @@ export class Region
         return new RegionBuilder(this).build();
     }
 
-    private refreshIndexes(start?: number) {
-        for (let i = Math.min(0, start); i < this.components.length; i++) {
-            this.components[i].setIndex(i);
-        }
-    }
-
     private registerComponent(component: Component, index?: number) {
         if (Region.debug) {
             console.debug(this.toString() + '.registerComponent: ' + component.toString() + ' at ' + component.getIndex());
@@ -203,12 +202,9 @@ export class Region
 
             this.components.splice(index, 0, component);
             // update indexes for inserted component and components after it
-            this.refreshIndexes(index);
-
         } else {
 
             this.components.push(component);
-            component.setIndex(this.components.length - 1);
         }
 
         component.setParent(this);
@@ -231,10 +227,8 @@ export class Region
 
         this.components.splice(index, 1);
         // update indexes for inserted component and components after it
-        this.refreshIndexes(index);
 
         component.setParent(null);
-        component.setIndex(-1);
     }
 
     onChanged(listener: (event: BaseRegionChangedEvent) => void) {
@@ -265,12 +259,17 @@ export class Region
             });
     }
 
-    private notifyComponentAdded(componentPath: ComponentPath) {
-        let event = new ComponentAddedEvent(componentPath);
+    notifyComponentAdded(component: Component) {
+        const event: ComponentAddedEvent = new ComponentAddedEvent(component);
         this.componentAddedListeners.forEach((listener: (event: ComponentAddedEvent) => void) => {
             listener(event);
         });
-        this.notifyChangedEvent(event);
+    }
+
+    notifyComponentAddedEvent(event: ComponentAddedEvent) {
+        this.componentAddedListeners.forEach((listener: (event: ComponentAddedEvent) => void) => {
+            listener(event);
+        });
     }
 
     onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {

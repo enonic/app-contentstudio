@@ -13,18 +13,18 @@ import {ComponentPath} from './ComponentPath';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ComponentJson} from './ComponentJson';
 import {PageItem} from './PageItem';
+import {ComponentAddedEvent} from './ComponentAddedEvent';
 
 export type ComponentPropertyChangedEventHandler =  (event: ComponentPropertyChangedEvent) => void;
 export type ComponentChangedEventHandler =  (event: ComponentChangedEvent) => void;
 export type ComponentPropertyValueChangedEventHandler =  (event: ComponentPropertyValueChangedEvent) => void;
 export type ComponentResetEventHandler =  (event: ComponentResetEvent) => void;
+export type ComponentAddedEventHandler =  (event: ComponentAddedEvent) => void;
 
 export abstract class Component
     implements Equitable, Cloneable, PageItem {
 
     public static PROPERTY_NAME: string = 'name';
-
-    private index: number = -1;
 
     private name: ComponentName;
 
@@ -41,9 +41,7 @@ export abstract class Component
     private readonly type: ComponentType;
 
     protected constructor(builder: ComponentBuilder) {
-
         this.name = builder.name;
-        this.index = builder.index;
         this.parent = builder.parent;
         this.type = builder.type;
     }
@@ -52,24 +50,16 @@ export abstract class Component
         this.parent = parent;
     }
 
-    setIndex(value: number) {
-        this.index = value;
-    }
-
     getIndex(): number {
-        return this.index;
+        return this.parent?.getComponentIndex(this) ?? -1;
     }
 
     getType(): ComponentType {
         return this.type;
     }
 
-    hasPath(): boolean {
-        return !!this.parent && this.index >= 0;
-    }
-
     getPath(): ComponentPath {
-        return new ComponentPath(this.index, this.parent?.getPath());
+        return new ComponentPath(this.getIndex(), this.parent?.getPath());
     }
 
     getName(): ComponentName {

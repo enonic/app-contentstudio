@@ -14,7 +14,6 @@ import {PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
 import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
 import {Highlighter} from '../../page-editor/Highlighter';
-import {ComponentAddedEvent} from '../../page-editor/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../../page-editor/ComponentRemovedEvent';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {ClickPosition} from '../../page-editor/ClickPosition';
@@ -31,7 +30,6 @@ import {ComponentPath} from '../page/region/ComponentPath';
 import {ComponentItem} from '../../page-editor/TreeComponent';
 import {Page} from '../page/Page';
 import {PageEventsManager} from './PageEventsManager';
-import {PageModel} from '../../page-editor/PageModel';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {TextComponent} from '../page/region/TextComponent';
 import {PageActionsHelper} from './PageActionsHelper';
@@ -42,6 +40,8 @@ import {PageNavigationEvent} from './PageNavigationEvent';
 import {PageNavigationMediator} from './PageNavigationMediator';
 import {PageNavigationEventType} from './PageNavigationEventType';
 import {PageNavigationEventData} from './PageNavigationEventData';
+import {PageState} from './page/PageState';
+import {ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
 
 export class PageComponentsView
     extends DivEl implements PageNavigationHandler {
@@ -205,8 +205,8 @@ export class PageComponentsView
         this.onClicked(this.lockedViewClickHandler);
     }
 
-    setPageModel(pageModel: PageModel): void {
-        this.tree.setPageModel(pageModel);
+    setPageModel(): void {
+        this.tree.setPage(PageState.get().getPage());
         this.tree.deselectAll();
         Highlighter.get().hide();
 
@@ -222,15 +222,6 @@ export class PageComponentsView
 
     private initLiveEditEvents() {
         const eventsManager = PageEventsManager.get();
-
-        eventsManager.onComponentAdded((event: ComponentAddedEvent): void => {
-            /*
-            this.addComponent(event).then(() => {
-                this.handleComponentAdded(event);
-            });
-            */
-
-        });
 
         eventsManager.onComponentRemoved((event: ComponentRemovedEvent): void => {
             this.tree.deleteItemByPath(event.getPath());
@@ -261,17 +252,16 @@ export class PageComponentsView
         eventsManager.onPageUnlocked(() => {
             this.pageLockedHandler(false);
         });
+
+        PageState.get().onComponentAdded((event: ComponentAddedEvent) => {
+            this.addComponent(event.getComponent()).catch(DefaultErrorHandler.handle);
+        });
     }
 
-    private addComponent(event: ComponentAddedEvent): Q.Promise<boolean> {
-        /*
-        return this.tree.addComponentToParent(event.getComponentView(), event.getParentRegionView()).then(() => {
-            return this.tree.expandNodeByDataId(event.getParentRegionView().getItemId().toString());
+    private addComponent(component: Component): Q.Promise<boolean> {
+        return this.tree.addComponent(component).then((item: ComponentsTreeItem) => {
+            return this.tree.expandNodeByDataId(item.getId());
         });
-
-         */
-
-        return null;
     }
 
     private handleComponentAdded(event: ComponentAddedEvent): void {

@@ -10,8 +10,9 @@ import {RegionJson} from './RegionJson';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {RegionPath} from './RegionPath';
 import {RegionDescriptor} from '../RegionDescriptor';
-import {ComponentPropertyChangedEventHandler} from './Component';
+import {Component, ComponentAddedEventHandler, ComponentPropertyChangedEventHandler} from './Component';
 import {ComponentPath} from './ComponentPath';
+import {ComponentAddedEvent} from './ComponentAddedEvent';
 
 export class Regions
     implements Equitable {
@@ -23,6 +24,8 @@ export class Regions
     private changedListeners: { (event: RegionsChangedEvent): void }[] = [];
 
     private componentPropertyChangedListeners: ComponentPropertyChangedEventHandler[] = [];
+
+    private componentAddedListeners: ComponentAddedEventHandler[] = [];
 
     private readonly regionChangedEventHandler: (event: any) => void;
 
@@ -52,6 +55,7 @@ export class Regions
     private registerRegionListeners(region: Region) {
         region.onChanged(this.regionChangedEventHandler);
         region.onComponentPropertyChangedEvent(this.componentPropertyChangedEventHandler);
+        region.onComponentAdded((event: ComponentAddedEvent) => this.notifyComponentAdded(event.getComponent()));
     }
 
     private unregisterRegionListeners(region: Region) {
@@ -205,6 +209,23 @@ export class Regions
         }
 
         this.notifyChanged(event);
+    }
+
+    onComponentAdded(listener: ComponentAddedEventHandler): void {
+        this.componentAddedListeners.push(listener);
+    }
+
+    unComponentAdded(listener: ComponentAddedEventHandler): void {
+        this.componentAddedListeners = this.componentAddedListeners.filter((curr: ComponentAddedEventHandler) => {
+            return listener !== curr;
+        });
+    }
+
+    notifyComponentAdded(component: Component): void {
+        let event = new ComponentAddedEvent(component);
+        this.componentAddedListeners.forEach((listener: ComponentAddedEventHandler) => {
+            listener(event);
+        });
     }
 
     public static create(): RegionsBuilder {

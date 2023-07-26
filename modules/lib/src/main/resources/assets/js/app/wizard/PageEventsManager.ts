@@ -5,12 +5,9 @@ import {PageLockedEvent} from '../../page-editor/PageLockedEvent';
 import {PageUnlockedEvent} from '../../page-editor/PageUnlockedEvent';
 import {PageTextModeStartedEvent} from '../../page-editor/PageTextModeStartedEvent';
 import {RegionSelectedEvent} from '../../page-editor/RegionSelectedEvent';
-import {ItemViewSelectedEvent} from '../../page-editor/ItemViewSelectedEvent';
-import {ItemViewDeselectedEvent} from '../../page-editor/ItemViewDeselectedEvent';
 import {ComponentAddedEvent} from '../../page-editor/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../../page-editor/ComponentRemovedEvent';
 import {ComponentDuplicatedEvent} from '../../page-editor/ComponentDuplicatedEvent';
-import {ComponentInspectedEvent} from '../../page-editor/ComponentInspectedEvent';
 import {LiveEditPageViewReadyEvent} from '../../page-editor/LiveEditPageViewReadyEvent';
 import {LiveEditPageInitializationErrorEvent} from '../../page-editor/LiveEditPageInitializationErrorEvent';
 import {ComponentFragmentCreatedEvent} from '../../page-editor/ComponentFragmentCreatedEvent';
@@ -107,7 +104,7 @@ export class PageEventsManager {
 
     private componentDetachFragmentRequestedListeners: { (path: ComponentPath): void; }[] = [];
 
-    private componentInsertRequestedListeners: { (path: ComponentPath, type: ComponentType): void; }[] = [];
+    private componentInsertRequestedListeners: { (parentPath: ComponentPath, type: ComponentType): void; }[] = [];
 
     private constructor() {
         //
@@ -551,16 +548,16 @@ export class PageEventsManager {
         this.componentDetachFragmentRequestedListeners.forEach((listener) => listener(path));
     }
 
-    onComponentInsertRequested(listener: { (path: ComponentPath, type: ComponentType): void; }) {
+    onComponentInsertRequested(listener: { (parentPath: ComponentPath, type: ComponentType): void; }) {
         this.componentInsertRequestedListeners.push(listener);
     }
 
-    unComponentInsertRequested(listener: { (path: ComponentPath, type: ComponentType): void; }) {
+    unComponentInsertRequested(listener: { (parentPath: ComponentPath, type: ComponentType): void; }) {
         this.componentInsertRequestedListeners = this.componentInsertRequestedListeners.filter((curr) => (curr !== listener));
     }
 
-    notifyComponentInsertRequested(path: ComponentPath, type: ComponentType) {
-        this.componentInsertRequestedListeners.forEach((listener) => listener(path, type));
+    notifyComponentInsertRequested(parentPath: ComponentPath, type: ComponentType) {
+        this.componentInsertRequestedListeners.forEach((listener) => listener(parentPath, type));
     }
 
 }

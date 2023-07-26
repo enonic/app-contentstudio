@@ -85,6 +85,7 @@ import {Descriptor} from '../../page/Descriptor';
 import {SelectComponentRequestedEvent} from '../../../page-editor/event/SelectComponentRequestedEvent';
 import {DeselectComponentRequestedEvent} from '../../../page-editor/event/DeselectComponentRequestedEvent';
 import {EditTextComponentRequested} from '../../../page-editor/event/EditTextComponentRequested';
+import {PageState} from './PageState';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -184,6 +185,10 @@ export class LiveEditPageProxy implements PageNavigationHandler {
                 }
             }
         };
+
+        PageState.get().onComponentAdded((event) => {
+
+        });
     }
 
     private setCursorPositionInTextComponent(textComponentView: TextComponentView, cursorPosition: HtmlEditorCursorPosition): void {

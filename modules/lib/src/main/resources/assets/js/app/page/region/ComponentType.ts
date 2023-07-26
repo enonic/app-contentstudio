@@ -1,7 +1,7 @@
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ComponentName} from './ComponentName';
 
-export class ComponentType {
+export abstract class ComponentType {
 
     private static shortNameToInstance: { [shortName: string]: ComponentType } = {};
 

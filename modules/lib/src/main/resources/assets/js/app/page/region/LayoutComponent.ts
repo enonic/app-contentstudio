@@ -10,6 +10,7 @@ import {LayoutRegionsMerger} from './LayoutRegionsMerger';
 import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './DescriptorBasedComponent';
 import {Descriptor} from '../Descriptor';
 import {PageItem} from './PageItem';
+import {ComponentAddedEvent} from './ComponentAddedEvent';
 
 export class LayoutComponent
     extends DescriptorBasedComponent {
@@ -131,6 +132,7 @@ export class LayoutComponent
     private registerRegionsListeners() {
         this.regions.onChanged(this.regionsChangedEventHandler);
         this.regions.onComponentPropertyChanged(this.componentPropertyChangedEventHandler);
+        this.regions.onComponentAdded((event: ComponentAddedEvent) => this.getParent()?.notifyComponentAddedEvent(event));
     }
 
     private unregisterRegionsListeners() {
