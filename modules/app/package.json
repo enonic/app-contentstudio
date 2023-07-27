@@ -24,7 +24,7 @@
     "q": "^1.5.1"
   },
   "devDependencies": {
-    "@enonic/eslint-config": "^1.1.0",
+    "@enonic/eslint-config": "^1.2.0",
     "@types/ckeditor": "^4.9.10",
     "@types/core-js": "^2.5.5",
     "@types/jquery": "^3.5.16",
