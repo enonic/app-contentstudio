@@ -157,7 +157,7 @@ function shouldUpdateFavicon(contentTypeName: ContentTypeName): boolean {
     return contentTypeName.isImage() || navigator.userAgent.search('Chrome') === -1;
 }
 
-const faviconCache: { [url: string]: HTMLElement } = {};
+const faviconCache: Record<string, HTMLElement> = {};
 
 const iconUrlResolver = new ContentIconUrlResolver();
 
@@ -485,7 +485,7 @@ async function startContentWizard() {
         wizard.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === 'displayName') {
                 let contentType = wizard.getContentType();
-                let name = <string>event.getNewValue() || NamePrettyfier.prettifyUnnamed(contentType.getDisplayName());
+                let name = event.getNewValue() as string || NamePrettyfier.prettifyUnnamed(contentType.getDisplayName());
 
                 updateTabTitle(name);
             }

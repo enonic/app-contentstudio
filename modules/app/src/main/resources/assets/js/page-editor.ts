@@ -77,29 +77,29 @@ const init = () => {
     function hasMatchingBinding(keys: KeyBinding[], event: JQuery.TriggeredEvent) {
         let isMod = event.ctrlKey || event.metaKey;
         let isAlt = event.altKey;
-        let key = event.keyCode || event.which;
+        let eventKey = event.keyCode || event.which;
 
-        for (let i = 0; i < keys.length; i++) {
+        for (let key of keys) {
             let matches = false;
 
-            switch (keys[i].getCombination()) {
+            switch (key.getCombination()) {
             case 'backspace':
-                matches = key === 8;
+                matches = eventKey === 8;
                 break;
             case 'del':
-                matches = key === 46;
+                matches = eventKey === 46;
                 // eslint-disable-next-line no-fallthrough
             case 'mod+del':
                 matches = matches && isMod;
                 break;
             case 'mod+s':
-                matches = key === 83 && isMod;
+                matches = eventKey === 83 && isMod;
                 break;
             case 'mod+esc':
-                matches = key === 83 && isMod;
+                matches = eventKey === 83 && isMod;
                 break;
             case 'mod+alt+f4':
-                matches = key === 115 && isMod && isAlt;
+                matches = eventKey === 115 && isMod && isAlt;
                 break;
             }
 
