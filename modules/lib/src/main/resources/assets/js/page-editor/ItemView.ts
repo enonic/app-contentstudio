@@ -212,7 +212,7 @@ export abstract class ItemView
         super(props);
 
         this.type = builder.type;
-        this.liveEditParams = builder.liveEditParams
+        this.liveEditParams = builder.liveEditParams;
         this.parentItemView = builder.parentView;
         this.itemViewIdProducer = builder.itemViewIdProducer;
         this.itemViewFactory = builder.itemViewFactory;

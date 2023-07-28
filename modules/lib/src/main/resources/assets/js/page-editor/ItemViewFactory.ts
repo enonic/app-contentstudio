@@ -46,7 +46,7 @@ export class DefaultItemViewFactory
     }
 
     private createFragmentView(config: CreateFragmentViewConfig): FragmentComponentView {
-        return new FragmentComponentView(<FragmentComponentViewBuilder>new FragmentComponentViewBuilder()
+        return new FragmentComponentView(new FragmentComponentViewBuilder()
             .setItemViewIdProducer(config.itemViewIdProducer)
             .setItemViewFactory(config.itemViewFactory)
             .setParentRegionView(config.parentView)
@@ -57,7 +57,7 @@ export class DefaultItemViewFactory
     }
 
     private createImageView(config: CreateItemViewConfig<RegionView, ImageComponent>): ImageComponentView {
-        return new ImageComponentView(<ImageComponentViewBuilder>new ImageComponentViewBuilder()
+        return new ImageComponentView(new ImageComponentViewBuilder()
             .setItemViewIdProducer(config.itemViewIdProducer)
             .setItemViewFactory(config.itemViewFactory)
             .setParentRegionView(config.parentView)

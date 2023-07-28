@@ -101,9 +101,9 @@ export class Project
                 return {
                     key: config?.getApplicationKey().toString(),
                     config: config?.getConfig().toJson(),
-                }
+                };
             })
-        }
+        };
     }
 
     equals(o: Equitable): boolean {

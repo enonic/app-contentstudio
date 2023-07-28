@@ -207,13 +207,15 @@ export class PageComponentsView
     }
 
     setPageModel(): void {
-        this.tree.setPage(PageState.get().getPage());
-        this.tree.deselectAll();
-        Highlighter.get().hide();
+        if (PageState.get().getPage()?.getRegions() && !PageState.get().getPage().getRegions().isEmpty()) {
+            this.tree.setPage(PageState.get().getPage());
+            this.tree.deselectAll();
+            Highlighter.get().hide();
 
-        this.tree.reload().then(() => {
-            this.initLock();
-        }).catch(DefaultErrorHandler.handle);
+            this.tree.reload().then(() => {
+                this.initLock();
+            }).catch(DefaultErrorHandler.handle);
+        }
     }
 
     setModifyPermissions(modifyPermissions: boolean): boolean {

@@ -41,9 +41,7 @@ export class ComponentPath
             return false;
         }
 
-        const other = <ComponentPath>o;
-
-        return ObjectHelper.stringEquals(this.toString(), other.toString());
+        return ObjectHelper.stringEquals(this.toString(), o.toString());
     }
 
     isRoot(): boolean {
@@ -67,7 +65,7 @@ export class ComponentPath
         for (let i = 1; i < pathParts.length; i++) {
             parentPath = new ComponentPath(pathPart, parentPath);
             pathPart = pathParts[i];
-        }
+        };
 
         return new ComponentPath(pathPart, parentPath);
     }

@@ -426,7 +426,7 @@ export class TextComponentView
     }
 
     private handleEditorCreated() {
-        const componentText: string = '' // this.component.getText();
+        const componentText: string = ''; // this.component.getText();
         const data: string = componentText ?
                              HTMLAreaHelper.convertRenderSrcToPreviewSrc(componentText, this.getLiveEditParams().contentId) :
                              TextComponentView.DEFAULT_TEXT;

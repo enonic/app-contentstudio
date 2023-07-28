@@ -55,7 +55,7 @@ export class FragmentComponentView
     private fragmentContentId?: ContentId;
 
     constructor(builder: FragmentComponentViewBuilder) {
-        super(<FragmentComponentViewBuilder>builder.setViewer(new FragmentComponentViewer()).setInspectActionRequired(true));
+        super(builder.setViewer(new FragmentComponentViewer()).setInspectActionRequired(true));
 
         this.fragmentContainsLayout = false;
         this.fragmentContent = null;

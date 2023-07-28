@@ -602,7 +602,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         }, contextWindow);
 
         ComponentDuplicatedEvent.on((event: ComponentDuplicatedEvent) => {
-            eventsManager.notifyComponentDuplicated(event)
+            eventsManager.notifyComponentDuplicated(event);
         }, contextWindow);
 
         ComponentInspectedEvent.on((event: ComponentInspectedEvent) => {
