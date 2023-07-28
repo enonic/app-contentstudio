@@ -137,8 +137,6 @@ export class ComponentView<COMPONENT extends Component>
 
     private itemViewRemovedListeners: { (event: ItemViewRemovedEvent): void }[] = [];
 
-    private propertyChangedListener: ComponentPropertyChangedEventHandler;
-
     private resetListener: ComponentResetEventHandler;
 
     protected initOnAdd: boolean = true;
@@ -166,10 +164,10 @@ export class ComponentView<COMPONENT extends Component>
         this.initListeners();
         this.addComponentContextMenuActions(builder.inspectActionRequired);
         this.initKeyBoardBindings();
+        this.refreshEmptyState();
     }
 
     protected initListeners() {
-        this.propertyChangedListener = () => this.refreshEmptyState();
         this.resetListener = () => {
             // recreate the component view from scratch
             // if the component has been reset
@@ -178,7 +176,6 @@ export class ComponentView<COMPONENT extends Component>
             this.replaceWith(clone);
             clone.select();
             clone.hideContextMenu();
-
         };
     }
 

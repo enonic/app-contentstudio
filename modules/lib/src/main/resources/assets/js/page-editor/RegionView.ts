@@ -338,6 +338,7 @@ export class RegionView
 
         this.insertChild(componentView, index);
         this.registerComponentView(componentView, index, newlyCreated || dragged);
+        this.refreshEmptyState();
     }
 
     removeComponentView(componentView: ComponentView<Component>, silent: boolean = false) {
