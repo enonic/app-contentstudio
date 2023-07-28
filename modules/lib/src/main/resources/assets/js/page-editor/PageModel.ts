@@ -1,4 +1,4 @@
-import {LiveEditModel} from './LiveEditModel';
+import {LiveEditModel, LiveEditModelInitializer} from './LiveEditModel';
 import {PageModeChangedEvent} from './PageModeChangedEvent';
 import {PageTemplate} from '../app/content/PageTemplate';
 import {Regions} from '../app/page/region/Regions';
@@ -11,6 +11,13 @@ import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Descriptor} from '../app/page/Descriptor';
+import {
+    PageTemplateAndControllerSelector
+} from '../app/wizard/page/contextwindow/inspect/page/PageTemplateAndControllerSelector';
+import {PageView} from './PageView';
+import {LiveFormPanel} from '../app/wizard/page/LiveFormPanel';
+
+type EventSource = PageTemplateAndControllerSelector | PageView | PageModel | LiveFormPanel | LiveEditModelInitializer;
 
 export class SetController {
 
@@ -287,9 +294,8 @@ export class PageModel {
         this.setController(setController, silent);
     }
 
-    setAutomaticTemplate(eventSource?: any, ignoreRegionChanges: boolean = false): PageModel {
-
-        let config = this.defaultTemplate.hasConfig() ? this.defaultTemplate.getConfig().copy() : new PropertyTree();
+    setAutomaticTemplate(eventSource?: EventSource, ignoreRegionChanges: boolean = false): PageModel {
+        const config = this.defaultTemplate.hasConfig() ? this.defaultTemplate.getConfig().copy() : new PropertyTree();
 
         let regions = this.defaultTemplate.hasRegions()
                       ? this.defaultTemplate.getRegions().clone()
