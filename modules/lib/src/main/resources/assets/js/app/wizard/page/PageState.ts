@@ -10,25 +10,33 @@ import {Region} from '../../page/region/Region';
 import {Component} from '../../page/region/Component';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
 import {ComponentPropertyChangedEvent} from '../../page/region/ComponentPropertyChangedEvent';
+import {ComponentEventsHolder} from './ComponentEventsHolder';
+import {ComponentEventsWrapper} from './ComponentEventsWrapper';
 
 
 export class PageState {
 
     private static INSTANCE: PageState = null;
 
-    private page: Page;
+    private state: Page;
 
-    private componentAddedListeners: { (event: ComponentAddedEvent): void }[] = [];
+    private componentEventsHolder: ComponentEventsHolder;
 
-    private componentRemovedListeners: { (event: ComponentRemovedEvent): void }[] = [];
+    private componentAddedNotifier: (event: ComponentAddedEvent) => void;
+
+    private componentRemovedNotifier: (event: ComponentRemovedEvent) => void;
 
     private constructor() {
+        this.componentEventsHolder = new ComponentEventsHolder();
         this.initListeners();
     }
 
     private initListeners(): void {
+        this.componentAddedNotifier = (event: ComponentAddedEvent) => this.componentEventsHolder.notifyComponentAdded(event);
+        this.componentRemovedNotifier = (event: ComponentRemovedEvent) => this.componentEventsHolder.notifyComponentRemoved(event);
+
         PageEventsManager.get().onComponentInsertRequested((parentPath: ComponentPath, type: ComponentType) => {
-            if (!this.page) {
+            if (!this.state) {
                 console.warn('Unable to add a new component: Page is not set');
                 return;
             }
@@ -37,7 +45,7 @@ export class PageState {
         });
 
         PageEventsManager.get().onComponentRemoveRequested((path: ComponentPath) => {
-            if (!this.page) {
+            if (!this.state) {
                 console.warn('Unable to remove a component: Page is not set');
                 return;
             }
@@ -52,10 +60,14 @@ export class PageState {
         PageEventsManager.get().onSetFragmentComponentRequested((path: ComponentPath, id: string) => {
 
         });
+
+        PageEventsManager.get().onComponentResetRequested((path: ComponentPath) => {
+            this.resetComponent(path);
+        });
     }
 
     private addComponent(parentPath: ComponentPath, type: ComponentType): void {
-        const item: PageItem = this.page.getComponentByPath(parentPath);
+        const item: PageItem = this.state.getComponentByPath(parentPath);
 
         if (item instanceof Region) {
             item.addComponent(ComponentFactory.createByType(item, type));
@@ -69,14 +81,22 @@ export class PageState {
     }
 
     private removeComponent(path: ComponentPath): void {
-        const item: PageItem = this.page.getComponentByPath(path);
+        const item: PageItem = this.state.getComponentByPath(path);
 
         if (item instanceof Component) {
             item.remove();
         }
     }
 
-    static get(): PageState {
+    private resetComponent(path: ComponentPath): void {
+        const item: PageItem = this.state.getComponentByPath(path);
+
+        if (item instanceof Component) {
+            item.reset();
+        }
+    }
+
+    private static get(): PageState {
         if (!PageState.INSTANCE) {
             PageState.INSTANCE = new PageState();
         }
@@ -84,49 +104,33 @@ export class PageState {
         return PageState.INSTANCE;
     }
 
-    getPage(): Page {
-        return this.page;
+    static setState(page: Page): void {
+        this.get().setPage(page);
     }
 
-    setPage(page: Page): void {
-        this.page = page;
-
-        this.listenPageEvents();
+    static getState(): Page {
+        return this.get().state;
     }
 
-    private listenPageEvents(): void {
-        this.page.onComponentAdded((event: ComponentAddedEvent) => {
-            this.notifyComponentAdded(event);
-        });
+    private setPage(page: Page): void {
+        this.unListenPageComponentsEvents();
 
-        this.page.onComponentRemoved((event: ComponentRemovedEvent) => {
-            this.notifyComponentRemoved(event);
-        });
+        this.state = page;
+
+        this.listenPageComponentsEvents();
     }
 
-    onComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.componentAddedListeners.push(listener);
+    static getEventsManager(): ComponentEventsWrapper {
+        return new ComponentEventsWrapper(this.get().componentEventsHolder);
     }
 
-    unComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.componentAddedListeners = this.componentAddedListeners.filter(l => l !== listener);
-
+    private listenPageComponentsEvents(): void {
+        this.state?.onComponentAdded(this.componentAddedNotifier);
+        this.state?.onComponentRemoved(this.componentRemovedNotifier);
     }
 
-    notifyComponentAdded(event: ComponentAddedEvent) {
-        this.componentAddedListeners.forEach(listener => listener(event));
-    }
-
-    onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.componentRemovedListeners.push(listener);
-    }
-
-    unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.componentRemovedListeners = this.componentRemovedListeners.filter(l => l !== listener);
-
-    }
-
-    notifyComponentRemoved(event: ComponentRemovedEvent) {
-        this.componentRemovedListeners.forEach(listener => listener(event));
+    private unListenPageComponentsEvents(): void {
+        this.state?.unComponentAdded(this.componentAddedNotifier);
+        this.state?.unComponentRemoved(this.componentRemovedNotifier);
     }
 }

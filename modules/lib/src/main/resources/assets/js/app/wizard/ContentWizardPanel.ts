@@ -533,7 +533,7 @@ export class ContentWizardPanel
                     }
 
                     PageHelper.injectEmptyRegionsIntoPage(loader.content.getPage()?.clone()).then((fullPage: Page) => {
-                        PageState.get().setPage(fullPage);
+                        PageState.setState(fullPage);
                     }).catch(DefaultErrorHandler.handle);
                 }
                 this.defaultModels = loader.defaultModels;

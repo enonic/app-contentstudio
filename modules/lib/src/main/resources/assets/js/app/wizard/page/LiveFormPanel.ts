@@ -283,7 +283,7 @@ export class LiveFormPanel
 
     private initPropertyChangedHandlers(): void {
         this.componentPropertyChangedHandler = (event: ComponentPropertyChangedEvent) => {
-            const component = PageState.get().getPage().getComponentByPath(event.getPath());
+            const component = PageState.getState().getComponentByPath(event.getPath());
 
             if (component instanceof DescriptorBasedComponent) {
                 if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
@@ -732,7 +732,7 @@ export class LiveFormPanel
             this.inspectRegion(event.getComponentPath(), !event.isRightClicked());
         });
 
-        PageState.get().onComponentRemoved(() => {
+        PageState.getEventsManager().onComponentRemoved(() => {
             if (!this.pageModel.isPageTemplate() && this.pageModel.getMode() === PageMode.AUTOMATIC) {
                 this.pageModel.initializePageFromDefault(this);
             }

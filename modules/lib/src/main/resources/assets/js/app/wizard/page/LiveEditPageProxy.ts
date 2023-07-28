@@ -725,11 +725,11 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             new LiveEditPageDialogCreatedEvent(modalDialog, config).fire(this.liveEditWindow);
         });
 
-        PageState.get().onComponentAdded((event: ComponentAddedEvent): void => {
+        PageState.getEventsManager().onComponentAdded((event: ComponentAddedEvent): void => {
             new AddItemViewRequest(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
         });
 
-        PageState.get().onComponentRemoved((event: ComponentRemovedEvent) => {
+        PageState.getEventsManager().onComponentRemoved((event: ComponentRemovedEvent) => {
             new RemoveItemViewRequest(event.getPath()).fire(this.liveEditWindow);
         });
     }

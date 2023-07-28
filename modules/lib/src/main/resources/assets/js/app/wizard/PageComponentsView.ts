@@ -207,8 +207,8 @@ export class PageComponentsView
     }
 
     setPageModel(): void {
-        if (PageState.get().getPage()?.getRegions() && !PageState.get().getPage().getRegions().isEmpty()) {
-            this.tree.setPage(PageState.get().getPage());
+        if (PageState.getState()?.getRegions() && !PageState.getState().getRegions().isEmpty()) {
+            this.tree.setPage(PageState.getState());
             this.tree.deselectAll();
             Highlighter.get().hide();
 
@@ -251,11 +251,11 @@ export class PageComponentsView
             this.pageLockedHandler(false);
         });
 
-        PageState.get().onComponentAdded((event: ComponentAddedEvent) => {
+        PageState.getEventsManager().onComponentAdded((event: ComponentAddedEvent) => {
             this.addComponent(event.getComponent()).catch(DefaultErrorHandler.handle);
         });
 
-        PageState.get().onComponentRemoved((event: ComponentRemovedEvent) => {
+        PageState.getEventsManager().onComponentRemoved((event: ComponentRemovedEvent) => {
             this.tree.deleteItemByPath(event.getPath());
             this.highlightInvalidItems();
         });
@@ -675,7 +675,7 @@ export class PageComponentsView
         }
 
         const path: ComponentPath = item.getPath();
-        const page: Page = PageState.get().getPage();
+        const page: Page = PageState.getState();
         const pageItem: PageItem = path.isRoot() ? page : page.getComponentByPath(path);
 
         if (pageItem instanceof Page) {
