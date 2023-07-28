@@ -93,6 +93,8 @@ export class PageState {
 
         if (item instanceof Component) {
             item.reset();
+        } else if (item instanceof Region) {
+            item.empty();
         }
     }
 
