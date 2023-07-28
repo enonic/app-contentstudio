@@ -79,10 +79,6 @@ export class LayoutComponentView
         return result;
     }
 
-    setComponent(layoutComponent: LayoutComponent) {
-        super.setComponent(layoutComponent);
-    }
-
     getRegions(): RegionView[] {
         return this.regionViews;
     }

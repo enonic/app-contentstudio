@@ -349,6 +349,8 @@ export class RegionView
         if (!silent) {
             this.removeChild(componentView);
         }
+
+        this.refreshEmptyState();
     }
 
     getComponentViews(): ComponentView<Component>[] {
@@ -364,10 +366,10 @@ export class RegionView
         let result: ItemView = null;
 
         this.componentViews.some((componentView: ComponentView<Component>) => {
-            if (componentView.isLayout()) {
-                result = (<LayoutComponentView>componentView).getComponentViewByPath(path);
-            } else if (path.equals(componentView.getPath())) {
+            if (path.equals(componentView.getPath())) {
                 result = componentView;
+            } else if (componentView.isLayout()) {
+                result = (<LayoutComponentView>componentView).getComponentViewByPath(path);
             }
 
             return !!result;
@@ -384,7 +386,7 @@ export class RegionView
 
     isEmpty(): boolean {
         const onlyMoving = this.hasOnlyMovingComponentViews();
-        const empty = !this.componentViews?.length || this.componentViews.every((view: ComponentView<Component>) => view.isEmpty());
+        const empty = !this.componentViews?.length;
 
         return empty || onlyMoving;
     }

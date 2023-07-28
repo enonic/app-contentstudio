@@ -48,34 +48,25 @@ export class FragmentComponentView
 
     private fragmentContainsLayout: boolean;
 
-    private fragmentContent: Content;
-
-    private fragmentContentLoadedListeners: { (event: FragmentComponentLoadedEvent): void }[];
+    private fragmentContent?: Content;
 
     private loaded: boolean = false;
+
+    private fragmentContentId?: ContentId;
 
     constructor(builder: FragmentComponentViewBuilder) {
         super(<FragmentComponentViewBuilder>builder.setViewer(new FragmentComponentViewer()).setInspectActionRequired(true));
 
         this.fragmentContainsLayout = false;
         this.fragmentContent = null;
-        this.fragmentContentLoadedListeners = [];
 
         this.setPlaceholder(new FragmentPlaceholder(this));
 
-        this.component?.onPropertyValueChanged((e: ComponentPropertyValueChangedEvent) => {
-            if (e.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT) {
-                this.loadFragmentContent();
-            }
-        });
         this.loadFragmentContent();
 
         this.parseFragmentComponents(this);
 
         this.disableLinks();
-
-        this.handleContentRemovedEvent();
-        this.handleContentUpdatedEvent();
     }
 
     getFragmentRootType(): ComponentType {
@@ -86,47 +77,6 @@ export class FragmentComponentView
             }
         }
         return null;
-    }
-
-    private handleContentRemovedEvent() {
-        let contentDeletedListener = (event) => {
-            let deleted = event.getDeletedItems().some((deletedItem: ContentDeletedItem) => {
-                return !deletedItem.isPending() && deletedItem.getContentId().equals(this.component.getFragment());
-            });
-            if (deleted) {
-                this.notifyFragmentLoadError();
-                new ShowWarningLiveEditEvent(i18n('live.view.fragment.notavailable', this.component.getFragment())).fire();
-                this.convertToBrokenFragmentView();
-            }
-        };
-
-        ContentDeletedEvent.on(contentDeletedListener);
-
-        this.onRemoved((event) => {
-            ContentDeletedEvent.un(contentDeletedListener);
-        });
-    }
-
-    private handleContentUpdatedEvent(): void {
-        const contentUpdatedListener = (event: ContentUpdatedEvent) => {
-            const fragmentId: ContentId = this.component?.getFragment() || null;
-
-            if (fragmentId?.equals(event.getContentId())) {
-                const updatedFragment: ContentSummary = event.getContentSummary();
-
-                // skipping just created fragment
-                if (updatedFragment.getModifiedTime() &&
-                    Math.abs(updatedFragment.getModifiedTime().getTime() - updatedFragment.getCreatedTime().getTime()) > 300) {
-                    new FragmentComponentReloadRequiredEvent(this).fire();
-                }
-            }
-        };
-
-        ContentUpdatedEvent.on(contentUpdatedListener);
-
-        this.onRemoved(() => {
-            ContentUpdatedEvent.un(contentUpdatedListener);
-        });
     }
 
     private convertToBrokenFragmentView() {
@@ -146,7 +96,7 @@ export class FragmentComponentView
 
         super.addComponentContextMenuActions(inspectActionRequired);
 
-        if (this.component && this.component.getFragment()) {
+        if (!this.empty) {
             this.addDetachAction();
         }
     }
@@ -162,47 +112,20 @@ export class FragmentComponentView
 
             const index = regionView.getComponentViewIndex(this);
 
-            const component = this.getFragmentRootComponent();
             const componentType = this.getFragmentRootType();
 
             const componentView = <ComponentView<any>>this.createView(
                 ItemType.fromComponentType(componentType),
                 new CreateItemViewConfig<RegionView, Component>()
-                    .setData(component)
                     .setPositionIndex(index)
                     .setParentView(regionView)
                     .setParentElement(regionView));
 
             this.addComponentView(componentView, index);
             this.remove();
-
-            new ComponentDetachedFromFragmentEvent(componentView, component.getType()).fire();
-
         }));
 
         this.addContextMenuActions(actions);
-    }
-
-    getFragmentRootComponent(): Component {
-        if (this.fragmentContent) {
-            let page = this.fragmentContent.getPage();
-            if (page) {
-                return page.getFragment();
-            }
-        }
-        return null;
-    }
-
-    getFragmentDisplayName(): string {
-        if (this.fragmentContent) {
-            return this.fragmentContent.getDisplayName();
-        }
-
-        if (this.component) {
-            return this.component.getName().toString();
-        }
-
-        return null;
     }
 
     isLoaded(): boolean {
@@ -210,11 +133,9 @@ export class FragmentComponentView
     }
 
     private loadFragmentContent(): void {
-        const contentId: ContentId = this.component?.getFragment();
-
-        if (contentId) {
-            if (!this.fragmentContent || !contentId.equals(this.fragmentContent.getContentId())) {
-                this.fetchFragmentContent(contentId).then((content: Content): void => {
+        if (this.fragmentContentId) {
+            if (!this.fragmentContent || !this.fragmentContentId.equals(this.fragmentContent.getContentId())) {
+                this.fetchFragmentContent(this.fragmentContentId).then((content: Content): void => {
                     this.fragmentContent = content;
                     this.notifyFragmentContentLoaded();
                     new FragmentComponentLoadedEvent(this).fire();
@@ -222,7 +143,7 @@ export class FragmentComponentView
                     this.fragmentContent = null;
                     this.notifyFragmentContentLoaded();
                     this.notifyFragmentLoadError();
-                    new ShowWarningLiveEditEvent(i18n('live.view.fragment.notfoundid', contentId)).fire();
+                    new ShowWarningLiveEditEvent(i18n('live.view.fragment.notfoundid', this.fragmentContentId)).fire();
                 }).done();
             }
         } else {
@@ -281,31 +202,12 @@ export class FragmentComponentView
     }
 
     private convertTextComponentImageUrls(element: Element) {
-        const text = HTMLAreaHelper.convertRenderSrcToPreviewSrc(element.getHtml(), this.component.getFragment().toString());
+        const text = HTMLAreaHelper.convertRenderSrcToPreviewSrc(element.getHtml(), this.fragmentContentId.toString());
         element.setHtml(text, false);
     }
 
-    getContentId(): ContentId {
-        return this.component ? this.component.getFragment() : null;
-    }
-
-    onFragmentContentLoaded(listener: (event: FragmentComponentLoadedEvent) => void) {
-        this.fragmentContentLoadedListeners.push(listener);
-    }
-
-    unFragmentContentLoaded(listener: (event: FragmentComponentLoadedEvent) => void) {
-        this.fragmentContentLoadedListeners = this.fragmentContentLoadedListeners.filter((curr) => {
-            return curr !== listener;
-        });
-    }
-
-    notifyFragmentContentLoaded() {
-        this.loaded = true;
-
-        let event = new FragmentComponentLoadedEvent(this);
-        this.fragmentContentLoadedListeners.forEach((listener) => {
-            listener(event);
-        });
+    private notifyFragmentContentLoaded() {
+        //
     }
 
     private notifyFragmentLoadError() {

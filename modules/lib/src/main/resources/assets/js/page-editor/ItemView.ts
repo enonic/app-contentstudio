@@ -1034,12 +1034,10 @@ export abstract class ItemView
     public createView(type: ItemType, config?: CreateItemViewConfig<ItemView, Component>): ItemView {
         if (!config) {
             const regionView = this.getRegionView();
-            let newComponent = this.createComponent(type.toComponentType());
             config = new CreateItemViewConfig<ItemView, Component>()
                 .setParentView(regionView)
                 .setParentElement(regionView)
-                .setLiveEditParams(regionView.getLiveEditParams())
-                .setData(newComponent);
+                .setLiveEditParams(regionView.getLiveEditParams());
         }
         return this.itemViewFactory.createView(type, config);
     }

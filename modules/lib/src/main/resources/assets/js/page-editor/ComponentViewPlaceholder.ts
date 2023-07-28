@@ -30,12 +30,10 @@ export abstract class ComponentViewPlaceholder<T extends DescriptorBasedComponen
     }
 
     protected initListeners(): void {
-        const component: T = this.componentView.getComponent();
-
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<Descriptor>) => {
             this.componentView.showLoadingSpinner();
             const descriptor: Descriptor = event.getSelectedOption().getOption().getDisplayValue();
-            component.setDescriptor(descriptor);
+
         });
 
         // not letting events to fire on ItemView

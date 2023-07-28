@@ -18,7 +18,7 @@ import {Shader} from './Shader';
 import {Cursor} from './Cursor';
 import {ComponentViewDragStartedEvent} from './ComponentViewDragStartedEvent';
 import {ComponentViewDragStoppedEvent} from './ComponentViewDraggingStoppedEvent';
-import {DefaultItemViewFactory} from './ItemViewFactory';
+import {DefaultItemViewFactory, ItemViewFactory} from './ItemViewFactory';
 import {Exception} from '@enonic/lib-admin-ui/Exception';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
@@ -39,6 +39,27 @@ import {ComponentType} from '../app/page/region/ComponentType';
 import {RegionView} from './RegionView';
 import {ItemType} from './ItemType';
 import {RemoveItemViewRequest} from './event/RemoveItemViewRequest';
+import {ComponentView} from './ComponentView';
+import {Component} from '../app/page/region/Component';
+import * as Q from 'q';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
+import * as $ from 'jquery';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {CreateItemViewConfig} from './CreateItemViewConfig';
+import {ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
+import {ComponentItemType} from './ComponentItemType';
+import {FragmentItemType} from './fragment/FragmentItemType';
+import * as DOMPurify from 'dompurify';
+import {HTMLAreaHelper} from '../app/inputtype/ui/text/HTMLAreaHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {LoadComponentRequested} from './event/LoadComponentRequested';
+import {LoadComponentFailedEvent} from './event/LoadComponentFailedEvent';
+import {FragmentComponentReloadRequiredEvent} from './FragmentComponentReloadRequiredEvent';
+import {UriHelper} from '../app/rendering/UriHelper';
+import {RenderingMode} from '../app/rendering/RenderingMode';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {FragmentReloadRequested} from './event/FragmentReloadRequested';
+import {FragmentComponentView} from './fragment/FragmentComponentView';
 
 export class LiveEditPage {
 
@@ -71,6 +92,8 @@ export class LiveEditPage {
     private addItemViewRequestListener: (event: AddItemViewRequest) => void;
 
     private removeItemViewRequestListener: (event: RemoveItemViewRequest) => void;
+
+    private loadComponentRequestListener: (event: LoadComponentRequested) => void;
 
     private static debug: boolean = false;
 
@@ -267,8 +290,7 @@ export class LiveEditPage {
         AddItemViewRequest.on(this.addItemViewRequestListener);
 
         this.removeItemViewRequestListener = (event: RemoveItemViewRequest) => {
-            const path = ComponentPath.fromString(event.getComponentPath().toString());
-
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const view: ItemView = this.getItemViewByPath(path);
 
             if (view) {
@@ -281,6 +303,25 @@ export class LiveEditPage {
         };
 
         RemoveItemViewRequest.on(this.removeItemViewRequestListener);
+
+        this.loadComponentRequestListener = (event: LoadComponentRequested) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            const view: ItemView = this.getItemViewByPath(path);
+
+            if (view instanceof ComponentView) {
+                this.loadComponent(view, event.getURI()).then(() => {
+
+                }).catch((reason) => {
+                    new LoadComponentFailedEvent(path, reason).fire();
+                });
+            }
+        };
+
+        LoadComponentRequested.on(this.loadComponentRequestListener);
+
+        FragmentReloadRequested.on((event: FragmentReloadRequested) => {
+            this.reloadFragment(event);
+        });
     }
 
     private getItemViewByPath(path: ComponentPath): ItemView {
@@ -314,6 +355,101 @@ export class LiveEditPage {
         AddItemViewRequest.un(this.addItemViewRequestListener);
 
         RemoveItemViewRequest.un(this.removeItemViewRequestListener);
+
+        LoadComponentRequested.un(this.loadComponentRequestListener);
     }
 
+    public loadComponent(componentView: ComponentView<Component>, componentUrl: string,): Q.Promise<string> {
+        const deferred = Q.defer<string>();
+        assertNotNull(componentView, 'componentView cannot be null');
+        assertNotNull(componentUrl, 'componentUrl cannot be null');
+
+        componentView.showLoadingSpinner();
+
+        $.ajax({
+            url: componentUrl,
+            type: 'GET',
+            success: (htmlAsString: string) => {
+                const newElement: Element = this.wrapLoadedComponentHtml(htmlAsString, componentView.getType());
+                const itemViewIdProducer: ItemViewIdProducer = componentView.getItemViewIdProducer();
+                const itemViewFactory: ItemViewFactory = componentView.getItemViewFactory();
+
+                const createViewConfig: CreateItemViewConfig<RegionView, Component> = new CreateItemViewConfig<RegionView, Component>()
+                    .setItemViewIdProducer(itemViewIdProducer)
+                    .setItemViewFactory(itemViewFactory)
+                    .setParentView(componentView.getParentItemView())
+                    .setElement(newElement);
+
+                const newComponentView: ComponentView<Component> = <ComponentView<Component>>itemViewFactory.createView(
+                    componentView.getType(),
+                    createViewConfig);
+
+                componentView.replaceWith(newComponentView);
+
+                const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
+                event.fire();
+
+                const config = <ItemViewSelectedEventConfig>{itemView: newComponentView, position: null};
+                newComponentView.select(config, null);
+                newComponentView.hideContextMenu();
+
+                deferred.resolve('');
+            },
+            error: (jqXHR: JQueryXHR, textStatus: string, errorThrow: string) => {
+                const responseHtml = $.parseHTML(jqXHR.responseText);
+                let errorMessage = '';
+                responseHtml.forEach((el: HTMLElement, i) => {
+                    if (el.tagName && el.tagName.toLowerCase() === 'title') {
+                        errorMessage = el.innerHTML;
+                    }
+                });
+
+                componentView.hideLoadingSpinner();
+                componentView.showRenderingError(componentUrl, errorMessage);
+
+                deferred.reject(errorMessage);
+            }
+        });
+
+        return deferred.promise;
+    }
+
+    private wrapLoadedComponentHtml(htmlAsString: string, componentType: ComponentItemType): Element {
+        if (FragmentItemType.get().equals(componentType)) {
+            return this.wrapLoadedFragmentHtml(htmlAsString);
+        }
+
+        return Element.fromString(htmlAsString);
+    }
+
+    private wrapLoadedFragmentHtml(htmlAsString: string): Element {
+        const sanitized: string = DOMPurify.sanitize(htmlAsString, {ALLOWED_URI_REGEXP: HTMLAreaHelper.getAllowedUriRegexp()});
+        const sanitizedElement: Element = Element.fromHtml(sanitized);
+
+        const fragmentWrapperEl: Element = new DivEl();
+        fragmentWrapperEl.getEl().setAttribute(`data-${ItemType.ATTRIBUTE_TYPE}`, 'fragment');
+        fragmentWrapperEl.appendChild(sanitizedElement);
+
+        return fragmentWrapperEl;
+    }
+
+    private reloadFragment(event: FragmentReloadRequested): void {
+        const path = ComponentPath.fromString(event.getPath().toString());
+        const fragmentView: ItemView = this.getItemViewByPath(path);
+
+        if (fragmentView instanceof FragmentComponentView) {
+            const componentUrl = UriHelper.getComponentUri(event.getContentId(), fragmentView.getPath(),
+                RenderingMode.EDIT);
+
+            fragmentView.showLoadingSpinner();
+
+            this.loadComponent(fragmentView, componentUrl).catch((errorMessage: any) => {
+                DefaultErrorHandler.handle(errorMessage);
+
+                fragmentView.hideLoadingSpinner();
+                fragmentView.showRenderingError(componentUrl, errorMessage);
+            });
+        }
+
+    }
 }

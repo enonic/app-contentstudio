@@ -294,13 +294,10 @@ export class DragAndDrop {
                 // Create component and view if we drag from context window
                 let componentType: ComponentItemType = <ComponentItemType> this.newItemItemType;
 
-                let newComponent = regionView.createComponent(componentType.toComponentType());
-
                 this.draggedComponentView = <ComponentView<Component>> this.pageView.createView(componentType,
                     new CreateItemViewConfig<RegionView, Component>()
                         .setParentView(regionView)
                         .setParentElement(regionView)
-                        .setData(newComponent)
                         .setPositionIndex(componentIndex));
 
                 regionView.addComponentView(this.draggedComponentView, componentIndex, true);

@@ -893,7 +893,6 @@ export class PageView
             if (itemType && itemType.isComponentType()) {
                 const itemViewConfig = new CreateItemViewConfig<PageView, Component>()
                     .setParentView(this)
-                    .setData(null)
                     .setElement(childElement)
                     .setLiveEditParams(this.liveEditParams)
                     .setParentElement(parentElement ? parentElement : this);

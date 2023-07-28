@@ -6,8 +6,8 @@ import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropert
 export class ComponentViewContextMenuTitle<COMPONENT extends Component>
     extends ItemViewContextMenuTitle {
 
-    constructor(component: COMPONENT, type: ComponentItemType) {
-        super(component?.getName()?.toString() || '', type.getConfig().getIconCls());
+    constructor(name: string, type: ComponentItemType) {
+        super(name || '', type.getConfig().getIconCls());
     }
 
 }

@@ -30,6 +30,7 @@ import {LiveEditParams} from './LiveEditParams';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {AddComponentRequest} from './event/AddComponentRequest';
 import {RemoveComponentRequest} from './event/RemoveComponentRequest';
+import {DuplicateComponentRequest} from './event/DuplicateComponentRequest';
 
 export class ComponentViewBuilder<COMPONENT extends Component> {
 
@@ -42,8 +43,6 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
     parentRegionView: RegionView;
 
     parentElement: Element;
-
-    component: COMPONENT;
 
     element: Element;
 
@@ -90,11 +89,6 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
         return this;
     }
 
-    setComponent(value: COMPONENT): this {
-        this.component = value;
-        return this;
-    }
-
     setElement(value: Element): this {
         this.element = value;
         return this;
@@ -135,8 +129,6 @@ export class ComponentView<COMPONENT extends Component>
     extends ItemView
     implements Cloneable {
 
-    protected component: COMPONENT;
-
     protected empty: boolean;
 
     private moving: boolean = false;
@@ -167,12 +159,11 @@ export class ComponentView<COMPONENT extends Component>
             .setParentView(builder.parentRegionView)
             .setParentElement(builder.parentElement)
             .setLiveEditParams(builder.liveEditParams)
-            .setContextMenuTitle(new ComponentViewContextMenuTitle(builder.component, builder.type))
+            .setContextMenuTitle(new ComponentViewContextMenuTitle(builder.type?.getShortName(), builder.type))
         );
 
         this.empty = StringHelper.isEmpty(builder.element?.getHtml());
         this.initListeners();
-        this.setComponent(builder.component);
         this.addComponentContextMenuActions(builder.inspectActionRequired);
         this.initKeyBoardBindings();
     }
@@ -188,30 +179,7 @@ export class ComponentView<COMPONENT extends Component>
             clone.select();
             clone.hideContextMenu();
 
-            new UIComponentResetEvent(this.getPath()).fire();
         };
-
-        this.onRemoved(event => {
-            if (this.component) {
-                this.unregisterComponentListeners(this.component);
-            }
-        });
-
-        this.onAdded(() => {
-            if (this.component) {
-                this.registerComponentListeners(this.component);
-            }
-        });
-    }
-
-    private registerComponentListeners(component: COMPONENT) {
-        component.onReset(this.resetListener);
-        component.onPropertyChanged(this.propertyChangedListener);
-    }
-
-    unregisterComponentListeners(component: COMPONENT) {
-        component.unPropertyChanged(this.propertyChangedListener);
-        component.unReset(this.resetListener);
     }
 
     protected addComponentContextMenuActions(inspectActionRequired: boolean) {
@@ -244,12 +212,11 @@ export class ComponentView<COMPONENT extends Component>
             actions.push(new Action(i18n('live.view.duplicate')).onExecuted(() => {
                 this.deselect();
 
-                let duplicatedComponent = <COMPONENT> this.getComponent().duplicate();
-                let duplicatedView = this.duplicate(duplicatedComponent);
+                let duplicatedView = this.duplicate();
 
                 duplicatedView.showLoadingSpinner();
 
-                new ComponentDuplicatedEvent(this, duplicatedView).fire();
+                new DuplicateComponentRequest(this.getPath()).fire();
             }));
         }
 
@@ -294,10 +261,6 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     remove(): ComponentView<COMPONENT> {
-        if (this.component) {
-            this.unregisterComponentListeners(this.component);
-        }
-
         let parentView = this.getParentItemView();
         if (parentView) {
             parentView.removeComponentView(this);
@@ -312,24 +275,8 @@ export class ComponentView<COMPONENT extends Component>
         return <ComponentItemType>super.getType();
     }
 
-    setComponent(component: COMPONENT) {
-        if (component) {
-            if (this.component) {
-                this.unregisterComponentListeners(this.component);
-            }
-            this.registerComponentListeners(component);
-        }
-
-        this.component = component;
-        this.refreshEmptyState();
-    }
-
-    getComponent(): COMPONENT {
-        return this.component;
-    }
-
     getName(): string {
-        return this.component?.getName()?.toString();
+        return this.getType().getShortName();
     }
 
     getParentItemView(): RegionView {
@@ -354,11 +301,10 @@ export class ComponentView<COMPONENT extends Component>
 
         return <ComponentView<COMPONENT>>this.createView(this.getType(),
             new CreateItemViewConfig<RegionView, COMPONENT>().setParentView(this.getParentItemView()).setParentElement(
-                this.getParentElement()).setData(this.getComponent()).setPositionIndex(index));
+                this.getParentElement()).setPositionIndex(index));
     }
 
-    protected duplicate(duplicate: COMPONENT): ComponentView<COMPONENT> {
-
+    protected duplicate(): ComponentView<COMPONENT> {
         let parentView = this.getParentItemView();
         let index = parentView.getComponentViewIndex(this);
 
@@ -366,7 +312,6 @@ export class ComponentView<COMPONENT extends Component>
             new CreateItemViewConfig<RegionView, COMPONENT>()
                 .setParentView(this.getParentItemView())
                 .setParentElement(this.getParentElement())
-                .setData(duplicate)
                 .setPositionIndex(index + 1));
 
         duplicateView.skipInitOnAdd();
@@ -384,11 +329,6 @@ export class ComponentView<COMPONENT extends Component>
             console.log('ComponentView[' + this.toString() + '].replaceWith', this, replacement);
         }
         super.replaceWith(replacement);
-
-        // unbind the old view from the component and bind the new one
-        if (this.component) {
-            this.unregisterComponentListeners(this.component);
-        }
         this.unbindMouseListeners();
 
         let parentIsPage = PageItemType.get().equals(this.getParentItemView().getType());

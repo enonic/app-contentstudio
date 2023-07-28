@@ -17,6 +17,7 @@ import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {Component} from '../page/region/Component';
 import {ComponentType} from '../page/region/ComponentType';
+import {SetFragmentComponentRequested} from '../../page-editor/event/SetFragmentComponentRequested';
 
 export class PageEventsManager {
 
@@ -54,6 +55,8 @@ export class PageEventsManager {
     private componentDuplicatedListeners: { (event: ComponentDuplicatedEvent): void; }[] = [];
 
     private componentLoadedListeners: { (path: ComponentPath): void; }[] = [];
+
+    private componentLoadFailedListeners: { (path: ComponentPath, error: any): void; }[] = [];
 
     private componentResetListeners: { (path: ComponentPath): void; }[] = [];
 
@@ -99,6 +102,8 @@ export class PageEventsManager {
     private componentDetachFragmentRequestedListeners: { (path: ComponentPath): void; }[] = [];
 
     private componentInsertRequestedListeners: { (parentPath: ComponentPath, type: ComponentType): void; }[] = [];
+
+    private setFragmentComponentRequestedListeners: { (path: ComponentPath, id: string): void; }[] = [];
 
     private constructor() {
         //
@@ -278,6 +283,18 @@ export class PageEventsManager {
 
     notifyComponentLoaded(path: ComponentPath) {
         this.componentLoadedListeners.forEach((listener) => listener(path));
+    }
+
+    onComponentLoadFailed(listener: { (path: ComponentPath, error: any): void; }) {
+        this.componentLoadFailedListeners.push(listener);
+    }
+
+    unComponentLoadFailed(listener: { (path: ComponentPath, error: any): void; }) {
+        this.componentLoadFailedListeners = this.componentLoadFailedListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyComponentLoadFailed(path: ComponentPath, error: any) {
+        this.componentLoadFailedListeners.forEach((listener) => listener(path, error));
     }
 
     onComponentReset(listener: { (path: ComponentPath): void; }) {
@@ -528,6 +545,18 @@ export class PageEventsManager {
 
     notifyComponentInsertRequested(parentPath: ComponentPath, type: ComponentType) {
         this.componentInsertRequestedListeners.forEach((listener) => listener(parentPath, type));
+    }
+
+    onSetFragmentComponentRequested(listener: { (parentPath: ComponentPath, id: string): void; }) {
+        this.setFragmentComponentRequestedListeners.push(listener);
+    }
+
+    unSetFragmentComponentRequested(listener: { (parentPath: ComponentPath, id: string): void; }) {
+        this.setFragmentComponentRequestedListeners = this.setFragmentComponentRequestedListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifySetFragmentComponentRequested(parentPath: ComponentPath, id: string) {
+        this.setFragmentComponentRequestedListeners.forEach((listener) => listener(parentPath, id));
     }
 
 }

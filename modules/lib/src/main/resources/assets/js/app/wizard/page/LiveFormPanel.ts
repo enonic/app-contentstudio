@@ -115,7 +115,8 @@ enum ErrorType {
 }
 
 export class LiveFormPanel
-    extends Panel implements PageNavigationHandler {
+    extends Panel
+    implements PageNavigationHandler {
 
     public static debug: boolean = false;
 
@@ -282,45 +283,24 @@ export class LiveFormPanel
 
     private initPropertyChangedHandlers(): void {
         this.componentPropertyChangedHandler = (event: ComponentPropertyChangedEvent) => {
-            if (ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), DescriptorBasedComponent)) {
-                if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
+            const component = PageState.get().getPage().getComponentByPath(event.getPath());
 
-                    const itemView = this.pageView.getComponentViewByPath(event.getPath());
-                    if (itemView) {
-                        if (ObjectHelper.iFrameSafeInstanceOf(itemView, PartComponentView)) {
-                            const partView = <PartComponentView>itemView;
-                            const partComponent: PartComponent = partView.getComponent();
-                            if (partComponent.hasDescriptor()) {
-                                this.contentWizardPanel.setMarkedAsReady(false);
-                                this.saveAndReloadOnlyComponent(itemView as PartComponentView);
-                            }
-                        } else if (ObjectHelper.iFrameSafeInstanceOf(itemView, LayoutComponentView)) {
-                            const layoutView = <LayoutComponentView>itemView;
-                            const layoutComponent: LayoutComponent = layoutView.getComponent();
-                            if (layoutComponent.hasDescriptor()) {
-                                this.contentWizardPanel.setMarkedAsReady(false);
-                                this.saveAndReloadOnlyComponent(itemView as LayoutComponentView);
-                            }
-                        }
-                    } else {
-                        console.debug('ComponentView by path not found: ' + event.getPath().toString());
+            if (component instanceof DescriptorBasedComponent) {
+                if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
+                    if (component.hasDescriptor()) {
+                        this.contentWizardPanel.setMarkedAsReady(false);
+                        this.saveAndReloadOnlyComponent(component.getPath());
                     }
                 }
-            } else if (ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), ImageComponent)) {
+            } else if (component instanceof ImageComponent) {
                 if (event.getPropertyName() === ImageComponent.PROPERTY_IMAGE && !event.getComponent().isEmpty()) {
-                    const itemView = this.pageView.getComponentViewByPath(event.getPath());
-                    if (itemView) {
-                        this.contentWizardPanel.setMarkedAsReady(false);
-                        this.saveAndReloadOnlyComponent(itemView as ImageComponentView);
-                    }
+                    this.contentWizardPanel.setMarkedAsReady(false);
+                    this.saveAndReloadOnlyComponent(component.getPath());
                 }
-            } else if (ObjectHelper.iFrameSafeInstanceOf(event.getComponent(), FragmentComponent)) {
+            } else if (component instanceof FragmentComponent) {
                 if (event.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT && !event.getComponent().isEmpty()) {
-                    const itemView = this.pageView.getComponentViewByPath(event.getPath());
-                    if (itemView) {
-                        this.contentWizardPanel.setMarkedAsReady(false);
-                        this.saveAndReloadOnlyComponent(itemView as FragmentComponentView);
-                    }
+                    this.contentWizardPanel.setMarkedAsReady(false);
+                    this.saveAndReloadOnlyComponent(component.getPath());
                 }
             }
         };
@@ -462,7 +442,7 @@ export class LiveFormPanel
                         this.contentWizardPanel.setMarkedAsReady(false);
                     }
 
-                    this.saveAndReloadOnlyComponent(<ComponentView<Component>>itemView, true);
+                    this.saveAndReloadOnlyComponent(null);
                     return;
                 }
             }
@@ -705,24 +685,18 @@ export class LiveFormPanel
         }
     }
 
-    private saveAndReloadOnlyComponent(componentView: ComponentView<Component>, avoidInspectComponentRefresh?: boolean) {
-        assertNotNull(componentView, 'componentView cannot be null');
+    private saveAndReloadOnlyComponent(path: ComponentPath) {
+        assertNotNull(path, 'component path cannot be null');
         this.pageSkipReload = true;
 
         const componentUrl: string = UriHelper.getComponentUri(this.content.getContentId().toString(),
-            componentView.getPath(),
+            path,
             RenderingMode.EDIT);
 
         this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
             this.pageSkipReload = false;
-            componentView.showLoadingSpinner();
-            return this.liveEditPageProxy.loadComponent(componentView, componentUrl, avoidInspectComponentRefresh);
-        }).catch((error: any) => {
-            DefaultErrorHandler.handle(error);
-
-            componentView.hideLoadingSpinner();
-            componentView.showRenderingError(componentUrl, error.message);
-        }).done();
+            this.liveEditPageProxy.loadComponent(path, componentUrl);
+        });
     }
 
     private addPageProxyEventListeners() {
@@ -766,6 +740,7 @@ export class LiveFormPanel
             this.clearSelection();
         });
 
+
         eventsManager.onComponentViewDragDropped((event: ComponentViewDragDroppedEvent) => {
             let componentView = event.getComponentView();
             if (!componentView.isEmpty()) {
@@ -773,22 +748,16 @@ export class LiveFormPanel
             }
         });
 
-        eventsManager.onComponentDuplicated((event: ComponentDuplicatedEvent) => {
-            this.contentWizardPanel.setMarkedAsReady(false);
-            this.saveAndReloadOnlyComponent(event.getDuplicatedComponentView());
-        });
-
         eventsManager.onPageInspectedRequested(() => {
             this.inspectPage(true);
         });
 
         eventsManager.onComponentFragmentCreated((event: ComponentFragmentCreatedEvent) => {
-            let fragmentView: FragmentComponentView = event.getComponentView();
             let componentType = event.getSourceComponentType().getShortName();
-            let componentName = fragmentView.getComponent().getName().toString();
+            let componentName = event.getFragmentContent().getDisplayName();
             showSuccess(i18n('notify.fragment.created', componentName, componentType));
 
-            this.saveMarkedContentAndReloadOnlyComponent(event.getComponentView());
+         //   this.saveMarkedContentAndReloadOnlyComponent(event.get());
 
             let summaryAndStatus = ContentSummaryAndCompareStatus.fromContentSummary(event.getFragmentContent());
             new EditContentEvent([summaryAndStatus]).fire();
@@ -797,7 +766,7 @@ export class LiveFormPanel
         eventsManager.onComponentDetached((event: ComponentDetachedFromFragmentEvent) => {
             showSuccess(i18n('notify.component.detached', event.getComponentView().getName()));
 
-            this.saveMarkedContentAndReloadOnlyComponent(event.getComponentView());
+       //     this.saveMarkedContentAndReloadOnlyComponent(event.getComponentView());
         });
 
         eventsManager.onShowWarning((event: ShowWarningLiveEditEvent) => {
@@ -819,11 +788,10 @@ export class LiveFormPanel
         });
     }
 
-    private saveMarkedContentAndReloadOnlyComponent(componentView: ComponentView<Component>) {
-        const componentPath = componentView.getPath();
-        const canMarkContentAsReady = this.canMarkContentAsReady(componentPath);
+    private saveMarkedContentAndReloadOnlyComponent(path: ComponentPath) {
+        const canMarkContentAsReady = this.canMarkContentAsReady(path);
         this.contentWizardPanel.setMarkedAsReady(canMarkContentAsReady);
-        this.saveAndReloadOnlyComponent(componentView);
+        this.saveAndReloadOnlyComponent(path);
     }
 
     private canMarkContentAsReady(componentPath: ComponentPath): boolean {
@@ -848,7 +816,7 @@ export class LiveFormPanel
         const component = viewedPage.getComponentByPath(componentPath);
         const originalComponent = serverPage.getComponentByPath(componentPath);
 
-        if (component && component instanceof  Component) {
+        if (component && component instanceof Component) {
             component.remove();
         }
         if (originalComponent && originalComponent instanceof Component) {
@@ -897,13 +865,6 @@ export class LiveFormPanel
         } else {
             this.inspectPage(false, true, true);
         }
-    }
-
-    clearPageViewSelectionAndOpenInspectPage(showPanel: boolean) {
-        if (this.pageView && this.pageView.hasSelectedView()) {
-            this.pageView.getSelectedView().deselect();
-        }
-        this.inspectPage(showPanel);
     }
 
     private inspectRegion(regionPath: ComponentPath, showPanel: boolean) {

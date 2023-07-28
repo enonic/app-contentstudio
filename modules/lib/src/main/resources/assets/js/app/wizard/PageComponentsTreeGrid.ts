@@ -56,10 +56,6 @@ export class PageComponentsTreeGrid
         const node: TreeNode<ComponentsTreeItem> = super.dataToTreeNode(data, parent);
 
         /*
-        if (ObjectHelper.iFrameSafeInstanceOf(data.getItemView().getType(), FragmentItemType)) {
-            this.updateTreeNodeWithFragmentsOnLoad(node);
-        }
-
         if (ObjectHelper.iFrameSafeInstanceOf(data.getItemView().getType(), TextItemType)) {
             this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>data.getItemView());
         }
@@ -67,29 +63,6 @@ export class PageComponentsTreeGrid
          */
 
         return node;
-    }
-
-    private bindTreeTextNodeUpdateOnTextComponentModify(textComponentView: TextComponentView) {
-        const handler = AppHelper.debounce((event) => {
-            this.updateNodeByData(new ComponentsTreeItem(this.makeTextComponentItem(textComponentView.getComponent())));
-        }, 500, false);
-
-        new MutationObserver(handler).observe(textComponentView.getHTMLElement(), {subtree: true, childList: true, characterData: true});
-    }
-
-    private updateTreeNodeWithFragmentsOnLoad(node: TreeNode<ComponentsTreeItem>) {
-        const fragmentView: FragmentComponentView = <FragmentComponentView>node.getData().getItemView();
-
-        if (fragmentView.isLoaded()) {
-            return;
-        }
-
-        const loadedListener = () => {
-            this.invalidateNodes([node]);
-            fragmentView.unFragmentContentLoaded(loadedListener);
-        };
-
-        fragmentView.onFragmentContentLoaded(loadedListener);
     }
 
     queryScrollable(): Element {

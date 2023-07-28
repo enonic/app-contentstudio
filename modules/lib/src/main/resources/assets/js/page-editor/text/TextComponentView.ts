@@ -22,8 +22,6 @@ import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import * as Q from 'q';
-import {ContentSummary} from '../../app/content/ContentSummary';
-import {ContentPath} from '../../app/content/ContentPath';
 import {ItemViewSelectedEvent} from '../ItemViewSelectedEvent';
 import {SelectedHighlighter} from '../SelectedHighlighter';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
@@ -72,7 +70,7 @@ export class TextComponentView
     private winBlurred: boolean;
 
     constructor(builder: TextComponentViewBuilder) {
-        super(builder.setViewer(new TextComponentViewer()).setComponent(builder.component));
+        super(builder.setViewer(new TextComponentViewer()));
 
         this.addTextContextMenuActions();
         this.addClassEx('text-view');
@@ -288,7 +286,7 @@ export class TextComponentView
                 this.initEditor();
             }
 
-            if (this.component.isEmpty()) {
+            if (this.isEmpty()) {
                 if (this.isEditorReady()) {
                     this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
                 }
@@ -428,8 +426,9 @@ export class TextComponentView
     }
 
     private handleEditorCreated() {
-        const data: string = this.component.getText() ?
-                             HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText(), this.getLiveEditParams().contentId) :
+        const componentText: string = '' // this.component.getText();
+        const data: string = componentText ?
+                             HTMLAreaHelper.convertRenderSrcToPreviewSrc(componentText, this.getLiveEditParams().contentId) :
                              TextComponentView.DEFAULT_TEXT;
         this.htmlAreaEditor.setData(data);
 
@@ -477,6 +476,8 @@ export class TextComponentView
 
         const text: string = this.isEditorEmpty() ? TextComponentView.DEFAULT_TEXT :
                              HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData());
+
+
 
         this.refreshEmptyState();
     }

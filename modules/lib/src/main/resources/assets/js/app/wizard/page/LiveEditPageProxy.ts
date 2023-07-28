@@ -1,6 +1,4 @@
 import * as $ from 'jquery';
-import * as Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {PageView} from '../../../page-editor/PageView';
@@ -14,7 +12,7 @@ import {PageUnlockedEvent} from '../../../page-editor/PageUnlockedEvent';
 import {PageUnloadedEvent} from '../../../page-editor/PageUnloadedEvent';
 import {PageTextModeStartedEvent} from '../../../page-editor/PageTextModeStartedEvent';
 import {RegionSelectedEvent} from '../../../page-editor/RegionSelectedEvent';
-import {ItemViewSelectedEvent, ItemViewSelectedEventConfig} from '../../../page-editor/ItemViewSelectedEvent';
+import {ItemViewSelectedEvent} from '../../../page-editor/ItemViewSelectedEvent';
 import {ItemViewDeselectedEvent} from '../../../page-editor/ItemViewDeselectedEvent';
 import {ComponentDuplicatedEvent} from '../../../page-editor/ComponentDuplicatedEvent';
 import {ComponentInspectedEvent} from '../../../page-editor/ComponentInspectedEvent';
@@ -29,31 +27,20 @@ import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEdit
 import {InitializeLiveEditEvent} from '../../../page-editor/InitializeLiveEditEvent';
 import {ComponentView} from '../../../page-editor/ComponentView';
 import {RegionView} from '../../../page-editor/RegionView';
-import {CreateItemViewConfig} from '../../../page-editor/CreateItemViewConfig';
 import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/SkipLiveEditReloadConfirmationEvent';
 import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/ComponentDetachedFromFragmentEvent';
 import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {Component} from '../../page/region/Component';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
-import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {GLOBAL, GlobalLibAdmin, Store} from '@enonic/lib-admin-ui/store/Store';
-import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
-import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
 import {ContentId} from '../../content/ContentId';
 import {CreateHtmlAreaMacroDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaMacroDialogEvent';
 import {CreateHtmlAreaContentDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
-import {FragmentItemType} from '../../../page-editor/fragment/FragmentItemType';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ItemType} from '../../../page-editor/ItemType';
-import {ComponentItemType} from '../../../page-editor/ComponentItemType';
-import * as DOMPurify from 'dompurify';
-import {HTMLAreaHelper} from '../../inputtype/ui/text/HTMLAreaHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {ItemView} from '../../../page-editor/ItemView';
@@ -90,6 +77,10 @@ import {AddItemViewRequest} from '../../../page-editor/event/AddItemViewRequest'
 import {RemoveComponentRequest} from '../../../page-editor/event/RemoveComponentRequest';
 import {ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
 import {RemoveItemViewRequest} from '../../../page-editor/event/RemoveItemViewRequest';
+import {LoadComponentFailedEvent} from '../../../page-editor/event/LoadComponentFailedEvent';
+import {LoadComponentRequested} from '../../../page-editor/event/LoadComponentRequested';
+import {DuplicateComponentRequest} from '../../../page-editor/event/DuplicateComponentRequest';
+import {SetFragmentComponentRequested} from '../../../page-editor/event/SetFragmentComponentRequested';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -502,75 +493,8 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         this.pageView?.setLocked(locked);
     }
 
-    public loadComponent(componentView: ComponentView<Component>, componentUrl: string,
-                         avoidInspectComponentRefresh?: boolean): Q.Promise<string> {
-
-        const deferred = Q.defer<string>();
-        assertNotNull(componentView, 'componentView cannot be null');
-        assertNotNull(componentUrl, 'componentUrl cannot be null');
-
-        $.ajax({
-            url: componentUrl,
-            type: 'GET',
-            success: (htmlAsString: string) => {
-                const newElement: Element = this.wrapLoadedComponentHtml(htmlAsString, componentView.getType());
-                const itemViewIdProducer: ItemViewIdProducer = componentView.getItemViewIdProducer();
-                const itemViewFactory: ItemViewFactory = componentView.getItemViewFactory();
-
-                const createViewConfig: CreateItemViewConfig<RegionView, Component> = new CreateItemViewConfig<RegionView, Component>()
-                    .setItemViewIdProducer(itemViewIdProducer)
-                    .setItemViewFactory(itemViewFactory)
-                    .setParentView(componentView.getParentItemView())
-                    .setData(componentView.getComponent())
-                    .setElement(newElement);
-
-                const newComponentView: ComponentView<Component> = <ComponentView<Component>>itemViewFactory.createView(
-                    componentView.getType(),
-                    createViewConfig);
-
-                componentView.replaceWith(newComponentView);
-
-                const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
-                event.fire(this.liveEditWindow);
-
-                const config = <ItemViewSelectedEventConfig>{itemView: newComponentView, position: null, avoidInspectComponentRefresh};
-                newComponentView.select(config, null);
-                newComponentView.hideContextMenu();
-
-                deferred.resolve('');
-            },
-            error: (jqXHR: JQueryXHR, textStatus: string, errorThrow: string) => {
-                const responseHtml = $.parseHTML(jqXHR.responseText);
-                let errorMessage = '';
-                responseHtml.forEach((el: HTMLElement, i) => {
-                    if (el.tagName && el.tagName.toLowerCase() === 'title') {
-                        errorMessage = el.innerHTML;
-                    }
-                });
-                deferred.reject(errorMessage);
-            }
-        });
-
-        return deferred.promise;
-    }
-
-    private wrapLoadedComponentHtml(htmlAsString: string, componentType: ComponentItemType): Element {
-        if (FragmentItemType.get().equals(componentType)) {
-            return this.wrapLoadedFragmentHtml(htmlAsString);
-        }
-
-        return Element.fromString(htmlAsString);
-    }
-
-    private wrapLoadedFragmentHtml(htmlAsString: string): Element {
-        const sanitized: string = DOMPurify.sanitize(htmlAsString, {ALLOWED_URI_REGEXP: HTMLAreaHelper.getAllowedUriRegexp()});
-        const sanitizedElement: Element = Element.fromHtml(sanitized);
-
-        const fragmentWrapperEl: Element = new DivEl();
-        fragmentWrapperEl.getEl().setAttribute(`data-${ItemType.ATTRIBUTE_TYPE}`, 'fragment');
-        fragmentWrapperEl.appendChild(sanitizedElement);
-
-        return fragmentWrapperEl;
+    public loadComponent(path: ComponentPath, uri: string): void {
+        new LoadComponentRequested(path, uri).fire(this.liveEditWindow);
     }
 
     public stopListening(contextWindow: any) {
@@ -701,10 +625,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             eventsManager.notifyComponentDetached(event);
         }, contextWindow);
 
-        FragmentComponentReloadRequiredEvent.on((event: FragmentComponentReloadRequiredEvent) => {
-            this.reloadFragment(event);
-        }, contextWindow);
-
         ShowWarningLiveEditEvent.on((event: ShowWarningLiveEditEvent) => {
             eventsManager.notifyShowWarning(event);
         }, contextWindow);
@@ -781,6 +701,23 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             PageEventsManager.get().notifyComponentRemoveRequested(path);
         }, contextWindow);
+
+        LoadComponentFailedEvent.on((event: LoadComponentFailedEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+
+            PageEventsManager.get().notifyComponentLoadFailed(path, event.getError());
+        });
+
+        DuplicateComponentRequest.on((event: DuplicateComponentRequest) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            PageEventsManager.get().notifyComponentDuplicateRequested(path);
+        });
+
+        SetFragmentComponentRequested.on((event: SetFragmentComponentRequested) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+
+            PageEventsManager.get().notifySetFragmentComponentRequested(path, event.getContentId());
+        });
     }
 
     private listenToMainFrameEvents() {
@@ -794,21 +731,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
         PageState.get().onComponentRemoved((event: ComponentRemovedEvent) => {
             new RemoveItemViewRequest(event.getPath()).fire(this.liveEditWindow);
-        });
-    }
-
-    private reloadFragment(event: FragmentComponentReloadRequiredEvent): void {
-        let fragmentView = event.getFragmentComponentView();
-
-        let componentUrl = UriHelper.getComponentUri(fragmentView.getContentId().toString(), fragmentView.getPath(),
-            RenderingMode.EDIT);
-
-        fragmentView.showLoadingSpinner();
-        this.loadComponent(fragmentView, componentUrl).catch((errorMessage: any) => {
-            DefaultErrorHandler.handle(errorMessage);
-
-            fragmentView.hideLoadingSpinner();
-            fragmentView.showRenderingError(componentUrl, errorMessage);
         });
     }
 

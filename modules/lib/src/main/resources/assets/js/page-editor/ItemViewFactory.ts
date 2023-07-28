@@ -52,7 +52,6 @@ export class DefaultItemViewFactory
             .setParentRegionView(config.parentView)
             .setParentElement(config.parentElement)
             .setElement(config.element)
-            .setComponent(config.data)
             .setLiveEditParams(config.liveEditParams)
             .setPositionIndex(config.positionIndex));
     }
@@ -64,7 +63,6 @@ export class DefaultItemViewFactory
             .setParentRegionView(config.parentView)
             .setParentElement(config.parentElement)
             .setElement(config.element)
-            .setComponent(config.data)
             .setLiveEditParams(config.liveEditParams)
             .setPositionIndex(config.positionIndex));
     }
@@ -75,7 +73,6 @@ export class DefaultItemViewFactory
             .setItemViewFactory(config.itemViewFactory)
             .setParentRegionView(config.parentView)
             .setParentElement(config.parentElement)
-            .setComponent(config.data)
             .setElement(config.element)
             .setLiveEditParams(config.liveEditParams)
             .setPositionIndex(config.positionIndex));
@@ -87,7 +84,6 @@ export class DefaultItemViewFactory
             .setItemViewFactory(config.itemViewFactory)
             .setParentRegionView(config.parentView)
             .setParentElement(config.parentElement)
-            .setComponent(config.data)
             .setElement(config.element)
             .setLiveEditParams(config.liveEditParams)
             .setPositionIndex(config.positionIndex));
@@ -99,7 +95,6 @@ export class DefaultItemViewFactory
             .setItemViewFactory(config.itemViewFactory)
             .setParentRegionView(config.parentView)
             .setParentElement(config.parentElement)
-            .setComponent(config.data)
             .setElement(config.element)
             .setLiveEditParams(config.liveEditParams)
             .setPositionIndex(config.positionIndex));

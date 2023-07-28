@@ -45,19 +45,8 @@ export class ContentBasedComponentView<COMPONENT extends Component>
 
     private createEditAction(): Action {
         return new Action(i18n('action.edit')).onExecuted(() => {
-            new EditContentEvent([this.generateContentSummaryAndCompareStatus()]).fire();
+
         });
     }
 
-    private generateContentSummaryAndCompareStatus() {
-        const contentId: ContentId = this.getContentId();
-        const contentSummary: ContentSummary = new ContentSummaryBuilder().setId(contentId.toString()).setContentId(contentId).setType(
-            this.contentTypeName).build();
-
-        return ContentSummaryAndCompareStatus.fromContentSummary(contentSummary);
-    }
-
-    protected getContentId(): ContentId {
-        throw new Error('Must be implemented by inheritors');
-    }
 }

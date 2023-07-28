@@ -28,28 +28,6 @@ export class ImageComponentView
 
         this.setPlaceholder(new ImagePlaceholder(this));
         this.initializeImage();
-        this.handleContentRemovedEvent();
-    }
-
-    protected getContentId(): ContentId {
-        return this.component ? this.component.getImage() : null;
-    }
-
-    private handleContentRemovedEvent() {
-        let contentDeletedListener = (event) => {
-            let deleted = event.getDeletedItems().some((deletedItem: ContentDeletedItem) => {
-                return !deletedItem.isPending() && deletedItem.getContentId().equals(this.component.getImage());
-            });
-            if (deleted) {
-                this.remove();
-            }
-        };
-
-        ContentDeletedEvent.on(contentDeletedListener);
-
-        this.onRemoved((event) => {
-            ContentDeletedEvent.un(contentDeletedListener);
-        });
     }
 
     private initializeImage() {

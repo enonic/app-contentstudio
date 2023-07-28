@@ -44,6 +44,14 @@ export class PageState {
 
             this.removeComponent(path);
         });
+
+        PageEventsManager.get().onComponentDuplicateRequested((path: ComponentPath) => {
+
+        });
+
+        PageEventsManager.get().onSetFragmentComponentRequested((path: ComponentPath, id: string) => {
+
+        });
     }
 
     private addComponent(parentPath: ComponentPath, type: ComponentType): void {
