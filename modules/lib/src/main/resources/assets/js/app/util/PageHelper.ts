@@ -81,4 +81,38 @@ export class PageHelper {
             throw new Exception(i18n('live.view.page.error.descriptornotfound', key), ExceptionType.WARNING);
         });
     }
+
+    static fetchAndInjectPageRegions(page: Page, pageDescriptor?: Descriptor): Q.Promise<Regions> {
+        if (!pageDescriptor) {
+            const regions: Regions = page.hasRegions() ? page.getRegions().clone() : Regions.create().build();
+            return Q.resolve(regions);
+        }
+
+        const builder: RegionsBuilder = Regions.create();
+
+        const regionsFetchPromises: Q.Promise<Region>[] = pageDescriptor.getRegions().map((regionDesc: RegionDescriptor) => {
+            const existingRegion: Region = page.getRegions()?.getRegionByName(regionDesc.getName());
+
+            if (existingRegion) {
+                return this.updateExistingRegion(existingRegion);
+            }
+
+            return Q.resolve(Region.create().setName(regionDesc.getName()).build());
+        });
+
+        return Q.all(regionsFetchPromises).then((regions: Region[]) => {
+            builder.setRegions(regions);
+
+            return builder.build();
+        });
+    }
+
+    private static updateExistingRegion(existingRegion: Region): Q.Promise<Region> {
+        const layoutsPromises: Q.Promise<void>[] = existingRegion.getComponents()
+            .filter((component: Component) => component instanceof LayoutComponent)
+            .filter((layout: LayoutComponent) => layout.getDescriptorKey())
+            .map((layout: LayoutComponent) => PageHelper.fetchAndInjectLayoutRegions(layout));
+
+        return Q.all(layoutsPromises).then(() => existingRegion);
+    }
 }
