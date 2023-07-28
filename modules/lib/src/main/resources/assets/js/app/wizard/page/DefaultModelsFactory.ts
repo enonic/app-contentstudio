@@ -10,6 +10,7 @@ import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescript
 import {PageComponentType} from '../../page/region/PageComponentType';
 import {Descriptor} from '../../page/Descriptor';
 import {ContentId} from '../../content/ContentId';
+import {PageHelper} from '../../util/PageHelper';
 
 export interface DefaultModelsFactoryConfig {
 
@@ -36,11 +37,13 @@ export class DefaultModelsFactory {
                     defaultPageTemplate = null;
                 }
 
-                let deferred = Q.defer<DefaultModels>();
+                const deferred = Q.defer<DefaultModels>();
+
                 if (defaultPageTemplateDescriptorPromise) {
                     defaultPageTemplateDescriptorPromise.then((defaultPageTemplateDescriptor: Descriptor) => {
-
-                        deferred.resolve(new DefaultModels(defaultPageTemplate, defaultPageTemplateDescriptor));
+                        return PageHelper.fetchAndInjectPageRegions(defaultPageTemplate.getPage(), defaultPageTemplateDescriptor).then(() => {
+                            deferred.resolve(new DefaultModels(defaultPageTemplate, defaultPageTemplateDescriptor));
+                        });
                     }).catch((reason) => {
                         const msg = i18n('notify.wizard.noDescriptor', defaultPageTemplate.getController());
                         deferred.reject(new Exception(msg, ExceptionType.WARNING));

@@ -298,7 +298,6 @@ export class PageModel {
     }
 
     setAutomaticTemplate(eventSource?: EventSource, ignoreRegionChanges: boolean = false): PageModel {
-
         const config = this.defaultTemplate.hasConfig() ? this.defaultTemplate.getConfig().copy() : new PropertyTree();
 
         const regions = this.defaultTemplate.hasRegions()

@@ -204,12 +204,13 @@ export class LiveEditModelInitializer {
     private static initPage(content: Content, pageMode: PageMode, pageModel: PageModel, promises: Q.Promise<ComponentDescriptor>[],
                             forcedPageTemplate: PageTemplate): void {
         const page: Page = content.getPage();
+
         if (pageMode === PageMode.FORCED_TEMPLATE) {
             this.initForcedTemplatePage(content, page, pageModel, promises, forcedPageTemplate);
         } else if (pageMode === PageMode.FORCED_CONTROLLER) {
             this.initForcedControllerPage(page, pageModel, promises);
         } else if (pageMode === PageMode.AUTOMATIC) {
-            pageModel.setAutomaticTemplate(this);
+            this.initAutomaticTemplate(pageModel);
         } else if (pageMode === PageMode.FRAGMENT) {
             this.initFragmentPage(page, pageModel, promises);
         } else if (pageMode === PageMode.NO_CONTROLLER) {
@@ -224,15 +225,14 @@ export class LiveEditModelInitializer {
                                                     promises: Q.Promise<ComponentDescriptor>[]): void {
         const pageDescriptorKey: DescriptorKey = pageTemplate.getController();
         const pageDescriptorPromise: Q.Promise<Descriptor> = PageHelper.loadDescriptor(pageDescriptorKey);
+
         pageDescriptorPromise.then((pageDescriptor: Descriptor) => {
-
-            const config: PropertyTree = pageTemplate.hasConfig() ? pageTemplate.getPage().getConfig().copy() : new PropertyTree();
-
-            const regions: Regions = pageTemplate.hasRegions() ? pageTemplate.getRegions().clone() : Regions.create().build();
-
-            const setController: SetController = new SetController(this)
-                .setDescriptor(pageDescriptor).setConfig(config).setRegions(regions);
-            pageModel.initController(setController);
+            return PageHelper.fetchAndInjectPageRegions(pageTemplate.getPage(), pageDescriptor).then((regions: Regions) => {
+                const config: PropertyTree = pageTemplate.hasConfig() ? pageTemplate.getPage().getConfig().copy() : new PropertyTree();
+                const setController: SetController = new SetController(this)
+                    .setDescriptor(pageDescriptor).setConfig(config).setRegions(regions);
+                pageModel.initController(setController);
+            });
         });
 
         promises.push(pageDescriptorPromise);
@@ -256,26 +256,32 @@ export class LiveEditModelInitializer {
             forcedPageTemplate);
 
         pageTemplatePromise.then((pageTemplate: PageTemplate) => {
-
             const pageDescriptorKey: DescriptorKey = pageTemplate.getController();
             const pageDescriptorPromise: Q.Promise<Descriptor> = PageHelper.loadDescriptor(pageDescriptorKey);
             pageDescriptorPromise.then((pageDescriptor: Descriptor) => {
+                return this.getForcedPageTemplateRegions(content, pageTemplate, pageDescriptor).then((regions: Regions) => {
+                    const config: PropertyTree = content.getPage().hasNonEmptyConfig()
+                                                 ? content.getPage().getConfig().copy()
+                                                 : (pageTemplate.getConfig() ? pageTemplate.getConfig().copy() : pageTemplate.getConfig());
 
-                const config: PropertyTree = content.getPage().hasNonEmptyConfig()
-                                             ? content.getPage().getConfig().copy()
-                                             : (pageTemplate.getConfig() ? pageTemplate.getConfig().copy() : pageTemplate.getConfig());
+                    const setTemplate: SetTemplate = new SetTemplate(this)
+                        .setTemplate(pageTemplate, pageDescriptor).setRegions(regions).setConfig(config);
+                    pageModel.initTemplate(setTemplate);
 
-                const regions: Regions = content.getPage().hasNonEmptyRegions()
-                                         ? content.getPage().getRegions().clone()
-                                         : (pageTemplate.getRegions() ? pageTemplate.getRegions().clone() : pageTemplate.getRegions());
-
-                let setTemplate: SetTemplate = new SetTemplate(this)
-                    .setTemplate(pageTemplate, pageDescriptor).setRegions(regions).setConfig(config);
-                pageModel.initTemplate(setTemplate);
+                    return Q.resolve();
+                });
             });
             promises.push(pageDescriptorPromise);
         });
         promises.push(pageTemplatePromise);
+    }
+
+    private static getForcedPageTemplateRegions(content: Content, pageTemplate: PageTemplate, pageDescriptor: Descriptor): Q.Promise<Regions> {
+        if (content.getPage().hasNonEmptyRegions()) {
+            return Q.resolve(content.getPage().getRegions().clone());
+        }
+
+        return PageHelper.fetchAndInjectPageRegions(pageTemplate.getPage(), pageDescriptor);
     }
 
     private static initForcedControllerPage(page: Page, pageModel: PageModel, promises: Q.Promise<ComponentDescriptor>[]): void {
@@ -303,7 +309,7 @@ export class LiveEditModelInitializer {
     private static initPageController(page: Page, pageModel: PageModel, pageDescriptor: Descriptor): Q.Promise<void> {
         const config: PropertyTree = page.hasConfig() ? page.getConfig().copy() : new PropertyTree();
 
-        return this.fetchAndInjectPageRegions(page, pageDescriptor).then((regions: Regions) => {
+        return PageHelper.fetchAndInjectPageRegions(page, pageDescriptor).then((regions: Regions) => {
             const setController: SetController = new SetController(this)
                 .setDescriptor(pageDescriptor).setConfig(config).setRegions(regions);
 
@@ -311,40 +317,6 @@ export class LiveEditModelInitializer {
 
             return Q.resolve();
         });
-    }
-
-    private static fetchAndInjectPageRegions(page: Page, pageDescriptor?: Descriptor): Q.Promise<Regions> {
-        if (!pageDescriptor) {
-            const regions: Regions = page.hasRegions() ? page.getRegions().clone() : Regions.create().build();
-            return Q.resolve(regions);
-        }
-
-        const builder: RegionsBuilder = Regions.create();
-
-        const regionsFetchPromises: Q.Promise<Region>[] = pageDescriptor.getRegions().map((regionDesc: RegionDescriptor) => {
-            const existingRegion: Region = page.getRegions()?.getRegionByName(regionDesc.getName());
-
-            if (existingRegion) {
-                return this.updateExistingRegion(existingRegion);
-            }
-
-            return Q.resolve(Region.create().setName(regionDesc.getName()).build());
-        });
-
-        return Q.all(regionsFetchPromises).then((regions: Region[]) => {
-            builder.setRegions(regions);
-
-            return builder.build();
-        });
-    }
-
-    private static updateExistingRegion(existingRegion: Region): Q.Promise<Region> {
-        const layoutsPromises: Q.Promise<void>[] = existingRegion.getComponents()
-            .filter((component: Component) => component instanceof LayoutComponent)
-            .filter((layout: LayoutComponent) => layout.getDescriptorKey())
-            .map((layout: LayoutComponent) => PageHelper.fetchAndInjectLayoutRegions(layout));
-
-        return Q.all(layoutsPromises).then(() => existingRegion);
     }
 
     private static getPageMode(content: Content, defaultTemplatePresents: boolean,
@@ -423,5 +395,9 @@ export class LiveEditModelInitializer {
         const regions: Regions = Regions.create().build();
 
         return new SetController(this).setDescriptor(null).setConfig(config).setRegions(regions);
+    }
+
+    private static initAutomaticTemplate(pageModel: PageModel): void {
+        pageModel.setAutomaticTemplate(this);
     }
 }
