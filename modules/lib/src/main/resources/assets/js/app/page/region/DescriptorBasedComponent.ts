@@ -6,6 +6,8 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {DescriptorKey} from '../DescriptorKey';
 import {Descriptor} from '../Descriptor';
+import {ComponentDescriptorUpdatedEvent} from './ComponentDescriptorUpdatedEvent';
+import {ComponentConfigUpdatedEvent} from './ComponentConfigUpdatedEvent';
 
 export abstract class DescriptorBasedComponent
     extends ConfigBasedComponent {
@@ -35,7 +37,7 @@ export abstract class DescriptorBasedComponent
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
 
         if (!ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
-            this.notifyPropertyChanged(DescriptorBasedComponent.PROPERTY_DESCRIPTOR);
+            this.notifyComponentUpdated(new ComponentDescriptorUpdatedEvent(this.getPath(), this.descriptorKey));
         }
 
         this.setConfig(new PropertyTree());
@@ -50,7 +52,7 @@ export abstract class DescriptorBasedComponent
         this.config.onChanged(this.configChangedHandler);
 
         if (!ObjectHelper.equals(oldValue, config)) {
-            this.notifyPropertyChanged(ConfigBasedComponent.PROPERTY_CONFIG);
+            this.notifyComponentUpdated(new ComponentConfigUpdatedEvent(this.getPath(), config));
         }
     }
 

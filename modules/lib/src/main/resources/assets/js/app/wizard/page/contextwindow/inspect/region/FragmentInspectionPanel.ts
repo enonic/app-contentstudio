@@ -28,6 +28,10 @@ import {ContentPath} from '../../../../../content/ContentPath';
 import {ComponentPropertyChangedEventHandler} from '../../../../../page/region/Component';
 import {PageItem} from '../../../../../page/region/PageItem';
 import {LayoutComponent} from '../../../../../page/region/LayoutComponent';
+import {PageEventsManager} from '../../../../PageEventsManager';
+import {PageState} from '../../../PageState';
+import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
+import {ComponentFragmentUpdatedEvent} from '../../../../../page/region/ComponentFragmentUpdatedEvent';
 
 export class FragmentInspectionPanel
     extends ComponentInspectionPanel<FragmentComponent> {
@@ -39,8 +43,6 @@ export class FragmentInspectionPanel
     private editFragmentButton: Button;
 
     private handleSelectorEvents: boolean = true;
-
-    private componentPropertyChangedEventHandler: ComponentPropertyChangedEventHandler;
 
     constructor() {
         super(<ComponentInspectionPanelConfig>{
@@ -59,15 +61,15 @@ export class FragmentInspectionPanel
     }
 
     private initListeners() {
-        this.componentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => {
-            // Ensure displayed selector option is removed when fragment is removed
-            if (event.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT) {
-                if (!this.component.hasFragment()) {
-                    // this.fragmentSelector.setContent(null);
+        PageState.getEventsManager().onComponentUpdated((event: ComponentUpdatedEvent) => {
+            if (event instanceof ComponentFragmentUpdatedEvent && event.getPath().equals(this.component?.getPath())) {
+                if (event.getFragmentId()) {
+                    const item = PageState.getState().getComponentByPath(event.getPath());
+                } else {
                     this.fragmentSelector.setSelection(null);
                 }
             }
-        };
+        });
 
         this.editFragmentButton.onClicked(() => {
             const fragmentId: ContentId = this.component.getFragment();
@@ -154,7 +156,7 @@ export class FragmentInspectionPanel
     }
 
     private reloadSelectedFragment() {
-        if (this.component && this.component.getFragment()) {
+        if (this.component?.getFragment()) {
             new GetContentSummaryByIdRequest(this.component.getFragment()).sendAndParse().then((receivedFragment: ContentSummary) => {
                 this.updateSelectedItem(receivedFragment);
             }).catch(DefaultErrorHandler.handle);
@@ -162,12 +164,8 @@ export class FragmentInspectionPanel
     }
 
     setFragmentComponent(fragment: FragmentComponent) {
-        this.unregisterComponentListeners();
-
         this.setComponent(fragment);
         this.updateSelectorValue();
-
-        this.registerComponentListeners();
     }
 
     private updateSelectorValue() {
@@ -192,18 +190,6 @@ export class FragmentInspectionPanel
         }
     }
 
-    private registerComponentListeners() {
-        if (this.component) {
-            this.component.onPropertyChanged(this.componentPropertyChangedEventHandler);
-        }
-    }
-
-    private unregisterComponentListeners() {
-        if (this.component) {
-            this.component.unPropertyChanged(this.componentPropertyChangedEventHandler);
-        }
-    }
-
     private setSelectorValue(fragment: ContentSummary) {
         this.handleSelectorEvents = false;
         if (fragment) {
@@ -225,18 +211,18 @@ export class FragmentInspectionPanel
 
                 if (this.isInsideLayout()) {
                     new GetContentByIdRequest(fragmentContent.getContentId()).sendAndParse().done((content: Content) => {
-                        let fragmentComponent = content.getPage() ? content.getPage().getFragment() : null;
+                        const fragmentComponent = content.getPage() ? content.getPage().getFragment() : null;
 
-                        if (fragmentComponent &&
-                            ObjectHelper.iFrameSafeInstanceOf(fragmentComponent.getType(), LayoutComponentType)) {
+                        if (fragmentComponent?.getType() instanceof LayoutComponentType) {
                             showWarning(i18n('notify.nestedLayouts'));
-
                         } else {
-                            this.component.setFragment(fragmentContent.getContentId(), fragmentContent.getDisplayName());
+                            PageEventsManager.get().notifySetFragmentComponentRequested(this.component.getPath(),
+                                fragmentContent.getContentId().toString());
                         }
                     });
                 } else {
-                    this.component.setFragment(fragmentContent.getContentId(), fragmentContent.getDisplayName());
+                    PageEventsManager.get().notifySetFragmentComponentRequested(this.component.getPath(),
+                        fragmentContent.getContentId().toString());
                 }
             }
         });
@@ -258,7 +244,6 @@ export class FragmentInspectionPanel
     }
 
     cleanUp() {
-        this.unregisterComponentListeners();
         this.component = null;
     }
 

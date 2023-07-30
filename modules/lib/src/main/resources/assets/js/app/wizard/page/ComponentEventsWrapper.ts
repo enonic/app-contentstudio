@@ -1,6 +1,7 @@
 import {ComponentEventsHolder} from './ComponentEventsHolder';
 import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
+import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 
 export class ComponentEventsWrapper {
 
@@ -24,5 +25,13 @@ export class ComponentEventsWrapper {
 
     unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
         this.componentEvents.unComponentRemoved(listener);
+    }
+
+    onComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
+        this.componentEvents.onComponentUpdated(listener);
+    }
+
+    unComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
+        this.componentEvents.unComponentUpdated(listener);
     }
 }

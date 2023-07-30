@@ -5,6 +5,7 @@ import {PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
 import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
 import {Component, ComponentBuilder} from './Component';
 import {ConfigBasedComponentJson} from './ConfigBasedComponentJson';
+import {ComponentConfigUpdatedEvent} from './ComponentConfigUpdatedEvent';
 
 
 export abstract class ConfigBasedComponent
@@ -29,7 +30,7 @@ export abstract class ConfigBasedComponent
                 console.debug(`Component[${this.getPath().toString()}].config.onChanged: `, event);
             }
             if (!this.disableEventForwarding) {
-                this.notifyPropertyValueChanged(ConfigBasedComponent.PROPERTY_CONFIG);
+                this.notifyComponentUpdated(new ComponentConfigUpdatedEvent(this.getPath(), this.config));
             }
         };
 

@@ -27,6 +27,7 @@ import {ContentId} from '../content/ContentId';
 import {PageItem} from './region/PageItem';
 import {ComponentAddedEvent} from './region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from './region/ComponentRemovedEvent';
+import {ComponentUpdatedEvent} from './region/ComponentUpdatedEvent';
 
 export class Page
     implements Equitable, Cloneable, PageItem {
@@ -193,19 +194,27 @@ export class Page
     }
 
     onComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.regions.onComponentAdded(listener);
+        this.regions.getEventsManager().onComponentAdded(listener);
     }
 
     unComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.regions.unComponentAdded(listener);
+        this.regions.getEventsManager().unComponentAdded(listener);
     }
 
     onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.regions.onComponentRemoved(listener);
+        this.regions.getEventsManager().onComponentRemoved(listener);
     }
 
     unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.regions.unComponentRemoved(listener);
+        this.regions.getEventsManager().unComponentRemoved(listener);
+    }
+
+    onComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
+        this.regions.getEventsManager().onComponentUpdated(listener);
+    }
+
+    unComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
+        this.regions.getEventsManager().onComponentUpdated(listener);
     }
 }
 

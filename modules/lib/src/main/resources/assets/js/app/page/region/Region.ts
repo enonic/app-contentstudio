@@ -1,20 +1,19 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {Component, ComponentChangedEventHandler, ComponentPropertyChangedEventHandler} from './Component';
+import {Component, ComponentUpdatedEventHandler} from './Component';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {ComponentRemovedEvent} from './ComponentRemovedEvent';
-import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
-import {RegionPropertyValueChangedEvent} from './RegionPropertyValueChangedEvent';
 import {ComponentAddedEvent} from './ComponentAddedEvent';
 import {ComponentPath} from './ComponentPath';
 import {RegionJson} from './RegionJson';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
 import {assertState} from '@enonic/lib-admin-ui/util/Assert';
-import {ComponentChangedEvent} from './ComponentChangedEvent';
 import {PageItem} from './PageItem';
-import {ComponentType} from './ComponentType';
+import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
+import {ComponentEventsHolder} from '../../wizard/page/ComponentEventsHolder';
+import {ComponentEventsWrapper} from '../../wizard/page/ComponentEventsWrapper';
 
 export class Region
     implements Equitable, Cloneable, PageItem {
@@ -29,30 +28,19 @@ export class Region
 
     private changedListeners: { (event: BaseRegionChangedEvent): void }[] = [];
 
-    private componentAddedListeners: { (event: ComponentAddedEvent): void }[] = [];
+    private readonly componentEventsHolder: ComponentEventsHolder;
 
-    private componentRemovedListeners: { (event: ComponentRemovedEvent): void }[] = [];
-
-    private componentPropertyChangedListeners: { (event: ComponentPropertyChangedEvent): void }[] = [];
-
-    private propertyValueChangedListeners: { (event: RegionPropertyValueChangedEvent): void }[] = [];
-
-    private readonly componentChangedEventHandler: ComponentChangedEventHandler;
-
-    private readonly componentPropertyChangedEventHandler: (event: ComponentChangedEvent) => void;
+    private readonly componentUpdatedEventHandler: ComponentUpdatedEventHandler;
 
     constructor(builder: RegionBuilder) {
+        this.componentEventsHolder = new ComponentEventsHolder();
+
         this.name = builder.name;
         this.parent = builder.parent;
 
-        this.componentChangedEventHandler = (event: any) => {
-            if (Region.debug) {
-                console.debug(this.toString() + '.handleComponentChanged: ', event);
-            }
-            this.notifyRegionPropertyValueChanged('components');
+        this.componentUpdatedEventHandler = (event: ComponentUpdatedEvent) => {
+            this.notifyComponentUpdatedEvent(event);
         };
-
-        this.componentPropertyChangedEventHandler = (event: any) => this.forwardComponentPropertyChangedEvent(event);
 
         builder.components.forEach((component: Component) => {
             this.registerComponent(component);
@@ -96,7 +84,7 @@ export class Region
         }
 
         this.registerComponent(component, index);
-        this.notifyComponentAdded(component);
+        this.componentEventsHolder.notifyComponentAdded(new ComponentAddedEvent(component));
 
         return component;
     }
@@ -109,7 +97,7 @@ export class Region
         // parent will be cleared on unregister so grab path before it
         let path = component.getPath();
         this.unregisterComponent(component);
-        this.notifyComponentRemoved(path);
+        this.componentEventsHolder.notifyComponentRemoved(new ComponentRemovedEvent(path));
 
         return component;
     }
@@ -150,6 +138,10 @@ export class Region
         });
 
         return result;
+    }
+
+    getEventsManager(): ComponentEventsWrapper {
+        return new ComponentEventsWrapper(this.componentEventsHolder);
     }
 
     toJson(): RegionJson {
@@ -208,17 +200,14 @@ export class Region
         }
 
         component.setParent(this);
-
-        component.onChanged(this.componentChangedEventHandler);
-        component.onPropertyChanged(this.componentPropertyChangedEventHandler);
+        component.onComponentUpdated(this.componentUpdatedEventHandler);
     }
 
     private unregisterComponent(component: Component) {
         if (Region.debug) {
             console.debug(this.toString() + '.unregisterComponent: ' + component.toString(), this.components);
         }
-        component.unChanged(this.componentChangedEventHandler);
-        component.unPropertyChanged(this.componentPropertyChangedEventHandler);
+        component.unComponentUpdated(this.componentUpdatedEventHandler);
 
         let index = component.getIndex();
         if (index === -1) {
@@ -248,89 +237,16 @@ export class Region
         });
     }
 
-    onComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.componentAddedListeners.push(listener);
-    }
-
-    unComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.componentAddedListeners =
-            this.componentAddedListeners.filter((curr: (event: ComponentAddedEvent) => void) => {
-                return listener !== curr;
-            });
-    }
-
-    notifyComponentAdded(component: Component) {
-        const event: ComponentAddedEvent = new ComponentAddedEvent(component);
-        this.componentAddedListeners.forEach((listener: (event: ComponentAddedEvent) => void) => {
-            listener(event);
-        });
-    }
-
     notifyComponentAddedEvent(event: ComponentAddedEvent) {
-        this.componentAddedListeners.forEach((listener: (event: ComponentAddedEvent) => void) => {
-            listener(event);
-        });
-    }
-
-    onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.componentRemovedListeners.push(listener);
-    }
-
-    unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.componentRemovedListeners =
-            this.componentRemovedListeners.filter((curr: (event: ComponentRemovedEvent) => void) => {
-                return listener !== curr;
-            });
-    }
-
-    private notifyComponentRemoved(componentPath: ComponentPath) {
-        let event = new ComponentRemovedEvent(componentPath);
-        this.componentRemovedListeners.forEach((listener: (event: ComponentRemovedEvent) => void) => {
-            listener(event);
-        });
-        this.notifyChangedEvent(event);
+        this.componentEventsHolder.notifyComponentAdded(event);
     }
 
     notifyComponentRemovedEvent(event: ComponentRemovedEvent) {
-        this.componentRemovedListeners.forEach((listener: (event: ComponentRemovedEvent) => void) => {
-            listener(event);
-        });
+        this.componentEventsHolder.notifyComponentRemoved(event);
     }
 
-    onComponentPropertyChangedEvent(listener: ComponentPropertyChangedEventHandler) {
-        this.componentPropertyChangedListeners.push(listener);
-    }
-
-    unComponentPropertyChangedEvent(listener: ComponentPropertyChangedEventHandler) {
-        this.componentPropertyChangedListeners =
-            this.componentPropertyChangedListeners.filter((curr: ComponentPropertyChangedEventHandler) => {
-                return listener !== curr;
-            });
-    }
-
-    private forwardComponentPropertyChangedEvent(event: ComponentPropertyChangedEvent): void {
-        this.componentPropertyChangedListeners.forEach((listener: ComponentPropertyChangedEventHandler) => {
-            listener(event);
-        });
-    }
-
-    onRegionPropertyValueChanged(listener: (event: RegionPropertyValueChangedEvent) => void) {
-        this.propertyValueChangedListeners.push(listener);
-    }
-
-    unRegionPropertyValueChanged(listener: (event: RegionPropertyValueChangedEvent) => void) {
-        this.propertyValueChangedListeners =
-            this.propertyValueChangedListeners.filter((curr: (event: RegionPropertyValueChangedEvent) => void) => {
-                return listener !== curr;
-            });
-    }
-
-    private notifyRegionPropertyValueChanged(propertyName: string) {
-        let event = new RegionPropertyValueChangedEvent(this.getPath(), propertyName);
-        this.propertyValueChangedListeners.forEach((listener: (event: RegionPropertyValueChangedEvent) => void) => {
-            listener(event);
-        });
-        this.notifyChangedEvent(event);
+    notifyComponentUpdatedEvent(event: ComponentUpdatedEvent) {
+        this.componentEventsHolder.notifyComponentUpdated(event);
     }
 
     static create(source?: Region): RegionBuilder {

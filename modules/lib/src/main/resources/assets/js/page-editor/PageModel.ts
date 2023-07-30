@@ -278,11 +278,6 @@ export class PageModel {
         if (this.regions && setController.descriptor) {
             this.regions.changeRegionsTo(setController.descriptor.getRegions());
         }
-
-        if (this.fragment) {
-            this.unregisterFragmentListeners(this.fragment);
-            this.registerFragmentListeners(this.fragment);
-        }
     }
 
     setTemplateContoller(silent?: boolean) {
@@ -530,21 +525,11 @@ export class PageModel {
     }
 
     private registerRegionsListeners(regions: Regions) {
-        regions.onComponentPropertyChanged(this.componentPropertyChangedEventHandler);
-        regions.onChanged(this.regionsChangedEventHandler);
+        //
     }
 
     private unregisterRegionsListeners(regions: Regions) {
-        regions.unComponentPropertyChanged(this.componentPropertyChangedEventHandler);
-        regions.unChanged(this.regionsChangedEventHandler);
-    }
-
-    private registerFragmentListeners(fragment: Component) {
-        fragment.onPropertyChanged(this.componentPropertyChangedEventHandler);
-    }
-
-    private unregisterFragmentListeners(fragment: Component) {
-        fragment.unPropertyChanged(this.componentPropertyChangedEventHandler);
+        //
     }
 
     onPageModeChanged(listener: PageModeChangedEventHandler) {

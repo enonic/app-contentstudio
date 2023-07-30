@@ -12,6 +12,7 @@ import {ComponentFactory} from '../../page/region/ComponentFactory';
 import {ComponentPropertyChangedEvent} from '../../page/region/ComponentPropertyChangedEvent';
 import {ComponentEventsHolder} from './ComponentEventsHolder';
 import {ComponentEventsWrapper} from './ComponentEventsWrapper';
+import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 
 
 export class PageState {
@@ -26,6 +27,8 @@ export class PageState {
 
     private componentRemovedNotifier: (event: ComponentRemovedEvent) => void;
 
+    private componentUpdatedNotifier: (event: ComponentUpdatedEvent) => void;
+
     private constructor() {
         this.componentEventsHolder = new ComponentEventsHolder();
         this.initListeners();
@@ -34,6 +37,7 @@ export class PageState {
     private initListeners(): void {
         this.componentAddedNotifier = (event: ComponentAddedEvent) => this.componentEventsHolder.notifyComponentAdded(event);
         this.componentRemovedNotifier = (event: ComponentRemovedEvent) => this.componentEventsHolder.notifyComponentRemoved(event);
+        this.componentUpdatedNotifier = (event: ComponentRemovedEvent) => this.componentEventsHolder.notifyComponentUpdated(event);
 
         PageEventsManager.get().onComponentInsertRequested((parentPath: ComponentPath, type: ComponentType) => {
             if (!this.state) {
@@ -129,10 +133,12 @@ export class PageState {
     private listenPageComponentsEvents(): void {
         this.state?.onComponentAdded(this.componentAddedNotifier);
         this.state?.onComponentRemoved(this.componentRemovedNotifier);
+        this.state?.onComponentUpdated(this.componentUpdatedNotifier);
     }
 
     private unListenPageComponentsEvents(): void {
         this.state?.unComponentAdded(this.componentAddedNotifier);
         this.state?.unComponentRemoved(this.componentRemovedNotifier);
+        this.state?.unComponentUpdated(this.componentUpdatedNotifier);
     }
 }

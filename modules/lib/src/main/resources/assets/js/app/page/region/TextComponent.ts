@@ -6,6 +6,7 @@ import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {TextComponentJson} from './TextComponentJson';
 import {TextComponentType} from './TextComponentType';
 import {ComponentName} from './ComponentName';
+import {ComponentTextUpdatedEvent} from './ComponentTextUpdatedEvent';
 
 export class TextComponent
     extends Component {
@@ -30,7 +31,7 @@ export class TextComponent
         this.text = StringHelper.isBlank(value) ? undefined : value;
 
         if (!silent) {
-            this.notifyPropertyChanged(TextComponent.PROPERTY_TEXT);
+            this.notifyComponentUpdated(new ComponentTextUpdatedEvent(this.getPath(), value));
         }
     }
 
