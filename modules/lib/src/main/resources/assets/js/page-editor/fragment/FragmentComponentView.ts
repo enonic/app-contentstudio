@@ -183,7 +183,7 @@ export class FragmentComponentView
         }
 
         if (TextItemType.get().equals(itemType)) {
-            this.convertTextComponentImageUrls(element);
+           // this.convertTextComponentImageUrls(element);
         } else {
             this.parseFragmentComponents(element);
         }

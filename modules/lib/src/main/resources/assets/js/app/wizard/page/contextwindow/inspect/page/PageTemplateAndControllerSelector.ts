@@ -28,6 +28,11 @@ import {Descriptor} from '../../../../../page/Descriptor';
 import {ComponentDescriptorsLoader} from '../region/ComponentDescriptorsLoader';
 import {PageComponentType} from '../../../../../page/region/PageComponentType';
 import {DescriptorKey} from '../../../../../page/DescriptorKey';
+import {PageState} from '../../../PageState';
+import {PageEventsManager} from '../../../../PageEventsManager';
+import {PageUpdatedEvent} from '../../../../../page/event/PageUpdatedEvent';
+import {PageControllerUpdatedEvent} from '../../../../../page/event/PageControllerUpdatedEvent';
+import {PageTemplateUpdatedEvent} from '../../../../../page/event/PageTemplateUpdatedEvent';
 
 export class PageTemplateAndControllerSelector
     extends Dropdown<PageTemplateAndControllerOption> {
@@ -114,7 +119,6 @@ export class PageTemplateAndControllerSelector
                 this.openConfirmationDialog(i18n('dialog.controller.change'), event, selectionHandler);
                 // template -> controller
             } else {
-                this.doResetTemplate();
                 this.doSelectController(<PageControllerOption>selectedOption);
             }
         });
@@ -137,38 +141,17 @@ export class PageTemplateAndControllerSelector
     }
 
     private doSelectTemplate(selectedOption: PageTemplateOption) {
-        const pageModel = this.liveEditModel.getPageModel();
-        pageModel.setCustomized(false);
-
         const pageTemplate: PageTemplate = selectedOption.getData();
 
         if (pageTemplate) {
-            new GetComponentDescriptorRequest(pageTemplate.getController().toString())
-                .sendAndParse()
-                .then((pageDescriptor: Descriptor) => {
-                    const setTemplate = new SetTemplate(this).setTemplate(pageTemplate, pageDescriptor);
-                    pageModel.setTemplate(setTemplate, true);
-                }).catch((reason: any) => {
-                DefaultErrorHandler.handle(reason);
-            }).done();
-        } else if (pageModel.hasDefaultPageTemplate()) {
-            pageModel.setAutomaticTemplate(this, true);
+            PageEventsManager.get().notifyPageTemplateSetRequested(pageTemplate.getKey());
         } else {
-            pageModel.reset(this);
+            PageEventsManager.get().notifyPageResetRequested();
         }
     }
 
-    doResetTemplate() {
-        const pageModel = this.liveEditModel.getPageModel();
-
-        pageModel.setTemplateContoller(true);
-    }
-
     private doSelectController(selectedOption: PageControllerOption) {
-        const pageDescriptor: Descriptor = selectedOption.getData();
-        const setController = new SetController(this).setDescriptor(pageDescriptor).setConfig(new PropertyTree());
-
-        this.liveEditModel.getPageModel().setController(setController);
+        PageEventsManager.get().notifyPageControllerSetRequested(selectedOption.getData().getKey());
     }
 
     private static isDescendantTemplate(summary: ContentSummaryAndCompareStatus, liveEditModel: LiveEditModel): boolean {
@@ -290,23 +273,21 @@ export class PageTemplateAndControllerSelector
     }
 
     private initPageModelListeners() {
-        this.liveEditModel.getPageModel().onPropertyChanged((event: PropertyChangedEvent) => {
-            if (event.getPropertyName() === PageModel.PROPERTY_TEMPLATE && this !== event.getSource()) {
-                let pageTemplateKey = <PageTemplateKey>event.getNewValue();
+        PageState.getEvents().onPageUpdated((event: PageUpdatedEvent) => {
+            if (event instanceof PageTemplateUpdatedEvent) {
+                let pageTemplateKey = event.getPageTemplate();
+
                 if (pageTemplateKey) {
                     this.selectOptionByValue(pageTemplateKey.toString());
                 } else if (this.autoOption) {
                     this.selectOption(this.autoOption, true);
                 }
-            } else if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER && this !== event.getSource()) {
-                let descriptorKey = <DescriptorKey>event.getNewValue();
-                if (descriptorKey) {
-                    this.selectOptionByValue(descriptorKey.toString());
-                }
+            } else if (event instanceof PageControllerUpdatedEvent) {
+                this.selectOptionByValue(event.getPageController().toString());
             }
         });
 
-        this.liveEditModel.getPageModel().onReset(() => {
+        PageState.getEvents().onPageReset(() => {
             if (this.autoOption) {
                 this.selectOption(this.autoOption, true);
             } else {

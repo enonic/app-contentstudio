@@ -11,12 +11,10 @@ import {PageLockedEvent} from '../../../page-editor/PageLockedEvent';
 import {PageUnlockedEvent} from '../../../page-editor/PageUnlockedEvent';
 import {PageUnloadedEvent} from '../../../page-editor/PageUnloadedEvent';
 import {PageTextModeStartedEvent} from '../../../page-editor/PageTextModeStartedEvent';
-import {RegionSelectedEvent} from '../../../page-editor/RegionSelectedEvent';
 import {ItemViewSelectedEvent} from '../../../page-editor/ItemViewSelectedEvent';
 import {ItemViewDeselectedEvent} from '../../../page-editor/ItemViewDeselectedEvent';
 import {ComponentDuplicatedEvent} from '../../../page-editor/ComponentDuplicatedEvent';
 import {ComponentInspectedEvent} from '../../../page-editor/ComponentInspectedEvent';
-import {PageInspectedEvent} from '../../../page-editor/PageInspectedEvent';
 import {ComponentLoadedEvent} from '../../../page-editor/ComponentLoadedEvent';
 import {ComponentResetEvent} from '../../../page-editor/ComponentResetEvent';
 import {LiveEditPageViewReadyEvent} from '../../../page-editor/LiveEditPageViewReadyEvent';
@@ -45,7 +43,6 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {ItemView} from '../../../page-editor/ItemView';
 import {PageEventsManager} from '../PageEventsManager';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {LiveEditPageDialogCreatedEvent} from '../../../page-editor/LiveEditPageDialogCreatedEvent';
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {SaveAsTemplateEvent} from '../../../page-editor/SaveAsTemplateEvent';
@@ -59,13 +56,11 @@ import {PageNavigationEventData} from '../PageNavigationEventData';
 import {HtmlEditorCursorPosition} from '../../inputtype/ui/text/HtmlEditor';
 import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
 import {LiveEditParams} from '../../../page-editor/LiveEditParams';
-import {PageModel, SetController} from '../../../page-editor/PageModel';
+import {PageModel} from '../../../page-editor/PageModel';
 import {CreateComponentFragmentRequestedEvent} from '../../../page-editor/event/CreateComponentFragmentRequestedEvent';
 import {PageResetEvent} from '../../../page-editor/event/PageResetEvent';
 import {PageMode} from '../../page/PageMode';
 import {PageDescriptorSelectedEvent} from '../../../page-editor/event/PageDescriptorSelectedEvent';
-import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescriptorRequest';
-import {Descriptor} from '../../page/Descriptor';
 import {SelectComponentRequestedEvent} from '../../../page-editor/event/SelectComponentRequestedEvent';
 import {DeselectComponentRequestedEvent} from '../../../page-editor/event/DeselectComponentRequestedEvent';
 import {EditTextComponentRequested} from '../../../page-editor/event/EditTextComponentRequested';
@@ -81,6 +76,7 @@ import {LoadComponentFailedEvent} from '../../../page-editor/event/LoadComponent
 import {LoadComponentRequested} from '../../../page-editor/event/LoadComponentRequested';
 import {DuplicateComponentRequest} from '../../../page-editor/event/DuplicateComponentRequest';
 import {SetFragmentComponentRequested} from '../../../page-editor/event/SetFragmentComponentRequested';
+import {DescriptorKey} from '../../page/DescriptorKey';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -516,8 +512,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
         PageTextModeStartedEvent.un(null, contextWindow);
 
-        RegionSelectedEvent.un(null, contextWindow);
-
         ItemViewSelectedEvent.un(null, contextWindow);
 
         ItemViewDeselectedEvent.un(null, contextWindow);
@@ -525,8 +519,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         ComponentDuplicatedEvent.un(null, contextWindow);
 
         ComponentInspectedEvent.un(null, contextWindow);
-
-        PageInspectedEvent.un(null, contextWindow);
 
         ComponentFragmentCreatedEvent.un(null, contextWindow);
 
@@ -584,10 +576,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             eventsManager.notifyPageTextModeStarted(event);
         }, contextWindow);
 
-        RegionSelectedEvent.on((event: RegionSelectedEvent) => {
-            eventsManager.notifyRegionSelected(event);
-        }, contextWindow);
-
         ItemViewSelectedEvent.on((event: ItemViewSelectedEvent) => {
             const pathAsString: string = event.getComponentPathAsString();
             const path: ComponentPath = ComponentPath.fromString(pathAsString);
@@ -611,10 +599,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
             PageNavigationMediator.get().notify(
                 new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(path)));
-        }, contextWindow);
-
-        PageInspectedEvent.on(() => {
-            eventsManager.notifyPageInspectedRequested();
         }, contextWindow);
 
         ComponentFragmentCreatedEvent.on((event: ComponentFragmentCreatedEvent) => {
@@ -677,17 +661,13 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
         }, contextWindow);
 
-        PageResetEvent.on((event: PageResetEvent) => {
-
+        PageResetEvent.on(() => {
+            PageEventsManager.get().notifyPageResetRequested();
         }, contextWindow);
 
         // Remove page placeholder from live edit and use one entry point (LiveEditPagePlaceholder) in liveformpanel
         PageDescriptorSelectedEvent.on((event: PageDescriptorSelectedEvent) => {
-            new GetComponentDescriptorRequest(event.getDescriptor()).sendAndParse()
-                .then((pageDescriptor: Descriptor) => {
-                    const setController: SetController = new SetController(this).setDescriptor(pageDescriptor);
-                    this.liveEditModel.getPageModel().setController(setController);
-                }).catch(DefaultErrorHandler.handle);
+            PageEventsManager.get().notifyPageControllerSetRequested(DescriptorKey.fromString(event.getDescriptor()));
         }, contextWindow);
 
         AddComponentRequest.on((event: AddComponentRequest) => {
@@ -725,11 +705,11 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             new LiveEditPageDialogCreatedEvent(modalDialog, config).fire(this.liveEditWindow);
         });
 
-        PageState.getEventsManager().onComponentAdded((event: ComponentAddedEvent): void => {
+        PageState.getEvents().onComponentAdded((event: ComponentAddedEvent): void => {
             new AddItemViewRequest(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
         });
 
-        PageState.getEventsManager().onComponentRemoved((event: ComponentRemovedEvent) => {
+        PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
             new RemoveItemViewRequest(event.getPath()).fire(this.liveEditWindow);
         });
     }

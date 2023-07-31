@@ -11,7 +11,6 @@ import {ItemViewAddedEvent} from './ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
-import {RegionSelectedEvent} from './RegionSelectedEvent';
 import {ItemType} from './ItemType';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {PageViewController} from './PageViewController';
@@ -269,14 +268,10 @@ export class RegionView
         }
 
         super.select(config, menuPosition);
-
-        new RegionSelectedEvent(this, config?.rightClicked).fire();
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {
         super.selectWithoutMenu(restoredSelection);
-
-        new RegionSelectedEvent(this).fire();
     }
 
     toString() {

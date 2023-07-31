@@ -32,13 +32,12 @@ import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {Content} from '../content/Content';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {PageItem} from '../page/region/PageItem';
+import {PageState} from './page/PageState';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ComponentsTreeItem> {
 
-    private nodeExpandedHandler?: ()=> void;
-
-    private page: Page;
+    private nodeExpandedHandler?: () => void;
 
     constructor() {
         super(new TreeGridBuilder<ComponentsTreeItem>()
@@ -69,10 +68,6 @@ export class PageComponentsTreeGrid
         return this;
     }
 
-    setPage(page: Page): void {
-        this.page = page?.clone();
-    }
-
     setNodeExpandedHandler(handler: () => void) {
         this.nodeExpandedHandler = handler;
     }
@@ -94,7 +89,7 @@ export class PageComponentsTreeGrid
     }
 
     private hasComponentChildren(path: ComponentPath): boolean {
-        const item: PageItem = path.isRoot() ? this.page : this.page.getComponentByPath(path);
+        const item: PageItem = path.isRoot() ? PageState.getState() : PageState.getState().getComponentByPath(path);
 
         if (item instanceof Page) {
             return !item.getRegions().isEmpty();
@@ -111,8 +106,16 @@ export class PageComponentsTreeGrid
         return false;
     }
 
+    reload(): Q.Promise<void> {
+        if (!PageState.getState()) {
+            return Q.resolve();
+        }
+
+        return super.reload();
+    }
+
     fetchRoot(): Q.Promise<ComponentsTreeItem[]> {
-        if (this.page.getFragment()) {
+        if (PageState.getState().getFragment()) {
             return this.fetchRootFragment().then((rootFragment: ComponentsTreeItem) => [rootFragment]);
         }
 
@@ -120,7 +123,7 @@ export class PageComponentsTreeGrid
     }
 
     private fetchRootFragment(): Q.Promise<ComponentsTreeItem> {
-        const component: Component = this.page.getFragment();
+        const component: Component = PageState.getState().getFragment();
 
         return this.fetchDescriptor(component).then((descriptor) => {
             const fullComponent: TreeComponent = TreeComponent.create()
@@ -136,7 +139,7 @@ export class PageComponentsTreeGrid
     }
 
     private fetchRootPageItem(): Q.Promise<ComponentsTreeItem> {
-        return new GetComponentDescriptorRequest(this.page.getController().toString()).sendAndParse().then((descriptor) => {
+        return new GetComponentDescriptorRequest(PageState.getState().getController().toString()).sendAndParse().then((descriptor) => {
             const fullComponent: TreeComponent = TreeComponent.create()
                 .setDisplayName(descriptor?.getDisplayName())
                 .setDescription(descriptor?.getDescription() || this.makeNoDescriptionText())
@@ -155,7 +158,7 @@ export class PageComponentsTreeGrid
 
     fetchChildren(parentNode: TreeNode<ComponentsTreeItem>): Q.Promise<ComponentsTreeItem[]> {
         const path: ComponentPath = parentNode.getData().getComponent().getPath();
-        const component: PageItem = path.isRoot() ? this.page : this.page.getComponentByPath(path);
+        const component: PageItem = path.isRoot() ? PageState.getState() : PageState.getState().getComponentByPath(path);
 
         if (component instanceof Page) {
             return Q.resolve(component.getRegions().getRegions().map((region: Region) => this.regionToComponentsTreeItem(region)));
@@ -188,7 +191,7 @@ export class PageComponentsTreeGrid
         const promises: Q.Promise<ComponentsTreeItem>[] = [];
 
         region.getComponents().forEach((component: Component) => {
-           promises.push(this.fetchTreeItem(component));
+            promises.push(this.fetchTreeItem(component));
         });
 
         return Q.all(promises);
@@ -202,7 +205,7 @@ export class PageComponentsTreeGrid
 
     private fetchComponentItem(component: Component): Q.Promise<TreeComponent> {
         if (ObjectHelper.iFrameSafeInstanceOf(component, FragmentComponent)) {
-             return this.fetchFragmentItem(component as FragmentComponent);
+            return this.fetchFragmentItem(component as FragmentComponent);
         }
 
         if (ObjectHelper.iFrameSafeInstanceOf(component, DescriptorBasedComponent)) {
@@ -376,7 +379,7 @@ export class PageComponentsTreeGrid
 
     protected isToBeExpanded(node: TreeNode<ComponentsTreeItem>): boolean {
         const path: ComponentPath = node.getData().getComponent().getPath();
-        const item: PageItem = path.isRoot() ? this.page : this.page.getComponentByPath(path);
+        const item: PageItem = path.isRoot() ? PageState.getState() : PageState.getState().getComponentByPath(path);
 
         return super.isToBeExpanded(node) ||
                !(item instanceof LayoutComponent) ||

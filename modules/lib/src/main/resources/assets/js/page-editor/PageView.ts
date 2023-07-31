@@ -16,7 +16,6 @@ import {ItemViewContextMenu} from './ItemViewContextMenu';
 import {PageItemType} from './PageItemType';
 import {PageViewContextMenuTitle} from './PageViewContextMenuTitle';
 import {PagePlaceholder} from './PagePlaceholder';
-import {PageInspectedEvent} from './PageInspectedEvent';
 import {ItemViewSelectedEvent, ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {TextItemType} from './text/TextItemType';
@@ -35,7 +34,6 @@ import {ItemType} from './ItemType';
 import {LayoutComponentView} from './layout/LayoutComponentView';
 import {RegionItemType} from './RegionItemType';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
-import {PageModel} from './PageModel';
 import {DragAndDrop} from './DragAndDrop';
 import {ItemViewFactory} from './ItemViewFactory';
 import {PageViewController} from './PageViewController';
@@ -47,13 +45,13 @@ import {Component} from '../app/page/region/Component';
 import {PageMode} from '../app/page/PageMode';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {ContentSummaryViewer} from '../app/content/ContentSummaryViewer';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {SaveAsTemplateEvent} from './SaveAsTemplateEvent';
 import {LiveEditParams} from './LiveEditParams';
 import {PageResetEvent} from './event/PageResetEvent';
+import {ComponentInspectedEvent} from './ComponentInspectedEvent';
 
 export class PageViewBuilder {
 
@@ -116,8 +114,6 @@ export class PageView
     private scrolledListener: (event: WheelEvent) => void;
 
     public static debug: boolean;
-
-    private propertyChangedListener: (event: PropertyChangedEvent) => void;
 
     private pageModeChangedListener: (event: PageModeChangedEvent) => void;
 
@@ -205,13 +201,6 @@ export class PageView
         if (PageView.debug) {
             console.log('PageView.registerPageModel');
         }
-        this.propertyChangedListener = (event: PropertyChangedEvent) => {
-            // don't parse on regions change during reset, because it'll be done when page is loaded later
-            if (event.getPropertyName() === PageModel.PROPERTY_REGIONS && !this.ignorePropertyChanges) {
-                this.parseItemViews();
-            }
-            this.refreshEmptyState();
-        };
 
         this.pageModeChangedListener = (event: PageModeChangedEvent) => {
             const resetEnabled = event.getNewMode() !== PageMode.AUTOMATIC && event.getNewMode() !== PageMode.NO_CONTROLLER;
@@ -228,20 +217,11 @@ export class PageView
         });
     }
 
-    private unregisterPageModel(pageModel: PageModel) {
-        if (PageView.debug) {
-            console.log('PageView.unregisterPageModel', pageModel);
-        }
-        pageModel.unPropertyChanged(this.propertyChangedListener);
-        pageModel.unPageModeChanged(this.pageModeChangedListener);
-        pageModel.unCustomizeChanged(this.customizeChangedListener);
-    }
-
     private addPageContextMenuActions() {
         const actions: Action[] = [];
 
         actions.push(new Action(i18n('live.view.inspect')).onExecuted(() => {
-            new PageInspectedEvent().fire();
+            new ComponentInspectedEvent(this.getPath()).fire();
         }));
 
         this.resetAction = new Action(i18n('live.view.reset')).onExecuted(() => {
@@ -542,7 +522,7 @@ export class PageView
             this.unshade();
 
             new PageUnlockedEvent(this).fire();
-            new PageInspectedEvent().fire();
+            new ComponentInspectedEvent(this.getPath()).fire();
         }
 
         this.notifyPageLockChanged(locked);

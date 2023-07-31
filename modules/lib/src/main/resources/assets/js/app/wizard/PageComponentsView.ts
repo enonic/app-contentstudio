@@ -206,18 +206,6 @@ export class PageComponentsView
         this.onClicked(this.lockedViewClickHandler);
     }
 
-    setPageModel(): void {
-        if (PageState.getState()?.getRegions() && !PageState.getState().getRegions().isEmpty()) {
-            this.tree.setPage(PageState.getState());
-            this.tree.deselectAll();
-            Highlighter.get().hide();
-
-            this.tree.reload().then(() => {
-                this.initLock();
-            }).catch(DefaultErrorHandler.handle);
-        }
-    }
-
     setModifyPermissions(modifyPermissions: boolean): boolean {
         this.modifyPermissions = modifyPermissions;
         return this.modifyPermissions;
@@ -251,11 +239,11 @@ export class PageComponentsView
             this.pageLockedHandler(false);
         });
 
-        PageState.getEventsManager().onComponentAdded((event: ComponentAddedEvent) => {
+        PageState.getEvents().onComponentAdded((event: ComponentAddedEvent) => {
             this.addComponent(event.getComponent()).catch(DefaultErrorHandler.handle);
         });
 
-        PageState.getEventsManager().onComponentRemoved((event: ComponentRemovedEvent) => {
+        PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
             this.tree.deleteItemByPath(event.getPath());
             this.highlightInvalidItems();
         });

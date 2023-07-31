@@ -131,13 +131,13 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private registerComponentListeners() {
         if (this.component) {
-            PageState.getEventsManager().onComponentUpdated(this.componentUpdateHandler);
+            PageState.getEvents().onComponentUpdated(this.componentUpdateHandler);
         }
     }
 
     private unregisterComponentListeners() {
         if (this.component) {
-            PageState.getEventsManager().unComponentUpdated(this.componentUpdateHandler);
+            PageState.getEvents().unComponentUpdated(this.componentUpdateHandler);
         }
     }
 

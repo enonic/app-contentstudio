@@ -4,7 +4,6 @@ import {PageSelectedEvent} from '../../page-editor/PageSelectedEvent';
 import {PageLockedEvent} from '../../page-editor/PageLockedEvent';
 import {PageUnlockedEvent} from '../../page-editor/PageUnlockedEvent';
 import {PageTextModeStartedEvent} from '../../page-editor/PageTextModeStartedEvent';
-import {RegionSelectedEvent} from '../../page-editor/RegionSelectedEvent';
 import {ComponentDuplicatedEvent} from '../../page-editor/ComponentDuplicatedEvent';
 import {LiveEditPageViewReadyEvent} from '../../page-editor/LiveEditPageViewReadyEvent';
 import {LiveEditPageInitializationErrorEvent} from '../../page-editor/LiveEditPageInitializationErrorEvent';
@@ -17,7 +16,10 @@ import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {Component} from '../page/region/Component';
 import {ComponentType} from '../page/region/ComponentType';
-import {SetFragmentComponentRequested} from '../../page-editor/event/SetFragmentComponentRequested';
+import {PageTemplateKey} from '../page/PageTemplateKey';
+import {PageControllerSetHandler, PageResetHandler, PageTemplateSetHandler} from '../page/Page';
+import {DescriptorKey} from '../page/DescriptorKey';
+
 
 export class PageEventsManager {
 
@@ -34,8 +36,6 @@ export class PageEventsManager {
 
     // Page events
 
-    private pageInspectRequestedListeners: { (): void; }[] = [];
-
     private savePageAsTemplateListeners: { (): void; }[] = [];
 
     private pageSelectedListeners: { (event: PageSelectedEvent): void; }[] = [];
@@ -48,8 +48,6 @@ export class PageEventsManager {
 
     // Region events
 
-    private regionSelectedListeners: { (event: RegionSelectedEvent): void; }[] = [];
-
     // Component events
 
     private componentDuplicatedListeners: { (event: ComponentDuplicatedEvent): void; }[] = [];
@@ -59,7 +57,6 @@ export class PageEventsManager {
     private componentLoadFailedListeners: { (path: ComponentPath, error: any): void; }[] = [];
 
     private componentResetListeners: { (path: ComponentPath): void; }[] = [];
-
 
     private liveEditPageViewReadyListeners: { (event: LiveEditPageViewReadyEvent): void; }[] = [];
 
@@ -85,7 +82,11 @@ export class PageEventsManager {
 
     // Commands
 
-    private pageResetRequestedListeners: { (): void; }[] = [];
+    private pageResetRequestedListeners: PageResetHandler[] = [];
+
+    private pageTemplateSetRequestedListeners: PageTemplateSetHandler[] = [];
+
+    private pageControllerSetRequestedListeners: PageControllerSetHandler[] = [];
 
     private componentSelectRequestedListeners: { (path: ComponentPath): void; }[] = [];
 
@@ -165,14 +166,6 @@ export class PageEventsManager {
         this.componentViewDragDroppedListeners.forEach((listener) => listener(event));
     }
 
-    onPageSelected(listener: (event: PageSelectedEvent) => void) {
-        this.pageSelectedListeners.push(listener);
-    }
-
-    unPageSelected(listener: (event: PageSelectedEvent) => void) {
-        this.pageSelectedListeners = this.pageSelectedListeners.filter((curr) => (curr !== listener));
-    }
-
     notifyPageSelected(event: PageSelectedEvent) {
         this.pageSelectedListeners.forEach((listener) => listener(event));
     }
@@ -213,18 +206,6 @@ export class PageEventsManager {
         this.pageTextModeStartedListeners.forEach((listener) => listener(event));
     }
 
-    onRegionSelected(listener: { (event: RegionSelectedEvent): void; }) {
-        this.regionSelectedListeners.push(listener);
-    }
-
-    unRegionSelected(listener: { (event: RegionSelectedEvent): void; }) {
-        this.regionSelectedListeners = this.regionSelectedListeners.filter((curr) => (curr !== listener));
-    }
-
-    notifyRegionSelected(event: RegionSelectedEvent) {
-        this.regionSelectedListeners.forEach((listener) => listener(event));
-    }
-
     onComponentDuplicated(listener: { (event: ComponentDuplicatedEvent): void; }) {
         this.componentDuplicatedListeners.push(listener);
     }
@@ -237,23 +218,11 @@ export class PageEventsManager {
         this.componentDuplicatedListeners.forEach((listener) => listener(event));
     }
 
-    onPageInspectedRequested(listener: { (): void; }) {
-        this.pageInspectRequestedListeners.push(listener);
-    }
-
-    unPageInspectedRequested(listener: { (): void; }) {
-        this.pageInspectRequestedListeners = this.pageInspectRequestedListeners.filter((curr) => (curr !== listener));
-    }
-
-    notifyPageInspectedRequested() {
-        this.pageInspectRequestedListeners.forEach((listener) => listener());
-    }
-
-    onPageResetRequested(listener: { (): void; }) {
+    onPageResetRequested(listener: PageResetHandler) {
         this.pageResetRequestedListeners.push(listener);
     }
 
-    unPageResetRequested(listener: { (): void; }) {
+    unPageResetRequested(listener: PageResetHandler) {
         this.pageResetRequestedListeners = this.pageResetRequestedListeners.filter((curr) => (curr !== listener));
     }
 
@@ -545,6 +514,30 @@ export class PageEventsManager {
 
     notifyComponentInsertRequested(parentPath: ComponentPath, type: ComponentType) {
         this.componentInsertRequestedListeners.forEach((listener) => listener(parentPath, type));
+    }
+
+    onPageTemplateSetRequested(listener: PageTemplateSetHandler): void {
+        this.pageTemplateSetRequestedListeners.push(listener);
+    }
+
+    unPageTemplateSetRequested(listener: PageTemplateSetHandler): void {
+        this.pageTemplateSetRequestedListeners = this.pageTemplateSetRequestedListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyPageTemplateSetRequested(pageTemplate: PageTemplateKey): void {
+        this.pageTemplateSetRequestedListeners.forEach((listener) => listener(pageTemplate));
+    }
+
+    onPageControllerSetRequested(listener: PageControllerSetHandler): void {
+        this.pageControllerSetRequestedListeners.push(listener);
+    }
+
+    unPageControllerSetRequested(listener: PageControllerSetHandler): void {
+        this.pageControllerSetRequestedListeners = this.pageControllerSetRequestedListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyPageControllerSetRequested(controller: DescriptorKey): void {
+        this.pageControllerSetRequestedListeners.forEach((listener) => listener(controller));
     }
 
     onSetFragmentComponentRequested(listener: { (parentPath: ComponentPath, id: string): void; }) {

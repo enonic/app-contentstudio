@@ -1,4 +1,3 @@
-import {RegionPath} from './RegionPath';
 import {ComponentPath} from './ComponentPath';
 
 export class BaseRegionChangedEvent {

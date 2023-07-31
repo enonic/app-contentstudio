@@ -26,7 +26,8 @@ export class PageActionsHelper {
 
     static getPageActions(): Action[] {
         const inspectAction = new Action(i18n('action.component.inspect')).onExecuted(() => {
-            PageEventsManager.get().notifyPageInspectedRequested();
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(ComponentPath.root())));
         });
 
         const resetAction = new Action(i18n('action.component.reset')).onExecuted(() => {

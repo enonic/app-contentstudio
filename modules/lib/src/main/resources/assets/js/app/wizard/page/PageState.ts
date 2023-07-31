@@ -1,4 +1,4 @@
-import {Page} from '../../page/Page';
+import {Page, PageBuilder, PageUpdatedEventHandler} from '../../page/Page';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {ComponentType} from '../../page/region/ComponentType';
 import {PageEventsManager} from '../PageEventsManager';
@@ -7,12 +7,24 @@ import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
 import {PageItem} from '../../page/region/PageItem';
 import {Region} from '../../page/region/Region';
-import {Component} from '../../page/region/Component';
+import {
+    Component,
+    ComponentAddedEventHandler,
+    ComponentRemovedEventHandler,
+    ComponentUpdatedEventHandler
+} from '../../page/region/Component';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
 import {ComponentPropertyChangedEvent} from '../../page/region/ComponentPropertyChangedEvent';
 import {ComponentEventsHolder} from './ComponentEventsHolder';
 import {ComponentEventsWrapper} from './ComponentEventsWrapper';
 import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
+import {FragmentComponent} from '../../page/region/FragmentComponent';
+import {ContentId} from '../../content/ContentId';
+import {PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
+import {PageEventsHolder} from './PageEventsHolder';
+import {PageEventsWrapper} from './PageEventsWrapper';
+import {PageTemplateKey} from '../../page/PageTemplateKey';
+import {DescriptorKey} from '../../page/DescriptorKey';
 
 
 export class PageState {
@@ -21,23 +33,26 @@ export class PageState {
 
     private state: Page;
 
-    private componentEventsHolder: ComponentEventsHolder;
+    private pageEventsHolder: PageEventsHolder;
 
-    private componentAddedNotifier: (event: ComponentAddedEvent) => void;
+    private componentAddedNotifier: ComponentAddedEventHandler;
 
-    private componentRemovedNotifier: (event: ComponentRemovedEvent) => void;
+    private componentRemovedNotifier: ComponentRemovedEventHandler
 
-    private componentUpdatedNotifier: (event: ComponentUpdatedEvent) => void;
+    private componentUpdatedNotifier: ComponentUpdatedEventHandler;
+
+    private pageUpdatedNotifier: PageUpdatedEventHandler;
 
     private constructor() {
-        this.componentEventsHolder = new ComponentEventsHolder();
+        this.pageEventsHolder = new PageEventsHolder();
         this.initListeners();
     }
 
     private initListeners(): void {
-        this.componentAddedNotifier = (event: ComponentAddedEvent) => this.componentEventsHolder.notifyComponentAdded(event);
-        this.componentRemovedNotifier = (event: ComponentRemovedEvent) => this.componentEventsHolder.notifyComponentRemoved(event);
-        this.componentUpdatedNotifier = (event: ComponentRemovedEvent) => this.componentEventsHolder.notifyComponentUpdated(event);
+        this.componentAddedNotifier = (event: ComponentAddedEvent) => this.pageEventsHolder.notifyComponentAdded(event);
+        this.componentRemovedNotifier = (event: ComponentRemovedEvent) => this.pageEventsHolder.notifyComponentRemoved(event);
+        this.componentUpdatedNotifier = (event: ComponentRemovedEvent) => this.pageEventsHolder.notifyComponentUpdated(event);
+        this.pageUpdatedNotifier = (event: PageUpdatedEvent) => this.pageEventsHolder.notifyPageUpdated(event);
 
         PageEventsManager.get().onComponentInsertRequested((parentPath: ComponentPath, type: ComponentType) => {
             if (!this.state) {
@@ -62,11 +77,33 @@ export class PageState {
         });
 
         PageEventsManager.get().onSetFragmentComponentRequested((path: ComponentPath, id: string) => {
-
+            this.setFragmentComponent(path, id);
         });
 
         PageEventsManager.get().onComponentResetRequested((path: ComponentPath) => {
             this.resetComponent(path);
+        });
+
+        PageEventsManager.get().onPageTemplateSetRequested((pageTemplate: PageTemplateKey) => {
+            if (!this.state) {
+                this.setPage(new Page(new PageBuilder()));
+            }
+
+            this.state.setTemplate(pageTemplate);
+        });
+
+        PageEventsManager.get().onPageControllerSetRequested((controller: DescriptorKey) => {
+            if (!this.state) {
+                this.setPage(new Page(new PageBuilder()));
+            }
+
+            this.state.setController(controller);
+        });
+
+        PageEventsManager.get().onPageResetRequested(() => {
+            this.unListenPageComponentsEvents();
+            this.state = null;
+            this.pageEventsHolder.notifyPageReset();
         });
     }
 
@@ -102,6 +139,15 @@ export class PageState {
         }
     }
 
+    private setFragmentComponent(path: ComponentPath, id: string): void {
+        const item: PageItem = this.state.getComponentByPath(path);
+        const contentId: ContentId = !!id ? new ContentId(id) : null;
+
+        if (item instanceof FragmentComponent) {
+            item.setFragment(contentId, null);
+        }
+    }
+
     private static get(): PageState {
         if (!PageState.INSTANCE) {
             PageState.INSTANCE = new PageState();
@@ -120,25 +166,25 @@ export class PageState {
 
     private setPage(page: Page): void {
         this.unListenPageComponentsEvents();
-
         this.state = page;
-
         this.listenPageComponentsEvents();
     }
 
-    static getEventsManager(): ComponentEventsWrapper {
-        return new ComponentEventsWrapper(this.get().componentEventsHolder);
+    static getEvents(): PageEventsWrapper {
+        return new PageEventsWrapper(this.get().pageEventsHolder);
     }
 
     private listenPageComponentsEvents(): void {
         this.state?.onComponentAdded(this.componentAddedNotifier);
         this.state?.onComponentRemoved(this.componentRemovedNotifier);
         this.state?.onComponentUpdated(this.componentUpdatedNotifier);
+        this.state?.onPageUpdated(this.pageUpdatedNotifier);
     }
 
     private unListenPageComponentsEvents(): void {
         this.state?.unComponentAdded(this.componentAddedNotifier);
         this.state?.unComponentRemoved(this.componentRemovedNotifier);
         this.state?.unComponentUpdated(this.componentUpdatedNotifier);
+        this.state?.unPageUpdated(this.pageUpdatedNotifier);
     }
 }

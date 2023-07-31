@@ -138,7 +138,6 @@ import {PageComponentsWizardStep} from './PageComponentsWizardStep';
 import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
 import {LiveEditPageProxy} from './page/LiveEditPageProxy';
 import {PageComponentsView} from './PageComponentsView';
-import {PageView} from '../../page-editor/PageView';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
 import {PageEventsManager} from './PageEventsManager';
 import {PageState} from './page/PageState';
@@ -531,10 +530,6 @@ export class ContentWizardPanel
                     if (this.params.displayAsNew) {
                         showFeedback(i18n('notify.content.created'));
                     }
-
-                    PageHelper.injectEmptyRegionsIntoPage(loader.content.getPage()?.clone()).then((fullPage: Page) => {
-                        PageState.setState(fullPage);
-                    }).catch(DefaultErrorHandler.handle);
                 }
                 this.defaultModels = loader.defaultModels;
                 this.site = loader.siteContent;
@@ -557,7 +552,19 @@ export class ContentWizardPanel
                     this.wizardHeader.setName(existing.getName().toString());
                 }
 
+                return this.loadAndSetPageState(loader.content.getPage()?.clone());
             }).then(() => super.doLoadData());
+    }
+
+    private loadAndSetPageState(page: Page): Q.Promise<void> {
+        if (page) {
+            return PageHelper.injectEmptyRegionsIntoPage(page).then((fullPage: Page) => {
+                PageState.setState(fullPage);
+                return Q.resolve();
+            })
+        }
+
+        return Q.resolve();
     }
 
     protected createFormIcon(): ThumbnailUploaderEl {
@@ -1150,10 +1157,6 @@ export class ContentWizardPanel
             }
         });
 
-        PageEventsManager.get().onPageResetRequested(() => {
-            this.liveEditModel?.getPageModel()?.reset();
-        });
-
         PageEventsManager.get().onPageUnlocked(() => {
             this.addPCV();
 
@@ -1598,7 +1601,6 @@ export class ContentWizardPanel
                            const needsReload = !this.isSaving();
                            if (livePanel) {
                                livePanel.setModel(this.liveEditModel);
-                               this.pageComponentsView?.setPageModel();
                                if (reloadPage) {
                                    livePanel.clearSelectionAndInspect(true, true);
                                }
@@ -1713,7 +1715,6 @@ export class ContentWizardPanel
             const showPanel: boolean = wasNotRenderable && this.isRenderable();
             this.getLivePanel().setModel(this.liveEditModel);
             this.getLivePanel().clearSelectionAndInspect(showPanel, false);
-            this.pageComponentsView?.setPageModel();
             this.debouncedEditorReload(false);
 
             return Q(null);
@@ -2284,8 +2285,7 @@ export class ContentWizardPanel
     }
 
     private assembleViewedPage(): Page {
-        return (this.getPersistedItem().getPage() && !this.isRenderable()) ?
-               this.getPersistedItem().getPage() : this.getLivePanel()?.getPage();
+        return PageState.getState();
     }
 
     private resolveContentNameForUpdateRequest(): ContentName {

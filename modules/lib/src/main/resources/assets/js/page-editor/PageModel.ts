@@ -196,30 +196,6 @@ export class PageModel {
         }
     }
 
-    setCustomized(value: boolean) {
-        const oldValue = this.customized;
-
-        this.customized = value;
-
-        if (oldValue !== value) {
-            this.notifyCustomizeChanged(this.customized);
-        }
-    }
-
-    reset(eventSource?: any) {
-        this.setCustomized(false);
-
-        if (this.isPageTemplate() || !this.defaultTemplate) {
-            let setController = new SetController(eventSource).setDescriptor(null).setConfig(new PropertyTree()).setRegions(
-                Regions.create().build());
-            this.setController(setController);
-        } else {
-            this.setAutomaticTemplate(eventSource);
-        }
-
-        this.notifyReset();
-    }
-
     setMode(value: PageMode) {
         let oldValue = this.mode;
 
@@ -228,34 +204,6 @@ export class PageModel {
         if (this.mode !== oldValue) {
             this.notifyPageModeChanged(oldValue, this.mode);
         }
-    }
-
-    setController(setController: SetController, silent?: boolean): PageModel {
-        let oldControllerKey = this.controller ? this.controller.getKey() : null;
-        let newControllerKey = setController.descriptor ? setController.descriptor.getKey() : null;
-        let controllerChanged = !ObjectHelper.equals(oldControllerKey, newControllerKey);
-
-        this.setControllerData(setController);
-
-        this.setMode(setController.descriptor ? PageMode.FORCED_CONTROLLER : PageMode.NO_CONTROLLER);
-
-        if (!this.isPageTemplate()) {
-            this.setCustomized(true);
-        }
-
-        if (!oldControllerKey && this.templateDescriptor) {
-            oldControllerKey = this.templateDescriptor.getKey();
-        }
-
-        this.template = null;
-
-        if (controllerChanged && !silent) {
-            this.setIgnorePropertyChanges(true);
-            this.notifyPropertyChanged(PageModel.PROPERTY_CONTROLLER, oldControllerKey, newControllerKey, setController.eventSource);
-            this.setIgnorePropertyChanges(false);
-        }
-
-        return this;
     }
 
     initController(setController: SetController): PageModel {
@@ -278,11 +226,6 @@ export class PageModel {
         if (this.regions && setController.descriptor) {
             this.regions.changeRegionsTo(setController.descriptor.getRegions());
         }
-    }
-
-    setTemplateContoller(silent?: boolean) {
-        const setController = new SetController(this).setDescriptor(this.templateDescriptor || this.getDefaultPageDescriptor());
-        this.setController(setController, silent);
     }
 
     setAutomaticTemplate(eventSource?: any, ignoreRegionChanges: boolean = false): PageModel {

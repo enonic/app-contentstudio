@@ -16,6 +16,7 @@ import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {Descriptor} from '../../../../../page/Descriptor';
+import {PageState} from '../../../PageState';
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
@@ -90,47 +91,21 @@ class BaseInspectionHandler {
 
     configForm: FormView;
 
-    private propertyChangedListener: (event: PropertyChangedEvent) => void;
-
     constructor(pageInspectionPanel: PageInspectionPanel) {
         this.pageInspectionPanel = pageInspectionPanel;
         this.initPropertyChangedListener();
     }
 
     private initPropertyChangedListener() {
-        this.propertyChangedListener = (event: PropertyChangedEvent) => {
-            if (this === event.getSource()) {
-                return;
-            }
-
-            if ([PageModel.PROPERTY_CONFIG, PageModel.PROPERTY_CONTROLLER].indexOf(event.getPropertyName()) === -1) {
-                return;
-            }
-
-            if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER) {
-                // empty
-            }
-
-            if (this.liveEditModel.getPageModel().hasController()) {
+        PageState.getEvents().onPageUpdated(() => {
+            if (PageState.getState().hasController()) {
                 this.refreshConfigForm();
             }
-        };
+        });
     }
 
     setModel(liveEditModel: LiveEditModel) {
-        this.unbindListeners();
         this.liveEditModel = liveEditModel;
-        this.bindListeners();
-    }
-
-    private unbindListeners() {
-        if (this.liveEditModel && this.liveEditModel.getPageModel()) {
-            this.liveEditModel.getPageModel().unPropertyChanged(this.propertyChangedListener);
-        }
-    }
-
-    private bindListeners() {
-        this.liveEditModel.getPageModel().onPropertyChanged(this.propertyChangedListener);
     }
 
     refreshConfigForm() {

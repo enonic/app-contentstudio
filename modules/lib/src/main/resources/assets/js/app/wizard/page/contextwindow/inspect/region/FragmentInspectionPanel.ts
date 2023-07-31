@@ -61,7 +61,7 @@ export class FragmentInspectionPanel
     }
 
     private initListeners() {
-        PageState.getEventsManager().onComponentUpdated((event: ComponentUpdatedEvent) => {
+        PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
             if (event instanceof ComponentFragmentUpdatedEvent && event.getPath().equals(this.component?.getPath())) {
                 if (event.getFragmentId()) {
                     const item = PageState.getState().getComponentByPath(event.getPath());

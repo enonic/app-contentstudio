@@ -5,33 +5,33 @@ import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 
 export class ComponentEventsWrapper {
 
-    private readonly componentEvents: ComponentEventsHolder;
+    protected readonly eventsHolder: ComponentEventsHolder;
 
     constructor(events: ComponentEventsHolder) {
-        this.componentEvents = events;
+        this.eventsHolder = events;
     }
 
     onComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.componentEvents.onComponentAdded(listener);
+        this.eventsHolder.onComponentAdded(listener);
     }
 
     unComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.componentEvents.unComponentAdded(listener);
+        this.eventsHolder.unComponentAdded(listener);
     }
 
     onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.componentEvents.onComponentRemoved(listener);
+        this.eventsHolder.onComponentRemoved(listener);
     }
 
     unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.componentEvents.unComponentRemoved(listener);
+        this.eventsHolder.unComponentRemoved(listener);
     }
 
     onComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
-        this.componentEvents.onComponentUpdated(listener);
+        this.eventsHolder.onComponentUpdated(listener);
     }
 
     unComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
-        this.componentEvents.unComponentUpdated(listener);
+        this.eventsHolder.unComponentUpdated(listener);
     }
 }
