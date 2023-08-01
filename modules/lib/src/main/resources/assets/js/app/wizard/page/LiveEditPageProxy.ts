@@ -619,7 +619,8 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         }, contextWindow);
 
         ComponentLoadedEvent.on((event: ComponentLoadedEvent) => {
-            eventsManager.notifyComponentLoaded(event.getPath());
+            const path: ComponentPath = ComponentPath.fromString(event.getPath().toString());
+            eventsManager.notifyComponentLoaded(path);
         }, contextWindow);
 
         ComponentResetEvent.on((event: ComponentResetEvent) => {

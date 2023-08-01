@@ -419,10 +419,7 @@ export class PageComponentsView
             const itemViewWrapper: ComponentsTreeItem = this.tree.getFirstSelectedItem();
 
             if (itemViewWrapper) {
-                if (ObjectHelper.iFrameSafeInstanceOf(itemViewWrapper, ComponentView)) {
-                    itemViewWrapper.getItemView().deselect();
-                    itemViewWrapper.getItemView().remove();
-                }
+                PageEventsManager.get().notifyComponentRemoveRequested(itemViewWrapper.getPath());
             }
             return true;
         };
@@ -623,10 +620,6 @@ export class PageComponentsView
         } else {
             this.afterActionHandler = (action: Action) => {
                 const isViewVisible = (this.getHTMLElement().offsetHeight > 0);
-
-                if (isViewVisible && action.hasParentAction() && action.getParentAction().getLabel() === i18n('live.view.selectparent')) {
-                    this.tree.getFirstSelectedItem().getItemView().hideContextMenu();
-                }
 
                 setTimeout(() => {
                     PageViewController.get().setContextMenuDisabled(false);

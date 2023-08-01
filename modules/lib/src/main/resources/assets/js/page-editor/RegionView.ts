@@ -292,8 +292,8 @@ export class RegionView
         } else {
             this.componentViews.push(componentView);
         }
-        componentView.setParentItemView(this);
 
+        componentView.setParentItemView(this);
         componentView.onItemViewAdded(this.itemViewAddedListener);
         componentView.onItemViewRemoved(this.itemViewRemovedListener);
 

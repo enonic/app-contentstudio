@@ -97,14 +97,6 @@ export class PageView
 
     private viewsById: { [s: number]: ItemView; };
 
-    private ignorePropertyChanges: boolean;
-
-    private itemViewAddedListeners: { (event: ItemViewAddedEvent): void }[];
-
-    private itemViewRemovedListeners: { (event: ItemViewRemovedEvent): void }[];
-
-    private pageLockedListeners: { (locked: boolean): void }[];
-
     private resetAction: Action;
 
     private itemViewAddedListener: (event: ItemViewAddedEvent) => void;
@@ -114,10 +106,6 @@ export class PageView
     private scrolledListener: (event: WheelEvent) => void;
 
     public static debug: boolean;
-
-    private pageModeChangedListener: (event: PageModeChangedEvent) => void;
-
-    private customizeChangedListener: (value: boolean) => void;
 
     private lockedContextMenu: ItemViewContextMenu;
 
@@ -141,15 +129,10 @@ export class PageView
 
         this.setPlaceholder(new PagePlaceholder(this));
         this.addPageContextMenuActions();
-        this.registerPageModel();
         this.registerPageViewController();
 
         this.regionViews = [];
         this.viewsById = {};
-        this.itemViewAddedListeners = [];
-        this.itemViewRemovedListeners = [];
-        this.pageLockedListeners = [];
-        this.ignorePropertyChanges = false;
 
         this.addClassEx('page-view');
 
@@ -197,26 +180,6 @@ export class PageView
         }
     }
 
-    private registerPageModel() {
-        if (PageView.debug) {
-            console.log('PageView.registerPageModel');
-        }
-
-        this.pageModeChangedListener = (event: PageModeChangedEvent) => {
-            const resetEnabled = event.getNewMode() !== PageMode.AUTOMATIC && event.getNewMode() !== PageMode.NO_CONTROLLER;
-            if (PageView.debug) {
-                console.log('PageView.pageModeChangedListener setting reset enabled', resetEnabled);
-            }
-            this.resetAction.setEnabled(resetEnabled);
-        };
-
-        this.customizeChangedListener = ((value) => {
-            if (this.isLocked() && value) {
-                this.setLocked(false);
-            }
-        });
-    }
-
     private addPageContextMenuActions() {
         const actions: Action[] = [];
 
@@ -228,9 +191,7 @@ export class PageView
             if (PageView.debug) {
                 console.log('PageView.reset');
             }
-            this.setIgnorePropertyChanges(true);
             new PageResetEvent().fire();
-            this.setIgnorePropertyChanges(false);
         });
 
         actions.push(this.resetAction);
@@ -338,10 +299,6 @@ export class PageView
 
     private hasToolbarContainer(): boolean {
         return this.hasClass('has-toolbar-container');
-    }
-
-    private setIgnorePropertyChanges(value: boolean) {
-        this.ignorePropertyChanges = value;
     }
 
     highlightSelected() {
@@ -525,7 +482,6 @@ export class PageView
             new ComponentInspectedEvent(this.getPath()).fire();
         }
 
-        this.notifyPageLockChanged(locked);
         PageViewController.get().setLocked(locked);
     }
 
@@ -790,25 +746,19 @@ export class PageView
     }
 
     private registerItemView(view: ItemView) {
-
         if (PageView.debug) {
             console.debug('PageView.registerItemView: ' + view.toString());
         }
 
         this.viewsById[view.getItemId().toNumber()] = view;
-
-        this.notifyItemViewAdded(view);
     }
 
     private unregisterItemView(view: ItemView) {
-
         if (PageView.debug) {
             console.debug('PageView.unregisterItemView: ' + view.toString());
         }
 
         delete this.viewsById[view.getItemId().toNumber()];
-
-        this.notifyItemViewRemoved(view);
     }
 
     private parseItemViews() {
@@ -909,57 +859,5 @@ export class PageView
         }
 
         this.fragmentView = componentView;
-    }
-
-    onItemViewAdded(listener: (event: ItemViewAddedEvent) => void) {
-        this.itemViewAddedListeners.push(listener);
-    }
-
-    unItemViewAdded(listener: (event: ItemViewAddedEvent) => void) {
-        this.itemViewAddedListeners = this.itemViewAddedListeners.filter((current) => (current !== listener));
-    }
-
-    private notifyItemViewAdded(itemView: ItemView) {
-        const event = new ItemViewAddedEvent(itemView);
-        this.itemViewAddedListeners.forEach((listener) => listener(event));
-    }
-
-    onItemViewRemoved(listener: (event: ItemViewRemovedEvent) => void) {
-        this.itemViewRemovedListeners.push(listener);
-    }
-
-    unItemViewRemoved(listener: (event: ItemViewRemovedEvent) => void) {
-        this.itemViewRemovedListeners = this.itemViewRemovedListeners.filter((current) => (current !== listener));
-    }
-
-    private notifyItemViewRemoved(itemView: ItemView) {
-        const event = new ItemViewRemovedEvent(itemView);
-        this.itemViewRemovedListeners.forEach((listener) => listener(event));
-    }
-
-    onPageLocked(listener: (locked: boolean) => void) {
-        this.pageLockedListeners.push(listener);
-    }
-
-    unPageLocked(listener: (locked: boolean) => void) {
-        this.pageLockedListeners = this.pageLockedListeners.filter((current) => (current !== listener));
-    }
-
-    private notifyPageLockChanged(locked: boolean) {
-        this.pageLockedListeners.forEach((listener) => {
-            listener(locked);
-        });
-    }
-
-    onChange(listener: () => void) {
-        this.onItemViewAdded(listener);
-        this.onItemViewRemoved(listener);
-        this.onPageLocked(listener);
-    }
-
-    unChange(listener: () => void) {
-        this.unItemViewAdded(listener);
-        this.unItemViewRemoved(listener);
-        this.unPageLocked(listener);
     }
 }
