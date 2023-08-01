@@ -47,11 +47,11 @@ export abstract class CheckedValueInput
 
     private debouncedValueCheckHandler: () => void;
 
-    private stateUpdatedListeners: { (state: ValueValidationState): void }[] = [];
+    private stateUpdatedListeners: ((state: ValueValidationState) => void)[] = [];
 
-    private valueCheckInProgressListeners: { (): void }[] = [];
+    private valueCheckInProgressListeners: (() => void)[] = [];
 
-    private valueCheckErrorListeners: { (): void }[] = [];
+    private valueCheckErrorListeners: (() => void)[] = [];
 
     protected constructor(className?: string) {
         super(className);
@@ -168,13 +168,13 @@ export abstract class CheckedValueInput
     }
 
     unStateUpdated(listener: (state: ValueValidationState) => void): void {
-        this.stateUpdatedListeners = this.stateUpdatedListeners.filter((curr: { (state: ValueValidationState): void }) => {
+        this.stateUpdatedListeners = this.stateUpdatedListeners.filter((curr: (state: ValueValidationState) => void) => {
             return listener !== curr;
         });
     }
 
     private notifyStateUpdated(state: ValueValidationState): void {
-        this.stateUpdatedListeners.forEach((listener: { (state: ValueValidationState): void }) => {
+        this.stateUpdatedListeners.forEach((listener: (state: ValueValidationState) => void) => {
             listener(state);
         });
     }
@@ -184,13 +184,13 @@ export abstract class CheckedValueInput
     }
 
     unValueCheckInProgress(listener: () => void): void {
-        this.valueCheckInProgressListeners = this.valueCheckInProgressListeners.filter((curr: { (): void }) => {
+        this.valueCheckInProgressListeners = this.valueCheckInProgressListeners.filter((curr: () => void) => {
             return listener !== curr;
         });
     }
 
     private notifyValueCheckInProgress(): void {
-        this.valueCheckInProgressListeners.forEach((listener: { (): void }) => {
+        this.valueCheckInProgressListeners.forEach((listener: () => void) => {
             listener();
         });
     }
@@ -200,13 +200,13 @@ export abstract class CheckedValueInput
     }
 
     unValueCheckError(listener: () => void): void {
-        this.valueCheckErrorListeners = this.valueCheckErrorListeners.filter((curr: { (): void }) => {
+        this.valueCheckErrorListeners = this.valueCheckErrorListeners.filter((curr: () => void) => {
             return listener !== curr;
         });
     }
 
     private notifyValueCheckError(): void {
-        this.valueCheckErrorListeners.forEach((listener: { (): void }) => {
+        this.valueCheckErrorListeners.forEach((listener: () => void) => {
             listener();
         });
     }

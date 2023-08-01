@@ -43,7 +43,7 @@ export class NumberedListModalDialog
     }
 
     protected setDialogInputValues() {
-        this.startField.getInput().getEl().setValue(<string>this.ckeOriginalDialog.getValueOf('info', 'start'));
+        this.startField.getInput().getEl().setValue(this.ckeOriginalDialog.getValueOf('info', 'start') as string);
     }
 
     protected createTypeValuesMap(): Map<string, string> {
@@ -60,7 +60,7 @@ export class NumberedListModalDialog
     }
 
     isDirty(): boolean {
-        return (<TextInput>this.startField.getInput()).isDirty();
+        return (this.startField.getInput() as TextInput).isDirty();
     }
 
     protected getTitle(): string {

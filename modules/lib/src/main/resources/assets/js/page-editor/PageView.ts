@@ -98,15 +98,15 @@ export class PageView
 
     private fragmentView: ComponentView<Component>;
 
-    private viewsById: { [s: number]: ItemView; };
+    private viewsById: Record<number, ItemView>;
 
     private ignorePropertyChanges: boolean;
 
-    private itemViewAddedListeners: { (event: ItemViewAddedEvent): void }[];
+    private itemViewAddedListeners: ((event: ItemViewAddedEvent) => void)[];
 
-    private itemViewRemovedListeners: { (event: ItemViewRemovedEvent): void }[];
+    private itemViewRemovedListeners: ((event: ItemViewRemovedEvent) => void)[];
 
-    private pageLockedListeners: { (locked: boolean): void }[];
+    private pageLockedListeners: ((locked: boolean) => void)[];
 
     private resetAction: Action;
 
@@ -292,7 +292,7 @@ export class PageView
                 if (!this.isTextEditMode()) {
                     PageViewController.get().setTextEditMode(true);
                 } else {
-                    (<TextComponentView>itemView).setEditMode(true);
+                    (itemView as TextComponentView).setEditMode(true);
                     this.closeTextEditModeButton.toggleClass('active', true);
                 }
                 new ItemViewSelectedEvent({itemView, position: null, newlyCreated: event.isNewlyCreated(), rightClicked: true}).fire();
@@ -302,7 +302,7 @@ export class PageView
                     PageViewController.get().setTextEditMode(false);
                 }
                 if (event.isNewlyCreated()) {
-                    const config = <ItemViewSelectedEventConfig>{itemView, position: null, newlyCreated: true};
+                    const config = {itemView, position: null, newlyCreated: true} as ItemViewSelectedEventConfig;
                     itemView.select(config, ItemViewContextMenuPosition.NONE);
                 }
             }
@@ -494,7 +494,7 @@ export class PageView
     }
 
     private isTextEditorToolbarClicked(event: MouseEvent) {
-        const target = <HTMLElement> event.target;
+        const target = event.target as HTMLElement;
         const prefix = 'cke';
         if (!!target) {
             const parent = target.parentElement;
@@ -505,7 +505,7 @@ export class PageView
     }
 
     private isTextEditorDialogClicked(event: MouseEvent) {
-        let target = <HTMLElement> event.target;
+        let target = event.target as HTMLElement;
         while (target) {
             if (target.classList.contains(ModalDialog.CLASS_NAME)) {
                 return true;
@@ -572,7 +572,7 @@ export class PageView
 
         let textView: TextComponentView;
         textItemViews.forEach((view: ItemView) => {
-            textView = <TextComponentView> view;
+            textView = view as TextComponentView;
             if (textView.isEditMode() !== flag) {
                 textView.setEditMode(flag);
                 this.closeTextEditModeButton.toggleClass('active', flag);
@@ -655,7 +655,7 @@ export class PageView
 
         let textView: TextComponentView;
         textItemViews.forEach((view: ItemView) => {
-            textView = <TextComponentView> view;
+            textView = view as TextComponentView;
             if (textView.getEl().contains(target)) {
                 result = true;
                 return;
@@ -823,7 +823,7 @@ export class PageView
         const itemView = this.getItemViewByElement(element);
 
         if (ObjectHelper.iFrameSafeInstanceOf(itemView, RegionView)) {
-            return <RegionView>itemView;
+            return itemView as RegionView;
         }
         return null;
     }
@@ -833,7 +833,7 @@ export class PageView
         const itemView = this.getItemViewByElement(element);
 
         if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-            return <ComponentView<Component>> itemView;
+            return itemView as ComponentView<Component>;
         }
 
         return null;
@@ -841,13 +841,12 @@ export class PageView
 
     getRegionViewByPath(path: RegionPath): RegionView {
 
-        for (let i = 0; i < this.regionViews.length; i++) {
-            const regionView = this.regionViews[i];
+        for (const regionView of this.regionViews) {
 
             if (path.hasParentComponentPath()) {
                 const componentView = this.getComponentViewByPath(path.getParentComponentPath());
                 if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
-                    const layoutView = <LayoutComponentView>componentView;
+                    const layoutView = componentView as LayoutComponentView;
                     layoutView.getRegionViewByName(path.getRegionName());
                 }
             } else {
@@ -867,16 +866,14 @@ export class PageView
 
         const firstLevelOfPath = path.getFirstLevel();
 
-        for (let i = 0; i < this.regionViews.length; i++) {
-            const regionView = this.regionViews[i];
+        for (const regionView of this.regionViews) {
             if (firstLevelOfPath.getRegionName() === regionView.getRegionName()) {
                 if (path.numberOfLevels() === 1) {
                     return regionView.getComponentViewByIndex(firstLevelOfPath.getComponentIndex());
-                } else {
-                    const view = regionView.getComponentViewByIndex(firstLevelOfPath.getComponentIndex());
-                    const layoutView: LayoutComponentView = <LayoutComponentView>view;
-                    return layoutView.getComponentViewByPath(path.removeFirstLevel());
                 }
+                const view = regionView.getComponentViewByIndex(firstLevelOfPath.getComponentIndex());
+                const layoutView: LayoutComponentView = view as LayoutComponentView;
+                return layoutView.getComponentViewByPath(path.removeFirstLevel());
             }
         }
 
@@ -954,7 +951,7 @@ export class PageView
                 region = pageRegions.getRegionByName(regionName);
                 if (region) {
                     // reuse existing region view
-                    regionView = <RegionView> childElement;
+                    regionView = childElement as RegionView;
                     // update view's data
                     regionView.setRegion(region);
                     // register it again because we unregistered everything before parsing
@@ -998,7 +995,7 @@ export class PageView
                 if (component) {
                     const isComponentView = ObjectHelper.iFrameSafeInstanceOf(childElement, ComponentView);
                     if (isComponentView) {
-                        const oldComponentView: ComponentView<Component> = <ComponentView<Component>>childElement;
+                        const oldComponentView: ComponentView<Component> = childElement as ComponentView<Component>;
                         oldComponentView.unregisterComponentListeners(component);
                     }
 
@@ -1007,7 +1004,7 @@ export class PageView
                         .setData(component)
                         .setElement(childElement)
                         .setParentElement(parentElement ? parentElement : this);
-                    componentView = <ComponentView<Component>>this.createView(itemType, itemViewConfig);
+                    componentView = this.createView(itemType, itemViewConfig) as ComponentView<Component>;
 
                     this.registerFragmentComponentView(componentView);
                 }

@@ -19,11 +19,11 @@ export class ProjectTypeFormItem
     private projectsComboLabel: DivEl;
 
     constructor() {
-        super(<ProjectFormItemBuilder>new ProjectFormItemBuilder(
+        super(new ProjectFormItemBuilder(
             new RadioGroup('read-access-radio-group'))
             .setHelpText(i18n('settings.projects.parent.helptext'))
             .setLabel(i18n('settings.field.project.type'))
-            .setValidator(Validators.required));
+            .setValidator(Validators.required) as ProjectFormItemBuilder);
 
         this.initElements();
         this.initListeners();
@@ -58,7 +58,7 @@ export class ProjectTypeFormItem
     }
 
     private getRadioGroup(): RadioGroup {
-        return <RadioGroup>this.getInput();
+        return this.getInput() as RadioGroup;
     }
 
     setSelectedProject(value: Project): void {

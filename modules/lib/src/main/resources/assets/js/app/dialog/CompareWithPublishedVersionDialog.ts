@@ -32,7 +32,7 @@ export class CompareWithPublishedVersionDialog
 
     private comparisonContainer: DivEl;
 
-    private contentCache: { [key: string]: ContentJson };
+    private contentCache: Record<string, ContentJson>;
 
     private diffPatcher: DiffPatcher;
 
@@ -43,11 +43,11 @@ export class CompareWithPublishedVersionDialog
     private readonly versionsLoader: ContentVersionsLoader;
 
     protected constructor() {
-        super(<ModalDialogConfig>{
+        super({
             class: 'compare-content-versions-dialog grey-header',
             title: i18n('dialog.publishedChanges.header'),
             alwaysFullscreen: true
-        });
+        } as ModalDialogConfig);
 
         this.versionsLoader = new ContentVersionsLoader();
         this.diffPatcher = new DiffPatcher();
@@ -71,7 +71,7 @@ export class CompareWithPublishedVersionDialog
                 updatedItems.find((item: ContentSummaryAndCompareStatus) => item.getContentId().equals(this.content?.getContentId()));
 
             if (currentItem) {
-                (<ShowPublishedVersionChangesDialogHeader>this.header).setSubTitle(currentItem.getPath().toString());
+                (this.header as ShowPublishedVersionChangesDialogHeader).setSubTitle(currentItem.getPath().toString());
 
                 this.loadVersionHistory();
             }
@@ -131,7 +131,7 @@ export class CompareWithPublishedVersionDialog
 
     setContent(content: ContentSummaryAndCompareStatus): CompareWithPublishedVersionDialog {
         this.content = content;
-        (<ShowPublishedVersionChangesDialogHeader>this.header).setSubTitle(content ? content.getPath().toString() : null);
+        (this.header as ShowPublishedVersionChangesDialogHeader).setSubTitle(content ? content.getPath().toString() : null);
         return this;
     }
 

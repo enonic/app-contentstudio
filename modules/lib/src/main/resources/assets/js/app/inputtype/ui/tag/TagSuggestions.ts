@@ -6,7 +6,7 @@ export class TagSuggestions
 
     private selectedIndex: number = null;
 
-    private selectedListeners: { (value: string): void }[] = [];
+    private selectedListeners: ((value: string) => void)[] = [];
 
     constructor() {
         super('tag-suggestions');
@@ -14,7 +14,7 @@ export class TagSuggestions
         this.onMouseMove((event: MouseEvent) => {
             // don't wrap element in ElementHelper because mousemove event is generated very frequently
             // unnecessary new objects would clog browser memory
-            let htmlEl = <HTMLElement>event.target;
+            let htmlEl = event.target as HTMLElement;
             if (htmlEl.tagName === 'LI') {
                 this.notifySelected(htmlEl.innerText || htmlEl.textContent);
             }

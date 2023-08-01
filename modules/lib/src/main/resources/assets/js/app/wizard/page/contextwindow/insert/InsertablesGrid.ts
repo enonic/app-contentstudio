@@ -51,7 +51,7 @@ export class InsertablesGrid
                 .setBoundaryWidth(150, 9999)
                 .setCssClass('grid-row')
                 .setFormatter((row, cell, value, columnDef, dataContext) => {
-                    return this.buildRow(row, cell, value, columnDef, <Insertable>dataContext).toString();
+                    return this.buildRow(row, cell, value, columnDef, dataContext as Insertable).toString();
                 }).build()
         ];
     }

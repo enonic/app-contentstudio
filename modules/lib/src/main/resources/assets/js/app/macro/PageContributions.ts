@@ -45,7 +45,7 @@ export class PageContributions
             return false;
         }
 
-        let other = <PageContributions>o;
+        let other = o as PageContributions;
 
         if (!ObjectHelper.stringArrayEquals(this.bodyBegin, other.bodyBegin)) {
             return false;

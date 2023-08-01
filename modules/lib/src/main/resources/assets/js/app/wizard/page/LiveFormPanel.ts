@@ -179,7 +179,7 @@ export class LiveFormPanel
     private contentPermissionsUpdatedHandler: (contentIds: ContentIds) => void;
     private applicationRemovedHandler: (event: ApplicationRemovedEvent) => void;
 
-    private pageViewReadyListeners: { (pageView: PageView): void }[] = [];
+    private pageViewReadyListeners: ((pageView: PageView) => void)[] = [];
 
     constructor(config: LiveFormPanelConfig) {
         super('live-form-panel');
@@ -290,14 +290,14 @@ export class LiveFormPanel
                     const componentView = this.pageView.getComponentViewByPath(event.getPath());
                     if (componentView) {
                         if (ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
-                            const partView = <PartComponentView>componentView;
+                            const partView = componentView as PartComponentView;
                             const partComponent: PartComponent = partView.getComponent();
                             if (partComponent.hasDescriptor()) {
                                 this.contentWizardPanel.setMarkedAsReady(false);
                                 this.saveAndReloadOnlyComponent(componentView);
                             }
                         } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
-                            const layoutView = <LayoutComponentView>componentView;
+                            const layoutView = componentView as LayoutComponentView;
                             const layoutComponent: LayoutComponent = layoutView.getComponent();
                             if (layoutComponent.hasDescriptor()) {
                                 this.contentWizardPanel.setMarkedAsReady(false);
@@ -451,11 +451,11 @@ export class LiveFormPanel
 
         this.insertablesPanel.setModifyPermissions(this.modifyPermissions);
 
-        return new ContextWindow(<ContextWindowConfig>{
+        return new ContextWindow({
             liveFormPanel: this,
             inspectionPanel: this.inspectionsPanel,
             insertablesPanel: this.insertablesPanel
-        });
+        } as ContextWindowConfig);
     }
 
     private createInspectionsPanel(): InspectionsPanel {
@@ -473,7 +473,7 @@ export class LiveFormPanel
                         this.contentWizardPanel.setMarkedAsReady(false);
                     }
 
-                    this.saveAndReloadOnlyComponent(<ComponentView<Component>>itemView, true);
+                    this.saveAndReloadOnlyComponent(itemView as ComponentView<Component>, true);
                     return;
                 }
             }
@@ -494,7 +494,7 @@ export class LiveFormPanel
         this.textInspectionPanel = new TextInspectionPanel();
         this.regionInspectionPanel = new RegionInspectionPanel();
 
-        return new InspectionsPanel(<InspectionsPanelConfig>{
+        return new InspectionsPanel({
             contentInspectionPanel: this.contentInspectionPanel,
             pageInspectionPanel: this.pageInspectionPanel,
             regionInspectionPanel: this.regionInspectionPanel,
@@ -504,7 +504,7 @@ export class LiveFormPanel
             fragmentInspectionPanel: this.fragmentInspectionPanel,
             textInspectionPanel: this.textInspectionPanel,
             saveAction: saveAction
-        });
+        } as InspectionsPanelConfig);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -626,7 +626,7 @@ export class LiveFormPanel
         this.isPageNotRenderable = false;
 
         const site: Site = this.content.isSite()
-                           ? <Site>this.content
+                           ? this.content as Site
                            : liveEditModel.getSiteModel()
                              ? this.liveEditModel.getSiteModel().getSite()
                              : null;
@@ -755,14 +755,14 @@ export class LiveFormPanel
             const selected: ItemView = this.pageView.getSelectedView();
 
             if (ObjectHelper.iFrameSafeInstanceOf(selected, ComponentView)) {
-                path = (<ComponentView<Component>>selected).getComponentPath();
+                path = (selected as ComponentView<Component>).getComponentPath();
                 isComponentView = true;
 
                 if (this.pageView.isTextEditMode() && ObjectHelper.iFrameSafeInstanceOf(selected, TextComponentView)) {
-                    textEditorCursorPos = (<TextComponentView>selected).getCursorPosition();
+                    textEditorCursorPos = (selected as TextComponentView).getCursorPosition();
                 }
             } else if (ObjectHelper.iFrameSafeInstanceOf(selected, RegionView)) {
-                path = (<RegionView>selected).getRegionPath();
+                path = (selected as RegionView).getRegionPath();
             }
 
             if (path && BrowserHelper.isIE()) {
@@ -783,7 +783,7 @@ export class LiveFormPanel
                     selected.scrollComponentIntoView();
 
                     if (textEditorCursorPos && ObjectHelper.iFrameSafeInstanceOf(selected, TextComponentView)) {
-                        this.setCursorPositionInTextComponent(<TextComponentView>selected, textEditorCursorPos);
+                        this.setCursorPositionInTextComponent(selected as TextComponentView, textEditorCursorPos);
                         textEditorCursorPos = null;
                     }
                 }
@@ -827,12 +827,12 @@ export class LiveFormPanel
 
             itemView.scrollComponentIntoView();
             if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                this.inspectComponent(<ComponentView<Component>>itemView, newSelection,
+                this.inspectComponent(itemView as ComponentView<Component>, newSelection,
                     newSelection && defaultClicked && !this.pageView.isTextEditMode());
 
                 if (textEditorCursorPos && this.pageView.isTextEditMode() &&
                     ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentView)) {
-                    this.setCursorPositionInTextComponent(<TextComponentView>itemView, textEditorCursorPos);
+                    this.setCursorPositionInTextComponent(itemView as TextComponentView, textEditorCursorPos);
                     textEditorCursorPos = null;
                 }
             } else {
@@ -1051,22 +1051,22 @@ export class LiveFormPanel
             );
         if (ObjectHelper.iFrameSafeInstanceOf(componentView, ImageComponentView)) {
             showInspectionPanel(this.imageInspectionPanel);
-            this.imageInspectionPanel.setImageComponentView(<ImageComponentView>componentView);
-            this.imageInspectionPanel.setImageComponent(<ImageComponent>componentView.getComponent());
+            this.imageInspectionPanel.setImageComponentView(componentView as ImageComponentView);
+            this.imageInspectionPanel.setImageComponent(componentView.getComponent() as ImageComponent);
         } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, PartComponentView)) {
             showInspectionPanel(this.partInspectionPanel);
-            this.partInspectionPanel.setDescriptorBasedComponent(<PartComponent>componentView.getComponent());
+            this.partInspectionPanel.setDescriptorBasedComponent(componentView.getComponent() as PartComponent);
         } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
             showInspectionPanel(this.layoutInspectionPanel);
-            this.layoutInspectionPanel.setDescriptorBasedComponent(<LayoutComponent>componentView.getComponent());
+            this.layoutInspectionPanel.setDescriptorBasedComponent(componentView.getComponent() as LayoutComponent);
         } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, TextComponentView)) {
             showInspectionPanel(this.textInspectionPanel);
-            this.textInspectionPanel.setTextComponent(<TextComponentView>componentView);
+            this.textInspectionPanel.setTextComponent(componentView as TextComponentView);
             this.inspectionsPanel.setButtonContainerVisible(this.pageView?.getPageViewController().isTextEditMode());
         } else if (ObjectHelper.iFrameSafeInstanceOf(componentView, FragmentComponentView)) {
             showInspectionPanel(this.fragmentInspectionPanel);
-            this.fragmentInspectionPanel.setFragmentComponentView(<FragmentComponentView>componentView);
-            this.fragmentInspectionPanel.setFragmentComponent(<FragmentComponent>componentView.getComponent());
+            this.fragmentInspectionPanel.setFragmentComponentView(componentView as FragmentComponentView);
+            this.fragmentInspectionPanel.setFragmentComponent(componentView.getComponent() as FragmentComponent);
         } else {
             throw new Error('ComponentView cannot be selected: ' + ClassHelper.getClassName(componentView));
         }

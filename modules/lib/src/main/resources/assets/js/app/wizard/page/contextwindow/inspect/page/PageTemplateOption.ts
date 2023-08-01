@@ -17,7 +17,7 @@ export class PageTemplateOption
             return false;
         }
 
-        let other = <PageTemplateOption>o;
+        let other = o as PageTemplateOption;
 
         if (this.isAuto() && other.isAuto()) {
             return true;

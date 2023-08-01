@@ -174,9 +174,9 @@ export class ItemView
 
     private shaded: boolean;
 
-    private mouseOverViewListeners: { (): void } [];
+    private mouseOverViewListeners: (() => void) [];
 
-    private mouseOutViewListeners: { (): void } [];
+    private mouseOutViewListeners: (() => void) [];
 
     private mouseOverViewListener: () => void;
     private mouseLeaveViewListener: () => void;
@@ -239,8 +239,7 @@ export class ItemView
         this.viewer = builder.viewer;
 
         // remove old placeholder in case of parsing already parsed page again
-        for (let i = 0; i < this.getChildren().length; i++) {
-            let child = this.getChildren()[i];
+        for (const child of this.getChildren()) {
             if (ObjectHelper.iFrameSafeInstanceOf(child, ItemViewPlaceholder)) {
                 this.removeChild(child);
                 // there can be only one placeholder
@@ -654,7 +653,7 @@ export class ItemView
         }
 
         const contextMenu = this.getCurrentContextMenu();
-        const targetInContextMenu = !!contextMenu && contextMenu.getHTMLElement().contains(<Node>event.target);
+        const targetInContextMenu = !!contextMenu && contextMenu.getHTMLElement().contains(event.target as Node);
         const placeholderIsTarget = event.target === this.placeholder?.getHTMLElement();
 
         if (!this.isSelected() || rightClicked) {
@@ -676,12 +675,12 @@ export class ItemView
                     PageViewController.get().setTextEditMode(false);
                     this.unhighlight();
                 } else {
-                    const config = <ItemViewSelectedEventConfig>{
+                    const config = {
                         itemView: this,
                         position: clickPosition,
                         newlyCreated: false,
                         rightClicked
-                    };
+                    } as ItemViewSelectedEventConfig;
 
                     this.select(config, menuPosition);
                 }
@@ -1048,7 +1047,7 @@ export class ItemView
         let builder = this.createBuilder(componentType).setName(componentType.getDefaultName());
 
         if (ObjectHelper.iFrameSafeInstanceOf(builder, DescriptorBasedComponentBuilder)) {
-            let descriptorBuilder = <DescriptorBasedComponentBuilder<DescriptorBasedComponent>>builder;
+            let descriptorBuilder = builder as DescriptorBasedComponentBuilder<DescriptorBasedComponent>;
             descriptorBuilder.setConfig(new PropertyTree());
         }
 
@@ -1109,7 +1108,7 @@ export class ItemView
         while (!PageItemType.get().equals(itemView.getType())) {
             itemView = itemView.getParentItemView();
         }
-        return <PageView>itemView;
+        return itemView as PageView;
     }
 
     protected createInsertAction(): Action {
@@ -1132,7 +1131,7 @@ export class ItemView
 
     private selectItemView(itemView: ItemView) {
         this.deselect();
-        const config = <ItemViewSelectedEventConfig>{itemView, position: null, newlyCreated: false, rightClicked: true};
+        const config = {itemView, position: null, newlyCreated: false, rightClicked: true} as ItemViewSelectedEventConfig;
         itemView.select(config, ItemViewContextMenuPosition.TOP);
         itemView.scrollComponentIntoView();
     }

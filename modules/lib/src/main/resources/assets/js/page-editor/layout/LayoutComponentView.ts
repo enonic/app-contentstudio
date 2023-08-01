@@ -52,8 +52,7 @@ export class LayoutComponentView
 
     getRegionViewByName(name: string): RegionView {
 
-        for (let i = 0; i < this.regionViews.length; i++) {
-            let regionView = this.regionViews[i];
+        for (const regionView of this.regionViews) {
             if (regionView.getRegionName() === name) {
                 return regionView;
             }
@@ -69,16 +68,15 @@ export class LayoutComponentView
 
         let firstLevelOfPath = path.getFirstLevel();
 
-        for (let i = 0; i < this.regionViews.length; i++) {
-            let regionView = this.regionViews[i];
+        for (const regionView of this.regionViews) {
             if (firstLevelOfPath.getRegionName() === regionView.getRegionName()) {
                 if (path.numberOfLevels() === 1) {
                     return regionView.getComponentViewByIndex(firstLevelOfPath.getComponentIndex());
-                } else {
-                    const index = firstLevelOfPath.getComponentIndex();
-                    const layoutView: LayoutComponentView = <LayoutComponentView>regionView.getComponentViewByIndex(index);
-                    return layoutView.getComponentViewByPath(path.removeFirstLevel());
                 }
+
+                const index = firstLevelOfPath.getComponentIndex();
+                const layoutView: LayoutComponentView = regionView.getComponentViewByIndex(index) as LayoutComponentView;
+                return layoutView.getComponentViewByPath(path.removeFirstLevel());
             }
         }
 
@@ -145,7 +143,7 @@ export class LayoutComponentView
                 region = layoutRegions.getRegionByName(regionName);
                 if (region) {
                     // reuse existing region view
-                    regionView = <RegionView> childElement;
+                    regionView = childElement as RegionView;
                     // update view's data
                     regionView.setRegion(region);
                     // register it again because we unregistered everything before parsing

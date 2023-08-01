@@ -44,7 +44,7 @@ export class NewContentButton
 
     private readonly allowedContentTypes?: string[];
 
-    private contentAddedListeners: { (content: ContentSummary): void }[] = [];
+    private contentAddedListeners: ((content: ContentSummary) => void)[] = [];
 
     constructor(params?: NewContentButtonParams) {
         super();

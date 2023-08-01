@@ -99,7 +99,7 @@ export class ContentDeleteDialog
     }
 
     getButtonRow(): ContentDeleteDialogButtonRow {
-        return <ContentDeleteDialogButtonRow>super.getButtonRow();
+        return super.getButtonRow() as ContentDeleteDialogButtonRow;
     }
 
     protected initListeners() {
@@ -505,7 +505,7 @@ export class ContentDeleteDialogButtonRow
     makeActionMenu(mainAction: Action, menuActions: Action[], useDefault: boolean = true): MenuButton {
         super.makeActionMenu(mainAction, menuActions, useDefault);
 
-        return <MenuButton>this.actionMenu.addClass('delete-dialog-menu');
+        return this.actionMenu.addClass('delete-dialog-menu') as MenuButton;
     }
 
 }

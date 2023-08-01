@@ -20,6 +20,6 @@ export class ArchiveServerEvent
     }
 
     getNodeChange(): ContentServerChange {
-        return <ContentServerChange>super.getNodeChange();
+        return super.getNodeChange() as ContentServerChange;
     }
 }

@@ -146,10 +146,10 @@ export class ProjectSelectionDialog
         }
 
         const firstProject: ProjectListItem =
-            <ProjectListItem>this.projectsList.getItemViews()[0];
+            this.projectsList.getItemViews()[0] as ProjectListItem;
 
         const lastProject: ProjectListItem =
-            <ProjectListItem>this.projectsList.getItemViews()[this.projectsList.getItemViews().length - 1];
+            this.projectsList.getItemViews()[this.projectsList.getItemViews().length - 1] as ProjectListItem;
 
         lastProject.onKeyDown((event: KeyboardEvent) => {
             setTimeout(() => event.key === 'Tab' && firstProject.getHTMLElement().focus(), 1);

@@ -29,7 +29,7 @@ export class IssueCommentsList
     private activeItem: IssueComment;
     private menu: ContextMenu;
     private confirmDialog: ConfirmationDialog;
-    private editListeners: { (editMode: boolean): void }[] = [];
+    private editListeners: ((editMode: boolean) => void)[] = [];
 
     constructor() {
         super('issue-comments-list');
@@ -76,7 +76,7 @@ export class IssueCommentsList
 
     private createContextMenu(): ContextMenu {
         const editAction = new Action(i18n('action.edit')).onExecuted(() => {
-            (<IssueCommentsListItem> this.getItemView(this.activeItem)).beginEdit();
+            (this.getItemView(this.activeItem) as IssueCommentsListItem).beginEdit();
         });
         const removeAction = new Action(i18n('action.delete')).onExecuted(action => {
             if (this.activeItem) {
@@ -133,7 +133,7 @@ class IssueCommentsListItem
 
     private principalViewer: PrincipalViewerCompact;
 
-    private contextMenuClickedListeners: { (x: number, y: number, comment: IssueComment): void }[] = [];
+    private contextMenuClickedListeners: ((x: number, y: number, comment: IssueComment) => void)[] = [];
 
     private publishRequestComment: boolean;
 
@@ -175,7 +175,7 @@ class IssueCommentsListItem
             this.appendChildren(this.header, this.text);
 
             this.header.onClicked((event: MouseEvent) => {
-                const targetEl = (<HTMLElement>event.target);
+                const targetEl = (event.target as HTMLElement);
                 if (targetEl.tagName === 'I' && targetEl.classList.contains('icon-menu2')) {
                     event.stopImmediatePropagation();
                     const targetHelper = new ElementHelper(targetEl);

@@ -83,7 +83,7 @@ export class ContentItemPreviewPanel
     }
 
     protected viewItemToContent(item: ViewItem): ContentSummaryAndCompareStatus {
-        return <ContentSummaryAndCompareStatus>item;
+        return item as ContentSummaryAndCompareStatus;
     }
 
     protected doSetItem(item: ViewItem, force: boolean) {
@@ -117,7 +117,7 @@ export class ContentItemPreviewPanel
     }
 
     public clearItem() {
-        (<ContentItemPreviewToolbar>this.toolbar).clearItem();
+        (this.toolbar as ContentItemPreviewToolbar).clearItem();
     }
 
     private setupListeners() {

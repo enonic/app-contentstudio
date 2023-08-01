@@ -26,7 +26,7 @@ export class CreateIssueDialog
 
     protected stateBar: DialogStateBar;
 
-    private issueCreatedListeners: { (issue: Issue): void }[] = [];
+    private issueCreatedListeners: ((issue: Issue) => void)[] = [];
 
     protected constructor() {
         super({

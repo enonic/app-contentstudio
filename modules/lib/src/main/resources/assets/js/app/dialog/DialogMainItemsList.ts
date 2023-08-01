@@ -50,7 +50,7 @@ export class DialogMainItemsList
             if (item.isPendingDelete()) {
                 return;
             }
-            const el = new ElementHelper(<HTMLElement>event.target);
+            const el = new ElementHelper(event.target as HTMLElement);
             if (!(el.hasClass('remove') || el.hasClass('include-children-toggler'))) {
                 this.notifyItemClicked(item);
             }

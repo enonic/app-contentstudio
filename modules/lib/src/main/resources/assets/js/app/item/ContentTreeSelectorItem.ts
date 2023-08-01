@@ -111,7 +111,7 @@ export class ContentTreeSelectorItem
             return false;
         }
 
-        let other = <ContentTreeSelectorItem>o;
+        let other = o as ContentTreeSelectorItem;
 
         if (!ObjectHelper.equals(this.content, other.content)) {
             return false;

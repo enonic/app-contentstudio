@@ -133,9 +133,9 @@ export class ComponentView<COMPONENT extends Component>
 
     private moving: boolean = false;
 
-    private itemViewAddedListeners: { (event: ItemViewAddedEvent): void }[] = [];
+    private itemViewAddedListeners: ((event: ItemViewAddedEvent) => void)[] = [];
 
-    private itemViewRemovedListeners: { (event: ItemViewRemovedEvent): void }[] = [];
+    private itemViewRemovedListeners: ((event: ItemViewRemovedEvent) => void)[] = [];
 
     private propertyChangedListener: ComponentPropertyChangedEventHandler;
 
@@ -236,7 +236,7 @@ export class ComponentView<COMPONENT extends Component>
             actions.push(new Action(i18n('live.view.duplicate')).onExecuted(() => {
                 this.deselect();
 
-                let duplicatedComponent = <COMPONENT> this.getComponent().duplicate();
+                let duplicatedComponent = this.getComponent().duplicate() as COMPONENT;
                 let duplicatedView = this.duplicate(duplicatedComponent);
 
                 duplicatedView.showLoadingSpinner();
@@ -254,7 +254,7 @@ export class ComponentView<COMPONENT extends Component>
                     // replace created fragment in place of source component
 
                     const regionView = this.getRegionView();
-                    let newComponent = <FragmentComponent>this.createComponent(FragmentItemType.get().toComponentType());
+                    let newComponent = this.createComponent(FragmentItemType.get().toComponentType()) as FragmentComponent;
                     newComponent.setFragment(content.getContentId(), content.getDisplayName());
 
                     let fragmentCmpView = this.createView(FragmentItemType.get(),
@@ -265,10 +265,10 @@ export class ComponentView<COMPONENT extends Component>
                             .setParentElement(regionView)
                             .setData(newComponent));
 
-                    this.addComponentView(<ComponentView<COMPONENT>>fragmentCmpView, this.getNewItemIndex());
+                    this.addComponentView(fragmentCmpView as ComponentView<COMPONENT>, this.getNewItemIndex());
                     this.remove();
 
-                    new ComponentFragmentCreatedEvent(<FragmentComponentView>fragmentCmpView, this.getComponent().getType(),
+                    new ComponentFragmentCreatedEvent(fragmentCmpView as FragmentComponentView, this.getComponent().getType(),
                         content).fire();
                 });
             }));
@@ -291,7 +291,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
-        Element.fromHtmlElement(<HTMLElement>window.frameElement).giveFocus();
+        Element.fromHtmlElement(window.frameElement as HTMLElement).giveFocus();
 
         super.select(config, menuPosition);
         KeyBindings.get().bindKeys(this.keyBinding);
@@ -320,7 +320,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     getType(): ComponentItemType {
-        return <ComponentItemType>super.getType();
+        return super.getType() as ComponentItemType;
     }
 
     setComponent(component: COMPONENT) {
@@ -352,7 +352,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     getParentItemView(): RegionView {
-        return <RegionView>super.getParentItemView();
+        return super.getParentItemView() as RegionView;
     }
 
     setMoving(value: boolean) {
@@ -367,9 +367,9 @@ export class ComponentView<COMPONENT extends Component>
         const isFragmentContent: boolean = this.liveEditModel.getContent().getType().isFragment();
         const index: number = isFragmentContent ? 0 : this.getParentItemView().getComponentViewIndex(this);
 
-        return <ComponentView<COMPONENT>>this.createView(this.getType(),
+        return this.createView(this.getType(),
             new CreateItemViewConfig<RegionView, COMPONENT>().setParentView(this.getParentItemView()).setParentElement(
-                this.getParentElement()).setData(this.getComponent()).setPositionIndex(index));
+                this.getParentElement()).setData(this.getComponent()).setPositionIndex(index)) as ComponentView<COMPONENT>;
     }
 
     protected duplicate(duplicate: COMPONENT): ComponentView<COMPONENT> {
@@ -377,12 +377,12 @@ export class ComponentView<COMPONENT extends Component>
         let parentView = this.getParentItemView();
         let index = parentView.getComponentViewIndex(this);
 
-        let duplicateView = <ComponentView<COMPONENT>>this.createView(this.getType(),
+        let duplicateView = this.createView(this.getType(),
             new CreateItemViewConfig<RegionView, COMPONENT>()
                 .setParentView(this.getParentItemView())
                 .setParentElement(this.getParentElement())
                 .setData(duplicate)
-                .setPositionIndex(index + 1));
+                .setPositionIndex(index + 1)) as ComponentView<COMPONENT>;
 
         duplicateView.skipInitOnAdd();
         parentView.addComponentView(duplicateView, index + 1);
@@ -511,7 +511,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     protected getRegionView(): RegionView {
-        return <RegionView>super.getRegionView();
+        return super.getRegionView() as RegionView;
     }
 
     isEmpty(): boolean {

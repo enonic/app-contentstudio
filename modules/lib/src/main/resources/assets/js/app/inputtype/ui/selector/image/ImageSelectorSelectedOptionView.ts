@@ -28,7 +28,7 @@ export class ImageSelectorSelectedOptionView
 
     private loadMask: LoadMask;
 
-    private selectionChangeListeners: { (option: ImageSelectorSelectedOptionView, checked: boolean): void; }[] = [];
+    private selectionChangeListeners: ((option: ImageSelectorSelectedOptionView, checked: boolean) => void)[] = [];
 
     constructor(option: Option<MediaTreeSelectorItem>) {
         super(new BaseSelectedOptionViewBuilder<MediaTreeSelectorItem>().setOption(option));
@@ -194,13 +194,13 @@ export class ImageSelectorSelectedOptionView
         });
     }
 
-    onChecked(listener: { (option: ImageSelectorSelectedOptionView, checked: boolean): void; }) {
+    onChecked(listener: (option: ImageSelectorSelectedOptionView, checked: boolean) => void) {
         this.selectionChangeListeners.push(listener);
     }
 
-    unChecked(listener: { (option: ImageSelectorSelectedOptionView, checked: boolean): void; }) {
+    unChecked(listener: (option: ImageSelectorSelectedOptionView, checked: boolean) => void) {
         this.selectionChangeListeners = this.selectionChangeListeners
-            .filter(function (curr: { (option: ImageSelectorSelectedOptionView, checked: boolean): void; }) {
+            .filter(function (curr: (option: ImageSelectorSelectedOptionView, checked: boolean) => void) {
                 return curr !== listener;
             });
     }

@@ -12,7 +12,7 @@ export class PageControllerOption
             return false;
         }
 
-        let other = <PageControllerOption>o;
+        let other = o as PageControllerOption;
 
         if (this.isAuto() && other.isAuto()) {
             return true;

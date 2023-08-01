@@ -34,7 +34,7 @@ export class ExtraData
             return false;
         }
 
-        let other = <ExtraData>o;
+        let other = o as ExtraData;
 
         if (!ObjectHelper.equals(this.name, other.name)) {
             return false;

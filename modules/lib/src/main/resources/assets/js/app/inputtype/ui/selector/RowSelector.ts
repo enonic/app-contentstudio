@@ -70,7 +70,7 @@ export class RowSelector
         });
 
         this.onClicked((event: MouseEvent) => {
-            const target = <HTMLElement> event.target;
+            const target = event.target as HTMLElement;
             const {classList} = target;
             if (classList.contains('selected-option') || classList.contains('option-value')) {
                 event.stopPropagation();

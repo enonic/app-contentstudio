@@ -11,10 +11,10 @@ export class LayoutInspectionPanel
     extends DescriptorBasedComponentInspectionPanel<LayoutComponent> {
 
     constructor() {
-        super(<DescriptorBasedComponentInspectionPanelConfig>{
+        super({
             iconClass: ItemViewIconClassResolver.resolveByType(LayoutComponentType.get().getShortName(), 'icon-xlarge'),
             componentType: LayoutComponentType.get()
-        });
+        } as DescriptorBasedComponentInspectionPanelConfig);
     }
 
     protected getFormName(): string {

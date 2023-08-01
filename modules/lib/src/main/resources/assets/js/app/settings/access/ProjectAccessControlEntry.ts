@@ -28,7 +28,7 @@ export class ProjectAccessControlEntry
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ProjectAccessControlEntry)) {
             return false;
         }
-        let other = <ProjectAccessControlEntry>o;
+        let other = o as ProjectAccessControlEntry;
         return this.principal.equals(other.getPrincipal()) &&
                this.access === other.access;
     }

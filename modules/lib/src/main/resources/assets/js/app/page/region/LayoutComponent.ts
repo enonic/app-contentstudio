@@ -66,7 +66,7 @@ export class LayoutComponent
             throw new Error('Expected component to be a LayoutComponent: ' + ClassHelper.getClassName(component));
         }
 
-        return (<LayoutComponent> component).getComponent(path.removeFirstLevel());
+        return (component as LayoutComponent).getComponent(path.removeFirstLevel());
     }
 
     public getRegions(): Regions {
@@ -118,12 +118,12 @@ export class LayoutComponent
     }
 
     public toJson(): ComponentTypeWrapperJson {
-        const json: LayoutComponentJson = <LayoutComponentJson>super.toComponentJson();
+        const json: LayoutComponentJson = super.toComponentJson() as LayoutComponentJson;
         json.regions = this.regions.toJson();
 
-        return <ComponentTypeWrapperJson> {
+        return {
             LayoutComponent: json
-        };
+        } as ComponentTypeWrapperJson;
     }
 
     equals(o: Equitable): boolean {
@@ -132,7 +132,7 @@ export class LayoutComponent
             return false;
         }
 
-        const other = <LayoutComponent>o;
+        const other = o as LayoutComponent;
 
         if (!ObjectHelper.equals(this.regions, other.regions)) {
             return false;

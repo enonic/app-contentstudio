@@ -43,12 +43,12 @@ export class TextComponent
 
     toJson(): ComponentTypeWrapperJson {
 
-        let json: TextComponentJson = <TextComponentJson>{};
+        let json: TextComponentJson = {} as TextComponentJson;
         json.text = this.text != null ? this.text : null;
 
-        return <ComponentTypeWrapperJson> {
+        return {
             TextComponent: json
-        };
+        } as ComponentTypeWrapperJson;
     }
 
     equals(o: Equitable): boolean {
@@ -57,7 +57,7 @@ export class TextComponent
             return false;
         }
 
-        let other = <TextComponent>o;
+        let other = o as TextComponent;
 
         if (!super.equals(o)) {
             return false;

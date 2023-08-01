@@ -17,7 +17,7 @@ export class FragmentContentSummaryLoader
     }
 
     setParentSitePath(parentSitePath: string): FragmentContentSummaryLoader {
-        (<FragmentContentSummaryRequest>this.getRequest()).setParentSitePath(parentSitePath);
+        (this.getRequest() as FragmentContentSummaryRequest).setParentSitePath(parentSitePath);
         return this;
     }
 

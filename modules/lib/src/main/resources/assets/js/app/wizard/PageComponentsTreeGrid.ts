@@ -61,7 +61,7 @@ export class PageComponentsTreeGrid
         }
 
         if (ObjectHelper.iFrameSafeInstanceOf(data.getItemView().getType(), TextItemType)) {
-            this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>data.getItemView());
+            this.bindTreeTextNodeUpdateOnTextComponentModify(data.getItemView() as TextComponentView);
         }
 
         return node;
@@ -76,7 +76,7 @@ export class PageComponentsTreeGrid
     }
 
     private updateTreeNodeWithFragmentsOnLoad(node: TreeNode<ItemViewTreeGridWrapper>) {
-        const fragmentView: FragmentComponentView = <FragmentComponentView>node.getData().getItemView();
+        const fragmentView: FragmentComponentView = node.getData().getItemView() as FragmentComponentView;
 
         if (fragmentView.isLoaded()) {
             return;
@@ -153,7 +153,7 @@ export class PageComponentsTreeGrid
             return Q.resolve(itemViewWrapper);
         }
 
-        const component: DescriptorBasedComponent = (<ComponentView<DescriptorBasedComponent>>itemView).getComponent();
+        const component: DescriptorBasedComponent = (itemView as ComponentView<DescriptorBasedComponent>).getComponent();
         if (!component || !component.hasDescriptor()) {
             return Q.resolve(itemViewWrapper);
         }
@@ -174,7 +174,7 @@ export class PageComponentsTreeGrid
         let children = [];
         let dataType = data.getType();
         if (PageItemType.get().equals(dataType)) {
-            let pageView = <PageView>data;
+            let pageView = data as PageView;
             children = pageView.getRegions();
             if (children.length === 0) {
                 let fragmentRoot = pageView.getFragmentView();
@@ -183,10 +183,10 @@ export class PageComponentsTreeGrid
                 }
             }
         } else if (RegionItemType.get().equals(dataType)) {
-            let regionView = <RegionView>data;
+            let regionView = data as RegionView;
             children = regionView.getComponentViews();
         } else if (LayoutItemType.get().equals(dataType)) {
-            let layoutView = <LayoutComponentView>data;
+            let layoutView = data as LayoutComponentView;
             children = layoutView.getRegions();
         }
         return children;
@@ -227,7 +227,7 @@ export class PageComponentsTreeGrid
         }
 
         if (ObjectHelper.iFrameSafeInstanceOf(componentView.getType(), TextItemType)) {
-            this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>componentView);
+            this.bindTreeTextNodeUpdateOnTextComponentModify(componentView as TextComponentView);
         }
     }
 

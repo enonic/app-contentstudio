@@ -8,7 +8,7 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 export class ContextPanel
     extends Panel {
 
-    private sizeChangedListeners: {() : void}[] = [];
+    private sizeChangedListeners: (()  => void)[] = [];
 
     protected contextView: ContextView;
 

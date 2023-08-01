@@ -85,10 +85,10 @@ export abstract class DescriptorBasedComponent
 
     toComponentJson(): DescriptorBasedComponentJson {
 
-        return <DescriptorBasedComponentJson>{
+        return {
             descriptor: this.descriptorKey != null ? this.descriptorKey.toString() : null,
             config: this.config != null ? this.config.toJson() : null
-        };
+        } as DescriptorBasedComponentJson;
     }
 
     equals(o: Equitable): boolean {
@@ -97,7 +97,7 @@ export abstract class DescriptorBasedComponent
             return false;
         }
 
-        const other: DescriptorBasedComponent = <DescriptorBasedComponent>o;
+        const other: DescriptorBasedComponent = o as DescriptorBasedComponent;
 
         if (!ObjectHelper.equals(this.descriptorKey, other.descriptorKey)) {
             return false;

@@ -17,7 +17,7 @@ export class ContentAppPanel
     }
 
     getBrowsePanel(): ContentBrowsePanel {
-        return <ContentBrowsePanel>this.browsePanel;
+        return this.browsePanel as ContentBrowsePanel;
     }
 
     protected resolveActions(panel: Panel): Action[] {

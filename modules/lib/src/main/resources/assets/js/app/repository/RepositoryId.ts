@@ -41,7 +41,7 @@ export class RepositoryId
             return false;
         }
 
-        let other = <RepositoryId>o;
+        let other = o as RepositoryId;
 
         if (!ObjectHelper.stringEquals(this.value, other.value)) {
             return false;

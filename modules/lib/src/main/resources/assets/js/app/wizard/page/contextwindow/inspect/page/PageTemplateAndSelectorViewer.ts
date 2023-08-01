@@ -32,9 +32,9 @@ export class PageTemplateAndSelectorViewer
     resolveSubName(object: PageTemplateAndControllerOption, relativePath: boolean = false): string {
         if (!object.isAuto()) {
             if (ObjectHelper.iFrameSafeInstanceOf(object, PageTemplateOption)) {
-                return (<PageTemplateOption>object).getData().getPath().toString();
+                return (object as PageTemplateOption).getData().getPath().toString();
             } else {
-                return (<PageControllerOption>object).getData().getDescription() || `<${i18n('text.noDescription')}>`;
+                return (object as PageControllerOption).getData().getDescription() || `<${i18n('text.noDescription')}>`;
             }
         }
 
@@ -49,11 +49,11 @@ export class PageTemplateAndSelectorViewer
         let iconClass = '';
 
         if (ObjectHelper.iFrameSafeInstanceOf(object, PageTemplateOption)) {
-            iconClass = object.getData() ? ((<PageTemplateOption>object).isCustom() ? 'icon-cog' : 'icon-page-template') : 'icon-wand';
+            iconClass = object.getData() ? ((object as PageTemplateOption).isCustom() ? 'icon-cog' : 'icon-page-template') : 'icon-wand';
             return iconClass + ' icon-large';
         }
 
-        iconClass = (<PageControllerOption>object).getData().getIconCls();
+        iconClass = (object as PageControllerOption).getData().getIconCls();
         return (iconClass ? StyleHelper.getCommonIconCls(iconClass) + ' ' : '') + 'icon-large';
     }
 

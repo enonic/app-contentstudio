@@ -35,7 +35,7 @@ export class SiteConfiguratorComboBox
 
         super(builder);
 
-        this.siteConfiguratorSelectedOptionsView = <SiteConfiguratorSelectedOptionsView>builder.getSelectedOptionsView();
+        this.siteConfiguratorSelectedOptionsView = builder.getSelectedOptionsView() as SiteConfiguratorSelectedOptionsView;
 
         this.addClass('site-configurator-combobox');
     }
@@ -43,7 +43,7 @@ export class SiteConfiguratorComboBox
     getSelectedOptionViews(): SiteConfiguratorSelectedOptionView[] {
         let views: SiteConfiguratorSelectedOptionView[] = [];
         this.getSelectedOptions().forEach((selectedOption: SelectedOption<Application>) => {
-            views.push(<SiteConfiguratorSelectedOptionView>selectedOption.getOptionView());
+            views.push(selectedOption.getOptionView() as SiteConfiguratorSelectedOptionView);
         });
         return views;
     }
@@ -52,11 +52,11 @@ export class SiteConfiguratorComboBox
         return this.siteConfiguratorSelectedOptionsView;
     }
 
-    onSiteConfigFormDisplayed(listener: { (applicationKey: ApplicationKey, formView: FormView): void; }) {
+    onSiteConfigFormDisplayed(listener: (applicationKey: ApplicationKey, formView: FormView) => void) {
         this.siteConfiguratorSelectedOptionsView.onSiteConfigFormDisplayed(listener);
     }
 
-    unSiteConfigFormDisplayed(listener: { (applicationKey: ApplicationKey, formView: FormView): void; }) {
+    unSiteConfigFormDisplayed(listener: (applicationKey: ApplicationKey, formView: FormView) => void) {
         this.siteConfiguratorSelectedOptionsView.unSiteConfigFormDisplayed(listener);
     }
 

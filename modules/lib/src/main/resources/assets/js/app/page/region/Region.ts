@@ -27,15 +27,15 @@ export class Region
 
     private parentPath: ComponentPath;
 
-    private changedListeners: { (event: BaseRegionChangedEvent): void }[] = [];
+    private changedListeners: ((event: BaseRegionChangedEvent) => void)[] = [];
 
-    private componentAddedListeners: { (event: ComponentAddedEvent): void }[] = [];
+    private componentAddedListeners: ((event: ComponentAddedEvent) => void)[] = [];
 
-    private componentRemovedListeners: { (event: ComponentRemovedEvent): void }[] = [];
+    private componentRemovedListeners: ((event: ComponentRemovedEvent) => void)[] = [];
 
-    private componentPropertyChangedListeners: { (event: ComponentPropertyChangedEvent): void }[] = [];
+    private componentPropertyChangedListeners: ((event: ComponentPropertyChangedEvent) => void)[] = [];
 
-    private propertyValueChangedListeners: { (event: RegionPropertyValueChangedEvent): void }[] = [];
+    private propertyValueChangedListeners: ((event: RegionPropertyValueChangedEvent) => void)[] = [];
 
     private readonly componentChangedEventHandler: ComponentChangedEventHandler;
 
@@ -139,10 +139,10 @@ export class Region
             componentJsons.push(component.toJson());
         });
 
-        return <RegionJson>{
+        return {
             name: this.name,
             components: componentJsons
-        };
+        } as RegionJson;
     }
 
     toString(): string {
@@ -155,7 +155,7 @@ export class Region
             return false;
         }
 
-        let other = <Region>o;
+        let other = o as Region;
 
         if (!ObjectHelper.stringEquals(this.name, other.name)) {
             return false;

@@ -32,7 +32,7 @@ export class ContentBrowseFilterPanel
     private displayNamesResolver: AggregationsDisplayNamesResolver;
     private aggregationsFetcher: ContentAggregationsFetcher;
     private userInfo: LoginResult;
-    private searchEventListeners: { (query?: ContentQuery): void; }[] = [];
+    private searchEventListeners: ((query?: ContentQuery) => void)[] = [];
 
     private dependenciesSection: DependenciesSection;
 
@@ -43,18 +43,18 @@ export class ContentBrowseFilterPanel
         this.initElementsAndListeners();
     }
 
-    onSearchEvent(listener: { (query?: ContentQuery): void; }): void {
+    onSearchEvent(listener: (query?: ContentQuery) => void): void {
         this.searchEventListeners.push(listener);
     }
 
-    unSearchEvent(listener: { (query?: ContentQuery): void; }): void {
-        this.searchEventListeners = this.searchEventListeners.filter((curr: { (query?: ContentQuery): void; }) => {
+    unSearchEvent(listener: (query?: ContentQuery) => void): void {
+        this.searchEventListeners = this.searchEventListeners.filter((curr: (query?: ContentQuery) => void) => {
             return curr !== listener;
         });
     }
 
     private notifySearchEvent(query?: ContentQuery): void {
-        this.searchEventListeners.forEach((listener: { (q?: ContentQuery): void; }) => {
+        this.searchEventListeners.forEach((listener: (q?: ContentQuery) => void) => {
             listener(query);
         });
     }
@@ -161,7 +161,7 @@ export class ContentBrowseFilterPanel
     }
 
     private selectContentTypeBucket(key: string): void {
-        (<BucketAggregationView>this.aggregations.get(ContentAggregation.CONTENT_TYPE).getAggregationViews()[0])?.selectBucketViewByKey(key);
+        (this.aggregations.get(ContentAggregation.CONTENT_TYPE).getAggregationViews()[0] as BucketAggregationView)?.selectBucketViewByKey(key);
     }
 
     doRefresh(): Q.Promise<void> {
@@ -237,9 +237,9 @@ export class ContentBrowseFilterPanel
         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             this.userInfo = loginResult;
             this.displayNamesResolver = new AggregationsDisplayNamesResolver();
-            (<FilterableAggregationGroupView>this.aggregations.get(ContentAggregation.OWNER)).setIdsToKeepOnToTop(
+            (this.aggregations.get(ContentAggregation.OWNER) as FilterableAggregationGroupView).setIdsToKeepOnToTop(
                 [this.getCurrentUserKeyAsString()]);
-            (<FilterableAggregationGroupView>this.aggregations.get(ContentAggregation.MODIFIED_BY)).setIdsToKeepOnToTop(
+            (this.aggregations.get(ContentAggregation.MODIFIED_BY) as FilterableAggregationGroupView).setIdsToKeepOnToTop(
                 [this.getCurrentUserKeyAsString()]);
 
             return this.getAndUpdateAggregations();

@@ -24,7 +24,7 @@ export class ItemViewId
             return false;
         }
 
-        let other = <ItemViewId>o;
+        let other = o as ItemViewId;
 
         if (!ObjectHelper.numberEquals(this.value, other.value)) {
             return false;

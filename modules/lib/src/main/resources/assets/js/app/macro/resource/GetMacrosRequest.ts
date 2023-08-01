@@ -29,8 +29,8 @@ export class GetMacrosRequest
     private toMacroDescriptors(macrosJson: MacrosJson): MacroDescriptor[] {
         const result: MacroDescriptor[] = [];
 
-        for (let i = 0; i < macrosJson.macros.length; i++) {
-            result.push(MacroDescriptor.fromJson(macrosJson.macros[i]));
+        for (const macro of macrosJson.macros) {
+            result.push(MacroDescriptor.fromJson(macro));
         }
 
         return result;

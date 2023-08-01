@@ -94,7 +94,7 @@ export class ProjectViewItem
             return false;
         }
 
-        const other: ProjectViewItem = <ProjectViewItem>o;
+        const other: ProjectViewItem = o as ProjectViewItem;
 
         if (!super.equals(o)) {
             return false;

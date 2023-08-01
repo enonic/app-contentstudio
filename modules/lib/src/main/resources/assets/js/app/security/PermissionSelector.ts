@@ -14,7 +14,7 @@ export class PermissionSelector
 
     private toggles: PermissionToggle[] = [];
     private oldValue: { allow: Permission[]; deny: Permission[] };
-    private valueChangedListeners: { (event: ValueChangedEvent): void }[] = [];
+    private valueChangedListeners: ((event: ValueChangedEvent) => void)[] = [];
     private enabled: boolean = true;
 
     constructor() {
@@ -121,7 +121,7 @@ export class PermissionToggle
     extends AEl {
 
     private static STATES: PermissionState[] = [PermissionState.ALLOW, PermissionState.DENY, PermissionState.INHERIT];
-    private valueChangedListeners: { (event: ValueChangedEvent): void }[] = [];
+    private valueChangedListeners: ((event: ValueChangedEvent) => void)[] = [];
 
     private originalStateIndex: number = -1;
     private stateIndex: number = -1;

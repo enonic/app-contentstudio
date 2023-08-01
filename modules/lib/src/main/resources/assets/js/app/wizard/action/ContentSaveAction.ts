@@ -30,7 +30,7 @@ export class ContentSaveAction
             return this;
         }
 
-        return <ContentSaveAction>super.setEnabled(value);
+        return super.setEnabled(value) as ContentSaveAction;
     }
 
     protected saveChanges(wizardPanel: ContentWizardPanel): Q.Promise<void> {

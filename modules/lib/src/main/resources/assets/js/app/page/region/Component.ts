@@ -142,7 +142,7 @@ export abstract class Component
             return false;
         }
 
-        let other = <Component>o;
+        let other = o as Component;
 
         if (!ObjectHelper.equals(this.name, other.name)) {
             return false;

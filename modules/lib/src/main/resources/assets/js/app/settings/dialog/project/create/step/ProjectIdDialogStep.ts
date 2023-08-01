@@ -44,10 +44,10 @@ export class ProjectIdDialogStep
     private createProjectDisplayNameFormItem(): FormItem {
         this.displayNameInput = new TextInput();
 
-        this.displayNameFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.displayNameInput)
+        this.displayNameFormItem = new ProjectFormItemBuilder(this.displayNameInput)
             .setLabel(i18n('field.displayName'))
             .setValidator(Validators.required)
-            .build();
+            .build() as ProjectFormItem;
 
         return this.displayNameFormItem;
     }
@@ -60,7 +60,7 @@ export class ProjectIdDialogStep
     private createDescriptionFormItem(): FormItem {
         this.descriptionInput = new TextInput();
 
-        return <ProjectFormItem>new ProjectFormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
+        return new ProjectFormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build() as ProjectFormItem;
     }
 
     isOptional(): boolean {

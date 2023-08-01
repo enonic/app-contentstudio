@@ -10,9 +10,9 @@ export class IssueServerEventsHandler {
 
     private static INSTANCE: IssueServerEventsHandler = new IssueServerEventsHandler();
 
-    private issueCreatedListeners: {(issues: Issue[]): void}[] = [];
+    private issueCreatedListeners: ((issues: Issue[]) => void)[] = [];
 
-    private issueUpdatedListeners: {(issues: Issue[]): void}[] = [];
+    private issueUpdatedListeners: ((issues: Issue[]) => void)[] = [];
 
     private static debug: boolean = false;
 

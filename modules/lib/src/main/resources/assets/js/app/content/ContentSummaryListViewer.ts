@@ -149,7 +149,7 @@ class ImageRequest
         const reader: FileReader = new FileReader();
 
         reader.onload = () => {
-            deferred.resolve({status: this.getRequestStatus(), imageAsUrl: <string>reader.result});
+            deferred.resolve({status: this.getRequestStatus(), imageAsUrl: reader.result as string});
         };
 
         try {

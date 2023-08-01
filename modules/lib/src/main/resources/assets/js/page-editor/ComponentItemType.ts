@@ -5,7 +5,7 @@ export class ComponentItemType
     extends ItemType {
 
     protected getItemTypeConfig(itemType: string): ItemTypeConfig {
-        return new ItemTypeConfig(<ItemTypeConfigJson>{
+        return new ItemTypeConfig({
             cssSelector: '[data-portal-component-type=' + itemType + ']',
             draggable: true,
             cursor: 'move',
@@ -16,6 +16,6 @@ export class ComponentItemType
                 fill: 'rgba(255, 255, 255, 0)' // not used
             },
             contextMenuConfig: ['parent', 'remove', 'clear', 'duplicate']
-        });
+        } as ItemTypeConfigJson);
     }
 }

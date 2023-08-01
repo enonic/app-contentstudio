@@ -82,12 +82,12 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         if (this.expand === Expand.SUMMARY) {
             contents = this.fromJsonToContentSummaryArray(contentsAsJson);
         } else {
-            contents = this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
+            contents = this.fromJsonToContentArray(contentsAsJson as ContentJson[]);
         }
 
         this.updateStateAfterLoad(contents as CONTENT[], metadata);
 
-        return new ContentQueryResult<CONTENT, CONTENT_JSON>(this.results, aggregations, <CONTENT_JSON[]>contentsAsJson, metadata);
+        return new ContentQueryResult<CONTENT, CONTENT_JSON>(this.results, aggregations, contentsAsJson as CONTENT_JSON[], metadata);
     }
 
     private updateStateAfterLoad(contents: CONTENT[], metadata: ResultMetadata) {

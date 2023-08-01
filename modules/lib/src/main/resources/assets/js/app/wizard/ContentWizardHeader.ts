@@ -29,11 +29,11 @@ export class ContentWizardHeader
 
     private loadSpinner: DivEl;
 
-    private nameCheckIsOnListeners: { (): void } [] = [];
+    private nameCheckIsOnListeners: (() => void) [] = [];
 
-    private nameCheckIsOffListeners: { (): void } [] = [];
+    private nameCheckIsOffListeners: (() => void) [] = [];
 
-    private renamedListeners: { (): void } [] = [];
+    private renamedListeners: (() => void) [] = [];
 
     constructor() {
         super();
@@ -189,7 +189,7 @@ export class ContentWizardHeader
     }
 
     unNameCheckIsOn(listener: () => void) {
-        this.nameCheckIsOnListeners = this.nameCheckIsOnListeners.filter((curr:  { (): void }) => {
+        this.nameCheckIsOnListeners = this.nameCheckIsOnListeners.filter((curr:  () => void) => {
             return curr !== listener;
         });
         return this;
@@ -206,7 +206,7 @@ export class ContentWizardHeader
     }
 
     unNameCheckIsOff(listener: () => void) {
-        this.nameCheckIsOffListeners = this.nameCheckIsOffListeners.filter((curr:  { (): void }) => {
+        this.nameCheckIsOffListeners = this.nameCheckIsOffListeners.filter((curr:  () => void) => {
             return curr !== listener;
         });
         return this;
@@ -223,7 +223,7 @@ export class ContentWizardHeader
     }
 
     unRenamed(listener: () => void) {
-        this.renamedListeners = this.renamedListeners.filter((curr:  { (): void }) => {
+        this.renamedListeners = this.renamedListeners.filter((curr:  () => void) => {
             return curr !== listener;
         });
         return this;

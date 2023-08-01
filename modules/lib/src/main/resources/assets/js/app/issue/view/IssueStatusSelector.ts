@@ -13,7 +13,7 @@ export class IssueStatusSelector
 
     private value: IssueStatus;
 
-    private valueChangedListeners: { (event: ValueChangedEvent): void }[] = [];
+    private valueChangedListeners: ((event: ValueChangedEvent) => void)[] = [];
 
     private dropdownHandle: DropdownHandle;
 
@@ -64,10 +64,10 @@ export class IssueStatusSelector
 
     protected initListeners() {
         this.onNavigationItemSelected((event: NavigatorEvent) => {
-            const item = <TabMenuItem> event.getItem();
+            const item = event.getItem() as TabMenuItem;
             const status = item ? IssueStatus[item.getIndex()] : null;
             if (status != null) {
-                this.setValue(<IssueStatus>item.getIndex());
+                this.setValue(item.getIndex() as IssueStatus);
             }
         });
 
@@ -80,7 +80,7 @@ export class IssueStatusSelector
 
     setValue(value: IssueStatus, silent?: boolean): IssueStatusSelector {
         if (IssueStatus[value] != null) {
-            const tabIndex = <number>value;
+            const tabIndex = value as number;
             this.selectNavigationItem(tabIndex, true);
 
             this.removeClass(IssueStatusFormatter.getStatusNames().join(' '));

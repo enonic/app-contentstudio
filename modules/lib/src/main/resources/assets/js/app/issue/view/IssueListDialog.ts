@@ -31,14 +31,14 @@ export class IssueListDialog
 
     private reloadRequired: boolean = false;
 
-    private issueSelectedListeners: { (issue: Issue): void }[] = [];
+    private issueSelectedListeners: ((issue: Issue) => void)[] = [];
 
     private constructor() {
-        super(<ModalDialogWithConfirmationConfig>{
+        super({
             title: i18n('field.issues'),
             class: 'issue-dialog issue-list-dialog grey-header',
             confirmation: {}
-        });
+        } as ModalDialogWithConfirmationConfig);
 
         this.getBody().addClass('mask-wrapper');
     }

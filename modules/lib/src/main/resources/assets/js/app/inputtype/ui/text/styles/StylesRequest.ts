@@ -15,7 +15,7 @@ export interface GetStylesResponse {
 export class StylesRequest
     extends ResourceRequest<Styles> {
 
-    private static requests: { [key: string]: Q.Promise<Styles>; } = {};
+    private static requests: Record<string, Q.Promise<Styles>> = {};
 
     private contentId: string;
 

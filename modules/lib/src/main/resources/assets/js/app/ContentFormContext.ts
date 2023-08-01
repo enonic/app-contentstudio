@@ -23,7 +23,7 @@ export class ContentFormContext
 
     private readonly applicationKey?: ApplicationKey;
 
-    private contentUpdatedListeners: { (content: Content): void }[] = [];
+    private contentUpdatedListeners: ((content: Content) => void)[] = [];
 
     constructor(builder: ContentFormContextBuilder) {
         super(builder);
@@ -75,7 +75,7 @@ export class ContentFormContext
     }
 
     createInputTypeViewContext(inputTypeConfig: object, parentPropertyPath: PropertyPath, input: Input): ContentInputTypeViewContext {
-        const viewContext = <ContentInputTypeViewContext> {
+        const viewContext = {
             formContext: this,
             input: input,
             inputConfig: inputTypeConfig,
@@ -84,7 +84,7 @@ export class ContentFormContext
             content: this.getPersistedContent(),
             project: this.getProject(),
             applicationKey: this.applicationKey
-        };
+        } as ContentInputTypeViewContext;
 
         this.contentUpdatedListeners.push(content => {
             viewContext.content = content;
@@ -94,7 +94,7 @@ export class ContentFormContext
     }
 
     cloneBuilder(): ContentFormContextBuilder {
-        return <ContentFormContextBuilder>ContentFormContext.create()
+        return ContentFormContext.create()
             .setSite(this.site)
             .setPersistedContent(this.persistedContent)
             .setContentTypeName(this.contentTypeName)
@@ -102,7 +102,7 @@ export class ContentFormContext
             .setApplicationKey(this.applicationKey)
             .setFormState(this.getFormState())
             .setShowEmptyFormItemSetOccurrences(this.getShowEmptyFormItemSetOccurrences())
-            .setValidationErrors(this.getValidationErrors());
+            .setValidationErrors(this.getValidationErrors()) as ContentFormContextBuilder;
     }
 
     static create(): ContentFormContextBuilder {

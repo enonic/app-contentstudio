@@ -117,7 +117,7 @@ export class LinkModalDialog
     private readonly urlProtocols: UrlProtocol[];
 
     constructor(config: eventInfo, content: ContentSummary, project?: Project) {
-        super(<LinkModalDialogConfig>{
+        super({
             editor: config.editor,
             dialog: config.data,
             title: i18n('dialog.link.title'),
@@ -129,7 +129,7 @@ export class LinkModalDialog
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
             }
-        });
+        } as LinkModalDialogConfig);
 
         this.urlProtocols = [
             {title: 'Https', prefix: 'https://', validator: LinkModalDialog.validationRequiredUrl},
@@ -170,9 +170,9 @@ export class LinkModalDialog
                     if (this.isNothingSelected()) {
                         this.setElementToFocusOnShow(this.textFormItem.getInput());
                     } else if (this.isOnlyTextSelected()) {
-                        this.setElementToFocusOnShow((<TextInput>this.getFieldById('url')));
+                        this.setElementToFocusOnShow((this.getFieldById('url') as TextInput));
                     } else {
-                        this.setElementToFocusOnShow((<TextInput>this.getFieldById('url')));
+                        this.setElementToFocusOnShow((this.getFieldById('url') as TextInput));
                         this.textFormItem.hide();
                         this.textFormItem.removeValidator();
                     }
@@ -319,7 +319,7 @@ export class LinkModalDialog
 
     private createUrlPanel(): Panel {
         const urlFormItem = this.createUrlFormItem('url', i18n('dialog.link.formitem.url'));
-        const urlInput = <TextInput>urlFormItem.getInput();
+        const urlInput = urlFormItem.getInput() as TextInput;
         this.protocolsDropdownButton = this.createProtocolsDropdownButton(urlFormItem, urlInput);
         urlFormItem.prependChild(this.protocolsDropdownButton);
 
@@ -365,7 +365,7 @@ export class LinkModalDialog
     }
 
     private createAnchorDropdown(anchorList: string[]): FormItem {
-        const dropDown = new Dropdown<string>('anchor', <DropdownConfig<string>>{});
+        const dropDown = new Dropdown<string>('anchor', {} as DropdownConfig<string>);
 
         anchorList.forEach((anchor: string) => {
             dropDown.addOption(Option.create<string>()
@@ -484,7 +484,7 @@ export class LinkModalDialog
     }
 
     private createHideButtonForFragment(addButton: Button): Button {
-        const anchorInput: TextInput = <TextInput>this.anchorFormItem.getInput();
+        const anchorInput: TextInput = this.anchorFormItem.getInput() as TextInput;
         const hideButton: Button = this.createRemoveButton();
 
         hideButton.onClicked(() => {
@@ -497,7 +497,7 @@ export class LinkModalDialog
     }
 
     private createAddButtonForFragment(): Button {
-        const anchorInput: TextInput = <TextInput>this.anchorFormItem.getInput();
+        const anchorInput: TextInput = this.anchorFormItem.getInput() as TextInput;
         const addButton: Button = new Button(i18n('action.add'));
 
         addButton.onClicked(() => {
@@ -510,7 +510,7 @@ export class LinkModalDialog
     }
 
     private initializeFragmentAnchorInputListeners(hideAnchorFormButton: Button): void {
-        const anchorInput: TextInput = <TextInput>this.anchorFormItem.getInput();
+        const anchorInput: TextInput = this.anchorFormItem.getInput() as TextInput;
 
         anchorInput.onShown(() => {
             this.anchorFormItem.setValidator(Validators.required);
@@ -544,7 +544,7 @@ export class LinkModalDialog
         this.anchorFormItem = this.createFormItemWithPostponedValue(id, label, this.getFragment, LinkModalDialog.validationAlwaysValid);
         this.anchorFormItem.addClass('anchor-form-item');
 
-        const anchorInput = <TextInput>this.anchorFormItem.getInput();
+        const anchorInput = this.anchorFormItem.getInput() as TextInput;
         anchorInput.hide();
 
         const addButton: Button = this.createAddButtonForFragment();
@@ -633,7 +633,7 @@ export class LinkModalDialog
         const getUrl = () => this.isUrl() ? this.link : '';
 
         const urlFormItem: FormItem = this.createFormItemWithPostponedValue(textId, textLabel, getUrl, Validators.required);
-        const urlInput: TextInput = <TextInput>urlFormItem.getInput();
+        const urlInput: TextInput = urlFormItem.getInput() as TextInput;
         this.initUrlInputHandlers(urlFormItem, urlInput);
 
         urlFormItem.getLabel().addClass('required');
@@ -769,7 +769,7 @@ export class LinkModalDialog
         const formItem: FormItem = this.createFormItemWithPostponedValue(id, '', () => initialKey, null, label);
         formItem.getInput().addClass('params-key');
 
-        (<TextInput>formItem.getInput()).onValueChanged(() => {
+        (formItem.getInput() as TextInput).onValueChanged(() => {
             this.paramsFormItem.validate(new ValidationResult(), true);
         });
 
@@ -820,12 +820,12 @@ export class LinkModalDialog
     }
 
     private getMediaRadioGroup(): RadioGroup {
-        return <RadioGroup>this.getFieldById('contentMediaRadio');
+        return this.getFieldById('contentMediaRadio') as RadioGroup;
     }
 
     protected getMainFormItems(): FormItem [] {
         const getLinkText: Function = () => {
-            return <string>this.ckeOriginalDialog.getValueOf('info', 'linkDisplayText');
+            return this.ckeOriginalDialog.getValueOf('info', 'linkDisplayText') as string;
         };
 
         const getTooltip: Function = () => {
@@ -877,7 +877,7 @@ export class LinkModalDialog
     }
 
     private filterContentByParentPath(contentItem: ContentSummary | ContentTreeSelectorItem): boolean {
-        if (!this.parentSitePath || (<Checkbox>this.showAllContentCheckboxFormItem.getInput()).isChecked()) {
+        if (!this.parentSitePath || (this.showAllContentCheckboxFormItem.getInput() as Checkbox).isChecked()) {
             return true;
         }
 
@@ -1012,7 +1012,7 @@ export class LinkModalDialog
             const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionView().getById(item.getId());
 
             if (!!selectedOption) {
-                (<BaseSelectedOptionsView<ContentTreeSelectorItem>>contentSelector.getSelectedOptionView()).removeOption(
+                (contentSelector.getSelectedOptionView() as BaseSelectedOptionsView<ContentTreeSelectorItem>).removeOption(
                     selectedOption.getOption());
             }
         });
@@ -1044,7 +1044,7 @@ export class LinkModalDialog
     }
 
     private validateDockPanel(): boolean {
-        const form: Form = <Form>this.dockedPanel.getDeck().getPanelShown().getFirstChild();
+        const form: Form = this.dockedPanel.getDeck().getPanelShown().getFirstChild() as Form;
         return form.validate(true).isValid();
     }
 
@@ -1057,8 +1057,8 @@ export class LinkModalDialog
 
     private getContentLinkQueryParams(): string {
         const queryParamsString: string = this.paramsFormIds.reduce((prev, formParam: FormParam) => {
-            const key: string = (<TextInput>this.getFieldById(formParam.keyId)).getValue().trim();
-            const value: string = (<TextInput>this.getFieldById(formParam.valueId)).getValue().trim();
+            const key: string = (this.getFieldById(formParam.keyId) as TextInput).getValue().trim();
+            const value: string = (this.getFieldById(formParam.valueId) as TextInput).getValue().trim();
             return prev === '' ? `${key}=${value}` : `${prev}&${key}=${value}`;
         }, '');
 
@@ -1070,7 +1070,7 @@ export class LinkModalDialog
     }
 
     private getContentLinkFragment(hasQueryParams: boolean): string {
-        const anchorString: string = encodeURIComponent((<TextInput>this.getFieldById('contentFragment')).getValue().trim());
+        const anchorString: string = encodeURIComponent((this.getFieldById('contentFragment') as TextInput).getValue().trim());
         const fragment: string = anchorString ? `${LinkModalDialog.fragmentPrefix}${anchorString}` : '';
 
         if (!fragment) {
@@ -1085,7 +1085,7 @@ export class LinkModalDialog
     }
 
     private getContentLinkTarget(): string {
-        const isOpenInNewTab: boolean = (<Checkbox>this.contentTargetCheckBoxFormItem.getInput()).isChecked();
+        const isOpenInNewTab: boolean = (this.contentTargetCheckBoxFormItem.getInput() as Checkbox).isChecked();
         return isOpenInNewTab ? '_blank' : '';
     }
 
@@ -1107,7 +1107,7 @@ export class LinkModalDialog
     }
 
     private getContentIdFormItemEl(): ContentComboBox<ContentTreeSelectorItem> {
-        return <ContentComboBox<ContentTreeSelectorItem>>this.getFieldById('contentId');
+        return this.getFieldById('contentId') as ContentComboBox<ContentTreeSelectorItem>;
     }
 
     private generateUrlParamsForMedia(): ContentLinkParams {
@@ -1157,8 +1157,8 @@ export class LinkModalDialog
     }
 
     private createUrlLink(): void {
-        const url: string = (<TextInput>this.getFieldById('url')).getValue().trim();
-        const isOpenInNewTab: boolean = (<Checkbox>this.getFieldById('urlTarget')).isChecked();
+        const url: string = (this.getFieldById('url') as TextInput).getValue().trim();
+        const isOpenInNewTab: boolean = (this.getFieldById('urlTarget') as Checkbox).isChecked();
         const target: string = isOpenInNewTab ? '_blank' : '';
 
         this.getOriginalLinkTypeElem().setValue('url', false);
@@ -1168,8 +1168,8 @@ export class LinkModalDialog
     }
 
     private createEmailLink(): void {
-        const email = (<TextInput>this.getFieldById('email')).getValue().trim();
-        const subject = (<TextInput>this.getFieldById('subject')).getValue().trim();
+        const email = (this.getFieldById('email') as TextInput).getValue().trim();
+        const subject = (this.getFieldById('subject') as TextInput).getValue().trim();
 
         this.getOriginalLinkTypeElem().setValue('email', false);
         this.getOriginalEmailElem().setValue(email, false);
@@ -1177,7 +1177,7 @@ export class LinkModalDialog
     }
 
     private createAnchor(): void {
-        const anchorName = (<TextInput>this.getFieldById('anchor')).getValue().replace(LinkModalDialog.anchorPrefix,
+        const anchorName = (this.getFieldById('anchor') as TextInput).getValue().replace(LinkModalDialog.anchorPrefix,
             StringHelper.EMPTY_STRING);
 
         this.getOriginalLinkTypeElem().setValue('anchor', false);
@@ -1185,10 +1185,10 @@ export class LinkModalDialog
     }
 
     private updateOriginalDialogInputValues(): void {
-        const deck = <NavigatedDeckPanel>this.dockedPanel.getDeck();
-        const selectedTab = <TabBarItem>deck.getSelectedNavigationItem();
-        const linkText: string = (<TextInput>this.getFieldById('linkText')).getValue().trim();
-        const toolTip: string = (<TextInput>this.getFieldById('toolTip')).getValue().trim();
+        const deck = this.dockedPanel.getDeck() as NavigatedDeckPanel;
+        const selectedTab = deck.getSelectedNavigationItem() as TabBarItem;
+        const linkText: string = (this.getFieldById('linkText') as TextInput).getValue().trim();
+        const toolTip: string = (this.getFieldById('toolTip') as TextInput).getValue().trim();
 
         this.ckeOriginalDialog.setValueOf('info', 'linkDisplayText', linkText);
         this.getOriginalTitleElem().setValue(toolTip, false);
@@ -1263,13 +1263,13 @@ export class LinkModalDialog
 
         const formItem = this.createFormItem(formItemBuilder);
 
-        (<InputEl>formItem.getInput()).setValue(getValueFn.call(this));
+        (formItem.getInput() as InputEl).setValue(getValueFn.call(this));
 
         return formItem;
     }
 
     isDirty(): boolean {
-        return (<TextInput>this.textFormItem.getInput()).isDirty() || (<TextInput>this.toolTipFormItem.getInput()).isDirty() ||
+        return (this.textFormItem.getInput() as TextInput).isDirty() || (this.toolTipFormItem.getInput() as TextInput).isDirty() ||
             AppHelper.isDirty(this.dockedPanel);
     }
 

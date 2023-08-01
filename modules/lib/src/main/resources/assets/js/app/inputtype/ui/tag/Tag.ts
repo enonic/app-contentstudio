@@ -34,7 +34,7 @@ export class Tag
 
     private removable: boolean;
 
-    private removeClickListeners: { (): void }[] = [];
+    private removeClickListeners: (() => void)[] = [];
 
     constructor(builder: TagBuilder) {
         super('tag');

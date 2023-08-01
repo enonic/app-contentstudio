@@ -98,7 +98,7 @@ export class SiteConfigurator
             this.deselectOldViews(propertyArray);
 
             const selectedOptionViews = propertyArray.map(property =>
-                <SiteConfiguratorSelectedOptionView>this.selectOptionFromProperty(property)?.getOptionView());
+                this.selectOptionFromProperty(property)?.getOptionView() as SiteConfiguratorSelectedOptionView);
 
             const updatePromises = selectedOptionViews.filter(view => !!view).map((view, index) => {
                 const configSet = propertyArray.get(index).getPropertySet().getProperty(ApplicationConfig.PROPERTY_CONFIG).getPropertySet();
@@ -176,14 +176,14 @@ export class SiteConfigurator
         const value = this.getValueFromPropertyArray(this.getPropertyArray());
         const siteConfigFormsToDisplay = value.split(';');
         const maximum = input.getOccurrences().getMaximum() || 0;
-        const comboBox = new SiteConfiguratorComboBox(maximum, siteConfigProvider, <ContentFormContext>this.context.formContext, value);
+        const comboBox = new SiteConfiguratorComboBox(maximum, siteConfigProvider, this.context.formContext as ContentFormContext, value);
 
         const forcedValidate = () => {
             this.ignorePropertyChange(false);
             this.validate(false);
         };
         const saveAndForceValidate = (selectedOption: SelectedOption<Application>) => {
-            const view: SiteConfiguratorSelectedOptionView = <SiteConfiguratorSelectedOptionView>selectedOption.getOptionView();
+            const view: SiteConfiguratorSelectedOptionView = selectedOption.getOptionView() as SiteConfiguratorSelectedOptionView;
             this.saveToSet(view.getSiteConfig(), selectedOption.getIndex());
             forcedValidate();
         };
@@ -201,7 +201,7 @@ export class SiteConfigurator
             this.ignorePropertyChange(true);
 
             const selectedOption: SelectedOption<Application> = event.getSelectedOption();
-            const view: SiteConfiguratorSelectedOptionView = <SiteConfiguratorSelectedOptionView>selectedOption.getOptionView();
+            const view: SiteConfiguratorSelectedOptionView = selectedOption.getOptionView() as SiteConfiguratorSelectedOptionView;
 
             const propertyArray: PropertyArray = this.getPropertyArray();
             const configSet: PropertySet = propertyArray.get(selectedOption.getIndex()).getPropertySet().getProperty(

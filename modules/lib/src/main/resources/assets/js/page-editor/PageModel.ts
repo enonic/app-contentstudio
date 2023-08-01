@@ -119,13 +119,13 @@ export class PageModel {
 
     private pageModeChangedListeners: PageModeChangedEventHandler[] = [];
 
-    private propertyChangedListeners: { (event: PropertyChangedEvent): void }[] = [];
+    private propertyChangedListeners: ((event: PropertyChangedEvent) => void)[] = [];
 
     private componentPropertyChangedListeners: ComponentPropertyChangedEventHandler[] = [];
 
-    private customizeChangedListeners: { (value: boolean): void }[] = [];
+    private customizeChangedListeners: ((value: boolean) => void)[] = [];
 
-    private resetListeners: { (): void }[] = [];
+    private resetListeners: (() => void)[] = [];
 
     private ignorePropertyChanges: boolean = false;
 

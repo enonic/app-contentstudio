@@ -99,7 +99,7 @@ export class SettingsItemsTreeGrid
         }
 
         if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
-            this.projects.push((<ProjectViewItem>item).getData());
+            this.projects.push((item as ProjectViewItem).getData());
         }
 
         if (parentNode.hasParent() && parentNode.getParent().isExpanded()) {
@@ -150,7 +150,7 @@ export class SettingsItemsTreeGrid
             return null;
         }
 
-        const projectItem: ProjectViewItem = <ProjectViewItem>item;
+        const projectItem: ProjectViewItem = item as ProjectViewItem;
 
         if (!projectItem.getData().getParent()) {
             return this.getRoot().getNodeByDataId(SettingsItemsTreeGrid.PROJECTS_FOLDER_ID);

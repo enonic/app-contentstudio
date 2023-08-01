@@ -26,19 +26,19 @@ export class DefaultItemViewFactory
     public createView(type: ItemType, config: CreateItemViewConfig<ItemView, BaseComponent>): ItemView {
         switch (type.getShortName()) {
         case 'fragment':
-            return this.createFragmentView(<CreateFragmentViewConfig>config);
+            return this.createFragmentView(config as CreateFragmentViewConfig);
         case 'image':
-            return this.createImageView(<CreateItemViewConfig<RegionView, ImageComponent>>config);
+            return this.createImageView(config as CreateItemViewConfig<RegionView, ImageComponent>);
         case 'layout':
-            return this.createLayoutView(<CreateItemViewConfig<RegionView, LayoutComponent>>config);
+            return this.createLayoutView(config as CreateItemViewConfig<RegionView, LayoutComponent>);
         case 'part':
-            return this.createPartView(<CreateItemViewConfig<RegionView, PartComponent>>config);
+            return this.createPartView(config as CreateItemViewConfig<RegionView, PartComponent>);
         case 'text':
-            return this.createTextView(<CreateItemViewConfig<RegionView, TextComponent>>config);
+            return this.createTextView(config as CreateItemViewConfig<RegionView, TextComponent>);
         case 'region':
-            return this.createRegionView(<CreateItemViewConfig<ItemView, Region>>config);
+            return this.createRegionView(config as CreateItemViewConfig<ItemView, Region>);
         case 'content':
-            return this.createContentView(<CreateItemViewConfig<PartComponentView, Content>>config);
+            return this.createContentView(config as CreateItemViewConfig<PartComponentView, Content>);
         case 'page':
         default:
             throw new Error(i18n('live.view.itemtype.error.createviewnotsupported'));
@@ -46,25 +46,25 @@ export class DefaultItemViewFactory
     }
 
     private createFragmentView(config: CreateFragmentViewConfig): FragmentComponentView {
-        return new FragmentComponentView(<FragmentComponentViewBuilder>new FragmentComponentViewBuilder()
+        return new FragmentComponentView(new FragmentComponentViewBuilder()
             .setItemViewIdProducer(config.itemViewIdProducer)
             .setItemViewFactory(config.itemViewFactory)
             .setParentRegionView(config.parentView)
             .setParentElement(config.parentElement)
             .setElement(config.element)
             .setComponent(config.data)
-            .setPositionIndex(config.positionIndex));
+            .setPositionIndex(config.positionIndex) as FragmentComponentViewBuilder);
     }
 
     private createImageView(config: CreateItemViewConfig<RegionView, ImageComponent>): ImageComponentView {
-        return new ImageComponentView(<ImageComponentViewBuilder>new ImageComponentViewBuilder()
+        return new ImageComponentView(new ImageComponentViewBuilder()
             .setItemViewIdProducer(config.itemViewIdProducer)
             .setItemViewFactory(config.itemViewFactory)
             .setParentRegionView(config.parentView)
             .setParentElement(config.parentElement)
             .setElement(config.element)
             .setComponent(config.data)
-            .setPositionIndex(config.positionIndex));
+            .setPositionIndex(config.positionIndex) as ImageComponentViewBuilder);
     }
 
     private createLayoutView(config: CreateItemViewConfig<RegionView, LayoutComponent>): LayoutComponentView {

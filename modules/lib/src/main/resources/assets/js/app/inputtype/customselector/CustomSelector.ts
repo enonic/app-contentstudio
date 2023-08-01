@@ -146,12 +146,12 @@ export class CustomSelector
 
     createComboBox(input: Input, propertyArray: PropertyArray): RichComboBox<CustomSelectorItem> {
 
-        const comboBox: CustomSelectorComboBox = <CustomSelectorComboBox>CustomSelectorComboBox.create()
+        const comboBox: CustomSelectorComboBox = CustomSelectorComboBox.create()
             .setComboBoxName(input.getName())
             .setMaximumOccurrences(input.getOccurrences().getMaximum())
             .setValue(this.getValueFromPropertyArray(propertyArray))
             .setLoader(this.createLoader())
-            .build();
+            .build() as CustomSelectorComboBox;
 
         comboBox.onOptionSelected((event: SelectedOptionEvent<CustomSelectorItem>) => {
             this.ignorePropertyChange(true);
@@ -231,7 +231,7 @@ export class CustomSelector
 
     private getSelectedOptionsView(): CustomSelectorSelectedOptionsView {
         this.updateSelectedOptionStyle();
-        return <CustomSelectorSelectedOptionsView> this.comboBox.getSelectedOptionView();
+        return this.comboBox.getSelectedOptionView() as CustomSelectorSelectedOptionsView;
     }
 
     private updateSelectedOptionStyle() {

@@ -127,7 +127,7 @@ export class ContentQuery
             return false;
         }
 
-        let other = <ContentQuery>o;
+        let other = o as ContentQuery;
 
         if (!ObjectHelper.numberEquals(this.from, other.from)) {
             return false;

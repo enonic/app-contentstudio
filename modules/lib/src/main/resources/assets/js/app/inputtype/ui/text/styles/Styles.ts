@@ -3,7 +3,7 @@ import {StyleJson, StylesJson} from './StylesDescriptor';
 
 export class Styles {
 
-    private static INSTANCES: { [key: string]: Styles; } = {};
+    private static INSTANCES: Record<string, Styles> = {};
 
     private css: string[];
     private styles: Style[];

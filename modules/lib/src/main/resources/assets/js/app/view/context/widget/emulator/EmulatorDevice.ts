@@ -99,7 +99,7 @@ export class EmulatorDevice
 
 
     equals(o: Equitable): boolean {
-        function allEquals(tupleList: Array<String[] | DeviceType[] | number[] | boolean[]>): boolean {
+        function allEquals(tupleList: (String[] | DeviceType[] | number[] | boolean[])[]): boolean {
             tupleList.forEach(function (tuple) {
                 if (tuple[0] !== tuple[1]) {
                     return false;
@@ -112,7 +112,7 @@ export class EmulatorDevice
             return false;
         }
 
-        const other = <EmulatorDevice>o;
+        const other = o as EmulatorDevice;
 
         const allValid = allEquals([
             [this.name, other.getName()],

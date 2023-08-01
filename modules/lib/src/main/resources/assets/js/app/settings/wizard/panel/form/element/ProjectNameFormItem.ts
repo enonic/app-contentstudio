@@ -14,10 +14,10 @@ export class ProjectNameFormItem
     private isNameOccupied: boolean;
 
     constructor() {
-        super(<ProjectFormItemBuilder>new ProjectFormItemBuilder(new NameTextInput())
+        super(new ProjectFormItemBuilder(new NameTextInput())
             .setHelpText(i18n('settings.projects.name.helptext'))
             .setValidator(Validators.required)
-            .setLabel(i18n('settings.field.project.name')));
+            .setLabel(i18n('settings.field.project.name')) as ProjectFormItemBuilder);
 
         this.setValidator(this.validateProjectName.bind(this));
         this.addClass('name-form-item');
@@ -46,7 +46,7 @@ export class ProjectNameFormItem
     }
 
     getProjectNameInput(): NameTextInput {
-        return <NameTextInput>this.getInput();
+        return this.getInput() as NameTextInput;
     }
 
     getValue(): string {

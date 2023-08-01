@@ -174,7 +174,7 @@ export class AttachmentUploader
             return false;
         }
 
-        const content: Content = <Content>this.context.content;
+        const content: Content = this.context.content as Content;
         const page: Page = content.getPage();
 
         if (!page.hasRegions()) {

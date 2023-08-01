@@ -15,7 +15,7 @@ export class ContentItemType
     }
 
     protected getItemTypeConfig(itemType: string): ItemTypeConfig {
-        return new ItemTypeConfig(<ItemTypeConfigJson>{
+        return new ItemTypeConfig({
             cssSelector: '[data-portal-component-type=content]',
             draggable: false,
             cursor: 'pointer',
@@ -26,7 +26,7 @@ export class ContentItemType
                 fill: 'rgba(0, 108, 255, .25)'
             },
             contextMenuConfig: ['parent', 'opencontent', 'view']
-        });
+        } as ItemTypeConfigJson);
     }
 }
 

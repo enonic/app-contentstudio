@@ -15,7 +15,7 @@ export class TypeFilter
 
     protected menuActions: IssuePanelFilterAction[];
 
-    private selectionListeners: { (type: FilterType): void }[];
+    private selectionListeners: ((type: FilterType) => void)[];
 
     constructor() {
         const defaultAction: Action = new Action(i18n('field.all'));

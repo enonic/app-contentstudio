@@ -80,13 +80,13 @@ export class EditPermissionsDialog
     private comboBoxChangeListener: () => void;
 
     constructor() {
-        super(<ModalDialogWithConfirmationConfig>{
+        super({
             confirmation: {
                 yesCallback: () => this.applyAction.execute(),
                 noCallback: () => this.close(),
             },
             class: 'edit-permissions-dialog'
-        });
+        } as ModalDialogWithConfirmationConfig);
     }
 
     protected initElements() {

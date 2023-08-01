@@ -13,7 +13,7 @@ export class PageViewController {
     private textEditMode: boolean = false;
     private editorToolbar: DivEl;
 
-    private textEditModeListeners: { (flag: boolean): void }[] = [];
+    private textEditModeListeners: ((flag: boolean) => void)[] = [];
 
     private static INSTANCE: PageViewController;
 

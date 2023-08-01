@@ -38,13 +38,13 @@ export class SiteConfiguratorSelectedOptionView
 
     private tempSiteConfig: ApplicationConfig;
 
-    private siteConfigFormDisplayedListeners: { (applicationKey: ApplicationKey): void }[];
+    private siteConfigFormDisplayedListeners: ((applicationKey: ApplicationKey) => void)[];
 
     private formContext: ContentFormContext;
 
     private isNew: boolean;
 
-    private formValidityChangedHandler: { (event: FormValidityChangedEvent): void };
+    private formValidityChangedHandler: (event: FormValidityChangedEvent) => void;
 
     private configureDialog: SiteConfiguratorDialog;
 
@@ -238,12 +238,12 @@ export class SiteConfiguratorSelectedOptionView
 
     private createFormView(siteConfig: ApplicationConfig): FormView {
         const context: ContentFormContext =
-            <ContentFormContext>this.formContext.cloneBuilder()
+            this.formContext.cloneBuilder()
                 .setApplicationKey(this.application.getApplicationKey())
                 .setFormState(new FormState(this.isNew))
-                .build();
+                .build() as ContentFormContext;
         const formView: FormView =
-            <FormView>new FormView(context, this.application.getForm(), siteConfig.getConfig()).addClass('site-form');
+            new FormView(context, this.application.getForm(), siteConfig.getConfig()).addClass('site-form') as FormView;
 
         formView.onLayoutFinished(() => {
             formView.displayValidationErrors(true);
@@ -280,11 +280,11 @@ export class SiteConfiguratorSelectedOptionView
         return this.formView;
     }
 
-    onSiteConfigFormDisplayed(listener: { (applicationKey: ApplicationKey): void; }) {
+    onSiteConfigFormDisplayed(listener: (applicationKey: ApplicationKey) => void) {
         this.siteConfigFormDisplayedListeners.push(listener);
     }
 
-    unSiteConfigFormDisplayed(listener: { (applicationKey: ApplicationKey): void; }) {
+    unSiteConfigFormDisplayed(listener: (applicationKey: ApplicationKey) => void) {
         this.siteConfigFormDisplayedListeners =
             this.siteConfigFormDisplayedListeners.filter((curr) => (curr !== listener));
     }

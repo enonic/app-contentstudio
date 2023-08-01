@@ -14,7 +14,7 @@ export abstract class ListStyleModalDialog
     protected typeField: FormItem;
 
     constructor(config: eventInfo) {
-        super(<HtmlAreaModalDialogConfig>{
+        super({
             editor: config.editor,
             dialog: config.data,
             class: 'list-style-modal-dialog',
@@ -22,7 +22,7 @@ export abstract class ListStyleModalDialog
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
             }
-        });
+        } as HtmlAreaModalDialogConfig);
     }
 
     protected initElements() {
@@ -69,7 +69,7 @@ export abstract class ListStyleModalDialog
     }
 
     private initTypeDropdown(): Dropdown<string> {
-        const typeDropdown: Dropdown<string> = new Dropdown<string>('type', <DropdownConfig<string>>{});
+        const typeDropdown: Dropdown<string> = new Dropdown<string>('type', {} as DropdownConfig<string>);
         typeDropdown.addClass('type-dropdown');
 
         this.createTypeValuesMap().forEach((value: string, key: string) => {
@@ -91,11 +91,11 @@ export abstract class ListStyleModalDialog
     }
 
     private getOriginalTypeFieldValue(): string {
-        return (<string>this.ckeOriginalDialog.getValueOf('info', 'type')) || 'notset';
+        return (this.ckeOriginalDialog.getValueOf('info', 'type') as string) || 'notset';
     }
 
     private getDropdownValue(): string {
-        const value: string = (<Dropdown<string>>this.typeField.getInput()).getValue();
+        const value: string = (this.typeField.getInput() as Dropdown<string>).getValue();
 
         return value === 'notset' ? '' : value;
     }

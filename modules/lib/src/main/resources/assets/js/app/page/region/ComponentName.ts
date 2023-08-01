@@ -59,7 +59,7 @@ export class ComponentName
             return false;
         }
 
-        let other = <ComponentName>o;
+        let other = o as ComponentName;
 
         if (!ObjectHelper.stringEquals(this.value, other.value)) {
             return false;

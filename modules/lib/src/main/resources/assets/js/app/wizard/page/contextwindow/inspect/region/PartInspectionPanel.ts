@@ -10,10 +10,10 @@ export class PartInspectionPanel
     extends DescriptorBasedComponentInspectionPanel<PartComponent> {
 
     constructor() {
-        super(<DescriptorBasedComponentInspectionPanelConfig>{
+        super({
             iconClass: ItemViewIconClassResolver.resolveByType(PartComponentType.get().getShortName(), 'icon-xlarge'),
             componentType: PartComponentType.get()
-        });
+        } as DescriptorBasedComponentInspectionPanelConfig);
     }
 
     protected getFormName(): string {

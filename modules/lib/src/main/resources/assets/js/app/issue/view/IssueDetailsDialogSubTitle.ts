@@ -18,7 +18,7 @@ export class IssueDetailsDialogSubTitle
 
     private issueStatusSelector: IssueStatusSelector;
 
-    private issueStatusChangedListeners: { (event: ValueChangedEvent): void }[] = [];
+    private issueStatusChangedListeners: ((event: ValueChangedEvent) => void)[] = [];
 
     constructor(issue: Issue) {
         super('issue-details-sub-title');

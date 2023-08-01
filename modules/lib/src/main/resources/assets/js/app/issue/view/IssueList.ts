@@ -50,9 +50,9 @@ export class IssueList
 
     private loadMask: LoadMask;
 
-    private issueSelectedListeners: { (issue: IssueWithAssignees): void }[] = [];
+    private issueSelectedListeners: ((issue: IssueWithAssignees) => void)[] = [];
 
-    private issuesLoadedListeners: { (): void }[] = [];
+    private issuesLoadedListeners: (() => void)[] = [];
 
     constructor() {
         super('issue-list');

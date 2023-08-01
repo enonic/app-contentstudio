@@ -27,7 +27,7 @@ export class TextInspectionPanel
         let textComponent: TextComponent = textComponentView.getComponent();
 
         if (textComponent) {
-            let viewer = <TextComponentViewer>textComponentView.getViewer();
+            let viewer = textComponentView.getViewer() as TextComponentViewer;
             this.namesAndIcon.setMainName(viewer.resolveDisplayName(textComponent, textComponentView));
             this.namesAndIcon.setSubName(viewer.resolveSubName(textComponent));
             this.namesAndIcon.setIconClass(viewer.resolveIconClass(textComponent));

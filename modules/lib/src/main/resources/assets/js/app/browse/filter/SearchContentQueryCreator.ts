@@ -330,7 +330,7 @@ export class SearchContentQueryCreator {
                 new RangeFilter(fieldName, ValueExpr.dateTime(selectedBucket.getFrom()).getValue(),
                     null);
 
-            booleanFilter.addShould(<Filter>rangeFilter);
+            booleanFilter.addShould(rangeFilter as Filter);
         });
 
         this.contentQuery.addQueryFilter(booleanFilter);

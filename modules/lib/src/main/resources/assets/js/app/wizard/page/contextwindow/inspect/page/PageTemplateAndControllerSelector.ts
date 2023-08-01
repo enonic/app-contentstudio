@@ -42,7 +42,7 @@ export class PageTemplateAndControllerSelector
         const optionViewer = new PageTemplateAndSelectorViewer();
         super(
             'pageTemplateAndController',
-            <DropdownConfig<PageTemplateOption>>{optionDisplayValueViewer: optionViewer, rowHeight: 50}
+            {optionDisplayValueViewer: optionViewer, rowHeight: 50} as DropdownConfig<PageTemplateOption>
         );
 
         this.optionViewer = optionViewer;
@@ -103,19 +103,19 @@ export class PageTemplateAndControllerSelector
             // Selection type changes:
             // controller -> template
             if (!previousIsTemplate && selectedIsTemplate) {
-                const selectionHandler = () => this.doSelectTemplate(<PageTemplateOption>selectedOption);
+                const selectionHandler = () => this.doSelectTemplate(selectedOption as PageTemplateOption);
                 this.openConfirmationDialog(i18n('dialog.template.change'), event, selectionHandler);
                 // template -> template
             } else if (previousIsTemplate && selectedIsTemplate) {
-                this.doSelectTemplate(<PageTemplateOption>selectedOption);
+                this.doSelectTemplate(selectedOption as PageTemplateOption);
                 // controller -> controller
             } else if (!previousIsTemplate && !selectedIsTemplate) {
-                const selectionHandler = () => this.doSelectController(<PageControllerOption>selectedOption);
+                const selectionHandler = () => this.doSelectController(selectedOption as PageControllerOption);
                 this.openConfirmationDialog(i18n('dialog.controller.change'), event, selectionHandler);
                 // template -> controller
             } else {
                 this.doResetTemplate();
-                this.doSelectController(<PageControllerOption>selectedOption);
+                this.doSelectController(selectedOption as PageControllerOption);
             }
         });
     }
@@ -292,14 +292,14 @@ export class PageTemplateAndControllerSelector
     private initPageModelListeners() {
         this.liveEditModel.getPageModel().onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === PageModel.PROPERTY_TEMPLATE && this !== event.getSource()) {
-                let pageTemplateKey = <PageTemplateKey>event.getNewValue();
+                let pageTemplateKey = event.getNewValue() as PageTemplateKey;
                 if (pageTemplateKey) {
                     this.selectOptionByValue(pageTemplateKey.toString());
                 } else if (this.autoOption) {
                     this.selectOption(this.autoOption, true);
                 }
             } else if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER && this !== event.getSource()) {
-                let descriptorKey = <DescriptorKey>event.getNewValue();
+                let descriptorKey = event.getNewValue() as DescriptorKey;
                 if (descriptorKey) {
                     this.selectOptionByValue(descriptorKey.toString());
                 }

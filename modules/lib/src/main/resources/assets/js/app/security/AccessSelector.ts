@@ -11,7 +11,7 @@ export class AccessSelector
     extends TabMenu {
 
     private value: Access;
-    private valueChangedListeners: { (event: AccessChangedEvent): void }[] = [];
+    private valueChangedListeners: ((event: AccessChangedEvent) => void)[] = [];
 
     constructor() {
         super('access-selector');
@@ -29,7 +29,7 @@ export class AccessSelector
 
     initEventHandlers() {
         this.onNavigationItemSelected((event: NavigatorEvent) => {
-            let item: TabMenuItem = <TabMenuItem> event.getItem();
+            let item: TabMenuItem = event.getItem() as TabMenuItem;
             this.setValue(ACCESS_OPTIONS[item.getIndex()]);
         });
 

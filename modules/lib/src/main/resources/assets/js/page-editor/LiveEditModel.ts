@@ -162,7 +162,7 @@ export class LiveEditModelInitializer {
                     });
             }
         }
-        return Q(<PageTemplate>null);
+        return Q(null as PageTemplate);
     }
 
     static initPageModel(liveEditModel: LiveEditModel, content: Content, defaultPageTemplate: PageTemplate,
@@ -191,7 +191,7 @@ export class LiveEditModelInitializer {
     }
 
     private static initPageTemplate(content: Content, pageMode: PageMode, pageModel: PageModel, promises: Q.Promise<ComponentDescriptor>[]): void {
-        let pageTemplate: PageTemplate = <PageTemplate>content;
+        let pageTemplate: PageTemplate = content as PageTemplate;
         if (pageMode === PageMode.FORCED_CONTROLLER) {
             this.initForcedControllerPageTemplate(pageTemplate, pageModel, promises);
         } else if (pageMode === PageMode.NO_CONTROLLER) {
@@ -216,7 +216,7 @@ export class LiveEditModelInitializer {
         } else if (pageMode === PageMode.NO_CONTROLLER) {
             this.initNoControllerPage(pageModel);
         } else {
-            throw new Error(i18n('live.view.page.error.contentmodenotsupported', PageMode[<number>pageMode]));
+            throw new Error(i18n('live.view.page.error.contentmodenotsupported', PageMode[pageMode as number]));
         }
     }
 

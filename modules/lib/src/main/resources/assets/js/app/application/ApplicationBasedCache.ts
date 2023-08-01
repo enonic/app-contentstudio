@@ -11,9 +11,7 @@ import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {Descriptor} from '../page/Descriptor';
 import {DescriptorKey} from '../page/DescriptorKey';
 
-export interface CacheableRequest {
-    new(keys: ApplicationKey[] | ApplicationKey): ResourceRequest<Descriptor[]>;
-}
+export type CacheableRequest = new(keys: ApplicationKey[] | ApplicationKey) => ResourceRequest<Descriptor[]>;
 
 export class ApplicationBasedCache<T extends Descriptor> {
 
@@ -113,7 +111,7 @@ export class SimpleApplicationCache<T extends Descriptor>
     extends Cache<T, DescriptorKey> {
 
     copy(object: T): T {
-        return <T>object.clone();
+        return object.clone() as T;
     }
 
     getKeyFromObject(object: T): DescriptorKey {

@@ -31,7 +31,7 @@ import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
 import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
-import {ActionsStateManager} from '@enonic/lib-admin-ui/ui/ActionsStateManager';
+import {ActionsStateManager, ActionsMap, ActionsState} from '@enonic/lib-admin-ui/ui/ActionsStateManager';
 import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
@@ -57,48 +57,6 @@ type ActionNames =
     'SHOW_FORM' |
     'SAVE_AND_CLOSE' |
     'UNDO_PENDING_DELETE';
-
-type ActionsMap = {
-    SAVE?: Action,
-    RESET?: Action,
-    LOCALIZE?: Action,
-    ARCHIVE?: Action,
-    DUPLICATE?: Action,
-    PREVIEW?: Action,
-    PUBLISH?: Action,
-    PUBLISH_TREE?: Action,
-    CREATE_ISSUE?: Action,
-    UNPUBLISH?: Action,
-    MARK_AS_READY?: Action,
-    REQUEST_PUBLISH?: Action,
-    OPEN_REQUEST?: Action,
-    CLOSE?: Action,
-    SHOW_LIVE_EDIT?: Action,
-    SHOW_FORM?: Action,
-    SAVE_AND_CLOSE?: Action,
-    UNDO_PENDING_DELETE?: Action,
-};
-
-type ActionsState = {
-    SAVE?: boolean,
-    RESET?: boolean,
-    LOCALIZE?: boolean
-    ARCHIVE?: boolean,
-    DUPLICATE?: boolean,
-    PREVIEW?: boolean,
-    PUBLISH?: boolean,
-    PUBLISH_TREE?: boolean,
-    CREATE_ISSUE?: boolean,
-    UNPUBLISH?: boolean,
-    MARK_AS_READY?: boolean,
-    REQUEST_PUBLISH?: boolean,
-    OPEN_REQUEST?: boolean,
-    CLOSE?: boolean,
-    SHOW_LIVE_EDIT?: boolean,
-    SHOW_FORM?: boolean,
-    SAVE_AND_CLOSE?: boolean,
-    UNDO_PENDING_DELETE?: boolean,
-};
 
 export class ContentWizardActions
     extends WizardActions<Content> {
@@ -129,9 +87,9 @@ export class ContentWizardActions
 
     private checkSaveActionStateHandler: () => void;
 
-    private beforeActionsStashedListeners: { (): void; }[] = [];
+    private beforeActionsStashedListeners: (() => void)[] = [];
 
-    private actionsUnstashedListeners: { (): void; }[] = [];
+    private actionsUnstashedListeners: (() => void)[] = [];
 
     constructor(wizardPanel: ContentWizardPanel) {
         super(
@@ -305,7 +263,7 @@ export class ContentWizardActions
         this.enableActions({SAVE: this.wizardPanel.hasUnsavedChanges(), ARCHIVE: true});
         this.actionsMap.RESET.setVisible(false);
         this.actionsMap.LOCALIZE.setVisible(false);
-        (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(true);
+        (this.actionsMap.PREVIEW as PreviewAction).setWritePermissions(true);
     }
 
     enableActionsForExisting(existing: Content): Q.Promise<void> {
@@ -359,7 +317,7 @@ export class ContentWizardActions
             const hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE, loginResult, existing.getPermissions());
             this.userCanPublish = PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, existing.getPermissions());
 
-            (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(this.userCanModify);
+            (this.actionsMap.PREVIEW as PreviewAction).setWritePermissions(this.userCanModify);
 
             if (!this.userCanModify) {
                 this.enableActions({SAVE: false, SAVE_AND_CLOSE: false, MARK_AS_READY: false, RESET: false, LOCALIZE: false});
@@ -532,7 +490,7 @@ export class ContentWizardActions
     }
 
     getSaveAction(): ContentSaveAction {
-        return <ContentSaveAction>this.actionsMap.SAVE;
+        return this.actionsMap.SAVE as ContentSaveAction;
     }
 
     getDuplicateAction(): Action {
@@ -544,7 +502,7 @@ export class ContentWizardActions
     }
 
     getPublishAction(): PublishAction {
-        return <PublishAction>this.actionsMap.PUBLISH;
+        return this.actionsMap.PUBLISH as PublishAction;
     }
 
     getPublishTreeAction(): Action {

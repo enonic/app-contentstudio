@@ -10,9 +10,9 @@ export class ContentWizardStep
     constructor(label: string, stepForm: WizardStepForm, iconCls?: string) {
 
         const isOptionalXdata = ObjectHelper.iFrameSafeInstanceOf(stepForm, XDataWizardStepForm) &&
-                                (<XDataWizardStepForm>stepForm).isOptional();
+                                (stepForm as XDataWizardStepForm).isOptional();
 
-        const tabBarItem = (<ContentTabBarItemBuilder>new ContentTabBarItemBuilder().setLabel(label))
+        const tabBarItem = (new ContentTabBarItemBuilder().setLabel(label) as ContentTabBarItemBuilder)
                             .setIconCls(iconCls)
             .setIsXData(isOptionalXdata)
                             .build();

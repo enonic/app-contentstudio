@@ -15,7 +15,7 @@ export class PageItemType
     }
 
     protected getItemTypeConfig(itemType: string): ItemTypeConfig {
-        return new ItemTypeConfig(<ItemTypeConfigJson>{
+        return new ItemTypeConfig({
             cssSelector: '[data-portal-component-type=page]',
             draggable: false,
             cursor: 'pointer',
@@ -26,7 +26,7 @@ export class PageItemType
                 fill: 'rgba(255, 255, 255, 0)' // not used
             },
             contextMenuConfig: ['reset']
-        });
+        } as ItemTypeConfigJson);
     }
 }
 

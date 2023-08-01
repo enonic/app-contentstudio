@@ -23,13 +23,13 @@ export interface ContextWindowConfig {
     insertablesPanel: InsertablesPanel;
 }
 
-export type InspectParameters = {
+export interface InspectParameters {
     panel: BaseInspectionPanel;
     showWidget: boolean;
     showPanel: boolean;
     keepPanelSelection?: boolean;
     silent?: boolean;
-};
+}
 
 const DefaultInspectParameters = {
     keepPanelSelection: false,
@@ -37,7 +37,7 @@ const DefaultInspectParameters = {
 };
 
 export const getInspectParameters = function (params: InspectParameters): InspectParameters {
-    return <InspectParameters>Object.assign({}, DefaultInspectParameters, params);
+    return Object.assign({}, DefaultInspectParameters, params) as InspectParameters;
 };
 
 export class ContextWindow
@@ -130,7 +130,7 @@ export class ContextWindow
     private getShownPanelName(): string {
         const shownPanel = this.inspectionsPanel ? this.inspectionsPanel.getPanelShown() : null;
         return ObjectHelper.iFrameSafeInstanceOf(shownPanel, NamedPanel) ?
-               (<NamedPanel>shownPanel).getName() :
+               (shownPanel as NamedPanel).getName() :
                i18n('live.view.inspect');
     }
 }

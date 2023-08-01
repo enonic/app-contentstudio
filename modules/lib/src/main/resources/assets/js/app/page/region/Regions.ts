@@ -19,7 +19,7 @@ export class Regions
 
     private regionByName: Map<string, Region> = new Map<string, Region>();
 
-    private changedListeners: { (event: RegionsChangedEvent): void }[] = [];
+    private changedListeners: ((event: RegionsChangedEvent) => void)[] = [];
 
     private componentPropertyChangedListeners: ComponentPropertyChangedEventHandler[] = [];
 
@@ -121,7 +121,7 @@ export class Regions
             return false;
         }
 
-        let other = <Regions>o;
+        let other = o as Regions;
 
         let thisRegions = this.getRegions()?.filter((region: Region) => !region.isEmpty());
         let otherRegions = other.getRegions()?.filter((region: Region) => !region.isEmpty());

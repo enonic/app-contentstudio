@@ -34,10 +34,10 @@ export class EditProjectAccessDialog
     private subTitle: H6El;
 
     constructor() {
-        super(<ModalDialogWithConfirmationConfig>{
+        super({
             confirmation: {},
             class: 'edit-project-access-dialog'
-        });
+        } as ModalDialogWithConfirmationConfig);
     }
 
     doRender(): Q.Promise<boolean> {

@@ -8,7 +8,7 @@ import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSiz
 export class NewContentDialogList
     extends ListBox<NewContentDialogListItem> {
 
-    private selectedListeners: {(event: NewContentDialogItemSelectedEvent):void}[] = [];
+    private selectedListeners: ((event: NewContentDialogItemSelectedEvent) =>void)[] = [];
 
     constructor(className: string = 'content-types-list') {
         super(className);

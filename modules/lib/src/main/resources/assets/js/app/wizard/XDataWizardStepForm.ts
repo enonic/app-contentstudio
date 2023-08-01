@@ -17,7 +17,7 @@ export class XDataWizardStepForm
 
     private stashedData: PropertyTree;
 
-    private enableChangedListeners: { (value: boolean): void }[] = [];
+    private enableChangedListeners: ((value: boolean) => void)[] = [];
 
     constructor(xData: XData) {
         super();
@@ -184,7 +184,7 @@ export class XDataWizardStepForm
 
     private isSaved(): boolean {
         const persistedXData: ExtraData =
-            (<ContentFormContext>this.formContext).getPersistedContent().getExtraDataByName(this.getXDataName());
+            (this.formContext as ContentFormContext).getPersistedContent().getExtraDataByName(this.getXDataName());
 
         return persistedXData?.getData()?.getRoot()?.getPropertyArrays().length > 0;
     }

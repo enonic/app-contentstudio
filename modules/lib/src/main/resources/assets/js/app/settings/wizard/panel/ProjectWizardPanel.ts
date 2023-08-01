@@ -81,7 +81,7 @@ export class ProjectWizardPanel
     }
 
     getWizardActions(): ProjectWizardActions {
-        return <ProjectWizardActions>this.wizardActions;
+        return this.wizardActions as ProjectWizardActions;
     }
 
     isEditAllowed(loginResult: LoginResult): boolean {
@@ -259,7 +259,7 @@ export class ProjectWizardPanel
 
     protected handleDataChanged() {
         this.updateToolbarActions();
-        (<ProjectDataItemFormIcon>this.formIcon).updateLanguage(this.readAccessWizardStepForm.getLanguage());
+        (this.formIcon as ProjectDataItemFormIcon).updateLanguage(this.readAccessWizardStepForm.getLanguage());
     }
 
     private getNewProjectInstance(projectPrototype: Project, language: string): Project {

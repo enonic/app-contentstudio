@@ -57,7 +57,7 @@ export class SettingsType {
             return false;
         }
 
-        const other: SettingsType = <SettingsType>o;
+        const other: SettingsType = o as SettingsType;
 
         return ObjectHelper.objectEquals(this.name, other.name)
                && ObjectHelper.objectEquals(this.displayName, other.displayName)

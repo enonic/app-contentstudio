@@ -45,10 +45,10 @@ export class SortContentDialog
     private subHeader: H6El;
 
     constructor() {
-        super(<ModalDialogConfig>{
+        super({
             title: i18n('dialog.sort'),
             class: 'sort-content-dialog'
-        });
+        } as ModalDialogConfig);
     }
 
     protected initElements() {

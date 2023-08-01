@@ -29,7 +29,7 @@ export class IssueDetailsDialogHeader
     implements ModalDialogHeader {
 
     private readonly input: IssueDetailsInPlaceTextInput;
-    private titleChangedListeners: { (newTitle: string, oldTitle: string): void }[] = [];
+    private titleChangedListeners: ((newTitle: string, oldTitle: string) => void)[] = [];
 
     constructor(title: string) {
         super('modal-dialog-header');

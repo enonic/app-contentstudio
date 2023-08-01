@@ -25,7 +25,7 @@ export class PageTemplateKey
             return false;
         }
 
-        let other = <PageTemplateKey>o;
+        let other = o as PageTemplateKey;
         return super.equals(other);
     }
 }

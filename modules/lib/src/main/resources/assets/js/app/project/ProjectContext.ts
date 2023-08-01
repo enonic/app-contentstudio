@@ -9,9 +9,9 @@ export class ProjectContext {
 
     private state: State = State.NOT_INITIALIZED;
 
-    private projectChangedEventListeners: { (project: Project): void }[] = [];
+    private projectChangedEventListeners: ((project: Project) => void)[] = [];
 
-    private noProjectsAvailableListeners: { (): void }[] = [];
+    private noProjectsAvailableListeners: (() => void)[] = [];
 
     private constructor() {
     //

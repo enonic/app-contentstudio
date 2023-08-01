@@ -16,7 +16,7 @@ export class AnchorModalDialog
 
     constructor(config: eventInfo) {
 
-        super(<HtmlAreaModalDialogConfig>{
+        super({
             editor: config.editor,
             dialog: config.data,
             title: i18n('dialog.anchor.title'),
@@ -24,7 +24,7 @@ export class AnchorModalDialog
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
             }
-        });
+        } as HtmlAreaModalDialogConfig);
     }
 
     protected initElements() {
@@ -75,10 +75,10 @@ export class AnchorModalDialog
     }
 
     protected setDialogInputValues() {
-        this.nameField.getInput().getEl().setValue(<string>this.ckeOriginalDialog.getValueOf('info', 'txtName'));
+        this.nameField.getInput().getEl().setValue(this.ckeOriginalDialog.getValueOf('info', 'txtName') as string);
     }
 
     isDirty(): boolean {
-        return (<TextInput>this.nameField.getInput()).isDirty();
+        return (this.nameField.getInput() as TextInput).isDirty();
     }
 }

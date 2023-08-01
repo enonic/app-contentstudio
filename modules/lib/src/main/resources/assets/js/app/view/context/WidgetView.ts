@@ -41,7 +41,7 @@ export class WidgetView
 
     private content: ContentSummaryAndCompareStatus;
 
-    private activationListeners: { (): void }[] = [];
+    private activationListeners: (() => void)[] = [];
 
     public static debug: boolean = false;
 

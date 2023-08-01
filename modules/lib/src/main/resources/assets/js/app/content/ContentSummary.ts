@@ -322,7 +322,7 @@ export class ContentSummary {
             return false;
         }
 
-        let other = <ContentSummary>o;
+        let other = o as ContentSummary;
 
         if (!ObjectHelper.stringEquals(this.id, other.getId())) {
             return false;

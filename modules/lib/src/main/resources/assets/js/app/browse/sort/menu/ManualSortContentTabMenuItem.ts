@@ -26,7 +26,7 @@ export class ManualSortContentTabMenuItemBuilder
     extends SortContentTabMenuItemBuilder {
 
     setLabel(label: string): ManualSortContentTabMenuItemBuilder {
-        return <ManualSortContentTabMenuItemBuilder>super.setLabel(label);
+        return super.setLabel(label) as ManualSortContentTabMenuItemBuilder;
     }
 
     build(): ManualSortContentTabMenuItem {

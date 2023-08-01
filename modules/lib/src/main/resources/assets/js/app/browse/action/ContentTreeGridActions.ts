@@ -49,9 +49,9 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
     private actionsMap: Map<ActionName, ContentTreeGridAction> = new Map<ActionName, ContentTreeGridAction>();
 
-    private beforeActionsStashedListeners: { (): void; }[] = [];
+    private beforeActionsStashedListeners: (() => void)[] = [];
 
-    private actionsUnStashedListeners: { (): void; }[] = [];
+    private actionsUnStashedListeners: (() => void)[] = [];
 
     private state: State = State.ENABLED;
 
@@ -255,12 +255,12 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
         this.getAction(ActionName.PUBLISH).setVisible(
             state.hasAllPendingDelete() || this.getAction(ActionName.PUBLISH).isEnabled());
-        (<EditContentAction>this.getAction(ActionName.EDIT)).updateLabel(state);
+        (this.getAction(ActionName.EDIT) as EditContentAction).updateLabel(state);
     }
 
     private toggleVisibilityNoItemsSelected() {
         this.getAction(ActionName.UNPUBLISH).setVisible(false);
-        (<EditContentAction>this.getAction(ActionName.EDIT)).resetLabel();
+        (this.getAction(ActionName.EDIT) as EditContentAction).resetLabel();
         this.showDefaultActions();
     }
 
@@ -272,7 +272,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         this.getAction(ActionName.CREATE_ISSUE).setEnabled(true);
 
         this.getAction(ActionName.UNPUBLISH).setVisible(false);
-        (<EditContentAction>this.getAction(ActionName.EDIT)).resetLabel();
+        (this.getAction(ActionName.EDIT) as EditContentAction).resetLabel();
         this.showDefaultActions();
     }
 

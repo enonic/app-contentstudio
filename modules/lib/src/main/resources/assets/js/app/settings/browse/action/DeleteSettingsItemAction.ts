@@ -46,9 +46,9 @@ export class DeleteSettingsItemAction
     private deleteSelectedItems() {
         const selectedItems: SettingsViewItem[] = this.grid.getSelectedDataList();
 
-        const projectItems: ProjectViewItem[] = <ProjectViewItem[]>selectedItems.filter((item: SettingsViewItem) => {
+        const projectItems: ProjectViewItem[] = selectedItems.filter((item: SettingsViewItem) => {
             return ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem);
-        });
+        }) as ProjectViewItem[];
 
         this.deleteSelectedProjectItems(projectItems);
     }

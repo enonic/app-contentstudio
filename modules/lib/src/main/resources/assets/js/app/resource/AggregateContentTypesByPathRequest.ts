@@ -47,7 +47,7 @@ export class AggregateContentTypesByPathRequest
     private doParseResponse(result: ContentQueryResult<ContentSummary, ContentSummaryJson>): AggregateContentTypesResult {
         const aggregations: AggregateContentTypesResult = new AggregateContentTypesResult();
 
-        (<BucketAggregation>result.getAggregations()[0]).getBuckets().forEach(bucket => {
+        (result.getAggregations()[0] as BucketAggregation).getBuckets().forEach(bucket => {
             aggregations.addAggregation(new ContentTypeAggregation(new ContentTypeName(bucket.getKey()), bucket.getDocCount()));
         });
 

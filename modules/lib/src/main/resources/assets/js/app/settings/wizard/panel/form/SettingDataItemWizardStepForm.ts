@@ -20,7 +20,7 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
 
     private formItems:  FormItem[];
 
-    private dataChangedListeners: { (): void }[] = [];
+    private dataChangedListeners: (() => void)[] = [];
 
     constructor() {
         super();

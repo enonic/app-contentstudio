@@ -39,7 +39,7 @@ export class ResultMetadata
             return false;
         }
 
-        let other = <ResultMetadata>o;
+        let other = o as ResultMetadata;
 
         if (this.hits !== other.hits ||
             this.totalHits !== other.totalHits) {

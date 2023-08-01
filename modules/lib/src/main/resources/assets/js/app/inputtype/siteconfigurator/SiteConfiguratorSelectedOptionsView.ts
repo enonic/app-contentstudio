@@ -14,7 +14,7 @@ export class SiteConfiguratorSelectedOptionsView
 
     private readonly siteConfigProvider: ApplicationConfigProvider;
 
-    private siteConfigFormDisplayedListeners: { (applicationKey: ApplicationKey, formView: FormView): void }[] = [];
+    private siteConfigFormDisplayedListeners: ((applicationKey: ApplicationKey, formView: FormView) => void)[] = [];
 
     private readonly formContext: ContentFormContext;
 
@@ -77,11 +77,11 @@ export class SiteConfiguratorSelectedOptionsView
         super.removeOption(optionToRemove, silent);
     }
 
-    onSiteConfigFormDisplayed(listener: { (applicationKey: ApplicationKey, formView: FormView): void; }) {
+    onSiteConfigFormDisplayed(listener: (applicationKey: ApplicationKey, formView: FormView) => void) {
         this.siteConfigFormDisplayedListeners.push(listener);
     }
 
-    unSiteConfigFormDisplayed(listener: { (applicationKey: ApplicationKey, formView: FormView): void; }) {
+    unSiteConfigFormDisplayed(listener: (applicationKey: ApplicationKey, formView: FormView) => void) {
         this.siteConfigFormDisplayedListeners =
             this.siteConfigFormDisplayedListeners.filter((curr) => (curr !== listener));
     }

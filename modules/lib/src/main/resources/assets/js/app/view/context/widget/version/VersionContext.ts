@@ -4,7 +4,7 @@ export class VersionContext {
 
     private versions: Map<string, string>;
 
-    private activeVersionChangedEventListeners: { (contentId: string, version: string): void }[] = [];
+    private activeVersionChangedEventListeners: ((contentId: string, version: string) => void)[] = [];
 
     private constructor() {
         this.versions = new Map();
@@ -48,13 +48,13 @@ export class VersionContext {
 
     static unActiveVersionChanged(handler: (contentId: string, version: string) => void) {
         VersionContext.get().activeVersionChangedEventListeners =
-            VersionContext.get().activeVersionChangedEventListeners.filter((curr: { (contentId: string, version: string): void }) => {
+            VersionContext.get().activeVersionChangedEventListeners.filter((curr: (contentId: string, version: string) => void) => {
                 return handler !== curr;
             });
     }
 
     private notifyActiveVersionChanged(contentId: string, version: string) {
-        this.activeVersionChangedEventListeners.forEach((handler: { (contentId: string, version: string): void }) => {
+        this.activeVersionChangedEventListeners.forEach((handler: (contentId: string, version: string) => void) => {
             handler(contentId, version);
         });
     }

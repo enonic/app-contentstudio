@@ -452,11 +452,11 @@ export class ContentTreeGrid
     private doFindChildNodeByPath(node: TreeNode<ContentSummaryAndCompareStatus>,
                                   childNodePath: ContentPath): TreeNode<ContentSummaryAndCompareStatus> {
         const children: TreeNode<ContentSummaryAndCompareStatus>[] = node.getChildren();
-        for (let i = 0; i < children.length; i++) {
-            const childPath: ContentPath = children[i].getData().getPath();
+        for (const child of children) {
+            const childPath: ContentPath = child.getData().getPath();
 
             if (childPath && childPath.equals(childNodePath)) {
-                return children[i];
+                return child;
             }
         }
 

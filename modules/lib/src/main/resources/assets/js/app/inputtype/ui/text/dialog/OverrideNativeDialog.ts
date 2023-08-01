@@ -36,8 +36,8 @@ export abstract class OverrideNativeDialog
 
     private hideOriginalCKEDialog() {
         this.ckeOriginalDialog.getElement().$.style.display = 'none';
-        (<HTMLElement>this.ckeOriginalDialog.getElement().$.ownerDocument.getElementsByClassName(
-            'cke_dialog_background_cover')[0]).style.left = '-10000px';
+        (this.ckeOriginalDialog.getElement().$.ownerDocument.getElementsByClassName(
+            'cke_dialog_background_cover')[0] as HTMLElement).style.left = '-10000px';
     }
 
     protected abstract setDialogInputValues();

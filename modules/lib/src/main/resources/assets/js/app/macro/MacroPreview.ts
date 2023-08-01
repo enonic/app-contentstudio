@@ -39,7 +39,7 @@ export class MacroPreview
             return false;
         }
 
-        let other = <MacroPreview>o;
+        let other = o as MacroPreview;
 
         if (this.html !== other.html) {
             return false;

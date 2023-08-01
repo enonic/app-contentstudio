@@ -111,7 +111,7 @@ export class EditPropertiesDialog
             this.appendChildToContentPanel(form);
         });
 
-        (<EditDetailsDialogHeader>this.header).setPath(this.content.getPath().toString());
+        (this.header as EditDetailsDialogHeader).setPath(this.content.getPath().toString());
     }
 
     private handleChange(): void {

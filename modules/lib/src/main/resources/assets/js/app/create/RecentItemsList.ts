@@ -9,7 +9,7 @@ export class RecentItemsList extends NewContentDialogList {
     }
 
     createItems(items: NewContentDialogListItem[]): number {
-        let itemsByName: {[name: string]: NewContentDialogListItem} = {};
+        let itemsByName: Record<string, NewContentDialogListItem> = {};
         items.forEach((item: NewContentDialogListItem) => {
             itemsByName[item.getName()] = item;
         });

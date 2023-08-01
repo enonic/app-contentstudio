@@ -15,7 +15,7 @@ export class AttachmentName
             return false;
         }
 
-        let other = <AttachmentName>o;
+        let other = o as AttachmentName;
 
         if (!ObjectHelper.stringEquals(this.fileName, other.fileName)) {
             return false;

@@ -39,7 +39,7 @@ export class ContentAppContainer
     protected initListeners() {
         super.initListeners();
 
-        this.initSearchPanelListener(<ContentAppPanel>this.appPanel);
+        this.initSearchPanelListener(this.appPanel as ContentAppPanel);
 
         ProjectContext.get().onNoProjectsAvailable(() => {
            this.handleNoProjectsAvailable();

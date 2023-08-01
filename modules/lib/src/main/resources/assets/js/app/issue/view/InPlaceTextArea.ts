@@ -81,7 +81,7 @@ export class InPlaceTextArea
         const body = Body.get();
         if (!this.outsideClickListener) {
             this.outsideClickListener = (event: MouseEvent) => {
-                if (this.isEditMode() && !this.getEl().contains(<HTMLElement>event.target)) {
+                if (this.isEditMode() && !this.getEl().contains(event.target as HTMLElement)) {
                     this.setEditMode(false, true);
                 }
             };

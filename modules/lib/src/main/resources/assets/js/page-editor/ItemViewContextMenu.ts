@@ -28,7 +28,7 @@ export class ItemViewContextMenu
 
     private orientation: ItemViewContextMenuOrientation = ItemViewContextMenuOrientation.DOWN;
 
-    private orientationListeners: { (orientation: ItemViewContextMenuOrientation): void }[] = [];
+    private orientationListeners: ((orientation: ItemViewContextMenuOrientation) => void)[] = [];
 
     private outsideClickListener: (event: MouseEvent) => void;
 
@@ -128,7 +128,7 @@ export class ItemViewContextMenu
         });
 
         this.outsideClickListener = (event: MouseEvent) => {
-            if (!this.getEl().contains(<HTMLElement>event.target)) {
+            if (!this.getEl().contains(event.target as HTMLElement)) {
                 // click outside menu
                 this.hide();
             }

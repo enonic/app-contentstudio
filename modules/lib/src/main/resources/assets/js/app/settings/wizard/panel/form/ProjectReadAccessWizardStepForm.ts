@@ -62,7 +62,7 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private getLocales(): Q.Promise<Locale[]> {
-        const localeLoader: LocaleLoader = <LocaleLoader>this.localeFormItem.getLocaleCombobox().getLoader();
+        const localeLoader: LocaleLoader = this.localeFormItem.getLocaleCombobox().getLoader() as LocaleLoader;
 
         if (localeLoader.isLoaded()) {
             return Q(this.localeFormItem.getLocaleCombobox().getDisplayValues());

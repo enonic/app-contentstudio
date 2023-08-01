@@ -16,25 +16,25 @@ export class ContentServerEventsTranslator
         const eventType: string = eventJson.type;
 
         if (eventType.indexOf('node.') === 0) {
-            if (ArchiveServerEvent.is(<NodeEventJson>eventJson)) {
-                return ArchiveServerEvent.fromJson(<NodeEventJson>eventJson);
+            if (ArchiveServerEvent.is(eventJson as NodeEventJson)) {
+                return ArchiveServerEvent.fromJson(eventJson as NodeEventJson);
             }
 
-            if (ContentServerEvent.is(<NodeEventJson>eventJson)) {
-                return ContentServerEvent.fromJson(<NodeEventJson>eventJson);
+            if (ContentServerEvent.is(eventJson as NodeEventJson)) {
+                return ContentServerEvent.fromJson(eventJson as NodeEventJson);
             }
 
-            if (IssueServerEvent.is(<NodeEventJson>eventJson)) {
-                return IssueServerEvent.fromJson(<NodeEventJson>eventJson);
+            if (IssueServerEvent.is(eventJson as NodeEventJson)) {
+                return IssueServerEvent.fromJson(eventJson as NodeEventJson);
             }
 
-            if (PrincipalServerEvent.is(<NodeEventJson>eventJson)) {
-                return PrincipalServerEvent.fromJson(<NodeEventJson>eventJson);
+            if (PrincipalServerEvent.is(eventJson as NodeEventJson)) {
+                return PrincipalServerEvent.fromJson(eventJson as NodeEventJson);
             }
         }
 
         if (eventType === CollaborationServerEvent.EVENT_NAME) {
-            return CollaborationServerEvent.fromJson(<CollaborationEventJson>eventJson);
+            return CollaborationServerEvent.fromJson(eventJson as CollaborationEventJson);
         }
 
         return super.translateServerEvent(eventJson);

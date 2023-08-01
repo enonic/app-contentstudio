@@ -77,7 +77,7 @@ export class ImageModalDialog
     static readonly defaultStyles: string[] = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS];
 
     constructor(config: eventInfo, content: ContentSummary, project?: Project) {
-        super(<ImageModalDialogConfig>{
+        super({
             editor: config.editor,
             dialog: config.data,
             content: content,
@@ -89,7 +89,7 @@ export class ImageModalDialog
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
             }
-        });
+        } as ImageModalDialogConfig);
 
         if (this.content) {
             StylesRequest.fetchStyles(content.getId());
@@ -168,8 +168,8 @@ export class ImageModalDialog
         const caption: string = !!this.ckeOriginalDialog.getSelectedElement()
                                 ? this.ckeOriginalDialog.getSelectedElement().getText()
                                 : '';
-        (<InputEl>this.imageCaptionField.getInput()).setValue(caption);
-        (<InputEl>this.imageAltTextField.getInput()).setValue(this.getOriginalAltTextElem().getValue());
+        (this.imageCaptionField.getInput() as InputEl).setValue(caption);
+        (this.imageAltTextField.getInput() as InputEl).setValue(this.getOriginalAltTextElem().getValue());
     }
 
     private presetImage(presetStyles: string) {
@@ -287,7 +287,7 @@ export class ImageModalDialog
         imageSelectorContainer.appendChild(this.imageUploaderEl);
         this.initDragAndDropUploaderEvents();
 
-        this.imagePreviewContainer.appendChild(<Element>this.imageLoadMask);
+        this.imagePreviewContainer.appendChild(this.imageLoadMask as Element);
 
         this.imagePreviewContainer.insertAfterEl(imageSelectorContainer);
     }
@@ -503,7 +503,7 @@ export class ImageModalDialog
         let dragOverEl;
         this.onDragEnter((event: DragEvent) => {
             if (this.imageUploaderEl.isEnabled()) {
-                const target = <HTMLElement> event.target;
+                const target = event.target as HTMLElement;
 
                 if (!!dragOverEl || dragOverEl === this.getHTMLElement()) {
                     this.dropzoneContainer.show();
@@ -537,7 +537,7 @@ export class ImageModalDialog
 
     private updateEditorElements() {
         const imageEl: CKEDITOR.dom.element = this.ckeOriginalDialog['widget'].parts.image;
-        const figureEl: CKEDITOR.dom.element = <CKEDITOR.dom.element>imageEl.getAscendant('figure');
+        const figureEl: CKEDITOR.dom.element = imageEl.getAscendant('figure') as CKEDITOR.dom.element;
         const figureCaptionEl: CKEDITOR.dom.element = figureEl.findOne('figcaption');
 
         figureEl.setAttribute('class', `${this.figure.getClass()}`);
@@ -568,19 +568,19 @@ export class ImageModalDialog
     }
 
     private setCaptionFieldValue(value: string) {
-        (<InputEl>this.imageCaptionField.getInput()).setValue(value);
+        (this.imageCaptionField.getInput() as InputEl).setValue(value);
     }
 
     private getCaptionFieldValue() {
-        return (<InputEl>this.imageCaptionField.getInput()).getValue().trim();
+        return (this.imageCaptionField.getInput() as InputEl).getValue().trim();
     }
 
     private getAltTextFieldValue() {
-        return (<InputEl>this.imageAltTextField.getInput()).getValue().trim();
+        return (this.imageAltTextField.getInput() as InputEl).getValue().trim();
     }
 
     private setAltTextFieldValue(value: string) {
-        (<InputEl>this.imageAltTextField.getInput()).setValue(value);
+        (this.imageAltTextField.getInput() as InputEl).setValue(value);
     }
 
     private getOriginalUrlElem(): CKEDITOR.ui.dialog.uiElement {
@@ -592,7 +592,7 @@ export class ImageModalDialog
     }
 
     private getOriginalHasCaptionElem(): CKEDITOR.ui.dialog.checkbox {
-        return <CKEDITOR.ui.dialog.checkbox>this.getElemFromOriginalDialog('info', 'hasCaption');
+        return this.getElemFromOriginalDialog('info', 'hasCaption') as CKEDITOR.ui.dialog.checkbox;
     }
 
     private getOriginalAlignmentElem(): CKEDITOR.ui.dialog.uiElement {
@@ -635,7 +635,7 @@ export class ImageDialogToolbar
 
     private previewEl: FigureEl;
 
-    private alignmentButtons: { [key: string]: ActionButton; } = {};
+    private alignmentButtons: Record<string, ActionButton> = {};
 
     private customWidthCheckbox: Checkbox;
 
@@ -647,8 +647,8 @@ export class ImageDialogToolbar
 
     private widthBoard: SpanEl;
 
-    private stylesChangeListeners: { (styles: string): void }[] = [];
-    private previewSizeChangeListeners: { (): void }[] = [];
+    private stylesChangeListeners: ((styles: string) => void)[] = [];
+    private previewSizeChangeListeners: (() => void)[] = [];
 
     constructor(previewEl: FigureEl, contentId: string) {
         super('image-toolbar');

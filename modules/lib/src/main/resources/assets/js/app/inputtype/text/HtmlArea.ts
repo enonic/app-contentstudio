@@ -43,9 +43,9 @@ export class HtmlArea
     private content: ContentSummary;
     private applicationKeys: ApplicationKey[];
 
-    private focusListeners: { (event: FocusEvent): void }[] = [];
+    private focusListeners: ((event: FocusEvent) => void)[] = [];
 
-    private blurListeners: { (event: FocusEvent): void }[] = [];
+    private blurListeners: ((event: FocusEvent) => void)[] = [];
 
     private authRequest: Q.Promise<void>;
     private editableSourceCode: boolean;
@@ -159,7 +159,7 @@ export class HtmlArea
             editor.property = property;
         }
 
-        this.setEditorContent(<TextArea>occurrence, property);
+        this.setEditorContent(occurrence as TextArea, property);
     }
 
     resetInputOccurrenceElement(occurrence: Element) {
@@ -167,7 +167,7 @@ export class HtmlArea
 
         occurrence.getChildren().forEach((child) => {
             if (ObjectHelper.iFrameSafeInstanceOf(child, TextArea)) {
-                (<TextArea>child).resetBaseValues();
+                (child as TextArea).resetBaseValues();
             }
         });
     }
@@ -246,7 +246,7 @@ export class HtmlArea
                 // the one that event is triggered from
                 const htmlAreaIframe = $(textAreaWrapper.getHTMLElement()).find('iframe').get(0);
                 // check if focused element is html area that triggered event
-                const activeElement = this.isNotActiveElement(htmlAreaIframe) ? htmlAreaIframe : <HTMLElement>document.activeElement;
+                const activeElement = this.isNotActiveElement(htmlAreaIframe) ? htmlAreaIframe : document.activeElement as HTMLElement;
                 const focusedEl = Element.fromHtmlElement(activeElement);
                 const isShift = e.shiftKey;
                 let nextFocusable;
@@ -283,7 +283,7 @@ export class HtmlArea
         };
 
         const editorReadyHandler = () => {
-            this.setEditorContent(<TextArea>textAreaWrapper.getFirstChild(), property);
+            this.setEditorContent(textAreaWrapper.getFirstChild() as TextArea, property);
             const editor: HtmlAreaOccurrenceInfo = this.editors.find((editor: HtmlAreaOccurrenceInfo) => editor.id === id);
 
             if (editor && !this.enabled) {
@@ -484,7 +484,7 @@ export class HtmlArea
 
     private handleEditorValueChanged(id: string, occurrence: Element) {
         const value: string = HtmlEditor.getData(id);
-        const textArea: TextArea = <TextArea>occurrence.getFirstChild();
+        const textArea: TextArea = occurrence.getFirstChild() as TextArea;
 
         if (value !== textArea.getValue()) {
             textArea.setValue(value, false, true);

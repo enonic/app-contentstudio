@@ -10,7 +10,7 @@ export class PageComponentsWizardStep
     constructor(label: string, stepForm: WizardStepForm, iconCls?: string) {
 
 
-        const tabBarItem = (<ContentTabBarItemBuilder>new ContentTabBarItemBuilder().setLabel(label))
+        const tabBarItem = (new ContentTabBarItemBuilder().setLabel(label) as ContentTabBarItemBuilder)
             .setIconCls(iconCls)
             .build();
 

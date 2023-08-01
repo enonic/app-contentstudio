@@ -35,7 +35,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     private treeFilterValue: string;
 
-    private loadModeChangedListeners: { (isTreeMode: boolean): void }[] = [];
+    private loadModeChangedListeners: ((isTreeMode: boolean) => void)[] = [];
 
     private readonly smartTreeMode: boolean;
 
@@ -90,7 +90,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     protected sendPreLoadRequest(ids: string): Q.Promise<DATA[]> {
         const contentIds = ids.split(';').map((id) => new ContentId(id));
         return new GetContentSummaryByIds(contentIds).setRequestProject(this.project).sendAndParse().then(((contents: ContentSummary[]) => {
-            return <DATA[]>contents.map(content => new ContentTreeSelectorItem(content));
+            return contents.map(content => new ContentTreeSelectorItem(content)) as DATA[];
         }));
     }
 
@@ -113,7 +113,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
                 this.notifyLoadModeChanged(false);
             }
 
-            return this.loadStatuses(<DATA[]>result).then(resultWithStatuses => {
+            return this.loadStatuses(result as DATA[]).then(resultWithStatuses => {
                 this.notifyLoadedData(resultWithStatuses, postLoad);
                 return resultWithStatuses;
             });
@@ -149,7 +149,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         this.treeRequest.setChildOrder(parentNode.getDataId() ? parentNode.getData().getDisplayValue().getContent().getChildOrder() : null);
 
         if (this.smartTreeMode) {
-            (<ContentTreeSelectorQueryRequest<DATA>>this.treeRequest).setParentPath(
+            (this.treeRequest as ContentTreeSelectorQueryRequest<DATA>).setParentPath(
                 parentNode.getDataId() ? parentNode.getData().getDisplayValue().getContent().getPath() : null);
         } else {
             this.treeRequest.setContent(parentNode.getDataId() ? parentNode.getData().getDisplayValue().getContent() : null);

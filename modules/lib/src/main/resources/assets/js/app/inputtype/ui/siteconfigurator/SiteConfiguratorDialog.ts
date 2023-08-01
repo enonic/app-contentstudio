@@ -38,7 +38,7 @@ export class SiteConfiguratorDialog
             return;
         }
 
-        const ckeInstances: { [id: string]: CKEDITOR.editor } = CKEDITOR.instances;
+        const ckeInstances: Record<string, CKEDITOR.editor> = CKEDITOR.instances;
         const dialogElement: HTMLElement = this.getHTMLElement();
 
         for (let i in ckeInstances) {

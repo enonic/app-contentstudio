@@ -53,7 +53,7 @@ export class ModalDialogFormItemBuilder {
     }
 
     setInputEl(inputEl: UIElement): ModalDialogFormItemBuilder {
-        this.inputEl = <FormItemEl>inputEl;
+        this.inputEl = inputEl as FormItemEl;
         return this;
     }
 }
@@ -67,7 +67,7 @@ export interface HtmlAreaModalDialogConfig
 
 export abstract class ModalDialog
     extends OriginalModalDialog {
-    private fields: { [id: string]: FormItemEl };
+    private fields: Record<string, FormItemEl>;
     private validated: boolean = false;
     private editor: CKEDITOR.editor;
     private mainForm: Form;
@@ -213,7 +213,7 @@ export abstract class ModalDialog
         }
 
         if (value) {
-            (<InputEl>formItemEl).setValue(value);
+            (formItemEl as InputEl).setValue(value);
         }
 
         this.fields[id] = formItemEl;
@@ -228,12 +228,12 @@ export abstract class ModalDialog
 
         if (validator) {
             if (ObjectHelper.iFrameSafeInstanceOf(formItemEl, TextInput)) {
-                (<TextInput>formItemEl).onValueChanged(this.onValidatedFieldValueChanged.bind(this, formItem));
+                (formItemEl as TextInput).onValueChanged(this.onValidatedFieldValueChanged.bind(this, formItem));
             }
             if (ObjectHelper.iFrameSafeInstanceOf(formItemEl, RichComboBox)) {
-                (<RichComboBox<unknown>>formItemEl).onOptionSelected(this.onValidatedFieldValueChanged.bind(this,
+                (formItemEl as RichComboBox<unknown>).onOptionSelected(this.onValidatedFieldValueChanged.bind(this,
                     formItem));
-                (<RichComboBox<unknown>>formItemEl).onOptionDeselected(this.onValidatedFieldValueChanged.bind(this,
+                (formItemEl as RichComboBox<unknown>).onOptionDeselected(this.onValidatedFieldValueChanged.bind(this,
                     formItem));
             }
         }
@@ -266,7 +266,7 @@ export abstract class ModalDialog
     private listenEnterKey() {
         this.onKeyDown((event: KeyboardEvent) => {
             if (event.which === 13) { // enter
-                if (this.isTextInput(<Element>event.target)) {
+                if (this.isTextInput(event.target as Element)) {
                     this.submitAction.execute();
                 }
             }

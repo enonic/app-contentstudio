@@ -12,7 +12,7 @@ import {RegionJson} from '../../page/region/RegionJson';
 import {JSONObject} from '@enonic/lib-admin-ui/types';
 
 export class IEObjectProcessor {
-    private componentNames: Map<string, string> = new Map();
+    private componentNames = new Map<string, string>();
 
     copyRegions(regions: Regions): RegionJson[] {
         regions.getRegions().forEach((region: Region) => this.processRegion(region));
@@ -26,7 +26,7 @@ export class IEObjectProcessor {
 
     private processComponent(component: Component) {
         if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-            (<LayoutComponent>component).getRegions().getRegions().forEach((region: Region) => this.processRegion(region));
+            (component as LayoutComponent).getRegions().getRegions().forEach((region: Region) => this.processRegion(region));
         }
 
         const path: ComponentPath = component.getPath();
@@ -58,7 +58,7 @@ export class IEObjectProcessor {
 
     private restoreNameInComponent(component: Component) {
         if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-            (<LayoutComponent>component).getRegions().getRegions().forEach((region: Region) => this.restoreNamesInRegion(region));
+            (component as LayoutComponent).getRegions().getRegions().forEach((region: Region) => this.restoreNamesInRegion(region));
         }
 
         component.setName(new ComponentName(this.componentNames.get(component.getPath().toString())));

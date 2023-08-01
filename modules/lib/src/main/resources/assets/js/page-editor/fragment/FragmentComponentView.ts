@@ -50,14 +50,14 @@ export class FragmentComponentView
 
     private fragmentContent: Content;
 
-    private fragmentContentLoadedListeners: { (event: FragmentComponentLoadedEvent): void }[];
+    private fragmentContentLoadedListeners: ((event: FragmentComponentLoadedEvent) => void)[];
 
-    private fragmentLoadErrorListeners: { (event: FragmentLoadErrorEvent): void }[];
+    private fragmentLoadErrorListeners: ((event: FragmentLoadErrorEvent) => void)[];
 
     private loaded: boolean = false;
 
     constructor(builder: FragmentComponentViewBuilder) {
-        super(<FragmentComponentViewBuilder>builder.setViewer(new FragmentComponentViewer()).setInspectActionRequired(true));
+        super(builder.setViewer(new FragmentComponentViewer()).setInspectActionRequired(true) as FragmentComponentViewBuilder);
 
         this.liveEditModel = builder.parentRegionView.getLiveEditModel();
         this.fragmentContainsLayout = false;
@@ -169,13 +169,13 @@ export class FragmentComponentView
             const component = this.getFragmentRootComponent();
             const componentType = this.getFragmentRootType();
 
-            const componentView = <ComponentView<FragmentComponent>>this.createView(
+            const componentView = this.createView(
                 ItemType.fromComponentType(componentType),
                 new CreateItemViewConfig<RegionView, Component>()
                     .setData(component)
                     .setPositionIndex(index)
                     .setParentView(regionView)
-                    .setParentElement(regionView));
+                    .setParentElement(regionView)) as ComponentView<FragmentComponent>;
 
             this.addComponentView(componentView, index);
             this.remove();

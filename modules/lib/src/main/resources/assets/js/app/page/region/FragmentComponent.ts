@@ -49,13 +49,13 @@ export class FragmentComponent
 
     toJson(): ComponentTypeWrapperJson {
 
-        let json: FragmentComponentJson = <FragmentComponentJson>{};
+        let json: FragmentComponentJson = {} as FragmentComponentJson;
         json.fragment = this.fragment != null ? this.fragment.toString() : null;
         json.config = this.config != null ? this.config.toJson() : null;
 
-        return <ComponentTypeWrapperJson> {
+        return {
             FragmentComponent: json
-        };
+        } as ComponentTypeWrapperJson;
     }
 
     equals(o: Equitable): boolean {
@@ -64,7 +64,7 @@ export class FragmentComponent
             return false;
         }
 
-        const other = <FragmentComponent>o;
+        const other = o as FragmentComponent;
 
         if (!ObjectHelper.equals(this.fragment, other.fragment)) {
             return false;

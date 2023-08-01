@@ -28,7 +28,7 @@ export class RegionDescriptor
             return false;
         }
 
-        let other = <RegionDescriptor>o;
+        let other = o as RegionDescriptor;
 
         return this.name === other.getName();
     }

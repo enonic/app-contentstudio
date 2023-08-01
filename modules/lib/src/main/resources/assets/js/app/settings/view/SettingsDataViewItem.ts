@@ -24,7 +24,7 @@ export abstract class SettingsDataViewItem<DATA extends Equitable>
             return false;
         }
 
-        const other: SettingsDataViewItem<DATA> = <SettingsDataViewItem<DATA>>o;
+        const other: SettingsDataViewItem<DATA> = o as SettingsDataViewItem<DATA>;
 
         return ObjectHelper.equals(this.data, other.data);
     }

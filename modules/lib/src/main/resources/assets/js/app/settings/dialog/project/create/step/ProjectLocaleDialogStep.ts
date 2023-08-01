@@ -54,6 +54,6 @@ export class ProjectLocaleDialogStep
     }
 
     private getFormItem(): LocaleFormItem {
-        return this.formItems && <LocaleFormItem>this.formItems[0];
+        return this.formItems && this.formItems[0] as LocaleFormItem;
     }
 }

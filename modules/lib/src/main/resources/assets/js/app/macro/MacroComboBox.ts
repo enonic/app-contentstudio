@@ -23,7 +23,7 @@ export class MacroComboBox
     }
 
     getLoader(): MacrosLoader {
-        return <MacrosLoader> super.getLoader();
+        return super.getLoader() as MacrosLoader;
     }
 
     createOption(val: MacroDescriptor): Option<MacroDescriptor> {
@@ -47,7 +47,7 @@ export class MacroSelectedOptionView
     extends RichSelectedOptionView<MacroDescriptor> {
 
     constructor(option: Option<MacroDescriptor>) {
-        super(<RichSelectedOptionViewBuilder<MacroDescriptor>>new RichSelectedOptionViewBuilder<MacroDescriptor>().setOption(option));
+        super(new RichSelectedOptionViewBuilder<MacroDescriptor>().setOption(option) as RichSelectedOptionViewBuilder<MacroDescriptor>);
     }
 
     resolveIconUrl(macroDescriptor: MacroDescriptor): string {

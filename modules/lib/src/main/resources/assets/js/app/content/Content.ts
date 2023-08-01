@@ -103,12 +103,10 @@ export class Content
             return true;
         }
         const permissionEntries = this.permissions.getEntries();
-        for (let i = 0; i < permissionEntries.length; i++) {
-            const entry = permissionEntries[i];
-
-            if (entry.isAllowed(permission)) {
+        for (const permissionEntry of permissionEntries) {
+            if (permissionEntry.isAllowed(permission)) {
                 const principalInEntry = principalKeys.some((principalKey: PrincipalKey) => {
-                    if (principalKey.equals(entry.getPrincipalKey())) {
+                    if (principalKey.equals(permissionEntry.getPrincipalKey())) {
                         return true;
                     }
                 });
@@ -162,7 +160,7 @@ export class Content
             return false;
         }
 
-        let other = <Content>o;
+        let other = o as Content;
 
         if (!this.dataEquals(other.getContentData(), ignoreEmptyValues)) {
             return false;

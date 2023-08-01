@@ -18,7 +18,7 @@ export class LiveEditPagePlaceholder
 
     private controllerDropdown?: PageDescriptorDropdown;
 
-    private controllerSelectedListeners: { (descriptor: Descriptor): void; }[] = [];
+    private controllerSelectedListeners: ((descriptor: Descriptor) => void)[] = [];
 
     private enabled: boolean = true;
 
@@ -92,11 +92,11 @@ export class LiveEditPagePlaceholder
         this.pagePlaceholderInfoBlock.setErrorTexts(message, description);
     }
 
-    onControllerSelected(listener: { (descriptor: Descriptor): void; }) {
+    onControllerSelected(listener: (descriptor: Descriptor) => void) {
         this.controllerSelectedListeners.push(listener);
     }
 
-    unControllerSelected(listener: { (descriptor: Descriptor): void; }) {
+    unControllerSelected(listener: (descriptor: Descriptor) => void) {
         this.controllerSelectedListeners = this.controllerSelectedListeners.filter((curr) => (curr !== listener));
     }
 

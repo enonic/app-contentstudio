@@ -97,7 +97,7 @@ export class InPlaceTextInput
         const body = Body.get();
         if (!this.outsideClickListener) {
             this.outsideClickListener = (event: MouseEvent) => {
-                if (this.isEditMode() && !this.getEl().contains(<HTMLElement>event.target)) {
+                if (this.isEditMode() && !this.getEl().contains(event.target as HTMLElement)) {
                     event.stopImmediatePropagation();
                     event.preventDefault();
                     this.setEditMode(false, !this.isInputValid());

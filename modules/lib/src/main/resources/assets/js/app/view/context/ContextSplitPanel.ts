@@ -30,9 +30,9 @@ export class ContextSplitPanel
     private mobileMode: boolean;
     private contextView: ContextView;
     private dockedContextPanel: DockedContextPanel;
-    private mobileModeChangedListeners: { (isMobile: boolean): void }[] = [];
-    private modeChangedListeners: { (mode: ContextPanelMode): void }[] = [];
-    private stateChangedListeners: { (state: ContextPanelState): void }[] = [];
+    private mobileModeChangedListeners: ((isMobile: boolean) => void)[] = [];
+    private modeChangedListeners: ((mode: ContextPanelMode) => void)[] = [];
+    private stateChangedListeners: ((state: ContextPanelState) => void)[] = [];
     protected floatModeSize: SplitPanelSize;
     protected dockedModeSize: SplitPanelSize;
 
@@ -244,7 +244,7 @@ export class ContextSplitPanel
     }
 
     private notifyModeChanged(): void {
-        this.modeChangedListeners.forEach((listener: { (mode: ContextPanelMode): void }) => listener(this.contextPanelMode));
+        this.modeChangedListeners.forEach((listener: (mode: ContextPanelMode) => void) => listener(this.contextPanelMode));
     }
 
     onStateChanged(listener: (state: ContextPanelState) => void): void {
@@ -256,7 +256,7 @@ export class ContextSplitPanel
     }
 
     private notifyStateChanged(): void {
-        this.stateChangedListeners.forEach((curr: { (state: ContextPanelState): void }) => curr(ContextSplitPanel.contextPanelState));
+        this.stateChangedListeners.forEach((curr: (state: ContextPanelState) => void) => curr(ContextSplitPanel.contextPanelState));
     }
 
     static create(firstPanel: Panel, secondPanel: DockedContextPanel): ContextSplitPanelBuilder {
@@ -284,15 +284,15 @@ export class ContextSplitPanelBuilder
     }
 
     setFirstPanelMinSize(size: SplitPanelSize): ContextSplitPanelBuilder {
-        return <ContextSplitPanelBuilder>super.setFirstPanelMinSize(size);
+        return super.setFirstPanelMinSize(size) as ContextSplitPanelBuilder;
     }
 
     setSecondPanelSize(size: SplitPanelSize): ContextSplitPanelBuilder {
-        return <ContextSplitPanelBuilder>super.setSecondPanelSize(size);
+        return super.setSecondPanelSize(size) as ContextSplitPanelBuilder;
     }
 
     getSecondPanel(): DockedContextPanel {
-        return <DockedContextPanel>super.getSecondPanel();
+        return super.getSecondPanel() as DockedContextPanel;
     }
 
     build(): ContextSplitPanel {

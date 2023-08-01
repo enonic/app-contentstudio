@@ -27,10 +27,10 @@ export interface ProgressBarManagerConfig {
     createProcessingMessage?: () => Element;
 }
 
-type ProgressInfoJson = {
+interface ProgressInfoJson {
     state: string,
     message: string
-};
+}
 
 export class ProgressBarManager {
 

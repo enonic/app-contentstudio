@@ -47,7 +47,7 @@ export class RegionPath
             return false;
         }
 
-        let other = <RegionPath>o;
+        let other = o as RegionPath;
 
         if (!ObjectHelper.stringEquals(this.refString, other.refString)) {
             return false;

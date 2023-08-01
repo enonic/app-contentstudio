@@ -51,7 +51,7 @@ export class TextComponentView
 
     private focusOnInit: boolean;
 
-    private editorReadyListeners: { (): void; }[] = [];
+    private editorReadyListeners: (() => void)[] = [];
 
     public static debug: boolean = false;
 
@@ -102,7 +102,7 @@ export class TextComponentView
 
         const handleDialogCreated: LiveEditPageDialogCreatedEventHandler = (event: LiveEditPageDialogCreatedEvent) => {
             if (this.currentDialogConfig === event.getConfig()) {
-                this.modalDialog = <ModalDialog>event.getModalDialog();
+                this.modalDialog = event.getModalDialog() as ModalDialog;
             }
         };
 

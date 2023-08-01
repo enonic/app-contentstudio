@@ -67,7 +67,7 @@ export class ContentAggregationsFetcher {
                         }));
                     } else {
                         if (aggregation.getName() === ContentAggregation.WORKFLOW.toString()) {
-                            this.updateWorkflowAggregation(<BucketAggregation>aggregation, queryResult.getMetadata().getTotalHits());
+                            this.updateWorkflowAggregation(aggregation as BucketAggregation, queryResult.getMetadata().getTotalHits());
                         }
 
                         result.push(aggregation);
@@ -91,7 +91,7 @@ export class ContentAggregationsFetcher {
                     queryResult.getAggregations().find((aggr: Aggregation) => aggr.getName() === aggregation.getName());
 
                 if (fetchedAggregation.getName() === ContentAggregation.WORKFLOW.toString()) {
-                    this.updateWorkflowAggregation(<BucketAggregation>fetchedAggregation, queryResult.getMetadata().getTotalHits());
+                    this.updateWorkflowAggregation(fetchedAggregation as BucketAggregation, queryResult.getMetadata().getTotalHits());
                 }
 
                 return fetchedAggregation;

@@ -13,9 +13,9 @@ export class SelectionToolbar
 
     private editableCount: number;
 
-    private editClickListeners: { (): void; }[] = [];
+    private editClickListeners: (() => void)[] = [];
 
-    private removeClickListeners: { (): void; }[] = [];
+    private removeClickListeners: (() => void)[] = [];
 
     constructor() {
         super('selection-toolbar');
@@ -49,13 +49,13 @@ export class SelectionToolbar
         });
     }
 
-    onEditClicked(listener: { (): void; }) {
+    onEditClicked(listener: () => void) {
         this.editClickListeners.push(listener);
     }
 
-    unEditClicked(listener: { (): void; }) {
+    unEditClicked(listener: () => void) {
         this.editClickListeners = this.editClickListeners
-            .filter(function (curr: { (): void; }) {
+            .filter(function (curr: () => void) {
                 return curr !== listener;
             });
     }
@@ -66,13 +66,13 @@ export class SelectionToolbar
         });
     }
 
-    onRemoveClicked(listener: { (): void; }) {
+    onRemoveClicked(listener: () => void) {
         this.removeClickListeners.push(listener);
     }
 
-    unRemoveClicked(listener: { (): void; }) {
+    unRemoveClicked(listener: () => void) {
         this.removeClickListeners = this.removeClickListeners
-            .filter(function (curr: { (): void; }) {
+            .filter(function (curr: () => void) {
                 return curr !== listener;
             });
     }

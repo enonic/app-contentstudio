@@ -56,7 +56,7 @@ export class ProjectPermissions
             return false;
         }
 
-        const other = <ProjectPermissions>o;
+        const other = o as ProjectPermissions;
 
         const thisOwners: string[] = this.getOwners().map((owner: PrincipalKey) => owner.toString()).sort();
         const otherOwners: string[] = other.getOwners().map((owner: PrincipalKey) => owner.toString()).sort();

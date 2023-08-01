@@ -7,7 +7,7 @@ import {Content} from '../content/Content';
 export class PersistNewContentRoutine
     extends Flow {
 
-    private createContentRequestProducer: { (): Q.Promise<CreateContentRequest>; };
+    private createContentRequestProducer: () => Q.Promise<CreateContentRequest>;
 
     private doneHandledContent: boolean = false;
 
@@ -15,7 +15,7 @@ export class PersistNewContentRoutine
         super(thisOfProducer);
     }
 
-    public setCreateContentRequestProducer(producer: { (): Q.Promise<CreateContentRequest>; }): PersistNewContentRoutine {
+    public setCreateContentRequestProducer(producer: () => Q.Promise<CreateContentRequest>): PersistNewContentRoutine {
         this.createContentRequestProducer = producer;
         return this;
     }

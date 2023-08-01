@@ -104,23 +104,23 @@ export class ImageEditor
     private resetButton: Button;
     private uploadButton: Button;
 
-    private editModeListeners: { (edit: boolean, position: Rect, zoom: Rect, focus: Point): void }[] = [];
+    private editModeListeners: ((edit: boolean, position: Rect, zoom: Rect, focus: Point) => void)[] = [];
 
-    private focusPositionChangedListeners: { (position: Point): void }[] = [];
-    private autoFocusChangedListeners: { (auto: boolean): void }[] = [];
-    private focusRadiusChangedListeners: { (r: number): void }[] = [];
+    private focusPositionChangedListeners: ((position: Point) => void)[] = [];
+    private autoFocusChangedListeners: ((auto: boolean) => void)[] = [];
+    private focusRadiusChangedListeners: ((r: number) => void)[] = [];
 
-    private cropPositionChangedListeners: { (crop: Rect, zoom: Rect): void }[] = [];
-    private autoCropChangedListeners: { (auto: boolean): void }[] = [];
-    private shaderVisibilityChangedListeners: { (visible: boolean): void }[] = [];
+    private cropPositionChangedListeners: ((crop: Rect, zoom: Rect) => void)[] = [];
+    private autoCropChangedListeners: ((auto: boolean) => void)[] = [];
+    private shaderVisibilityChangedListeners: ((visible: boolean) => void)[] = [];
 
     private maskWheelListener: (event: WheelEvent) => void;
     private maskClickListener: (event: MouseEvent) => void;
     private maskHideListener: (event: ElementHiddenEvent) => void;
 
-    private imageErrorListeners: { (event: UIEvent): void }[] = [];
+    private imageErrorListeners: ((event: UIEvent) => void)[] = [];
 
-    private orientationListeners: { (orientation: number): void }[] = [];
+    private orientationListeners: ((orientation: number) => void)[] = [];
 
     private skipNextOutsideClick: boolean;
 
@@ -1510,16 +1510,15 @@ export class ImageEditor
     }
 
     private updateFocusMaskPosition() {
-        let clipCircle = this.focusClipPath.getHTMLElement().querySelector('circle');
-        let strokeCircle = this.clip.getHTMLElement().querySelector('.focus-group circle');
+        const clipCircle = this.focusClipPath.getHTMLElement().querySelector('circle');
+        const strokeCircle = this.clip.getHTMLElement().querySelector('.focus-group circle');
 
         if (ImageEditor.debug) {
             console.log('ImageEditor.updateFocusPosition', this.focusData);
         }
 
-        let circles = [clipCircle, strokeCircle];
-        for (let i = 0; i < circles.length; i++) {
-            let circle = <HTMLElement> circles[i];
+        const circles = [clipCircle, strokeCircle];
+        for (const circle of circles) {
             circle.setAttribute('r', this.focusData.r.toString());
             // focus position is calculated relative to crop area
             circle.setAttribute('cx', (this.cropData.x + this.focusData.x).toString());

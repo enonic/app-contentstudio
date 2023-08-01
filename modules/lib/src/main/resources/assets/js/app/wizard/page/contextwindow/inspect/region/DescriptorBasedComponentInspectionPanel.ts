@@ -44,7 +44,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private debouncedDescriptorsReload: () => void;
 
-    private descriptorLoadedListeners: { (descriptor: Descriptor): void }[] = [];
+    private descriptorLoadedListeners: ((descriptor: Descriptor) => void)[] = [];
 
     private readonly componentType: ComponentType;
 

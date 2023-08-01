@@ -55,7 +55,7 @@ export class ImageUploader
     }
 
     getContext(): ContentInputTypeViewContext {
-        return <ContentInputTypeViewContext>super.getContext();
+        return super.getContext() as ContentInputTypeViewContext;
     }
 
     getValueType(): ValueType {
@@ -131,7 +131,7 @@ export class ImageUploader
         });
 
         this.imageUploader.onOrientationChanged(orientation => {
-            this.writeOrientation(<Content>this.getContext().content, orientation);
+            this.writeOrientation(this.getContext().content as Content, orientation);
         });
 
         return property.hasNonNullValue() ? this.updateProperty(property) : Q<void>(null);
@@ -167,7 +167,7 @@ export class ImageUploader
         if ((!unchangedOnly || !this.imageUploader.isDirty()) && this.getContext().content.getContentId()) {
 
             return new GetContentByIdRequest(this.getContext().content.getContentId())
-                .setRequestProject((<ContentInputTypeViewContext>this.context).project)
+                .setRequestProject((this.context as ContentInputTypeViewContext).project)
                 .sendAndParse().then((content: Content) => {
 
                     this.imageUploader.setOriginalDimensions(
@@ -234,7 +234,7 @@ export class ImageUploader
     }
 
     private hasOriginalCropAutoProperty(): boolean {
-        const content: Content = <Content>this.getContext().content;
+        const content: Content = this.getContext().content as Content;
         const property: Property = this.getMediaProperty(content, 'zoomPosition');
 
         return !!property;
@@ -353,9 +353,9 @@ export class ImageUploader
     }
 
     private getMetaProperty(content: Content, propertyName: string): Property {
-        const extra = content.getAllExtraData();
-        for (let i = 0; i < extra.length; i++) {
-            const metaProperty = extra[i].getData().getProperty(propertyName);
+        const extraDatas = content.getAllExtraData();
+        for (const extraData of extraDatas) {
+            const metaProperty = extraData.getData().getProperty(propertyName);
             if (metaProperty) {
                 return metaProperty;
             }

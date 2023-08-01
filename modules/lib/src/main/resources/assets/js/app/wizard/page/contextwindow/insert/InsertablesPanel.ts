@@ -34,7 +34,7 @@ export class InsertablesPanel
 
     private insertablesGrid: InsertablesGrid;
 
-    private hideContextWindowRequestListeners: { (): void; }[] = [];
+    private hideContextWindowRequestListeners: (() => void)[] = [];
 
     private pageView: PageView;
 
@@ -132,7 +132,7 @@ export class InsertablesPanel
         this.liveEditPageProxy.getDragMask().show();
 
         // force the lock mask to be shown
-        this.contextWindowDraggable = <JQuery<HTMLElement>>$(event.target);
+        this.contextWindowDraggable = $(event.target) as JQuery<HTMLElement>;
     }
 
     private handleDrag(event: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) {
@@ -198,7 +198,7 @@ export class InsertablesPanel
         this.liveEditPageProxy.getDragMask().hide();
         let livejq = this.liveEditPageProxy.getJQuery();
 
-        let iFrame = <HTMLIFrameElement>this.liveEditPageProxy.getIFrame().getHTMLElement();
+        let iFrame = this.liveEditPageProxy.getIFrame().getHTMLElement() as HTMLIFrameElement;
         let hasBody = iFrame && iFrame.contentDocument && iFrame.contentDocument.body;
         if (!hasBody) {
             if (InsertablesPanel.debug) {
@@ -208,7 +208,7 @@ export class InsertablesPanel
         }
 
         if (!this.iFrameDraggable) {
-            this.iFrameDraggable = <JQuery<HTMLElement>>livejq(event.target).clone();
+            this.iFrameDraggable = livejq(event.target).clone() as JQuery<HTMLElement>;
             livejq('body').append(this.iFrameDraggable);
             this.liveEditPageProxy.createDraggable(this.iFrameDraggable);
             this.iFrameDraggable.simulate('mousedown').hide();
@@ -224,13 +224,13 @@ export class InsertablesPanel
         this.notifyHideContextWindowRequest();
     }
 
-    onHideContextWindowRequest(listener: { (): void; }) {
+    onHideContextWindowRequest(listener: () => void) {
         this.hideContextWindowRequestListeners.push(listener);
     }
 
-    unHideContextWindowRequest(listener: { (): void; }) {
+    unHideContextWindowRequest(listener: () => void) {
         this.hideContextWindowRequestListeners = this.hideContextWindowRequestListeners
-            .filter(function (curr: { (): void; }) {
+            .filter(function (curr: () => void) {
                 return curr !== listener;
             });
     }

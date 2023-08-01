@@ -6,9 +6,9 @@ import {AttachmentJson} from './AttachmentJson';
 export class Attachments
     implements Equitable {
 
-    private attachmentByName: { [s: string]: Attachment; } = {};
+    private attachmentByName: Record<string, Attachment> = {};
 
-    private attachmentByLabel: { [s: string]: Attachment; } = {};
+    private attachmentByLabel: Record<string, Attachment> = {};
 
     private attachments: Attachment[] = [];
 
@@ -26,7 +26,7 @@ export class Attachments
         this.size = count;
     }
 
-    forEach(callBack: { (attachment: Attachment, index: number): void; }): void {
+    forEach(callBack: (attachment: Attachment, index: number) => void): void {
         this.attachments.forEach((attachment: Attachment, index: number) => {
             callBack(attachment, index);
         });
@@ -53,7 +53,7 @@ export class Attachments
             return false;
         }
 
-        let other: Attachments = <Attachments>o;
+        let other: Attachments = o as Attachments;
 
         return ObjectHelper.arrayEquals(this.attachments, other.attachments);
     }

@@ -16,11 +16,11 @@ export class SiteModel {
 
     private siteConfigs: ApplicationConfig[];
 
-    private applicationAddedListeners: { (applicationConfig: ApplicationConfig): void }[] = [];
+    private applicationAddedListeners: ((applicationConfig: ApplicationConfig) => void)[] = [];
 
-    private applicationRemovedListeners: { (event: ApplicationRemovedEvent): void }[] = [];
+    private applicationRemovedListeners: ((event: ApplicationRemovedEvent) => void)[] = [];
 
-    private propertyChangedListeners: { (event: PropertyChangedEvent): void }[] = [];
+    private propertyChangedListeners: ((event: PropertyChangedEvent) => void)[] = [];
 
     private applicationPropertyAddedListener: (event: PropertyAddedEvent) => void;
 
@@ -28,13 +28,13 @@ export class SiteModel {
 
     private applicationGlobalEventsListener: (event: ApplicationEvent) => void;
 
-    private applicationStoppedListeners: { (applicationEvent: ApplicationEvent): void }[] = [];
+    private applicationStoppedListeners: ((applicationEvent: ApplicationEvent) => void)[] = [];
 
-    private applicationStartedListeners: { (applicationEvent: ApplicationEvent): void }[] = [];
+    private applicationStartedListeners: ((applicationEvent: ApplicationEvent) => void)[] = [];
 
-    private applicationUninstalledListeners: { (applicationEvent: ApplicationEvent): void }[] = [];
+    private applicationUninstalledListeners: ((applicationEvent: ApplicationEvent) => void)[] = [];
 
-    private siteModelUpdatedListeners: { (): void }[] = [];
+    private siteModelUpdatedListeners: (() => void)[] = [];
 
     constructor(site: Site) {
         this.initApplicationPropertyListeners();

@@ -1,9 +1,7 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
-export interface NonstandardCodes {
-    [key: string]: string;
-}
+export type NonstandardCodes = Record<string, string>;
 
 export interface FlagData {
     code: string;

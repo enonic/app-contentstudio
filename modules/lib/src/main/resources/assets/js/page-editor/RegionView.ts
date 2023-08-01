@@ -79,9 +79,9 @@ export class RegionView
 
     private componentIndex: number;
 
-    private itemViewAddedListeners: { (event: ItemViewAddedEvent): void }[];
+    private itemViewAddedListeners: ((event: ItemViewAddedEvent) => void)[];
 
-    private itemViewRemovedListeners: { (event: ItemViewRemovedEvent): void }[];
+    private itemViewRemovedListeners: ((event: ItemViewRemovedEvent) => void)[];
 
     private itemViewAddedListener: (event: ItemViewAddedEvent) => void;
 
@@ -141,7 +141,7 @@ export class RegionView
             // Check if removed ItemView is a child, and remove it if so
             if (ObjectHelper.iFrameSafeInstanceOf(event.getView(), ComponentView)) {
 
-                const removedComponentView: ComponentView<Component> = <ComponentView<Component>>event.getView();
+                const removedComponentView: ComponentView<Component> = event.getView() as ComponentView<Component>;
                 const childIndex = this.getComponentViewIndex(removedComponentView);
                 if (childIndex > -1) {
                     this.componentViews.splice(childIndex, 1);
@@ -171,7 +171,7 @@ export class RegionView
         this.onMouseDown(this.memorizeLastMouseDownTarget.bind(this));
 
         this.mouseOverListener = (e: MouseEvent) => {
-            if (this.isDragging() && this.isElementOverRegion((<HTMLElement>e.target))) {
+            if (this.isDragging() && this.isElementOverRegion((e.target as HTMLElement))) {
                 this.highlight();
             }
         };
@@ -199,7 +199,7 @@ export class RegionView
     }
 
     memorizeLastMouseDownTarget(event: MouseEvent) {
-        this.mouseDownLastTarget = <HTMLElement> event.target;
+        this.mouseDownLastTarget = event.target as HTMLElement;
     }
 
     private addRegionContextMenuActions() {
@@ -415,11 +415,10 @@ export class RegionView
             return this.componentViews[firstLevelOfPath.getComponentIndex()];
         }
 
-        for (let i = 0; i < this.componentViews.length; i++) {
-            const componentView = this.componentViews[i];
+        for (const componentView of this.componentViews) {
             if (componentView.getType().equals(LayoutItemType.get())) {
 
-                const layoutView = <LayoutComponentView>componentView;
+                const layoutView = componentView as LayoutComponentView;
                 const match = layoutView.getComponentViewByPath(path.removeFirstLevel());
                 if (match) {
                     return match;
@@ -545,7 +544,7 @@ export class RegionView
                 component = region.getComponentByIndex(this.componentIndex++);
                 if (component) {
                     // reuse existing component view
-                    componentView = <ComponentView<Component>> childElement;
+                    componentView = childElement as ComponentView<Component>;
                     // update view's data
                     componentView.setComponent(component);
                     // register it again because we unregistered everything before parsing
@@ -558,13 +557,13 @@ export class RegionView
                 component = region.getComponentByIndex(this.componentIndex++);
                 if (component) {
 
-                    componentView = <ComponentView<Component>>this.createView(
+                    componentView = this.createView(
                         itemType,
                         new CreateItemViewConfig<RegionView, Component>()
                             .setParentView(this)
                             .setData(component)
                             .setElement(childElement)
-                            .setParentElement(parentElement ? parentElement : this));
+                            .setParentElement(parentElement ? parentElement : this)) as ComponentView<Component>;
 
                     this.registerComponentView(componentView, this.componentIndex);
                 }

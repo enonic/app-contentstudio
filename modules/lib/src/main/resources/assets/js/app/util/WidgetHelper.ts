@@ -19,11 +19,11 @@ export class WidgetHelper {
     }
 
     static injectScriptsToHead(widgetContainer: UIElement): HTMLScriptElement[] {
-        return <HTMLScriptElement[]>this.injectToHead(widgetContainer, 'script');
+        return this.injectToHead(widgetContainer, 'script') as HTMLScriptElement[];
     }
 
     static injectLinksToHead(widgetContainer: UIElement): HTMLLinkElement[] {
-        return <HTMLLinkElement[]>this.injectToHead(widgetContainer, 'link');
+        return this.injectToHead(widgetContainer, 'link') as HTMLLinkElement[];
     }
 
     private static injectToHead(widgetContainer: UIElement, tagName: string): HTMLElement[] {

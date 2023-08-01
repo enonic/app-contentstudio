@@ -36,7 +36,7 @@ export class ContentTypeFilter
     }
 
     protected readInputConfig(): void {
-        const contextDependentProp: { [name: string]: string } =
+        const contextDependentProp: Record<string, string> =
             this.context.inputConfig['context'] ? this.context.inputConfig['context'][0] : {};
         const value: string = contextDependentProp['value'] || '';
         this.isContextDependent = value.toLowerCase() === 'true';
@@ -68,11 +68,11 @@ export class ContentTypeFilter
 
     private createComboBox(): ContentTypeComboBox {
         const loader: PageTemplateContentTypeLoader | ContentTypeSummaryLoader = this.createLoader();
-        const comboBox: ContentTypeComboBox = <ContentTypeComboBox>ContentTypeComboBox.create()
+        const comboBox: ContentTypeComboBox = ContentTypeComboBox.create()
             .setLoader(loader)
             .setMaximumOccurrences(this.getInput().getOccurrences().getMaximum())
             .setDisplayMissingSelectedOptions(true)
-            .build();
+            .build() as ContentTypeComboBox;
 
         comboBox.onLoaded(this.onContentTypesLoadedHandler);
 

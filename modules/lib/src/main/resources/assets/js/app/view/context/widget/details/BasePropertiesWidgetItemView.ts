@@ -47,7 +47,7 @@ export class BasePropertiesWidgetItemView
 
     protected fetchExtraData(): Q.Promise<void> {
         return this.fetchApplication().then((application: Application) => {
-            (<BasePropertiesWidgetItemViewHelper>this.helper).setApplication(application);
+            (this.helper as BasePropertiesWidgetItemViewHelper).setApplication(application);
         });
     }
 

@@ -5,7 +5,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 export class IncludeChildrenToggler
     extends DivEl {
 
-    private stateChangedListeners: { (enabled: boolean): void }[] = [];
+    private stateChangedListeners: ((enabled: boolean) => void)[] = [];
 
     private tooltip: Tooltip;
 

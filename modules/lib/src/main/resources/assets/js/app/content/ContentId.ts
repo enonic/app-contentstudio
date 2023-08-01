@@ -33,7 +33,7 @@ export class ContentId
             return false;
         }
 
-        let other = <ContentId>o;
+        let other = o as ContentId;
 
         if (!ObjectHelper.stringEquals(this.value, other.value)) {
             return false;

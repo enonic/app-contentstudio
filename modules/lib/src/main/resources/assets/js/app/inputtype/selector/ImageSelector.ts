@@ -46,7 +46,7 @@ export class ImageSelector
     }
 
     public getContentComboBox(): ImageContentComboBox {
-        return <ImageContentComboBox>this.contentComboBox;
+        return this.contentComboBox as ImageContentComboBox;
     }
 
     protected getContentPath(raw: MediaTreeSelectorItem): ContentPath {
@@ -54,7 +54,7 @@ export class ImageSelector
     }
 
     getSelectedOptionsView(): ImageSelectorSelectedOptionsView {
-        return <ImageSelectorSelectedOptionsView>super.getSelectedOptionsView();
+        return super.getSelectedOptionsView() as ImageSelectorSelectedOptionsView;
     }
 
     private createSelectedOptionsView(): ImageSelectorSelectedOptionsView {
@@ -95,10 +95,10 @@ export class ImageSelector
     }
 
     protected createContentComboBoxBuilder(input: Input, propertyArray: PropertyArray): ImageContentComboBoxBuilder {
-        return <ImageContentComboBoxBuilder>super.createContentComboBoxBuilder(input, propertyArray)
+        return super.createContentComboBoxBuilder(input, propertyArray)
             .setSelectedOptionsView(this.createSelectedOptionsView())
             .setDisplayMissingSelectedOptions(true)
-            .setRemoveMissingSelectedOptions(false);
+            .setRemoveMissingSelectedOptions(false) as ImageContentComboBoxBuilder;
     }
 
     protected initEvents(contentComboBox: ImageContentComboBox) {
@@ -150,7 +150,7 @@ export class ImageSelector
 
     protected createContentComboBox(input: Input, propertyArray: PropertyArray): ImageContentComboBox {
 
-        const contentComboBox: ImageContentComboBox = <ImageContentComboBox>super.createContentComboBox(input, propertyArray);
+        const contentComboBox: ImageContentComboBox = super.createContentComboBox(input, propertyArray) as ImageContentComboBox;
 
         this.isPendingPreload = !StringHelper.isBlank(this.getValueFromPropertyArray(propertyArray));
 
@@ -192,7 +192,7 @@ export class ImageSelector
 
             let selectedOption = this.getSelectedOptionsView().getById(item.getId());
             if (!!selectedOption) {
-                (<ImageSelectorSelectedOptionView> selectedOption.getOptionView()).setProgress(item.getProgress());
+                (selectedOption.getOptionView() as ImageSelectorSelectedOptionView).setProgress(item.getProgress());
             }
         });
 
@@ -204,7 +204,7 @@ export class ImageSelector
     }
 
     protected selectedOptionHandler(selectedOption: SelectedOption<MediaTreeSelectorItem>) {
-        (<ImageSelectorSelectedOptionView>selectedOption.getOptionView()).getCheckbox().setChecked(true);
+        (selectedOption.getOptionView() as ImageSelectorSelectedOptionView).getCheckbox().setChecked(true);
     }
 
     protected initFailedListener(uploader: ImageUploaderEl) {
