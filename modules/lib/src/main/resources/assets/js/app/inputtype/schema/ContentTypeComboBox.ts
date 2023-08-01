@@ -35,10 +35,10 @@ export class ContentTypeSelectedOptionsView
     }
 
     getEmptyDisplayValue(id: string): ContentTypeSummary {
-        return <ContentTypeSummary>new SchemaBuilder()
+        return new SchemaBuilder()
             .setDisplayName(id)
             .setName(id)
-            .build();
+            .build() as ContentTypeSummary;
     }
 }
 
@@ -46,8 +46,7 @@ export class ContentTypeSelectedOptionView
     extends RichSelectedOptionView<ContentTypeSummary> {
 
     constructor(option: Option<ContentTypeSummary>) {
-        super(<RichSelectedOptionViewBuilder<ContentTypeSummary>>
-            new RichSelectedOptionViewBuilder<ContentTypeSummary>().setOption(option));
+        super(new RichSelectedOptionViewBuilder<ContentTypeSummary>().setOption(option) as RichSelectedOptionViewBuilder<ContentTypeSummary>);
     }
 
     resolveIconUrl(content: ContentTypeSummary): string {

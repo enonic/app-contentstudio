@@ -45,7 +45,7 @@ export class ContentPath
     }
 
     getParentPath(): ContentPath {
-        return <ContentPath>super.getParentPath();
+        return super.getParentPath() as ContentPath;
     }
 
     isInContentRoot(): boolean {
@@ -91,23 +91,23 @@ export class ContentPathBuilder extends NodePathBuilder {
     }
 
     setElements(value: string[]): ContentPathBuilder {
-        return <ContentPathBuilder>super.setElements(value);
+        return super.setElements(value) as ContentPathBuilder;
     }
 
     setAbsolute(value: boolean): ContentPathBuilder {
-        return <ContentPathBuilder>super.setAbsolute(value);
+        return super.setAbsolute(value) as ContentPathBuilder;
     }
 
     setElementDivider(value: string): ContentPathBuilder {
-        return <ContentPathBuilder>super.setElementDivider(value);
+        return super.setElementDivider(value) as ContentPathBuilder;
     }
 
     fromParent(parent: ContentPath, ...childElements): ContentPathBuilder {
-        return <ContentPathBuilder>super.fromParent(parent, ...childElements);
+        return super.fromParent(parent, ...childElements) as ContentPathBuilder;
     }
 
     fromString(s: string, elementDivider: string = NodePath.NODE_PATH_DIVIDER): ContentPathBuilder {
-        return <ContentPathBuilder>super.fromString(s, elementDivider);
+        return super.fromString(s, elementDivider) as ContentPathBuilder;
     }
 
     build(): ContentPath {

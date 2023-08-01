@@ -100,7 +100,7 @@ export class AccessControlEntryView
         }
     }
 
-    getValueChangedListeners(): { (item: AccessControlEntry): void }[] {
+    getValueChangedListeners(): ((item: AccessControlEntry) => void)[] {
         return this.valueChangedListeners;
     }
 

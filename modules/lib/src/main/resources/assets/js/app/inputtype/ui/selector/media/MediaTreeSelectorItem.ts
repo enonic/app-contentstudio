@@ -106,7 +106,7 @@ export class MediaTreeSelectorItem
             return false;
         }
 
-        let other = <MediaTreeSelectorItem>o;
+        let other = o as MediaTreeSelectorItem;
 
         if (!ObjectHelper.equals(this.mediaSelectorDisplayValue, other.getDisplayValue())) {
             return false;

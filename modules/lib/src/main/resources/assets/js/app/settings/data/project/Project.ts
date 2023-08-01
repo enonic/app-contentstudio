@@ -92,7 +92,7 @@ export class Project
             return false;
         }
 
-        const other: Project = <Project>o;
+        const other: Project = o as Project;
 
         return ObjectHelper.objectEquals(this.name, other.name) &&
                ObjectHelper.objectEquals(this.displayName, other.displayName) &&

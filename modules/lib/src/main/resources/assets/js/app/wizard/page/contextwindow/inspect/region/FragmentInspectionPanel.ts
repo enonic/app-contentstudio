@@ -43,9 +43,9 @@ export class FragmentInspectionPanel
     private componentPropertyChangedEventHandler: ComponentPropertyChangedEventHandler;
 
     constructor() {
-        super(<ComponentInspectionPanelConfig>{
+        super({
             iconClass: ItemViewIconClassResolver.resolveByType('fragment')
-        });
+        } as ComponentInspectionPanelConfig);
 
         this.initElements();
         this.initListeners();

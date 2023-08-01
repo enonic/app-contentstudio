@@ -40,9 +40,9 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     protected deleteConfirmationDialog?: ModalDialog;
 
-    private newItemSavedListeners: { (item: ITEM): void }[] = [];
+    private newItemSavedListeners: ((item: ITEM) => void)[] = [];
 
-    private wizardHeaderNameUpdatedListeners: { (name: string): void }[] = [];
+    private wizardHeaderNameUpdatedListeners: ((name: string) => void)[] = [];
 
     private isClosePending: boolean = false;
 
@@ -57,7 +57,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     public getFormIcon(): SettingsDataItemFormIcon {
-        return <SettingsDataItemFormIcon>this.formIcon;
+        return this.formIcon as SettingsDataItemFormIcon;
     }
 
     postPersistNewItem(item: ITEM): Q.Promise<ITEM> {
@@ -389,6 +389,6 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     protected getParams(): SettingsWizardPanelParams<ITEM> {
-        return <SettingsWizardPanelParams<ITEM>>super.getParams();
+        return super.getParams() as SettingsWizardPanelParams<ITEM>;
     }
 }

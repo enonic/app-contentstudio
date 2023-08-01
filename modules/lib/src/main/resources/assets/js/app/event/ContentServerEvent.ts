@@ -20,6 +20,6 @@ export class ContentServerEvent
     }
 
     getNodeChange(): ContentServerChange {
-        return <ContentServerChange>super.getNodeChange();
+        return super.getNodeChange() as ContentServerChange;
     }
 }

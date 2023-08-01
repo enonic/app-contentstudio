@@ -26,11 +26,11 @@ export class ProjectReadAccessFormItem
 
     constructor() {
         super(
-            <ProjectFormItemBuilder>new ProjectFormItemBuilder(
+            new ProjectFormItemBuilder(
                 new RadioGroup('read-access-radio-group'))
                 .setHelpText(i18n('settings.projects.access.helptext'))
                 .setLabel(i18n('settings.items.wizard.readaccess.label'))
-                .setValidator(Validators.required)
+                .setValidator(Validators.required) as ProjectFormItemBuilder
         );
 
         this.initElements();
@@ -90,7 +90,7 @@ export class ProjectReadAccessFormItem
     }
 
     private filterPrincipals(principals: PrincipalKey[]) {
-        const principalsLoader: PrincipalLoader = <PrincipalLoader>this.getPrincipalComboBox().getLoader();
+        const principalsLoader: PrincipalLoader = this.getPrincipalComboBox().getLoader() as PrincipalLoader;
         principalsLoader.skipPrincipals(principals);
     }
 
@@ -99,7 +99,7 @@ export class ProjectReadAccessFormItem
     }
 
     getRadioGroup(): RadioGroup {
-        return <RadioGroup>this.getInput();
+        return this.getInput() as RadioGroup;
     }
 
     getPrincipalComboBox(): PrincipalComboBox {
@@ -192,7 +192,7 @@ class ExtendedPrincipalComboBox
     constructor() {
         const loader: BasePrincipalLoader = new PrincipalLoader()
             .setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
-        super(<PrincipalComboBoxBuilder>PrincipalComboBox.create().setLoader(loader));
+        super(PrincipalComboBox.create().setLoader(loader) as PrincipalComboBoxBuilder);
     }
 
     setEnabled(enable: boolean) {

@@ -10,7 +10,7 @@ export class ProjectAccessSelector
 
     private options: ProjectAccess[] = [ProjectAccess.CONTRIBUTOR, ProjectAccess.AUTHOR, ProjectAccess.EDITOR, ProjectAccess.OWNER];
     private value: ProjectAccess;
-    private valueChangedListeners: { (event: ProjectAccessValueChangedEvent): void }[] = [];
+    private valueChangedListeners: ((event: ProjectAccessValueChangedEvent) => void)[] = [];
 
     constructor() {
         super('access-selector');
@@ -21,7 +21,7 @@ export class ProjectAccessSelector
         });
 
         this.onNavigationItemSelected((event: NavigatorEvent) => {
-            const item: TabMenuItem = <TabMenuItem>event.getItem();
+            const item: TabMenuItem = event.getItem() as TabMenuItem;
             this.setValue(this.options[item.getIndex()]);
         });
 

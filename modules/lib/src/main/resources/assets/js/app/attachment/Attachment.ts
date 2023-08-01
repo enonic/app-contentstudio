@@ -49,7 +49,7 @@ export class Attachment
             return false;
         }
 
-        let other = <Attachment>o;
+        let other = o as Attachment;
 
         if (!ObjectHelper.equals(this.name, other.name)) {
             return false;

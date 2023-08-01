@@ -32,12 +32,12 @@ export class PageComponentsItemViewer
         const object: ItemView = item.getItemView();
 
         if (ObjectHelper.iFrameSafeInstanceOf(object.getType(), TextItemType)) {
-            let textView = <TextComponentView>object;
+            let textView = object as TextComponentView;
             let textComponent = textView.getComponent();
-            let viewer = <TextComponentViewer>object.getViewer();
+            let viewer = object.getViewer() as TextComponentViewer;
             return viewer.resolveDisplayName(textComponent, textView);
         } else if (ObjectHelper.iFrameSafeInstanceOf(object.getType(), FragmentItemType)) {
-            let fragmentView = <FragmentComponentView> object;
+            let fragmentView = object as FragmentComponentView;
             if (fragmentView.isLoaded()) {
                 return fragmentView.getFragmentDisplayName();
             }
@@ -50,7 +50,7 @@ export class PageComponentsItemViewer
         const object: ItemView = item.getItemView();
 
         if (ObjectHelper.iFrameSafeInstanceOf(object.getType(), FragmentItemType)) {
-            const fragmentComponent = (<FragmentComponentView>object).getFragmentRootComponent();
+            const fragmentComponent = (object as FragmentComponentView).getFragmentRootComponent();
 
             if (fragmentComponent) {
                 return fragmentComponent.getType().getShortName();
@@ -69,15 +69,15 @@ export class PageComponentsItemViewer
 
     private resolveComponentDescription(object: ItemView): string {
         if (PartItemType.get().equals(object.getType())) {
-            return (<PartComponentView>object).getComponent().getDescription();
+            return (object as PartComponentView).getComponent().getDescription();
         }
 
         if (LayoutItemType.get().equals(object.getType())) {
-            return (<LayoutComponentView>object).getComponent().getDescription();
+            return (object as LayoutComponentView).getComponent().getDescription();
         }
 
         if (PageItemType.get().equals(object.getType())) {
-            const pageController: Descriptor = (<PageView>object).getModel().getController();
+            const pageController: Descriptor = (object as PageView).getModel().getController();
             if (pageController) {
                 return pageController.getDescription();
             }
@@ -91,7 +91,7 @@ export class PageComponentsItemViewer
         if (PageItemType.get().equals(object.getType())) {
             return object.getIconUrl(this.content);
         } else if (PartItemType.get().equals(object.getType())) {
-            return (<PartComponentView>object).getComponent().getIcon();
+            return (object as PartComponentView).getComponent().getIcon();
         }
 
         return null;

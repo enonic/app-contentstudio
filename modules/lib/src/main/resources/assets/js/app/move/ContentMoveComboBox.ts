@@ -21,7 +21,7 @@ export class ContentMoveComboBox
             .setMaximumOccurrences(1)
             .setComboBoxName('contentSelector')
             .setLoader(ContentSummaryOptionDataLoader.create().setSmartTreeMode(false).build())
-            .setSelectedOptionsView(<SelectedOptionsView<ContentTreeSelectorItem>>new ContentSelectedOptionsView())
+            .setSelectedOptionsView(new ContentSelectedOptionsView() as SelectedOptionsView<ContentTreeSelectorItem>)
             .setOptionDisplayValueViewer(new ContentTreeSelectorItemViewer())
             .setDelayedInputValueChangedHandling(500)
             .setSkipAutoDropShowOnValueChange(true)
@@ -49,7 +49,7 @@ export class ContentMoveComboBox
     }
 
     getSelectedDisplayValues(): ContentAndStatusTreeSelectorItem[] {
-        return (<ContentAndStatusTreeSelectorItem[]>super.getSelectedDisplayValues());
+        return (super.getSelectedDisplayValues() as ContentAndStatusTreeSelectorItem[]);
     }
 }
 

@@ -74,7 +74,7 @@ export class SettingsAppPanel
 
     private getWizardPanelForEdit(item: SettingsViewItem, tabId: AppBarTabId): SettingsDataItemWizardPanel<SettingsDataViewItem<Equitable>> {
         if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
-            const projectItem: ProjectViewItem = <ProjectViewItem>item;
+            const projectItem: ProjectViewItem = item as ProjectViewItem;
             const wizard: ProjectWizardPanel = new ProjectWizardPanel({
                 tabId,
                 persistedItem: projectItem,
@@ -85,7 +85,7 @@ export class SettingsAppPanel
 
             if (projectItem.getData() && projectItem.getData().getParent()) {
                 const parentProject: Project =
-                    (<ProjectViewItem>this.browsePanel.getItemById(projectItem.getData().getParent())).getData();
+                    (this.browsePanel.getItemById(projectItem.getData().getParent()) as ProjectViewItem).getData();
                 wizard.setParentProject(parentProject);
             }
 
@@ -179,7 +179,7 @@ export class SettingsAppPanel
     }
 
     private getProjectWizards(): ProjectWizardPanel[] {
-        return <ProjectWizardPanel[]>this.getPanels().filter(this.isProjectWizardPanel);
+        return this.getPanels().filter(this.isProjectWizardPanel) as ProjectWizardPanel[];
     }
 
     private isProjectWizardPanel(panel: Panel): boolean {

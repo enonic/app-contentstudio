@@ -10,10 +10,10 @@ export class XDataWizardStep
     }
 
     getStepForm(): XDataWizardStepForm {
-        return <XDataWizardStepForm>this.stepForm;
+        return this.stepForm as XDataWizardStepForm;
     }
 
     getXDataName(): XDataName {
-        return (<XDataWizardStepForm>this.stepForm).getXDataName();
+        return (this.stepForm as XDataWizardStepForm).getXDataName();
     }
 }

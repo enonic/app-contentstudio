@@ -7,7 +7,7 @@ export class ServerEventAggregator {
 
     private static AGGREGATION_TIMEOUT: number = 500;
 
-    private batchReadyListeners: { (items: ContentServerChangeItem[], type: NodeServerChangeType): void }[] = [];
+    private batchReadyListeners: ((items: ContentServerChangeItem[], type: NodeServerChangeType) => void)[] = [];
 
     private typesAndDelayedFunctions: Map<string, Function> = new Map<string, Function>();
 

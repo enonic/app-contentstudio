@@ -144,11 +144,10 @@ export class ContentSelector
     }
 
     private findSelectedOptionByContentPath(contentPath: ContentPath): SelectedOption<ContentTreeSelectorItem> {
-        let selectedOptions = this.getSelectedOptions();
-        for (let i = 0; i < selectedOptions.length; i++) {
-            let option = selectedOptions[i];
-            if (contentPath.equals(this.getContentPath(option.getOption().getDisplayValue()))) {
-                return option;
+        const selectedOptions = this.getSelectedOptions();
+        for (const selectedOption of selectedOptions) {
+            if (contentPath.equals(this.getContentPath(selectedOption.getOption().getDisplayValue()))) {
+                return selectedOption;
             }
         }
         return null;
@@ -193,7 +192,7 @@ export class ContentSelector
     }
 
     protected readInputConfig(): void {
-        const inputConfig: { [element: string]: { [name: string]: string }[]; } = this.context.inputConfig;
+        const inputConfig: Record<string, Record<string, string>[]> = this.context.inputConfig;
         const isTreeModeConfig = inputConfig['treeMode'] ? inputConfig['treeMode'][0] : {};
         this.treeMode = !StringHelper.isBlank(isTreeModeConfig['value']) ? isTreeModeConfig['value'].toLowerCase() === 'true' : false;
 
@@ -213,7 +212,7 @@ export class ContentSelector
     }
 
     protected getSelectedOptionsView(): ContentSelectedOptionsView {
-        return <ContentSelectedOptionsView> this.contentComboBox.getSelectedOptionView();
+        return this.contentComboBox.getSelectedOptionView() as ContentSelectedOptionsView;
     }
 
     protected getContentPath(raw: ContentTreeSelectorItem): ContentPath {

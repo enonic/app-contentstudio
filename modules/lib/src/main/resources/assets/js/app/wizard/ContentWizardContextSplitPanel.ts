@@ -83,11 +83,11 @@ export class ContentWizardContextSplitPanelBuilder
     }
 
     setFirstPanelMinSize(size: SplitPanelSize): ContentWizardContextSplitPanelBuilder {
-        return <ContentWizardContextSplitPanelBuilder>super.setFirstPanelMinSize(size);
+        return super.setFirstPanelMinSize(size) as ContentWizardContextSplitPanelBuilder;
     }
 
     setSecondPanelSize(size: SplitPanelSize): ContentWizardContextSplitPanelBuilder {
-        return <ContentWizardContextSplitPanelBuilder>super.setSecondPanelSize(size);
+        return super.setSecondPanelSize(size) as ContentWizardContextSplitPanelBuilder;
     }
 
     build(): ContentWizardContextSplitPanel {

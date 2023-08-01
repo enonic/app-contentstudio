@@ -91,13 +91,13 @@ export class ImageComponent
 
     toJson(): ComponentTypeWrapperJson {
 
-        let json: ImageComponentJson = <ImageComponentJson>{};
+        let json: ImageComponentJson = {} as ImageComponentJson;
         json.image = this.image != null ? this.image.toString() : null;
         json.config = this.config != null ? this.config.toJson() : null;
 
-        return <ComponentTypeWrapperJson> {
+        return {
             ImageComponent: json
-        };
+        } as ComponentTypeWrapperJson;
     }
 
     equals(o: Equitable): boolean {
@@ -106,7 +106,7 @@ export class ImageComponent
             return false;
         }
 
-        const other = <ImageComponent>o;
+        const other = o as ImageComponent;
 
         if (!ObjectHelper.equals(this.image, other.image)) {
             return false;

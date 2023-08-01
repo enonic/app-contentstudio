@@ -25,11 +25,11 @@ export class ContentServerChangeItem
     }
 
     getNewPath(): ContentPath {
-        return <ContentPath>super.getNewPath();
+        return super.getNewPath() as ContentPath;
     }
 
     getPath(): ContentPath {
-        return <ContentPath>super.getPath();
+        return super.getPath() as ContentPath;
     }
 
     protected processPath(path: string): ContentPath {

@@ -55,7 +55,7 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
     public static nameFormatter(row: number, cell: number, value: unknown, columnDef: Slick.Column<ContentSummaryAndCompareStatus>, node: TreeNode<ContentSummaryAndCompareStatus>) {
         const data = node.getData();
         if (data.getContentSummary()) {
-            let viewer: ContentSummaryViewer = <ContentSummaryViewer>node.getViewer('name');
+            let viewer: ContentSummaryViewer = node.getViewer('name') as ContentSummaryViewer;
             if (!viewer) {
                 viewer = new ContentSummaryViewer();
                 viewer.setIsRelativePath(node.calcLevel() > 1);

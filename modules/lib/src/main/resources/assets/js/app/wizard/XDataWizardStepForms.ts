@@ -3,7 +3,7 @@ import {XDataWizardStepForm} from './XDataWizardStepForm';
 
 export class XDataWizardStepForms {
 
-    private xDataStepFormByName: { [name: string]: XDataWizardStepForm; };
+    private xDataStepFormByName: Record<string, XDataWizardStepForm>;
 
     constructor() {
         this.xDataStepFormByName = {};

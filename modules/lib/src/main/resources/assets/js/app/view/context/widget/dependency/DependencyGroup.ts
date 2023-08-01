@@ -48,7 +48,7 @@ export class DependencyGroup
             return false;
         }
 
-        let other = <DependencyGroup>o;
+        let other = o as DependencyGroup;
 
         if (!ObjectHelper.numberEquals(this.itemCount, other.itemCount)) {
             return false;

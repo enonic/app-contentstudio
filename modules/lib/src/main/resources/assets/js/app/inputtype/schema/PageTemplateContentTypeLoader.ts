@@ -33,12 +33,12 @@ export class PageTemplateContentTypeLoader
         return new GetAllContentTypesRequest().sendAndParse().then((contentTypeArray: ContentTypeSummary[]) => {
             return new GetNearestSiteRequest(this.contentId).setRequestProject(this.project).sendAndParse().then(
                 (parentSite: Site) => {
-                    let typesAllowedEverywhere: { [key: string]: ContentTypeName } = {};
+                    let typesAllowedEverywhere: Record<string, ContentTypeName> = {};
                     [ContentTypeName.UNSTRUCTURED, ContentTypeName.FOLDER, ContentTypeName.SITE,
                         ContentTypeName.SHORTCUT].forEach((contentTypeName: ContentTypeName) => {
                         typesAllowedEverywhere[contentTypeName.toString()] = contentTypeName;
                     });
-                    let siteApplications: { [key: string]: ApplicationKey } = {};
+                    let siteApplications: Record<string, ApplicationKey> = {};
                     parentSite.getApplicationKeys().forEach((applicationKey: ApplicationKey) => {
                         siteApplications[applicationKey.toString()] = applicationKey;
                     });

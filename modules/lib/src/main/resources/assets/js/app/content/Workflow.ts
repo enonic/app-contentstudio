@@ -34,7 +34,7 @@ export class Workflow
             return false;
         }
 
-        const other = <Workflow>o;
+        const other = o as Workflow;
 
         return this.state === other.getState();
     }

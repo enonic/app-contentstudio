@@ -58,10 +58,10 @@ export class DragAndDrop {
 
     private draggedComponentView: ComponentView<Component>;
 
-    private dragStartedListeners: { (componentView: ComponentView<Component>): void }[] = [];
-    private dragStoppedListeners: { (componentView: ComponentView<Component>): void }[] = [];
-    private droppedListeners: { (componentView: ComponentView<Component>, regionView: RegionView): void }[] = [];
-    private canceledListeners: { (componentView: ComponentView<Component>): void }[] = [];
+    private dragStartedListeners: ((componentView: ComponentView<Component>) => void)[] = [];
+    private dragStoppedListeners: ((componentView: ComponentView<Component>) => void)[] = [];
+    private droppedListeners: ((componentView: ComponentView<Component>, regionView: RegionView) => void)[] = [];
+    private canceledListeners: ((componentView: ComponentView<Component>) => void)[] = [];
 
     public static init(pageView: PageView) {
         DragAndDrop.instance = new DragAndDrop(pageView);
@@ -269,7 +269,7 @@ export class DragAndDrop {
         }
 
         if (this.wasDestroyed) {
-            this.cancelDrag(<HTMLElement> event.target);
+            this.cancelDrag(event.target as HTMLElement);
             this.wasDestroyed = false;
             return;
         }
@@ -282,7 +282,7 @@ export class DragAndDrop {
                 console.log('DragAndDrop.handleStop: cancelling drag because it is not allowed to drop here...');
             }
 
-            this.cancelDrag(<HTMLElement> event.target);
+            this.cancelDrag(event.target as HTMLElement);
         } else {
             let componentIndex = $('>.drag-helper, >.' + StyleHelper.getCls('item-view'),
                 regionView.getHTMLElement()).index(ui.item);
@@ -292,16 +292,16 @@ export class DragAndDrop {
                     this.pageView.setLocked(false);
                 }
                 // Create component and view if we drag from context window
-                let componentType: ComponentItemType = <ComponentItemType> this.newItemItemType;
+                let componentType: ComponentItemType = this.newItemItemType as ComponentItemType;
 
                 let newComponent = regionView.createComponent(componentType.toComponentType());
 
-                this.draggedComponentView = <ComponentView<Component>> this.pageView.createView(componentType,
+                this.draggedComponentView = this.pageView.createView(componentType,
                     new CreateItemViewConfig<RegionView, Component>()
                         .setParentView(regionView)
                         .setParentElement(regionView)
                         .setData(newComponent)
-                        .setPositionIndex(componentIndex));
+                        .setPositionIndex(componentIndex)) as ComponentView<Component>;
 
                 regionView.addComponentView(this.draggedComponentView, componentIndex, true);
 
@@ -343,7 +343,7 @@ export class DragAndDrop {
             console.groupEnd();
         }
 
-        this.getRegionView($(<HTMLElement>event.target)).addClass(this.DRAGGING_ACTIVE_CLASS);
+        this.getRegionView($(event.target as HTMLElement)).addClass(this.DRAGGING_ACTIVE_CLASS);
     }
 
     /*
@@ -356,7 +356,7 @@ export class DragAndDrop {
             console.groupEnd();
         }
 
-        this.getRegionView($(<HTMLElement>event.target)).removeClass(this.DRAGGING_ACTIVE_CLASS);
+        this.getRegionView($(event.target as HTMLElement)).removeClass(this.DRAGGING_ACTIVE_CLASS);
     }
 
     /*
@@ -437,7 +437,7 @@ export class DragAndDrop {
             console.groupEnd();
         }
 
-        let fromRegionView = this.getRegionView($(<HTMLElement>event.target));
+        let fromRegionView = this.getRegionView($(event.target as HTMLElement));
         fromRegionView.refreshEmptyState();
     }
 
@@ -450,7 +450,7 @@ export class DragAndDrop {
             console.groupEnd();
         }
 
-        let toRegionView = this.getRegionView($(<HTMLElement>event.target));
+        let toRegionView = this.getRegionView($(event.target as HTMLElement));
         toRegionView.refreshEmptyState();
     }
 
@@ -591,7 +591,7 @@ export class DragAndDrop {
         if (!isLayout) {
             let itemType = this.getItemType();
             if (FragmentItemType.get().equals(itemType)) {
-                let fragment = <FragmentComponentView> this.draggedComponentView;
+                let fragment = this.draggedComponentView as FragmentComponentView;
                 isLayout = fragment && fragment.containsLayout();
                 if (isLayout && DragAndDrop.debug) {
                     console.log('DragAndDrop.isDraggingLayoutOverLayout - Fragment contains layout');

@@ -38,7 +38,7 @@ export class AppWrapper
 
     private touchListener: (event: TouchEvent) => void;
 
-    private widgetAddedListeners: { (Widget): void }[] = [];
+    private widgetAddedListeners: ((Widget) => void)[] = [];
 
     private static HIDE_SIDEBAR_BY_DEFAULT: string = 'contentstudio:hideSidebarByDefault';
 
@@ -200,13 +200,13 @@ export class AppWrapper
             }
 
             if (this.sidebar.getButtons().some(
-                (button: Button) => button.getHTMLElement().contains(<HTMLElement>event.target))
+                (button: Button) => button.getHTMLElement().contains(event.target as HTMLElement))
             ) {
                 this.collapseSidebarOnMouseEvent(event);
                 return;
             }
 
-            for (let element = event.target; element; element = (<HTMLElement>element).parentNode) {
+            for (let element = event.target; element; element = (element as HTMLElement).parentNode) {
                 if (element === this.sidebar.getHTMLElement() || element === this.toggleSidebarButton.getHTMLElement()) {
                     return;
                 }
@@ -289,7 +289,7 @@ export class AppWrapper
         return super.doRender().then((rendered: boolean) => {
             const headerAndWidgetsBlock: DivEl = new DivEl('header-widgets-block');
             headerAndWidgetsBlock.appendChildren(this.appBar, this.widgetsBlock);
-            this.appendChildren(this.toggleSidebarButton, <Element>this.sidebar, headerAndWidgetsBlock);
+            this.appendChildren(this.toggleSidebarButton, this.sidebar as Element, headerAndWidgetsBlock);
 
             return rendered;
         });
@@ -300,13 +300,13 @@ export class AppWrapper
     }
 
     unItemAdded(handler: (item: Widget) => void) {
-        this.widgetAddedListeners = this.widgetAddedListeners.filter((curr: { (widget: Widget): void }) => {
+        this.widgetAddedListeners = this.widgetAddedListeners.filter((curr: (widget: Widget) => void) => {
             return handler !== curr;
         });
     }
 
     private notifyItemAdded(item: Widget) {
-        this.widgetAddedListeners.forEach((handler: { (widget: Widget): void }) => {
+        this.widgetAddedListeners.forEach((handler: (widget: Widget) => void) => {
             handler(item);
         });
     }

@@ -7,9 +7,9 @@ import {RegionDescriptor} from '../RegionDescriptor';
 export class LayoutRegionsMerger {
 
     private layoutComponentRegions: Region[];
-    private targetRegionsByName: { [regionName: string]: Region; };
-    private targetRegionsNameByPosition: { [key: number]: string; };
-    private sourceRegionsPositionByName: { [regionName: string]: number; };
+    private targetRegionsByName: Record<string, Region>;
+    private targetRegionsNameByPosition: Record<number, string>;
+    private sourceRegionsPositionByName: Record<string, number>;
 
     /**
      * Merge the components of regions existing in a layout component, distribute them

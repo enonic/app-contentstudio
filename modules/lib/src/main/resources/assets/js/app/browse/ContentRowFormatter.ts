@@ -17,7 +17,7 @@ export class ContentRowFormatter {
                                 node: TreeNode<ContentSummaryAndCompareStatus>): string {
         const data = node.getData();
         if (data.getContentSummary() || data.getUploadItem()) {
-            let viewer = <ContentSummaryAndCompareStatusViewer>node.getViewer('name');
+            let viewer = node.getViewer('name') as ContentSummaryAndCompareStatusViewer;
             if (!viewer) {
                 viewer = new ContentSummaryListViewer();
                 node.setViewer('name', viewer);
@@ -70,7 +70,7 @@ export class ContentRowFormatter {
         if (ObjectHelper.iFrameSafeInstanceOf(value, ContentAndStatusTreeSelectorItem) ||
             ObjectHelper.iFrameSafeInstanceOf(value, MediaTreeSelectorItem)) {
 
-            const item = <ContentAndStatusTreeSelectorItem>value;
+            const item = value as ContentAndStatusTreeSelectorItem;
             if (item.isSelectable() && (item.getCompareStatus() != null || item.getPublishStatus() != null)) {
                 return ContentRowFormatter.doStatusFormat(
                     ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(value.getContent(),

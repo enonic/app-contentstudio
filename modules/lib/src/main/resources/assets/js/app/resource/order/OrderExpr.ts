@@ -36,7 +36,7 @@ export class OrderExpr
         if (!ObjectHelper.iFrameSafeInstanceOf(o, OrderExpr)) {
             return false;
         }
-        let other = <OrderExpr>o;
+        let other = o as OrderExpr;
         if (this.direction.toLowerCase() !== other.getDirection().toLowerCase()) {
             return false;
         }

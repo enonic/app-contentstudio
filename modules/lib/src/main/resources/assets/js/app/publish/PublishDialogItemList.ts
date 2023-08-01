@@ -74,7 +74,7 @@ export class PublishDialogItemList
 
             const exist = ArrayHelper.contains(this.excludeChildrenIds, contentId);
             if (enabled && exist) {
-                this.excludeChildrenIds = <ContentId[]>ArrayHelper.filter(this.excludeChildrenIds, contentId);
+                this.excludeChildrenIds = ArrayHelper.filter(this.excludeChildrenIds, contentId) as ContentId[];
             } else if (!enabled && !exist) {
                 this.excludeChildrenIds.push(contentId);
             }

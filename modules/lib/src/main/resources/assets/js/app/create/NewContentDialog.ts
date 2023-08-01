@@ -70,10 +70,10 @@ export class NewContentDialog
     protected header: NewContentDialogHeader;
 
     constructor() {
-        super(<ModalDialogConfig>{
+        super({
             title: i18n('dialog.new'),
             class: 'new-content-dialog'
-        });
+        } as ModalDialogConfig);
     }
 
     protected createHeader(): NewContentDialogHeader {
@@ -95,7 +95,7 @@ export class NewContentDialog
             const contentTypesListDiv = new DivEl('content-types-content');
             contentTypesListDiv.appendChild(this.allContentTypes);
 
-            mainSection.appendChildren(<Element>this.fileInput, <Element>contentTypesListDiv);
+            mainSection.appendChildren(this.fileInput as Element, contentTypesListDiv as Element);
 
             const sideBlock: AsideEl = new AsideEl().setClass('column-right');
             sideBlock.appendChild(this.mostPopularContentTypes);
@@ -250,7 +250,7 @@ export class NewContentDialog
         let dragOverEl;
         this.onDragEnter((event: DragEvent) => {
             if (this.newContentUploader.isEnabled()) {
-                let target = <HTMLElement>event.target;
+                let target = event.target as HTMLElement;
 
                 if (!!dragOverEl || dragOverEl === this.getHTMLElement()) {
                     this.dropzoneContainer.show();
@@ -271,11 +271,11 @@ export class NewContentDialog
     private bindKeys(): void {
         const keyBindings = [
             new KeyBinding('up', () => {
-                FormEl.moveFocusToPrevFocusable(Element.fromHtmlElement(<HTMLElement>document.activeElement),
+                FormEl.moveFocusToPrevFocusable(Element.fromHtmlElement(document.activeElement as HTMLElement),
                     'input,li');
             }).setGlobal(true),
             new KeyBinding('down', () => {
-                FormEl.moveFocusToNextFocusable(Element.fromHtmlElement(<HTMLElement>document.activeElement),
+                FormEl.moveFocusToNextFocusable(Element.fromHtmlElement(document.activeElement as HTMLElement),
                     'input,li');
             }).setGlobal(true)];
 

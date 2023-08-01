@@ -24,7 +24,7 @@ export class GetNearestSiteRequest
     }
 
     protected parseResponse(response: JsonResponse<ContentJson>): Site {
-        return response.isBlank() ? null : <Site>this.fromJsonToContent(response.getResult());
+        return response.isBlank() ? null : this.fromJsonToContent(response.getResult()) as Site;
     }
 
 }

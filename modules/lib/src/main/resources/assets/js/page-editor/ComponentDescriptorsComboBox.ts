@@ -29,7 +29,7 @@ export class ComponentDescriptorsComboBox
     }
 
     setContentId(contentId: ContentId) {
-        (<ComponentDescriptorsLoader>this.getLoader()).setContentId(contentId);
+        (this.getLoader() as ComponentDescriptorsLoader).setContentId(contentId);
     }
 
     getDescriptor(descriptorKey: DescriptorKey): Descriptor {

@@ -70,7 +70,7 @@ export class ImageContentComboBox
     getContent(contentId: ContentId): ContentSummary {
         let option = this.getOptionByValue(contentId.toString());
         if (option) {
-            return (<MediaTreeSelectorItem>option.getDisplayValue()).getContentSummary();
+            return (option.getDisplayValue() as MediaTreeSelectorItem).getContentSummary();
         }
         return null;
     }
@@ -119,18 +119,18 @@ export class ImageContentComboBox
 
     private dataToMediaTreeSelectorItem(data: Object): MediaTreeSelectorItem {
         if (ObjectHelper.iFrameSafeInstanceOf(data, MediaTreeSelectorItem)) {
-            return <MediaTreeSelectorItem>data;
+            return data as MediaTreeSelectorItem;
         }
 
         if (ObjectHelper.iFrameSafeInstanceOf(data, ContentSummary)) {
-            return new MediaTreeSelectorItem(<ContentSummary>data);
+            return new MediaTreeSelectorItem(data as ContentSummary);
         }
 
         return null;
     }
 
     getLoader(): ImageOptionDataLoader {
-        return <ImageOptionDataLoader>super.getLoader();
+        return super.getLoader() as ImageOptionDataLoader;
     }
 
     load() {
@@ -152,7 +152,7 @@ export class ImageContentComboBoxBuilder
     comboBoxName: string = 'imageContentSelector';
 
     selectedOptionsView: SelectedOptionsView<ContentTreeSelectorItem> =
-        <SelectedOptionsView<ContentTreeSelectorItem>>new ImageSelectorSelectedOptionsView();
+        new ImageSelectorSelectedOptionsView() as SelectedOptionsView<ContentTreeSelectorItem>;
 
     optionDisplayValueViewer: ImageSelectorViewer = new ImageSelectorViewer();
 

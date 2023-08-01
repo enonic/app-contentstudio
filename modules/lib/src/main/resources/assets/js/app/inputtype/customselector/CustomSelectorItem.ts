@@ -1,15 +1,15 @@
-type CustomSelectorItemJson = {
+interface CustomSelectorItemJson {
     id: string;
     displayName: string;
     description: string;
     iconUrl: string;
     icon: CustomSelectorItemIcon;
-};
+}
 
-type CustomSelectorItemIcon = {
+interface CustomSelectorItemIcon {
     data: string;
     type: string;
-};
+}
 
 export class CustomSelectorItem {
 

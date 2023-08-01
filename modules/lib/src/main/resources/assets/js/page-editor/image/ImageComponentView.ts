@@ -24,7 +24,7 @@ export class ImageComponentView
     private image: Element;
 
     constructor(builder: ImageComponentViewBuilder) {
-        super(<ImageComponentViewBuilder>builder.setViewer(new ImageComponentViewer()).setInspectActionRequired(true));
+        super(builder.setViewer(new ImageComponentViewer()).setInspectActionRequired(true) as ImageComponentViewBuilder);
 
         this.setPlaceholder(new ImagePlaceholder(this));
 
@@ -57,24 +57,23 @@ export class ImageComponentView
     }
 
     private initializeImage() {
-
-        let figureElChildren = this.getChildren();
-        for (let i = 0; i < figureElChildren.length; i++) {
-            let image = figureElChildren[i];
-            if (image.getHTMLElement().tagName.toUpperCase() === 'IMG') {
-                this.image = image;
-
-                // no way to use ImgEl.onLoaded because all html tags are parsed as Element
-                this.image.getEl().addEventListener('load', (event) => {
-                    // refresh shader and highlighter after image loaded
-                    // if it's still selected
-                    if (this.isSelected()) {
-                        this.highlightSelected();
-                        //this.shade();
-                    }
-                });
+        const figureElChildren = this.getChildren();
+        for (const image of figureElChildren) {
+            if (image.getHTMLElement().tagName.toUpperCase() !== 'IMG') {
+                return;
             }
-            return;
+
+            this.image = image;
+
+            // no way to use ImgEl.onLoaded because all html tags are parsed as Element
+            this.image.getEl().addEventListener('load', (event) => {
+                // refresh shader and highlighter after image loaded
+                // if it's still selected
+                if (this.isSelected()) {
+                    this.highlightSelected();
+                    //this.shade();
+                }
+            });
         }
     }
 

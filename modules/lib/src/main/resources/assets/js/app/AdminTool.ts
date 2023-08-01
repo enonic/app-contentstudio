@@ -46,7 +46,7 @@ export class AdminTool
             return false;
         }
 
-        const other = <AdminTool>o;
+        const other = o as AdminTool;
 
         if (!ObjectHelper.stringEquals(this.uri, other.uri)) {
             return false;

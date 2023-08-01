@@ -150,6 +150,6 @@ export class ScheduleWizardStepForm
 class DateTimeRangeFormView extends FormView {
 
     refreshValidation(): void {
-        (<InputView>this.formItemViews[0])?.getInputTypeView().displayValidationErrors();
+        (this.formItemViews[0] as InputView)?.getInputTypeView().displayValidationErrors();
     }
 }

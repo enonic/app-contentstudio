@@ -98,7 +98,7 @@ export class Descriptor
             return false;
         }
 
-        let other = <Descriptor>o;
+        let other = o as Descriptor;
 
         return this.name.toString() === other.getName().toString() &&
                 this.componentType === other.getComponentType() &&

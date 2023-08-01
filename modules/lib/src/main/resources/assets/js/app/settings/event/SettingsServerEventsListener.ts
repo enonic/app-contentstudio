@@ -21,7 +21,7 @@ export class SettingsServerEventsListener
 
     protected onServerEvent(event: Event): void {
         if (this.isPrincipalEvent(event)) {
-            this.handleProjectPermissionsUpdate(<PrincipalServerEvent>event);
+            this.handleProjectPermissionsUpdate(event as PrincipalServerEvent);
         }
     }
 
@@ -36,7 +36,7 @@ export class SettingsServerEventsListener
             return;
         }
 
-        const nodeEventJson: NodeEventJson = <NodeEventJson>eventJson;
+        const nodeEventJson: NodeEventJson = eventJson as NodeEventJson;
 
         if (SettingsServerEvent.is(nodeEventJson)) {
             const event: SettingsServerEvent = SettingsServerEvent.fromJson(nodeEventJson);

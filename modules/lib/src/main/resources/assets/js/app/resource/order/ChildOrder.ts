@@ -65,7 +65,7 @@ export class ChildOrder
         let order = this.orderExpressions[0];
         if (ObjectHelper.iFrameSafeInstanceOf(order, FieldOrderExpr)) {
             return ObjectHelper.stringEquals(ChildOrder.MANUAL_ORDER_VALUE_KEY.toLowerCase(),
-                (<FieldOrderExpr>order).getFieldName().toLowerCase());
+                (order as FieldOrderExpr).getFieldName().toLowerCase());
         }
         return false;
     }
@@ -82,14 +82,14 @@ export class ChildOrder
         if (this.orderExpressions.length === 0) {
             return false;
         }
-        let order = (<FieldOrderExpr>this.orderExpressions[0]);
+        let order = (this.orderExpressions[0] as FieldOrderExpr);
         return ObjectHelper.stringEquals(QueryField.DISPLAY_NAME.toLowerCase(), order.getFieldName().toLowerCase());
     }
 
     isDefault(): boolean {
         let order = this.orderExpressions[0];
         if (ObjectHelper.iFrameSafeInstanceOf(order, FieldOrderExpr)) {
-            let fieldOrder = (<FieldOrderExpr>order);
+            let fieldOrder = (order as FieldOrderExpr);
             if (ObjectHelper.stringEquals(this.DEFAULT_ORDER_DIRECTION_VALUE.toLowerCase(),
                 fieldOrder.getDirection().toLowerCase()) &&
                 ObjectHelper.stringEquals(ChildOrder.DEFAULT_ORDER_FIELD_VALUE.toLowerCase(),
@@ -116,7 +116,7 @@ export class ChildOrder
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ChildOrder)) {
             return false;
         }
-        let other = <ChildOrder>o;
+        let other = o as ChildOrder;
         if (this.orderExpressions.length !== other.getOrderExpressions().length) {
             return false;
         }

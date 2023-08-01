@@ -78,7 +78,7 @@ export class AccessControlEntry
             return false;
         }
 
-        let other = <AccessControlEntry>o;
+        let other = o as AccessControlEntry;
 
         if (!ObjectHelper.equals(this.getPrincipalKey(), other.getPrincipalKey())) {
             return false;

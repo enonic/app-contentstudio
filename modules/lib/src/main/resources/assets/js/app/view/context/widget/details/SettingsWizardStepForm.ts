@@ -73,18 +73,18 @@ export class SettingsWizardStepForm
     }
 
     private addLocaleFormItem(): FormItem {
-        this.localeCombo = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).build();
+        this.localeCombo = LocaleComboBox.create().setMaximumOccurrences(1).build() as LocaleComboBox;
         return new FormItemBuilder(this.localeCombo).setLabel(i18n('field.lang')).build();
     }
 
     private addOwnerFormItem(): FormItem {
         const loader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]);
 
-        this.ownerCombo = <PrincipalComboBox>PrincipalComboBox.create()
+        this.ownerCombo = PrincipalComboBox.create()
             .setLoader(loader)
             .setMaximumOccurrences(1)
             .setDisplayMissingSelectedOptions(true)
-            .build();
+            .build() as PrincipalComboBox;
 
         return new FormItemBuilder(this.ownerCombo).setLabel(i18n('field.owner')).build();
     }

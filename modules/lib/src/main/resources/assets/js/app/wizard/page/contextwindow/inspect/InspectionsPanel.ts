@@ -68,7 +68,7 @@ export class InspectionsPanel
         this.buttonContainer = new DivEl('button-bar');
         this.buttonContainer.appendChild(new ActionButton(config.saveAction));
 
-        this.appendChildren(<Element>this.deck, this.buttonContainer);
+        this.appendChildren(this.deck as Element, this.buttonContainer);
 
         partInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
         layoutInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));

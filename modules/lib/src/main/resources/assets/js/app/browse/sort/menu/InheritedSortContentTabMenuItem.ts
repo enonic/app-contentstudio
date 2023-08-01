@@ -40,7 +40,7 @@ export class InheritedSortContentTabMenuItemBuilder
     extends SortContentTabMenuItemBuilder {
 
     setLabel(label: string): InheritedSortContentTabMenuItemBuilder {
-        return <InheritedSortContentTabMenuItemBuilder>super.setLabel(label);
+        return super.setLabel(label) as InheritedSortContentTabMenuItemBuilder;
     }
 
     build(): InheritedSortContentTabMenuItem {

@@ -13,7 +13,7 @@ import {ChildOrder} from '../../../resource/order/ChildOrder';
 export class SortContentTabMenu
     extends TabMenu {
 
-    private sortOrderChangedListeners: {():void}[] = [];
+    private sortOrderChangedListeners: (() =>void)[] = [];
 
     private dropdownHandle: DropdownHandle;
 
@@ -121,7 +121,7 @@ export class SortContentTabMenu
     }
 
     handleMenuKeyDown(event: KeyboardEvent) {
-        const item = <SortContentTabMenuItem>this.getFocusedTab();
+        const item = this.getFocusedTab() as SortContentTabMenuItem;
         if (KeyHelper.isArrowLeftKey(event)) {
             item.giveFocusToPrevElem();
         } else if (KeyHelper.isArrowRightKey(event)) {
@@ -161,11 +161,11 @@ export class SortContentTabMenu
     }
 
     getSelectedNavigationItem(): SortContentTabMenuItem {
-        return (<SortContentTabMenuItem>super.getSelectedNavigationItem());
+        return (super.getSelectedNavigationItem() as SortContentTabMenuItem);
     }
 
     getNavigationItems(): SortContentTabMenuItem[] {
-        return <SortContentTabMenuItem[]>super.getNavigationItems();
+        return super.getNavigationItems() as SortContentTabMenuItem[];
     }
 
     addNavigationItems(items: SortContentTabMenuItem[]) {

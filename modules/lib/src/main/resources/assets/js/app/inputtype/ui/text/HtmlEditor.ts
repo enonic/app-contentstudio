@@ -120,7 +120,7 @@ export class HtmlEditor {
             if (!result && el.name === 'figure') {
                 if (el.getFirst('img') ?
                     el.getFirst('img') : el.getFirst('a') ?
-                                         (<CKEDITOR.htmlParser.element>el.getFirst('a')).getFirst('img') : null) {
+                                         (el.getFirst('a') as CKEDITOR.htmlParser.element).getFirst('img') : null) {
                     return el;
                 }
             }
@@ -386,7 +386,7 @@ export class HtmlEditor {
         const isImageSelected: boolean = selectedElement.hasClass('cke_widget_image');
         const isLinkSelected: boolean = (selectedElement.is('a') && selectedElement.hasAttribute('href'));
         const figureEl = isImageSelected ? selectedElement.findOne('figure') : null;
-        const isImageWithLinkSelected = isImageSelected && !!figureEl && (<CKEDITOR.dom.element>figureEl.getFirst()).is('a');
+        const isImageWithLinkSelected = isImageSelected && !!figureEl && (figureEl.getFirst() as CKEDITOR.dom.element).is('a');
 
         this.toggleToolbarButtonState('link', isLinkSelected || isImageWithLinkSelected);
         this.toggleToolbarButtonState('anchor', isAnchorSelected);
@@ -505,7 +505,7 @@ export class HtmlEditor {
     public static updateFigureInlineStyle(figure: CKEDITOR.dom.element) {
         const hasCustomWidth: boolean = figure.hasClass(StyleHelper.STYLE.WIDTH.CUSTOM);
         const customWidth: string = figure.getStyle('width');
-        const firstFigureChild: CKEDITOR.dom.element = (<CKEDITOR.dom.element>figure.getFirst());
+        const firstFigureChild: CKEDITOR.dom.element = (figure.getFirst() as CKEDITOR.dom.element);
 
         figure.removeAttribute('style');
 
@@ -827,7 +827,7 @@ export class HtmlEditor {
             this.editor.document.getBody();
 
         cursorPosition.selectionIndexes.forEach((index: number) => {
-            elementContainer = <CKEDITOR.dom.element>elementContainer.getChild(index);
+            elementContainer = elementContainer.getChild(index) as CKEDITOR.dom.element;
         });
 
         elementContainer.scrollIntoView();

@@ -29,7 +29,7 @@ export class ContentType
             return false;
         }
 
-        let other = <ContentType>o;
+        let other = o as ContentType;
 
         if (!ObjectHelper.equals(this.form, other.form)) {
             return false;

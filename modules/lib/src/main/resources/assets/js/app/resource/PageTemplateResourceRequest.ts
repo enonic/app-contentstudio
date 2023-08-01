@@ -11,6 +11,6 @@ export abstract class PageTemplateResourceRequest<PARSED_TYPE>
     }
 
     fromJsonToContent(json: ContentJson): PageTemplate {
-        return <PageTemplate>super.fromJsonToContent(json);
+        return super.fromJsonToContent(json) as PageTemplate;
     }
 }

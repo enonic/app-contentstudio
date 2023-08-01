@@ -26,7 +26,7 @@ export class ProjectsComboBox extends RichComboBox<Project> {
     }
 
     private initListeners(): void {
-        const loader: ProjectOptionDataLoader = <ProjectOptionDataLoader>this.getLoader();
+        const loader: ProjectOptionDataLoader = this.getLoader() as ProjectOptionDataLoader;
 
         loader.onLoadedData(() => {
             const isFlatList: boolean = this.isFlatList();
@@ -39,7 +39,7 @@ export class ProjectsComboBox extends RichComboBox<Project> {
 
         this.onOptionSelected((option: SelectedOptionEvent<Project>) => {
             this.getAllProjects().then((projects: Project[]) => {
-                const view: ProjectSelectedOptionView = <ProjectSelectedOptionView>option.getSelectedOption()?.getOptionView();
+                const view: ProjectSelectedOptionView = option.getSelectedOption()?.getOptionView() as ProjectSelectedOptionView;
                 const project: Project = option.getSelectedOption().getOption().getDisplayValue();
                 const subName: string =
                     ProjectsChainBlock.buildProjectsChain(project.getName(), projects).map((p: Project) => p.getName()).join(' / ');

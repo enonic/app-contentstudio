@@ -13,7 +13,7 @@ export class StatusFilter
 
     private currentStatus: IssueStatus;
 
-    private statusChangedListeners: { (status: IssueStatus): void }[];
+    private statusChangedListeners: ((status: IssueStatus) => void)[];
 
     constructor() {
         super('status-filter');

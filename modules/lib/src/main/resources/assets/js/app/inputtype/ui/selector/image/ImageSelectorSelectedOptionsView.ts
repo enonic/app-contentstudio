@@ -20,9 +20,9 @@ export class ImageSelectorSelectedOptionsView
 
     private toolbar: SelectionToolbar;
 
-    private editSelectedOptionsListeners: { (option: SelectedOption<MediaTreeSelectorItem>[]): void }[] = [];
+    private editSelectedOptionsListeners: ((option: SelectedOption<MediaTreeSelectorItem>[]) => void)[] = [];
 
-    private removeSelectedOptionsListeners: { (option: SelectedOption<MediaTreeSelectorItem>[]): void }[] = [];
+    private removeSelectedOptionsListeners: ((option: SelectedOption<MediaTreeSelectorItem>[]) => void)[] = [];
 
     private mouseClickListener: (event: MouseEvent) => void;
 
@@ -72,7 +72,7 @@ export class ImageSelectorSelectedOptionsView
             let selectedOptionMoved: boolean = moved.getOptionView().hasClass('editing');
 
             if (selectedOptionMoved) {
-                (<ImageSelectorSelectedOptionView>moved.getOptionView()).getCheckbox().giveFocus();
+                (moved.getOptionView() as ImageSelectorSelectedOptionView).getCheckbox().giveFocus();
             }
         });
     }
@@ -134,7 +134,7 @@ export class ImageSelectorSelectedOptionsView
         const selectedOption: SelectedOption<MediaTreeSelectorItem> = this.createSelectedOption(option);
         this.getSelectedOptions().push(selectedOption);
 
-        const optionView: ImageSelectorSelectedOptionView = <ImageSelectorSelectedOptionView>selectedOption.getOptionView();
+        const optionView: ImageSelectorSelectedOptionView = selectedOption.getOptionView() as ImageSelectorSelectedOptionView;
 
         optionView.onRendered(() => {
             this.handleOptionViewRendered(selectedOption, optionView);
@@ -178,7 +178,7 @@ export class ImageSelectorSelectedOptionsView
     private uncheckOthers(option: SelectedOption<MediaTreeSelectorItem>) {
         let selectedOptions = this.getSelectedOptions();
         for (let i = 0; i < selectedOptions.length; i++) {
-            let view = <ImageSelectorSelectedOptionView>selectedOptions[i].getOptionView();
+            let view = selectedOptions[i].getOptionView() as ImageSelectorSelectedOptionView;
             if (i !== option.getIndex()) {
                 view.getCheckbox().setChecked(false);
             }
@@ -192,7 +192,7 @@ export class ImageSelectorSelectedOptionsView
         this.resetActiveOption();
 
         if (index > -1) {
-            (<ImageSelectorSelectedOptionView>this.getByIndex(index).getOptionView()).getCheckbox().giveFocus();
+            (this.getByIndex(index).getOptionView() as ImageSelectorSelectedOptionView).getCheckbox().giveFocus();
         }
     }
 

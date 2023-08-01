@@ -138,11 +138,11 @@ export class ContentWizardDataLoader {
 
     public loadDefaultModels(site: Site, contentType: ContentTypeName): Q.Promise<DefaultModels> {
         if (site) {
-            return DefaultModelsFactory.create(<DefaultModelsFactoryConfig>{
+            return DefaultModelsFactory.create({
                 siteId: site.getContentId(),
                 contentType: contentType,
                 applications: site.getApplicationKeys()
-            });
+            } as DefaultModelsFactoryConfig);
         } else if (contentType.isSite()) {
             return Q<DefaultModels>(new DefaultModels(null, null));
         } else {

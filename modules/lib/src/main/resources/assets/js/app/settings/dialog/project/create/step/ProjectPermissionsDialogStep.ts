@@ -70,6 +70,6 @@ export class ProjectPermissionsDialogStep
     }
 
     private getFormItem(): ProjectRolesFormItem {
-        return this.formItems && <ProjectRolesFormItem>this.formItems[0];
+        return this.formItems && this.formItems[0] as ProjectRolesFormItem;
     }
 }

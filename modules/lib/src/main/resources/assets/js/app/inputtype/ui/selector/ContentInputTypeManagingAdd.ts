@@ -52,20 +52,20 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         return new ApplicationBasedName(applicationKey, name).toString();
     }
 
-    private getRelationShipType(inputConfig: { [element: string]: { [name: string]: string }[]; }): string {
+    private getRelationShipType(inputConfig: Record<string, Record<string, string>[]>): string {
         const relationshipTypeConfig = inputConfig['relationshipType'] ? inputConfig['relationshipType'][0] : {};
         return relationshipTypeConfig['value'];
     }
 
-    private getAllowedContentTypes(inputConfig: { [element: string]: { [name: string]: string }[]; }): string[] {
-        const applicationKey: ApplicationKey = (<FormItem>this.context.input).getApplicationKey();
+    private getAllowedContentTypes(inputConfig: Record<string, Record<string, string>[]>): string[] {
+        const applicationKey: ApplicationKey = (this.context.input as FormItem).getApplicationKey();
         const allowContentTypeConfig = inputConfig['allowContentType'] || [];
         return allowContentTypeConfig
             .map((cfg) => this.prependApplicationName(applicationKey, cfg['value']))
             .filter((val) => !!val);
     }
 
-    private getAllowedContentPaths(inputConfig: { [element: string]: { [name: string]: string }[]; }): string[] {
+    private getAllowedContentPaths(inputConfig: Record<string, Record<string, string>[]>): string[] {
         const allowContentPathConfig = inputConfig['allowPath'] || [];
         if (allowContentPathConfig.length > 0) {
             return allowContentPathConfig
@@ -80,7 +80,7 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     }
 
     protected readInputConfig(): void {
-        const inputConfig: { [element: string]: { [name: string]: string }[]; } = this.context.inputConfig;
+        const inputConfig: Record<string, Record<string, string>[]> = this.context.inputConfig;
 
         this.relationshipType = this.getRelationShipType(inputConfig);
         this.allowedContentTypes = this.getAllowedContentTypes(inputConfig);

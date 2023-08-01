@@ -25,14 +25,14 @@ export class FullscreenDialog
     protected config: FullscreenDialogConfig;
 
     constructor(config: FullScreenDialogParams) {
-        super(<FullscreenDialogConfig>{
+        super({
             editor: config.editor,
             editorParams: config.editorParams,
             cursorPosition: config.cursorPosition,
             title: i18n('dialog.fullscreen.title'),
             class: 'fullscreen-modal-dialog',
             alwaysFullscreen: true
-        });
+        } as FullscreenDialogConfig);
 
         this.getEditor().focusManager.lock();
     }

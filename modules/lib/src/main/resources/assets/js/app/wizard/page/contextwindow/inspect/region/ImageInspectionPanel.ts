@@ -41,9 +41,9 @@ export class ImageInspectionPanel
     private readonly componentPropertyChangedEventHandler: ComponentPropertyChangedEventHandler;
 
     constructor() {
-        super(<ComponentInspectionPanelConfig>{
+        super({
             iconClass: ItemViewIconClassResolver.resolveByType('image', 'icon-xlarge')
-        });
+        } as ComponentInspectionPanelConfig);
 
         this.imageSelector = ImageContentComboBox
             .create()

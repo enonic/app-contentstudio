@@ -65,7 +65,7 @@ export class ContentIds
             return false;
         }
 
-        let other = <ContentIds>o;
+        let other = o as ContentIds;
         return ObjectHelper.arrayEquals(this.array, other.array);
     }
 

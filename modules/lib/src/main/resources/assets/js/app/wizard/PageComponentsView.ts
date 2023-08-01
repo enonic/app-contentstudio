@@ -61,7 +61,7 @@ export class PageComponentsView
     private dockedParent: Element;
     private toggleButton: Button;
 
-    private beforeInsertActionListeners: { (): void }[] = [];
+    private beforeInsertActionListeners: (() => void)[] = [];
 
     private mouseDownListener: (event: MouseEvent) => void;
     private mouseUpListener: (event?: MouseEvent) => void;
@@ -265,8 +265,8 @@ export class PageComponentsView
             this.tree.scrollToItem(event.getNewComponentView().getItemId().toString());
 
             if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), FragmentComponentView)) {
-                this.bindTreeFragmentNodeUpdateOnComponentLoaded(<FragmentComponentView>event.getNewComponentView());
-                this.bindFragmentLoadErrorHandler(<FragmentComponentView>event.getNewComponentView());
+                this.bindTreeFragmentNodeUpdateOnComponentLoaded(event.getNewComponentView() as FragmentComponentView);
+                this.bindFragmentLoadErrorHandler(event.getNewComponentView() as FragmentComponentView);
                 return;
             }
 

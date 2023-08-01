@@ -249,7 +249,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
             return false;
         }
 
-        let other = <ContentSummaryAndCompareStatus>o;
+        let other = o as ContentSummaryAndCompareStatus;
 
         if (!ObjectHelper.equals(this.uploadItem, other.getUploadItem())) {
             return false;

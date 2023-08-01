@@ -125,11 +125,11 @@ export class IssueDetailsDialog
 
     private scheduleFormPropertySet: PropertySet;
 
-    private updatedListeners: { (issue: Issue): void }[] = [];
+    private updatedListeners: ((issue: Issue) => void)[] = [];
 
     private scheduleFormToggle: ButtonEl;
 
-    private backButtonClickedListeners: { (): void }[] = [];
+    private backButtonClickedListeners: (() => void)[] = [];
 
     private publishMessage: H6El;
 
@@ -200,7 +200,7 @@ export class IssueDetailsDialog
         const userLoader = new PrincipalLoader()
             .setAllowedTypes([PrincipalType.USER])
             .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
-        this.assigneesCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(userLoader).build();
+        this.assigneesCombobox = PrincipalComboBox.create().setLoader(userLoader).build() as PrincipalComboBox;
         this.commentsList = new IssueCommentsList();
 
         this.assigneesTab = IssueDetailsDialog.createTabBar('assignees');
@@ -687,7 +687,7 @@ export class IssueDetailsDialog
     }
 
     private getHeader(): IssueDetailsDialogHeader {
-        return <IssueDetailsDialogHeader>this.header;
+        return this.header as IssueDetailsDialogHeader;
     }
 
     getIssue(): Issue {
@@ -808,7 +808,7 @@ export class IssueDetailsDialog
     }
 
     getButtonRow(): IssueDetailsDialogButtonRow {
-        return <IssueDetailsDialogButtonRow>super.getButtonRow();
+        return super.getButtonRow() as IssueDetailsDialogButtonRow;
     }
 
     private initItemListTogglers(itemList: PublishDialogItemList): boolean {

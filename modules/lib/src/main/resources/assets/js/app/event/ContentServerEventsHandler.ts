@@ -28,31 +28,31 @@ export class ContentServerEventsHandler {
 
     private handler: (event: BatchContentServerEvent) => void;
 
-    private contentCreatedListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
+    private contentCreatedListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
-    private contentUpdatedListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
+    private contentUpdatedListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
-    private contentDeletedListeners: { (paths: ContentServerChangeItem[]): void }[] = [];
+    private contentDeletedListeners: ((paths: ContentServerChangeItem[]) => void)[] = [];
 
-    private contentDeletedInOtherReposListeners: { (paths: ContentServerChangeItem[]): void }[] = [];
+    private contentDeletedInOtherReposListeners: ((paths: ContentServerChangeItem[]) => void)[] = [];
 
-    private contentMovedListeners: { (movedItems: MovedContentItem[]): void }[] = [];
+    private contentMovedListeners: ((movedItems: MovedContentItem[]) => void)[] = [];
 
-    private contentRenamedListeners: { (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]): void }[] = [];
+    private contentRenamedListeners: ((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => void)[] = [];
 
-    private contentArchivedListeners: { (paths: ContentServerChangeItem[]): void }[] = [];
+    private contentArchivedListeners: ((paths: ContentServerChangeItem[]) => void)[] = [];
 
-    private contentPublishListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
+    private contentPublishListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
-    private contentUnpublishListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
+    private contentUnpublishListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
-    private contentPendingListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
+    private contentPendingListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
-    private contentDuplicateListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
+    private contentDuplicateListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
-    private contentSortListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
+    private contentSortListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
-    private contentPermissionsUpdatedListeners: { (contentIds: ContentIds): void }[] = [];
+    private contentPermissionsUpdatedListeners: ((contentIds: ContentIds) => void)[] = [];
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher = new ContentSummaryAndCompareStatusFetcher();
 

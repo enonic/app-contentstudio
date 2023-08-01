@@ -38,7 +38,7 @@ export class CompareContentResult
             return false;
         }
 
-        let other = <CompareContentResult>o;
+        let other = o as CompareContentResult;
 
         if (!ObjectHelper.stringEquals(this.id.toString(), other.id.toString())) {
             return false;
@@ -49,8 +49,8 @@ export class CompareContentResult
 
     static fromJson(json: CompareContentResultJson): CompareContentResult {
 
-        let compareStatus: CompareStatus = <CompareStatus>CompareStatus[json.compareStatus];
-        let publishStatus: PublishStatus = <PublishStatus>PublishStatus[json.publishStatus];
+        let compareStatus: CompareStatus = CompareStatus[json.compareStatus] as CompareStatus;
+        let publishStatus: PublishStatus = PublishStatus[json.publishStatus] as PublishStatus;
 
         return new CompareContentResult(json.id, compareStatus, publishStatus);
     }

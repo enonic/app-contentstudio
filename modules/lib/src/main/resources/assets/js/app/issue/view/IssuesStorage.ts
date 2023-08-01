@@ -6,7 +6,7 @@ export class IssuesStorage {
 
     private totalIssues: number;
 
-    private issuesUpdatedListeners: { (): void }[] = [];
+    private issuesUpdatedListeners: (() => void)[] = [];
 
     constructor(totalItems: number = 0) {
         this.totalIssues = totalItems;

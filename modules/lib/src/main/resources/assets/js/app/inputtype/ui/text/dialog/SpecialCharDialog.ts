@@ -12,11 +12,11 @@ export class SpecialCharDialog
     extends ModalDialog {
 
     constructor(config: eventInfo) {
-        super(<HtmlAreaModalDialogConfig>{
+        super({
             editor: config.editor,
             title: i18n('dialog.charmap.title'),
             class: 'special-char-modal-dialog'
-        });
+        } as HtmlAreaModalDialogConfig);
     }
 
     protected initListeners() {
@@ -51,25 +51,23 @@ export class SpecialCharDialog
         const specialChars: (string | [string, string])[] = this.getEditor().config.specialChars || [];
 
         const lang = this.getEditor().lang.specialchar;
-        let character: string | [string, string];
         let charDesc: string;
 
-        for (let i = 0; i < specialChars.length; i++) {
-            character = specialChars[i];
+        for (let specialChar of specialChars) {
             charDesc = '';
 
-            if (typeof(character) === 'string') {
-                const _tmpName = character.replace('&', '').replace(';', '').replace('#', '');
+            if (typeof(specialChar) === 'string') {
+                const _tmpName = specialChar.replace('&', '').replace(';', '').replace('#', '');
 
                 // Use character in case description unavailable.
-                charDesc = lang[_tmpName] || character;
+                charDesc = lang[_tmpName] || specialChar;
             } else {
-                charDesc = character[1];
-                character = character[0];
+                charDesc = specialChar[1];
+                specialChar = specialChar[0];
             }
 
             const span: SpanEl = new SpanEl('chars-block__char');
-            span.setHtml(character, false).setTitle(charDesc);
+            span.setHtml(specialChar, false).setTitle(charDesc);
 
             charsBlock.appendChild(span);
         }

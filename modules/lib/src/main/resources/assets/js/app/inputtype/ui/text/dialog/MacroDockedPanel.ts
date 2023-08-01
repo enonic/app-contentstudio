@@ -41,7 +41,7 @@ export class MacroDockedPanel
 
     private formValueChangedHandler: () => void;
 
-    private panelRenderedListeners: { (): void }[] = [];
+    private panelRenderedListeners: (() => void)[] = [];
 
     constructor() {
         super();
@@ -183,12 +183,12 @@ export class MacroDockedPanel
     }
 
     public getConfigForm(): FormView {
-        return <FormView>(this.configPanel.getFirstChild());
+        return (this.configPanel.getFirstChild()) as FormView;
     }
 
     public validateMacroForm(): boolean {
         let isValid = true;
-        const form = <FormView>(this.configPanel.getFirstChild());
+        const form = (this.configPanel.getFirstChild()) as FormView;
 
         if (form) {
             isValid = form.validate(false).isValid();
@@ -210,7 +210,7 @@ export class MacroDockedPanel
 
         if (macroDescriptor) {
             let formView: FormView = new FormView(
-                ContentFormContext.create().setPersistedContent(<Content>this.content).build(),
+                ContentFormContext.create().setPersistedContent(this.content as Content).build(),
                 macroDescriptor.getForm(), this.data);
 
             this.renderConfigView(formView);
@@ -262,7 +262,7 @@ export class MacroPreviewFrame
         this.adjustFrameHeight();
     }, 500, false);
 
-    private previewRenderedListeners: { (): void }[] = [];
+    private previewRenderedListeners: (() => void)[] = [];
 
     constructor(macroPreview: MacroPreview) {
         super('preview-iframe');

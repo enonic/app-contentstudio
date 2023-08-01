@@ -55,7 +55,7 @@ export class XData
             return false;
         }
 
-        let other = <XData>o;
+        let other = o as XData;
 
         if (!ObjectHelper.stringEquals(this.schemaKey, other.schemaKey)) {
             return false;

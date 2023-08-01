@@ -14,14 +14,14 @@ export class LocaleFormItem
 
     constructor() {
         super(
-            <ProjectFormItemBuilder>new ProjectFormItemBuilder(
+            new ProjectFormItemBuilder(
                 LocaleComboBox.create()
                     .setSelectedOptionsView(new LocaleWithFlagSelectedOptionsView())
                     .setMaximumOccurrences(1)
                     .build()
             )
             .setHelpText(i18n('settings.projects.language.helptext'))
-            .setLabel(i18n('settings.projects.language.label'))
+            .setLabel(i18n('settings.projects.language.label')) as ProjectFormItemBuilder
         );
 
         this.addClass('locale-form-item');
@@ -36,7 +36,7 @@ export class LocaleFormItem
     }
 
     getLocaleCombobox(): LocaleComboBox {
-        return <LocaleComboBox>this.getInput();
+        return this.getInput() as LocaleComboBox;
     }
 
     protected doCopyFromParent(): void {

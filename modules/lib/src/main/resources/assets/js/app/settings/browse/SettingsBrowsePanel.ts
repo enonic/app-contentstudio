@@ -22,7 +22,7 @@ export class SettingsBrowsePanel
     }
 
     protected createToolbar(): SettingsBrowseToolbar {
-        return new SettingsBrowseToolbar(<SettingsTreeGridActions>this.getBrowseActions());
+        return new SettingsBrowseToolbar(this.getBrowseActions() as SettingsTreeGridActions);
     }
 
     protected createBrowseItemPanel(): SettingsBrowseItemPanel {

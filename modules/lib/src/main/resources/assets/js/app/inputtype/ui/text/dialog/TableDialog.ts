@@ -36,7 +36,7 @@ export class TableDialog
 
     constructor(config: eventInfo) {
 
-        super(<TableModalDialogConfig>{
+        super({
             editor: config.editor,
             dialog: config.data,
             class: 'table-modal-dialog',
@@ -46,7 +46,7 @@ export class TableDialog
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
             }
-        });
+        } as TableModalDialogConfig);
     }
 
     protected initElements() {
@@ -112,7 +112,7 @@ export class TableDialog
     }
 
     private createHeadersDropdown(): Dropdown<string> {
-        const headerDropdown: Dropdown<string> = new Dropdown<string>('headers', <DropdownConfig<string>>{});
+        const headerDropdown: Dropdown<string> = new Dropdown<string>('headers', {} as DropdownConfig<string>);
 
         headerDropdown.addOption(Option.create<string>()
             .setValue('')
@@ -139,14 +139,14 @@ export class TableDialog
         this.rowsField.getInput().getEl().setDisabled(this.dialogType === DialogType.TABLEPROPERTIES);
         this.colsField.getInput().getEl().setValue(this.getOriginalColsElem().getValue());
         this.colsField.getInput().getEl().setDisabled(this.dialogType === DialogType.TABLEPROPERTIES);
-        (<Dropdown<string>>this.headersField.getInput()).setValue(this.getOriginalHeadersElem().getValue());
+        (this.headersField.getInput() as Dropdown<string>).setValue(this.getOriginalHeadersElem().getValue());
         this.captionField.getInput().getEl().setValue(this.getOriginalCaptionElem().getValue());
     }
 
     private updateOriginalDialogInputValues() {
         this.getOriginalRowsElem().setValue(this.rowsField.getInput().getEl().getValue(), false);
         this.getOriginalColsElem().setValue(this.colsField.getInput().getEl().getValue(), false);
-        this.getOriginalHeadersElem().setValue((<Dropdown<string>>this.headersField.getInput()).getValue(), false);
+        this.getOriginalHeadersElem().setValue((this.headersField.getInput() as Dropdown<string>).getValue(), false);
         this.getOriginalCaptionElem().setValue(this.captionField.getInput().getEl().getValue(), false);
     }
 

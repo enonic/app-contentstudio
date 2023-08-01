@@ -23,12 +23,12 @@ export class FindAndReplaceDialog
     private findAction: Action;
 
     constructor(config: eventInfo) {
-        super(<HtmlAreaModalDialogConfig>{
+        super({
             editor: config.editor,
             dialog: config.data,
             title: i18n('dialog.search.title'),
             class: 'search-and-replace-modal-dialog search-and-replace-modal-dialog-cke'
-        });
+        } as HtmlAreaModalDialogConfig);
     }
 
     protected initElements() {
@@ -46,21 +46,21 @@ export class FindAndReplaceDialog
         this.findAction.onExecuted(() => {
             this.getElementFromOriginalDialog('find', 'txtFindFind').setValue(this.findInput.getValue(), false);
             this.setCheckboxesValuesToOriginalDialogFind();
-            (<button>this.getElementFromOriginalDialog('find', 'btnFind')).click();
+            (this.getElementFromOriginalDialog('find', 'btnFind') as button).click();
         });
 
         this.replaceAction.onExecuted(() => {
             this.getElementFromOriginalDialog('replace', 'txtFindReplace').setValue(this.findInput.getValue(), false);
             this.getElementFromOriginalDialog('replace', 'txtReplace').setValue(this.replaceInput.getValue(), false);
             this.setCheckboxesValuesToOriginalDialogReplace();
-            (<button>this.getElementFromOriginalDialog('replace', 'btnFindReplace')).click();
+            (this.getElementFromOriginalDialog('replace', 'btnFindReplace') as button).click();
         });
 
         this.replaceAllAction.onExecuted(() => {
             this.getElementFromOriginalDialog('replace', 'txtFindReplace').setValue(this.findInput.getValue(), false);
             this.getElementFromOriginalDialog('replace', 'txtReplace').setValue(this.replaceInput.getValue(), false);
             this.setCheckboxesValuesToOriginalDialogReplace();
-            (<button>this.getElementFromOriginalDialog('replace', 'btnReplaceAll')).click();
+            (this.getElementFromOriginalDialog('replace', 'btnReplaceAll') as button).click();
         });
     }
 
@@ -81,11 +81,11 @@ export class FindAndReplaceDialog
         const wholeWordsCheckbox = this.createCheckbox('wholewords', i18n('dialog.search.wholewords'));
         const matchCyclicCheckbox = this.createCheckbox('matchcyclic', i18n('dialog.search.matchcyclic'), true);
 
-        this.findInput = <TextInput>findField.getInput();
-        this.replaceInput = <TextInput>replaceField.getInput();
-        this.matchCaseCheckbox = <Checkbox>matchCaseCheckbox.getInput();
-        this.wholeWordsCheckbox = <Checkbox>wholeWordsCheckbox.getInput();
-        this.matchCyclicCheckbox = <Checkbox>matchCyclicCheckbox.getInput();
+        this.findInput = findField.getInput() as TextInput;
+        this.replaceInput = replaceField.getInput() as TextInput;
+        this.matchCaseCheckbox = matchCaseCheckbox.getInput() as Checkbox;
+        this.wholeWordsCheckbox = wholeWordsCheckbox.getInput() as Checkbox;
+        this.matchCyclicCheckbox = matchCyclicCheckbox.getInput() as Checkbox;
 
         this.setElementToFocusOnShow(findField.getInput());
 

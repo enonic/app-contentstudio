@@ -13,7 +13,7 @@ export abstract class SettingsViewItem
             return false;
         }
 
-        const other: SettingsViewItem = <SettingsViewItem>o;
+        const other: SettingsViewItem = o as SettingsViewItem;
 
         if (!ObjectHelper.stringEquals(this.getId(), other.getId())) {
             return false;

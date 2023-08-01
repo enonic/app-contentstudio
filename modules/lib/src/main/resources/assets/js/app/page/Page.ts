@@ -100,7 +100,7 @@ export class Page
             return false;
         }
 
-        let other = <Page>o;
+        let other = o as Page;
 
         if (!ObjectHelper.equals(this.controller, other.controller)) {
             return false;
@@ -171,7 +171,7 @@ export class Page
         let containsId = false;
         const fragmentCmp = this.getFragment();
         if (fragmentCmp && ObjectHelper.iFrameSafeInstanceOf(fragmentCmp.getType(), ImageComponentType)) {
-            const imageCmp: ImageComponent = <ImageComponent>fragmentCmp;
+            const imageCmp: ImageComponent = fragmentCmp as ImageComponent;
             containsId = imageCmp.hasImage() && imageCmp.getImage().equals(id);
         }
 
@@ -182,16 +182,16 @@ export class Page
         return regions.some((region: Region) => {
             return region.getComponents().some((component: Component) => {
                 if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), FragmentComponentType)) {
-                    const contentId = (<FragmentComponent>component).getFragment();
+                    const contentId = (component as FragmentComponent).getFragment();
                     if (contentId) {
                         fragments.push(contentId);
                     }
                 }
                 if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), ImageComponentType)) {
-                    return (<ImageComponent>component).getImage().equals(id);
+                    return (component as ImageComponent).getImage().equals(id);
                 }
                 if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), LayoutComponentType)) {
-                    return this.doRegionsContainId((<LayoutComponent>component).getRegions().getRegions(),
+                    return this.doRegionsContainId((component as LayoutComponent).getRegions().getRegions(),
                         id,
                         fragments);
                 }
@@ -207,7 +207,7 @@ export class Page
         regions.forEach((region: Region) => {
             region.getComponents().forEach((component: Component) => {
                 if (ObjectHelper.iFrameSafeInstanceOf(component, ConfigBasedComponent)) {
-                    const config: PropertyTree = (<ConfigBasedComponent>component).getConfig();
+                    const config: PropertyTree = (component as ConfigBasedComponent).getConfig();
 
                     if (config.getProperty(name)?.getString() === value) {
                         counter++;
@@ -215,7 +215,7 @@ export class Page
                 }
 
                 if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-                    counter = this.getPropertyValueUsageCount(<LayoutComponent>component, name, value, counter);
+                    counter = this.getPropertyValueUsageCount(component as LayoutComponent, name, value, counter);
                 }
             });
         });
@@ -230,22 +230,21 @@ export class Page
 
         const regionsList = regions != null ? regions : this.getRegions().getRegions();
 
-        for (let i = 0; i < regionsList.length; i++) {
-            const regionPath = `${regionsList[i].getPath().toString()}/`;
+        for (const region of regionsList) {
+            const regionPath = `${region.getPath().toString()}/`;
             if (componentPath.toString().indexOf(regionPath) !== 0) {
                 continue;
             }
 
-            const components = regionsList[i].getComponents();
-            for (let j = 0; j < components.length; j++) {
-                const component = components[j];
+            const components = region.getComponents();
+            for (const component of components) {
                 if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), ComponentType)) {
                     if ((component).getPath().equals(componentPath)) {
                         return component;
                     }
                 }
                 if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), LayoutComponentType)) {
-                    const layout = <LayoutComponent>component;
+                    const layout = component as LayoutComponent;
                     return this.findComponentByPath(componentPath, layout.getRegions().getRegions());
                 }
             }

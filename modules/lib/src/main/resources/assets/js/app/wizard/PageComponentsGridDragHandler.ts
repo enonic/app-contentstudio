@@ -23,7 +23,7 @@ export class PageComponentsGridDragHandler
     extends GridDragHandler<ItemViewTreeGridWrapper> {
 
     protected handleDragInit(e: DragEvent) {
-        const row: ElementHelper = this.getRowByTarget(new ElementHelper(<HTMLElement>e.target));
+        const row: ElementHelper = this.getRowByTarget(new ElementHelper(e.target as HTMLElement));
         const data: ItemViewTreeGridWrapper = this.contentGrid.getDataByRow(this.getRowIndex(row));
 
         // prevent the grid from cancelling drag'n'drop by default
@@ -118,7 +118,7 @@ export class PageComponentsGridDragHandler
         this.contentGrid.deselectAll();
         item.getItemView().deselect();
 
-        (<ComponentView<Component>>item.getItemView()).moveToRegion(<RegionView>newParent.getItemView(), insertIndex);
+        (item.getItemView() as ComponentView<Component>).moveToRegion(newParent.getItemView() as RegionView, insertIndex);
 
         item.getItemView().select(null, ItemViewContextMenuPosition.NONE);
 
@@ -144,7 +144,7 @@ export class PageComponentsGridDragHandler
 
                 if (ObjectHelper.iFrameSafeInstanceOf(draggableComponentView.getItemView(), FragmentComponentView)) {
                     if (ObjectHelper.iFrameSafeInstanceOf(parentComponentView.getItemView().getParentItemView(), LayoutComponentView)) {
-                        if ((<FragmentComponentView> draggableComponentView.getItemView()).containsLayout()) {
+                        if ((draggableComponentView.getItemView() as FragmentComponentView).containsLayout()) {
                             // Fragment with layout over Layout region
                             DragHelper.get().setDropAllowed(false);
                             return;

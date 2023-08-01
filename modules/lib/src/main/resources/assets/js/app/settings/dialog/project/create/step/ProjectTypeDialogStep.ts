@@ -58,6 +58,6 @@ export class ProjectTypeDialogStep
     }
 
     private getFormItem(): ProjectTypeFormItem {
-        return this.formItems && <ProjectTypeFormItem>this.formItems[0];
+        return this.formItems && this.formItems[0] as ProjectTypeFormItem;
     }
 }

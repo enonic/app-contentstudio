@@ -7,7 +7,7 @@ import {ComponentType} from '../app/page/region/ComponentType';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {assert} from '@enonic/lib-admin-ui/util/Assert';
 
-type ShortName = { [shortName: string]: ItemType };
+type ShortName = Record<string, ItemType>;
 
 export class ItemType
     implements Equitable {
@@ -54,7 +54,7 @@ export class ItemType
             return false;
         }
 
-        const other = <ItemType>o;
+        const other = o as ItemType;
         return ObjectHelper.stringEquals(this.shortName, other.shortName);
     }
 

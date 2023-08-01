@@ -18,7 +18,7 @@ import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
 export class ProjectApplicationsComboBox
     extends RichComboBox<Application> {
 
-    private dataChangedListeners: { (): void }[] = [];
+    private dataChangedListeners: (() => void)[] = [];
 
     constructor(params?: ProjectApplicationsFormParams) {
         super(new ProjectApplicationsComboBoxBuilder(params));
@@ -34,7 +34,7 @@ export class ProjectApplicationsComboBox
 
     private handleOptionSelected(option: SelectedOptionEvent<Application>): void {
         const view: ProjectApplicationSelectedOptionView =
-            (<ProjectApplicationSelectedOptionView>option.getSelectedOption().getOptionView());
+            (option.getSelectedOption().getOptionView() as ProjectApplicationSelectedOptionView);
 
         view.layoutForm().finally(() => {
             this.notifyDataChanged();
@@ -95,8 +95,8 @@ export class ProjectApplicationsComboBox
     }
 
     private getSelectedOptionViewByKey(key: ApplicationKey): ProjectApplicationSelectedOptionView {
-        return <ProjectApplicationSelectedOptionView>this.getSelectedOptions().find(
-            (option: SelectedOption<Application>) => option.getOption().getDisplayValue().getApplicationKey().equals(key))?.getOptionView();
+        return this.getSelectedOptions().find(
+            (option: SelectedOption<Application>) => option.getOption().getDisplayValue().getApplicationKey().equals(key))?.getOptionView() as ProjectApplicationSelectedOptionView;
     }
 
     private getOrGenerateAppByKey(apps: Application[], key: ApplicationKey): Application {
@@ -118,7 +118,7 @@ export class ProjectApplicationsComboBox
 
     getSelectedApplications(): ProjectApplication[] {
         return this.getSelectedOptions().slice()
-            .map((o: SelectedOption<Application>) => <ProjectApplicationSelectedOptionView>o.getOptionView())
+            .map((o: SelectedOption<Application>) => o.getOptionView() as ProjectApplicationSelectedOptionView)
             .map((selected: ProjectApplicationSelectedOptionView) => selected.getCurrentConfig());
     }
 

@@ -12,7 +12,7 @@ export class FilterableAggregationGroupView
     private idsToKeepOnToTop: string[];
 
     protected createAggregationView(aggregation: Aggregation): AggregationView {
-        const aggregationView: FilterableBucketAggregationView = new FilterableBucketAggregationView(<BucketAggregation>aggregation);
+        const aggregationView: FilterableBucketAggregationView = new FilterableBucketAggregationView(aggregation as BucketAggregation);
 
         aggregationView.onBucketSelectionChanged((bucketSelection: SelectionChange<Bucket>) =>
             this.notifyBucketViewSelectionChanged(bucketSelection)

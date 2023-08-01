@@ -38,7 +38,7 @@ export class ContentAndStatusTreeSelectorItem
             return false;
         }
 
-        let other = <ContentAndStatusTreeSelectorItem>o;
+        let other = o as ContentAndStatusTreeSelectorItem;
 
         if (this.compareStatus !== other.compareStatus) {
             return false;

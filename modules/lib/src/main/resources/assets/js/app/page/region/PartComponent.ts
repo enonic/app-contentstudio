@@ -13,11 +13,11 @@ export class PartComponent
     }
 
     toJson(): ComponentTypeWrapperJson {
-        let json: PartComponentJson = <PartComponentJson>super.toComponentJson();
+        let json: PartComponentJson = super.toComponentJson() as PartComponentJson;
 
-        return <ComponentTypeWrapperJson> {
+        return {
             PartComponent: json
-        };
+        } as ComponentTypeWrapperJson;
     }
 
     isEmpty(): boolean {

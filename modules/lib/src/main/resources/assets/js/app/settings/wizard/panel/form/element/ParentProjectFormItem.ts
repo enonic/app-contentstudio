@@ -7,16 +7,16 @@ export class ParentProjectFormItem
     extends ProjectFormItem {
 
     constructor() {
-        super(<ProjectFormItemBuilder>new ProjectFormItemBuilder(new ProjectsComboBox())
+        super(new ProjectFormItemBuilder(new ProjectsComboBox())
             .setHelpText(i18n('settings.projects.parent.helptext'))
             .setLabel(i18n('settings.field.project.parent'))
-            .setValidator(Validators.required));
+            .setValidator(Validators.required) as ProjectFormItemBuilder);
 
         this.addClass('parent-project-form-item');
     }
 
     getProjectsComboBox(): ProjectsComboBox {
-        return <ProjectsComboBox>this.getInput();
+        return this.getInput() as ProjectsComboBox;
     }
 
 }

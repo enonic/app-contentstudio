@@ -32,6 +32,6 @@ export class OnlinePropertiesWidgetItemView
     }
 
     protected isAllowedToBeShown(): boolean {
-        return (<OnlinePropertiesWidgetItemViewHelper>this.helper).isEditScheduleAllowed();
+        return (this.helper as OnlinePropertiesWidgetItemViewHelper).isEditScheduleAllowed();
     }
 }

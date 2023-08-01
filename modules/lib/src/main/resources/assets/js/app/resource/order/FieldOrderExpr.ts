@@ -42,7 +42,7 @@ export class FieldOrderExpr
         if (!ObjectHelper.iFrameSafeInstanceOf(o, FieldOrderExpr)) {
             return false;
         }
-        let other = <FieldOrderExpr>o;
+        let other = o as FieldOrderExpr;
         if (this.fieldName.toLowerCase() !== other.getFieldName().toLowerCase()) {
             return false;
         }

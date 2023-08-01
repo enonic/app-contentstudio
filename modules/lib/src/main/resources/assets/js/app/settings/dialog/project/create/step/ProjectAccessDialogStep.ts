@@ -83,6 +83,6 @@ export class ProjectAccessDialogStep
     }
 
     private getFormItem(): ProjectReadAccessFormItem {
-        return this.formItems && <ProjectReadAccessFormItem>this.formItems[0];
+        return this.formItems && this.formItems[0] as ProjectReadAccessFormItem;
     }
 }

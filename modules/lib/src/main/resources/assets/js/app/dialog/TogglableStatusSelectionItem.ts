@@ -35,7 +35,7 @@ export class TogglableStatusSelectionItem
         this.whenRendered(() => this.addTabIndexToTogglerAndRemoveElements());
 
         this.toggler?.onStateChanged((enabled: boolean) => {
-            this.notifyItemStateChanged((<ContentSummaryAndCompareStatus>this.getBrowseItem()).getContentId(), enabled);
+            this.notifyItemStateChanged((this.getBrowseItem() as ContentSummaryAndCompareStatus).getContentId(), enabled);
         });
     }
 

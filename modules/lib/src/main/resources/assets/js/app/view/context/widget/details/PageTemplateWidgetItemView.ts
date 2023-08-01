@@ -195,11 +195,11 @@ export class PageTemplateWidgetItemView
     private loadDefaultModels(site: Site, contentType: ContentTypeName): Q.Promise<DefaultModels> {
 
         if (site) {
-            return DefaultModelsFactory.create(<DefaultModelsFactoryConfig>{
+            return DefaultModelsFactory.create({
                 siteId: site.getContentId(),
                 contentType: contentType,
                 applications: site.getApplicationKeys()
-            });
+            } as DefaultModelsFactoryConfig);
         }
 
         if (contentType.isSite()) {

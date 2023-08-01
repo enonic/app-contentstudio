@@ -30,7 +30,7 @@ export class GetPublishStatusResult
             return false;
         }
 
-        let other = <GetPublishStatusResult>o;
+        let other = o as GetPublishStatusResult;
 
         if (!ObjectHelper.stringEquals(this.id.toString(), other.id.toString())) {
             return false;
@@ -45,7 +45,7 @@ export class GetPublishStatusResult
 
     static fromJson(json: GetPublishStatusResultJson): GetPublishStatusResult {
 
-        let status: PublishStatus = <PublishStatus>PublishStatus[json.publishStatus];
+        let status: PublishStatus = PublishStatus[json.publishStatus] as PublishStatus;
 
         return new GetPublishStatusResult(json.id, status);
     }

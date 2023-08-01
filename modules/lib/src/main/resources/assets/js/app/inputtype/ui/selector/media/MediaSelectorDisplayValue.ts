@@ -116,7 +116,7 @@ export class MediaSelectorDisplayValue {
             return false;
         }
 
-        let other = <MediaSelectorDisplayValue>o;
+        let other = o as MediaSelectorDisplayValue;
 
         if (!ObjectHelper.equals(this.uploadItem, other.getUploadItem())) {
             return false;

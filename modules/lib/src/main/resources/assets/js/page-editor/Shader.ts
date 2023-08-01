@@ -20,11 +20,11 @@ export class Shader {
 
     private shaders: Element[];
 
-    private clickListeners: { (event: MouseEvent): void }[] = [];
-    private unlockClickedListeners: { (event: MouseEvent): void }[] = [];
-    private mouseEnterListeners: { (event: MouseEvent): void }[] = [];
-    private mouseLeaveListeners: { (event: MouseEvent): void }[] = [];
-    private mouseMoveListeners: { (event: MouseEvent): void }[] = [];
+    private clickListeners: ((event: MouseEvent) => void)[] = [];
+    private unlockClickedListeners: ((event: MouseEvent) => void)[] = [];
+    private mouseEnterListeners: ((event: MouseEvent) => void)[] = [];
+    private mouseLeaveListeners: ((event: MouseEvent) => void)[] = [];
+    private mouseMoveListeners: ((event: MouseEvent) => void)[] = [];
 
     private static INSTANCE: Shader;
 

@@ -11,11 +11,11 @@ export class ContentServerChange
     }
 
     static fromJson(nodeEventJson: NodeEventJson): ContentServerChange {
-        return <ContentServerChange>new ContentServerChangeBuilder().fromJson(nodeEventJson).build();
+        return new ContentServerChangeBuilder().fromJson(nodeEventJson).build() as ContentServerChange;
     }
 
     getChangeItems(): ContentServerChangeItem[] {
-        return <ContentServerChangeItem[]>super.getChangeItems();
+        return super.getChangeItems() as ContentServerChangeItem[];
     }
 
 }

@@ -105,7 +105,7 @@ export class TooltipHelper {
             unRemovedOrHidden();
             clearInterval(isVisibleCheckInterval);
             if (newTitle) {
-                addTooltip(<JQuery.MouseEventBase>e, target);
+                addTooltip(e as JQuery.MouseEventBase, target);
             }
         }
 

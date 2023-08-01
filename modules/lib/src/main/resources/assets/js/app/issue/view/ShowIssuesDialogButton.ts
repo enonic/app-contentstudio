@@ -31,7 +31,7 @@ export class ShowIssuesDialogButton extends ActionButton {
     }
 
     getAction(): ShowIssuesDialogAction {
-        return <ShowIssuesDialogAction>super.getAction();
+        return super.getAction() as ShowIssuesDialogAction;
     }
 
     private initEventsListeners() {

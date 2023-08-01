@@ -5,7 +5,7 @@ module.exports = {
         tsconfigRootDir: __dirname,
     },
     'rules': {
-        'new-cap': ['warn', {'capIsNewExceptions': ['Q']}],
+        'new-cap': ['off'],
         // TODO: Remove rules, during the refactoring
         // === DEFAULT RULES ===
         'prefer-const': ['off'],

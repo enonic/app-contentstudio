@@ -77,7 +77,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
         this.showAfterReload = false;
         this.optionsFactory = new OptionsFactory<ITEM_TYPE>(this.getLoader(), builder.optionDataHelper);
-        (<ContentSelectedOptionsView>this.getSelectedOptionView()).setProject(builder.project);
+        (this.getSelectedOptionView() as ContentSelectedOptionsView).setProject(builder.project);
     }
 
     private createStatusColumn() {
@@ -143,7 +143,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         this.createStatusColumn();
 
         if (!builder.loader) {
-            builder.setLoader(<ContentSummaryOptionDataLoader<ITEM_TYPE>>this.createLoader(builder));
+            builder.setLoader(this.createLoader(builder) as ContentSummaryOptionDataLoader<ITEM_TYPE>);
         }
 
         builder.setCreateColumns([this.statusColumn]);
@@ -167,13 +167,13 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     }
 
     getLoader(): ContentSummaryOptionDataLoader<ITEM_TYPE> {
-        return <ContentSummaryOptionDataLoader<ITEM_TYPE>> super.getLoader();
+        return super.getLoader() as ContentSummaryOptionDataLoader<ITEM_TYPE>;
     }
 
     getSelectedContent(): ContentSummary {
         let option = this.getOptionByValue(this.getValue());
         if (option) {
-            return (<ITEM_TYPE>option.getDisplayValue()).getContent();
+            return (option.getDisplayValue() as ITEM_TYPE).getContent();
         }
         return null;
     }
@@ -189,13 +189,13 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     getContent(contentId: ContentId): ContentSummary {
         let option = this.getOptionByValue(contentId.toString());
         if (option) {
-            return (<ITEM_TYPE>option.getDisplayValue()).getContent();
+            return (option.getDisplayValue() as ITEM_TYPE).getContent();
         }
         return null;
     }
 
     getComboBox(): ComboBox<ITEM_TYPE> {
-        return <ComboBox<ITEM_TYPE>>super.getComboBox();
+        return super.getComboBox() as ComboBox<ITEM_TYPE>;
     }
 
     setContent(content: ContentSummary) {
@@ -272,8 +272,8 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
     protected createOption(data: ContentSummary | ContentTreeSelectorItem, readOnly?: boolean): Option<ITEM_TYPE> {
         const item: ITEM_TYPE = ObjectHelper.iFrameSafeInstanceOf(data, ContentTreeSelectorItem) ?
-            <ITEM_TYPE>data :
-            <ITEM_TYPE>new ContentTreeSelectorItem(<ContentSummary>data);
+            data as ITEM_TYPE :
+            new ContentTreeSelectorItem(data as ContentSummary) as ITEM_TYPE;
 
         return this.optionsFactory.createOption(item, readOnly);
     }
@@ -362,11 +362,10 @@ export class ContentSelectedOptionView
     private project?: Project;
 
     constructor(option: Option<ContentTreeSelectorItem>, project?: Project) {
-        super(<RichSelectedOptionViewBuilder<ContentTreeSelectorItem>>
-            new RichSelectedOptionViewBuilder<ContentTreeSelectorItem>()
+        super(new RichSelectedOptionViewBuilder<ContentTreeSelectorItem>()
                 .setDraggable(true)
                 .setEditable(true)
-                .setOption(option)
+                .setOption(option) as RichSelectedOptionViewBuilder<ContentTreeSelectorItem>
         );
 
         this.project = project;
@@ -421,7 +420,7 @@ export class ContentComboBoxBuilder<ITEM_TYPE extends ContentTreeSelectorItem>
     comboBoxName: string = 'contentSelector';
 
     selectedOptionsView: SelectedOptionsView<ContentTreeSelectorItem> =
-        <SelectedOptionsView<ContentTreeSelectorItem>> new ContentSelectedOptionsView();
+        new ContentSelectedOptionsView() as SelectedOptionsView<ContentTreeSelectorItem>;
 
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
 

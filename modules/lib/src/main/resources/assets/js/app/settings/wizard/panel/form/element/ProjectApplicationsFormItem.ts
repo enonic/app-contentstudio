@@ -10,16 +10,16 @@ export class ProjectApplicationsFormItem
 
     constructor(params?: ProjectApplicationsFormParams) {
         super(
-            <ProjectFormItemBuilder>new ProjectFormItemBuilder(new ProjectApplicationsComboBox(params))
+            new ProjectFormItemBuilder(new ProjectApplicationsComboBox(params))
                 .setHelpText(i18n('settings.projects.applications.helptext'))
-                .setLabel(i18n('settings.items.wizard.step.applications'))
+                .setLabel(i18n('settings.items.wizard.step.applications')) as ProjectFormItemBuilder
         );
 
         this.addClass('project-applications-form-item');
     }
 
     getComboBox(): ProjectApplicationsComboBox {
-        return <ProjectApplicationsComboBox>this.getInput();
+        return this.getInput() as ProjectApplicationsComboBox;
     }
 
     layout(item: ProjectViewItem): Q.Promise<void> {

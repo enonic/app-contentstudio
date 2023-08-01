@@ -44,9 +44,9 @@ export class CustomSelectorSelectedOptionView
     extends RichSelectedOptionView<CustomSelectorItem> {
 
     constructor(option: Option<CustomSelectorItem>) {
-        super(<RichSelectedOptionViewBuilder<CustomSelectorItem>>new RichSelectedOptionViewBuilder<CustomSelectorItem>()
+        super(new RichSelectedOptionViewBuilder<CustomSelectorItem>()
             .setDraggable(true)
-            .setOption(option)
+            .setOption(option) as RichSelectedOptionViewBuilder<CustomSelectorItem>
         );
     }
 

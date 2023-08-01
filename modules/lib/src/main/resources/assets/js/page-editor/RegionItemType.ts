@@ -20,7 +20,7 @@ export class RegionItemType
     }
 
     protected getItemTypeConfig(itemType: string): ItemTypeConfig {
-        return new ItemTypeConfig(<ItemTypeConfigJson>{
+        return new ItemTypeConfig({
             cssSelector: '[data-portal-region]',
             draggable: false,
             cursor: 'pointer',
@@ -31,7 +31,7 @@ export class RegionItemType
                 fill: 'rgba(255, 255, 255, 0)' // not used
             },
             contextMenuConfig: ['parent', 'clearRegion']
-        });
+        } as ItemTypeConfigJson);
     }
 }
 

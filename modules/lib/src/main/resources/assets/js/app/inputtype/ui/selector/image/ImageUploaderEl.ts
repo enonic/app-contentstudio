@@ -14,11 +14,11 @@ export class ImageUploaderEl
     extends MediaUploaderEl {
 
     private imageEditors: ImageEditor[];
-    private editModeListeners: { (edit: boolean, crop: Rect, zoom: Rect, focus: Point): void }[];
-    private focusAutoPositionedListeners: { (auto: boolean): void }[];
-    private focusPositionChangedListeners: { (focus: Point): void }[];
-    private cropAutoPositionedListeners: { (auto: boolean): void }[];
-    private cropPositionChangedListeners: { (crop: Rect, zoom: Rect): void }[];
+    private editModeListeners: ((edit: boolean, crop: Rect, zoom: Rect, focus: Point) => void)[];
+    private focusAutoPositionedListeners: ((auto: boolean) => void)[];
+    private focusPositionChangedListeners: ((focus: Point) => void)[];
+    private cropAutoPositionedListeners: ((auto: boolean) => void)[];
+    private cropPositionChangedListeners: ((crop: Rect, zoom: Rect) => void)[];
     private orientationChangedListeners: { (orientation: number) }[];
 
     private initialWidth: number;
@@ -76,7 +76,7 @@ export class ImageUploaderEl
 
         this.onBlur((event: FocusEvent) => {
             this.imageEditors.forEach((imageEditor: ImageEditor) => {
-                if (event.relatedTarget && !imageEditor.isElementInsideButtonsContainer(<HTMLElement>event.relatedTarget)) {
+                if (event.relatedTarget && !imageEditor.isElementInsideButtonsContainer(event.relatedTarget as HTMLElement)) {
                     this.toggleSelected(imageEditor);
                 }
             });
@@ -84,7 +84,7 @@ export class ImageUploaderEl
 
         this.onClicked((event: MouseEvent) => {
             this.imageEditors.forEach((imageEditor: ImageEditor) => {
-                if (event.target && !imageEditor.isElementInsideButtonsContainer(<HTMLElement>event.target)) {
+                if (event.target && !imageEditor.isElementInsideButtonsContainer(event.target as HTMLElement)) {
                     this.toggleSelected(imageEditor);
                 }
             });
@@ -241,11 +241,10 @@ export class ImageUploaderEl
 
     protected refreshExistingItem(existingItem: Element, value: string) {
         const contentId = new ContentId(value);
-        for (let i = 0; i < this.imageEditors.length; i++) {
-            let editor = this.imageEditors[i];
+        for (const imageEditor of this.imageEditors) {
             // value may be equal to existing if reverting to previous version so do refresh anyway
-            if (existingItem === editor) {
-                editor.setSrc(this.resolveImageUrl(contentId));
+            if (existingItem === imageEditor) {
+                imageEditor.setSrc(this.resolveImageUrl(contentId));
                 break;
             }
         }

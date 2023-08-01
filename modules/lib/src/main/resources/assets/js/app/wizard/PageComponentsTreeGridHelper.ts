@@ -68,7 +68,7 @@ export class PageComponentsTreeGridHelper {
 
     private static nameFormatter(content: Content, row: number, cell: number, value: unknown, columnDef: Slick.Column<ItemViewTreeGridWrapper>,
                                  node: TreeNode<ItemViewTreeGridWrapper>) {
-        const viewer: PageComponentsItemViewer = <PageComponentsItemViewer>node.getViewer('name') || new PageComponentsItemViewer(content);
+        const viewer: PageComponentsItemViewer = node.getViewer('name') as PageComponentsItemViewer || new PageComponentsItemViewer(content);
         node.setViewer('name', viewer);
         const itemWrapper: ItemViewTreeGridWrapper = node.getData();
         const data: ItemView = itemWrapper.getItemView();

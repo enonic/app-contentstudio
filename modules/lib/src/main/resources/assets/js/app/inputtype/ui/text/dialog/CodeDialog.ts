@@ -12,7 +12,7 @@ export class CodeDialog
     private textArea: TextArea;
 
     constructor(config: eventInfo) {
-        super(<HtmlAreaModalDialogConfig>{
+        super({
             editor: config.editor,
             dialog: config.data,
             title: i18n('dialog.sourcecode.title'),
@@ -21,7 +21,7 @@ export class CodeDialog
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
             }
-        });
+        } as HtmlAreaModalDialogConfig);
     }
 
     protected initElements() {
@@ -58,7 +58,7 @@ export class CodeDialog
     }
 
     protected setDialogInputValues() {
-        this.textArea.setValue(<string>this.ckeOriginalDialog.getValueOf('main', 'data'));
+        this.textArea.setValue(this.ckeOriginalDialog.getValueOf('main', 'data') as string);
     }
 
     isDirty(): boolean {

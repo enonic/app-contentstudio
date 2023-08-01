@@ -40,7 +40,7 @@ export class MediaUploader
     }
 
     getContext(): ContentInputTypeViewContext {
-        return <ContentInputTypeViewContext>super.getContext();
+        return super.getContext() as ContentInputTypeViewContext;
     }
 
     getValueType(): ValueType {

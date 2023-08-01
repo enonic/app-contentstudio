@@ -8,7 +8,7 @@ import {ContentId} from '../../../../../content/ContentId';
 export class PageDescriptorDropdown
     extends ComponentDescriptorsDropdown {
 
-    private loadedDataListeners: { (event: LoadedDataEvent<Descriptor>): void }[];
+    private loadedDataListeners: ((event: LoadedDataEvent<Descriptor>) => void)[];
 
     constructor(contentId: ContentId) {
         super({

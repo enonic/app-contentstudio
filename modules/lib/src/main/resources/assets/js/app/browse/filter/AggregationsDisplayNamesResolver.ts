@@ -36,7 +36,7 @@ export class AggregationsDisplayNamesResolver {
         const workflowAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.WORKFLOW.toString());
 
         if (workflowAggr) {
-            this.updateWorkflowAggregation(<BucketAggregation>workflowAggr);
+            this.updateWorkflowAggregation(workflowAggr as BucketAggregation);
         }
     }
 
@@ -48,7 +48,7 @@ export class AggregationsDisplayNamesResolver {
         this.currentUserId = userId;
 
         const principalsAggregations: BucketAggregation[] =
-            <BucketAggregation[]>aggregations.filter((aggr: Aggregation) => this.isPrincipalAggregation(aggr));
+            aggregations.filter((aggr: Aggregation) => this.isPrincipalAggregation(aggr)) as BucketAggregation[];
 
         return Q.all(principalsAggregations.map((principalAggr: BucketAggregation) => this.updatePrincipalsAggregation(principalAggr)))
             .thenResolve(null);
@@ -112,7 +112,7 @@ export class AggregationsDisplayNamesResolver {
     updateLanguageAggregations(aggregations: Aggregation[]): Q.Promise<void> {
         const langAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.LANGUAGE.toString());
 
-        return !!langAggr ? this.updateLanguageAggregation(<BucketAggregation>langAggr) : Q.resolve(null);
+        return !!langAggr ? this.updateLanguageAggregation(langAggr as BucketAggregation) : Q.resolve(null);
     }
 
     private updateLanguageAggregation(langAggr: BucketAggregation): Q.Promise<void> {
@@ -138,7 +138,7 @@ export class AggregationsDisplayNamesResolver {
     updateContentTypeAggregations(aggregations: Aggregation[]): Q.Promise<void> {
         const contentTypeAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.CONTENT_TYPE.toString());
 
-        return !!contentTypeAggr ? this.updateContentTypeAggregation(<BucketAggregation>contentTypeAggr) : Q.resolve(null);
+        return !!contentTypeAggr ? this.updateContentTypeAggregation(contentTypeAggr as BucketAggregation) : Q.resolve(null);
     }
 
     private updateContentTypeAggregation(aggregation: BucketAggregation): Q.Promise<void> {

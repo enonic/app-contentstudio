@@ -9,7 +9,7 @@ import {PermissionsJson} from './PermissionsJson';
 export class AccessControlList
     implements Equitable, Cloneable {
 
-    private entries: { [key: string]: AccessControlEntry };
+    private entries: Record<string, AccessControlEntry>;
 
     constructor(entries?: AccessControlEntry[]) {
         this.entries = {};
@@ -69,7 +69,7 @@ export class AccessControlList
             return false;
         }
 
-        let other = <AccessControlList>o;
+        let other = o as AccessControlList;
         return ObjectHelper.arrayEquals(this.getEntries().sort(), other.getEntries().sort());
     }
 

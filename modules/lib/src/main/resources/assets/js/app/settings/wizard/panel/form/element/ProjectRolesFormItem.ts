@@ -21,14 +21,14 @@ export class ProjectRolesFormItem
     constructor() {
         const accessCombobox: ProjectAccessControlComboBox = new ProjectAccessControlComboBoxBuilder().build();
 
-        const loader: PrincipalLoader = <PrincipalLoader>accessCombobox.getLoader();
+        const loader: PrincipalLoader = accessCombobox.getLoader() as PrincipalLoader;
         loader.setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
         loader.skipPrincipal(PrincipalKey.ofAnonymous());
 
         super(
-            <ProjectFormItemBuilder>new ProjectFormItemBuilder(accessCombobox)
+            new ProjectFormItemBuilder(accessCombobox)
             .setHelpText(i18n('settings.projects.roles.helptext'))
-            .setLabel(i18n('settings.items.wizard.step.roles'))
+            .setLabel(i18n('settings.items.wizard.step.roles')) as ProjectFormItemBuilder
         );
 
         this.addClass('project-roles-form-item');
@@ -135,7 +135,7 @@ export class ProjectRolesFormItem
     }
 
     getAccessComboBox(): ProjectAccessControlComboBox {
-        return <ProjectAccessControlComboBox>this.getInput();
+        return this.getInput() as ProjectAccessControlComboBox;
     }
 
     protected doCopyFromParent(): void {

@@ -22,7 +22,7 @@ export class ContentWizardPublishMenuButton
 
     private publishRequest: Issue;
 
-    private publishRequestActionChangeListeners: { (added: boolean): void }[] = [];
+    private publishRequestActionChangeListeners: ((added: boolean) => void)[] = [];
 
     constructor(config: ContentWizardPublishMenuButtonConfig) {
         super(config);
@@ -46,8 +46,8 @@ export class ContentWizardPublishMenuButton
 
     protected initMenuActionsListeners() {
         const actionsWithSaveBeforeExecution: BasePublishAction[] = [
-            <BasePublishAction>this.publishAction.getAction(),
-            <BasePublishAction>this.requestPublishAction.getAction()
+            this.publishAction.getAction() as BasePublishAction,
+            this.requestPublishAction.getAction() as BasePublishAction
         ];
         actionsWithSaveBeforeExecution.forEach(action => {
             action.onBeforeExecute(() => {

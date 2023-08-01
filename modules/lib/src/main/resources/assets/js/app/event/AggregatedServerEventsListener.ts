@@ -35,17 +35,17 @@ export class AggregatedServerEventsListener
 
     protected onServerEvent(event: Event) {
         if (this.isArchiveEvent(event)) {
-            this.handleArchiveEvent(<ArchiveServerEvent>event);
+            this.handleArchiveEvent(event as ArchiveServerEvent);
             return;
         }
 
         if (this.isContentEvent(event)) {
-            this.handleContentServerEvent(<ContentServerEvent>event);
+            this.handleContentServerEvent(event as ContentServerEvent);
             return;
         }
 
         if (this.isIssueEvent(event)) {
-            this.handleIssueServerEvent(<IssueServerEvent>event);
+            this.handleIssueServerEvent(event as IssueServerEvent);
             return;
         }
 

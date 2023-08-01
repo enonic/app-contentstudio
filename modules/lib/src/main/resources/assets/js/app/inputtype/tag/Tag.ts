@@ -35,7 +35,7 @@ export class Tag
     }
 
     protected readInputConfig(): void {
-        const allowContentPathConfig: { [name: string]: string }[] = this.context.inputConfig['allowPath'] || [];
+        const allowContentPathConfig: Record<string, string>[] = this.context.inputConfig['allowPath'] || [];
 
         this.allowedContentPaths =
             allowContentPathConfig.length > 0

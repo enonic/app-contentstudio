@@ -59,7 +59,7 @@ export class RequestContentPublishDialog
 
     private assigneesFormItem: FormItem;
 
-    private issueCreatedListeners: { (issue: Issue): void }[] = [];
+    private issueCreatedListeners: ((issue: Issue) => void)[] = [];
 
     protected constructor() {
         super({
@@ -130,8 +130,8 @@ export class RequestContentPublishDialog
             this.nextAction.setEnabled(original);
         });
 
-        (<PrincipalComboBox>this.assigneesFormItem.getInput()).onValueChanged(() => this.handleDataChanged());
-        (<TextInput>this.detailsFormItem.getInput()).onValueChanged(() => this.handleDataChanged());
+        (this.assigneesFormItem.getInput() as PrincipalComboBox).onValueChanged(() => this.handleDataChanged());
+        (this.detailsFormItem.getInput() as TextInput).onValueChanged(() => this.handleDataChanged());
     }
 
     private handleDataChanged(): void {
@@ -173,7 +173,7 @@ export class RequestContentPublishDialog
         const principalLoader = new PrincipalLoader()
             .setAllowedTypes([PrincipalType.USER])
             .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
-        const assigneesCombobox: PrincipalComboBox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(principalLoader).build();
+        const assigneesCombobox: PrincipalComboBox = PrincipalComboBox.create().setLoader(principalLoader).build() as PrincipalComboBox;
 
         return new FormItemBuilder(assigneesCombobox).setLabel(i18n('dialog.requestPublish.assignees')).build();
     }
@@ -208,8 +208,8 @@ export class RequestContentPublishDialog
         this.publishScheduleForm.setFormVisible(false, true);   // form will be reset on hide as well
         this.publishProcessor.reloadPublishDependencies({resetDependantItems: true});
 
-        (<TextInput>this.detailsFormItem.getInput()).setValue('');
-        (<PrincipalComboBox>this.assigneesFormItem.getInput()).clearCombobox();
+        (this.detailsFormItem.getInput() as TextInput).setValue('');
+        (this.assigneesFormItem.getInput() as PrincipalComboBox).clearCombobox();
         this.detailsForm.removeClass(FormView.VALIDATION_CLASS);
 
         this.goToStep(Step.ITEMS);
@@ -247,11 +247,11 @@ export class RequestContentPublishDialog
     }
 
     private getDetailsText(): string {
-        return (<TextInput>this.detailsFormItem.getInput()).getValue();
+        return (this.detailsFormItem.getInput() as TextInput).getValue();
     }
 
     private getApprovers(): PrincipalKey[] {
-        return (<PrincipalComboBox>this.assigneesFormItem.getInput()).getSelectedDisplayValues().map((p: Principal) => p.getKey());
+        return (this.assigneesFormItem.getInput() as PrincipalComboBox).getSelectedDisplayValues().map((p: Principal) => p.getKey());
     }
 
     private createPublishRequest(): PublishRequest {

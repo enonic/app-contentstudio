@@ -10,7 +10,7 @@ export class WidgetsToolbar
 
     private buttons: WidgetButton[] = [];
 
-    private itemSelectedListeners: { (appOrWidgetId: string): void } [] = [];
+    private itemSelectedListeners: ((appOrWidgetId: string) => void) [] = [];
 
     private static MAIN_APP_ENDING: string = 'studio:main';
 

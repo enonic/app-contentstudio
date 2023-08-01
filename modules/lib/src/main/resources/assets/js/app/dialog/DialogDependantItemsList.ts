@@ -90,7 +90,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
             if (item.isPendingDelete()) {
                 return;
             }
-            const el = new ElementHelper(<HTMLElement>event.target);
+            const el = new ElementHelper(event.target as HTMLElement);
             if (!(el.hasClass('checkbox'))) {
                 this.notifyItemClicked(item);
             }

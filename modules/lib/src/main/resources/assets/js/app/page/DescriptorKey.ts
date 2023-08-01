@@ -50,7 +50,7 @@ export class DescriptorKey
             return false;
         }
 
-        let other = <DescriptorKey>o;
+        let other = o as DescriptorKey;
 
         if (!ObjectHelper.stringEquals(this.refString, other.refString)) {
             return false;

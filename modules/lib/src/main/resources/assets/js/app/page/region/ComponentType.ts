@@ -3,7 +3,7 @@ import {ComponentName} from './ComponentName';
 
 export class ComponentType {
 
-    private static shortNameToInstance: { [shortName: string]: ComponentType } = {};
+    private static shortNameToInstance: Record<string, ComponentType> = {};
 
     private shortName: string;
 

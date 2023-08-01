@@ -8,8 +8,8 @@ export class SlidablePanel
     private slideInFunction: () => void;
     private slideOutFunction: () => void;
 
-    private slidedInListeners: { (): void }[] = [];
-    private slidedOutListeners: { (): void }[] = [];
+    private slidedInListeners: (() => void)[] = [];
+    private slidedOutListeners: (() => void)[] = [];
     private slidedIn: boolean;
     private offsetTop: number = 0;
 

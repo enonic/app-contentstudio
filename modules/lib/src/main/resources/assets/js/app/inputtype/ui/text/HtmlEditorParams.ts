@@ -22,7 +22,7 @@ export class HtmlEditorParams {
     private readonly editorLoadedHandler: () => void;
     private readonly editorReadyHandler: () => void;
     private readonly saveHandler?: () => void;
-    private readonly createDialogHandler: { (event: CreateHtmlAreaDialogEvent): void };
+    private readonly createDialogHandler: (event: CreateHtmlAreaDialogEvent) => void;
     private readonly inline: boolean = false;
     private readonly fullscreenMode: boolean = false;
     private readonly fixedToolbarContainer: string;
@@ -144,7 +144,7 @@ export class HtmlEditorParams {
         return !!this.createDialogHandler;
     }
 
-    getCreateDialogListener(): { (event: CreateHtmlAreaDialogEvent): void } {
+    getCreateDialogListener(): (event: CreateHtmlAreaDialogEvent) => void {
         return this.createDialogHandler;
     }
 
@@ -219,7 +219,7 @@ export class HtmlEditorParamsBuilder {
 
     saveHandler: () => void;
 
-    createDialogHandler: { (event: CreateHtmlAreaDialogEvent): void };
+    createDialogHandler: (event: CreateHtmlAreaDialogEvent) => void;
 
     inline: boolean = false;
 

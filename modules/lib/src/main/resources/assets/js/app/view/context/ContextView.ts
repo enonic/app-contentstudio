@@ -65,9 +65,9 @@ export class ContextView
     protected alreadyFetchedCustomWidgets: boolean;
 
     protected isPageRenderable: boolean;
-    private sizeChangedListeners: { (): void }[] = [];
+    private sizeChangedListeners: (() => void)[] = [];
 
-    private widgetsUpdateList: { [key: string]: (key: string, type: ApplicationEventType) => void } = {};
+    private widgetsUpdateList: Record<string, (key: string, type: ApplicationEventType) => void> = {};
 
     public static debug: boolean = false;
 
@@ -465,9 +465,9 @@ export class ContextView
 
     private fetchWidgetByKey(key: string): Q.Promise<Widget> {
         return this.fetchCustomWidgetViews().then((widgets: Widget[]) => {
-            for (let i = 0; i < widgets.length; i++) {
-                if (widgets[i].getWidgetDescriptorKey().getApplicationKey().getName() === key) {
-                    return widgets[i];
+            for (const widget of widgets) {
+                if (widget.getWidgetDescriptorKey().getApplicationKey().getName() === key) {
+                    return widget;
                 }
             }
             return null;
@@ -483,9 +483,9 @@ export class ContextView
     }
 
     private getWidgetByKey(key: string): WidgetView {
-        for (let i = 0; i < this.widgetViews.length; i++) {
-            if (this.widgetViews[i].getWidgetKey() === key) {
-                return this.widgetViews[i];
+        for (const widgetView of this.widgetViews) {
+            if (widgetView.getWidgetKey() === key) {
+                return widgetView;
             }
         }
         return null;

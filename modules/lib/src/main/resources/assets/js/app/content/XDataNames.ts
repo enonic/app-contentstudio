@@ -58,7 +58,7 @@ export class XDataNames
             return false;
         }
 
-        let other = <XDataNames>o;
+        let other = o as XDataNames;
         return ObjectHelper.arrayEquals(this.array, other.array);
     }
 }

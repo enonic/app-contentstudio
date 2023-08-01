@@ -30,9 +30,9 @@ export class IssueDialogForm
 
     private title: TextInput;
 
-    private contentItemsAddedListeners: { (items: ContentTreeSelectorItem[]): void }[] = [];
+    private contentItemsAddedListeners: ((items: ContentTreeSelectorItem[]) => void)[] = [];
 
-    private contentItemsRemovedListeners: { (items: ContentTreeSelectorItem[]): void }[] = [];
+    private contentItemsRemovedListeners: ((items: ContentTreeSelectorItem[]) => void)[] = [];
     private addItemsButtonItem: Button;
     private contentItemsFormItem: FormItem;
     private contentItemsSelectorLocked: boolean;
@@ -68,7 +68,7 @@ export class IssueDialogForm
             .setAllowedTypes([PrincipalType.USER])
             .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
 
-        this.approversSelector = <PrincipalComboBox>PrincipalComboBox.create().setLoader(principalLoader).setMaximumOccurrences(0).build();
+        this.approversSelector = PrincipalComboBox.create().setLoader(principalLoader).setMaximumOccurrences(0).build() as PrincipalComboBox;
 
         this.contentItemsSelector = ContentComboBox.create().build();
 
@@ -130,13 +130,13 @@ export class IssueDialogForm
         this.description.setEnabled(!readOnly);
         this.approversSelector.setEnabled(!readOnly);
 
-        const titleFormItem = <FormItem>this.title.getParentElement();
+        const titleFormItem = this.title.getParentElement() as FormItem;
         titleFormItem.setVisible(!readOnly);
 
-        const descFormItem = <FormItem>this.description.getParentElement();
+        const descFormItem = this.description.getParentElement() as FormItem;
         descFormItem.setVisible(!readOnly);
 
-        const selectorFormItem = <FormItem>this.approversSelector.getParentElement();
+        const selectorFormItem = this.approversSelector.getParentElement() as FormItem;
         selectorFormItem.setLabel(readOnly ? i18n('field.assignees') + ':' : i18n('dialog.issue.inviteUsers'));
 
         this.contentItemsFormItem.setVisible(!readOnly);

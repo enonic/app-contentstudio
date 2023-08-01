@@ -61,7 +61,7 @@ export class ProjectReadAccess
             return false;
         }
 
-        const other: ProjectReadAccess = <ProjectReadAccess>o;
+        const other: ProjectReadAccess = o as ProjectReadAccess;
 
         return ObjectHelper.objectEquals(this.type, other.type) &&
                ObjectHelper.arrayEquals(this.principalsKeys, other.getPrincipalsKeys());

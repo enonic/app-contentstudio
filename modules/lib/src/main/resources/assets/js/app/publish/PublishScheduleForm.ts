@@ -18,7 +18,7 @@ export class PublishScheduleForm
 
     private scheduleFormView: FormView;
     private scheduleFormWrapper: DivEl;
-    private formVisibilityListeners: { (flag: boolean): void }[] = [];
+    private formVisibilityListeners: ((flag: boolean) => void)[] = [];
     private externalToggles: ButtonEl[] = [];
 
     createExternalToggle(): ButtonEl {

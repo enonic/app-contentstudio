@@ -156,8 +156,8 @@ export class MoveContentDialog
             const contentParentSitePromises: Q.Promise<ContentSummary>[] = [];
             const targetContentSiteId: string = !!targetContentSite ? targetContentSite.getId() : null;
 
-            for (let i = 0; i < this.movedContentSummaries.length; i++) {
-                contentParentSitePromises.push(this.getContentParentSite(this.movedContentSummaries[i]));
+            for (const movedContentSummary of this.movedContentSummaries) {
+                contentParentSitePromises.push(this.getContentParentSite(movedContentSummary));
             }
 
             return Q.all(contentParentSitePromises).spread((...parentSites: ContentSummary[]) => {

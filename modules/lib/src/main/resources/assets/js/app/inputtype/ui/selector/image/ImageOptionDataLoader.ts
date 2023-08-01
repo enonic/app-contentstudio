@@ -13,7 +13,7 @@ import {ContentId} from '../../../../content/ContentId';
 export class ImageOptionDataLoader
     extends ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
 
-    private preloadedDataListeners: { (data: MediaTreeSelectorItem[]): void }[] = [];
+    private preloadedDataListeners: ((data: MediaTreeSelectorItem[]) => void)[] = [];
 
     fetch(node: TreeNode<Option<MediaTreeSelectorItem>>): Q.Promise<MediaTreeSelectorItem> {
         return super.fetch(node).then((data) => {
@@ -92,7 +92,7 @@ export class ImageOptionDataLoader
             return null;
         }
 
-        return MediaTreeSelectorItem.createMediaTreeSelectorItemWithStatus(<ContentAndStatusTreeSelectorItem>item);
+        return MediaTreeSelectorItem.createMediaTreeSelectorItemWithStatus(item as ContentAndStatusTreeSelectorItem);
     }
 
     static build(builder: ContentSummaryOptionDataLoaderBuilder): ImageOptionDataLoader {

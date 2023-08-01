@@ -4,7 +4,7 @@ import {ContentTypeSummaryListJson} from '@enonic/lib-admin-ui/schema/content/Co
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {SchemaFilterBasedRequest} from './SchemaFilterBasedRequest';
 
-type GetContentTypeDescriptorsRequestParams = {contentId: string, allowedContentTypes?: string[]};
+interface GetContentTypeDescriptorsRequestParams {contentId: string, allowedContentTypes?: string[]}
 
 export class GetContentTypeDescriptorsRequest
     extends SchemaFilterBasedRequest<ContentTypeSummary> {

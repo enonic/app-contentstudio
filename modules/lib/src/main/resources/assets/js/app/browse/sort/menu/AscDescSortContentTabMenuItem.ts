@@ -64,7 +64,7 @@ export class AscDescSortContentTabMenuItemBuilder
     clickHandler: () => void = () => void 0;
 
     setLabel(label: string): AscDescSortContentTabMenuItemBuilder {
-        return <AscDescSortContentTabMenuItemBuilder>super.setLabel(label);
+        return super.setLabel(label) as AscDescSortContentTabMenuItemBuilder;
     }
 
     setDirection(value: string): AscDescSortContentTabMenuItemBuilder {

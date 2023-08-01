@@ -72,7 +72,7 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         if (this.getExpand() === Expand.SUMMARY) {
             contents = this.fromJsonToContentSummaryArray(contentsAsJson);
         } else {
-            contents = this.fromJsonToContentArray(<ContentJson[]>contentsAsJson) as ContentSummary[];
+            contents = this.fromJsonToContentArray(contentsAsJson as ContentJson[]) as ContentSummary[];
         }
 
         if (this.from === 0) {

@@ -74,7 +74,7 @@ export class DisplayNameResolver
 
     private getFormInputs(): Input[] {
         const formItems = this.getFormItems(this.formView.getForm());
-        return <Input[]>formItems.filter(formItem => ObjectHelper.iFrameSafeInstanceOf(formItem, Input));
+        return formItems.filter(formItem => ObjectHelper.iFrameSafeInstanceOf(formItem, Input)) as Input[];
     }
 
     private getNamesOfAllowedFields(): string[] {
@@ -90,7 +90,7 @@ export class DisplayNameResolver
                 .join('_');
     }
 
-    private getExpressionValueMap(): { [key: string]: string } {
+    private getExpressionValueMap(): Record<string, string> {
         const map = {};
         const allowedFields = this.getNamesOfAllowedFields();
 

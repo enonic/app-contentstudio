@@ -66,7 +66,7 @@ export class ComponentPath
             return false;
         }
 
-        let other = <ComponentPath>o;
+        let other = o as ComponentPath;
 
         if (!ObjectHelper.stringEquals(this.refString, other.refString)) {
             return false;

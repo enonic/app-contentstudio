@@ -53,9 +53,9 @@ export class Tags
 
     private preservedValue: string;
 
-    private tagAddedListeners: { (event: TagAddedEvent): void }[] = [];
+    private tagAddedListeners: ((event: TagAddedEvent) => void)[] = [];
 
-    private tagRemovedListeners: { (event: TagRemovedEvent): void }[] = [];
+    private tagRemovedListeners: ((event: TagRemovedEvent) => void)[] = [];
 
     constructor(builder: TagsBuilder) {
         super('ul', 'tags', undefined, builder.tags ? builder.tags.join(';') : undefined);

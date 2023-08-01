@@ -11,11 +11,11 @@ export class ImageStyleSelector
     private contentId: string;
 
     constructor(contentId: string) {
-        super('imageSelector', <DropdownConfig<ImageStyleOption>>{
+        super('imageSelector', {
             optionDisplayValueViewer: new ImageStyleOptionViewer(),
             inputPlaceholderText: i18n('dialog.image.style.apply'),
             rowHeight: 26
-        });
+        } as DropdownConfig<ImageStyleOption>);
 
         this.contentId = contentId;
 

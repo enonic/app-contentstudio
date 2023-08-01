@@ -12,7 +12,7 @@ export abstract class SortContentTabMenuItem
     protected iconClass?: string;
 
     protected constructor(builder: SortContentTabMenuItemBuilder) {
-        super(<TabMenuItemBuilder>builder);
+        super(builder as TabMenuItemBuilder);
 
         this.fieldName = builder.fieldName;
         this.toggleClass('single', builder.singleOption);
@@ -71,7 +71,7 @@ export abstract class SortContentTabMenuItemBuilder
     }
 
     setLabel(label: string): SortContentTabMenuItemBuilder {
-        return <SortContentTabMenuItemBuilder>super.setLabel(label);
+        return super.setLabel(label) as SortContentTabMenuItemBuilder;
     }
 
     abstract build(): SortContentTabMenuItem;

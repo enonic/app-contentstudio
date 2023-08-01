@@ -27,6 +27,6 @@ export class IssueServerEvent
     }
 
     getNodeChange(): IssueServerChange {
-        return <IssueServerChange>super.getNodeChange();
+        return super.getNodeChange() as IssueServerChange;
     }
 }

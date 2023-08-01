@@ -43,7 +43,7 @@ export class MacroModalDialog
     protected config: MacroModalDialogConfig;
 
     constructor(config: MacroDialogParams, content: ContentSummary, applicationKeys: ApplicationKey[]) {
-        super(<MacroModalDialogConfig>{
+        super({
             editor: config.editor,
             title: i18n('dialog.macro.title'),
             selectedMacro: config.macro.name ? config.macro : null,
@@ -55,7 +55,7 @@ export class MacroModalDialog
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
             }
-        });
+        } as MacroModalDialogConfig);
 
         this.getEditor().focusManager.add(new CKEDITOR.dom.element(this.getHTMLElement()), true);
     }
@@ -112,7 +112,7 @@ export class MacroModalDialog
 
     private createMacroFormItem(): FormItem {
         const macroSelector: MacroComboBox =
-            <MacroComboBox>MacroComboBox.create().setLoader(this.createMacrosLoader()).setMaximumOccurrences(1).build();
+            MacroComboBox.create().setLoader(this.createMacrosLoader()).setMaximumOccurrences(1).build() as MacroComboBox;
         const formItemBuilder = new ModalDialogFormItemBuilder('macroId', i18n('dialog.macro.formitem.macro')).setValidator(
             Validators.required).setInputEl(macroSelector);
 
@@ -120,14 +120,14 @@ export class MacroModalDialog
     }
 
     private initMacroSelectorListeners() {
-        (<MacroComboBox>this.macroFormItem.getInput()).getComboBox().onOptionSelected((event: SelectedOptionEvent<MacroDescriptor>) => {
+        (this.macroFormItem.getInput() as MacroComboBox).getComboBox().onOptionSelected((event: SelectedOptionEvent<MacroDescriptor>) => {
             this.macroFormItem.addClass('selected-item-preview');
             this.addClass('shows-preview');
 
             this.macroDockedPanel.setMacroDescriptor(event.getSelectedOption().getOption().getDisplayValue());
         });
 
-        (<MacroComboBox>this.macroFormItem.getInput()).getComboBox().onOptionDeselected(() => {
+        (this.macroFormItem.getInput() as MacroComboBox).getComboBox().onOptionDeselected(() => {
             this.macroFormItem.removeClass('selected-item-preview');
             this.removeClass('shows-preview');
             this.displayValidationErrors(false);
@@ -145,7 +145,7 @@ export class MacroModalDialog
                 return;
             }
 
-            (<MacroComboBox>this.macroFormItem.getInput()).setValue(macro.getKey().getRefString());
+            (this.macroFormItem.getInput() as MacroComboBox).setValue(macro.getKey().getRefString());
             this.macroFormItem.addClass('selected-item-preview');
             this.addClass('shows-preview');
 
@@ -177,7 +177,7 @@ export class MacroModalDialog
     }
 
     private sanitize(value: string): string {
-        const macroName = (<MacroComboBox>this.macroFormItem.getInput()).getValue().toUpperCase();
+        const macroName = (this.macroFormItem.getInput() as MacroComboBox).getValue().toUpperCase();
 
         if (macroName === 'SYSTEM:DISABLE') {
             return value;
@@ -245,7 +245,7 @@ export class MacroModalDialog
     }
 
     isDirty(): boolean {
-        return (<MacroComboBox>this.macroFormItem.getInput()).isDirty();
+        return (this.macroFormItem.getInput() as MacroComboBox).isDirty();
     }
 
     open(): void {

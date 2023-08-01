@@ -58,7 +58,7 @@ export class CompareContentVersionsDialog
 
     private revertRightButton: Button;
 
-    private contentCache: { [key: string]: Object };
+    private contentCache: Record<string, Object>;
 
     private diffPatcher: DiffPatcher;
 
@@ -68,18 +68,18 @@ export class CompareContentVersionsDialog
 
     private outsideClickListener: (event: MouseEvent) => void;
 
-    private versionIdCounters: { [id: string]: number };
+    private versionIdCounters: Record<string, number>;
 
     private revertVersionCallback: (versionId: string, versionDate: Date) => void;
 
     private readOnly: boolean;
 
     protected constructor() {
-        super(<ModalDialogConfig>{
+        super({
             class: 'compare-content-versions-dialog grey-header',
             title: i18n('dialog.compareVersions.comparingVersions'),
             alwaysFullscreen: true
-        });
+        } as ModalDialogConfig);
 
         this.versionsLoader = new ContentVersionsLoader();
         this.diffPatcher = new DiffPatcher();
@@ -102,7 +102,7 @@ export class CompareContentVersionsDialog
                 updatedItems.find((item: ContentSummaryAndCompareStatus) => item.getContentId().equals(this.content?.getContentId()));
 
             if (currentItem) {
-                (<CompareContentVersionsDialogHeader>this.header).setSubTitle(currentItem.getPath().toString());
+                (this.header as CompareContentVersionsDialogHeader).setSubTitle(currentItem.getPath().toString());
             }
         };
 
@@ -200,7 +200,7 @@ export class CompareContentVersionsDialog
         const body = Body.get();
         if (!this.outsideClickListener) {
             this.outsideClickListener = (event: MouseEvent) => {
-                if (!button.getEl().contains(<HTMLElement>event.target)) {
+                if (!button.getEl().contains(event.target as HTMLElement)) {
                     event.stopImmediatePropagation();
                     event.preventDefault();
                     this.setMenuVisible(false, menu, button);
@@ -293,7 +293,7 @@ export class CompareContentVersionsDialog
 
     setContent(content: ContentSummaryAndCompareStatus): CompareContentVersionsDialog {
         this.content = content;
-        (<CompareContentVersionsDialogHeader>this.header).setSubTitle(content ? content.getPath().toString() : null);
+        (this.header as CompareContentVersionsDialogHeader).setSubTitle(content ? content.getPath().toString() : null);
         return this;
     }
 

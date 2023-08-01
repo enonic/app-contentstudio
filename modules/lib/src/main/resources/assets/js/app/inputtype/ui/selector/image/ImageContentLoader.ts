@@ -5,10 +5,10 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
 
-type RequestToken = {
+interface RequestToken {
     contentId: ContentId;
     promises: Q.Deferred<ContentSummary>[];
-};
+}
 
 export class ImageContentLoader {
 

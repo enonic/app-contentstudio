@@ -104,7 +104,7 @@ export class ContentBrowsePanel
     }
 
     protected getBrowseActions(): ContentTreeGridActions {
-        return <ContentTreeGridActions>super.getBrowseActions();
+        return super.getBrowseActions() as ContentTreeGridActions;
     }
 
     getNonToolbarActions(): Action[] {
@@ -432,7 +432,7 @@ export class ContentBrowsePanel
     }
 
     getBrowseItemPanel(): ContentBrowseItemPanel {
-        return <ContentBrowseItemPanel>super.getBrowseItemPanel();
+        return super.getBrowseItemPanel() as ContentBrowseItemPanel;
     }
 
     private createContentPublishMenuButton() {

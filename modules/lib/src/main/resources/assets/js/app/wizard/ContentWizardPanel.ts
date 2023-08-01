@@ -197,7 +197,7 @@ export class ContentWizardPanel
 
     private markedAsReady: boolean;
 
-    private contentNamedListeners: { (event: ContentNamedEvent): void }[];
+    private contentNamedListeners: ((event: ContentNamedEvent) => void)[];
 
     private inMobileViewMode: boolean;
 
@@ -215,7 +215,7 @@ export class ContentWizardPanel
 
     private dataChangedHandler: () => void;
 
-    private dataChangedListeners: { (): void } [];
+    private dataChangedListeners: (() => void) [];
 
     private applicationAddedListener: (applicationConfig: ApplicationConfig) => void;
 
@@ -561,7 +561,7 @@ export class ContentWizardPanel
     }
 
     public getFormIcon(): ThumbnailUploaderEl {
-        return <ThumbnailUploaderEl>super.getFormIcon();
+        return super.getFormIcon() as ThumbnailUploaderEl;
     }
 
     protected createMainToolbar(): Toolbar {
@@ -580,7 +580,7 @@ export class ContentWizardPanel
     }
 
     public getMainToolbar(): ContentWizardToolbar {
-        return <ContentWizardToolbar>super.getMainToolbar();
+        return super.getMainToolbar() as ContentWizardToolbar;
     }
 
     protected createWizardHeader(): WizardHeader {
@@ -596,7 +596,7 @@ export class ContentWizardPanel
     }
 
     public getWizardHeader(): ContentWizardHeader {
-        return <ContentWizardHeader>super.getWizardHeader();
+        return super.getWizardHeader() as ContentWizardHeader;
     }
 
     public getLivePanel(): LiveFormPanel {
@@ -651,13 +651,13 @@ export class ContentWizardPanel
         this.liveEditPage = new LiveEditPageProxy(this.getPersistedItem().getContentId());
         this.pageComponentsView = new PageComponentsView(this.liveEditPage);
 
-        const liveFormPanel: LiveFormPanel = new LiveFormPanel(<LiveFormPanelConfig>{
+        const liveFormPanel: LiveFormPanel = new LiveFormPanel({
             contentWizardPanel: this,
             contentType: this.contentType,
             defaultModels: this.defaultModels,
             content: this.getPersistedItem(),
             liveEditPage: this.liveEditPage,
-        });
+        } as LiveFormPanelConfig);
 
         this.toggleMinimizeListener = (event: ActivatedEvent) => {
             this.toggleMinimize(event.getIndex());
@@ -716,7 +716,7 @@ export class ContentWizardPanel
     }
 
     getWizardActions(): ContentWizardActions {
-        return <ContentWizardActions>super.getWizardActions();
+        return super.getWizardActions() as ContentWizardActions;
     }
 
     doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
@@ -1143,7 +1143,7 @@ export class ContentWizardPanel
             // content path has changed so update site as well
             const content = event.getContent();
             if (content.isSite()) {
-                this.site = <Site>content;
+                this.site = content as Site;
             } else {
                 new ContentWizardDataLoader().loadSite(content.getContentId()).then(site => {
                     this.site = site;
@@ -1580,7 +1580,7 @@ export class ContentWizardPanel
 
     private loadDefaultModelsAndUpdatePageModel(reloadPage: boolean = true) {
         const item = this.getPersistedItem();
-        const site = item.isSite() ? <Site>item : this.site;
+        const site = item.isSite() ? item as Site : this.site;
 
         return new ContentWizardDataLoader().loadDefaultModels(site, this.contentType.getContentTypeName()).then(
             defaultModels => {
@@ -1677,7 +1677,7 @@ export class ContentWizardPanel
 
         formItemContainer.getFormItems().forEach((item: FormItemParent | Input) => {
             if (ObjectHelper.iFrameSafeInstanceOf(item, Input)) {
-                const input = <Input>item;
+                const input = item as Input;
                 if (input.getInputType().getName() === 'HtmlArea') {
                     result.push(input.getPath().toString());
                 }
@@ -1690,7 +1690,7 @@ export class ContentWizardPanel
     }
 
     private updateLiveEditModel(content: Content): Q.Promise<void> {
-        const site: Site = content.isSite() ? <Site>content : this.site;
+        const site: Site = content.isSite() ? content as Site : this.site;
 
         if (this.siteModel) {
             this.updateSiteModel(site);
@@ -1925,7 +1925,7 @@ export class ContentWizardPanel
                         this.enableDisplayNameScriptExecution(this.contentWizardStepForm.getFormView());
 
                         if (!this.siteModel && content.isSite()) {
-                            this.initSiteModel(<Site>content);
+                            this.initSiteModel(content as Site);
                         }
 
                         this.wizardActions.initUnsavedChangesListeners();
@@ -2046,13 +2046,13 @@ export class ContentWizardPanel
     }
 
     private getXDataWizardSteps(): XDataWizardStep[] {
-        return <XDataWizardStep[]>this.getSteps().filter(step => {
+        return this.getSteps().filter(step => {
             if (ObjectHelper.iFrameSafeInstanceOf(step, XDataWizardStep)) {
                 return true;
             }
 
             return false;
-        });
+        }) as XDataWizardStep[];
     }
 
     private getXDatasToAdd(xDatas: XData[]): XData[] {
@@ -2419,10 +2419,10 @@ export class ContentWizardPanel
 
         if (!this.formContext) {
             const type: ContentTypeName = this.contentType?.getContentTypeName() || content.getType();
-            this.formContext = <ContentFormContext>ContentFormContext.create()
+            this.formContext = ContentFormContext.create()
                 .setContentTypeName(type)
                 .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
-                .build();
+                .build() as ContentFormContext;
         }
 
         this.formContext

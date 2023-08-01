@@ -30,7 +30,7 @@ export class ProjectsTreeItem implements Equitable {
             return false;
         }
 
-        const other: ProjectsTreeItem = <ProjectsTreeItem>o;
+        const other: ProjectsTreeItem = o as ProjectsTreeItem;
 
         return ObjectHelper.objectEquals(this.name, other.name);
     }
