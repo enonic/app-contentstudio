@@ -13,6 +13,7 @@ import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
 import {ComponentEventsHolder} from '../../wizard/page/ComponentEventsHolder';
 import {ComponentEventsWrapper} from '../../wizard/page/ComponentEventsWrapper';
+import {ComponentAddedEventHandler, ComponentRemovedEventHandler, ComponentUpdatedEventHandler} from './Component';
 
 export class Regions
     implements Equitable {
@@ -21,12 +22,19 @@ export class Regions
 
     private regionByName: Map<string, Region> = new Map<string, Region>();
 
-    private changedListeners: { (event: RegionsChangedEvent): void }[] = [];
-
     private readonly componentEventsHolder: ComponentEventsHolder;
+
+    private readonly componentAddedHandler: ComponentAddedEventHandler;
+
+    private readonly componentRemovedHandler: ComponentRemovedEventHandler;
+
+    private readonly componentUpdatedHandler: ComponentUpdatedEventHandler;
 
     constructor(builder: RegionsBuilder) {
         this.componentEventsHolder = new ComponentEventsHolder();
+        this.componentAddedHandler = (event: ComponentAddedEvent) => this.notifyComponentAdded(event);
+        this.componentRemovedHandler = (event: ComponentRemovedEvent) => this.notifyComponentRemoved(event);
+        this.componentUpdatedHandler = (event: ComponentUpdatedEvent) => this.notifyComponentUpdated(event);
 
         builder.regions.forEach((region: Region) => {
             if (this.regionByName.has(region.getName())) {
@@ -45,22 +53,28 @@ export class Regions
     }
 
     private registerRegionListeners(region: Region) {
-        region.getEventsManager().onComponentAdded((event: ComponentAddedEvent) => this.notifyComponentAdded(event));
-        region.getEventsManager().onComponentRemoved((event: ComponentRemovedEvent) => this.notifyComponentRemoved(event));
-        region.getEventsManager().onComponentUpdated((event: ComponentUpdatedEvent) => this.notifyComponentUpdated(event));
+        region.getEventsManager().onComponentAdded(this.componentAddedHandler);
+        region.getEventsManager().onComponentRemoved(this.componentRemovedHandler);
+        region.getEventsManager().onComponentUpdated(this.componentUpdatedHandler);
     }
 
     private unregisterRegionListeners(region: Region) {
-
+        region.getEventsManager().unComponentAdded(this.componentAddedHandler);
+        region.getEventsManager().unComponentRemoved(this.componentRemovedHandler);
+        region.getEventsManager().unComponentUpdated(this.componentUpdatedHandler);
     }
 
     removeRegions(regions: Region[]) {
         regions.forEach((region: Region) => {
             this.regionByName.delete(region.getName());
 
-            this.notifyRegionRemoved(region.getPath());
+            this.notifyComponentRemoved(new ComponentRemovedEvent(region.getPath()));
             this.unregisterRegionListeners(region);
         });
+    }
+
+    removeAllRegions(): void {
+        this.removeRegions(this.getRegions());
     }
 
     getRegions(): Region[] {
@@ -141,34 +155,12 @@ export class Regions
         return new RegionsBuilder(this).build();
     }
 
-    onChanged(listener: (event: BaseRegionChangedEvent) => void) {
-        this.changedListeners.push(listener);
-    }
-
-    unChanged(listener: (event: BaseRegionChangedEvent) => void) {
-        this.changedListeners =
-            this.changedListeners.filter((curr: (event: BaseRegionChangedEvent) => void) => {
-                return listener !== curr;
-            });
-    }
-
-    private notifyChanged(event: RegionsChangedEvent) {
-        if (Regions.debug) {
-            console.debug('Regions.notifyChanged');
-        }
-        this.changedListeners.forEach((listener: (event: RegionsChangedEvent) => void) => {
-            listener(event);
-        });
-    }
-
     private notifyRegionAdded(regionPath: ComponentPath) {
         const event: RegionAddedEvent = new RegionAddedEvent(regionPath);
 
         if (Regions.debug) {
             console.debug('Regions.notifyRegionAdded: ' + event.getRegionPath().toString());
         }
-
-        this.notifyChanged(event);
     }
 
     private notifyRegionRemoved(regionPath: ComponentPath) {
@@ -178,7 +170,6 @@ export class Regions
             console.debug('Regions.notifyRegionRemoved: ' + event.getRegionPath().toString());
         }
 
-        this.notifyChanged(event);
     }
 
     notifyComponentAdded(event: ComponentAddedEvent): void {

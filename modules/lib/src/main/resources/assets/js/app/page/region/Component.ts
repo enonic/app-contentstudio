@@ -18,12 +18,10 @@ import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
 
 export type ComponentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => void;
-export type ComponentChangedEventHandler = (event: ComponentChangedEvent) => void;
-export type ComponentPropertyValueChangedEventHandler = (event: ComponentPropertyValueChangedEvent) => void;
 export type ComponentResetEventHandler = (event: ComponentResetEvent) => void;
 export type ComponentAddedEventHandler = (event: ComponentAddedEvent) => void;
 export type ComponentRemovedEventHandler = (event: ComponentRemovedEvent) => void;
-export type ComponentUpdatedEventHandler = (event: ComponentRemovedEvent) => void;
+export type ComponentUpdatedEventHandler = (event: ComponentUpdatedEvent) => void;
 
 export abstract class Component
     implements Equitable, Cloneable, PageItem {
@@ -103,18 +101,7 @@ export abstract class Component
     }
 
     equals(o: Equitable): boolean {
-
-        if (!ObjectHelper.iFrameSafeInstanceOf(o, Component)) {
-            return false;
-        }
-
-        let other = <Component>o;
-
-        if (!ObjectHelper.equals(this.name, other.name)) {
-            return false;
-        }
-
-        return true;
+        return o instanceof Component;
     }
 
     getComponentByPath(path: ComponentPath): PageItem {

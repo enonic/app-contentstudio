@@ -552,7 +552,7 @@ export class ContentWizardPanel
                     this.wizardHeader.setName(existing.getName().toString());
                 }
 
-                return this.loadAndSetPageState(loader.content.getPage()?.clone());
+                return this.loadAndSetPageState(loader.content?.getPage()?.clone());
             }).then(() => super.doLoadData());
     }
 
@@ -561,7 +561,7 @@ export class ContentWizardPanel
             return PageHelper.injectEmptyRegionsIntoPage(page).then((fullPage: Page) => {
                 PageState.setState(fullPage);
                 return Q.resolve();
-            })
+            });
         }
 
         return Q.resolve();
@@ -1942,7 +1942,7 @@ export class ContentWizardPanel
 
                         const debouncedUpdate: () => void = AppHelper.debounce(this.updatePublishStatusOnDataChange.bind(this), 100);
 
-                        this.onLiveModelChanged(debouncedUpdate);
+                        this.onPageStateChanged(debouncedUpdate);
 
                         return Q(null);
                     });
@@ -2565,33 +2565,12 @@ export class ContentWizardPanel
         super.onFormPanelAdded(!this.isSplitEditModeActive());
     }
 
-    onLiveModelChanged(listener: () => void) {
-        if (this.getLivePanel()) {
-            if (this.getLivePanel().getPageView()) {
-                this.onPageChanged(listener);
-            }
-
-            PageEventsManager.get().onLiveEditPageViewReady(() => {
-                this.checkIfRenderable().then(() => {
-                    this.onPageChanged(listener);
-                });
-            });
-        }
-    }
-
-    private onPageChanged(listener: () => void) {
-        const pageView = this.getLivePanel().getPageView();
-
-        if (pageView) {
-            pageView.setRenderable(this.isRenderable());
-            pageView.onChange(listener);
-        }
-
-        const pageModel: PageModel = this.liveEditModel?.getPageModel();
-
-        if (pageModel) {
-            pageModel.onChange(listener);
-        }
+    onPageStateChanged(listener: () => void) {
+        PageState.getEvents().onPageReset(listener);
+        PageState.getEvents().onPageUpdated(listener);
+        PageState.getEvents().onComponentUpdated(listener);
+        PageState.getEvents().onComponentAdded(listener);
+        PageState.getEvents().onComponentRemoved(listener);
     }
 
     unLiveModelChanged(listener: () => void) {

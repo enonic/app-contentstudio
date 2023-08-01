@@ -68,12 +68,15 @@ export class LayoutComponent
     setDescriptor(descriptor: Descriptor) {
         super.setDescriptor(descriptor);
 
+        this.regions.getRegions().forEach((region: Region) => region.empty());
+        this.regions.removeAllRegions();
+
         if (descriptor) {
             this.addRegions(descriptor);
         }
     }
 
-    addRegions(descriptor: Descriptor) {
+    private addRegions(descriptor: Descriptor) {
         const sourceRegions = this.getRegions();
         const mergedRegions = new LayoutRegionsMerger().merge(sourceRegions, descriptor.getRegions(), this);
         this.setRegions(mergedRegions);

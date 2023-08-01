@@ -26,7 +26,7 @@ import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {ComponentPath} from '../page/region/ComponentPath';
-import {ComponentItem, ComponentItemType, TreeComponent} from '../../page-editor/TreeComponent';
+import {ComponentItemType, TreeComponent} from '../../page-editor/TreeComponent';
 import {Page} from '../page/Page';
 import {PageEventsManager} from './PageEventsManager';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -43,6 +43,7 @@ import {PageState} from './page/PageState';
 import {ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
 import {PageItem} from '../page/region/PageItem';
+import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
 
 export class PageComponentsView
     extends DivEl implements PageNavigationHandler {
@@ -246,6 +247,10 @@ export class PageComponentsView
         PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
             this.tree.deleteItemByPath(event.getPath());
             this.highlightInvalidItems();
+        });
+
+        PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
+            this.tree.updateItemByEvent(event);
         });
     }
 

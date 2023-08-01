@@ -96,6 +96,8 @@ export class PageEventsManager {
 
     private componentRemoveRequestedListeners: { (path: ComponentPath): void; }[] = [];
 
+    private componentDescriptorSetRequestedListeners: { (path: ComponentPath, descriptorKey: DescriptorKey): void; }[] = [];
+
     private componentDuplicateRequestedListeners: { (path: ComponentPath): void; }[] = [];
 
     private componentCreateFragmentRequestedListeners: { (path: ComponentPath): void; }[] = [];
@@ -550,6 +552,18 @@ export class PageEventsManager {
 
     notifySetFragmentComponentRequested(parentPath: ComponentPath, id: string) {
         this.setFragmentComponentRequestedListeners.forEach((listener) => listener(parentPath, id));
+    }
+
+    onComponentDescriptorSetRequested(listener: { (path: ComponentPath, descriptorKey: DescriptorKey): void; }) {
+        this.componentDescriptorSetRequestedListeners.push(listener);
+    }
+
+    unComponentDescriptorSetRequested(listener: { (path: ComponentPath, descriptorKey: DescriptorKey): void; }) {
+        this.componentDescriptorSetRequestedListeners = this.componentDescriptorSetRequestedListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyComponentDescriptorSetRequested(path: ComponentPath, descriptorKey: DescriptorKey): void {
+        this.componentDescriptorSetRequestedListeners.forEach((listener) => listener(path, descriptorKey));
     }
 
 }

@@ -1,10 +1,6 @@
-import {Page} from '../app/page/Page';
-import {Region} from '../app/page/region/Region';
-import {Component} from '../app/page/region/Component';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 
-export type ComponentItem = Page | Region | Component;
 export type ComponentItemType = 'page' | 'region' | ComponentType;
 
 export class TreeComponent {

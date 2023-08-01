@@ -25,6 +25,7 @@ import {PageEventsHolder} from './PageEventsHolder';
 import {PageEventsWrapper} from './PageEventsWrapper';
 import {PageTemplateKey} from '../../page/PageTemplateKey';
 import {DescriptorKey} from '../../page/DescriptorKey';
+import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
 
 
 export class PageState {
@@ -37,7 +38,7 @@ export class PageState {
 
     private componentAddedNotifier: ComponentAddedEventHandler;
 
-    private componentRemovedNotifier: ComponentRemovedEventHandler
+    private componentRemovedNotifier: ComponentRemovedEventHandler;
 
     private componentUpdatedNotifier: ComponentUpdatedEventHandler;
 
@@ -104,6 +105,14 @@ export class PageState {
             this.unListenPageComponentsEvents();
             this.state = null;
             this.pageEventsHolder.notifyPageReset();
+        });
+
+        PageEventsManager.get().onComponentDescriptorSetRequested((path: ComponentPath, descriptorKey: DescriptorKey) => {
+            const item: PageItem = this.state.getComponentByPath(path);
+
+            if (item instanceof DescriptorBasedComponent) {
+                item.setDescriptorKey(descriptorKey);
+            }
         });
     }
 

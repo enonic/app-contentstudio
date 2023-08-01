@@ -5,7 +5,6 @@ import {PageEventsManager} from './PageEventsManager';
 import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
 import {LayoutComponent} from '../page/region/LayoutComponent';
 import {FragmentComponent} from '../page/region/FragmentComponent';
-import {ComponentItem} from '../../page-editor/TreeComponent';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {Component} from '../page/region/Component';
 import {Region} from '../page/region/Region';
@@ -89,7 +88,7 @@ export class PageActionsHelper {
         return actions;
     }
 
-    private static createSelectParentAction(component: ComponentItem): Action {
+    private static createSelectParentAction(component: PageItem): Action {
         const action = new Action(i18n('action.component.select.parent'));
 
         action.setSortOrder(0);

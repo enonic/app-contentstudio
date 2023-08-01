@@ -77,6 +77,7 @@ import {LoadComponentRequested} from '../../../page-editor/event/LoadComponentRe
 import {DuplicateComponentRequest} from '../../../page-editor/event/DuplicateComponentRequest';
 import {SetFragmentComponentRequested} from '../../../page-editor/event/SetFragmentComponentRequested';
 import {DescriptorKey} from '../../page/DescriptorKey';
+import {SetComponentDescriptorRequest} from '../../../page-editor/event/SetComponentDescriptorRequest';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -691,13 +692,18 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         DuplicateComponentRequest.on((event: DuplicateComponentRequest) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             PageEventsManager.get().notifyComponentDuplicateRequested(path);
-        });
+        }, contextWindow);
 
         SetFragmentComponentRequested.on((event: SetFragmentComponentRequested) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
 
             PageEventsManager.get().notifySetFragmentComponentRequested(path, event.getContentId());
-        });
+        }, contextWindow);
+
+        SetComponentDescriptorRequest.on((event: SetComponentDescriptorRequest) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            PageEventsManager.get().notifyComponentDescriptorSetRequested(path, DescriptorKey.fromString(event.getDescriptor()));
+        }, contextWindow);
     }
 
     private listenToMainFrameEvents() {

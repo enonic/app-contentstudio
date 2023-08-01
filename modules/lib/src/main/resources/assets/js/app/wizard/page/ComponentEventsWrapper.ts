@@ -2,6 +2,7 @@ import {ComponentEventsHolder} from './ComponentEventsHolder';
 import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
 import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
+import {ComponentAddedEventHandler, ComponentRemovedEventHandler, ComponentUpdatedEventHandler} from '../../page/region/Component';
 
 export class ComponentEventsWrapper {
 
@@ -11,27 +12,27 @@ export class ComponentEventsWrapper {
         this.eventsHolder = events;
     }
 
-    onComponentAdded(listener: (event: ComponentAddedEvent) => void) {
+    onComponentAdded(listener: ComponentAddedEventHandler) {
         this.eventsHolder.onComponentAdded(listener);
     }
 
-    unComponentAdded(listener: (event: ComponentAddedEvent) => void) {
+    unComponentAdded(listener: ComponentAddedEventHandler) {
         this.eventsHolder.unComponentAdded(listener);
     }
 
-    onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
+    onComponentRemoved(listener: ComponentRemovedEventHandler) {
         this.eventsHolder.onComponentRemoved(listener);
     }
 
-    unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
+    unComponentRemoved(listener: ComponentRemovedEventHandler) {
         this.eventsHolder.unComponentRemoved(listener);
     }
 
-    onComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
+    onComponentUpdated(listener: ComponentUpdatedEventHandler) {
         this.eventsHolder.onComponentUpdated(listener);
     }
 
-    unComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
+    unComponentUpdated(listener: ComponentUpdatedEventHandler) {
         this.eventsHolder.unComponentUpdated(listener);
     }
 }

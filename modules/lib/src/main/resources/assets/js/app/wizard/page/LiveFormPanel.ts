@@ -953,6 +953,11 @@ export class LiveFormPanel
             return;
         }
 
+        if (event.getType() === PageNavigationEventType.SELECT) {
+            this.inspectComponentByPath(event.getData().getPath());
+            return;
+        }
+
         if (event.getType() === PageNavigationEventType.INSPECT) {
             this.inspectComponentByPath(event.getData().getPath());
             return;

@@ -60,12 +60,12 @@ export class ComponentPath
         const pathParts = path.split(ComponentPath.DIVIDER);
 
         let parentPath: ComponentPath | undefined = undefined;
-        let pathPart: string | number = pathParts[0] || ComponentPath.DIVIDER
+        let pathPart: string | number = pathParts[0] || ComponentPath.DIVIDER;
 
         for (let i = 1; i < pathParts.length; i++) {
             parentPath = new ComponentPath(pathPart, parentPath);
             pathPart = pathParts[i];
-        };
+        }
 
         return new ComponentPath(pathPart, parentPath);
     }

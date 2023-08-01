@@ -12,8 +12,6 @@ import {ComponentConfigUpdatedEvent} from './ComponentConfigUpdatedEvent';
 export abstract class DescriptorBasedComponent
     extends ConfigBasedComponent {
 
-    public static PROPERTY_DESCRIPTOR: string = 'descriptor';
-
     private descriptorKey: DescriptorKey;
 
     protected constructor(builder: DescriptorBasedComponentBuilder) {
@@ -31,10 +29,14 @@ export abstract class DescriptorBasedComponent
     }
 
     setDescriptor(descriptor: Descriptor) {
-        const oldDescriptorKeyValue = this.descriptorKey;
-        this.descriptorKey = descriptor ? descriptor.getKey() : null;
-
+        this.setDescriptorKey(descriptor?.getKey());
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
+    }
+
+    setDescriptorKey(descriptorKey: DescriptorKey) {
+        const oldDescriptorKeyValue = this.descriptorKey;
+
+        this.descriptorKey = descriptorKey;
 
         if (!ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
             this.notifyComponentUpdated(new ComponentDescriptorUpdatedEvent(this.getPath(), this.descriptorKey));

@@ -37,6 +37,7 @@ import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthe
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {ResetContentAction} from './ResetContentAction';
 import {LocalizeContentAction} from './LocalizeContentAction';
+import {PageState} from '../page/PageState';
 
 type ActionNames =
     'SAVE' |
@@ -227,7 +228,7 @@ export class ContentWizardActions
         }, 100, false);
 
         this.wizardPanel.onDataChanged(this.checkSaveActionStateHandler);
-        this.wizardPanel.onLiveModelChanged(this.checkSaveActionStateHandler);
+        this.wizardPanel.onPageStateChanged(this.checkSaveActionStateHandler);
     }
 
     private isUnnamedContent() {

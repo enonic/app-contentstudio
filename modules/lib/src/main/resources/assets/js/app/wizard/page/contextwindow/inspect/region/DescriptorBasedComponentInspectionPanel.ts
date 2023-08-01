@@ -24,6 +24,7 @@ import {PageState} from '../../../PageState';
 import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
 import {ComponentDescriptorUpdatedEvent} from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
 import {Page} from '../../../../../page/Page';
+import {PageEventsManager} from '../../../../PageEventsManager';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {
@@ -204,7 +205,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     private initSelectorListeners() {
         this.selector.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
             const descriptor: Descriptor = event.getOption().getDisplayValue();
-            this.component.setDescriptor(descriptor);
+            PageEventsManager.get().notifyComponentDescriptorSetRequested(this.getComponent().getPath(), descriptor.getKey());
         });
     }
 

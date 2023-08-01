@@ -6,20 +6,17 @@ import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent'
 import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridBuilder';
-import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {Component} from '../page/region/Component';
 import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
 import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorRequest';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {Descriptor} from '../page/Descriptor';
-import {TextComponentView} from '../../page-editor/text/TextComponentView';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {PageComponentsTreeGridHelper} from './PageComponentsTreeGridHelper';
 import {PartComponentType} from '../page/region/PartComponentType';
 import {Region} from '../page/region/Region';
 import {Page} from '../page/Page';
 import {LayoutComponent} from '../page/region/LayoutComponent';
-import {ComponentItem, ComponentItemType, TreeComponent} from '../../page-editor/TreeComponent';
+import {ComponentItemType, TreeComponent} from '../../page-editor/TreeComponent';
 import {RegionItemType} from '../../page-editor/RegionItemType';
 import {FragmentComponent} from '../page/region/FragmentComponent';
 import {FragmentComponentType} from '../page/region/FragmentComponentType';
@@ -33,6 +30,8 @@ import {Content} from '../content/Content';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {PageItem} from '../page/region/PageItem';
 import {PageState} from './page/PageState';
+import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ComponentsTreeItem> {
@@ -473,6 +472,23 @@ export class PageComponentsTreeGrid
 
         if (node) {
             this.deleteNode(node);
+        }
+    }
+
+    updateItemByEvent(event: ComponentUpdatedEvent): void {
+        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(event.getPath());
+
+        if (node) {
+            const item: PageItem = PageState.getState().getComponentByPath(event.getPath());
+
+            if (item instanceof Region) {
+                //
+            } else if (item instanceof Component) {
+                this.fetchTreeItem(item).then((treeComponent: ComponentsTreeItem) => {
+                    node.setData(treeComponent);
+                    this.invalidateNodes([node]);
+                }).catch(DefaultErrorHandler.handle);
+            }
         }
     }
 

@@ -9,6 +9,8 @@ export class ComponentDescriptorUpdatedEvent
 
     constructor(componentPath: ComponentPath, value: DescriptorKey) {
         super(componentPath);
+
+        this.descriptorKey = value;
     }
 
     getDescriptorKey(): DescriptorKey {

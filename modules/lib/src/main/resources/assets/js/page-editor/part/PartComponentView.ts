@@ -1,12 +1,7 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {PartItemType} from './PartItemType';
-import {ContentView, ContentViewBuilder} from '../ContentView';
 import {PartComponentViewer} from './PartComponentViewer';
 import {PartPlaceholder} from './PartPlaceholder';
-import {ItemView} from '../ItemView';
-import {ItemType} from '../ItemType';
-import {ContentItemType} from '../ContentItemType';
 import {DragAndDrop} from '../DragAndDrop';
 import {PartComponent} from '../../app/page/region/PartComponent';
 

@@ -73,8 +73,7 @@ export class Region
         }
 
         while (this.components.length > 0) {
-            // remove component modifies the components array so we can't rely on forEach
-            this.removeComponent(this.components[0]);
+            this.removeComponent(this.components[this.components.length - 1]);
         }
     }
 

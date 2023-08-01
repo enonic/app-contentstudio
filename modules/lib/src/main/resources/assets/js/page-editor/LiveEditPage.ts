@@ -377,6 +377,7 @@ export class LiveEditPage {
                 const createViewConfig: CreateItemViewConfig<RegionView, Component> = new CreateItemViewConfig<RegionView, Component>()
                     .setItemViewIdProducer(itemViewIdProducer)
                     .setItemViewFactory(itemViewFactory)
+                    .setLiveEditParams(this.pageView.getLiveEditParams())
                     .setParentView(componentView.getParentItemView())
                     .setElement(newElement);
 
