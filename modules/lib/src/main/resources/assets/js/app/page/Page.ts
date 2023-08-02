@@ -216,12 +216,9 @@ export class Page
             return this.isFragment() ? this.getFragment() : this;
         }
 
-        const pageFragment: Component = this.getFragment();
-        const regions: Regions = pageFragment instanceof LayoutComponent ? pageFragment.getRegions() : this.regions;
-
         let result = null;
 
-        regions?.getRegions().some((region: Region) => {
+        this.getActiveRegions()?.getRegions().some((region: Region) => {
             if (region.getPath().equals(path)) {
                 result = region;
                 return true;
@@ -235,32 +232,37 @@ export class Page
         return result;
     }
 
+    private getActiveRegions(): Regions {
+        const pageFragment: Component = this.getFragment();
+        return pageFragment instanceof LayoutComponent ? pageFragment.getRegions() : this.regions;
+    }
+
     getParent(): PageItem {
         return null;
     }
 
     onComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.regions?.getEventsManager().onComponentAdded(listener);
+        this.getActiveRegions()?.getEventsManager().onComponentAdded(listener);
     }
 
     unComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.regions?.getEventsManager().unComponentAdded(listener);
+        this.getActiveRegions()?.getEventsManager().unComponentAdded(listener);
     }
 
     onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.regions?.getEventsManager().onComponentRemoved(listener);
+        this.getActiveRegions()?.getEventsManager().onComponentRemoved(listener);
     }
 
     unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.regions?.getEventsManager().unComponentRemoved(listener);
+        this.getActiveRegions()?.getEventsManager().unComponentRemoved(listener);
     }
 
     onComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
-        this.regions?.getEventsManager().onComponentUpdated(listener);
+        this.getActiveRegions()?.getEventsManager().onComponentUpdated(listener);
     }
 
     unComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
-        this.regions?.getEventsManager().onComponentUpdated(listener);
+        this.getActiveRegions()?.getEventsManager().onComponentUpdated(listener);
     }
 
     onPageUpdated(listener: PageUpdatedEventHandler): void {
