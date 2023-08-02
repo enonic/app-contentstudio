@@ -965,7 +965,7 @@ export class LiveFormPanel
     }
 
     private inspectComponentByPath(path: ComponentPath): void {
-        const item: PageItem = path.isRoot() ? PageState.getState() : PageState.getState().getComponentByPath(path);
+        const item: PageItem = PageState.getState().getComponentByPath(path);
 
         if (item instanceof Component) {
             this.inspectComponent(item);
