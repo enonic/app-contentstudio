@@ -3,7 +3,7 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentPath} from '../../app/page/region/ComponentPath';
 import {ComponentType} from '../../app/page/region/ComponentType';
 
-export class AddItemViewRequest
+export class AddItemViewRequested
     extends Event {
 
     private readonly path: ComponentPath;
@@ -23,11 +23,11 @@ export class AddItemViewRequest
         return this.type;
     }
 
-    static on(handler: (event: AddItemViewRequest) => void, contextWindow: Window = window) {
+    static on(handler: (event: AddItemViewRequested) => void, contextWindow: Window = window) {
         Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    static un(handler?: (event: AddItemViewRequest) => void, contextWindow: Window = window) {
+    static un(handler?: (event: AddItemViewRequested) => void, contextWindow: Window = window) {
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

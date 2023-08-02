@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
@@ -14,7 +13,6 @@ import {PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
 import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
 import {Highlighter} from '../../page-editor/Highlighter';
-import {ComponentView} from '../../page-editor/ComponentView';
 import {ClickPosition} from '../../page-editor/ClickPosition';
 import {PageViewController} from '../../page-editor/PageViewController';
 import {DataChangedEvent, DataChangedType} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
@@ -23,10 +21,10 @@ import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
+import {ComponentsTreeItem} from './ComponentsTreeItem';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {ComponentPath} from '../page/region/ComponentPath';
-import {ComponentItemType, TreeComponent} from '../../page-editor/TreeComponent';
+import {TreeComponent} from './TreeComponent';
 import {Page} from '../page/Page';
 import {PageEventsManager} from './PageEventsManager';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -44,6 +42,8 @@ import {ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
 import {PageItem} from '../page/region/PageItem';
 import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
+import {PageItemType} from '../page/region/PageItemType';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 
 export class PageComponentsView
     extends DivEl implements PageNavigationHandler {
@@ -306,11 +306,12 @@ export class PageComponentsView
                 return;
             }
 
-            const clickedItem: TreeComponent = this.tree.getGrid().getDataView().getItem(data.row).getData()?.getComponent();
-            const type: ComponentItemType = clickedItem?.getType();
+            const node: TreeNode<ComponentsTreeItem> = this.tree.getGrid().getDataView().getItem(data.row);
+            const clickedItem: TreeComponent = node.getData()?.getComponent();
+            const type: PageItemType = clickedItem?.getType();
 
             if (type instanceof TextComponent) {
-                this.editTextComponent(clickedItem.getPath());
+                this.editTextComponent(this.tree.getNodePath(node));
             }
         };
 
@@ -350,12 +351,13 @@ export class PageComponentsView
             const selectedItem: ComponentsTreeItem = currentSelection[0];
 
             if (selectedItem) {
+                const path: ComponentPath = this.tree.getPathByItem(selectedItem);
                 if (!this.lastSelectedPath) { // not spawning event if item was selected as a result of the same event
                     PageNavigationMediator.get().notify(
-                        new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(selectedItem.getPath())), this);
+                        new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)), this);
                 }
 
-                if (this.contextMenuItemPath && !this.contextMenuItemPath.equals(selectedItem.getPath())) {
+                if (this.contextMenuItemPath && !this.contextMenuItemPath.equals(path)) {
                     this.hideContextMenu();
                 }
             } else { // if item was deselected by clicking in the pcv grid then need to deselect it in the live edit
@@ -418,8 +420,10 @@ export class PageComponentsView
         const removeHandler = () => {
             const itemViewWrapper: ComponentsTreeItem = this.tree.getFirstSelectedItem();
 
+
             if (itemViewWrapper) {
-                PageEventsManager.get().notifyComponentRemoveRequested(itemViewWrapper.getPath());
+                const path: ComponentPath = this.tree.getPathByItem(itemViewWrapper);
+                PageEventsManager.get().notifyComponentRemoveRequested(path);
             }
             return true;
         };
@@ -591,7 +595,7 @@ export class PageComponentsView
 
     private showContextMenu(row: number, clickPosition: ClickPosition): void {
         const item: ComponentsTreeItem = this.tree.getGrid().getDataView().getItem(row)?.getData();
-        this.contextMenuItemPath = item?.getPath();
+        this.contextMenuItemPath = item ? this.tree.getPathByItem(item) : null;
 
         const contextMenuActions: Action[] = this.liveEditPage.isLocked() ?
                                              this.getLockedPageActions() : this.getItemContextMenuActions(item);
@@ -660,7 +664,7 @@ export class PageComponentsView
             return [];
         }
 
-        const path: ComponentPath = item.getPath();
+        const path: ComponentPath = this.tree.getPathByItem(item);
         const page: Page = PageState.getState();
         const pageItem: PageItem = path.isRoot() ? page : page.getComponentByPath(path);
 

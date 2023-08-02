@@ -7,7 +7,7 @@ import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {Component} from '../page/region/Component';
-import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
+import {ComponentsTreeItem} from './ComponentsTreeItem';
 import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorRequest';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {Descriptor} from '../page/Descriptor';
@@ -16,7 +16,7 @@ import {PartComponentType} from '../page/region/PartComponentType';
 import {Region} from '../page/region/Region';
 import {Page} from '../page/Page';
 import {LayoutComponent} from '../page/region/LayoutComponent';
-import {ComponentItemType, TreeComponent} from '../../page-editor/TreeComponent';
+import {TreeComponent} from './TreeComponent';
 import {RegionItemType} from '../../page-editor/RegionItemType';
 import {FragmentComponent} from '../page/region/FragmentComponent';
 import {FragmentComponentType} from '../page/region/FragmentComponentType';
@@ -32,6 +32,7 @@ import {PageItem} from '../page/region/PageItem';
 import {PageState} from './page/PageState';
 import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {PageItemType} from '../page/region/PageItemType';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ComponentsTreeItem> {
@@ -84,12 +85,10 @@ export class PageComponentsTreeGrid
     }
 
     hasChildren(data: ComponentsTreeItem): boolean {
-        return this.hasComponentChildren(data.getComponent().getPath());
+        return data.getComponent().hasChildren();
     }
 
-    private hasComponentChildren(path: ComponentPath): boolean {
-        const item: PageItem = path.isRoot() ? PageState.getState() : PageState.getState().getComponentByPath(path);
-
+    private hasComponentChildren(item: PageItem): boolean {
         if (item instanceof Page) {
             return !item.getRegions().isEmpty();
         }
@@ -124,13 +123,13 @@ export class PageComponentsTreeGrid
     private fetchRootFragment(): Q.Promise<ComponentsTreeItem> {
         const component: Component = PageState.getState().getFragment();
 
-        return this.fetchDescriptor(component).then((descriptor) => {
+        return this.fetchDescriptor(component).then((descriptor: Descriptor) => {
             const fullComponent: TreeComponent = TreeComponent.create()
                 .setDisplayName(descriptor?.getDisplayName())
                 .setDescription(descriptor?.getDescription() || component.getType().getShortName())
                 .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
+                .setHasChildren(this.hasComponentChildren(component))
                 .setType(component.getType())
-                .setPath(component.getPath())
                 .build();
 
             return new ComponentsTreeItem(fullComponent);
@@ -143,8 +142,8 @@ export class PageComponentsTreeGrid
                 .setDisplayName(descriptor?.getDisplayName())
                 .setDescription(descriptor?.getDescription() || this.makeNoDescriptionText())
                 .setIconClass('icon-file')
+                .setHasChildren(this.hasComponentChildren(PageState.getState()))
                 .setType('page')
-                .setPath(ComponentPath.root())
                 .build();
 
             return new ComponentsTreeItem(fullComponent);
@@ -156,7 +155,7 @@ export class PageComponentsTreeGrid
     }
 
     fetchChildren(parentNode: TreeNode<ComponentsTreeItem>): Q.Promise<ComponentsTreeItem[]> {
-        const path: ComponentPath = parentNode.getData().getComponent().getPath();
+        const path: ComponentPath = this.getNodePath(parentNode);
         const component: PageItem = path.isRoot() ? PageState.getState() : PageState.getState().getComponentByPath(path);
 
         if (component instanceof Page) {
@@ -179,8 +178,8 @@ export class PageComponentsTreeGrid
             .setDisplayName(region.getName())
             .setDescription(RegionItemType.get().getShortName())
             .setIconClass(ItemViewIconClassResolver.resolveByType(RegionItemType.get().getShortName()))
+            .setHasChildren(this.hasComponentChildren(region))
             .setType('region')
-            .setPath(region.getPath())
             .build();
 
         return new ComponentsTreeItem(fullComponent);
@@ -216,7 +215,7 @@ export class PageComponentsTreeGrid
         }
 
         return Q.resolve(TreeComponent.create().setDisplayName(component.getName().toString()).setDescription(
-            component.getType().getShortName()).setPath(component.getPath()).setType(component.getType()).build());
+            component.getType().getShortName()).setType(component.getType()).build());
     }
 
     private fetchFragmentItem(fragmentComponent: FragmentComponent): Q.Promise<TreeComponent> {
@@ -228,8 +227,8 @@ export class PageComponentsTreeGrid
                 .setDisplayName(content?.getDisplayName() || fragmentComponent.getName().toString())
                 .setDescription(content?.getPage()?.getFragment()?.getType().getShortName() || fragmentComponent.getType().getShortName())
                 .setIconClass(ItemViewIconClassResolver.resolveByType(FragmentComponentType.get().getShortName()))
+                .setHasChildren(false)
                 .setType(FragmentComponentType.get())
-                .setPath(fragmentComponent.getPath())
                 .build();
         });
     }
@@ -241,8 +240,8 @@ export class PageComponentsTreeGrid
                 .setDescription(descriptor?.getDescription() || this.makeNoDescriptionText())
                 .setIconUrl(descriptor?.getIcon())
                 .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
+                .setHasChildren(this.hasComponentChildren(component))
                 .setType(component.getType())
-                .setPath(component.getPath())
                 .build();
         });
     }
@@ -252,8 +251,8 @@ export class PageComponentsTreeGrid
             .setDisplayName(StringHelper.htmlToString(component.getText()) || component.getName().toString())
             .setDescription(TextComponentType.get().getShortName())
             .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
+            .setHasChildren(false)
             .setType(TextComponentType.get())
-            .setPath(component.getPath())
             .build();
     }
 
@@ -298,7 +297,7 @@ export class PageComponentsTreeGrid
         this.scrollToItem(path);
 
         const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
-        const type: ComponentItemType = node.getData().getComponent().getType();
+        const type: PageItemType = node.getData().getComponent().getType();
 
         if (type instanceof LayoutComponentType) {
             this.expandNode(node);
@@ -319,8 +318,8 @@ export class PageComponentsTreeGrid
             });
         }
 
-        return this.fetchComponentItem(null).then((fullComponent: TreeComponent) => {
-            this.updateNodeByData(new ComponentsTreeItem(fullComponent), oldNode.getDataId());
+        return this.fetchComponentItem(null).then((treeComponent: TreeComponent) => {
+            this.updateNodeByData(new ComponentsTreeItem(treeComponent), oldNode.getDataId());
 
             if (this.isItemSelected(path)) {
                 this.selectItemByPath(path);
@@ -356,12 +355,14 @@ export class PageComponentsTreeGrid
             return false;
         }
 
-        return this.getSelectedDataList().some((item: ComponentsTreeItem) => item.getPath().equals(path));
+        return this.getSelectedDataList().map(item => this.getPathByItem(item)).some(
+            (selectedItemPath: ComponentPath) => selectedItemPath.equals(path));
     }
 
     private getNodeByPath(path: ComponentPath): TreeNode<ComponentsTreeItem> {
         return this.getRoot().getAllDefaultRootNodes().find((node: TreeNode<ComponentsTreeItem>) => {
-            return node.getData().getComponent()?.getPath().equals(path);
+            const nodePath = this.getNodePath(node);
+            return path.equals(nodePath);
         });
     }
 
@@ -377,12 +378,10 @@ export class PageComponentsTreeGrid
     }
 
     protected isToBeExpanded(node: TreeNode<ComponentsTreeItem>): boolean {
-        const path: ComponentPath = node.getData().getComponent().getPath();
-        const item: PageItem = path.isRoot() ? PageState.getState() : PageState.getState().getComponentByPath(path);
+        const treeComponent: TreeComponent = node.getData().getComponent();
 
         return super.isToBeExpanded(node) ||
-               !(item instanceof LayoutComponent) ||
-               !item.getParent();
+               !(treeComponent.getType() instanceof LayoutComponentType) || node.getParent() === node.getRoot();
     }
 
     mask() {
@@ -490,6 +489,36 @@ export class PageComponentsTreeGrid
                 }).catch(DefaultErrorHandler.handle);
             }
         }
+    }
+
+    getPathByItem(item: ComponentsTreeItem): ComponentPath {
+        if (item.getType() === 'page') {
+            return ComponentPath.root();
+        }
+
+        const node: TreeNode<ComponentsTreeItem> = this.getRoot().getAllDefaultRootNodes().find((node: TreeNode<ComponentsTreeItem>) => {
+            return node.getDataId() === item.getId();
+        });
+
+        return node ? this.getNodePath(node) : null;
+    }
+
+    getNodePath(node: TreeNode<ComponentsTreeItem>): ComponentPath {
+        let result: string = '';
+
+        while (node?.hasParent()) {
+            if (node.getData().getType() === 'page') {
+                //
+            } else if (node.getData().getType() === 'region') {
+                result = '/' + node.getData().getComponent().getDisplayName() + result;
+            } else {
+                result = '/' + node.getParent().getChildren().indexOf(node) + result ;
+            }
+
+            node = node.getParent();
+        }
+
+        return ComponentPath.fromString(result);
     }
 
 }

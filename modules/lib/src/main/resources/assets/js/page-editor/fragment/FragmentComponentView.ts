@@ -1,26 +1,20 @@
 import {ContentBasedComponentView, ContentBasedComponentViewBuilder} from '../ContentBasedComponentView';
 import {FragmentItemType} from './FragmentItemType';
-import {FragmentComponentViewer} from './FragmentComponentViewer';
 import {FragmentComponentLoadedEvent} from '../FragmentComponentLoadedEvent';
 import {FragmentLoadErrorEvent} from '../FragmentLoadErrorEvent';
 import {FragmentPlaceholder} from './FragmentPlaceholder';
 import {ShowWarningLiveEditEvent} from '../ShowWarningLiveEditEvent';
-import {FragmentComponentReloadRequiredEvent} from '../FragmentComponentReloadRequiredEvent';
 import {ItemType} from '../ItemType';
 import {LayoutItemType} from '../layout/LayoutItemType';
 import {TextItemType} from '../text/TextItemType';
 import {CreateItemViewConfig} from '../CreateItemViewConfig';
 import {RegionView} from '../RegionView';
 import {ComponentView} from '../ComponentView';
-import {ComponentDetachedFromFragmentEvent} from '../ComponentDetachedFromFragmentEvent';
 import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
 import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
-import {ContentDeletedEvent, ContentDeletedItem} from '../../app/event/ContentDeletedEvent';
-import {ContentUpdatedEvent} from '../../app/event/ContentUpdatedEvent';
 import {Content} from '../../app/content/Content';
 import {FragmentComponent} from '../../app/page/region/FragmentComponent';
 import {ComponentType} from '../../app/page/region/ComponentType';
-import {ComponentPropertyValueChangedEvent} from '../../app/page/region/ComponentPropertyValueChangedEvent';
 import {Component} from '../../app/page/region/Component';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -28,7 +22,6 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ContentId} from '../../app/content/ContentId';
-import {ContentSummary} from '../../app/content/ContentSummary';
 import * as Q from 'q';
 import {LayoutComponent} from '../../app/page/region/LayoutComponent';
 import {PageHelper} from '../../app/util/PageHelper';
@@ -55,7 +48,7 @@ export class FragmentComponentView
     private fragmentContentId?: ContentId;
 
     constructor(builder: FragmentComponentViewBuilder) {
-        super(builder.setViewer(new FragmentComponentViewer()).setInspectActionRequired(true));
+        super(builder.setInspectActionRequired(true));
 
         this.fragmentContainsLayout = false;
         this.fragmentContent = null;

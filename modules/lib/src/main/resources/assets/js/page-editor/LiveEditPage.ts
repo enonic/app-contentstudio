@@ -34,11 +34,11 @@ import {ItemView} from './ItemView';
 import {DeselectComponentRequestedEvent} from './event/DeselectComponentRequestedEvent';
 import {EditTextComponentRequested} from './event/EditTextComponentRequested';
 import {TextComponentView} from './text/TextComponentView';
-import {AddItemViewRequest} from './event/AddItemViewRequest';
+import {AddItemViewRequested} from './event/AddItemViewRequested';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {RegionView} from './RegionView';
 import {ItemType} from './ItemType';
-import {RemoveItemViewRequest} from './event/RemoveItemViewRequest';
+import {RemoveItemViewRequested} from './event/RemoveItemViewRequested';
 import {ComponentView} from './ComponentView';
 import {Component} from '../app/page/region/Component';
 import * as Q from 'q';
@@ -89,9 +89,9 @@ export class LiveEditPage {
 
     private editTextComponentRequestedListener: (event: EditTextComponentRequested) => void;
 
-    private addItemViewRequestListener: (event: AddItemViewRequest) => void;
+    private addItemViewRequestListener: (event: AddItemViewRequested) => void;
 
-    private removeItemViewRequestListener: (event: RemoveItemViewRequest) => void;
+    private removeItemViewRequestListener: (event: RemoveItemViewRequested) => void;
 
     private loadComponentRequestListener: (event: LoadComponentRequested) => void;
 
@@ -276,7 +276,7 @@ export class LiveEditPage {
 
         EditTextComponentRequested.on(this.editTextComponentRequestedListener);
 
-        this.addItemViewRequestListener = (event: AddItemViewRequest) => {
+        this.addItemViewRequestListener = (event: AddItemViewRequested) => {
             const path = ComponentPath.fromString(event.getComponentPath().toString());
             const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
             const viewType = ItemType.fromComponentType(type);
@@ -287,9 +287,9 @@ export class LiveEditPage {
             }
         };
 
-        AddItemViewRequest.on(this.addItemViewRequestListener);
+        AddItemViewRequested.on(this.addItemViewRequestListener);
 
-        this.removeItemViewRequestListener = (event: RemoveItemViewRequest) => {
+        this.removeItemViewRequestListener = (event: RemoveItemViewRequested) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const view: ItemView = this.getItemViewByPath(path);
 
@@ -302,7 +302,7 @@ export class LiveEditPage {
             }
         };
 
-        RemoveItemViewRequest.on(this.removeItemViewRequestListener);
+        RemoveItemViewRequested.on(this.removeItemViewRequestListener);
 
         this.loadComponentRequestListener = (event: LoadComponentRequested) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
@@ -352,9 +352,9 @@ export class LiveEditPage {
 
         EditTextComponentRequested.un(this.editTextComponentRequestedListener);
 
-        AddItemViewRequest.un(this.addItemViewRequestListener);
+        AddItemViewRequested.un(this.addItemViewRequestListener);
 
-        RemoveItemViewRequest.un(this.removeItemViewRequestListener);
+        RemoveItemViewRequested.un(this.removeItemViewRequestListener);
 
         LoadComponentRequested.un(this.loadComponentRequestListener);
     }

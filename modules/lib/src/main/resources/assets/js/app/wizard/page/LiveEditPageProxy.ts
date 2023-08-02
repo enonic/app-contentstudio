@@ -68,16 +68,17 @@ import {PageState} from './PageState';
 import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
 import {AddComponentRequest} from '../../../page-editor/event/AddComponentRequest';
 import {ComponentType} from '../../page/region/ComponentType';
-import {AddItemViewRequest} from '../../../page-editor/event/AddItemViewRequest';
+import {AddItemViewRequested} from '../../../page-editor/event/AddItemViewRequested';
 import {RemoveComponentRequest} from '../../../page-editor/event/RemoveComponentRequest';
 import {ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
-import {RemoveItemViewRequest} from '../../../page-editor/event/RemoveItemViewRequest';
+import {RemoveItemViewRequested} from '../../../page-editor/event/RemoveItemViewRequested';
 import {LoadComponentFailedEvent} from '../../../page-editor/event/LoadComponentFailedEvent';
 import {LoadComponentRequested} from '../../../page-editor/event/LoadComponentRequested';
 import {DuplicateComponentRequest} from '../../../page-editor/event/DuplicateComponentRequest';
 import {SetFragmentComponentRequested} from '../../../page-editor/event/SetFragmentComponentRequested';
 import {DescriptorKey} from '../../page/DescriptorKey';
 import {SetComponentDescriptorRequest} from '../../../page-editor/event/SetComponentDescriptorRequest';
+import {UpdateTextComponentRequest} from '../../../page-editor/event/UpdateTextComponentRequest';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -705,6 +706,12 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             PageEventsManager.get().notifyComponentDescriptorSetRequested(path, DescriptorKey.fromString(event.getDescriptor()));
         }, contextWindow);
+
+        UpdateTextComponentRequest.on((event: UpdateTextComponentRequest) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+
+            PageEventsManager.get().notifyTextComponentUpdateRequested(path, event.getText());
+        }, contextWindow);
     }
 
     private listenToMainFrameEvents() {
@@ -713,11 +720,11 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         });
 
         PageState.getEvents().onComponentAdded((event: ComponentAddedEvent): void => {
-            new AddItemViewRequest(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
+            new AddItemViewRequested(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
         });
 
         PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
-            new RemoveItemViewRequest(event.getPath()).fire(this.liveEditWindow);
+            new RemoveItemViewRequested(event.getPath()).fire(this.liveEditWindow);
         });
     }
 

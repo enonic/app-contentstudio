@@ -5,7 +5,6 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ItemView, ItemViewBuilder} from './ItemView';
 import {RegionItemType} from './RegionItemType';
 import {RegionViewContextMenuTitle} from './RegionViewContextMenuTitle';
-import {RegionComponentViewer} from './RegionComponentViewer';
 import {RegionPlaceholder} from './RegionPlaceholder';
 import {ItemViewAddedEvent} from './ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
@@ -111,7 +110,6 @@ export class RegionView
             .setType(RegionItemType.get())
             .setElement(builder.element)
             .setPlaceholder(new RegionPlaceholder())
-            .setViewer(new RegionComponentViewer())
             .setParentElement(builder.parentElement)
             .setParentView(builder.parentView)
             .setContextMenuTitle(new RegionViewContextMenuTitle(builder.name)));

@@ -53,7 +53,7 @@ export class ComponentPath
     }
 
     static fromString(path: string): ComponentPath {
-        if (StringHelper.isBlank(path)) {
+        if (StringHelper.isBlank(path) || path === ComponentPath.DIVIDER) {
             return ComponentPath.root();
         }
 

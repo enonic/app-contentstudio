@@ -5,7 +5,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {TextItemType} from './TextItemType';
 import {TextPlaceholder} from './TextPlaceholder';
-import {TextComponentViewer} from './TextComponentViewer';
 import {LiveEditPageDialogCreatedEvent, LiveEditPageDialogCreatedEventHandler} from '../LiveEditPageDialogCreatedEvent';
 import {Highlighter} from '../Highlighter';
 import {ItemView} from '../ItemView';
@@ -29,6 +28,7 @@ import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CreateHtmlAreaDialogEvent} from '../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import {UpdateTextComponentRequest} from '../event/UpdateTextComponentRequest';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder<TextComponent> {
@@ -70,7 +70,7 @@ export class TextComponentView
     private winBlurred: boolean;
 
     constructor(builder: TextComponentViewBuilder) {
-        super(builder.setViewer(new TextComponentViewer()));
+        super(builder);
 
         this.addTextContextMenuActions();
         this.addClassEx('text-view');
@@ -392,6 +392,7 @@ export class TextComponentView
     }
 
     private doInitEditor(): void {
+        const componentText: string = this.getEl().getInnerHtml();
         this.setContentEditable(true);
         this.isInitializingEditor = true;
         const createDialogHandler: (event: CreateHtmlAreaDialogEvent) => void = event => {
@@ -408,7 +409,7 @@ export class TextComponentView
             .setMouseLeaveHandler(this.onMouseLeftHandler.bind(this))
             .setKeydownHandler(this.onKeydownHandler.bind(this))
             .setNodeChangeHandler(this.processEditorValue.bind(this))
-            .setEditorReadyHandler(this.handleEditorCreated.bind(this))
+            .setEditorReadyHandler(this.handleEditorCreated.bind(this, componentText))
             .setFixedToolbarContainer(PageViewController.get().getEditorToolbarContainerId())
             .setContent(null)
             .setEditableSourceCode(this.editableSourceCode)
@@ -422,11 +423,10 @@ export class TextComponentView
             this.htmlAreaEditor.on('focus', () => {
                 this.selectWhileEditing();
             });
-        });
+        }).catch(DefaultErrorHandler.handle);
     }
 
-    private handleEditorCreated() {
-        const componentText: string = ''; // this.component.getText();
+    private handleEditorCreated(componentText: string): void {
         const data: string = componentText ?
                              HTMLAreaHelper.convertRenderSrcToPreviewSrc(componentText, this.getLiveEditParams().contentId) :
                              TextComponentView.DEFAULT_TEXT;
@@ -477,9 +477,9 @@ export class TextComponentView
         const text: string = this.isEditorEmpty() ? TextComponentView.DEFAULT_TEXT :
                              HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData());
 
-
-
         this.refreshEmptyState();
+
+        new UpdateTextComponentRequest(this.getPath(), text).fire();
     }
 
     isEmpty(): boolean {
@@ -586,6 +586,10 @@ export class TextComponentView
     }
 
     refreshEmptyState(): TextComponentView {
+        if (!this.htmlAreaEditor) {
+            return this;
+        }
+
         super.refreshEmptyState();
         this.togglePlaceholder();
 

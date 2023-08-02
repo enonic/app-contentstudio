@@ -52,8 +52,6 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
 
     placeholder: ItemViewPlaceholder;
 
-    viewer: Viewer<any>;
-
     inspectActionRequired: boolean;
 
     liveEditParams: LiveEditParams;
@@ -114,11 +112,6 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
         return this;
     }
 
-    setViewer(value: Viewer<any>): this {
-        this.viewer = value;
-        return this;
-    }
-
     setLiveEditParams(value: LiveEditParams): this {
         this.liveEditParams = value;
         return this;
@@ -151,7 +144,6 @@ export class ComponentView<COMPONENT extends Component>
                 builder.itemViewIdProducer ? builder.itemViewIdProducer : builder.parentRegionView.getItemViewIdProducer())
             .setItemViewFactory(builder.itemViewFactory ? builder.itemViewFactory : builder.parentRegionView.getItemViewFactory())
             .setPlaceholder(builder.placeholder)
-            .setViewer(builder.viewer)
             .setType(builder.type)
             .setElement(builder.element)
             .setParentView(builder.parentRegionView)

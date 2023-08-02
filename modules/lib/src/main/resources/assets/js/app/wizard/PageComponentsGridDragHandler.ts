@@ -17,7 +17,7 @@ import {DragEventData, GridDragHandler} from '@enonic/lib-admin-ui/ui/grid/GridD
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
-import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
+import {ComponentsTreeItem} from './ComponentsTreeItem';
 
 export class PageComponentsGridDragHandler
     extends GridDragHandler<ComponentsTreeItem> {

@@ -2,7 +2,7 @@ import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentPath} from '../../app/page/region/ComponentPath';
 
-export class RemoveItemViewRequest
+export class RemoveItemViewRequested
     extends Event {
 
     private readonly path: ComponentPath;
@@ -16,11 +16,11 @@ export class RemoveItemViewRequest
         return this.path;
     }
 
-    static on(handler: (event: RemoveItemViewRequest) => void, contextWindow: Window = window) {
+    static on(handler: (event: RemoveItemViewRequested) => void, contextWindow: Window = window) {
         Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    static un(handler?: (event: RemoveItemViewRequest) => void, contextWindow: Window = window) {
+    static un(handler?: (event: RemoveItemViewRequested) => void, contextWindow: Window = window) {
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

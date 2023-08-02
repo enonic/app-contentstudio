@@ -2,7 +2,6 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Component, ComponentUpdatedEventHandler} from './Component';
-import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ComponentAddedEvent} from './ComponentAddedEvent';
 import {ComponentPath} from './ComponentPath';
@@ -14,6 +13,7 @@ import {PageItem} from './PageItem';
 import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
 import {ComponentEventsHolder} from '../../wizard/page/ComponentEventsHolder';
 import {ComponentEventsWrapper} from '../../wizard/page/ComponentEventsWrapper';
+import {PageItemType} from './PageItemType';
 
 export class Region
     implements Equitable, Cloneable, PageItem {
@@ -25,8 +25,6 @@ export class Region
     private components: Component[] = [];
 
     private parent: PageItem;
-
-    private changedListeners: { (event: BaseRegionChangedEvent): void }[] = [];
 
     private readonly componentEventsHolder: ComponentEventsHolder;
 
@@ -53,6 +51,10 @@ export class Region
 
     getName(): string {
         return this.name;
+    }
+
+    getType(): PageItemType {
+        return 'region';
     }
 
     getParent(): PageItem {
@@ -215,25 +217,6 @@ export class Region
 
         this.components.splice(index, 1);
         // update indexes for inserted component and components after it
-
-        component.setParent(null);
-    }
-
-    onChanged(listener: (event: BaseRegionChangedEvent) => void) {
-        this.changedListeners.push(listener);
-    }
-
-    unChanged(listener: (event: BaseRegionChangedEvent) => void) {
-        this.changedListeners =
-            this.changedListeners.filter((curr: (event: BaseRegionChangedEvent) => void) => {
-                return listener !== curr;
-            });
-    }
-
-    private notifyChangedEvent(event: BaseRegionChangedEvent) {
-        this.changedListeners.forEach((listener: (event: BaseRegionChangedEvent) => void) => {
-            listener(event);
-        });
     }
 
     notifyComponentAddedEvent(event: ComponentAddedEvent) {

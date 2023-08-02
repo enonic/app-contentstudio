@@ -108,6 +108,8 @@ export class PageEventsManager {
 
     private setFragmentComponentRequestedListeners: { (path: ComponentPath, id: string): void; }[] = [];
 
+    private textComponentUpdateRequestedListeners: { (path: ComponentPath, value: string): void; }[] = [];
+
     private constructor() {
         //
     }
@@ -564,6 +566,18 @@ export class PageEventsManager {
 
     notifyComponentDescriptorSetRequested(path: ComponentPath, descriptorKey: DescriptorKey): void {
         this.componentDescriptorSetRequestedListeners.forEach((listener) => listener(path, descriptorKey));
+    }
+
+    onTextComponentUpdateRequested(listener: { (path: ComponentPath, value: string): void; }) {
+        this.textComponentUpdateRequestedListeners.push(listener);
+    }
+
+    untTextComponentUpdateRequested(listener: { (path: ComponentPath, value: string): void; }) {
+        this.textComponentUpdateRequestedListeners = this.textComponentUpdateRequestedListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyTextComponentUpdateRequested(path: ComponentPath, value: string): void {
+        this.textComponentUpdateRequestedListeners.forEach((listener) => listener(path, value));
     }
 
 }

@@ -1,6 +1,5 @@
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {PartItemType} from './PartItemType';
-import {PartComponentViewer} from './PartComponentViewer';
 import {PartPlaceholder} from './PartPlaceholder';
 import {DragAndDrop} from '../DragAndDrop';
 import {PartComponent} from '../../app/page/region/PartComponent';
@@ -18,7 +17,7 @@ export class PartComponentView
     extends ComponentView<PartComponent> {
 
     constructor(builder: PartComponentViewBuilder) {
-        super(builder.setViewer(new PartComponentViewer()).setInspectActionRequired(true));
+        super(builder.setInspectActionRequired(true));
 
         this.createPlaceholder();
         this.resetHrefForRootLink(builder);

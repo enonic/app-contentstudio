@@ -30,9 +30,7 @@ import {PageViewController} from './PageViewController';
 import {ItemViewFactory} from './ItemViewFactory';
 import {RegionItemType} from './RegionItemType';
 import {PageItemType} from './PageItemType';
-import {Content} from '../app/content/Content';
 import {Component, ComponentBuilder} from '../app/page/region/Component';
-import {DescriptorBasedComponentBuilder} from '../app/page/region/DescriptorBasedComponent';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {FragmentComponentBuilder} from '../app/page/region/FragmentComponent';
 import {FragmentComponentType} from '../app/page/region/FragmentComponentType';
@@ -45,13 +43,11 @@ import {PartComponentBuilder} from '../app/page/region/PartComponent';
 import {TextComponentType} from '../app/page/region/TextComponentType';
 import {TextComponentBuilder} from '../app/page/region/TextComponent';
 import {PageView} from './PageView';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
-import {ContentIconUrlResolver} from '../app/content/ContentIconUrlResolver';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {LiveEditParams} from './LiveEditParams';
 import {AddComponentRequest} from './event/AddComponentRequest';
@@ -85,8 +81,6 @@ export class ItemViewBuilder {
 
     placeholder: ItemViewPlaceholder;
 
-    viewer: Viewer<any>;
-
     setItemViewIdProducer(value: ItemViewIdProducer): this {
         this.itemViewIdProducer = value;
         return this;
@@ -109,11 +103,6 @@ export class ItemViewBuilder {
 
     setPlaceholder(value: ItemViewPlaceholder): this {
         this.placeholder = value;
-        return this;
-    }
-
-    setViewer(value: Viewer<any>): this {
-        this.viewer = value;
         return this;
     }
 
@@ -165,8 +154,6 @@ export abstract class ItemView
     private contextMenuTitle: ItemViewContextMenuTitle;
 
     private contextMenuActions: Action[];
-
-    private viewer: Viewer<any>;
 
     private mouseOver: boolean;
 
@@ -233,8 +220,6 @@ export abstract class ItemView
         if (!builder.element) {
             this.getEl().setData(ItemType.ATTRIBUTE_TYPE, builder.type.getShortName());
         }
-
-        this.viewer = builder.viewer;
 
         // remove old placeholder in case of parsing already parsed page again
         for (let i = 0; i < this.getChildren().length; i++) {
@@ -913,10 +898,6 @@ export abstract class ItemView
         return i18n('live.view.itemview.noname');
     }
 
-    getIconUrl(content: Content): string {
-        return new ContentIconUrlResolver().setContent(content).resolve();
-    }
-
     getIconClass() {
         return ItemViewIconClassResolver.resolveByView(this);
     }
@@ -946,10 +927,6 @@ export abstract class ItemView
 
     toString(): string {
         return this.getItemId().toNumber() + ' : ' + this.getType().getShortName();
-    }
-
-    getViewer(): Viewer<any> {
-        return this.viewer;
     }
 
     static findParentItemViewAsHTMLElement(htmlElement: HTMLElement): HTMLElement {
@@ -1040,18 +1017,6 @@ export abstract class ItemView
                 .setLiveEditParams(regionView.getLiveEditParams());
         }
         return this.itemViewFactory.createView(type, config);
-    }
-
-    public createComponent(componentType: ComponentType): Component {
-
-        let builder = this.createBuilder(componentType).setName(componentType.getDefaultName());
-
-        if (ObjectHelper.iFrameSafeInstanceOf(builder, DescriptorBasedComponentBuilder)) {
-            let descriptorBuilder = <DescriptorBasedComponentBuilder>builder;
-            descriptorBuilder.setConfig(new PropertyTree());
-        }
-
-        return builder.build();
     }
 
     private createBuilder(componentType: ComponentType): ComponentBuilder {

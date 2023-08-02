@@ -38,11 +38,8 @@ import {DragAndDrop} from './DragAndDrop';
 import {ItemViewFactory} from './ItemViewFactory';
 import {PageViewController} from './PageViewController';
 import {LiveEditPageViewReadyEvent} from './LiveEditPageViewReadyEvent';
-import {PageModeChangedEvent} from './PageModeChangedEvent';
 import {ModalDialog} from '../app/inputtype/ui/text/dialog/ModalDialog';
-import {Content} from '../app/content/Content';
 import {Component} from '../app/page/region/Component';
-import {PageMode} from '../app/page/PageMode';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
@@ -122,7 +119,6 @@ export class PageView
             .setLiveEditParams(builder.liveEditParams)
             .setItemViewIdProducer(builder.itemViewIdProducer)
             .setItemViewFactory(builder.itemViewFactory)
-            .setViewer(new ContentSummaryViewer())
             .setType(PageItemType.get())
             .setElement(builder.element)
             .setContextMenuTitle(new PageViewContextMenuTitle(builder.liveEditParams.displayName)));
@@ -609,10 +605,6 @@ export class PageView
 
     getName(): string {
         return this.getLiveEditParams().pageName;
-    }
-
-    getIconUrl(content: Content): string {
-        return '';
     }
 
     getIconClass(): string {

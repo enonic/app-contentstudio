@@ -1,13 +1,9 @@
-import {ComponentType} from '../app/page/region/ComponentType';
-import {ComponentPath} from '../app/page/region/ComponentPath';
-
-export type ComponentItemType = 'page' | 'region' | ComponentType;
+import {PageItemType} from '../page/region/PageItemType';
+import {ComponentPath} from '../page/region/ComponentPath';
 
 export class TreeComponent {
 
-    private readonly type: ComponentItemType;
-
-    private readonly path: ComponentPath;
+    private readonly type: PageItemType;
 
     private readonly displayName: string;
 
@@ -17,13 +13,15 @@ export class TreeComponent {
 
     private readonly iconClass?: string;
 
-    constructor(builder: FullComponentBuilder) {
+    private readonly children: boolean;
+
+    constructor(builder: TreeComponentBuilder) {
         this.displayName = builder.displayName;
         this.description = builder.description;
         this.iconUrl = builder.iconUrl;
         this.iconClass = builder.iconClass;
         this.type = builder.type;
-        this.path = builder.path;
+        this.children = builder.children;
     }
 
     getDisplayName(): string {
@@ -42,24 +40,22 @@ export class TreeComponent {
         return this.iconClass;
     }
 
-    getType(): ComponentItemType {
+    getType(): PageItemType {
         return this.type;
     }
 
-    getPath(): ComponentPath {
-        return this.path;
+    hasChildren(): boolean {
+        return this.children;
     }
 
-    static create(): FullComponentBuilder {
-        return new FullComponentBuilder();
+    static create(): TreeComponentBuilder {
+        return new TreeComponentBuilder();
     }
 }
 
-class FullComponentBuilder {
+export class TreeComponentBuilder {
 
-    type: ComponentItemType;
-
-    path: ComponentPath;
+    type: PageItemType;
 
     displayName: string;
 
@@ -68,6 +64,8 @@ class FullComponentBuilder {
     iconUrl?: string;
 
     iconClass?: string;
+
+    children: boolean;
 
     setDisplayName(displayName: string): this {
         this.displayName = displayName;
@@ -89,13 +87,13 @@ class FullComponentBuilder {
         return this;
     }
 
-    setType(type: ComponentItemType): this {
+    setType(type: PageItemType): this {
         this.type = type;
         return this;
     }
 
-    setPath(path: ComponentPath): this {
-        this.path = path;
+    setHasChildren(children: boolean): this {
+        this.children = children;
         return this;
     }
 

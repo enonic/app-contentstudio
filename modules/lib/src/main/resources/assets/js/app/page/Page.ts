@@ -26,6 +26,7 @@ import {PageControllerUpdatedEvent} from './event/PageControllerUpdatedEvent';
 import {PageTemplateUpdatedEvent} from './event/PageTemplateUpdatedEvent';
 import {PageConfigUpdatedEvent} from './event/PageConfigUpdatedEvent';
 import {PageUpdatedEvent} from './event/PageUpdatedEvent';
+import {PageItemType} from './region/PageItemType';
 
 export type PageUpdatedEventHandler = (event: PageUpdatedEvent) => void;
 export type PageTemplateSetHandler = (template: PageTemplateKey) => void;
@@ -202,6 +203,10 @@ export class Page
 
     clone(): Page {
         return new PageBuilder(this).build();
+    }
+
+    getType(): PageItemType {
+        return 'page';
     }
 
     getComponentByPath(path: ComponentPath): PageItem {

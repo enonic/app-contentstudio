@@ -4,7 +4,6 @@ import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {LayoutItemType} from './LayoutItemType';
 import {ItemViewAddedEvent} from '../ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from '../ItemViewRemovedEvent';
-import {LayoutComponentViewer} from './LayoutComponentViewer';
 import {LayoutPlaceholder} from './LayoutPlaceholder';
 import {ItemView} from '../ItemView';
 import {ItemType} from '../ItemType';
@@ -35,7 +34,7 @@ export class LayoutComponentView
     public static debug: boolean = false;
 
     constructor(builder: LayoutComponentViewBuilder) {
-        super(builder.setViewer(new LayoutComponentViewer()).setInspectActionRequired(true));
+        super(builder.setInspectActionRequired(true));
 
         this.setPlaceholder(new LayoutPlaceholder(this));
         this.regionViews = [];

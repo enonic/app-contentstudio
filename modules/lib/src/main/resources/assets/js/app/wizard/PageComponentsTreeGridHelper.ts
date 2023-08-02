@@ -10,7 +10,7 @@ import {GridColumn, GridColumnBuilder} from '@enonic/lib-admin-ui/ui/grid/GridCo
 import {GridOptions, GridOptionsBuilder} from '@enonic/lib-admin-ui/ui/grid/GridOptions';
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
+import {ComponentsTreeItem} from './ComponentsTreeItem';
 
 export class PageComponentsTreeGridHelper {
 

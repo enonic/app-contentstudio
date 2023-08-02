@@ -1,8 +1,8 @@
 import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
-import {ItemView} from './ItemView';
-import {ComponentItemType, TreeComponent} from './TreeComponent';
-import {ComponentIdProducer} from './ComponentIdProducer';
-import {ComponentPath} from '../app/page/region/ComponentPath';
+import {ItemView} from '../../page-editor/ItemView';
+import {TreeComponent} from './TreeComponent';
+import {ComponentIdProducer} from '../../page-editor/ComponentIdProducer';
+import {PageItemType} from '../page/region/PageItemType';
 
 // Wrapper around TreeComponent to bring id
 export class ComponentsTreeItem
@@ -23,7 +23,7 @@ export class ComponentsTreeItem
         return null;
     }
 
-    getType(): ComponentItemType {
+    getType(): PageItemType {
         return this.component.getType();
     }
 
@@ -33,9 +33,5 @@ export class ComponentsTreeItem
 
     getId(): string {
         return this.id.toString();
-    }
-
-    getPath(): ComponentPath {
-        return this.component.getPath();
     }
 }

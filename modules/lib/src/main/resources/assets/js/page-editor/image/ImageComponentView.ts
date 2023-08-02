@@ -24,7 +24,7 @@ export class ImageComponentView
     private image: Element;
 
     constructor(builder: ImageComponentViewBuilder) {
-        super(builder.setViewer(new ImageComponentViewer()).setInspectActionRequired(true));
+        super(builder);
 
         this.setPlaceholder(new ImagePlaceholder(this));
         this.initializeImage();

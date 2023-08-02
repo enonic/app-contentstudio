@@ -1,5 +1,5 @@
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
-import {ComponentsTreeItem} from '../../page-editor/ComponentsTreeItem';
+import {ComponentsTreeItem} from './ComponentsTreeItem';
 
 export class PageComponentsItemViewer
     extends NamesAndIconViewer<ComponentsTreeItem> {

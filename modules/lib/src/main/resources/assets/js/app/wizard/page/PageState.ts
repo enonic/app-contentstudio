@@ -26,6 +26,7 @@ import {PageEventsWrapper} from './PageEventsWrapper';
 import {PageTemplateKey} from '../../page/PageTemplateKey';
 import {DescriptorKey} from '../../page/DescriptorKey';
 import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
+import {TextComponent} from '../../page/region/TextComponent';
 
 
 export class PageState {
@@ -112,6 +113,14 @@ export class PageState {
 
             if (item instanceof DescriptorBasedComponent) {
                 item.setDescriptorKey(descriptorKey);
+            }
+        });
+
+        PageEventsManager.get().onTextComponentUpdateRequested((path: ComponentPath, text: string) => {
+            const item: PageItem = this.state.getComponentByPath(path);
+
+            if (item instanceof TextComponent) {
+                item.setText(text);
             }
         });
     }
