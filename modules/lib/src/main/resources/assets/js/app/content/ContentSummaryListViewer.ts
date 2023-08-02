@@ -10,6 +10,7 @@ import {Response} from '@enonic/lib-admin-ui/rest/Response';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {Element, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
+import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 
 export class ContentSummaryListViewer
     extends ContentSummaryAndCompareStatusViewer {
@@ -75,7 +76,7 @@ export class ContentSummaryListViewer
     }
 
     private handleImageResponse(imageResponse: ImageResponse) {
-        if (imageResponse.status === 200) {
+        if (imageResponse.status === StatusCode.OK) {
             this.handleUrlEncodedImage(imageResponse.imageAsUrl);
         } else {
             this.handleImageLoadError();
@@ -137,7 +138,7 @@ class ImageRequest
 
     private doSend(): Q.Promise<ImageResponse> {
         return this.send().then((response: Response) => {
-            return this.request.status === 200 ? this.encodeImageAsURL(response) : Q({status: this.request.status});
+            return this.request.status === StatusCode.OK ? this.encodeImageAsURL(response) : Q({status: this.request.status});
         }).catch((reason) => {
             return Q({error: reason});
         });

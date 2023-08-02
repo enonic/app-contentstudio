@@ -21,6 +21,7 @@ import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -374,10 +375,10 @@ export class ContentItemPreviewPanel
             this.setImagePreviewMode(item);
         } else {
             switch (response.status) {
-                case 404:
+                case StatusCode.NOT_FOUND:
                     this.setPreviewType(PREVIEW_TYPE.EMPTY);
                     break;
-                case 418:
+                case StatusCode.I_AM_A_TEAPOT:
                     this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED);
                     break;
                 default:

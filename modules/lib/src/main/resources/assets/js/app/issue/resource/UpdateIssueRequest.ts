@@ -16,7 +16,7 @@ export class UpdateIssueRequest
 
     private description: string;
 
-    private status: IssueStatus;
+    private issueStatus: IssueStatus;
 
     private isPublish: boolean = false;
 
@@ -52,8 +52,8 @@ export class UpdateIssueRequest
         return this;
     }
 
-    setStatus(status: IssueStatus): UpdateIssueRequest {
-        this.status = status;
+    setIssueStatus(status: IssueStatus): UpdateIssueRequest {
+        this.issueStatus = status;
         return this;
     }
 
@@ -94,7 +94,7 @@ export class UpdateIssueRequest
             id: this.id,
             title: this.title,
             description: this.description,
-            status: IssueStatus[this.status],
+            status: IssueStatus[this.issueStatus],
             publishSchedule: {
                 from: this.publishFrom ? this.publishFrom.toISOString() : null,
                 to: this.publishTo ? this.publishTo.toISOString() : null
