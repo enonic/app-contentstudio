@@ -18,10 +18,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.repository.RepositoryId;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -71,7 +72,7 @@ import com.enonic.xp.web.servlet.ServletRequestUrlHelper;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 
-@Path(ResourceConstants.REST_ROOT + "macro")
+@Path(ResourceConstants.REST_ROOT + "cms/{project:([^/]+)}/macro")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs")
@@ -155,7 +156,7 @@ public final class MacroResource
 
     @POST
     @Path("preview")
-    public PreviewMacroResultJson macroPreview( @Context HttpServletRequest httpRequest, final PreviewMacroJson previewMacroJson )
+    public PreviewMacroResultJson macroPreview( @PathParam("project") final String projectName, @javax.ws.rs.core.Context HttpServletRequest httpRequest, final PreviewMacroJson previewMacroJson )
     {
         final MacroKey macroKey = previewMacroJson.getMacroKey();
         final MacroDescriptor macroDescriptor = this.macroDescriptorService.getByKey( macroKey );
@@ -170,12 +171,11 @@ public final class MacroResource
         }
 
         final ApplicationKey appKey = macroDescriptor.getKey().getApplicationKey();
-        final PortalRequest portalRequest = createPortalRequest( httpRequest, previewMacroJson.getContentPath(), appKey );
-        portalRequest.setContentPath( previewMacroJson.getContentPath() );
 
-        final MacroContext context = createMacroContext( macroDescriptor, previewMacroJson.getFormData(), portalRequest );
+        final PortalRequest portalRequest = createPortalRequest( httpRequest, previewMacroJson.getContentPath(), appKey, projectName );
+        final MacroContext macroContext = createMacroContext( macroDescriptor, previewMacroJson.getFormData(), portalRequest );
 
-        final PortalResponse response = macroProcessor.process( context );
+        final PortalResponse response = macroProcessor.process( macroContext );
         final Macro macro = createMacro( macroDescriptor, previewMacroJson.getFormData() );
         return new PreviewMacroResultJson( macro, response );
     }
@@ -195,19 +195,25 @@ public final class MacroResource
         return new PreviewMacroStringResultJson( macro );
     }
 
-    private PortalRequest createPortalRequest( final HttpServletRequest req, final ContentPath contentPath, final ApplicationKey appKey )
+    private PortalRequest createPortalRequest( final HttpServletRequest req, final ContentPath contentPath, final ApplicationKey appKey, final String projectName )
     {
         final PortalRequest portalRequest = new PortalRequest();
+        final String baseUri = "/admin/site/" + RenderMode.EDIT;
+        final RepositoryId repositoryId = ProjectName.from( projectName ).getRepoId();
+
         portalRequest.setRawRequest( req );
         portalRequest.setMethod( HttpMethod.GET );
         portalRequest.setContentType( req.getContentType() );
-        portalRequest.setBaseUri( "/admin/site/edit" );
+        portalRequest.setBaseUri( baseUri );
         portalRequest.setMode( RenderMode.EDIT );
         portalRequest.setBranch( ContentConstants.BRANCH_DRAFT );
         portalRequest.setScheme( ServletRequestUrlHelper.getScheme( req ) );
         portalRequest.setHost( ServletRequestUrlHelper.getHost( req ) );
         portalRequest.setPort( ServletRequestUrlHelper.getPort( req ) );
         portalRequest.setRemoteAddress( ServletRequestUrlHelper.getRemoteAddress( req ) );
+        portalRequest.setContentPath( contentPath );
+        portalRequest.setRepositoryId( repositoryId );
+
         setHeaders( req, portalRequest );
         setCookies( req, portalRequest );
 
@@ -221,7 +227,7 @@ public final class MacroResource
             portalRequest( portalRequest ).
             path( contentPath.toString() );
         portalRequest.setPath( portalUrlService.pageUrl( pageUrlParams ) );
-        portalRequest.setRawPath( "/admin/site/" + RenderMode.EDIT + "/" + ContentConstants.BRANCH_DRAFT + contentPath );
+        portalRequest.setRawPath( baseUri + "/" + projectName + "/" + ContentConstants.BRANCH_DRAFT + contentPath );
 
         portalRequest.setApplicationKey( appKey );
         final Content content = getContent( contentPath );
