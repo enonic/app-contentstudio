@@ -64,6 +64,10 @@ public class MacroResourceTest
 
     private MacroResource macroResource;
 
+    private static final String DEFAULT_URI_PREFIX = "cms/default/";
+
+    private static final MacroImageHelper HELPER = new MacroImageHelper();
+
     @Override
     protected Object getResourceInstance()
     {
@@ -90,10 +94,12 @@ public class MacroResourceTest
         throws Exception
     {
         String response = request().
-            path( "macro/icon/key" ).
+            path( DEFAULT_URI_PREFIX + "macro/icon/key" ).
             get().getAsString();
 
-        assertNotNull( response.getBytes() );
+        final byte[] defaultMacroImage = HELPER.getDefaultMacroImage();
+
+        Assertions.assertArrayEquals( defaultMacroImage, response.getBytes() );
     }
 
     @Test
@@ -142,9 +148,10 @@ public class MacroResourceTest
         Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String response = request().
-            path( "macro/getByApps" ).
+            path( DEFAULT_URI_PREFIX + "macro/getByApps" ).
             entity( "{\"appKeys\": [\"appKey1\", \"appKey2\"]}", MediaType.APPLICATION_JSON_TYPE ).
             post().getAsString();
+
         assertJson( "get_macros.json", response );
     }
 
@@ -186,9 +193,10 @@ public class MacroResourceTest
         Mockito.when( mixinService.inlineFormItems( Mockito.isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String response = request().
-            path( "macro/getByApps" ).
+            path( DEFAULT_URI_PREFIX + "macro/getByApps" ).
             entity( "{\"appKeys\": [\"appKey1\", \"appKey2\"]}", MediaType.APPLICATION_JSON_TYPE ).
             post().getAsString();
+
         assertJson( "get_macros_i18n.json", response );
     }
 
@@ -227,7 +235,7 @@ public class MacroResourceTest
         when( mockRequest.getHeaderNames() ).thenReturn( Collections.emptyEnumeration() );
         this.setHttpRequest( mockRequest );
 
-        String response = request().path( "macro/preview" ).
+        String response = request().path( DEFAULT_URI_PREFIX + "macro/preview" ).
             entity( readFromFile( "preview_macro_params.json" ), MediaType.APPLICATION_JSON_TYPE ).
             post().getAsString();
 
@@ -249,7 +257,7 @@ public class MacroResourceTest
 
         Mockito.when( this.macroDescriptorService.getByKey( MacroKey.from( "test:uppercase" ) ) ).thenReturn( macroDescriptor );
 
-        String response = request().path( "macro/previewString" ).
+        String response = request().path( DEFAULT_URI_PREFIX + "macro/previewString" ).
             entity( readFromFile( "preview_string_macro_params.json" ), MediaType.APPLICATION_JSON_TYPE ).
             post().getAsString();
 
