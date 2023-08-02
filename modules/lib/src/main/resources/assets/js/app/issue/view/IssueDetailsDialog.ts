@@ -951,7 +951,7 @@ export class IssueDetailsDialog
     }
 
     private doUpdateIssueAfterPublish(issue: Issue): Q.Promise<void> {
-        const request = new UpdateIssueRequest(issue.getId()).setIsPublish(true).setStatus(IssueStatus.CLOSED);
+        const request = new UpdateIssueRequest(issue.getId()).setIsPublish(true).setIssueStatus(IssueStatus.CLOSED);
 
         return this.populateSchedule(request).sendAndParse()
             .then((updatedIssue: Issue) => {
@@ -1008,7 +1008,7 @@ export class IssueDetailsDialog
 
         const updateIssueRequest = new UpdateIssueRequest(this.issue.getId())
             .setTitle(this.header.getHeading().trim())
-            .setStatus(status)
+            .setIssueStatus(status)
             .setAutoSave(!statusChanged)
             .setApprovers(this.assigneesCombobox.getSelectedDisplayValues().map(o => o.getKey()))
             .setPublishRequest(publishRequest);
