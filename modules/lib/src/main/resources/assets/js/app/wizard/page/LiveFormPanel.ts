@@ -817,7 +817,7 @@ export class LiveFormPanel
     }
 
     private inspectRegion(regionPath: ComponentPath, showPanel: boolean) {
-        const region: Region = this.pageModel.getComponentByPath(regionPath) as Region;
+        const region: Region = PageState.getState().getComponentByPath(regionPath) as Region;
 
         this.regionInspectionPanel.setRegion(region);
         this.contextWindow.showInspectionPanel(

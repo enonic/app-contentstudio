@@ -2,7 +2,6 @@ import {Page, PageBuilder, PageUpdatedEventHandler} from '../../page/Page';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {ComponentType} from '../../page/region/ComponentType';
 import {PageEventsManager} from '../PageEventsManager';
-import {BaseRegionChangedEvent} from '../../page/region/BaseRegionChangedEvent';
 import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
 import {PageItem} from '../../page/region/PageItem';
@@ -14,10 +13,6 @@ import {
     ComponentUpdatedEventHandler
 } from '../../page/region/Component';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
-import {ComponentPropertyChangedEvent} from '../../page/region/ComponentPropertyChangedEvent';
-import {ComponentEventsHolder} from './ComponentEventsHolder';
-import {ComponentEventsWrapper} from './ComponentEventsWrapper';
-import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {ContentId} from '../../content/ContentId';
 import {PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
@@ -27,6 +22,9 @@ import {PageTemplateKey} from '../../page/PageTemplateKey';
 import {DescriptorKey} from '../../page/DescriptorKey';
 import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
 import {TextComponent} from '../../page/region/TextComponent';
+import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescriptorRequest';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Descriptor} from '../../page/Descriptor';
 
 
 export class PageState {
@@ -112,7 +110,13 @@ export class PageState {
             const item: PageItem = this.state.getComponentByPath(path);
 
             if (item instanceof DescriptorBasedComponent) {
-                item.setDescriptorKey(descriptorKey);
+                if (descriptorKey) {
+                    new GetComponentDescriptorRequest(descriptorKey.toString(), item.getType()).sendAndParse().then((descriptor: Descriptor) => {
+                        item.setDescriptor(descriptor);
+                    }).catch(DefaultErrorHandler.handle);
+                } else {
+                    item.setDescriptor(null);
+                }
             }
         });
 
@@ -190,6 +194,10 @@ export class PageState {
 
     static getEvents(): PageEventsWrapper {
         return new PageEventsWrapper(this.get().pageEventsHolder);
+    }
+
+    static getComponentByPath(path: ComponentPath): PageItem {
+        return this.get().state?.getComponentByPath(path);
     }
 
     private listenPageComponentsEvents(): void {

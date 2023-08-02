@@ -51,19 +51,6 @@ export class PageComponentsTreeGrid
         (new PageComponentsGridDragHandler(this));
     }
 
-    dataToTreeNode(data: ComponentsTreeItem, parent: TreeNode<ComponentsTreeItem>): TreeNode<ComponentsTreeItem> {
-        const node: TreeNode<ComponentsTreeItem> = super.dataToTreeNode(data, parent);
-
-        /*
-        if (ObjectHelper.iFrameSafeInstanceOf(data.getItemView().getType(), TextItemType)) {
-            this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>data.getItemView());
-        }
-
-         */
-
-        return node;
-    }
-
     queryScrollable(): Element {
         return this;
     }
@@ -128,7 +115,7 @@ export class PageComponentsTreeGrid
                 .setDisplayName(descriptor?.getDisplayName())
                 .setDescription(descriptor?.getDescription() || component.getType().getShortName())
                 .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
-                .setHasChildren(this.hasComponentChildren(component))
+                .setHasChildren(!!descriptor?.getRegions()?.length)
                 .setType(component.getType())
                 .build();
 
@@ -156,7 +143,7 @@ export class PageComponentsTreeGrid
 
     fetchChildren(parentNode: TreeNode<ComponentsTreeItem>): Q.Promise<ComponentsTreeItem[]> {
         const path: ComponentPath = this.getNodePath(parentNode);
-        const component: PageItem = path.isRoot() ? PageState.getState() : PageState.getState().getComponentByPath(path);
+        const component: PageItem = PageState.getComponentByPath(path);
 
         if (component instanceof Page) {
             return Q.resolve(component.getRegions().getRegions().map((region: Region) => this.regionToComponentsTreeItem(region)));
@@ -234,13 +221,13 @@ export class PageComponentsTreeGrid
     }
 
     private fetchDescriptorBasedComponent(component: DescriptorBasedComponent): Q.Promise<TreeComponent> {
-        return this.fetchDescriptor(component).then((descriptor) => {
+        return this.fetchDescriptor(component).then((descriptor: Descriptor) => {
             return TreeComponent.create()
                 .setDisplayName(descriptor?.getDisplayName() || component.getName().toString())
                 .setDescription(descriptor?.getDescription() || this.makeNoDescriptionText())
                 .setIconUrl(descriptor?.getIcon())
                 .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
-                .setHasChildren(this.hasComponentChildren(component))
+                .setHasChildren(!!descriptor?.getRegions()?.length)
                 .setType(component.getType())
                 .build();
         });
@@ -257,18 +244,16 @@ export class PageComponentsTreeGrid
     }
 
     private fetchDescriptor(component: Component): Q.Promise<Descriptor | null> {
-        if (!ObjectHelper.iFrameSafeInstanceOf(component, DescriptorBasedComponent)) {
+        if (!(component instanceof DescriptorBasedComponent)) {
             return Q.resolve(null);
         }
 
-        const item: DescriptorBasedComponent = <DescriptorBasedComponent>component;
-
-        if (!item.hasDescriptor()) {
+        if (!component.hasDescriptor()) {
             return Q.resolve(null);
         }
 
-        const descriptorKey: string = item.getDescriptorKey().toString();
-        const type = ObjectHelper.iFrameSafeInstanceOf(item, LayoutComponent) ? LayoutComponentType.get() : PartComponentType.get();
+        const descriptorKey: string = component.getDescriptorKey().toString();
+        const type: LayoutComponentType | PartComponentType = component instanceof LayoutComponent ? LayoutComponentType.get() : PartComponentType.get();
         return new GetComponentDescriptorRequest(descriptorKey, type).sendAndParse();
     }
 
@@ -485,6 +470,7 @@ export class PageComponentsTreeGrid
             } else if (item instanceof Component) {
                 this.fetchTreeItem(item).then((treeComponent: ComponentsTreeItem) => {
                     node.setData(treeComponent);
+                    node.setExpandable(treeComponent.getComponent().hasChildren());
                     this.invalidateNodes([node]);
                 }).catch(DefaultErrorHandler.handle);
             }
@@ -507,7 +493,7 @@ export class PageComponentsTreeGrid
         let result: string = '';
 
         while (node?.hasParent()) {
-            if (node.getData().getType() === 'page') {
+            if (node.getParent() === node.getRoot()) {
                 //
             } else if (node.getData().getType() === 'region') {
                 result = '/' + node.getData().getComponent().getDisplayName() + result;

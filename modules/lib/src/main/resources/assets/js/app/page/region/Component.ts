@@ -53,7 +53,7 @@ export abstract class Component
     }
 
     getPath(): ComponentPath {
-        return new ComponentPath(this.getIndex(), this.parent?.getPath());
+        return this.parent ? new ComponentPath(this.getIndex(), this.parent.getPath()) : ComponentPath.root();
     }
 
     getName(): ComponentName {

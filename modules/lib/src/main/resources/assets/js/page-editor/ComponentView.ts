@@ -31,6 +31,8 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {AddComponentRequest} from './event/AddComponentRequest';
 import {RemoveComponentRequest} from './event/RemoveComponentRequest';
 import {DuplicateComponentRequest} from './event/DuplicateComponentRequest';
+import {LayoutComponentType} from '../app/page/region/LayoutComponentType';
+import {ComponentType} from '../app/page/region/ComponentType';
 
 export class ComponentViewBuilder<COMPONENT extends Component> {
 
@@ -281,7 +283,11 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     getPath(): ComponentPath {
-        return new ComponentPath(this.getParentItemView().getComponentViewIndex(this), this.getParentItemView()?.getPath());
+        if (this.getType() instanceof ComponentItemType && this.getParentItemView().getType() instanceof PageItemType) {
+            return ComponentPath.root();
+        }
+
+        return new ComponentPath(this.getParentItemView().getComponentViewIndex(this), this.getParentItemView().getPath());
     }
 
     clone(): ComponentView<COMPONENT> {

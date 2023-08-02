@@ -27,6 +27,8 @@ import {PageTemplateUpdatedEvent} from './event/PageTemplateUpdatedEvent';
 import {PageConfigUpdatedEvent} from './event/PageConfigUpdatedEvent';
 import {PageUpdatedEvent} from './event/PageUpdatedEvent';
 import {PageItemType} from './region/PageItemType';
+import {PageHelper} from '../util/PageHelper';
+import {LayoutComponent} from './region/LayoutComponent';
 
 export type PageUpdatedEventHandler = (event: PageUpdatedEvent) => void;
 export type PageTemplateSetHandler = (template: PageTemplateKey) => void;
@@ -51,7 +53,7 @@ export class Page
     constructor(builder: PageBuilder) {
         this.controller = builder.controller;
         this.template = builder.template;
-        this.regions = builder.regions || Regions.create().build();
+        this.regions = builder.regions;
         this.fragment = builder.fragment;
         this.config = builder.config;
 
@@ -210,9 +212,16 @@ export class Page
     }
 
     getComponentByPath(path: ComponentPath): PageItem {
+        if (path.isRoot()) {
+            return this.isFragment() ? this.getFragment() : this;
+        }
+
+        const pageFragment: Component = this.getFragment();
+        const regions: Regions = pageFragment instanceof LayoutComponent ? pageFragment.getRegions() : this.regions;
+
         let result = null;
 
-        this.regions.getRegions().some((region: Region) => {
+        regions?.getRegions().some((region: Region) => {
             if (region.getPath().equals(path)) {
                 result = region;
                 return true;
@@ -231,27 +240,27 @@ export class Page
     }
 
     onComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.regions.getEventsManager().onComponentAdded(listener);
+        this.regions?.getEventsManager().onComponentAdded(listener);
     }
 
     unComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.regions.getEventsManager().unComponentAdded(listener);
+        this.regions?.getEventsManager().unComponentAdded(listener);
     }
 
     onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.regions.getEventsManager().onComponentRemoved(listener);
+        this.regions?.getEventsManager().onComponentRemoved(listener);
     }
 
     unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.regions.getEventsManager().unComponentRemoved(listener);
+        this.regions?.getEventsManager().unComponentRemoved(listener);
     }
 
     onComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
-        this.regions.getEventsManager().onComponentUpdated(listener);
+        this.regions?.getEventsManager().onComponentUpdated(listener);
     }
 
     unComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
-        this.regions.getEventsManager().onComponentUpdated(listener);
+        this.regions?.getEventsManager().onComponentUpdated(listener);
     }
 
     onPageUpdated(listener: PageUpdatedEventHandler): void {
@@ -283,7 +292,7 @@ export class PageBuilder {
         if (source) {
             this.controller = source.getController();
             this.template = source.getTemplate();
-            this.regions = source.getRegions() ? source.getRegions().clone() : Regions.create().build();
+            this.regions = source.getRegions()?.clone();
             this.config = source.getConfig() ? source.getConfig().copy() : null;
             this.fragment = source.isFragment() ? source.getFragment().clone() : null;
         }
@@ -292,7 +301,7 @@ export class PageBuilder {
     public fromJson(json: PageJson): PageBuilder {
         this.setController(json.controller ? DescriptorKey.fromString(json.controller) : null);
         this.setTemplate(json.template ? PageTemplateKey.fromString(json.template) : null);
-        this.setRegions(json.regions != null ? ComponentFactory.createRegionsFromJson(json.regions) : Regions.create().build());
+        this.setRegions(json.regions != null ? ComponentFactory.createRegionsFromJson(json.regions) : null);
         this.setConfig(json.config != null
                        ? PropertyTree.fromJson(json.config)
                        : null);

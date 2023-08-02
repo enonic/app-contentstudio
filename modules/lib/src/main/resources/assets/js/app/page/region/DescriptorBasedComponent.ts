@@ -33,7 +33,7 @@ export abstract class DescriptorBasedComponent
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
     }
 
-    setDescriptorKey(descriptorKey: DescriptorKey) {
+    private setDescriptorKey(descriptorKey: DescriptorKey) {
         const oldDescriptorKeyValue = this.descriptorKey;
 
         this.descriptorKey = descriptorKey;

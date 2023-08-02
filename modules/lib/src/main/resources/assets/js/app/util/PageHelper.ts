@@ -20,6 +20,8 @@ import {FragmentComponentType} from '../page/region/FragmentComponentType';
 import {FragmentComponent} from '../page/region/FragmentComponent';
 import {ImageComponentType} from '../page/region/ImageComponentType';
 import {ImageComponent} from '../page/region/ImageComponent';
+import {ComponentPath} from '../page/region/ComponentPath';
+import {PageItem} from '../page/region/PageItem';
 
 export class PageHelper {
 
@@ -54,42 +56,46 @@ export class PageHelper {
     }
 
     public static injectEmptyRegionsIntoPage(page: Page): Q.Promise<Page> {
-        if (!page.getController()) {
-            return Q.resolve(page);
-        }
+        if (page.getController()) {
+            return PageHelper.loadDescriptor(page.getController()).then((pageDescriptor: Descriptor) => {
+                //fetching descriptor, adding empty regions to page, traversing layouts and adding empty regions to them
+                const regionsFetchPromises: Q.Promise<Region>[] = pageDescriptor.getRegions().map((regionDesc: RegionDescriptor) => {
+                    const existingRegion: Region = page.getRegions()?.getRegionByName(regionDesc.getName())?.clone();
 
-        return PageHelper.loadDescriptor(page.getController()).then((pageDescriptor: Descriptor) => {
-            //fetching descriptor, adding empty regions to page, traversing layouts and adding empty regions to them
-            const regionsFetchPromises: Q.Promise<Region>[] = pageDescriptor.getRegions().map((regionDesc: RegionDescriptor) => {
-                const existingRegion: Region = page.getRegions()?.getRegionByName(regionDesc.getName())?.clone();
-
-                if (existingRegion) {
-                    return this.updateExistingRegion(existingRegion);
-                }
-
-                return Q.resolve(Region.create().setName(regionDesc.getName()).build());
-            });
-
-            return Q.all(regionsFetchPromises).then((descriptorRegions: Region[]) => {
-                const fullRegionsBuilder: RegionsBuilder = Regions.create();
-
-                if (descriptorRegions) {
-                    fullRegionsBuilder.setRegions(descriptorRegions);
-                }
-
-                // adding items persisted in regions that are no longer in descriptor
-                page.getRegions().getRegions().forEach((persistedRegion: Region) => {
-                    if (!descriptorRegions.some((d) => d.getName() === persistedRegion.getName())) {
-                        fullRegionsBuilder.addRegion(persistedRegion);
+                    if (existingRegion) {
+                        return this.updateExistingRegion(existingRegion);
                     }
+
+                    return Q.resolve(Region.create().setName(regionDesc.getName()).build());
                 });
 
-                const fullRegions: Regions = fullRegionsBuilder.build();
-                const fullPage: Page = new PageBuilder(page).setRegions(fullRegions).build();
+                return Q.all(regionsFetchPromises).then((descriptorRegions: Region[]) => {
+                    const fullRegionsBuilder: RegionsBuilder = Regions.create();
 
-                return Q.resolve(fullPage);
+                    if (descriptorRegions) {
+                        fullRegionsBuilder.setRegions(descriptorRegions);
+                    }
+
+                    // adding items persisted in regions that are no longer in descriptor
+                    page.getRegions().getRegions().forEach((persistedRegion: Region) => {
+                        if (!descriptorRegions.some((d) => d.getName() === persistedRegion.getName())) {
+                            fullRegionsBuilder.addRegion(persistedRegion);
+                        }
+                    });
+
+                    const fullRegions: Regions = fullRegionsBuilder.build();
+                    const fullPage: Page = new PageBuilder(page).setRegions(fullRegions).build();
+
+                    return Q.resolve(fullPage);
+                });
             });
-        });
+        }
+
+        if (page.getFragment() && page.getFragment() instanceof LayoutComponent) {
+            return this.fetchAndInjectLayoutRegions(page.getFragment() as LayoutComponent).then(() => page);
+        }
+
+        return Q.resolve(page);
     }
 
     private static updateExistingRegion(existingRegion: Region): Q.Promise<Region> {
@@ -101,7 +107,8 @@ export class PageHelper {
         return Q.all(layoutsPromises).then(() => existingRegion);
     }
 
-    public static getPropertyValueUsageCount(container: Page | LayoutComponent, name: string, value: string, startFrom: number = 0): number {
+    public static getPropertyValueUsageCount(container: Page | LayoutComponent, name: string, value: string,
+                                             startFrom: number = 0): number {
         let counter: number = startFrom;
         const regions: Region[] = container.getRegions().getRegions();
 

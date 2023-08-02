@@ -600,21 +600,4 @@ export class PageModel {
         return 'icon-wand' + largeIconCls;
 
     }
-
-    getComponentByPath(path: ComponentPath): Component | Region {
-        let result = null;
-
-        this.regions.getRegions().some((region: Region) => {
-            if (region.getPath().equals(path)) {
-                result = region;
-                return true;
-            }
-
-            result = region.getComponentByPath(path);
-
-            return !!result;
-        });
-
-        return result;
-    }
 }
