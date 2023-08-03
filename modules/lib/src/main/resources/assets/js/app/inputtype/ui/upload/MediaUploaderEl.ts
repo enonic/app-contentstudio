@@ -110,7 +110,7 @@ export class MediaUploaderEl
         const name: string = this.generateUniqueName(imgSrc);
         const parent: string = this.config.params.parent;
 
-        const uploadItem = new UploadItem<Content>({name: name});
+        const uploadItem = new UploadItem<Content>({name});
         this.notifyFileUploadStarted([uploadItem]);
 
         new CreateMediaFromUrlRequest()
