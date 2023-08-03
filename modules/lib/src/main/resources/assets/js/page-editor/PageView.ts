@@ -16,13 +16,13 @@ import {ItemViewContextMenu} from './ItemViewContextMenu';
 import {PageItemType} from './PageItemType';
 import {PageViewContextMenuTitle} from './PageViewContextMenuTitle';
 import {PagePlaceholder} from './PagePlaceholder';
-import {ItemViewSelectedEvent, ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
+import {SelectComponentEvent, ItemViewSelectedEventConfig} from './event/outgoing/navigation/SelectComponentEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {TextItemType} from './text/TextItemType';
 import {TextComponentView} from './text/TextComponentView';
 import {Shader} from './Shader';
 import {PageSelectedEvent} from './PageSelectedEvent';
-import {ItemViewDeselectedEvent} from './ItemViewDeselectedEvent';
+import {DeselectComponentEvent} from './event/outgoing/navigation/DeselectComponentEvent';
 import {PageLockedEvent} from './PageLockedEvent';
 import {PageUnlockedEvent} from './PageUnlockedEvent';
 import {PageTextModeStartedEvent} from './PageTextModeStartedEvent';
@@ -47,7 +47,7 @@ import {ContentSummaryViewer} from '../app/content/ContentSummaryViewer';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {SaveAsTemplateEvent} from './SaveAsTemplateEvent';
 import {LiveEditParams} from './LiveEditParams';
-import {PageResetEvent} from './event/PageResetEvent';
+import {PageResetEvent} from './event/outgoing/manipulation/PageResetEvent';
 import {ComponentInspectedEvent} from './ComponentInspectedEvent';
 
 export class PageViewBuilder {
@@ -224,7 +224,7 @@ export class PageView
                     (<TextComponentView>itemView).setEditMode(true);
                     this.closeTextEditModeButton.toggleClass('active', true);
                 }
-                new ItemViewSelectedEvent({itemView, position: null, newlyCreated: event.isNewlyCreated(), rightClicked: true}).fire();
+                new SelectComponentEvent({itemView, position: null, newlyCreated: event.isNewlyCreated(), rightClicked: true}).fire();
                 itemView.giveFocus();
             } else {
                 if (this.isTextEditMode()) {
@@ -382,7 +382,7 @@ export class PageView
         this.setLockVisible(true);
         this.lockedContextMenu.showAt(position.x, position.y);
 
-        new ItemViewSelectedEvent({itemView: this, position}).fire();
+        new SelectComponentEvent({itemView: this, position}).fire();
         new PageSelectedEvent(this).fire();
     }
 
@@ -390,7 +390,7 @@ export class PageView
         this.setLockVisible(false);
         this.lockedContextMenu.hide();
 
-        new ItemViewDeselectedEvent(this).fire();
+        new DeselectComponentEvent(this.getPath()).fire();
     }
 
     handleShaderClick(event: MouseEvent) {

@@ -17,8 +17,8 @@ import {Highlighter} from './Highlighter';
 import {SelectedHighlighter} from './SelectedHighlighter';
 import {Cursor} from './Cursor';
 import {ItemViewId} from './ItemViewId';
-import {ItemViewSelectedEvent, ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
-import {ItemViewDeselectedEvent} from './ItemViewDeselectedEvent';
+import {SelectComponentEvent, ItemViewSelectedEventConfig} from './event/outgoing/navigation/SelectComponentEvent';
+import {DeselectComponentEvent} from './event/outgoing/navigation/DeselectComponentEvent';
 import {ItemViewIconClassResolver} from './ItemViewIconClassResolver';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {ClickPosition} from './ClickPosition';
@@ -50,7 +50,7 @@ import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {LiveEditParams} from './LiveEditParams';
-import {AddComponentRequest} from './event/AddComponentRequest';
+import {AddComponenEvent} from './event/outgoing/manipulation/AddComponenEvent';
 
 export interface ElementDimensions {
     top: number;
@@ -368,7 +368,7 @@ export abstract class ItemView
                 }
 
                 // restored selection: true to nake context panel not open
-                new ItemViewSelectedEvent({itemView: this, position: clickPosition, restoredSelection: true}).fire();
+                new SelectComponentEvent({itemView: this, position: clickPosition, restoredSelection: true}).fire();
             } else {
                 if (this.contextMenu?.isVisible()) {
                     this.hideContextMenu();
@@ -818,13 +818,13 @@ export abstract class ItemView
         this.showContextMenu(config?.position, menuPosition);
 
         if (!silent && config) {
-            new ItemViewSelectedEvent(config).fire();
+            new SelectComponentEvent(config).fire();
         }
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {
         this.selectItem();
-        new ItemViewSelectedEvent({itemView: this, position: null, restoredSelection}).fire();
+        new SelectComponentEvent({itemView: this, position: null, restoredSelection}).fire();
     }
 
     private selectItem() {
@@ -871,7 +871,7 @@ export abstract class ItemView
         }
 
         if (!silent) {
-            new ItemViewDeselectedEvent(this).fire();
+            new DeselectComponentEvent(this.getPath()).fire();
         }
     }
 
@@ -1115,7 +1115,7 @@ export abstract class ItemView
 
     private createInsertSubAction(label: string, componentItemType: ItemType): Action {
         const action = new Action(i18n('widget.components.insert.' + label)).onExecuted(() => {
-            new AddComponentRequest(this.getPath(), componentItemType.toComponentType()).fire();
+            new AddComponenEvent(this.getPath(), componentItemType.toComponentType()).fire();
         });
 
         action.setVisible(false).setIconClass(StyleHelper.getCommonIconCls(label));

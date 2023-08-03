@@ -11,8 +11,8 @@ import {PageLockedEvent} from '../../../page-editor/PageLockedEvent';
 import {PageUnlockedEvent} from '../../../page-editor/PageUnlockedEvent';
 import {PageUnloadedEvent} from '../../../page-editor/PageUnloadedEvent';
 import {PageTextModeStartedEvent} from '../../../page-editor/PageTextModeStartedEvent';
-import {ItemViewSelectedEvent} from '../../../page-editor/ItemViewSelectedEvent';
-import {ItemViewDeselectedEvent} from '../../../page-editor/ItemViewDeselectedEvent';
+import {SelectComponentEvent} from '../../../page-editor/event/outgoing/navigation/SelectComponentEvent';
+import {DeselectComponentEvent} from '../../../page-editor/event/outgoing/navigation/DeselectComponentEvent';
 import {ComponentDuplicatedEvent} from '../../../page-editor/ComponentDuplicatedEvent';
 import {ComponentInspectedEvent} from '../../../page-editor/ComponentInspectedEvent';
 import {ComponentLoadedEvent} from '../../../page-editor/ComponentLoadedEvent';
@@ -57,28 +57,29 @@ import {HtmlEditorCursorPosition} from '../../inputtype/ui/text/HtmlEditor';
 import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
 import {LiveEditParams} from '../../../page-editor/LiveEditParams';
 import {PageModel} from '../../../page-editor/PageModel';
-import {CreateComponentFragmentRequestedEvent} from '../../../page-editor/event/CreateComponentFragmentRequestedEvent';
-import {PageResetEvent} from '../../../page-editor/event/PageResetEvent';
+import {CreateFragmentEvent} from '../../../page-editor/event/outgoing/manipulation/CreateFragmentEvent';
+import {PageResetEvent} from '../../../page-editor/event/outgoing/manipulation/PageResetEvent';
 import {PageMode} from '../../page/PageMode';
-import {PageDescriptorSelectedEvent} from '../../../page-editor/event/PageDescriptorSelectedEvent';
-import {SelectComponentRequestedEvent} from '../../../page-editor/event/SelectComponentRequestedEvent';
-import {DeselectComponentRequestedEvent} from '../../../page-editor/event/DeselectComponentRequestedEvent';
-import {EditTextComponentRequested} from '../../../page-editor/event/EditTextComponentRequested';
+import {SelectPageDescriptorEvent} from '../../../page-editor/event/outgoing/manipulation/SelectPageDescriptorEvent';
+import {SelectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/SelectComponentViewEvent';
+import {DeselectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/DeselectComponentViewEvent';
+import {EditTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/EditTextComponentViewEvent';
 import {PageState} from './PageState';
 import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
-import {AddComponentRequest} from '../../../page-editor/event/AddComponentRequest';
+import {AddComponenEvent} from '../../../page-editor/event/outgoing/manipulation/AddComponenEvent';
 import {ComponentType} from '../../page/region/ComponentType';
-import {AddItemViewRequested} from '../../../page-editor/event/AddItemViewRequested';
-import {RemoveComponentRequest} from '../../../page-editor/event/RemoveComponentRequest';
+import {AddComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/AddComponentViewEvent';
+import {RemoveComponentRequest} from '../../../page-editor/event/outgoing/manipulation/RemoveComponentRequest';
 import {ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
-import {RemoveItemViewRequested} from '../../../page-editor/event/RemoveItemViewRequested';
-import {LoadComponentFailedEvent} from '../../../page-editor/event/LoadComponentFailedEvent';
-import {LoadComponentRequested} from '../../../page-editor/event/LoadComponentRequested';
-import {DuplicateComponentRequest} from '../../../page-editor/event/DuplicateComponentRequest';
-import {SetFragmentComponentRequested} from '../../../page-editor/event/SetFragmentComponentRequested';
+import {RemoveComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/RemoveComponentViewEvent';
+import {LoadComponentFailedEvent} from '../../../page-editor/event/outgoing/manipulation/LoadComponentFailedEvent';
+import {LoadComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/LoadComponentViewEvent';
+import {DuplicateComponentEvent} from '../../../page-editor/event/outgoing/manipulation/DuplicateComponentEvent';
+import {SetFragmentComponentEvent} from '../../../page-editor/event/outgoing/manipulation/SetFragmentComponentEvent';
 import {DescriptorKey} from '../../page/DescriptorKey';
-import {SetComponentDescriptorRequest} from '../../../page-editor/event/SetComponentDescriptorRequest';
-import {UpdateTextComponentRequest} from '../../../page-editor/event/UpdateTextComponentRequest';
+import {SetComponentDescriptorEvent} from '../../../page-editor/event/outgoing/manipulation/SetComponentDescriptorEvent';
+import {UpdateTextComponentEvent} from '../../../page-editor/event/outgoing/manipulation/UpdateTextComponentEvent';
+import {DuplicateComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy implements PageNavigationHandler {
@@ -480,7 +481,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
     }
 
     editTextComponentByPath(path: ComponentPath): void {
-        new EditTextComponentRequested(path.toString()).fire(this.liveEditWindow);
+        new EditTextComponentViewEvent(path.toString()).fire(this.liveEditWindow);
     }
 
     isLocked(): boolean {
@@ -492,7 +493,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
     }
 
     public loadComponent(path: ComponentPath, uri: string): void {
-        new LoadComponentRequested(path, uri).fire(this.liveEditWindow);
+        new LoadComponentViewEvent(path, uri).fire(this.liveEditWindow);
     }
 
     public stopListening(contextWindow: any) {
@@ -514,9 +515,9 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
         PageTextModeStartedEvent.un(null, contextWindow);
 
-        ItemViewSelectedEvent.un(null, contextWindow);
+        SelectComponentEvent.un(null, contextWindow);
 
-        ItemViewDeselectedEvent.un(null, contextWindow);
+        DeselectComponentEvent.un(null, contextWindow);
 
         ComponentDuplicatedEvent.un(null, contextWindow);
 
@@ -578,7 +579,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             eventsManager.notifyPageTextModeStarted(event);
         }, contextWindow);
 
-        ItemViewSelectedEvent.on((event: ItemViewSelectedEvent) => {
+        SelectComponentEvent.on((event: SelectComponentEvent) => {
             const pathAsString: string = event.getComponentPathAsString();
             const path: ComponentPath = ComponentPath.fromString(pathAsString);
 
@@ -586,7 +587,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
                 new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)), this);
         }, contextWindow);
 
-        ItemViewDeselectedEvent.on(() => {
+        DeselectComponentEvent.on(() => {
             PageNavigationMediator.get().notify(
                 new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()), this);
         }, contextWindow);
@@ -660,7 +661,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             eventsManager.notifyFragmentLoadError(event.getFragmentComponentView().getPath());
         }, contextWindow);
 
-        CreateComponentFragmentRequestedEvent.on((event: CreateComponentFragmentRequestedEvent) => {
+        CreateFragmentEvent.on((event: CreateFragmentEvent) => {
 
         }, contextWindow);
 
@@ -669,11 +670,11 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         }, contextWindow);
 
         // Remove page placeholder from live edit and use one entry point (LiveEditPagePlaceholder) in liveformpanel
-        PageDescriptorSelectedEvent.on((event: PageDescriptorSelectedEvent) => {
+        SelectPageDescriptorEvent.on((event: SelectPageDescriptorEvent) => {
             PageEventsManager.get().notifyPageControllerSetRequested(DescriptorKey.fromString(event.getDescriptor()));
         }, contextWindow);
 
-        AddComponentRequest.on((event: AddComponentRequest) => {
+        AddComponenEvent.on((event: AddComponenEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
 
@@ -691,23 +692,23 @@ export class LiveEditPageProxy implements PageNavigationHandler {
             PageEventsManager.get().notifyComponentLoadFailed(path, event.getError());
         });
 
-        DuplicateComponentRequest.on((event: DuplicateComponentRequest) => {
+        DuplicateComponentEvent.on((event: DuplicateComponentEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             PageEventsManager.get().notifyComponentDuplicateRequested(path);
         }, contextWindow);
 
-        SetFragmentComponentRequested.on((event: SetFragmentComponentRequested) => {
+        SetFragmentComponentEvent.on((event: SetFragmentComponentEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
 
             PageEventsManager.get().notifySetFragmentComponentRequested(path, event.getContentId());
         }, contextWindow);
 
-        SetComponentDescriptorRequest.on((event: SetComponentDescriptorRequest) => {
+        SetComponentDescriptorEvent.on((event: SetComponentDescriptorEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             PageEventsManager.get().notifyComponentDescriptorSetRequested(path, DescriptorKey.fromString(event.getDescriptor()));
         }, contextWindow);
 
-        UpdateTextComponentRequest.on((event: UpdateTextComponentRequest) => {
+        UpdateTextComponentEvent.on((event: UpdateTextComponentEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
 
             PageEventsManager.get().notifyTextComponentUpdateRequested(path, event.getText());
@@ -720,22 +721,32 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         });
 
         PageState.getEvents().onComponentAdded((event: ComponentAddedEvent): void => {
-            new AddItemViewRequested(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
+            // presuming that if component is not empty then it was duplicated
+            // however update events might be an issue
+            const isDuplicate: boolean = !event.getComponent().isEmpty();
+
+            if (isDuplicate) {
+                const index: number = event.getPath().getPath() as number;
+                const duplicatedItemPath: ComponentPath = new ComponentPath(index - 1 , event.getPath().getParentPath());
+                new DuplicateComponentViewEvent(duplicatedItemPath).fire(this.liveEditWindow);
+            } else {
+                new AddComponentViewEvent(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
+            }
         });
 
         PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
-            new RemoveItemViewRequested(event.getPath()).fire(this.liveEditWindow);
+            new RemoveComponentViewEvent(event.getPath()).fire(this.liveEditWindow);
         });
     }
 
     handle(event: PageNavigationEvent): void {
         if (event.getType() === PageNavigationEventType.SELECT) {
-            new SelectComponentRequestedEvent(event.getData().getPath()?.toString()).fire(this.liveEditWindow);
+            new SelectComponentViewEvent(event.getData().getPath()?.toString()).fire(this.liveEditWindow);
             return;
         }
 
         if (event.getType() === PageNavigationEventType.DESELECT) {
-            new DeselectComponentRequestedEvent(event.getData().getPath()?.toString()).fire(this.liveEditWindow);
+            new DeselectComponentViewEvent(event.getData().getPath()?.toString()).fire(this.liveEditWindow);
             return;
         }
     }

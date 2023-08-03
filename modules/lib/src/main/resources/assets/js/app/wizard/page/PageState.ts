@@ -73,7 +73,13 @@ export class PageState {
         });
 
         PageEventsManager.get().onComponentDuplicateRequested((path: ComponentPath) => {
+            const item: PageItem = this.state.getComponentByPath(path);
 
+            if (item instanceof Component) {
+                const parentRegion: Region = item.getParent();
+                const index: number = item.getIndex();
+                parentRegion.addComponent(item.clone(), index + 1);
+            }
         });
 
         PageEventsManager.get().onSetFragmentComponentRequested((path: ComponentPath, id: string) => {

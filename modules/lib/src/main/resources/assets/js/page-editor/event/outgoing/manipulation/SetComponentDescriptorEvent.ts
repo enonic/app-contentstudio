@@ -1,8 +1,8 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ComponentPath} from '../../app/page/region/ComponentPath';
+import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 
-export class SetComponentDescriptorRequest
+export class SetComponentDescriptorEvent
     extends Event {
 
     private readonly descriptor: string;
@@ -23,11 +23,11 @@ export class SetComponentDescriptorRequest
         return this.path;
     }
 
-    static on(handler: (event: SetComponentDescriptorRequest) => void, contextWindow: Window = window) {
+    static on(handler: (event: SetComponentDescriptorEvent) => void, contextWindow: Window = window) {
         Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    static un(handler?: (event: SetComponentDescriptorRequest) => void, contextWindow: Window = window) {
+    static un(handler?: (event: SetComponentDescriptorEvent) => void, contextWindow: Window = window) {
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

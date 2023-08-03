@@ -21,14 +21,14 @@ import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import * as Q from 'q';
-import {ItemViewSelectedEvent} from '../ItemViewSelectedEvent';
+import {SelectComponentEvent} from '../event/outgoing/navigation/SelectComponentEvent';
 import {SelectedHighlighter} from '../SelectedHighlighter';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CreateHtmlAreaDialogEvent} from '../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {UpdateTextComponentRequest} from '../event/UpdateTextComponentRequest';
+import {UpdateTextComponentEvent} from '../event/outgoing/manipulation/UpdateTextComponentEvent';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder<TextComponent> {
@@ -136,7 +136,7 @@ export class TextComponentView
             this.highlightSelected();
         }
 
-        new ItemViewSelectedEvent({itemView: this, position: null}).fire();
+        new SelectComponentEvent({itemView: this, position: null}).fire();
     }
 
     private bindWindowFocusEvents(): void {
@@ -479,7 +479,7 @@ export class TextComponentView
 
         this.refreshEmptyState();
 
-        new UpdateTextComponentRequest(this.getPath(), text).fire();
+        new UpdateTextComponentEvent(this.getPath(), text).fire();
     }
 
     isEmpty(): boolean {

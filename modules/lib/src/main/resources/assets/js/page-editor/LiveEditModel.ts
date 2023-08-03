@@ -13,7 +13,6 @@ import {Regions, RegionsBuilder} from '../app/page/region/Regions';
 import {PageTemplateKey} from '../app/page/PageTemplateKey';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
-import {GetComponentDescriptorRequest} from '../app/resource/GetComponentDescriptorRequest';
 import {Descriptor} from '../app/page/Descriptor';
 import {DescriptorKey} from '../app/page/DescriptorKey';
 import {RegionDescriptor} from '../app/page/RegionDescriptor';
@@ -21,8 +20,6 @@ import {Region} from '../app/page/region/Region';
 import {Component} from '../app/page/region/Component';
 import {LayoutComponent} from '../app/page/region/LayoutComponent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ComponentType} from '../app/page/region/ComponentType';
-import {LayoutComponentType} from '../app/page/region/LayoutComponentType';
 import {PageHelper} from '../app/util/PageHelper';
 
 export class LiveEditModel {

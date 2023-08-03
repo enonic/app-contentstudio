@@ -8,7 +8,7 @@ import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {ItemView, ItemViewBuilder} from './ItemView';
 import {ItemViewAddedEvent} from './ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
-import {ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
+import {ItemViewSelectedEventConfig} from './event/outgoing/navigation/SelectComponentEvent';
 import {ComponentViewContextMenuTitle} from './ComponentViewContextMenuTitle';
 import {ComponentItemType} from './ComponentItemType';
 import {ComponentInspectedEvent} from './ComponentInspectedEvent';
@@ -25,12 +25,12 @@ import {Component, ComponentPropertyChangedEventHandler, ComponentResetEventHand
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {CreateComponentFragmentRequestedEvent} from './event/CreateComponentFragmentRequestedEvent';
+import {CreateFragmentEvent} from './event/outgoing/manipulation/CreateFragmentEvent';
 import {LiveEditParams} from './LiveEditParams';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {AddComponentRequest} from './event/AddComponentRequest';
-import {RemoveComponentRequest} from './event/RemoveComponentRequest';
-import {DuplicateComponentRequest} from './event/DuplicateComponentRequest';
+import {AddComponenEvent} from './event/outgoing/manipulation/AddComponenEvent';
+import {RemoveComponentRequest} from './event/outgoing/manipulation/RemoveComponentRequest';
+import {DuplicateComponentEvent} from './event/outgoing/manipulation/DuplicateComponentEvent';
 import {LayoutComponentType} from '../app/page/region/LayoutComponentType';
 import {ComponentType} from '../app/page/region/ComponentType';
 
@@ -203,11 +203,7 @@ export class ComponentView<COMPONENT extends Component>
             actions.push(new Action(i18n('live.view.duplicate')).onExecuted(() => {
                 this.deselect();
 
-                let duplicatedView = this.duplicate();
-
-                duplicatedView.showLoadingSpinner();
-
-                new DuplicateComponentRequest(this.getPath()).fire();
+                new DuplicateComponentEvent(this.getPath()).fire();
             }));
         }
 
@@ -217,7 +213,7 @@ export class ComponentView<COMPONENT extends Component>
             actions.push(new Action(i18n('live.view.saveAs.fragment')).onExecuted(() => {
                 this.deselect();
 
-                new CreateComponentFragmentRequestedEvent(this.getPath()).fire();
+                new CreateFragmentEvent(this.getPath()).fire();
             }));
         }
 
@@ -299,7 +295,7 @@ export class ComponentView<COMPONENT extends Component>
                 this.getParentElement()).setPositionIndex(index));
     }
 
-    protected duplicate(): ComponentView<COMPONENT> {
+    duplicate(): ComponentView<COMPONENT> {
         let parentView = this.getParentItemView();
         let index = parentView.getComponentViewIndex(this);
 
@@ -307,6 +303,7 @@ export class ComponentView<COMPONENT extends Component>
             new CreateItemViewConfig<RegionView, COMPONENT>()
                 .setParentView(this.getParentItemView())
                 .setParentElement(this.getParentElement())
+                .setLiveEditParams(this.getLiveEditParams())
                 .setPositionIndex(index + 1));
 
         duplicateView.skipInitOnAdd();

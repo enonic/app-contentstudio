@@ -12,7 +12,7 @@ import {Descriptor} from '../app/page/Descriptor';
 import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {SetController} from './PageModel';
 import {ContentId} from '../app/content/ContentId';
-import {PageDescriptorSelectedEvent} from './event/PageDescriptorSelectedEvent';
+import {SelectPageDescriptorEvent} from './event/outgoing/manipulation/SelectPageDescriptorEvent';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 export class PagePlaceholder
@@ -48,7 +48,7 @@ export class PagePlaceholder
 
         this.controllerDropdown.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
             const pageDescriptor: Descriptor = event.getOption().getDisplayValue();
-            new PageDescriptorSelectedEvent(pageDescriptor.getKey().toString()).fire();
+            new SelectPageDescriptorEvent(pageDescriptor.getKey().toString()).fire();
         });
     }
 

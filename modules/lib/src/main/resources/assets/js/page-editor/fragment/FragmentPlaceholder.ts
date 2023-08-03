@@ -13,7 +13,7 @@ import {Content} from '../../app/content/Content';
 import {FragmentComponent} from '../../app/page/region/FragmentComponent';
 import {LayoutComponentType} from '../../app/page/region/LayoutComponentType';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
-import {SetFragmentComponentRequested} from '../event/SetFragmentComponentRequested';
+import {SetFragmentComponentEvent} from '../event/outgoing/manipulation/SetFragmentComponentEvent';
 
 export class FragmentPlaceholder
     extends ItemViewPlaceholder {
@@ -58,13 +58,13 @@ export class FragmentPlaceholder
                         this.comboBox.clearSelection();
                         new ShowWarningLiveEditEvent(i18n('notify.nestedLayouts')).fire();
                     } else {
-                        new SetFragmentComponentRequested(this.fragmentComponentView.getPath(),
+                        new SetFragmentComponentEvent(this.fragmentComponentView.getPath(),
                             fragmentContent.getContentId().toString()).fire();
                         this.fragmentComponentView.showLoadingSpinner();
                     }
                 });
             } else {
-                new SetFragmentComponentRequested(this.fragmentComponentView.getPath(),
+                new SetFragmentComponentEvent(this.fragmentComponentView.getPath(),
                     fragmentContent.getContentId().toString()).fire();
                 this.fragmentComponentView.showLoadingSpinner();
             }

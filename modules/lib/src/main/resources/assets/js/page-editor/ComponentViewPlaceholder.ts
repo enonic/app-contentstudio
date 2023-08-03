@@ -6,7 +6,7 @@ import {ComponentView} from './ComponentView';
 import {DescriptorBasedComponent} from '../app/page/region/DescriptorBasedComponent';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {ContentId} from '../app/content/ContentId';
-import {SetComponentDescriptorRequest} from './event/SetComponentDescriptorRequest';
+import {SetComponentDescriptorEvent} from './event/outgoing/manipulation/SetComponentDescriptorEvent';
 
 export abstract class ComponentViewPlaceholder<T extends DescriptorBasedComponent>
     extends ItemViewPlaceholder {
@@ -35,7 +35,7 @@ export abstract class ComponentViewPlaceholder<T extends DescriptorBasedComponen
             this.componentView.showLoadingSpinner();
             const descriptor: Descriptor = event.getSelectedOption().getOption().getDisplayValue();
 
-            new SetComponentDescriptorRequest(this.componentView.getPath(), descriptor.getKey().toString()).fire();
+            new SetComponentDescriptorEvent(this.componentView.getPath(), descriptor.getKey().toString()).fire();
         });
 
         // not letting events to fire on ItemView

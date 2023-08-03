@@ -1,16 +1,17 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 
-export class DeselectComponentRequestedEvent
+export class SelectComponentViewEvent
     extends Event {
 
-    private readonly path?: string;
+    private readonly path: string;
 
     private readonly silent: boolean;
 
-    constructor(path?: string, silent: boolean = true) {
+    constructor(path: string, silent: boolean = true) {
         super();
         this.path = path;
+        this.silent = silent;
     }
 
     getPath(): string {
@@ -21,11 +22,11 @@ export class DeselectComponentRequestedEvent
         return this.silent;
     }
 
-    static on(handler: (event: DeselectComponentRequestedEvent) => void, contextWindow: Window = window) {
+    static on(handler: (event: SelectComponentViewEvent) => void, contextWindow: Window = window) {
         Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    static un(handler?: (event: DeselectComponentRequestedEvent) => void, contextWindow: Window = window) {
+    static un(handler?: (event: SelectComponentViewEvent) => void, contextWindow: Window = window) {
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

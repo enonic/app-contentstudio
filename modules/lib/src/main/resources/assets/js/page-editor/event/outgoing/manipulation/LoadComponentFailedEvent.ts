@@ -1,32 +1,32 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ComponentPath} from '../../app/page/region/ComponentPath';
+import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 
-export class LoadComponentRequested
+export class LoadComponentFailedEvent
     extends Event {
 
     private readonly path: ComponentPath;
 
-    private readonly uri: string;
-    constructor(path: ComponentPath, uri: string) {
+    private readonly error: any;
+    constructor(path: ComponentPath, error: any) {
         super();
         this.path = path;
-        this.uri = uri;
+        this.error = error;
     }
 
     getComponentPath(): ComponentPath {
         return this.path;
     }
 
-    getURI(): string {
-        return this.uri;
+    getError(): any {
+        return this.error;
     }
 
-    static on(handler: (event: LoadComponentRequested) => void, contextWindow: Window = window) {
+    static on(handler: (event: LoadComponentFailedEvent) => void, contextWindow: Window = window) {
         Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    static un(handler?: (event: LoadComponentRequested) => void, contextWindow: Window = window) {
+    static un(handler?: (event: LoadComponentFailedEvent) => void, contextWindow: Window = window) {
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

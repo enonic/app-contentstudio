@@ -1,8 +1,8 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ComponentPath} from '../../app/page/region/ComponentPath';
+import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 
-export class RemoveItemViewRequested
+export class DuplicateComponentViewEvent
     extends Event {
 
     private readonly path: ComponentPath;
@@ -16,11 +16,11 @@ export class RemoveItemViewRequested
         return this.path;
     }
 
-    static on(handler: (event: RemoveItemViewRequested) => void, contextWindow: Window = window) {
+    static on(handler: (event: DuplicateComponentViewEvent) => void, contextWindow: Window = window) {
         Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    static un(handler?: (event: RemoveItemViewRequested) => void, contextWindow: Window = window) {
+    static un(handler?: (event: DuplicateComponentViewEvent) => void, contextWindow: Window = window) {
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

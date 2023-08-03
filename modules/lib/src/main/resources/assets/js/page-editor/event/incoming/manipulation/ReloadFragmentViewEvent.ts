@@ -1,11 +1,12 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ComponentPath} from '../../app/page/region/ComponentPath';
+import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 
-export class SetFragmentComponentRequested
+export class ReloadFragmentViewEvent
     extends Event {
 
     private readonly path: ComponentPath;
+
     private readonly contentId: string;
 
     constructor(path: ComponentPath, contentId: string) {
@@ -14,7 +15,7 @@ export class SetFragmentComponentRequested
         this.contentId = contentId;
     }
 
-    getComponentPath(): ComponentPath {
+    getPath(): ComponentPath {
         return this.path;
     }
 
@@ -22,11 +23,11 @@ export class SetFragmentComponentRequested
         return this.contentId;
     }
 
-    static on(handler: (event: SetFragmentComponentRequested) => void, contextWindow: Window = window) {
+    static on(handler: (event: ReloadFragmentViewEvent) => void, contextWindow: Window = window) {
         Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    static un(handler?: (event: SetFragmentComponentRequested) => void, contextWindow: Window = window) {
+    static un(handler?: (event: ReloadFragmentViewEvent) => void, contextWindow: Window = window) {
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

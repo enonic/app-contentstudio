@@ -9,7 +9,7 @@ import {RegionPlaceholder} from './RegionPlaceholder';
 import {ItemViewAddedEvent} from './ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
-import {ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
+import {ItemViewSelectedEventConfig} from './event/outgoing/navigation/SelectComponentEvent';
 import {ItemType} from './ItemType';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {PageViewController} from './PageViewController';

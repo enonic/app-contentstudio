@@ -24,21 +24,19 @@ import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ProjectContext} from '../app/project/ProjectContext';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {SaveAsTemplateAction} from '../app/wizard/action/SaveAsTemplateAction';
 import {Project} from '../app/settings/data/project/Project';
-import {CreateComponentFragmentRequestedEvent} from './event/CreateComponentFragmentRequestedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
-import {SelectComponentRequestedEvent} from './event/SelectComponentRequestedEvent';
+import {SelectComponentViewEvent} from './event/incoming/navigation/SelectComponentViewEvent';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {ItemView} from './ItemView';
-import {DeselectComponentRequestedEvent} from './event/DeselectComponentRequestedEvent';
-import {EditTextComponentRequested} from './event/EditTextComponentRequested';
+import {DeselectComponentViewEvent} from './event/incoming/navigation/DeselectComponentViewEvent';
+import {EditTextComponentViewEvent} from './event/incoming/manipulation/EditTextComponentViewEvent';
 import {TextComponentView} from './text/TextComponentView';
-import {AddItemViewRequested} from './event/AddItemViewRequested';
+import {AddComponentViewEvent} from './event/incoming/manipulation/AddComponentViewEvent';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {RegionView} from './RegionView';
 import {ItemType} from './ItemType';
-import {RemoveItemViewRequested} from './event/RemoveItemViewRequested';
+import {RemoveComponentViewEvent} from './event/incoming/manipulation/RemoveComponentViewEvent';
 import {ComponentView} from './ComponentView';
 import {Component} from '../app/page/region/Component';
 import * as Q from 'q';
@@ -46,20 +44,20 @@ import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import * as $ from 'jquery';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
-import {ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
+import {ItemViewSelectedEventConfig} from './event/outgoing/navigation/SelectComponentEvent';
 import {ComponentItemType} from './ComponentItemType';
 import {FragmentItemType} from './fragment/FragmentItemType';
 import * as DOMPurify from 'dompurify';
 import {HTMLAreaHelper} from '../app/inputtype/ui/text/HTMLAreaHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {LoadComponentRequested} from './event/LoadComponentRequested';
-import {LoadComponentFailedEvent} from './event/LoadComponentFailedEvent';
-import {FragmentComponentReloadRequiredEvent} from './FragmentComponentReloadRequiredEvent';
+import {LoadComponentViewEvent} from './event/incoming/manipulation/LoadComponentViewEvent';
+import {LoadComponentFailedEvent} from './event/outgoing/manipulation/LoadComponentFailedEvent';
 import {UriHelper} from '../app/rendering/UriHelper';
 import {RenderingMode} from '../app/rendering/RenderingMode';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {FragmentReloadRequested} from './event/FragmentReloadRequested';
+import {ReloadFragmentViewEvent} from './event/incoming/manipulation/ReloadFragmentViewEvent';
 import {FragmentComponentView} from './fragment/FragmentComponentView';
+import {DuplicateComponentViewEvent} from './event/incoming/manipulation/DuplicateComponentViewEvent';
 
 export class LiveEditPage {
 
@@ -83,17 +81,19 @@ export class LiveEditPage {
 
     private dragStoppedListener: () => void;
 
-    private selectComponentRequestedListener: (event: SelectComponentRequestedEvent) => void;
+    private selectComponentRequestedListener: (event: SelectComponentViewEvent) => void;
 
-    private deselectComponentRequestedListener: (event: DeselectComponentRequestedEvent) => void;
+    private deselectComponentRequestedListener: (event: DeselectComponentViewEvent) => void;
 
-    private editTextComponentRequestedListener: (event: EditTextComponentRequested) => void;
+    private editTextComponentRequestedListener: (event: EditTextComponentViewEvent) => void;
 
-    private addItemViewRequestListener: (event: AddItemViewRequested) => void;
+    private addItemViewRequestListener: (event: AddComponentViewEvent) => void;
 
-    private removeItemViewRequestListener: (event: RemoveItemViewRequested) => void;
+    private removeItemViewRequestListener: (event: RemoveComponentViewEvent) => void;
 
-    private loadComponentRequestListener: (event: LoadComponentRequested) => void;
+    private loadComponentRequestListener: (event: LoadComponentViewEvent) => void;
+
+    private duplicateComponentRequested: (event: DuplicateComponentViewEvent) => void;
 
     private static debug: boolean = false;
 
@@ -231,7 +231,7 @@ export class LiveEditPage {
 
         ComponentViewDragStoppedEvent.on(this.dragStoppedListener);
 
-        this.selectComponentRequestedListener = (event: SelectComponentRequestedEvent): void => {
+        this.selectComponentRequestedListener = (event: SelectComponentViewEvent): void => {
             if (!event.getPath()) {
                 return;
             }
@@ -244,9 +244,9 @@ export class LiveEditPage {
             }
         };
 
-        SelectComponentRequestedEvent.on(this.selectComponentRequestedListener);
+        SelectComponentViewEvent.on(this.selectComponentRequestedListener);
 
-        this.deselectComponentRequestedListener = (event: DeselectComponentRequestedEvent): void => {
+        this.deselectComponentRequestedListener = (event: DeselectComponentViewEvent): void => {
             const path: ComponentPath = event.getPath() ? ComponentPath.fromString(event.getPath()) : null;
 
             if (path) {
@@ -260,9 +260,9 @@ export class LiveEditPage {
             }
         };
 
-        DeselectComponentRequestedEvent.on(this.deselectComponentRequestedListener);
+        DeselectComponentViewEvent.on(this.deselectComponentRequestedListener);
 
-        this.editTextComponentRequestedListener = (event: EditTextComponentRequested): void => {
+        this.editTextComponentRequestedListener = (event: EditTextComponentViewEvent): void => {
             const path: ComponentPath = event.getPath() ? ComponentPath.fromString(event.getPath()) : null;
 
             if (path) {
@@ -274,12 +274,12 @@ export class LiveEditPage {
             }
         };
 
-        EditTextComponentRequested.on(this.editTextComponentRequestedListener);
+        EditTextComponentViewEvent.on(this.editTextComponentRequestedListener);
 
-        this.addItemViewRequestListener = (event: AddItemViewRequested) => {
-            const path = ComponentPath.fromString(event.getComponentPath().toString());
+        this.addItemViewRequestListener = (event: AddComponentViewEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
-            const viewType = ItemType.fromComponentType(type);
+            const viewType: ItemType = ItemType.fromComponentType(type);
             const parentView: ItemView = this.getItemViewByPath(path.getParentPath());
 
             if (parentView) {
@@ -287,9 +287,9 @@ export class LiveEditPage {
             }
         };
 
-        AddItemViewRequested.on(this.addItemViewRequestListener);
+        AddComponentViewEvent.on(this.addItemViewRequestListener);
 
-        this.removeItemViewRequestListener = (event: RemoveItemViewRequested) => {
+        this.removeItemViewRequestListener = (event: RemoveComponentViewEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const view: ItemView = this.getItemViewByPath(path);
 
@@ -302,9 +302,9 @@ export class LiveEditPage {
             }
         };
 
-        RemoveItemViewRequested.on(this.removeItemViewRequestListener);
+        RemoveComponentViewEvent.on(this.removeItemViewRequestListener);
 
-        this.loadComponentRequestListener = (event: LoadComponentRequested) => {
+        this.loadComponentRequestListener = (event: LoadComponentViewEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const view: ItemView = this.getItemViewByPath(path);
 
@@ -317,11 +317,22 @@ export class LiveEditPage {
             }
         };
 
-        LoadComponentRequested.on(this.loadComponentRequestListener);
+        LoadComponentViewEvent.on(this.loadComponentRequestListener);
 
-        FragmentReloadRequested.on((event: FragmentReloadRequested) => {
+        ReloadFragmentViewEvent.on((event: ReloadFragmentViewEvent) => {
             this.reloadFragment(event);
         });
+
+        this.duplicateComponentRequested = (event: DuplicateComponentViewEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            const view: ItemView = this.getItemViewByPath(path);
+
+            if (view instanceof ComponentView) {
+                view.duplicate();
+            }
+        };
+
+        DuplicateComponentViewEvent.on(this.duplicateComponentRequested);
     }
 
     private getItemViewByPath(path: ComponentPath): ItemView {
@@ -346,17 +357,19 @@ export class LiveEditPage {
 
         ComponentViewDragStoppedEvent.un(this.dragStoppedListener);
 
-        SelectComponentRequestedEvent.un(this.selectComponentRequestedListener);
+        SelectComponentViewEvent.un(this.selectComponentRequestedListener);
 
-        DeselectComponentRequestedEvent.un(this.deselectComponentRequestedListener);
+        DeselectComponentViewEvent.un(this.deselectComponentRequestedListener);
 
-        EditTextComponentRequested.un(this.editTextComponentRequestedListener);
+        EditTextComponentViewEvent.un(this.editTextComponentRequestedListener);
 
-        AddItemViewRequested.un(this.addItemViewRequestListener);
+        AddComponentViewEvent.un(this.addItemViewRequestListener);
 
-        RemoveItemViewRequested.un(this.removeItemViewRequestListener);
+        RemoveComponentViewEvent.un(this.removeItemViewRequestListener);
 
-        LoadComponentRequested.un(this.loadComponentRequestListener);
+        LoadComponentViewEvent.un(this.loadComponentRequestListener);
+
+        DuplicateComponentViewEvent.un(this.duplicateComponentRequested);
     }
 
     public loadComponent(componentView: ComponentView<Component>, componentUrl: string,): Q.Promise<string> {
@@ -434,7 +447,7 @@ export class LiveEditPage {
         return fragmentWrapperEl;
     }
 
-    private reloadFragment(event: FragmentReloadRequested): void {
+    private reloadFragment(event: ReloadFragmentViewEvent): void {
         const path = ComponentPath.fromString(event.getPath().toString());
         const fragmentView: ItemView = this.getItemViewByPath(path);
 

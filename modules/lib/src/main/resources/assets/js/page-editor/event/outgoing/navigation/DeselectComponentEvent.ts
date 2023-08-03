@@ -1,8 +1,9 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ComponentPath} from '../../app/page/region/ComponentPath';
+import {ItemView} from '../../../ItemView';
+import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 
-export class DuplicateComponentRequest
+export class DeselectComponentEvent
     extends Event {
 
     private readonly path: ComponentPath;
@@ -12,15 +13,15 @@ export class DuplicateComponentRequest
         this.path = path;
     }
 
-    getComponentPath(): ComponentPath {
+    getPath(): ComponentPath {
         return this.path;
     }
 
-    static on(handler: (event: DuplicateComponentRequest) => void, contextWindow: Window = window) {
+    static on(handler: (event: DeselectComponentEvent) => void, contextWindow: Window = window) {
         Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    static un(handler?: (event: DuplicateComponentRequest) => void, contextWindow: Window = window) {
+    static un(handler?: (event: DeselectComponentEvent) => void, contextWindow: Window = window) {
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }
