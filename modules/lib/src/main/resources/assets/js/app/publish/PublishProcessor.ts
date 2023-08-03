@@ -248,7 +248,8 @@ export class PublishProcessor {
             this.setExcludedIds(excludedIds);
 
             this.processResolveDependenciesResult(minResult);
-            this.handleExclusionResult(minResult.getDependants());
+            this.handleExclusionResult();
+            this.handleMissingExcludedIds(minResult.getDependants());
 
             this.allDependantIds = maxResult.getDependants();
 
@@ -270,7 +271,7 @@ export class PublishProcessor {
         }
     }
 
-    private async loadPublishDependencies({ids, resetDependantItems, silent}: LoadDependenciesParams): Promise<void> {
+    private async loadPublishDependencies({ids, resetDependantItems, resetExclusions, silent}: LoadDependenciesParams): Promise<void> {
         const instanceId = this.instanceId;
         this.cleanLoad = false;
 
@@ -283,6 +284,7 @@ export class PublishProcessor {
 
             this.processResolveDependenciesResult(result);
             this.handleExclusionResult();
+            this.handleMissingExcludedIds(resetExclusions ? [] : undefined);
 
             const hasExcluded = this.getExcludedIds().length > 0;
             const allDependantIds = hasExcluded ? await this.createResolveDependenciesRequest(ids).sendAndParse().then(
@@ -395,13 +397,15 @@ export class PublishProcessor {
         return new ContentSummaryAndCompareStatusFetcher().fetchByIds(slicedIds);
     }
 
-    private handleExclusionResult(dependantsIds?: ContentId[]): void {
+    private handleExclusionResult(): void {
         const inProgressIds = this.getInProgressIdsWithoutInvalid();
         const invalidIds = this.getInvalidIds();
         if (this.isAnyExcluded(inProgressIds) || this.isAnyExcluded(invalidIds)) {
             NotifyManager.get().showFeedback(i18n('dialog.publish.notAllExcluded'));
         }
+    }
 
+    private handleMissingExcludedIds(dependantsIds?: ContentId[]): void {
         const missingExcludedIds = (dependantsIds ?? this.dependantList.getItemsIds())
             .filter(id => !this.itemsIncludeId(this.dependantIds, id) && !this.itemsIncludeId(this.excludedIds, id));
         if (missingExcludedIds.length > 0) {
