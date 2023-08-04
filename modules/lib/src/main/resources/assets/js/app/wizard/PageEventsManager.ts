@@ -84,6 +84,8 @@ export class PageEventsManager {
 
     private pageResetRequestedListeners: PageResetHandler[] = [];
 
+    private customizePageRequestedListeners: { (): void; }[] = [];
+
     private pageTemplateSetRequestedListeners: PageTemplateSetHandler[] = [];
 
     private pageControllerSetRequestedListeners: PageControllerSetHandler[] = [];
@@ -540,8 +542,8 @@ export class PageEventsManager {
         this.pageControllerSetRequestedListeners = this.pageControllerSetRequestedListeners.filter((curr) => (curr !== listener));
     }
 
-    notifyPageControllerSetRequested(controller: DescriptorKey): void {
-        this.pageControllerSetRequestedListeners.forEach((listener) => listener(controller));
+    notifyPageControllerSetRequested(controller: DescriptorKey, isCustomized?: boolean): void {
+        this.pageControllerSetRequestedListeners.forEach((listener) => listener(controller, isCustomized));
     }
 
     onSetFragmentComponentRequested(listener: { (parentPath: ComponentPath, id: string): void; }) {
@@ -580,4 +582,15 @@ export class PageEventsManager {
         this.textComponentUpdateRequestedListeners.forEach((listener) => listener(path, value));
     }
 
+    onCustomizePageRequested(listener: PageResetHandler) {
+        this.customizePageRequestedListeners.push(listener);
+    }
+
+    unCustomizePageRequested(listener: PageResetHandler) {
+        this.customizePageRequestedListeners = this.customizePageRequestedListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyCustomizePageRequested() {
+        this.customizePageRequestedListeners.forEach((listener) => listener());
+    }
 }

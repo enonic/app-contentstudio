@@ -206,7 +206,6 @@ export class ContentWizardActions
     initUnsavedChangesListeners() {
         if (this.checkSaveActionStateHandler) {
             this.wizardPanel.unDataChanged(this.checkSaveActionStateHandler);
-            this.wizardPanel.unLiveModelChanged(this.checkSaveActionStateHandler);
         }
 
         let checkSaveStateOnWizardRendered: boolean = false;

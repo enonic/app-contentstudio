@@ -49,6 +49,7 @@ import {SaveAsTemplateEvent} from './SaveAsTemplateEvent';
 import {LiveEditParams} from './LiveEditParams';
 import {PageResetEvent} from './event/outgoing/manipulation/PageResetEvent';
 import {ComponentInspectedEvent} from './ComponentInspectedEvent';
+import {CustomizePageEvent} from './event/outgoing/manipulation/CustomizePageEvent';
 
 export class PageViewBuilder {
 
@@ -373,6 +374,7 @@ export class PageView
 
         unlockAction.onExecuted(() => {
             this.setLocked(false);
+            new CustomizePageEvent().fire();
         });
 
         return [unlockAction];

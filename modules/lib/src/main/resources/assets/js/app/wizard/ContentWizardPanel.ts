@@ -51,7 +51,7 @@ import {XDataName} from '../content/XDataName';
 import {ExtraData} from '../content/ExtraData';
 import {XData} from '../content/XData';
 import {ContentType} from '../inputtype/schema/ContentType';
-import {Page} from '../page/Page';
+import {Page, PageUpdatedEventHandler} from '../page/Page';
 import {Permission} from '../access/Permission';
 import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
@@ -144,6 +144,7 @@ import {PageState} from './page/PageState';
 import {PageUpdatedEvent} from '../page/event/PageUpdatedEvent';
 import {PageResetEvent} from '../../page-editor/event/outgoing/manipulation/PageResetEvent';
 import {PageControllerUpdatedEvent} from '../page/event/PageControllerUpdatedEvent';
+import {PageControllerCustomizedEvent} from '../page/event/PageControllerCustomizedEvent';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1157,12 +1158,21 @@ export class ContentWizardPanel
             }
         });
 
-        PageEventsManager.get().onPageUnlocked(() => {
-            this.addPCV();
+        const pageUpdatedHandler = (event: PageUpdatedEvent) => {
+            this.setMarkedAsReady(false);
 
-            if (!this.isMinimized()) {
-                this.pageComponentsWizardStep.getTabBarItem().select();
+            if (!(event instanceof PageControllerCustomizedEvent)) {
+                this.saveChanges().catch((error: any) => {
+                    DefaultErrorHandler.handle(error);
+                });
             }
+        };
+
+        PageState.getEvents().onPageUpdated(pageUpdatedHandler);
+        PageState.getEvents().onPageReset(() => pageUpdatedHandler(null));
+
+        PageEventsManager.get().onCustomizePageRequested(() => {
+            PageEventsManager.get().notifyPageControllerSetRequested(this.defaultModels.getPageDescriptor().getKey(), true);
         });
 
         PageState.getEvents().onPageUpdated((event: PageUpdatedEvent) => {
@@ -1171,6 +1181,10 @@ export class ContentWizardPanel
             if (event instanceof PageControllerUpdatedEvent) {
                 this.pageComponentsView.setLocked(false);
                 this.pageComponentsView.reload();
+
+                if (!this.isMinimized()) {
+                    this.pageComponentsWizardStep.getTabBarItem().select();
+                }
             }
         });
 
@@ -2585,18 +2599,6 @@ export class ContentWizardPanel
         PageState.getEvents().onComponentUpdated(listener);
         PageState.getEvents().onComponentAdded(listener);
         PageState.getEvents().onComponentRemoved(listener);
-    }
-
-    unLiveModelChanged(listener: () => void) {
-        const pageModel: PageModel = this.liveEditModel ? this.liveEditModel.getPageModel() : null;
-
-        if (pageModel) {
-            pageModel.unPropertyChanged(listener);
-            pageModel.unComponentPropertyChangedEvent(listener);
-            pageModel.unCustomizeChanged(listener);
-            pageModel.unPageModeChanged(listener);
-            pageModel.unReset(listener);
-        }
     }
 
     onDataChanged(listener: () => void) {

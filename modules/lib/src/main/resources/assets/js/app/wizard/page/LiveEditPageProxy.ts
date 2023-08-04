@@ -80,6 +80,8 @@ import {DescriptorKey} from '../../page/DescriptorKey';
 import {SetComponentDescriptorEvent} from '../../../page-editor/event/outgoing/manipulation/SetComponentDescriptorEvent';
 import {UpdateTextComponentEvent} from '../../../page-editor/event/outgoing/manipulation/UpdateTextComponentEvent';
 import {DuplicateComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
+import {CustomizePageEvent} from '../../../page-editor/event/outgoing/manipulation/CustomizePageEvent';
+import {PageHelper} from '../../util/PageHelper';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -456,7 +458,7 @@ export class LiveEditPageProxy
         const isFragmentAllowed = this.liveEditModel.isFragmentAllowed();
         const isResetEnabled = pageModel.getMode() !== PageMode.AUTOMATIC && pageModel.getMode() !== PageMode.NO_CONTROLLER;
         const pageName = pageModel.getPageName();
-        const pageIconClass = pageModel.getIconClass();
+        const pageIconClass = PageHelper.getPageIconClass(PageState.getState());
         const isPageEmpty = !pageModel || pageModel.getMode() === PageMode.NO_CONTROLLER ||
                             (pageModel.isPageTemplate() && !pageModel.getController());
         const applicationKeys = this.liveEditModel.getSiteModel().getSite().getApplicationKeys().map((key) => key.toString());
@@ -540,6 +542,22 @@ export class LiveEditPageProxy
         LiveEditPageInitializationErrorEvent.un(null, contextWindow);
 
         CreateHtmlAreaDialogEvent.un(null, contextWindow);
+
+        UpdateTextComponentEvent.un(null, contextWindow);
+
+        CustomizePageEvent.un(null, contextWindow);
+
+        SetComponentDescriptorEvent.un(null, contextWindow);
+
+        AddComponenEvent.un(null, contextWindow);
+
+        RemoveComponentRequest.un(null, contextWindow);
+
+        PageResetEvent.un(null, contextWindow);
+
+        DuplicateComponentEvent.un(null, contextWindow);
+
+        SetFragmentComponentEvent.un(null, contextWindow);
     }
 
     public listenToLivePageEvents(contextWindow: any) {
@@ -714,6 +732,10 @@ export class LiveEditPageProxy
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
 
             PageEventsManager.get().notifyTextComponentUpdateRequested(path, event.getText());
+        }, contextWindow);
+
+        CustomizePageEvent.on((event: CustomizePageEvent) => {
+            PageEventsManager.get().notifyCustomizePageRequested();
         }, contextWindow);
     }
 

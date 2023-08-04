@@ -29,6 +29,7 @@ import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PageHelper} from '../../util/PageHelper';
 import {PageControllerUpdatedEvent} from '../../page/event/PageControllerUpdatedEvent';
 import {PageTemplateUpdatedEvent} from '../../page/event/PageTemplateUpdatedEvent';
+import {PageControllerCustomizedEvent} from '../../page/event/PageControllerCustomizedEvent';
 
 
 export class PageState {
@@ -95,16 +96,18 @@ export class PageState {
             const oldValue: PageTemplateKey = this.state?.getTemplate();
             const newPage: Page = new Page(new PageBuilder().setTemplate(pageTemplate));
             this.setPage(newPage);
-            this.pageEventsHolder.notifyPageUpdated(new PageTemplateUpdatedEvent(pageTemplate, oldValue))
+            this.pageEventsHolder.notifyPageUpdated(new PageTemplateUpdatedEvent(pageTemplate, oldValue));
         });
 
-        PageEventsManager.get().onPageControllerSetRequested((controller: DescriptorKey) => {
+        PageEventsManager.get().onPageControllerSetRequested((controller: DescriptorKey, isCustomized?: boolean) => {
             const oldValue: DescriptorKey = this.state?.getController();
             const newPage: Page = new Page(new PageBuilder().setController(controller).setConfig(new PropertyTree()));
 
             PageHelper.injectEmptyRegionsIntoPage(newPage).then((fullPage: Page) => {
                 this.setPage(fullPage);
-                this.pageEventsHolder.notifyPageUpdated(new PageControllerUpdatedEvent(controller, oldValue));
+                this.pageEventsHolder.notifyPageUpdated(
+                    isCustomized ? new PageControllerCustomizedEvent(controller, oldValue) : new PageControllerUpdatedEvent(controller,
+                        oldValue));
             }).catch(DefaultErrorHandler.handle);
         });
 

@@ -34,7 +34,6 @@ import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/LiveEdi
 import {ComponentViewDragDroppedEvent} from '../../../page-editor/ComponentViewDragDroppedEventEvent';
 import {ComponentFragmentCreatedEvent} from '../../../page-editor/ComponentFragmentCreatedEvent';
 import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEditEvent';
-import {PageModel} from '../../../page-editor/PageModel';
 import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/ComponentDetachedFromFragmentEvent';
 import {HTMLAreaDialogHandler} from '../../inputtype/ui/text/dialog/HTMLAreaDialogHandler';
 import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
@@ -71,8 +70,6 @@ import {LiveEditPagePlaceholder} from './LiveEditPagePlaceholder';
 import {Descriptor} from '../../page/Descriptor';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentType} from '../../inputtype/schema/ContentType';
-import {ApplicationRemovedEvent} from '../../site/ApplicationRemovedEvent';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 import {GetComponentDescriptorsRequest} from '../../resource/GetComponentDescriptorsRequest';
 import {PageComponentType} from '../../page/region/PageComponentType';
@@ -124,8 +121,6 @@ export class LiveFormPanel
 
     private pageView: PageView;
 
-    private pageModel: PageModel;
-
     private pageLoading: boolean = false;
 
     private pageSkipReload: boolean = false;
@@ -168,7 +163,6 @@ export class LiveFormPanel
     private hideLoadMaskHandler: () => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
     private contentPermissionsUpdatedHandler: (contentIds: ContentIds) => void;
-    private applicationRemovedHandler: (event: ApplicationRemovedEvent) => void;
 
     constructor(config: LiveFormPanelConfig) {
         super('live-form-panel');
@@ -242,15 +236,6 @@ export class LiveFormPanel
         ContentServerEventsHandler.getInstance().onContentUpdated(this.contentUpdatedHandler);
         ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentPermissionsUpdatedHandler);
 
-        this.applicationRemovedHandler = (event: ApplicationRemovedEvent) => {
-            const currentController: Descriptor = this.pageModel?.getController();
-            const removedApp: ApplicationKey = event.getApplicationKey();
-
-            if (currentController && removedApp.equals(currentController.getKey().getApplicationKey())) {
-                this.pageModel.setMode(PageMode.NO_CONTROLLER);
-            }
-        };
-
         this.contentEventListener = (event) => {
             this.propagateEvent(event);
         };
@@ -293,16 +278,7 @@ export class LiveFormPanel
             }
         };
 
-        const pageUpdatedHandler = () => {
-            this.contentWizardPanel.setMarkedAsReady(false);
-            this.contentWizardPanel.saveChanges().catch((error: any) => {
-                DefaultErrorHandler.handle(error);
-            });
-        };
-
         PageState.getEvents().onComponentUpdated(componentUpdatedHandler);
-        PageState.getEvents().onPageUpdated(pageUpdatedHandler);
-        PageState.getEvents().onPageReset(pageUpdatedHandler);
     }
 
     private initContentUpdatedHandler() {
@@ -401,7 +377,7 @@ export class LiveFormPanel
                 const itemView = this.pageView.getSelectedView();
                 if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
                     const persistedContent = this.contentWizardPanel.getPersistedItem();
-                    const viewedPage: Page = this.getPage()?.clone();
+                    const viewedPage: Page = PageState.getState();
                     const savedPage: Page = persistedContent.getPage()?.clone();
 
                     if (!ObjectHelper.equals(viewedPage, savedPage)) {
@@ -525,10 +501,6 @@ export class LiveFormPanel
         return this;
     }
 
-    public getPage(): Page {
-        return this.pageModel?.getPage() || this.assemblePageFromSelectedController();
-    }
-
     private assemblePageFromSelectedController(): Page {
         if (this.placeholder?.hasSelectedController()) {
             const descriptor: Descriptor = this.placeholder.getSelectedController();
@@ -541,21 +513,13 @@ export class LiveFormPanel
         return null;
     }
 
-    public getPageMode(): PageMode {
-        return this.pageModel ? this.pageModel.getMode() : null;
-    }
-
     public getPageView(): PageView {
         return this.pageView;
     }
 
     setModel(liveEditModel: LiveEditModel) {
-        this.liveEditModel?.getSiteModel()?.unApplicationRemoved(this.applicationRemovedHandler);
-
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
-        this.pageModel = liveEditModel.getPageModel();
-        this.pageModel.setIgnorePropertyChanges(true);
         this.isPageNotRenderable = false;
 
         const site: Site = this.content.isSite()
@@ -566,7 +530,6 @@ export class LiveFormPanel
 
         SaveAsTemplateAction.get()
             .setContentSummary(this.content)
-            .setPageModel(this.pageModel)
             .setSite(site);
 
         this.liveEditPageProxy.setModel(liveEditModel);
@@ -575,9 +538,6 @@ export class LiveFormPanel
         this.layoutInspectionPanel.setModel(liveEditModel);
         this.imageInspectionPanel.setModel(liveEditModel);
         this.fragmentInspectionPanel.setModel(liveEditModel);
-
-        this.pageModel.setIgnorePropertyChanges(false);
-        this.liveEditModel.getSiteModel().onApplicationRemoved(this.applicationRemovedHandler);
 
         this.handleContentUpdatedEvent();
     }
@@ -673,8 +633,9 @@ export class LiveFormPanel
 
             // disable insert tab if there is no page for some reason (i.e. error occurred)
             // or there is no controller or template set
-            const pageModelRenderable = this.pageModel?.isRenderable();
-            this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView && pageModelRenderable);
+            const page = PageState.getState();
+            const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
+            this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView && isPageRenderable);
 
             if (!this.pageView) {
                 this.setErrorRenderingFailed();
@@ -682,15 +643,10 @@ export class LiveFormPanel
         });
 
         eventsManager.onPageSaveAsTemplate(() => {
-            console.log('here');
             SaveAsTemplateAction.get().execute();
         });
 
         PageState.getEvents().onComponentRemoved(() => {
-            if (!this.pageModel.isPageTemplate() && this.pageModel.getMode() === PageMode.AUTOMATIC) {
-                this.pageModel.initializePageFromDefault(this);
-            }
-
             this.clearSelection();
         });
 
@@ -759,7 +715,7 @@ export class LiveFormPanel
             return false;
         }
 
-        const viewedPage = this.getPage().clone();
+        const viewedPage = PageState.getState();
         const serverPage = persistedContent.getPage().clone();
 
         const component = viewedPage.getComponentByPath(componentPath);
@@ -911,7 +867,6 @@ export class LiveFormPanel
         this.partInspectionPanel?.unbindSiteModelListeners();
         this.layoutInspectionPanel?.unbindSiteModelListeners();
         this.liveEditModel = null;
-        this.pageModel = null;
 
         if (this.placeholder) {
             this.placeholder.deselectOptions();

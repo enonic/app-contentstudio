@@ -28,7 +28,7 @@ import {LayoutComponent} from './region/LayoutComponent';
 
 export type PageUpdatedEventHandler = (event: PageUpdatedEvent) => void;
 export type PageTemplateSetHandler = (template: PageTemplateKey) => void;
-export type PageControllerSetHandler = (controller: DescriptorKey) => void;
+export type PageControllerSetHandler = (controller: DescriptorKey, isCustomized?: boolean) => void;
 export type PageResetHandler = () => void;
 
 export class Page

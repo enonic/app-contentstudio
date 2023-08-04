@@ -163,4 +163,18 @@ export class PageHelper {
 
         return containsId;
     }
+
+    static getPageIconClass(page: Page): string {
+        const largeIconCls = ' icon-large';
+
+        if (page?.hasTemplate()) {
+            return 'icon-page-template' + largeIconCls;
+        }
+
+        if (page?.getController()) {
+            return 'icon-file' + largeIconCls;
+        }
+
+        return 'icon-wand' + largeIconCls;
+    }
 }

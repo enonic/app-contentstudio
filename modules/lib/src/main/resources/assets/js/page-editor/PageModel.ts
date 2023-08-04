@@ -11,8 +11,6 @@ import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Descriptor} from '../app/page/Descriptor';
-import {ComponentPath} from '../app/page/region/ComponentPath';
-import {Region} from '../app/page/region/Region';
 
 export class SetController {
 
@@ -516,54 +514,6 @@ export class PageModel {
             });
     }
 
-    onCustomizeChanged(listener: (value: boolean) => void) {
-        this.customizeChangedListeners.push(listener);
-    }
-
-    unCustomizeChanged(listener: (value: boolean) => void) {
-        this.customizeChangedListeners = this.customizeChangedListeners.filter((curr: (value: boolean) => void) => {
-            return listener !== curr;
-        });
-    }
-
-    private notifyCustomizeChanged(value: boolean) {
-        this.customizeChangedListeners.forEach((listener: (value: boolean) => void) => {
-            listener(value);
-        });
-    }
-
-    onReset(listener: () => void) {
-        this.resetListeners.push(listener);
-    }
-
-    unReset(listener: () => void) {
-        this.resetListeners = this.resetListeners.filter((curr: () => void) => {
-            return listener !== curr;
-        });
-    }
-
-    private notifyReset() {
-        this.resetListeners.forEach((listener: () => void) => {
-            listener();
-        });
-    }
-
-    onChange(listener: () => void) {
-        this.onPropertyChanged(listener);
-        this.onComponentPropertyChangedEvent(listener);
-        this.onCustomizeChanged(listener);
-        this.onPageModeChanged(listener);
-        this.onReset(listener);
-    }
-
-    unChange(listener: () => void) {
-        this.unPropertyChanged(listener);
-        this.unComponentPropertyChangedEvent(listener);
-        this.unCustomizeChanged(listener);
-        this.unPageModeChanged(listener);
-        this.unReset(listener);
-    }
-
     getPageName(): string {
         const pageTemplateDisplayName = PageTemplateDisplayName;
         if (this.hasTemplate()) {
@@ -582,22 +532,5 @@ export class PageModel {
         }
 
         return pageTemplateDisplayName[pageTemplateDisplayName.Automatic];
-    }
-
-    getIconClass(): string {
-        const largeIconCls = ' icon-large';
-
-        if (this.hasTemplate()) {
-            return 'icon-page-template' + largeIconCls;
-        }
-        if (this.isPageTemplate() && this.getController()) {
-            return 'icon-file' + largeIconCls;
-        }
-        if (this.isCustomized()) {
-            return 'icon-file' + largeIconCls;
-        }
-
-        return 'icon-wand' + largeIconCls;
-
     }
 }
