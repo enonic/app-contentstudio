@@ -77,7 +77,7 @@ export class PageHelper {
                     }
 
                     // adding items persisted in regions that are no longer in descriptor
-                    page.getRegions().getRegions().forEach((persistedRegion: Region) => {
+                    page.getRegions()?.getRegions().forEach((persistedRegion: Region) => {
                         if (!descriptorRegions.some((d) => d.getName() === persistedRegion.getName())) {
                             fullRegionsBuilder.addRegion(persistedRegion);
                         }

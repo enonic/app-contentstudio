@@ -44,7 +44,7 @@ export class PageComponentsTreeGrid
             .setColumns(PageComponentsTreeGridHelper.generateColumns())
             .setOptions(PageComponentsTreeGridHelper.generateOptions())
             .setShowToolbar(false)
-            .setAutoLoad(true)
+            .setAutoLoad(false)
             .prependClasses('page-components-tree-grid')
         );
 

@@ -82,7 +82,8 @@ import {UpdateTextComponentEvent} from '../../../page-editor/event/outgoing/mani
 import {DuplicateComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
-export class LiveEditPageProxy implements PageNavigationHandler {
+export class LiveEditPageProxy
+    implements PageNavigationHandler {
 
     private liveEditModel?: LiveEditModel;
 
@@ -179,6 +180,8 @@ export class LiveEditPageProxy implements PageNavigationHandler {
                 }
             }
         };
+
+        this.listenToMainFrameEvents();
     }
 
     private setCursorPositionInTextComponent(textComponentView: TextComponentView, cursorPosition: HtmlEditorCursorPosition): void {
@@ -422,7 +425,6 @@ export class LiveEditPageProxy implements PageNavigationHandler {
                 this.livejq = <JQueryStatic>livejq;
 
                 this.listenToLivePageEvents(this.liveEditWindow);
-                this.listenToMainFrameEvents();
 
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
@@ -463,7 +465,7 @@ export class LiveEditPageProxy implements PageNavigationHandler {
         const contentType = this.liveEditModel.getContent().getType()?.toString();
         const sitePath: string = this.liveEditModel.getSiteModel().getSite().getPath().toString();
 
-        return  {
+        return {
             isFragment,
             displayName,
             locked,
@@ -717,25 +719,31 @@ export class LiveEditPageProxy implements PageNavigationHandler {
 
     private listenToMainFrameEvents() {
         PageEventsManager.get().onDialogCreated((modalDialog: ModalDialog, config: any) => {
-            new LiveEditPageDialogCreatedEvent(modalDialog, config).fire(this.liveEditWindow);
+            if (this.liveEditWindow) {
+                new LiveEditPageDialogCreatedEvent(modalDialog, config).fire(this.liveEditWindow);
+            }
         });
 
         PageState.getEvents().onComponentAdded((event: ComponentAddedEvent): void => {
-            // presuming that if component is not empty then it was duplicated
-            // however update events might be an issue
-            const isDuplicate: boolean = !event.getComponent().isEmpty();
+            if (this.liveEditWindow) {
+                // presuming that if component is not empty then it was duplicated
+                // however update events might be an issue
+                const isDuplicate: boolean = !event.getComponent().isEmpty();
 
-            if (isDuplicate) {
-                const index: number = event.getPath().getPath() as number;
-                const duplicatedItemPath: ComponentPath = new ComponentPath(index - 1 , event.getPath().getParentPath());
-                new DuplicateComponentViewEvent(duplicatedItemPath).fire(this.liveEditWindow);
-            } else {
-                new AddComponentViewEvent(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
+                if (isDuplicate) {
+                    const index: number = event.getPath().getPath() as number;
+                    const duplicatedItemPath: ComponentPath = new ComponentPath(index - 1, event.getPath().getParentPath());
+                    new DuplicateComponentViewEvent(duplicatedItemPath).fire(this.liveEditWindow);
+                } else {
+                    new AddComponentViewEvent(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
+                }
             }
         });
 
         PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
-            new RemoveComponentViewEvent(event.getPath()).fire(this.liveEditWindow);
+            if (this.liveEditWindow) {
+                new RemoveComponentViewEvent(event.getPath()).fire(this.liveEditWindow);
+            }
         });
     }
 

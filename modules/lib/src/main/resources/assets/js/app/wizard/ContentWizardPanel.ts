@@ -141,6 +141,9 @@ import {PageComponentsView} from './PageComponentsView';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
 import {PageEventsManager} from './PageEventsManager';
 import {PageState} from './page/PageState';
+import {PageUpdatedEvent} from '../page/event/PageUpdatedEvent';
+import {PageResetEvent} from '../../page-editor/event/outgoing/manipulation/PageResetEvent';
+import {PageControllerUpdatedEvent} from '../page/event/PageControllerUpdatedEvent';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -557,14 +560,12 @@ export class ContentWizardPanel
     }
 
     private loadAndSetPageState(page: Page): Q.Promise<void> {
-        if (page) {
-            return PageHelper.injectEmptyRegionsIntoPage(page).then((fullPage: Page) => {
-                PageState.setState(fullPage);
-                return Q.resolve();
-            });
-        }
+        const pagePromise: Q.Promise<Page | null> = page ? PageHelper.injectEmptyRegionsIntoPage(page) : Q.resolve(null);
 
-        return Q.resolve();
+        return pagePromise.then((page: Page | null) => {
+            PageState.setState(page);
+            return Q.resolve();
+        });
     }
 
     protected createFormIcon(): ThumbnailUploaderEl {
@@ -927,7 +928,6 @@ export class ContentWizardPanel
                         this.updateButtonsState();
                         this.contextView.updateWidgetsVisibility();
                         this.toggleLiveEdit();
-                        this.togglePageComponentsViewOnDemand();
                     })
                     .catch(DefaultErrorHandler.handle);
             }
@@ -1163,6 +1163,19 @@ export class ContentWizardPanel
             if (!this.isMinimized()) {
                 this.pageComponentsWizardStep.getTabBarItem().select();
             }
+        });
+
+        PageState.getEvents().onPageUpdated((event: PageUpdatedEvent) => {
+            this.togglePageComponentsViewOnDemand();
+
+            if (event instanceof PageControllerUpdatedEvent) {
+                this.pageComponentsView.setLocked(false);
+                this.pageComponentsView.reload();
+            }
+        });
+
+        PageState.getEvents().onPageReset(() => {
+            this.removePCV();
         });
     }
 
@@ -2011,6 +2024,7 @@ export class ContentWizardPanel
 
         if (this.isPageComponentsViewRequired()) {
             this.pageComponentsWizardStepForm?.layout(this.pageComponentsView);
+            this.pageComponentsView.reload();
         }
 
         return Q.all(formViewLayoutPromises).thenResolve(null);
@@ -2682,8 +2696,7 @@ export class ContentWizardPanel
     }
 
     private isPageComponentsViewRequired(): boolean {
-        return this.livePanel && (this.getPersistedItem().getPage()?.hasController() || this.getPersistedItem().getPage()?.isFragment() ||
-                                  this.liveEditModel?.getPageModel()?.isCustomized());
+        return PageState.getState()?.hasController() || PageState.getState()?.isFragment();
     }
 
     private togglePageComponentsViewOnDemand() {

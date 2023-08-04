@@ -22,12 +22,8 @@ import {PageItem} from './region/PageItem';
 import {ComponentAddedEvent} from './region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from './region/ComponentRemovedEvent';
 import {ComponentUpdatedEvent} from './region/ComponentUpdatedEvent';
-import {PageControllerUpdatedEvent} from './event/PageControllerUpdatedEvent';
-import {PageTemplateUpdatedEvent} from './event/PageTemplateUpdatedEvent';
-import {PageConfigUpdatedEvent} from './event/PageConfigUpdatedEvent';
 import {PageUpdatedEvent} from './event/PageUpdatedEvent';
 import {PageItemType} from './region/PageItemType';
-import {PageHelper} from '../util/PageHelper';
 import {LayoutComponent} from './region/LayoutComponent';
 
 export type PageUpdatedEventHandler = (event: PageUpdatedEvent) => void;
@@ -38,17 +34,15 @@ export type PageResetHandler = () => void;
 export class Page
     implements Equitable, Cloneable, PageItem {
 
-    private controller: DescriptorKey;
+    private readonly controller: DescriptorKey;
 
-    private template: PageTemplateKey;
+    private readonly template: PageTemplateKey;
 
-    private regions: Regions;
+    private readonly regions: Regions;
 
-    private fragment: Component;
+    private readonly fragment: Component;
 
-    private config: PropertyTree;
-
-    private pageUpdatedListeners: PageUpdatedEventHandler[] = [];
+    private readonly config: PropertyTree;
 
     constructor(builder: PageBuilder) {
         this.controller = builder.controller;
@@ -68,30 +62,12 @@ export class Page
         return this.controller;
     }
 
-    setController(value: DescriptorKey): void {
-        const oldValue = this.controller;
-        this.controller = value;
-
-        if (!ObjectHelper.equals(oldValue, value)) {
-            this.notifyPageUpdated(new PageControllerUpdatedEvent(value, oldValue));
-        }
-    }
-
     hasTemplate(): boolean {
         return this.template != null;
     }
 
     getTemplate(): PageTemplateKey {
         return this.template;
-    }
-
-    setTemplate(value: PageTemplateKey): void {
-        const oldValue = this.template;
-        this.template = value;
-
-        if (!ObjectHelper.equals(oldValue, value)) {
-            this.notifyPageUpdated(new PageTemplateUpdatedEvent(value, oldValue));
-        }
     }
 
     hasNonEmptyRegions(): boolean {
@@ -112,15 +88,6 @@ export class Page
 
     getConfig(): PropertyTree {
         return this.config;
-    }
-
-    setConfig(value: PropertyTree): void {
-        const oldValue = this.config;
-        this.config = value;
-
-        if (!ObjectHelper.equals(oldValue, value)) {
-            this.notifyPageUpdated(new PageConfigUpdatedEvent(value));
-        }
     }
 
     getFragment(): Component {
@@ -263,18 +230,6 @@ export class Page
 
     unComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
         this.getActiveRegions()?.getEventsManager().onComponentUpdated(listener);
-    }
-
-    onPageUpdated(listener: PageUpdatedEventHandler): void {
-        this.pageUpdatedListeners.push(listener);
-    }
-
-    unPageUpdated(listener: PageUpdatedEventHandler): void {
-        this.pageUpdatedListeners = this.pageUpdatedListeners.filter(l => l !== listener);
-    }
-
-    notifyPageUpdated(event: PageUpdatedEvent): void {
-        this.pageUpdatedListeners.forEach(listener => listener(event));
     }
 }
 

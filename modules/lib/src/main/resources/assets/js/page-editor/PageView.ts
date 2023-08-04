@@ -474,7 +474,7 @@ export class PageView
         } else {
             this.unshade();
 
-            new PageUnlockedEvent(this).fire();
+            new PageUnlockedEvent().fire();
             new ComponentInspectedEvent(this.getPath()).fire();
         }
 

@@ -190,6 +190,10 @@ export class PageComponentsView
         this.toggleButton.setTitle(this.isCollapsed() ? i18n('field.showComponent') : i18n('field.hideComponent'), false);
     }
 
+    reload(): Q.Promise<void> {
+        return this.tree.reload();
+    }
+
     hide(): void {
         super.hide();
         KeyBindings.get().unbindKeys(this.keyBinding);
@@ -233,11 +237,11 @@ export class PageComponentsView
         });
 
         eventsManager.onPageLocked(() => {
-            this.pageLockedHandler(true);
+            this.setLocked(true);
         });
 
         eventsManager.onPageUnlocked(() => {
-            this.pageLockedHandler(false);
+            this.setLocked(false);
         });
 
         PageState.getEvents().onComponentAdded((event: ComponentAddedEvent) => {
@@ -568,7 +572,7 @@ export class PageComponentsView
         return this;
     }
 
-    private pageLockedHandler(lock: boolean): void {
+    setLocked(lock: boolean): void {
         this.toggleClass(PageComponentsView.LOCKED_CLASS, lock);
     }
 

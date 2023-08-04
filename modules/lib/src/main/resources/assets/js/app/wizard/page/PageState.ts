@@ -25,6 +25,10 @@ import {TextComponent} from '../../page/region/TextComponent';
 import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescriptorRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Descriptor} from '../../page/Descriptor';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {PageHelper} from '../../util/PageHelper';
+import {PageControllerUpdatedEvent} from '../../page/event/PageControllerUpdatedEvent';
+import {PageTemplateUpdatedEvent} from '../../page/event/PageTemplateUpdatedEvent';
 
 
 export class PageState {
@@ -41,8 +45,6 @@ export class PageState {
 
     private componentUpdatedNotifier: ComponentUpdatedEventHandler;
 
-    private pageUpdatedNotifier: PageUpdatedEventHandler;
-
     private constructor() {
         this.pageEventsHolder = new PageEventsHolder();
         this.initListeners();
@@ -52,7 +54,6 @@ export class PageState {
         this.componentAddedNotifier = (event: ComponentAddedEvent) => this.pageEventsHolder.notifyComponentAdded(event);
         this.componentRemovedNotifier = (event: ComponentRemovedEvent) => this.pageEventsHolder.notifyComponentRemoved(event);
         this.componentUpdatedNotifier = (event: ComponentRemovedEvent) => this.pageEventsHolder.notifyComponentUpdated(event);
-        this.pageUpdatedNotifier = (event: PageUpdatedEvent) => this.pageEventsHolder.notifyPageUpdated(event);
 
         PageEventsManager.get().onComponentInsertRequested((parentPath: ComponentPath, type: ComponentType) => {
             if (!this.state) {
@@ -91,24 +92,24 @@ export class PageState {
         });
 
         PageEventsManager.get().onPageTemplateSetRequested((pageTemplate: PageTemplateKey) => {
-            if (!this.state) {
-                this.setPage(new Page(new PageBuilder()));
-            }
-
-            this.state.setTemplate(pageTemplate);
+            const oldValue: PageTemplateKey = this.state?.getTemplate();
+            const newPage: Page = new Page(new PageBuilder().setTemplate(pageTemplate));
+            this.setPage(newPage);
+            this.pageEventsHolder.notifyPageUpdated(new PageTemplateUpdatedEvent(pageTemplate, oldValue))
         });
 
         PageEventsManager.get().onPageControllerSetRequested((controller: DescriptorKey) => {
-            if (!this.state) {
-                this.setPage(new Page(new PageBuilder()));
-            }
+            const oldValue: DescriptorKey = this.state?.getController();
+            const newPage: Page = new Page(new PageBuilder().setController(controller).setConfig(new PropertyTree()));
 
-            this.state.setController(controller);
+            PageHelper.injectEmptyRegionsIntoPage(newPage).then((fullPage: Page) => {
+                this.setPage(fullPage);
+                this.pageEventsHolder.notifyPageUpdated(new PageControllerUpdatedEvent(controller, oldValue));
+            }).catch(DefaultErrorHandler.handle);
         });
 
         PageEventsManager.get().onPageResetRequested(() => {
-            this.unListenPageComponentsEvents();
-            this.state = null;
+            this.setPage(null);
             this.pageEventsHolder.notifyPageReset();
         });
 
@@ -210,13 +211,11 @@ export class PageState {
         this.state?.onComponentAdded(this.componentAddedNotifier);
         this.state?.onComponentRemoved(this.componentRemovedNotifier);
         this.state?.onComponentUpdated(this.componentUpdatedNotifier);
-        this.state?.onPageUpdated(this.pageUpdatedNotifier);
     }
 
     private unListenPageComponentsEvents(): void {
         this.state?.unComponentAdded(this.componentAddedNotifier);
         this.state?.unComponentRemoved(this.componentRemovedNotifier);
         this.state?.unComponentUpdated(this.componentUpdatedNotifier);
-        this.state?.unPageUpdated(this.pageUpdatedNotifier);
     }
 }
