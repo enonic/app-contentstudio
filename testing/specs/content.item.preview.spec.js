@@ -10,16 +10,17 @@ const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem
 
 describe('content.item.preview.spec - Select a content file and check expected info in Item Preview Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
+    const TEST_CONTENT_NAME = 'test-text.txt';
 
     it(`WHEN existing *.txt file is selected WHEN expected text should be loaded in Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            await studioUtils.findAndSelectItem("test-text.txt");
+            await studioUtils.findAndSelectItem(TEST_CONTENT_NAME);
             await contentItemPreviewPanel.pause(500);
-            studioUtils.saveScreenshot("text_attachment_preview");
+            await studioUtils.saveScreenshot('text_attachment_preview');
             let result = await contentItemPreviewPanel.getTextInAttachmentPreview();
             assert.isTrue(result.includes('Belarus'), "expected text should be present in the Preview Panel");
         });
@@ -30,7 +31,7 @@ describe('content.item.preview.spec - Select a content file and check expected i
             //1. Select an existing folder:
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_2_NAME);
             //2. Verify that 'Preview not available' is displayed
-            await studioUtils.saveScreenshot("preview_not_available");
+            await studioUtils.saveScreenshot('preview_not_available');
             await contentItemPreviewPanel.waitForPreviewNotAvailAbleMessageDisplayed();
         });
 

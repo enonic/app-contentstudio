@@ -6,12 +6,11 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const xpath = {
     container: "//div[contains(@id,'PageComponentsView')]",
-    closeButton: "//button[contains(@id,'CloseButton')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
     pageComponentsTreeGrid: `//div[contains(@id,'PageComponentsTreeGrid')]`,
     fragmentsName: "//div[contains(@id,'PageComponentsItemViewer') and descendant::div[contains(@class,'icon-fragment')]]" +
                    lib.H6_DISPLAY_NAME,
-    contextMenuItemByName: function (name) {
+    contextMenuItemByName(name) {
         return `//dl[contains(@id,'TreeContextMenu')]//*[contains(@id,'TreeMenuItem') and text()='${name}']`;
     },
     componentByName(name) {
@@ -62,8 +61,7 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(toggleIcon);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_component_view');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_component_view');
             throw new Error('Page Component View, Error when clicking on `toggle icon in the row` screenshot: ' + screenshot + '  ' + err);
         }
     }

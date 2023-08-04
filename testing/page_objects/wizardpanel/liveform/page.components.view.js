@@ -6,7 +6,9 @@ const appConst = require('../../../libs/app_const');
 const BasePageComponentView = require('../base.page.components.view');
 const xpath = {
     container: "//div[contains(@id,'PageComponentsView') and contains(@class,'draggable')]",
-    hideComponentViewButton: "//button[@title='Hide Component View']",
+    pcvDialogMinimizer: "//button[contains(@id,'Button') and contains(@class,'minimize-button')]",
+    showPcvDialogButton: "//button[contains(@id,'Button') and @title='Show Component View']",
+    hidePcvDialogButton: "//button[contains(@id,'Button') and @title='Hide Component View']",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
 };
 
@@ -17,34 +19,83 @@ class PageComponentView extends BasePageComponentView {
         return xpath.container;
     }
 
-    get hideComponentViewButton() {
-        return xpath.container + xpath.hideComponentViewButton;
+    // Button to Show/Hide Page Component View modal dialog( by the class - 'minimize-button' )
+    get pcvDialogMinimizer() {
+        return xpath.container + xpath.pcvDialogMinimizer;
     }
 
-    get componentViewToggleButton() {
-        return "//div[contains(@id,'PageComponentsView')]//button[contains(@class,'minimize-button')]";
+    // button by the title 'Show Component View', this button shows PCV modal dialog
+    get showPcvDialogButton() {
+        return xpath.container + xpath.showPcvDialogButton;
     }
 
-    async clickOnHideComponentViewButton() {
-        await this.waitForHideComponentViewButtonDisplayed();
-        await this.clickOnElement(this.hideComponentViewButton);
-    }
-    waitForHideComponentViewButtonDisplayed() {
-        return this.waitForElementDisplayed(this.hideComponentViewButton, appConst.mediumTimeout);
+    // button by the title 'Hide Component View', this button hides PCV modal dialog
+    get hidePcvDialogButton() {
+        return xpath.container + xpath.hidePcvDialogButton;
     }
 
-    waitForComponentViewToggleButtonDisplayed() {
-        return this.waitForElementDisplayed(this.componentViewToggleButton, appConst.mediumTimeout);
+    //Wait for PCV modal dialog minimizer-toggler is visible
+    async waitForPcvDialogMinimizerTogglerVisible() {
+        try {
+            await this.waitForElementDisplayed(this.pcvDialogMinimizer, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_component_view_minimizer'));
+            throw new Error('PCV dialog, minimizer-button should be visible ' + '  ' + err);
+        }
+    }
+
+    // Button to Show Component View dialog:
+    async waitForShowPcvDialogButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.showPcvDialogButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_show_component_view_button');
+            throw new Error('Show Component View button is not visible , screenshot: ' + screenshot + '  ' + err);
+        }
+    }
+
+    async waitForHidePcvDialogButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.hidePcvDialogButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_component_view_not_displayed');
+            throw new Error("'Hide Component View' button should should be visible, screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
+    async waitForHidePcvDialogButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.hidePcvDialogButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_component_view_btn');
+            throw new Error("'Hide Component View' button should not be displayed, screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
+    // Click on Hide Component View button and close the modal dialog:
+    async clickOnHidePageComponentDialogButton() {
+        try {
+            await this.waitForHidePcvDialogButtonDisplayed();
+            await this.clickOnElement(this.hidePcvDialogButton);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot('err_hide_component_view_btn');
+            throw new Error("Error when clicking on 'Hide Component View' button " + err);
+        }
+    }
+
+    waitForPcvDialogMinimizerDisplayed() {
+        return this.waitForElementDisplayed(this.pcvDialogMinimizer, appConst.mediumTimeout);
+    }
+
+    waitForPcvDialogMinimizerNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.pcvDialogMinimizer, appConst.mediumTimeout);
     }
 
     async clickOnComponentViewToggleButton() {
-        await this.waitForComponentViewToggleButtonDisplayed();
-        await this.clickOnElement(this.componentViewToggleButton);
+        await this.waitForPcvDialogMinimizerDisplayed();
+        await this.clickOnElement(this.pcvDialogMinimizer);
         await this.pause(400);
-    }
-
-    waitForComponentViewToggleButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.componentViewToggleButton, appConst.mediumTimeout);
     }
 
     async waitForLoaded() {

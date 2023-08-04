@@ -39,11 +39,9 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.waitForLoaded();
             await studioUtils.saveScreenshot('maximized_page_component_modal');
-            // 3. 'Hide Page Component View' button should be displayed in the dialog:
-            await pageComponentView.waitForHideComponentViewButtonDisplayed();
-            // 4. Verify that 'Component View' toggle-button is visible:
-            await pageComponentView.waitForComponentViewToggleButtonDisplayed();
-            // 5. Verify that 2 items are displayed in the modal dialog:
+            // 3. 'Hide Page Component modal dialog' button should be displayed in the dialog:
+            await pageComponentView.waitForHidePcvDialogButtonDisplayed();
+            // 4. Verify that 2 items are displayed in the modal dialog:
             let result = await pageComponentView.getPageComponentsDisplayName();
             assert.isTrue(result.includes('main region'), 'main region item should be displayed in the modal dialog');
             assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
@@ -59,19 +57,21 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.waitForLoaded();
-            // 3. Click on Hide Page Component button:
-            await pageComponentView.clickOnHideComponentViewButton();
+            // 3. Click on 'Hide Page Component' button:
+            await pageComponentView.clickOnHidePageComponentDialogButton();
             await studioUtils.saveScreenshot('collapsed_page_component_modal');
             // 4. 'Page Component View' modal dialog should be collapsed:
             await pageComponentView.waitForCollapsed();
-            // 5. Verify that 'Component View' toggle-button is visible:
-            await pageComponentView.waitForComponentViewToggleButtonDisplayed();
+            // 5. Verify that 'Show Component View modal dialog' button gets visible:
+            await pageComponentView.waitForShowPcvDialogButtonDisplayed();
             // 6. minimize Live Editor again:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await studioUtils.saveScreenshot('page_component_wizard_step');
             // 7. Verify that Page Component View wizard step is displayed:
             await pageComponentsWizardStepForm.waitForLoaded();
-            await pageComponentView.waitForComponentViewToggleButtonNotDisplayed();
+            // 8. Verify that 'Page Component View' modal dialog is not visible:
+            await pageComponentView.waitForNotDisplayed();
+            await pageComponentView.waitForPcvDialogMinimizerNotDisplayed();
         });
 
     // verifies -  Context menu stays open when menu button's dropdown is expanded #5075
