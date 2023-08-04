@@ -719,8 +719,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.minimizeLiveEditToggler);
             await this.pause(500);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_minimize_icon');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_minimize_icon');
             throw new Error('Content wizard minimize toggler, screenshot: ' + screenshot + ' ' + err);
         }
     }
@@ -729,12 +728,9 @@ class ContentWizardPanel extends Page {
         return this.getBrowser().keys(['Control', 'Delete']);
     }
 
-    hotKeySave() {
-        return this.getBrowser().status().then(status => {
-            return this.getBrowser().keys(['Control', 's']);
-        }).then(() => {
-            return this.pause(1000);
-        })
+    async hotKeySave() {
+        await this.getBrowser().keys(['Control', 's']);
+        return await this.pause(1000);
     }
 
     hotKeyPublish() {
@@ -861,22 +857,21 @@ class ContentWizardPanel extends Page {
 
     async waitForPublishButtonDisplayed() {
         try {
-            let selector = XPATH.container + XPATH.publishButton;
-            return await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+            return await this.waitForElementDisplayed(this.publishButton, appConst.shortTimeout);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_publish_btn'));
             throw new Error("Content Wizard - 'Publish...' button should be present" + err);
         }
     }
 
-    // Wait for 'Create Issue' button gets default action in the Publish menu:
+    // Wait for 'Create Issue' button gets default action in 'Publish' menu:
     async waitForCreateIssueButtonDisplayed() {
         try {
             let selector = XPATH.container + XPATH.publishMenuButton + XPATH.createIssueButton;
             return await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         } catch (err) {
-            this.saveScreenshot("err_publish_menu_default_action");
-            throw new Error("'Create Issue...' button should be default action in 'Publish Menu' in Wizard page.  " + err);
+            let screenshot = await this.saveScreenshotUniqueName("err_publish_menu_default_action");
+            throw new Error("'Create Issue...' button should be default action in 'Publish Menu', screenshot:  " + screenshot + ' ' + err);
         }
     }
 
@@ -886,8 +881,8 @@ class ContentWizardPanel extends Page {
             let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
             return await this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_4);
         } catch (err) {
-            this.saveScreenshot('err_workflow_state_should_not_be_visible');
-            throw new Error('Workflow state should be not visible!' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_workflow_state');
+            throw new Error('Workflow state should be not visible, screenshot:' + screenshot + ' ' + err);
         }
     }
 
@@ -907,7 +902,7 @@ class ContentWizardPanel extends Page {
             return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_monitor_icon');
-            throw new Error(`Page Editor toggler: ${screenshot}  ` + err);
+            throw new Error(`Page Editor toggler, screenshot : ${screenshot}  ` + err);
         }
     }
 
@@ -938,7 +933,7 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_duplicate_button_disabled');
+            await this.saveScreenshot('err_duplicate_button_disabled');
             throw Error('Duplicate button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
         }
     }
@@ -958,8 +953,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.previewButton);
             return await this.pause(2000);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_preview_button');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_button');
             throw new Error('Error when clicking on Preview button, screenshot:' + screenshot + " " + err);
         }
     }
@@ -1003,8 +997,7 @@ class ContentWizardPanel extends Page {
         try {
             return this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_reset_button");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_reset_button');
             throw new Error("Reset button is not displayed in the content wizard, screenshot:" + screenshot + " " + err);
         }
     }
@@ -1027,12 +1020,12 @@ class ContentWizardPanel extends Page {
     }
 
     async getPageEditorWidth() {
-        let widthProperty = await this.getCSSProperty(XPATH.liveEditFrame, "width");
+        let widthProperty = await this.getCSSProperty(XPATH.liveEditFrame, 'width');
         return widthProperty.value;
     }
 
     async getPageEditorHeight() {
-        let heightProperty = await this.getCSSProperty(XPATH.liveEditFrame, "height");
+        let heightProperty = await this.getCSSProperty(XPATH.liveEditFrame, 'height');
         return heightProperty.value;
     }
 
@@ -1044,14 +1037,14 @@ class ContentWizardPanel extends Page {
             }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_focused'));
-            throw new Error(err + "Display Name input was not focused in " + appConst.mediumTimeout);
+            throw new Error(err + "Display Name input was not focused  ");
         }
     }
 
     async isLiveEditLocked() {
         await this.switchToLiveEditFrame();
         let shaderElement = await this.findElement(XPATH.shaderPage);
-        let style = await shaderElement.getAttribute("style");
+        let style = await shaderElement.getAttribute('style');
         return !style.includes("display: none");
     }
 
