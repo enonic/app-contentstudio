@@ -35,7 +35,7 @@ module.exports = Object.freeze({
     INPUT_VALIDATION_VIEW: "//div[contains(@id,'InputViewValidationViewer')]",
     OCCURRENCE_ERROR_BLOCK: "//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]",
     OCCURRENCE_VIEW: "//div[contains(@id,'InputOccurrenceView')]",
-    ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton') and @title='Add new']",
+    ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton')]",
     EDIT_ICON: "//a[@class='edit']",
     CHECKBOX_DIV: "//div[contains(@id,'Checkbox')]",
     COMBOBOX: {
@@ -77,6 +77,7 @@ module.exports = Object.freeze({
     },
     checkBoxDiv: label => `//div[contains(@id,'Checkbox') and child::label[contains(.,'${label}')]]`,
     actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
+    actionButtonStrict: (label) => `//button[contains(@id,'ActionButton') and child::span[text()='${label}']]`,
     dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
     dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
     togglerButton: (label) => `//button[contains(@id,'TogglerButton') and child::span[text()='${label}']]`,

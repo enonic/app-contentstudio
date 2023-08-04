@@ -31,7 +31,6 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await contentWizard.waitAndClickOnSave();
             // 3. Verify that "Monitor" icon is "off" and live form panel is not displayed:
             await contentWizard.waitForControllerOptionFilterInputNotVisible();
-            await contentWizard.waitForShowComponentVewTogglerNotVisible();
             // 4. Click on Page Editor toggler (monitor icon)
             await contentWizard.clickOnPageEditorToggler();
             // 5. Verify the note in  Live Form panel

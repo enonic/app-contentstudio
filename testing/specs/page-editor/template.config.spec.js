@@ -78,9 +78,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             // 3. Expand the Live Editor:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 4. Verify that 'Hide Component View' button is not displayed:
-            await contentWizard.waitForHideComponentViewTogglerNotDisplayed();
-            // 5. Verify that 'Page Component' modal dialog is not displayed as well:
+            // 4. Verify that 'Page Component' modal dialog is not displayed before the customization:
             await pageComponentView.waitForNotDisplayed();
         });
 

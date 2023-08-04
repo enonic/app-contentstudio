@@ -1,6 +1,5 @@
 /**
  * Created on 06.03.2019.
- *
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -15,7 +14,7 @@ const appConst = require('../../libs/app_const');
 
 describe('site.with.several.templates: click on dropdown handle in Inspection Panel and change a template ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -40,16 +39,14 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Verify that 'Hide Page Editor' button is displayed
             await contentWizard.waitForPageEditorTogglerDisplayed();
-            // 3. Verify that 'Show Component View' is not visible now
-            await contentWizard.waitForShowComponentVewTogglerNotVisible();
-            // 4. Verify that 'Show Context Window' button is visible:
+            // 3. Verify that 'Show Context Window' button is visible:
             await contentWizard.waitForShowContextPanelButtonDisplayed();
         });
 
     it(`Precondition 2: the first template should be added`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            TEMPLATE1 = contentBuilder.buildPageTemplate(appConst.generateRandomName("template"), SUPPORT_SITE, CONTROLLER_NAME1);
+            TEMPLATE1 = contentBuilder.buildPageTemplate(appConst.generateRandomName('template'), SUPPORT_SITE, CONTROLLER_NAME1);
             await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE1);
             await studioUtils.findAndSelectItem(TEMPLATE1.displayName);
             await contentBrowsePanel.waitForContentDisplayed(TEMPLATE1.displayName);
@@ -58,7 +55,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
     it(`Precondition 3:  the second template should be added`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            TEMPLATE2 = contentBuilder.buildPageTemplate(appConst.generateRandomName("template"), SUPPORT_SITE, CONTROLLER_NAME2);
+            TEMPLATE2 = contentBuilder.buildPageTemplate(appConst.generateRandomName('template'), SUPPORT_SITE, CONTROLLER_NAME2);
             await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE2);
             await studioUtils.findAndSelectItem(TEMPLATE2.displayName);
             await contentBrowsePanel.waitForContentDisplayed(TEMPLATE2.displayName);

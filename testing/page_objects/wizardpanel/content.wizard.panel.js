@@ -31,23 +31,12 @@ const XPATH = {
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
     publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
     toolbarPublish: "//div[contains(@id,'ContentWizardToolbarPublishControls')]",
-    saveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Save']]`,
-    savedButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saved']]`,
-    savingButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saving...']]`,
-    archiveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Archive...']]`,
-    duplicateButton: `//button[contains(@id,'ActionButton') and child::span[text()='Duplicate...']]`,
-    previewButton: `//button[contains(@id,'ActionButton') and child::span[text()='Preview']]`,
-    resetButton: "//button[contains(@id,'ActionButton') and child::span[text()='Reset']]",
-    publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
     createIssueButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Issue...']]",
     markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
     openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
     unpublishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Unpublish...']]",
     unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish...']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
-    showComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Show Component View']",
-    componentViewToggler: "//button[contains(@id, 'TogglerButton')  and contains(@class,'icon-clipboard')]",
-    hideComponentViewToggler: "//button[contains(@id, 'TogglerButton') and @title='Hide Component View']",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
     liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
@@ -99,23 +88,23 @@ class ContentWizardPanel extends Page {
     }
 
     get saveButton() {
-        return XPATH.container + XPATH.saveButton;
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Save');
     }
 
     get resetButton() {
-        return XPATH.container + XPATH.resetButton;
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Reset');
     }
 
     get savedButton() {
-        return XPATH.container + XPATH.savedButton;
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Saved');
     }
 
     get savingButton() {
-        return XPATH.container + XPATH.savingButton;
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Saving...');
     }
 
     get publishButton() {
-        return XPATH.container + XPATH.toolbar + XPATH.publishButton;
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Publish...');
     }
 
     get publishDropDownHandle() {
@@ -139,31 +128,19 @@ class ContentWizardPanel extends Page {
     }
 
     get archiveButton() {
-        return XPATH.container + XPATH.toolbar + XPATH.archiveButton;
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Archive...');
     }
 
     get duplicateButton() {
-        return XPATH.container + XPATH.toolbar + XPATH.duplicateButton;
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Duplicate...');
     }
 
     get previewButton() {
-        return XPATH.container + XPATH.toolbar + XPATH.previewButton;
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Preview');
     }
 
     get controllerOptionFilterInput() {
         return "//div[contains(@id,'PagePlaceholder')]" + lib.DROPDOWN_OPTION_FILTER_INPUT;
-    }
-
-    get showComponentViewToggler() {
-        return XPATH.container + XPATH.toolbar + XPATH.showComponentViewToggler;
-    }
-
-    get hideComponentViewToggler() {
-        return XPATH.container + XPATH.toolbar + XPATH.hideComponentViewToggler;
-    }
-
-    get componentViewToggler() {
-        return XPATH.container + XPATH.toolbar + XPATH.componentViewToggler;
     }
 
     get wizardToolbarHelpButton() {
@@ -201,36 +178,7 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(XPATH.shaderPage, appConst.mediumTimeout);
     }
 
-
-    waitForShowComponentVewTogglerVisible() {
-        return this.waitForElementDisplayed(this.showComponentViewToggler, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_show_component_toggler_should_be_visible');
-            throw new Error('Component View toggler is not visible in ' + 2 + '  ' + err);
-        })
-    }
-
-    //Wait for button with "Show Component View" title is visible
-    async waitForShowComponentVewTogglerNotVisible() {
-        try {
-            let res = await this.getDisplayedElements(this.showComponentViewToggler);
-            await this.waitForElementNotDisplayed(this.showComponentViewToggler, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_show_component_toggler_visible'));
-            throw new Error('Component View toggler is still visible after the interval sec:' + 3 + '  ' + err);
-        }
-    }
-
-    //Wait for button(toggler) for "Component View" is not visible
-    async waitForComponentVewTogglerNotVisible() {
-        try {
-            await this.waitForElementNotDisplayed(this.componentViewToggler, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_component_toggler_should_visible'));
-            throw new Error('Component View toggler is still visible after sec:' + 3 + '  ' + err);
-        }
-    }
-
-    // opens Details Panel if it is not loaded
+    // opens 'Details Panel' if it is not loaded
     async openDetailsPanel() {
         let detailsPanel = new DetailsPanel();
         try {
@@ -242,8 +190,8 @@ class ContentWizardPanel extends Page {
                 console.log('Content wizard is opened and Details Panel is loaded');
             }
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_details_panel'));
-            throw new Error(err);
+            let screenshot = await this.saveScreenshotUniqueName('err_details_panel');
+            throw new Error("Details Panel, screenshot:" + screenshot + ' ' + err);
         }
     }
 
@@ -414,50 +362,8 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.detailsPanelToggleButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_show_context_panel_button');
-            throw new Error(err);
-        }
-    }
-
-    async clickOnShowComponentViewToggler() {
-        try {
-            await this.waitForElementDisplayed(this.showComponentViewToggler, appConst.mediumTimeout);
-            await this.waitForElementEnabled(this.showComponentViewToggler, appConst.mediumTimeout);
-            await this.clickOnElement(this.showComponentViewToggler);
-            return await this.pause(500);
-        } catch (err) {
-            await this.saveScreenshot('err_click_on_show_component_view');
-            throw new Error("Error when clicking on 'Show Component View!'" + err);
-        }
-    }
-
-    async clickOnComponentViewToggler() {
-        try {
-            await this.waitForElementDisplayed(this.componentViewToggler, appConst.mediumTimeout);
-            await this.clickOnElement(this.componentViewToggler);
-            return await this.pause(300);
-        } catch (err) {
-            let screenshot = appConst.generateRandomName('err_componentView_toggler')
-            await this.saveScreenshot(screenshot);
-            throw new Error("Error when clicking on 'Show Component View!' button, screenshot:" + screenshot + " " + err);
-        }
-    }
-
-    async waitForHideComponentViewTogglerDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.hideComponentViewToggler, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot('err_hide_component_view_not_displayed');
-            throw new Error("'Hide Component View!' button should appear: " + err);
-        }
-    }
-
-    async waitForHideComponentViewTogglerNotDisplayed() {
-        try {
-            return await this.waitForElementNotDisplayed(this.hideComponentViewToggler, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_component_view');
-            throw new Error("'Hide Component View!' button should not be displayed, screenshot: " + screenshot + ' ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_show_context_panel_button');
+            throw new Error("Show Context Panel button, screenshot: " + screenshot + '  ' + err);
         }
     }
 
@@ -477,17 +383,6 @@ class ContentWizardPanel extends Page {
             await this.saveScreenshot('err_show_page_editor_button_not_displayed');
             throw new Error("'Show Page Editor' button should be displayed : " + err);
         }
-    }
-
-    async clickOnHideComponentViewToggler() {
-        try {
-            await this.waitForHideComponentViewTogglerDisplayed();
-            await this.clickOnElement(this.hideComponentViewToggler);
-        } catch (err) {
-            await this.saveScreenshot('err_click_on_hide_component_view');
-            throw new Error("Error when clicking on 'Hide Component View' " + err);
-        }
-        return await this.pause(300);
     }
 
     async waitForOpened() {
@@ -1018,6 +913,10 @@ class ContentWizardPanel extends Page {
 
     waitForPageEditorTogglerDisplayed() {
         return this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.mediumTimeout);
+    }
+
+    waitForPageEditorTogglerNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.pageEditorTogglerButton, appConst.mediumTimeout);
     }
 
     async getProjectDisplayName() {

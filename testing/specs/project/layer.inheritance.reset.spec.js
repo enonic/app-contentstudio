@@ -151,9 +151,6 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await contentWizard.waitForSaveButtonDisabled()
             // 5. Verify that option filter input for controller gets visible:
             await contentWizard.waitForControllerOptionFilterInputVisible();
-            // 6. Verify that Show Components View button gets not visible after the resetting
-            // TODO uncomment it when #2604 will be fixed:
-            //await contentWizard.waitForShowComponentVewTogglerNotVisible();
         });
 
     it("Post conditions: the project should be deleted",
