@@ -26,6 +26,10 @@ class LiveFormPanel extends Page {
         return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout);
     }
 
+    waitForHidden() {
+        return this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
+    }
+
     async selectLayoutByDisplayName(displayName) {
         try {
             let parentForComboBox = `//div[contains(@id,'LayoutPlaceholder')]`;

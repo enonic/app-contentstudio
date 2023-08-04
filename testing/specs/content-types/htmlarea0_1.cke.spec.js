@@ -11,10 +11,11 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const FullScreenDialog = require('../../page_objects/wizardpanel/html.full.screen.dialog');
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
 const appConst = require('../../libs/app_const');
+const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 
 describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const EXPECTED_TEXT_TEXT1 = '<p>test text</p>';
@@ -31,31 +32,34 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await studioUtils.doAddSite(SITE);
         });
 
-    //Verifies: https://github.com/enonic/app-contentstudio/issues/3294
-    //Wizard toolbar - button 'Show Component View' should not be visible when a controller is not selected #3294
-    it(`GIVEN wizard for new site is opened(controller is not selected) WHEN 'Hide Page Editor' then 'Show Page Editor' have been clicked THEN toggler for Component View should not be visible in the toolbar`,
+    it(`GIVEN existing site is opened(controller is not selected) WHEN 'Hide Page Editor'  have been clicked THEN 'Live Form' should be hidden`,
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Open a content without controllers
+            let liveFormPanel = new LiveFormPanel();
+            // 1. Open existing site, controller is not selected:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            //2. Click on 'Hide Page Editor' button:
+            // 2. Verify that Live Form panel is visible:
+            await liveFormPanel.waitForOpened();
+            // 3. Click on 'Hide Page Editor' button:
             await contentWizard.clickOnPageEditorToggler();
-            //3. Click on 'Show Page Editor' button:
+            // 4. Verify that 'Live Form' gets hidden:
+            await liveFormPanel.waitForHidden();
+            // 5. Click on 'Show Page Editor' button again:
             await contentWizard.clickOnPageEditorToggler();
-            //4. Verify that "Show Component View" toggler is not visible:
-            await contentWizard.waitForComponentVewTogglerNotVisible();
+            await liveFormPanel.waitForOpened();
         });
 
-    //Verifies: https://github.com/enonic/app-contentstudio/issues/3294
+    // Verifies: https://github.com/enonic/app-contentstudio/issues/3294
     it(`GIVEN wizard for a content that has no controller is opened WHEN Show Page Editor has been clicked THEN toggler for Component View should not be visible in the toolbar`,
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Open a content without controllers
+            let liveFormPanel = new LiveFormPanel();
+            // 1. Open a new wizard for a content without controller or template
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            //2. Click on 'Show Page Editor' button:
+            // 2. Click on 'Show Page Editor' button:
             await contentWizard.clickOnPageEditorToggler();
-            //3. Verify that "Show Component View" toggler is not visible:
-            await contentWizard.waitForComponentVewTogglerNotVisible();
+            // 3. Verify that 'Live Form' panel gets visible:
+            await liveFormPanel.waitForOpened();
         });
 
     it(`WHEN wizard for 'htmlArea 0:1' is opened THEN single htmlarea should be present by default`,
@@ -67,12 +71,12 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await contentWizard.waitAndClickOnSave();
             let ids = await htmlAreaForm.getIdOfHtmlAreas();
             assert.equal(ids.length, 1, "Single html area should be displayed by default");
-            //Verify that toolbar is not visible:
+            // Verify that toolbar is not visible:
             let isToolbarVisible = await htmlAreaForm.isEditorToolbarVisible(0);
             assert.isFalse(isToolbarVisible, 'Html Area toolbar should be hidden by default');
-            //Verify that Add button is not present:
+            // Verify that 'Add' button is not present:
             await htmlAreaForm.waitForAddButtonNotDisplayed();
-            //Verify that Mark as ready button is displayed in the wizard toolbar:
+            // Verify that 'Mark as ready' button is displayed in the wizard toolbar:
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 
@@ -84,7 +88,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             await contentWizard.waitAndClickOnSave();
             let isNotValid = await contentWizard.isContentInvalid();
-            studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
+            await studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
             assert.isFalse(isNotValid, 'the content should be valid, because the input is not required');
             let actualResult = await htmlAreaForm.getTextFromHtmlArea();
             assert.equal(actualResult[0], "", "Html Area should be empty");
@@ -96,7 +100,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectContentAndOpenWizard(CONTENT_NAME_2);
             let isNotValid = await contentWizard.isContentInvalid();
-            studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
+            await studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
             assert.isFalse(isNotValid, 'the content should be valid, because the input is not required');
             let actualResult = await htmlAreaForm.getTextFromHtmlArea();
             assert.equal(actualResult[0], "", "Html Area should be empty");
@@ -108,7 +112,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.insertTextInHtmlArea(0, TEXT_TO_TYPE);
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            studioUtils.saveScreenshot('cke_htmlarea_0_1');
+            await studioUtils.saveScreenshot('cke_htmlarea_0_1');
             assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
         });
 
@@ -130,7 +134,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            studioUtils.saveScreenshot('htmlarea_0_1_check_value');
+            await studioUtils.saveScreenshot('htmlarea_0_1_check_value');
             assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual strings should be equal');
         });
 
@@ -183,15 +187,15 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             let htmlAreaForm = new HtmlAreaForm();
             let fullScreenDialog = new FullScreenDialog();
             await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
-            //1. Open Full Screen dialog:
+            // 1. Open Full Screen dialog:
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
-            //2. Verify that Decrease Indent button is disabled:
+            // 2. Verify that Decrease Indent button is disabled:
             await fullScreenDialog.waitForDecreaseIndentButtonDisabled();
-            //3. Click on 'Increase Indent' button
+            // 3. Click on 'Increase Indent' button
             await fullScreenDialog.clickOnIncreaseIndentButton();
             await studioUtils.saveScreenshot('fullscreen_mode_increased');
-            //4. Verify that Decrease Indent button gets enabled
+            // 4. Verify that Decrease Indent button gets enabled
             await fullScreenDialog.waitForDecreaseIndentButtonEnabled();
         });
 
@@ -217,10 +221,10 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
             await studioUtils.saveScreenshot('htmlarea_full_screen_opened');
-            // click on ESC:
+            // click on ESC key:
             await fullScreenDialog.pressEscKey();
             await studioUtils.saveScreenshot('htmlarea_full_screen_closed');
-            //'full screen dialog should be closed:
+            // 'full screen' dialog should be closed:
             await fullScreenDialog.waitForDialogClosed();
         });
 
@@ -229,11 +233,11 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             let fullScreenDialog = new FullScreenDialog();
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea_conf');
-            //1. Open full screen dialog
+            // 1. Open full screen dialog
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
             await studioUtils.saveScreenshot('htmlarea_full_screen_conf');
-            //2. Verify that only 6 buttons are present in the toolbar - JustifyLeft JustifyRight | Bold Italic + 'Source' + Fullscreen buttons
+            // 2. Verify that only 6 buttons are present in the toolbar - JustifyLeft JustifyRight | Bold Italic + 'Source' + Fullscreen buttons
             let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
             assert.equal(numberOfButtons, 6, "6 buttons should be present in toolbar in Full screen mode");
             await fullScreenDialog.waitForUnderlineButtonNotDisplayed();
@@ -242,7 +246,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

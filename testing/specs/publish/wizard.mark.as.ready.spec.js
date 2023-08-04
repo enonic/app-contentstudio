@@ -49,7 +49,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             // 2. Click on 'Mark as ready' button:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.pause(1500);
-            // 3. Verify that
+            // 3. Verify the workflow state icon:
             await studioUtils.saveScreenshot("wizard_workflow_state_2");
             let iconState = await contentWizard.getContentWorkflowState();
             assert.equal(iconState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
@@ -76,7 +76,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             await contentWizard.openPublishMenuAndCreateRequestPublish("my changes");
             // 3. Verify that 'Open Request' -  action gets default in the wizard's toolbar.
             await contentWizard.waitForOpenRequestButtonVisible();
-            studioUtils.saveScreenshot("wizard_workflow_state_3");
+            await studioUtils.saveScreenshot('wizard_workflow_state_3');
             let iconState = await contentWizard.getContentWorkflowState();
             assert.equal(iconState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
             // Drop-Down handle should be visible after closing the dialog!
@@ -86,7 +86,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
