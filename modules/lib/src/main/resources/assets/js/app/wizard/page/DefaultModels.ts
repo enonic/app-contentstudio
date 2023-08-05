@@ -3,24 +3,24 @@ import {Descriptor} from '../../page/Descriptor';
 
 export class DefaultModels {
 
-    private pageTemplate: PageTemplate;
+    private defaultPageTemplate: PageTemplate;
 
-    private pageDescriptor: Descriptor;
+    private defaultPageTemplateDescriptor: Descriptor;
 
     constructor(pageTemplate: PageTemplate, pageDescriptor: Descriptor) {
-        this.pageTemplate = pageTemplate;
-        this.pageDescriptor = pageDescriptor;
+        this.defaultPageTemplate = pageTemplate;
+        this.defaultPageTemplateDescriptor = pageDescriptor;
     }
 
-    hasPageTemplate(): boolean {
-        return !!this.pageTemplate;
+    hasDefaultPageTemplate(): boolean {
+        return !!this.defaultPageTemplate;
     }
 
-    getPageTemplate(): PageTemplate {
-        return this.pageTemplate ? this.pageTemplate.clone() : null;
+    getDefaultPageTemplate(): PageTemplate {
+        return this.defaultPageTemplate ? this.defaultPageTemplate.clone() : null;
     }
 
-    getPageDescriptor(): Descriptor {
-        return this.pageDescriptor;
+    getDefaultPageTemplateDescriptor(): Descriptor {
+        return this.defaultPageTemplateDescriptor;
     }
 }

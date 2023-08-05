@@ -22,6 +22,7 @@ import {ImageComponentType} from '../page/region/ImageComponentType';
 import {ImageComponent} from '../page/region/ImageComponent';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {PageItem} from '../page/region/PageItem';
+import {PageMode, PageTemplateDisplayName} from '../page/PageMode';
 
 export class PageHelper {
 
@@ -177,4 +178,5 @@ export class PageHelper {
 
         return 'icon-wand' + largeIconCls;
     }
+
 }

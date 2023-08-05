@@ -752,10 +752,10 @@ export class LiveFormPanel
     }
 
     private clearSelection(showInsertables: boolean = true): boolean {
-        const pageModel = this.liveEditModel.getPageModel();
-        const customizedWithController = pageModel.isCustomized() && pageModel.hasController();
-        const isFragmentContent = pageModel.getMode() === PageMode.FRAGMENT;
-        if (pageModel.hasDefaultPageTemplate() || customizedWithController || isFragmentContent) {
+        const customizedWithController = !this.content.getPage() && PageState.getState()?.hasController();
+        const isFragmentContent = PageState.getState()?.isFragment();
+
+        if (!!this.liveEditModel?.getDefaultModels().getDefaultPageTemplate() || customizedWithController || isFragmentContent) {
             this.contextWindow.clearSelection(showInsertables);
             return true;
         }

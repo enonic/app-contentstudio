@@ -182,9 +182,9 @@ export class PageTemplateWidgetItemView
 
             return this.loadDefaultModels(site, this.content.getType()).then((defaultModels: DefaultModels) => {
 
-                if (defaultModels && defaultModels.hasPageTemplate()) {
+                if (defaultModels && defaultModels.hasDefaultPageTemplate()) {
                     pageTemplateViewer.setPageMode(PageMode.AUTOMATIC);
-                    pageTemplateViewer.setPageTemplate(defaultModels.getPageTemplate());
+                    pageTemplateViewer.setPageTemplate(defaultModels.getDefaultPageTemplate());
                 }
 
                 return Q<PageTemplateViewer>(pageTemplateViewer);

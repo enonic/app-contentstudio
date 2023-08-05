@@ -23,7 +23,6 @@ import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
 import {ContentWizardDataLoader} from './ContentWizardDataLoader';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
-import {PageModel} from '../../page-editor/PageModel';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {SiteModel} from '../site/SiteModel';
 import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
@@ -51,7 +50,7 @@ import {XDataName} from '../content/XDataName';
 import {ExtraData} from '../content/ExtraData';
 import {XData} from '../content/XData';
 import {ContentType} from '../inputtype/schema/ContentType';
-import {Page, PageUpdatedEventHandler} from '../page/Page';
+import {Page} from '../page/Page';
 import {Permission} from '../access/Permission';
 import {PermissionHelper} from './PermissionHelper';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
@@ -142,7 +141,6 @@ import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
 import {PageEventsManager} from './PageEventsManager';
 import {PageState} from './page/PageState';
 import {PageUpdatedEvent} from '../page/event/PageUpdatedEvent';
-import {PageResetEvent} from '../../page-editor/event/outgoing/manipulation/PageResetEvent';
 import {PageControllerUpdatedEvent} from '../page/event/PageControllerUpdatedEvent';
 import {PageControllerCustomizedEvent} from '../page/event/PageControllerCustomizedEvent';
 
@@ -861,14 +859,15 @@ export class ContentWizardPanel
 
         if (this.isRenderable()) {
             if (this.getPersistedItem().getPage() || this.isWithinSite()) {
-                return this.updateLiveEditModel(contentClone);
+                this.updateLiveEditModel(contentClone);
             }
 
             return Q.resolve();
         }
 
         if (this.getPersistedItem().getPage()) {
-            return this.updateLiveEditModel(contentClone).then(() => this.handleNonRederablePage());
+            this.updateLiveEditModel(contentClone);
+            return this.handleNonRederablePage();
         }
 
         return this.unloadPage();
@@ -1172,7 +1171,7 @@ export class ContentWizardPanel
         PageState.getEvents().onPageReset(() => pageUpdatedHandler(null));
 
         PageEventsManager.get().onCustomizePageRequested(() => {
-            PageEventsManager.get().notifyPageControllerSetRequested(this.defaultModels.getPageDescriptor().getKey(), true);
+            PageEventsManager.get().notifyPageControllerSetRequested(this.defaultModels.getDefaultPageTemplateDescriptor().getKey(), true);
         });
 
         PageState.getEvents().onPageUpdated((event: PageUpdatedEvent) => {
@@ -1620,23 +1619,24 @@ export class ContentWizardPanel
         return new ContentWizardDataLoader().loadDefaultModels(site, this.contentType.getContentTypeName()).then(
             defaultModels => {
                 this.defaultModels = defaultModels;
-                return !this.liveEditModel ?
-                       Q(false) :
-                       this.initPageModel(this.liveEditModel, defaultModels).then(() => {
-                           const livePanel = this.getLivePanel();
-                           // pageModel is updated so we need reload unless we're saving already
-                           const needsReload = !this.isSaving();
-                           if (livePanel) {
-                               livePanel.setModel(this.liveEditModel);
-                               if (reloadPage) {
-                                   livePanel.clearSelectionAndInspect(true, true);
-                               }
-                               if (needsReload && reloadPage) {
-                                   this.debouncedEditorReload(true);
-                               }
-                           }
-                           return needsReload;
-                       });
+
+                if (this.liveEditModel) {
+                    const livePanel = this.getLivePanel();
+                    // pageModel is updated so we need reload unless we're saving already
+                    const needsReload = !this.isSaving();
+                    if (livePanel) {
+                        livePanel.setModel(this.liveEditModel);
+                        if (reloadPage) {
+                            livePanel.clearSelectionAndInspect(true, true);
+                        }
+                        if (needsReload && reloadPage) {
+                            this.debouncedEditorReload(true);
+                        }
+                    }
+                    return needsReload;
+                }
+
+                return Q(false);
             });
     }
 
@@ -1726,7 +1726,7 @@ export class ContentWizardPanel
         return result;
     }
 
-    private updateLiveEditModel(content: Content): Q.Promise<any> {
+    private updateLiveEditModel(content: Content): void {
         const site: Site = content.isSite() ? <Site>content : this.site;
 
         if (this.siteModel) {
@@ -1735,17 +1735,13 @@ export class ContentWizardPanel
             this.initSiteModel(site);
         }
 
-        return this.initLiveEditModel(content).then((liveEditModel: LiveEditModel) => {
-            const wasNotRenderable: boolean = !this.liveEditModel;
-            this.liveEditModel = liveEditModel;
+        const wasNotRenderable: boolean = !this.liveEditModel;
+        this.liveEditModel = this.initLiveEditModel(content);
 
-            const showPanel: boolean = wasNotRenderable && this.isRenderable();
-            this.getLivePanel().setModel(this.liveEditModel);
-            this.getLivePanel().clearSelectionAndInspect(showPanel, false);
-            this.debouncedEditorReload(false);
-
-            return Q(null);
-        });
+        const showPanel: boolean = wasNotRenderable && this.isRenderable();
+        this.getLivePanel().setModel(this.liveEditModel);
+        this.getLivePanel().clearSelectionAndInspect(showPanel, false);
+        this.debouncedEditorReload(false);
     }
 
     private updatePersistedContent(persistedContent: Content) {
@@ -1812,7 +1808,8 @@ export class ContentWizardPanel
             return Q.resolve();
         }
 
-        return this.updateLiveEditModel(content);
+        this.updateLiveEditModel(content);
+        return Q.resolve();
     }
 
     // sync persisted content extra data with xData
@@ -2126,18 +2123,13 @@ export class ContentWizardPanel
         });
     }
 
-    private initLiveEditModel(content: Content): Q.Promise<LiveEditModel> {
-        const liveEditModel: LiveEditModel = LiveEditModel.create()
+    private initLiveEditModel(content: Content): LiveEditModel {
+        return LiveEditModel.create()
             .setContent(content)
             .setContentFormContext(this.formContext)
             .setSiteModel(this.siteModel)
+            .setDefaultTemplate(this.defaultModels)
             .build();
-
-        return this.initPageModel(liveEditModel, this.defaultModels).then(() => liveEditModel);
-    }
-
-    private initPageModel(liveEditModel: LiveEditModel, defaultModels: DefaultModels): Q.Promise<PageModel> {
-        return liveEditModel.init(defaultModels.getPageTemplate(), defaultModels.getPageDescriptor());
     }
 
     persistNewItem(): Q.Promise<Content> {

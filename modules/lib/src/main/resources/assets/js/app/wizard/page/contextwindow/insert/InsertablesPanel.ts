@@ -8,16 +8,13 @@ import {LiveEditPageProxy} from '../../LiveEditPageProxy';
 import {Insertable} from './Insertable';
 import {InsertablesGrid} from './InsertablesGrid';
 import {Insertables} from './Insertables';
-import {PageComponentsView} from '../../../PageComponentsView';
 import {SaveAsTemplateAction} from '../../../action/SaveAsTemplateAction';
-import {PageView} from '../../../../../page-editor/PageView';
 import {LiveEditPageViewReadyEvent} from '../../../../../page-editor/LiveEditPageViewReadyEvent';
-import {Content} from '../../../../content/Content';
-import {PageMode} from '../../../../page/PageMode';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DataView} from '@enonic/lib-admin-ui/ui/grid/DataView';
 import {PageEventsManager} from '../../../PageEventsManager';
+import {PageState} from '../../PageState';
 
 export interface ComponentTypesPanelConfig {
 
@@ -62,7 +59,7 @@ export class InsertablesPanel
         this.appendChildren(topDescription, this.insertablesGrid);
 
         PageEventsManager.get().onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
-            if (this.liveEditPageProxy.getModel()?.getPageModel()?.getMode() === PageMode.FRAGMENT) {
+            if (PageState.getState()?.isFragment()) {
                 this.destroyDraggables();
                 insertablesDataView.setItems(Insertables.ALLOWED_IN_FRAGMENT, 'name');
                 this.initializeDraggables();
@@ -134,7 +131,7 @@ export class InsertablesPanel
     }
 
     private handleDrag(event: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) {
-        if (!this.liveEditPageProxy?.getModel()?.getPageModel() || !this.modifyPermissions) {
+        if (!PageState.getState() || !this.modifyPermissions) {
             // page view is either not ready or there was an error
             // so there is no point in handling drag inside it
             return;

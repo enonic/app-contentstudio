@@ -6,7 +6,6 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {PageTemplateOption} from './PageTemplateOption';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {PageModel} from '../../../../../../page-editor/PageModel';
 import {GetPageTemplatesByCanRenderRequest} from './GetPageTemplatesByCanRenderRequest';
 import {PageTemplateLoader} from './PageTemplateLoader';
 import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
@@ -14,7 +13,6 @@ import {PageTemplate} from '../../../../../content/PageTemplate';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
 import {PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './PageTemplateAndSelectorViewer';
 import {PageControllerOption} from './PageControllerOption';
-import {PageMode} from '../../../../../page/PageMode';
 import {Dropdown, DropdownConfig} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
@@ -28,6 +26,7 @@ import {PageEventsManager} from '../../../../PageEventsManager';
 import {PageUpdatedEvent} from '../../../../../page/event/PageUpdatedEvent';
 import {PageControllerUpdatedEvent} from '../../../../../page/event/PageControllerUpdatedEvent';
 import {PageTemplateUpdatedEvent} from '../../../../../page/event/PageTemplateUpdatedEvent';
+import {Page} from '../../../../../page/Page';
 
 export class PageTemplateAndControllerSelector
     extends Dropdown<PageTemplateAndControllerOption> {
@@ -52,9 +51,9 @@ export class PageTemplateAndControllerSelector
 
     setModel(model: LiveEditModel) {
         this.liveEditModel = model;
-        PageTemplateAndSelectorViewer.setDefaultPageTemplate(this.liveEditModel.getPageModel().getDefaultPageTemplate());
-        const pageModel = this.liveEditModel.getPageModel();
-        if (!pageModel.isPageTemplate() && pageModel.getMode() !== PageMode.FRAGMENT) {
+        PageTemplateAndSelectorViewer.setDefaultPageTemplate(this.liveEditModel.getDefaultModels().getDefaultPageTemplate());
+
+        if (!this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.isFragment()) {
             this.autoOption = Option.create<PageTemplateOption>()
                 .setValue('__auto__')
                 .setDisplayValue(new PageTemplateOption())
@@ -254,14 +253,14 @@ export class PageTemplateAndControllerSelector
     }
 
     private selectInitialOption() {
-        const pageModel: PageModel = this.liveEditModel.getPageModel();
+        const currentPageState: Page = PageState.getState();
 
-        if (pageModel.hasController()) {
-            if (pageModel.getController().getKey().toString() !== this.getValue()) {
-                this.selectOptionByValue(pageModel.getController().getKey().toString());
+        if (currentPageState?.hasController()) {
+            if (currentPageState.getController().toString() !== this.getValue()) {
+                this.selectOptionByValue(currentPageState.getController().toString());
             }
-        } else if (pageModel.hasTemplate()) {
-            this.selectOptionByValue(pageModel.getTemplateKey().toString());
+        } else if (currentPageState?.hasTemplate()) {
+            this.selectOptionByValue(currentPageState.getTemplate().toString());
         } else if (this.autoOption) {
             this.selectOption(this.autoOption, true);
         }

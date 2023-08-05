@@ -56,10 +56,8 @@ import {PageNavigationEventData} from '../PageNavigationEventData';
 import {HtmlEditorCursorPosition} from '../../inputtype/ui/text/HtmlEditor';
 import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
 import {LiveEditParams} from '../../../page-editor/LiveEditParams';
-import {PageModel} from '../../../page-editor/PageModel';
 import {CreateFragmentEvent} from '../../../page-editor/event/outgoing/manipulation/CreateFragmentEvent';
 import {PageResetEvent} from '../../../page-editor/event/outgoing/manipulation/PageResetEvent';
-import {PageMode} from '../../page/PageMode';
 import {SelectPageDescriptorEvent} from '../../../page-editor/event/outgoing/manipulation/SelectPageDescriptorEvent';
 import {SelectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/SelectComponentViewEvent';
 import {DeselectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/DeselectComponentViewEvent';
@@ -451,16 +449,15 @@ export class LiveEditPageProxy
     }
 
     private createLiveEditParams(): LiveEditParams {
-        const pageModel: PageModel = this.liveEditModel.getPageModel();
         const isFragment = this.liveEditModel.getContent().getType().isFragment();
         const displayName = this.liveEditModel.getContent().getDisplayName();
-        const locked = !this.liveEditModel.getPageModel().isPageTemplate() && !pageModel.isCustomized() && !isFragment;
+        const locked = !this.liveEditModel.getContent().isPageTemplate() && !isFragment;
         const isFragmentAllowed = this.liveEditModel.isFragmentAllowed();
-        const isResetEnabled = pageModel.getMode() !== PageMode.AUTOMATIC && pageModel.getMode() !== PageMode.NO_CONTROLLER;
-        const pageName = pageModel.getPageName();
+        const isResetEnabled =  PageState.getState()?.hasController();
+        const pageName = displayName;
         const pageIconClass = PageHelper.getPageIconClass(PageState.getState());
-        const isPageEmpty = !pageModel || pageModel.getMode() === PageMode.NO_CONTROLLER ||
-                            (pageModel.isPageTemplate() && !pageModel.getController());
+        const isPageEmpty = !PageState.getState() ||
+                            (this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.hasController());
         const applicationKeys = this.liveEditModel.getSiteModel().getSite().getApplicationKeys().map((key) => key.toString());
         const contentId = this.liveEditModel.getContent().getId();
         const language = this.liveEditModel.getContent()?.getLanguage();
