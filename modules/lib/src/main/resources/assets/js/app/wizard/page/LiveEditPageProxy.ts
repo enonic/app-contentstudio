@@ -451,13 +451,12 @@ export class LiveEditPageProxy
     private createLiveEditParams(): LiveEditParams {
         const isFragment = this.liveEditModel.getContent().getType().isFragment();
         const displayName = this.liveEditModel.getContent().getDisplayName();
-        const locked = !this.liveEditModel.getContent().isPageTemplate() && !isFragment;
+        const locked = !this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.hasController() && !isFragment;
         const isFragmentAllowed = this.liveEditModel.isFragmentAllowed();
         const isResetEnabled =  PageState.getState()?.hasController();
         const pageName = displayName;
         const pageIconClass = PageHelper.getPageIconClass(PageState.getState());
-        const isPageEmpty = !PageState.getState() ||
-                            (this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.hasController());
+        const isPageEmpty = this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.hasController();
         const applicationKeys = this.liveEditModel.getSiteModel().getSite().getApplicationKeys().map((key) => key.toString());
         const contentId = this.liveEditModel.getContent().getId();
         const language = this.liveEditModel.getContent()?.getLanguage();

@@ -111,8 +111,6 @@ export class PageView
 
     private editorToolbar: DivEl;
 
-    private isRenderable: boolean;
-
     private modifyPermissions: boolean;
 
     constructor(builder: PageViewBuilder) {
@@ -589,19 +587,7 @@ export class PageView
         return result;
     }
 
-    setRenderable(value: boolean): ItemView {
-        this.isRenderable = value;
-        this.refreshEmptyState();
-
-        return this;
-    }
-
     isEmpty(): boolean {
-
-        if (this.isRenderable) {
-            return false;
-        }
-
         return this.getLiveEditParams().isPageEmpty;
     }
 
