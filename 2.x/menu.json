@@ -1,0 +1,66 @@
+{
+  "menuItems": [
+    {
+      "title": "Content Navigator",
+      "document": "navigator"
+    },
+    {
+      "title": "Issues",
+      "document": "issues"
+    },
+    {
+      "title": "Content Workflow",
+      "document": "workflow"
+    },
+    {
+      "title": "Content Editor",
+      "document": "editor",
+      "menuItems": [
+        {
+            "title": "Content Form",
+            "document" : "editor/content-form"
+        },
+        {
+            "title": "Page Editor",
+            "document" : "editor/page-editor"
+        },
+        {
+          "title": "Context Panel",
+          "document": "editor/context-panel"
+        },
+        {
+          "title": "Component Types",
+          "document" : "editor/component-types"
+      },
+        {
+            "title": "Rich Text Editor",
+            "document" : "editor/rich-text-editor"
+        }
+      ]
+    },
+    {
+      "title": "Content Types",
+      "document": "content-types"
+    },
+    {
+      "title": "Actions",
+      "document": "actions"
+    },
+    {
+      "title": "Widgets",
+      "document": "widgets"
+    },
+    {
+      "title": "Permissions",
+      "document": "permissions"
+    },
+    {
+      "title": "Keyboard Shortcuts",
+      "document": "keyboard-shortcuts"
+    },
+    {
+      "title": "Release Notes",
+      "document" : "release"
+    }
+  ]
+}
