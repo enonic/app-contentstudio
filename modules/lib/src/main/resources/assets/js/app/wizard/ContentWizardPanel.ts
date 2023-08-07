@@ -701,7 +701,11 @@ export class ContentWizardPanel
     }
 
     private isLivePanelAllowed(): Q.Promise<boolean> {
-        if (this.isWithinSite() && !this.contentType.isShortcut()) {
+        if (this.contentType.isShortcut()) {
+            return Q.resolve(false);
+        }
+
+        if (this.isWithinSite()) {
             return Q.resolve(true);
         }
 

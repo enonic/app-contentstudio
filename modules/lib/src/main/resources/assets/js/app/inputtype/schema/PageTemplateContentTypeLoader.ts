@@ -34,8 +34,7 @@ export class PageTemplateContentTypeLoader
             return new GetNearestSiteRequest(this.contentId).setRequestProject(this.project).sendAndParse().then(
                 (parentSite: Site) => {
                     let typesAllowedEverywhere: Record<string, ContentTypeName> = {};
-                    [ContentTypeName.UNSTRUCTURED, ContentTypeName.FOLDER, ContentTypeName.SITE,
-                        ContentTypeName.SHORTCUT].forEach((contentTypeName: ContentTypeName) => {
+                    [ContentTypeName.UNSTRUCTURED, ContentTypeName.FOLDER, ContentTypeName.SITE].forEach((contentTypeName: ContentTypeName) => {
                         typesAllowedEverywhere[contentTypeName.toString()] = contentTypeName;
                     });
                     let siteApplications: Record<string, ApplicationKey> = {};

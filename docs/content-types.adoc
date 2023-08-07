@@ -57,6 +57,7 @@ image::wizard-config.png[]
 
 A page template is special content that enable other content to be rendered as pages. Page template must support one or more content types. When a request endpoint matches a content path, the content’s supporting template will be used to render it. The Page Editor is used to build page templates by placing the desired components into regions on the page in the desired locations.
 
+NOTE: Page Templates cannot be used for Shortcuts. A shortcut will redirect to the target content even if there is a matching page template.
 
 ==== Page components
 
@@ -71,7 +72,7 @@ image::browse-templates-list.png[]
 
 
 ==== Customizing content
- 
+
 More than one page template can support the same content type. In this situation, the template that appears first in the Templates folder will be used to render the content by default. But individual content can be manually configured to use any template that supports its type. For example, in the image below there is a content type called “Post” and two templates that support the Post type, first is “Post show — 2 columns” and then “Post show — 1 column”. The “Post show — 2 columns” will be used automatically by all Post content. To force an individual Post content to use the 1 column template, edit the content and select the 1 column template in the *Page Template* dropdown at the top of the *Inspect panel*.
 
 image::wizard-template.png[]
