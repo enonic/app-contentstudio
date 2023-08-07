@@ -19,7 +19,12 @@ class BaseDetailsPanel extends Page {
         return this.waitForElementDisplayed(xpath.scheduleWidgetItem, appConst.mediumTimeout);
     }
 
-    //drop down menu for switch to Details, Version History, Dependencies
+    async getSelectedOptionInWidgetSelectorDropdown() {
+        let selector = this.widgetSelectorDropdown + "//div[@class='selected-option']//h6";
+        return await this.getText(selector);
+    }
+
+    //drop down menu for switching to Components, Details, Version History, Dependencies
     async clickOnWidgetSelectorDropdownHandle() {
         try {
             await this.waitForWidgetSelectorDropDownHandleDisplayed();

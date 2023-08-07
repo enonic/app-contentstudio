@@ -7,17 +7,16 @@ const appConst = require('../../../libs/app_const');
 
 const xpath = {
     container: `//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'DockedContextPanel')]`,
-    widgetSelectorDropdown: `//div[contains(@id,'WidgetSelectorDropdown')]`,
 };
 
 class BrowseDetailsPanel extends BaseDetailsPanel {
 
     get widgetSelectorDropdownHandle() {
-        return xpath.container + xpath.widgetSelectorDropdown + lib.DROP_DOWN_HANDLE;
+        return xpath.container + lib.WIDGET_SELECTOR_DROPDOWN + lib.DROP_DOWN_HANDLE;
     }
 
     get widgetSelectorDropdown() {
-        return xpath.container + xpath.widgetSelectorDropdown;
+        return xpath.container + lib.WIDGET_SELECTOR_DROPDOWN;
     }
 
     isPanelVisible() {
