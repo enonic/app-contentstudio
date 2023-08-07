@@ -11,6 +11,7 @@ const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 
 describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortcuts', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -33,6 +34,7 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
         async () => {
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
+            let wizardDetailsPanel = new WizardDetailsPanel();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.SHORTCUT);
             // 1. Type a shortcut name:
             await contentWizard.typeDisplayName(SHORTCUT_NAME);
@@ -41,8 +43,11 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('shortcut_target_site_with_controller');
-            // 3. Verify that 'Preview' button should be disabled in the wizard toolbar:
-            await contentWizard.waitForPreviewButtonNotDisplayed();
+            // 3. Verify that 'Preview' button should be enabled in the wizard toolbar:
+            await contentWizard.waitForPreviewButtonEnabled();
+            // 4. Details option should be selected in the widget selector dropdown:
+            let selectedOption = await wizardDetailsPanel.getSelectedOptionInWidgetSelectorDropdown();
+            assert.equal(selectedOption, 'Details', "'Details' selected option should be in the widget selector");
         });
 
     // When preview request for a selected content returns 3xx code, show our standard "Preview not unavailable" message instead of showing the redirect target content as now.
@@ -55,9 +60,9 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             await studioUtils.saveScreenshot('preview_not_available_shortcut');
             // 2. Verify that 'Preview not available' is displayed in Preview panel
             await contentItemPreviewPanel.waitForPreviewNotAvailAbleMessageDisplayed();
-            await studioUtils.saveScreenshot('shortcut_target_site_with_controller_preview_disabled');
-            // 3. Preview button should be disabled in the Browse Panel toolbar:
-            await contentBrowsePanel.waitForPreviewButtonDisabled();
+            await studioUtils.saveScreenshot('shortcut_target_site_with_controller_preview_btn_enabled');
+            // 3. 'Preview' button should be enabled in the Browse Panel toolbar:
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
         });
 
     // Verifies - Page Editor should not display target content for a shortcut #6619

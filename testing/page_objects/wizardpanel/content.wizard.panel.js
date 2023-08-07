@@ -962,6 +962,10 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(this.previewButton, appConst.mediumTimeout);
     }
 
+    waitForPreviewButtonEnabled() {
+        return this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
+    }
+
     waitForPreviewButtonNotDisplayed() {
         return this.waitForElementNotDisplayed(this.previewButton, appConst.mediumTimeout);
     }

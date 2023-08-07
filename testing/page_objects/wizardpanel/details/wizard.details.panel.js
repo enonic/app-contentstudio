@@ -7,18 +7,17 @@ const appConst = require('../../../libs/app_const');
 
 const xpath = {
     container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DockedContextPanel') or contains(@id,'FloatingContextPanel')]`,
-    widgetSelectorDropdown: `//div[contains(@id,'WidgetSelectorDropdown')]`,
     widgetItem: `//div[contains(@id,'ContentWidgetItemView')]`
 };
 
 class WizardDetailsPanel extends BaseDetailsPanel {
 
     get widgetSelectorDropdown() {
-        return xpath.container + xpath.widgetSelectorDropdown;
+        return xpath.container + lib.WIDGET_SELECTOR_DROPDOWN;
     }
 
     get widgetSelectorDropdownHandle() {
-        return xpath.container + xpath.widgetSelectorDropdown + lib.DROP_DOWN_HANDLE;
+        return xpath.container + lib.WIDGET_SELECTOR_DROPDOWN + lib.DROP_DOWN_HANDLE;
     }
 
     async isContentInvalid() {
@@ -35,15 +34,15 @@ class WizardDetailsPanel extends BaseDetailsPanel {
                 return getPanelWidth(width) > 150;
             }, {timeout: appConst.mediumTimeout, timeoutMsg: "Details Panel was not loaded in " + appConst.mediumTimeout});
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_load_details"));
-            throw new Error(err);
+            let screenshot = await this.saveScreenshotUniqueName('err_load_details');
+            throw new Error("Deatils Panel was not loaded, screenshot:" + screenshot + ' ' + err);
         }
     }
 
     isDetailsPanelLoaded() {
         return this.getBrowser().waitUntil(() => {
             return this.findElement(xpath.container).then(el => {
-                return this.getBrowser().getElementCSSValue(el.elementId, "width");
+                return this.getBrowser().getElementCSSValue(el.elementId, 'width');
             }).then(width => {
                 console.log("width: " + width);
                 return getPanelWidth(width) > 0;
@@ -80,7 +79,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
 }
 
 function getPanelWidth(width) {
-    return width.substring(0, width.indexOf("px"));
+    return width.substring(0, width.indexOf('px'));
 }
 
 module.exports = WizardDetailsPanel;

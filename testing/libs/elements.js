@@ -20,6 +20,7 @@ module.exports = Object.freeze({
     P_SUB_NAME: "//p[contains(@class,'sub-name')]",
     RICH_TEXT_EDITOR: `//div[contains(@id,'TextComponentView') and contains(@class,'editor-focused')]`,
     TEXT_AREA: "//textarea[contains(@id,'TextArea')]",
+    WIDGET_SELECTOR_DROPDOWN: `//div[contains(@id,'WidgetSelectorDropdown')]`,
     DROP_DOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
     DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
     GRID_CANVAS: `//div[contains(@class,'grid-canvas')]`,
