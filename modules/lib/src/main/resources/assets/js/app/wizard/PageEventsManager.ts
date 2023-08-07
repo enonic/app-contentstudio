@@ -102,6 +102,8 @@ export class PageEventsManager {
 
     private componentDuplicateRequestedListeners: { (path: ComponentPath): void; }[] = [];
 
+    private componentMoveRequestedListeners: { (from: ComponentPath, to: ComponentPath): void; }[] = [];
+
     private componentCreateFragmentRequestedListeners: { (path: ComponentPath): void; }[] = [];
 
     private componentDetachFragmentRequestedListeners: { (path: ComponentPath): void; }[] = [];
@@ -592,5 +594,17 @@ export class PageEventsManager {
 
     notifyCustomizePageRequested() {
         this.customizePageRequestedListeners.forEach((listener) => listener());
+    }
+
+    onComponentMoveRequested(listener: { (from: ComponentPath, to: ComponentPath): void; }) {
+        this.componentMoveRequestedListeners.push(listener);
+    }
+
+    unComponentMoveRequested(listener: { (from: ComponentPath, to: ComponentPath): void; }) {
+        this.componentMoveRequestedListeners = this.componentMoveRequestedListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyComponentMoveRequested(from: ComponentPath, to: ComponentPath) {
+        this.componentMoveRequestedListeners.forEach((listener) => listener(from, to));
     }
 }

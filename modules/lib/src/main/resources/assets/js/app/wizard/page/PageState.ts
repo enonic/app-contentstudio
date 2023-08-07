@@ -137,15 +137,27 @@ export class PageState {
                 item.setText(text);
             }
         });
+
+        PageEventsManager.get().onComponentMoveRequested((oldPath: ComponentPath, newPath: ComponentPath): void => {
+            const item: PageItem = this.state.getComponentByPath(oldPath);
+            const parentItem: PageItem = this.state.getComponentByPath(newPath.getParentPath());
+
+            if (item && parentItem instanceof Region) {
+                parentItem.addComponent(item.clone(), newPath.getPath() as number);
+                this.removeComponent(oldPath);
+            }
+        });
     }
 
     private addComponent(parentPath: ComponentPath, type: ComponentType): void {
         const item: PageItem = this.state.getComponentByPath(parentPath);
 
+        // adding a new item directly into a region
         if (item instanceof Region) {
             item.addComponent(ComponentFactory.createByType(item, type));
         }
 
+        // adding a new item via insert menu as a sibling of the selected item
         if (item instanceof Component) {
             const parentRegion: Region = item.getParent();
             const index: number = item.getIndex();

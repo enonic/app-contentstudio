@@ -1,16 +1,11 @@
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {Highlighter} from '../../page-editor/Highlighter';
 import {ComponentView} from '../../page-editor/ComponentView';
-import {ItemViewContextMenuPosition} from '../../page-editor/ItemViewContextMenuPosition';
 import {RegionView} from '../../page-editor/RegionView';
-import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
-import {PageView} from '../../page-editor/PageView';
-import {RegionItemType} from '../../page-editor/RegionItemType';
 import {Component} from '../page/region/Component';
 import {DragEventData, GridDragHandler} from '@enonic/lib-admin-ui/ui/grid/GridDragHandler';
 
@@ -18,16 +13,38 @@ import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
 import {ComponentsTreeItem} from './ComponentsTreeItem';
+import {PageNavigationMediator} from './PageNavigationMediator';
+import {PageNavigationEvent} from './PageNavigationEvent';
+import {PageNavigationEventType} from './PageNavigationEventType';
+import {LayoutComponentType} from '../page/region/LayoutComponentType';
+import {FragmentComponentType} from '../page/region/FragmentComponentType';
+import {PageNavigationEventData} from './PageNavigationEventData';
+import {PageEventsManager} from './PageEventsManager';
+import {ComponentPath} from '../page/region/ComponentPath';
+
+export interface PageComponentsHelperFunctions {
+    getPathByItem: (item: ComponentsTreeItem) => ComponentPath;
+    getItemByPath: (path: ComponentPath) => ComponentsTreeItem;
+    isDropAllowed: (draggedItem: ComponentsTreeItem) => boolean;
+}
 
 export class PageComponentsGridDragHandler
     extends GridDragHandler<ComponentsTreeItem> {
+
+    private helperFunctions: PageComponentsHelperFunctions;
+
+    constructor(grid: TreeGrid<ComponentsTreeItem>, helperFunctions: PageComponentsHelperFunctions) {
+        super(grid);
+
+        this.helperFunctions = helperFunctions;
+    }
 
     protected handleDragInit(e: DragEvent) {
         const row: ElementHelper = this.getRowByTarget(new ElementHelper(<HTMLElement>e.target));
         const data: ComponentsTreeItem = this.contentGrid.getDataByRow(this.getRowIndex(row));
 
         // prevent the grid from cancelling drag'n'drop by default
-        if (!!data && data.getItemView()?.isDraggableView() && !BrowserHelper.isMobile()) {
+        if (this.isItemDraggable(data) && !BrowserHelper.isMobile()) {
             e.stopImmediatePropagation();
         }
     }
@@ -97,17 +114,18 @@ export class PageComponentsGridDragHandler
     }
 
     protected getModelId(model: ComponentsTreeItem) {
-        return model ? model.getItemView()?.getItemId() : null;
+        return model ? model.getId() : null;
     }
 
     protected moveIntoNewParent(item: ComponentsTreeItem, insertBefore: number, data: ComponentsTreeItem[]) {
+        const oldPath: ComponentPath = this.helperFunctions.getPathByItem(item);
         const insertData: InsertData = this.getParentPosition(insertBefore, data);
         const regionPosition: number = insertData.parentPosition;
         let insertIndex: number = insertData.insertIndex;
 
         let newParent: ComponentsTreeItem = data[regionPosition];
 
-        if (!newParent.getItemView().getType().equals(RegionItemType.get())) {
+        if (newParent.getType() !== 'region') {
             return;
         }
 
@@ -116,35 +134,30 @@ export class PageComponentsGridDragHandler
         }
 
         this.contentGrid.deselectAll();
-        item.getItemView().deselect();
 
-        (<ComponentView<Component>>item.getItemView()).moveToRegion(<RegionView>newParent.getItemView(), insertIndex);
+        PageNavigationMediator.get().notify(new PageNavigationEvent(PageNavigationEventType.DESELECT));
 
-        item.getItemView().select(null, ItemViewContextMenuPosition.NONE);
+        const newPath: ComponentPath = new ComponentPath(insertIndex, this.helperFunctions.getPathByItem(newParent));
+        PageEventsManager.get().notifyComponentMoveRequested(oldPath, newPath);
+
+        PageNavigationMediator.get().notify(new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(newPath)));
 
         return data[regionPosition];
     }
 
     private updateDragHelperStatus(draggableRow: number, insertBeforePos: number, data: ComponentsTreeItem[]) {
-
         const parentPosition: number = this.getParentPosition(insertBeforePos, data).parentPosition;
-        const parentComponentView: ComponentsTreeItem = data[parentPosition];
-        const draggableComponentView: ComponentsTreeItem = data[draggableRow];
+        const parentTreeItem: ComponentsTreeItem = data[parentPosition];
+        const draggedItem: ComponentsTreeItem = data[draggableRow];
 
-        if (parentComponentView) {
+        if (parentTreeItem) {
+            if (parentTreeItem.getType() === 'region') {
+                if (draggedItem.getType() instanceof FragmentComponentType) {
+                    const grandParentPath: ComponentPath = this.helperFunctions.getPathByItem(parentTreeItem)?.getParentPath();
+                    const grandParent: ComponentsTreeItem = grandParentPath ? this.helperFunctions.getItemByPath(grandParentPath) : null;
 
-            if (ObjectHelper.iFrameSafeInstanceOf(draggableComponentView.getItemView(), LayoutComponentView)) {
-                if (parentComponentView.getItemView().getName() !== 'main') {
-                    DragHelper.get().setDropAllowed(false);
-                    return;
-                }
-            }
-
-            if (ObjectHelper.iFrameSafeInstanceOf(parentComponentView.getItemView(), RegionView)) {
-
-                if (ObjectHelper.iFrameSafeInstanceOf(draggableComponentView.getItemView(), FragmentComponentView)) {
-                    if (ObjectHelper.iFrameSafeInstanceOf(parentComponentView.getItemView().getParentItemView(), LayoutComponentView)) {
-                        if ((<FragmentComponentView> draggableComponentView.getItemView()).containsLayout()) {
+                    if (grandParent?.getType() instanceof LayoutComponentType) {
+                        if (this.helperFunctions.isDropAllowed(draggedItem)) {
                             // Fragment with layout over Layout region
                             DragHelper.get().setDropAllowed(false);
                             return;
@@ -156,7 +169,7 @@ export class PageComponentsGridDragHandler
 
                 let draggableItem = this.getDraggableItem();
                 if (draggableItem) {
-                    this.updateDraggableItemPosition(draggableItem, this.contentGrid.getDataLevel(parentComponentView));
+                    this.updateDraggableItemPosition(draggableItem, this.contentGrid.getDataLevel(parentTreeItem));
                 }
                 return;
             }
@@ -187,16 +200,16 @@ export class PageComponentsGridDragHandler
         const calcLevel = this.contentGrid.getDataLevel(data[parentPosition - 1]);
 
         const isFirstChildPosition = (current ? this.contentGrid.getDataLevel(previous) < this.contentGrid.getDataLevel(current) : false)
-                                     || (ObjectHelper.iFrameSafeInstanceOf(previous.getItemView(), RegionView));
+                                     || (previous.getType() === 'region');
 
         let parentComponentView: ComponentsTreeItem;
 
         const check = (view: ComponentsTreeItem) => {
-            return !(ObjectHelper.iFrameSafeInstanceOf(view.getItemView(), RegionView)
+            return !(view.getType() === 'region'
                    // lets drag items inside the 'main' region between layouts
-                   || (ObjectHelper.iFrameSafeInstanceOf(view.getItemView(), LayoutComponentView)
+                   || (view.getType() instanceof LayoutComponentType
                        && (this.contentGrid.isExpandedAndHasChildren(view.getId())))
-                   || ObjectHelper.iFrameSafeInstanceOf(view.getItemView(), PageView))
+                   || view.getType() === 'page')
                    || (this.contentGrid.getDataLevel(view) >= calcLevel && !isFirstChildPosition);
         };
 
@@ -229,6 +242,10 @@ export class PageComponentsGridDragHandler
     private handleHelperMove(event: MouseEvent) {
         DragHelper.get().getEl().setLeftPx(event.pageX);
         DragHelper.get().getEl().setTopPx(event.pageY);
+    }
+
+    private isItemDraggable(item: ComponentsTreeItem): boolean {
+        return item && item.getType() !== 'page' && item.getType() !== 'region';
     }
 
 }

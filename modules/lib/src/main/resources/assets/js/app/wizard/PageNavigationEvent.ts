@@ -8,9 +8,9 @@ export class PageNavigationEvent {
 
     private readonly data: PageNavigationEventData;
 
-    constructor(type: PageNavigationEventType, data: PageNavigationEventData) {
+    constructor(type: PageNavigationEventType, data?: PageNavigationEventData) {
         this.type = type;
-        this.data = data;
+        this.data = data || new PageNavigationEventData();
     }
 
     getType(): PageNavigationEventType {

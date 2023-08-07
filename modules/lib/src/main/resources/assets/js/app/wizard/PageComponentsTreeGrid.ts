@@ -48,7 +48,11 @@ export class PageComponentsTreeGrid
             .prependClasses('page-components-tree-grid')
         );
 
-        (new PageComponentsGridDragHandler(this));
+        (new PageComponentsGridDragHandler(this, {
+            getPathByItem: this.getPathByItem.bind(this),
+            getItemByPath: this.getItemByPath.bind(this),
+            isDropAllowed: this.isDropAllowed.bind(this),
+        }));
     }
 
     queryScrollable(): Element {
@@ -345,9 +349,33 @@ export class PageComponentsTreeGrid
     }
 
     private getNodeByPath(path: ComponentPath): TreeNode<ComponentsTreeItem> {
+        if (!path) {
+            return null;
+        }
+
         return this.getRoot().getAllDefaultRootNodes().find((node: TreeNode<ComponentsTreeItem>) => {
             const nodePath = this.getNodePath(node);
             return path.equals(nodePath);
+        });
+    }
+
+    private getItemByPath(path: ComponentPath): ComponentsTreeItem {
+        return this.getNodeByPath(path)?.getData();
+    }
+
+    private isDropAllowed(draggedItem: ComponentsTreeItem): boolean {
+        if (draggedItem.getType() instanceof FragmentComponentType) {
+            const path: ComponentPath = this.getPathByItem(draggedItem);
+            const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
+            return !this.hasLayout(node);
+        }
+
+        return true;
+    }
+
+    private hasLayout(node: TreeNode<ComponentsTreeItem>): boolean {
+        return node?.getChildren().some((childNode: TreeNode<ComponentsTreeItem>) => {
+           return childNode.getData()?.getComponent().getType() instanceof LayoutComponentType || this.hasLayout(childNode);
         });
     }
 

@@ -19,10 +19,6 @@ export class ComponentsTreeItem
         this.id = ComponentsTreeItem.ID_PRODUCER.next();
     }
 
-    getItemView(): ItemView {
-        return null;
-    }
-
     getType(): PageItemType {
         return this.component.getType();
     }
