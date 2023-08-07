@@ -35,7 +35,7 @@ export class IsRenderableRequest
     }
 
     protected parseResponse(response: Response): boolean {
-        return !this.isRedirect();
+        return true;
     }
 
     getParams(): Object {
