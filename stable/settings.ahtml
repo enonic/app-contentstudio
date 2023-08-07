@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Widgets</title>
+<title>Settings</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,25 +436,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Widgets</h1>
+<h1>Settings</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#built_in_widgets">Built-in widgets</a>
+<li><a href="#projects">Projects</a></li>
+<li><a href="#new_project_wizard">New Project wizard</a>
 <ul class="sectlevel2">
-<li><a href="#details">Details</a></li>
-<li><a href="#version_history">Version History</a></li>
-<li><a href="#dependencies">Dependencies</a></li>
-<li><a href="#emulator">Emulator</a></li>
-<li><a href="#components">Components</a></li>
+<li><a href="#project_type">Project Type</a></li>
+<li><a href="#default_language">Default Language</a></li>
+<li><a href="#access_mode">Access Mode</a></li>
+<li><a href="#project_roles">Project Roles</a></li>
+<li><a href="#applications">Applications</a></li>
+<li><a href="#base_properties">Base Properties</a></li>
+<li><a href="#summary">Summary</a></li>
 </ul>
 </li>
-<li><a href="#custom_widgets">Custom widgets</a>
-<ul class="sectlevel2">
-<li><a href="#context_panel_widgets">Context panel widgets</a></li>
-<li><a href="#top_menu_widgets">Top menu widgets</a></li>
-</ul>
-</li>
+<li><a href="#the_default_project">The default Project</a></li>
 </ul>
 </div>
 </div>
@@ -462,77 +460,31 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Widgets are applications that expand functionality of Content Studio.</p>
-</div>
-<div class="paragraph">
-<p>They can be found inside the Context Panel which can be assessed via the burger icon in the top right corner of Content Browse or Content Editor pages:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="widgets/images/widgets-panel-button.png" alt="widgets panel button" width="209">
-</div>
-</div>
-<div class="paragraph">
-<p>The list of widgets can be accessed from the dropdown: the top 5 widgets are built-in, they are followed by custom widgets (if any are installed).
-On top of the dropdown is the text field enabling filtering the list by keywords.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="widgets/images/widgets-search.png" alt="widgets search" width="206">
-</div>
+<p>Management of projects and layers in Content Studio is done from the "<em>Settings</em>" section, which can be accessed by clicking the cog icon in
+the left-side menu.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="built_in_widgets"><a class="link" href="#built_in_widgets">Built-in widgets</a></h2>
+<h2 id="projects"><a class="link" href="#projects">Projects</a></h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="details"><a class="link" href="#details">Details</a></h3>
-<div class="paragraph">
-<p>The Details widget shows various properties of the selected content item. It was designed to provide all the basic information about the content
-and contains the following sections:</p>
+<div class="imageblock">
+<div class="content">
+<img src="settings/images/top-level-menu.png" alt="Top Level Menu" width="642">
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Content:</strong> The top section shows icon of the content with display name and full path;</p>
-</li>
-<li>
-<p><strong>Status:</strong> This section shows current content status, like <strong>New</strong>, <strong>Published</strong> etc.;</p>
-</li>
-<li>
-<p><strong>User access:</strong> This section lists all the permissions set for the selected content. Clicking on the <code>Edit Permissions</code> link will open the <a href="permissions.ahtml">permissions dialog</a> for updating content permissions;</p>
-</li>
-<li>
-<p><strong>Properties:</strong> This section shows useful metadata (application type, create/modified date etc.);</p>
-</li>
-<li>
-<p><strong>Schedule:</strong> This section shows date/time range when the content will be available online. Will not be visible if the content is not published.</p>
-</li>
-<li>
-<p><strong>Page template:</strong> This section shows a page template used by this content (if set);</p>
-</li>
-<li>
-<p><strong>Attachments:</strong> This section shows links to binary attachments which can be downloaded with a single-click. An example of such a content can be seen below.</p>
-</li>
-</ul>
+</div>
+<div class="paragraph">
+<p>The Settings section lists all Content Projects that current user has permissions for. Users with roles
+<em>Content Manager Administrator</em> and <em>System Administrator</em> will always have full access to all projects.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="widgets/images/widgets-details.png" alt="Details widget" width="450px">
+<img src="settings/images/settings-grid.png" alt="Settings section" width="600">
 </div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="version_history"><a class="link" href="#version_history">Version History</a></h3>
-<div class="paragraph">
-<p>For every action applied to the content throughout its lifecycle a new content version is created. This widget lists all content versions
-and allows comparing the versions and reverting content to a specific version. In addition to versions, the widget also shows
-publish and unpublish actions. Current content status is displayed in the Widget header.</p>
 </div>
 <div class="paragraph">
-<p>To revert to the specific version, click on the version box to expand details, and then click the <code>Revert</code> button. Note that current version
-cannot be reverted and is therefore not expandable, as well as Publish/Unpublish actions.</p>
+<p>You can modify one or multiple projects by selecting them in the Settings grid and clicking the Edit button in the toolbar.
+You can also double-click a project to open the Project wizard.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -541,252 +493,96 @@ cannot be reverted and is therefore not expandable, as well as Publish/Unpublish
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Some versions cannot be reverted, for example those created by Permissions Update, Rename and Move operations.
+Changing a project&#8217;s default language will not change language of existing content items in this project, it will only affect
+new items created after the project has been saved.
 </td>
 </tr>
 </table>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="widgets/images/widgets-version-history.png" alt="Version history" width="283">
-</div>
-</div>
-<div class="paragraph">
-<p>A click on the  <span class="image"><img src="widgets/images/widgets-version-compare-icon.png" alt="Version history" width="24"></span> icon will open the <code>Compare versions</code> modal dialog displaying
-changes done in this specific version compared to the previous one.</p>
-</div>
-<div class="paragraph">
-<p>Two dropdowns on top of the dialog contain the full list of versions: the left one (<code>Older</code>) is the one being compared, and the right one (<code>Newer</code>)
-is the one being compared against. By default the version you clicked will be selected in the left dropdown and current/active version will
-be selected in the right dropdown, but you can change the selection to compare any versions you like, as long as the "left" version is older
-than the "right" one.</p>
-</div>
-<div class="paragraph">
-<p>By default, the dialog shows only differences between the selected versions, but you can see the entire content JSON by checking off
-<code>Show entire content</code> checkbox.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="widgets/images/widgets-version-compare-dialog.png" alt="Version compare dialog" width="909">
-</div>
-</div>
-<div class="admonitionblock note">
+<div class="admonitionblock tip">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Both dropdowns have aliases on top of the list which you can use to compare a version with previous, next, published and current
-version without having to browse through the list.
+Click the project thumbnail to replace the default icon with a custom one.
 </td>
 </tr>
 </table>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="widgets/images/widgets-version-compare-dialog-aliases.png" alt="Version aliases" width="456">
-</div>
-</div>
-<div class="paragraph">
-<p>The "kebab" menu icon on the right of each dropdown has just one option - "Revert" - to revert to this version.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="dependencies"><a class="link" href="#dependencies">Dependencies</a></h3>
-<div class="paragraph">
-<p>Every content can have inbound and outbound dependencies, and this widget shows them. Simply put, the inbound dependency is something that uses the content,
-and the outbound dependency is something used by the content. For example, if there is a <strong>Shortcut</strong>, and it has a link to the <strong>Superhero</strong> site, the <strong>Shortcut</strong> is the inbound dependency for the site,
-and at the same time the <strong>Superhero</strong> is the outbound dependency for the <strong>Shortcut</strong>.</p>
-</div>
-<div class="paragraph">
-<p>The inbound dependencies are listed above the content, and the outbound dependencies are listed below.</p>
-</div>
-<div class="paragraph">
-<p>If there are no dependencies of a specific type, the widget will show <code>No incoming dependencies</code>.</p>
-</div>
-<div class="paragraph">
-<p>If there are some dependencies, the button showing the total number of dependencies will be shown.
-The icon of the content type and a number of the dependencies of each content type will be shown below or above the button.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="widgets/images/widgets-dependencies.png" alt="widgets dependencies" width="207">
-</div>
-</div>
-<div class="paragraph">
-<p>Clicking on the button will open a new browser tab showing the list of the content item&#8217;s dependencies, either inbound or outbound.
-If you click on the dependencies icon, then the same tab will open, but only the dependencies of the selected type will be shown in the list.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="widgets/images/widgets-dependencies-filter.png" alt="widgets dependencies filter" width="370">
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="emulator"><a class="link" href="#emulator">Emulator</a></h3>
-<div class="paragraph">
-<p>This widget allows you to quickly preview the content on a number of different screen resolutions (desktop, mobile phone, tablet etc.)</p>
-</div>
-<div class="admonitionblock note">
+<div class="admonitionblock caution">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<i class="fa icon-caution" title="Caution"></i>
 </td>
 <td class="content">
-The emulator widget won&#8217;t be available in the content wizard, if the content is not renderable, like a folder or a site without a template/controller.
+If you change Access mode of an <strong>existing project</strong> to or from Public, you will have to confirm the change since
+this will update permissions on every single content item inside the project repository once the project is updated.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>Clicking on the emulation option will resize the preview. To reset the emulation, click on the <code>Fill Size</code> option.</p>
+<p>You can delete a project by selecting it in the Settings grid and clicking the Delete button in the toolbar.</p>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="widgets/images/widgets-emulator.png" alt="widgets emulator" width="515">
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="components"><a class="link" href="#components">Components</a></h3>
-<div class="admonitionblock note">
+<div class="admonitionblock caution">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<i class="fa icon-caution" title="Caution"></i>
 </td>
 <td class="content">
-The Components widget is only available inside a renderable content with Page Editor enabled.
+Deleting a project will delete its repository and all the data inside. This action has to be confirmed and cannot be undone.
 </td>
 </tr>
 </table>
-</div>
-<div class="paragraph">
-<p>The components widget manipulates the page content and contains two tabs.</p>
-</div>
-<div class="sect3">
-<h4 id="insert_tab"><a class="link" href="#insert_tab">Insert tab</a></h4>
-<div class="paragraph">
-<p>Insert tab allows to drag and drop components onto the page. There are five types of components in total:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Layout.</strong> Enables adding a <a href="editor/component-types.ahtml#layout-component">layout</a> (container of other components) from one of the supported applications;</p>
-</li>
-<li>
-<p><strong>Part.</strong> Enables adding a part from one of the supported applications;</p>
-</li>
-<li>
-<p><strong>Text.</strong> Enables adding a text section and embedding images using <a href="editor/rich-text-editor.ahtml">Rich Text Editor</a> which provides ample opportunities for editing, such as creating links, embedding images, videos and macros, applying WYSIWYG formatting etc;</p>
-</li>
-<li>
-<p><strong>Fragment.</strong> Enables adding one of reusable fragments to the page.</p>
-</li>
-</ul>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="widgets/images/widgets-components-insert.png" alt="widgets components insert" width="207">
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="components_tab"><a class="link" href="#components_tab">Components tab</a></h4>
-<div class="paragraph">
-<p>This tab enables configuration of the component selected on the page. The tab caption will change to reflect the type of the currently selected component.
-If nothing is selected, the tab caption will be <code>Page</code>.</p>
-</div>
-<div class="paragraph">
-<p>For the <strong>Page</strong>, it is possible to select different controller or template or save the current controller as a template.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="widgets/images/widgets-components-page.png" alt="widgets components page" width="207">
-</div>
-</div>
-<div class="paragraph">
-<p>The <strong>Part</strong> component tab, for example, will allow you to replace the currently selected part or configure it (like selecting the <code>Posts folder</code> in the example below)</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="widgets/images/widgets-components-part.png" alt="widgets components part" width="207">
-</div>
-</div>
-</div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="custom_widgets"><a class="link" href="#custom_widgets">Custom widgets</a></h2>
+<h2 id="new_project_wizard"><a class="link" href="#new_project_wizard">New Project wizard</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Enonic XP allows you to easily build your own widgets and expand functionality of Content Studio. You can also install widgets from the Enonic Market.</p>
+<p>Project setup in Content Studio is done from the "<em>Settings</em>" section, which can be accessed by clicking the cog icon in the left-side menu.</p>
 </div>
 <div class="paragraph">
-<p>Implementation of admin widgets is described <a href="https://developer.enonic.com/docs/xp/stable/admin/widgets#implementation">here</a>.</p>
+<p>Click "<em>New</em>" button in the toolbar to start the multistep New Project wizard dialog.</p>
 </div>
-<div class="paragraph">
-<p>There are two interfaces currently supported by Content Studio: <code>contentstudio.contextpanel</code> and <code>contentstudio.menuitem</code>.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Upload of project icon is not possible until after the project is created.
+</td>
+</tr>
+</table>
 </div>
 <div class="sect2">
-<h3 id="context_panel_widgets"><a class="link" href="#context_panel_widgets">Context panel widgets</a></h3>
+<h3 id="project_type"><a class="link" href="#project_type">Project Type</a></h3>
 <div class="paragraph">
-<p>Widgets with interface <code>contentstudio.contextpanel</code> will be added to the widget dropdown inside the Context Panel and shown inside the panel when selected.
-Content Studio will send current branch, repository and id of selected content to this widget via query parameters of the GET request.</p>
-</div>
-<div class="listingblock">
-<div class="title">Sample XML for a widget with <code>contentstudio.contextpanel</code> interface:</div>
-<div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;widget&gt;
-  &lt;display-name&gt;My widget&lt;/display-name&gt;
-  &lt;description&gt;This widget is for the Context Panel&lt;/description&gt;
-  &lt;interfaces&gt;
-    &lt;interface&gt;contentstudio.contextpanel&lt;/interface&gt;
-  &lt;/interfaces&gt;
-  &lt;allow&gt;
-    &lt;principal&gt;role:system.admin&lt;/principal&gt;
-    &lt;principal&gt;role:myapp.myrole&lt;/principal&gt;
-  &lt;/allow&gt;
-&lt;/widget&gt;</code></pre>
-</div>
+<p>On the first step of the Wizard select what type of project you want to create. Select "<em>Project</em>" for a top-level Content Project, or
+"<em>Layer</em>" if you want to set up a localised project which will synchronise its contents with an upstream project/layer. In the latter case
+you will also be asked to select the upstream project.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="widgets/images/widgets-context-panel.png" alt="widgets context panel" width="207">
+<img src="settings/images/new-project-dialog-1.png" alt="Project type" width="470">
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="top_menu_widgets"><a class="link" href="#top_menu_widgets">Top menu widgets</a></h3>
+<h3 id="default_language"><a class="link" href="#default_language">Default Language</a></h3>
 <div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="20" role="img" aria-label="CS: 4.1.0"><title>CS: 4.1.0</title><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="64" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="25" width="39" height="20" fill="#007ec6"/><rect width="64" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text aria-hidden="true" x="135" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">CS</text><text x="135" y="140" transform="scale(.1)" fill="#fff" textLength="150">CS</text><text aria-hidden="true" x="435" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">4.1.0</text><text x="435" y="140" transform="scale(.1)" fill="#fff" textLength="290">4.1.0</text></g></svg></span></p>
-</div>
-<div class="paragraph">
-<p>Widgets with interface <code>contentstudio.menuitem</code> will expand the left-hand side menu of Content Studio. They are so-called "fullscreen widgets" which will take up the entire screen
-between the Content Studio header and the left-side menu. Widget icon will be automatically injected inside the sidebar menu when you deploy an application containing your widget.</p>
-</div>
-<div class="listingblock">
-<div class="title">Sample XML for a widget with <code>contentstudio.menuitem</code> interface:</div>
-<div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;widget&gt;
-  &lt;display-name&gt;My widget&lt;/display-name&gt;
-  &lt;description&gt;This widget is for the Content Studio menu&lt;/description&gt;
-  &lt;interfaces&gt;
-    &lt;interface&gt;contentstudio.menuitem&lt;/interface&gt;
-  &lt;/interfaces&gt;
-  &lt;config&gt;
-    &lt;property name="context" value="project"/&gt;
-  &lt;/config&gt;
-&lt;/widget&gt;</code></pre>
-</div>
+<p>Optional "Default Language" setting will determine default language for a new content that will be created in the root of this project.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="widgets/images/widgets-menu-item.png" alt="widgets menu item" width="600">
+<img src="settings/images/new-project-dialog-2.png" alt="Default Language" width="470">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -796,7 +592,202 @@ between the Content Studio header and the left-side menu. Widget icon will be au
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-By specifying optional config as shown in the example above, you let Content Studio know that your widget is project-dependent and requires project selector in the header.
+If an upstream project is selected, you can use "Copy from parent" button to quickly select this setting from the upstream project.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="access_mode"><a class="link" href="#access_mode">Access Mode</a></h3>
+<div class="paragraph">
+<p>On the <strong>Access mode</strong> step you can configure READ access to content items inside the project.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Items inside a <strong>Public</strong> project will by default be visible to Everyone.</p>
+</li>
+<li>
+<p>Items inside a <strong>Private</strong> project will NOT be visible to Everyone. Only principals with project roles (see below) or administrators will
+be able to access the content.</p>
+</li>
+<li>
+<p>By choosing <strong>Custom</strong> access you will limit READ access to specific principals in the system (in addition to project roles and administrators).
+This is useful if you want to give READ access for content inside the project to users from other projects.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Principals that were given Custom access will be added to a special project role called "<em>Viewer</em>".
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="settings/images/new-project-dialog-3.png" alt="Access Mode" width="470">
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+If an upstream project is selected, you can use "Copy from parent" button to quickly select this setting from the upstream project.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="project_roles"><a class="link" href="#project_roles">Project Roles</a></h3>
+<div class="paragraph">
+<p>Every project has a fixed set of roles that can be used to assign different levels of permissions inside a project to users or groups.
+A principal must have at least one of these roles to be able to access the project in the Content Studio.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="settings/images/new-project-dialog-4.png" alt="Roles" width="470">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Contributor</strong> has access to the project in Content Studio but can only view the content inside.</p>
+</li>
+<li>
+<p><strong>Author</strong>: same as <strong>Contributor</strong> + create, modify and delete content. <strong>Author</strong> is not allowed to publish content, create sites
+or change their configuration.</p>
+</li>
+<li>
+<p><strong>Editor</strong>: same as <strong>Author</strong> + publish content and modify content permissions.</p>
+</li>
+<li>
+<p><strong>Owner</strong>: same as <strong>Editor</strong> + create and configure sites, and modify project settings.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+If an upstream project is selected, you can use "Copy from parent" button to quickly select this setting from the upstream project.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="applications"><a class="link" href="#applications">Applications</a></h3>
+<div class="paragraph">
+<p>You may assign applications to the project. This will enable usage of content types and controller mappings defined in
+the assigned applications when creating or rendering content outside of sites. This is especially useful for management of headless content
+as opposed to site-oriented approach.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Only applications containing <code>site.xml</code> can be assigned to content projects.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="settings/images/new-project-dialog-5.png" alt="Applications" width="470">
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Applications assigned to projects will not work for a site or content items inside a site. Assign applications
+directly to the site if you want to use them for site contents.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="base_properties"><a class="link" href="#base_properties">Base Properties</a></h3>
+<div class="paragraph">
+<p>Fill in display name and - optionally - description for your new project. Value in the <strong>Identifier</strong> field will be auto-generated
+based on the display name. This value will be used in the repository name of the project and therefore cannot be changed
+after the project has been created. For example, if you enter "<em>My cool project</em>" into the <strong>Display name</strong> field, the system will auto
+generate "<em>my-cool-project</em>" in the <strong>Identifier</strong> field and upon save the new repository will be called <em>com.enonic.cms.my-cool-project</em>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can only use alphanumeric characters and "-" in the <strong>Identifier</strong> field. Value of the field will be validated for uniqueness.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If you are creating a layer (an upstream project is selected) and have selected Default Language on a previous
+step, the system will try to predict/preset values in the Display Name and Description fields based on combination of the
+upstream project&#8217;s display name/description and the new layer&#8217;s language.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="settings/images/new-project-dialog-6.png" alt="Base Properties" width="470">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="summary"><a class="link" href="#summary">Summary</a></h3>
+<div class="paragraph">
+<p>Last step of the Wizard allows you to verify settings of the new project you are about to create.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="settings/images/new-project-dialog-7.png" alt="Summary" width="470">
+</div>
+</div>
+<div class="paragraph">
+<p>Click the "Create" button to create a new project or layer.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If you have created a new layer, the synchronisation job will kick in and inherit content from the upstream project/layer.
 </td>
 </tr>
 </table>
@@ -804,10 +795,64 @@ By specifying optional config as shown in the example above, you let Content Stu
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="the_default_project"><a class="link" href="#the_default_project">The default Project</a></h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>default</code> project is a legacy project structure which does not support modern features such as project roles and layering.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This project cannot be deleted and is by default hidden
+in Content Studio.</p>
+</div>
+<div class="paragraph">
+<p>You can modify its display name and description, set default language
+for a new content which will be created in this repository and replace the icon in the "Settings" section.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Default project doesn&#8217;t support project roles or customization of read permissions.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="settings/images/default-project.png" alt="Default project" width="825">
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can enable the Default Project in Content Studio via <a href="config.ahtml#enable_default_content_project#">configuration file</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-07 12:14:02 UTC
+Last updated 2023-08-07 12:14:05 UTC
 </div>
 </div>
 </body>

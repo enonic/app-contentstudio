@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Content Projects</title>
+<title>Upgrading</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,326 +436,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Content Projects</h1>
+<h1>Upgrading</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#project_management">Project Management</a></li>
-<li><a href="#default_project">Default Project</a></li>
-<li><a href="#new_project_wizard">New Project wizard</a>
+<li><a href="#xp_version_requirement">XP version requirement</a>
 <ul class="sectlevel2">
-<li><a href="#project_type">Project Type</a></li>
-<li><a href="#default_language">Default Language</a></li>
-<li><a href="#access_mode">Access Mode</a></li>
-<li><a href="#roles">Roles</a></li>
-<li><a href="#applications">Applications</a></li>
-<li><a href="#base_properties">Base Properties</a></li>
-<li><a href="#summary">Summary</a></li>
+<li><a href="#default_content_project">Default Content Project</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
-<div class="paragraph">
-<p>By using Content Projects you can split your content into several independent repositories. Each project can have a default language,
-its own set of permissions and independent access level. When you open Content Studio, you will select a project (or context) you will be working in.</p>
-</div>
-<div class="paragraph">
-<p>Management of projects and layers in Content Studio is done from the "<em>Settings</em>" section, which can be accessed by clicking the cog icon in
-the left-side menu.</p>
-</div>
-</div>
-</div>
 <div class="sect1">
-<h2 id="project_management"><a class="link" href="#project_management">Project Management</a></h2>
+<h2 id="xp_version_requirement"><a class="link" href="#xp_version_requirement">XP version requirement</a></h2>
 <div class="sectionbody">
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/top-level-menu.png" alt="Top Level Menu" width="642">
-</div>
-</div>
-<div class="paragraph">
-<p>The Settings section lists all Content Projects that current user has permissions for. Users with roles
-<em>Content Manager Administrator</em> and <em>System Administrator</em> will always have full access to all projects.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/settings-grid.png" alt="Settings section" width="600">
-</div>
-</div>
-<div class="paragraph">
-<p>You can modify one or multiple projects by selecting them in the Settings grid and clicking the Edit button in the toolbar.
-You can also double-click a project to open the Project wizard.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Changing a project&#8217;s default language will not change language of existing content items in this project, it will only affect
-new items created after the project has been saved.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-Click the project thumbnail to replace the default icon with a custom one.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock caution">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-caution" title="Caution"></i>
-</td>
-<td class="content">
-If you change Access mode of an <strong>existing project</strong> to or from Public, you will have to confirm the change since
-this will update permissions on every single content item inside the project repository once the project is updated.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>You can delete a project by selecting it in the Settings grid and clicking the Delete button in the toolbar.</p>
-</div>
-<div class="admonitionblock caution">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-caution" title="Caution"></i>
-</td>
-<td class="content">
-Deleting a project will delete its repository and all the data inside. This action has to be confirmed and cannot be undone.
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="default_project"><a class="link" href="#default_project">Default Project</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>In a clean new instance of XP there&#8217;s only one content project called "Default", which cannot be deleted and is by default hidden
-in the project selector inside Content Studio. You can modify its display name and description, set default language
-for a new content which will be created in this repository and replace the icon in the "Settings" section.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Default project doesn&#8217;t support project roles or customization of read permissions.
-</td>
-</tr>
-</table>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/default-project.png" alt="Default project" width="825">
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-You can enable the Default Project in Content Studio via <a href="config.ahtml#enable_default_content_project#">configuration file</a>.
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="new_project_wizard"><a class="link" href="#new_project_wizard">New Project wizard</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Project setup in Content Studio is done from the "<em>Settings</em>" section, which can be accessed by clicking the cog icon in the left-side menu.</p>
-</div>
-<div class="paragraph">
-<p>Click "<em>New</em>" button in the toolbar to start the multistep New Project wizard dialog.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Upload of project icon is not possible until after the project is created.
-</td>
-</tr>
-</table>
-</div>
-<div class="sect2">
-<h3 id="project_type"><a class="link" href="#project_type">Project Type</a></h3>
-<div class="paragraph">
-<p>On the first step of the Wizard select what type of project you want to create. Select "<em>Project</em>" for a top-level Content Project, or
-"<em>Layer</em>" if you want to set up a localised project which will synchronise its contents with an upstream project/layer. In the latter case
-you will also be asked to select the upstream project.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/new-project-dialog-1.png" alt="Project type" width="470">
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="default_language"><a class="link" href="#default_language">Default Language</a></h3>
-<div class="paragraph">
-<p>Optional "Default Language" setting will determine default language for a new content that will be created in the root of this project.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/new-project-dialog-2.png" alt="Default Language" width="470">
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-If an upstream project is selected, you can use "Copy from parent" button to quickly select this setting from the upstream project.
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="access_mode"><a class="link" href="#access_mode">Access Mode</a></h3>
-<div class="paragraph">
-<p>On the <strong>Access mode</strong> step you can configure READ access to content items inside the project.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Items inside a <strong>Public</strong> project will by default be visible to Everyone.</p>
-</li>
-<li>
-<p>Items inside a <strong>Private</strong> project will NOT be visible to Everyone. Only principals with project roles (see below) or administrators will
-be able to access the content.</p>
-</li>
-<li>
-<p>By choosing <strong>Custom</strong> access you will limit READ access to specific principals in the system (in addition to project roles and administrators).
-This is useful if you want to give READ access for content inside the project to users from other projects.</p>
-</li>
-</ul>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Principals that were given Custom access will be added to a special project role called "<em>Viewer</em>".
-</td>
-</tr>
-</table>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/new-project-dialog-3.png" alt="Access Mode" width="470">
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-If an upstream project is selected, you can use "Copy from parent" button to quickly select this setting from the upstream project.
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="roles"><a class="link" href="#roles">Roles</a></h3>
-<div class="paragraph">
-<p>Every project has a fixed set of roles that can be used to assign different levels of permissions inside a project to users or groups.
-A principal must have at least one of these roles to be able to access the project in the Content Studio.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/new-project-dialog-4.png" alt="Roles" width="470">
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Contributor</strong> has access to the project in Content Studio but can only view the content inside.</p>
-</li>
-<li>
-<p><strong>Author</strong>: same as <strong>Contributor</strong> + create, modify and delete content. <strong>Author</strong> is not allowed to publish content, create sites
-or change their configuration.</p>
-</li>
-<li>
-<p><strong>Editor</strong>: same as <strong>Author</strong> + publish content and modify content permissions.</p>
-</li>
-<li>
-<p><strong>Owner</strong>: same as <strong>Editor</strong> + create and configure sites, and modify project settings.</p>
-</li>
-</ul>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-If an upstream project is selected, you can use "Copy from parent" button to quickly select this setting from the upstream project.
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="applications"><a class="link" href="#applications">Applications</a></h3>
-<div class="paragraph">
-<p>You may assign applications to the project. This will enable usage of content types and controller mappings defined in
-the assigned applications when creating or rendering content outside of sites. This is especially useful for management of headless content
-as opposed to site-oriented approach.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Only applications containing <code>site.xml</code> can be assigned to content projects.
-</td>
-</tr>
-</table>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/new-project-dialog-5.png" alt="Applications" width="470">
-</div>
-</div>
 <div class="admonitionblock important">
 <table>
 <tr>
@@ -763,77 +459,18 @@ Only applications containing <code>site.xml</code> can be assigned to content pr
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-Applications assigned to projects will not work for a site or content items inside a site. Assign applications
-directly to the site if you want to use them for site contents.
+Content Studio 5.x requires XP 7.13.0 or newer.
 </td>
 </tr>
 </table>
-</div>
 </div>
 <div class="sect2">
-<h3 id="base_properties"><a class="link" href="#base_properties">Base Properties</a></h3>
+<h3 id="default_content_project"><a class="link" href="#default_content_project">Default Content Project</a></h3>
 <div class="paragraph">
-<p>Fill in display name and - optionally - description for your new project. Value in the <strong>Identifier</strong> field will be auto-generated
-based on the display name. This value will be used in the repository name of the project and therefore cannot be changed
-after the project has been created. For example, if you enter "<em>My cool project</em>" into the <strong>Display name</strong> field, the system will auto
-generate "<em>my-cool-project</em>" in the <strong>Identifier</strong> field and upon save the new repository will be called <em>com.enonic.cms.my-cool-project</em>.</p>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-You can only use alphanumeric characters and "-" in the <strong>Identifier</strong> field. Value of the field will be validated for uniqueness.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-If you are creating a layer (an upstream project is selected) and have selected Default Language on a previous
-step, the system will try to predict/preset values in the Display Name and Description fields based on combination of the
-upstream project&#8217;s display name/description and the new layer&#8217;s language.
-</td>
-</tr>
-</table>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/new-project-dialog-6.png" alt="Base Properties" width="470">
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="summary"><a class="link" href="#summary">Summary</a></h3>
-<div class="paragraph">
-<p>Last step of the Wizard allows you to verify settings of the new project you are about to create.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/new-project-dialog-7.png" alt="Summary" width="470">
-</div>
+<p>Default Content Project is no longer available in Content Studio by default.</p>
 </div>
 <div class="paragraph">
-<p>Click the "Create" button to create a new project or layer.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-If you have created a new layer, the synchronisation job will kick in and inherit content from the upstream project/layer.
-</td>
-</tr>
-</table>
+<p>If you need the Default project, enable it via Content Studio&#8217;s <a href="../config.ahtml#enable_default_content_project">config file</a> before upgrading to Content Studio 5.</p>
 </div>
 </div>
 </div>
@@ -841,7 +478,7 @@ If you have created a new layer, the synchronisation job will kick in and inheri
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-07 11:52:56 UTC
+Last updated 2023-08-07 12:14:05 UTC
 </div>
 </div>
 </body>

@@ -1,11 +1,11 @@
 {
   "menuItems": [
     {
-      "title": "Content Navigator",
+      "title": "Navigator",
       "document": "navigator"
     },
     {
-      "title": "Content Editor",
+      "title": "Editor",
       "document": "editor",
       "menuItems": [
         {
@@ -31,22 +31,12 @@
       ]
     },
     {
-      "title": "Content Storage",
-      "document": "storage",
-      "menuItems": [
-        {
-          "title": "Projects",
-          "document" : "storage/projects"
-        },
-        {
-          "title": "Layers / Localisation",
-          "document" : "storage/layers"
-        },
-        {
-          "title": "Archive",
-          "document": "storage/archive"
-        }
-      ]
+      "title": "Projects",
+      "document": "projects"
+    },
+    {
+      "title": "Layers",
+      "document" : "layers"
     },
     {
       "title": "Workflow",
@@ -58,7 +48,7 @@
     },
     {
       "title": "Variants",
-      "document": "variants/index"
+      "document": "variants"
     },
     {
       "title": "Actions",
@@ -67,6 +57,10 @@
     {
       "title": "Issues",
       "document": "issues"
+    },
+    {
+      "title": "Archive",
+      "document": "archive"
     },
     {
       "title": "Widgets",
@@ -83,6 +77,10 @@
     {
       "title": "Keyboard Shortcuts",
       "document": "keyboard-shortcuts"
+    },
+    {
+      "title": "Settings",
+      "document" : "settings"
     },
     {
       "title": "Configuration",

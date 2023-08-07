@@ -456,7 +456,7 @@ The content editor panel can be collapsed to give the page editor more room by c
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/editor-form.png" alt="Editor form">
+<img src="images/editor-form.png" alt="Editor form" width="777">
 </div>
 </div>
 </div>
@@ -502,7 +502,7 @@ modal dialog. These precautions aim to prevent accidental breaking of external h
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/editor-header-locked.png" alt="Locked path in published content">
+<img src="images/editor-header-locked.png" alt="Locked path in published content" width="548w">
 </div>
 </div>
 </div>
@@ -572,7 +572,7 @@ For fragments and page templates the Page Components tree will be inside the fir
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-07 11:52:56 UTC
+Last updated 2023-08-07 12:14:05 UTC
 </div>
 </div>
 </body>

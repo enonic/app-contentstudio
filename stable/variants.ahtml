@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Content Layers / Localisation</title>
+<title>Variants</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -434,132 +434,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article toc2 toc-right">
+<body class="article">
 <div id="header">
-<h1>Content Layers / Localisation</h1>
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#settings">Settings</a></li>
-<li><a href="#localising_inherited_content">Localising inherited content</a></li>
-<li><a href="#layers_widget">Layers Widget</a></li>
-</ul>
-</div>
+<h1>Variants</h1>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
-<div class="paragraph">
-<p>Localisation in Content Studio is done by utilising advanced concept of Content Layers. A layer is a special
-type of content project that always has a parent project (or another layer) where it inherits its content from. This inherited content can then be localised
-to the language of the layer, restructured, renamed or differently sorted. Content in a layer can be created, modified and published as usual.</p>
-</div>
-<div class="paragraph">
-<p>You can have as many layers as you need: project <strong>A</strong> in the root can have a child layer <strong>B</strong> which has a child
-layer <strong>C</strong> (and so on). Content changes will be propagated top-down from the project/layer the content was originally changed in, through
-all the layers down to the bottommost descendant. Synchronisation job will stop propagating changes for a content once it finds a layer
-where this content has been localised.</p>
-</div>
-<div class="paragraph">
-<p>With our example above, any content created in <strong>A</strong> will be automatically created in the child <strong>B</strong> and the grand-child <strong>C</strong>. If the content
-is then modified in <strong>B</strong> it will stop being synchronised with <strong>A</strong>, but the new modifications will still be synchronised from <strong>B</strong> down to <strong>C</strong>.</p>
-</div>
-<div class="paragraph">
-<p>The moment an inherited content is modified (localised), it will be "unlinked" from its parent and will no longer be synchronised.
-If you modify a content in the layer <strong>C</strong>, it will stop inheriting content changes from the layer <strong>B</strong>. However, the same content in <strong>B</strong> still
-inherits content changes from its parent project <strong>A</strong>, until it&#8217;s localised in <strong>B</strong> as well.</p>
-</div>
-<div class="paragraph">
-<p>There are 4 different types of inheritance that are supported independently: content data, sorting, parent and name.
-This means, for example, that if a child layer <strong>B</strong> has inherited an entire website from its parent <strong>A</strong>, you can change sorting order of content items
-inside this site in <strong>B</strong> which will stop inheritance only of <em>sorting</em> from <strong>A</strong>, however inheritance of <em>content data</em> will still continue.
-Another example, is that you can move a content item from one parent content to another in the layer <strong>B</strong>, but this content will still be
-inheriting data changes from <strong>A</strong>.</p>
-</div>
-<div class="paragraph">
-<p>Content Layers are using the <a href="projects.ahtml">Content Projects</a>' engine under the hood, which means that each layer has its own content repository,
-language, read permissions and roles.</p>
-</div>
-<div class="paragraph">
-<p>Just like projects, layers can be created and managed in the Settings section.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="settings"><a class="link" href="#settings">Settings</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>To create a new layer, click <strong>New</strong> button in the Settings section and select "<em>Layer</em>" on the
-"Project type" step of the New Project wizard. You will be required to select a parent project
-(or another layer) which data in the new layer will be synchronised with.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/new-project-dialog-1.png" alt="Create Layer" width="832">
-</div>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-You will not be able to select or change the parent project/layer once the new layer is created.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-On the steps of the New Project wizard you can copy settings like Language, Access Mode and Roles from the parent project/layer by using the <strong>Copy from parent</strong> button.
-If the parent doesn&#8217;t have those properties set, or they are the same as in this layer, the button will be disabled.
-</td>
-</tr>
-</table>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="projects/images/new-project-dialog-2.png" alt="Create Layer" width="832">
-</div>
-</div>
-<div class="paragraph">
-<p>Once the new layer is created, you will be redirected to the details page of the created layer and synchronisation job will kick in to create content from the parent project/layer in the new layer.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="localising_inherited_content"><a class="link" href="#localising_inherited_content">Localising inherited content</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>To navigate between the layers use the context switch in the Content Studio header.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/project-context.png" alt="Context switch" width="420">
-</div>
-</div>
-<div class="paragraph">
-<p>In the Content grid localised content will be greyed out, providing visual difference from a local content manually created directly in this layer.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="layers/images/layer-localisation.png" alt="Layer localisation" width="457">
-</div>
-</div>
-<div class="paragraph">
-<p>To localise (translate) an inherited content item, select it in the content tree and click <strong>Localise</strong> button in the Content grid toolbar</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="layers/images/layer-localisation-1.png" alt="Content localisation" width="457">
-</div>
-</div>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -567,165 +446,51 @@ If the parent doesn&#8217;t have those properties set, or they are the same as i
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<strong>Edit</strong> button is replaced with <strong>Localise</strong> for inherited content.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-Language shown in brackets after content&#8217;s display name means shows that language of this content is different from language of the current layer.
+Widget for creating variants is provided by <a href="../.ahtml#content_studio">Content Studio+</a> application which requires Enonic license.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>The <strong>Localise</strong> button will open the Content Wizard for the selected content item and set language of the current layer for the item. You
-can now translate the content to language of the layer or make any other changes. When you save the changes, the content item will no longer
-be considered inherited and changes made for this item in the parent project/layer will no longer be synchronised down to this layer.</p>
+<p>Variants are essentially slightly modified copies of a content item used for comparing them against each other to determine
+which one performs better for end user (A/B Testing).</p>
 </div>
 <div class="paragraph">
-<p>In the example below, "<em>Search</em>" page from the parent project with English language was localised in the Norwegian layer and translated to "<em>Søk</em>".</p>
+<p>Using "Variants" widget provided by <strong>Content Studio+</strong>, user can create variants of a specific content item, duplicate them (make copies of variants),
+then use URLs of variants in a 3rd party A/B Testing tool. Variants can be managed (modified, published, duplicated, deleted etc.) just as regular
+content items.</p>
+</div>
+<div class="paragraph">
+<p>To create a new variant, select a content item in the Content Navigator grid, then open the "Variants" widget in the
+Context Panel on the right-hand side (if you cannot find it then you probably don&#8217;t have <strong>Content Studio+</strong> installed) and click "<strong>Create Variant</strong>" button.</p>
+</div>
+<div class="paragraph">
+<p>This will open a new modal dialog for specifying name of a variant, suggesting "<em>variant-1</em>", "<em>variant-2</em>" etc., based on how many variants of the item
+already exist. A new name will be verified for uniqueness. The rest of the properties will be copied from the original item.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="layers/images/layer-localisation-2.png" alt="Content localisation" width="457">
+<img src="variants/images/variants-dialog.png" alt="New variant dialog" width="400px">
 </div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-The purpose of the blue "cloud" icon over the content item icon is to distinguish localised inherited content from local content created
-directly in this layer (like "<em>Local page</em>" in the example above).
-</td>
-</tr>
-</table>
 </div>
 <div class="paragraph">
-<p>As mentioned above, it&#8217;s possible to rearrange inherited content without localising it. The same goes for sorting. In the example below
-the "<em>Search</em>" page was moved under "<em>Posts</em>" folder but is still inheriting content changes from the parent project.</p>
+<p>After a new variant is created, it will be placed under the original item in the Navigator grid and displayed in the "Variants" widget under
+the original item. Each variant has a context menu with "<strong>Edit</strong>" and "<strong>Duplicate</strong>" options.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="layers/images/layer-localisation-3.png" alt="Content localisation" width="457">
-</div>
-</div>
-<div class="paragraph">
-<p>You can reset changes made for an inherited item and restore inheritance from the parent level by clicking <strong>Reset</strong> button in the Content Wizard.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="layers/images/layer-content-reset.png" alt="Reset localisation" width="617">
-</div>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-All changes made to the content item in the current layer will be lost.
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="layers_widget"><a class="link" href="#layers_widget">Layers Widget</a></h2>
-<div class="sectionbody">
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-The Layers widget is bundled with <a href="../.ahtml#content_studio">Content Studio+</a> application available only for users with Enonic license.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>The Layers widget enables user to see status of a specific content item in all existing layers in the system.</p>
-</div>
-<div class="paragraph">
-<p>Box of the current layer is highlighted with blue border, and you can see how many layers there are above (<em>Ascendants</em>)
-and below (<em>Descendants</em>) the current one. Each box has an action button (<strong>Localise</strong> or <strong>Edit</strong> for the current layer and <strong>Open</strong> for other layers)
-which can be displayed if you expand the box with a left-click.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="layers/images/layer-widget-1.png" alt="Layers Widget" width="240">
+<img src="variants/images/variants-grid.png" alt="Variants in Content Grid" width="400px">
 </div>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="layers/images/layer-widget-3.png" alt="Layers Widget" width="240">
-</div>
-</div>
-<div class="paragraph">
-<p>Boxes of parent layers where the content item is not localised are hidden by default and can be displayed by clicking on the Ascendants link.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="layers/images/layer-widget-2.png" alt="Layers Widget" width="240">
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-You can localise content in the current layer directly from the widget.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p><strong>Show all</strong> button at the bottom of the widget displays the total number of layers where this item exists. This number can be different from tbe number
-of boxes displayed in the widget, since the widget only displays the branch of the current layer. To see status of the content item in the entire tree of layers
-click the button to open the modal dialog.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="layers/images/layer-modal-dialog.png" alt="Layers Widget" width="375">
-</div>
-</div>
-<div class="paragraph">
-<p>Just like with the Layers widget, you can expand layer boxes in this dialog to either localise or edit the content in the current layer,
-or open it in other layers (given your user has sufficient permissions to access the layer).</p>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-Read about the high-level concept of Content Layers <a href="https://developer.enonic.com/docs/xp/stable/cms/layers">here</a>.
-</td>
-</tr>
-</table>
-</div>
+<img src="variants/images/variants-widget.png" alt="Variants widget" width="400px">
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-07 11:52:56 UTC
+Last updated 2023-08-07 12:14:05 UTC
 </div>
 </div>
 </body>

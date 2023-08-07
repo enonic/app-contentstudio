@@ -452,14 +452,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>The navigator is the default page of the <strong>Content Studio</strong>. It consists of Menu Toolbar on top and two or three panels underneath.
-On the left is the <strong>Content tree grid</strong> where all the sites and content can be found. To the right of the tree grid is the
-<a href="#_preview-panel">Preview panel</a> which displays a preview of the selected content. On the far right is the <a href="widgets.ahtml">Widgets</a> panel
-that may be toggled on and off with the <strong>burger</strong> icon in the top right corner, next to the <code>Publish</code> button inside the Toolbar.</p>
+<p>The navigator is the default page of <strong>Content Studio</strong>.
+It consists of an action toolbar on top, followed by up to four panels that can be open at once depending on the size of your screen. From the left: Search panel, Content tree grid, Preview panel and finally <a href="widgets.ahtml">the Widget panel</a> providing additional info or functionality related to the selected item.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="navigator/images/navigator.png" alt="Content Navigator" width="975">
+<img src="navigator/images/navigator.png" alt="Content Navigator" width="1951">
 </div>
 </div>
 </div>
@@ -523,7 +521,7 @@ dialog with selected content and all descendants</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="navigator/images/navigator-toolbar.png" alt="navigator toolbar">
+<img src="navigator/images/navigator-toolbar.png" alt="Toolbar" width="1078w">
 </div>
 </div>
 <div class="paragraph">
@@ -545,7 +543,7 @@ dialog with selected content and all descendants</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="navigator/images/navigator-grid.png" alt="navigator grid">
+<img src="navigator/images/navigator-grid.png" alt="Listing content items" width="1184w">
 </div>
 </div>
 <div class="paragraph">
@@ -614,7 +612,7 @@ dialog with selected content and all descendants</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="navigator/images/navigator-search.png" alt="550">
+<img src="navigator/images/navigator-search.png" alt="Search and filtering" width="1094w">
 </div>
 </div>
 <div class="paragraph">
@@ -628,7 +626,7 @@ dialog with selected content and all descendants</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="navigator/images/navigator-search-expanded.png" alt="550">
+<img src="navigator/images/navigator-search-expanded.png" alt="Full content type list" width="1080w">
 </div>
 </div>
 <div class="paragraph">
@@ -639,7 +637,7 @@ dialog with selected content and all descendants</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="navigator/images/navigator-search-modifier-expanded.png" alt="550">
+<img src="navigator/images/navigator-search-modifier-expanded.png" alt="Listing all modifiers" width="1089w">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -682,7 +680,7 @@ Only the <strong>Draft</strong> version of content is visible in the preview pan
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="navigator/images/navigator-preview.png" alt="navigator preview">
+<img src="navigator/images/navigator-preview.png" alt="Showing content preview" width="1089w">
 </div>
 </div>
 </div>
@@ -698,7 +696,7 @@ Only the <strong>Draft</strong> version of content is visible in the preview pan
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-07 11:52:56 UTC
+Last updated 2023-08-07 12:14:05 UTC
 </div>
 </div>
 </body>

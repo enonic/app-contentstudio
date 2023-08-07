@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Content Storage</title>
+<title>Content Projects</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,11 +436,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Content Storage</h1>
+<h1>Content Projects</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#project_context">Project Context</a></li>
+<li><a href="#project_context">Project context</a></li>
+<li><a href="#project_layering">Project layering</a></li>
 </ul>
 </div>
 </div>
@@ -448,84 +449,58 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content in XP is stored in <a href="storage/projects.ahtml">Content Projects</a>, each having its own underlying repository. In a clean new instance of XP
-there&#8217;s only one project (called "Default") which cannot be deleted but <a href="config.ahtml#disable_default_project">can be disabled</a> using the
-configuration file.</p>
+<p>Content Studio allows you to organize your content in multiple independent repositories.</p>
 </div>
 <div class="paragraph">
-<p>Users with privileged permissions can create their own Content Projects and localise content in these projects using <a href="storage/layers.ahtml">Content Layers</a>, which essentially is a special type of project inheriting content from an upstream project while enabling localisation into a specific language.</p>
+<p>Content Projects also offer individual access control and permissions, as well as other settings to toggle features and language(s) for the project.</p>
 </div>
 <div class="paragraph">
-<p>Each project/layer (except for the default one) can be set up with independent access level and a set of default permissions for new content.</p>
-</div>
-<div class="paragraph">
-<p>Content that is no longer needed can be deleted for good or put into <a href="storage/archive.ahtml">Archive</a> for future reference.
-Each project/layer has its own Archive.</p>
+<p>Privileged users can manage projects via <a href="settings.ahtml">Content Studio settings</a>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="project_context"><a class="link" href="#project_context">Project Context</a></h2>
+<h2 id="project_context"><a class="link" href="#project_context">Project context</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>If current user has access to more than one project or layer, he/she will be asked to select the context after opening Content Studio.</p>
+<p>The project context is always visible in the Content Studio header. If you have access to multiple projects, you can easily swich to a different project in the context selector:
+Project context can be switched at any time by using project selector in the Content Studio header:</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="storage/images/project-context.png" alt="Project context" width="490">
+<img src="projects/images/project-switcher.png" alt="Project switcher" width="1226w">
 </div>
 </div>
 <div class="paragraph">
-<p>Project context can be switched at any time by using project selector in the Content Studio header:</p>
+<p>The project is also visible when you are editing a single content item:</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="storage/images/project-switcher.png" alt="Project switcher" width="606">
+<img src="projects/images/content-wizard-context.png" alt="Context in Content Wizard" width="789w">
 </div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<a href="issues.ahtml"><strong>Issues</strong></a> are context-dependent which means that an issue can be accessed only from inside the project it was created in.
-</td>
-</tr>
-</table>
 </div>
 <div class="paragraph">
-<p>Current project context is also shown in the Content Wizard header:</p>
+<p>For new Enonic installations, you will have to <a href="settings.ahtml#new_project_wizard">create an initial content project</a>.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="storage/images/content-wizard-context.png" alt="Context in Content Wizard" width="790">
+<img src="projects/images/context-no-projects.png" alt="No projects" width="987w">
 </div>
 </div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-If the Default project is <a href="config.ahtml#disable_default_project">hidden</a> via config file and a logged-in user doesn&#8217;t have access to any projects and has necessary permissions, he/she will be asked to create a new Content Project using <a href="storage/projects.ahtml#new_project_wizard">multistep wizard</a>.
-</td>
-</tr>
-</table>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="storage/images/context-no-projects.png" alt="No projects" width="790">
 </div>
+<div class="sect1">
+<h2 id="project_layering"><a class="link" href="#project_layering">Project layering</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Content Studio also offers an advanced feature for reusing and augmenting content across multiple projects. This is called <a href="layers.ahtml">content layering</a>.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-07 11:52:56 UTC
+Last updated 2023-08-07 12:14:05 UTC
 </div>
 </div>
 </body>

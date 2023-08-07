@@ -452,7 +452,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content Studio is the ultimate CMS interface for Enonic XP</p>
+<p>Content Management interface for Enonic XP</p>
 </div>
 </div>
 </div>
@@ -485,8 +485,13 @@ A core concept is that any content item has a specific <a href="content-types.ah
 Custom content types are defined by developers, and provided through apps.</p>
 </div>
 <div class="paragraph">
-<p>Editors will commonly use the <a href="navigator.ahtml">navigator panel</a> to browse, search and perform actions on one or more items.
-<a href="issues.ahtml">Issues</a> can be created and assigned to users of Content Studio in order to get stuff done, and assist with workflow related tasks, such as getting content published.</p>
+<p>Content is organized within <a href="projects.ahtml">Content Projects</a>. Content can be re-used, localized or augmented across different projects through a feature called <a href="layers.ahtml">content layering</a>.</p>
+</div>
+<div class="paragraph">
+<p>Editors will commonly use the <a href="navigator.ahtml">navigator panel</a> to browse, search and perform actions on one or more items.</p>
+</div>
+<div class="paragraph">
+<p><a href="issues.ahtml">Issues</a> can be created and assigned to users of Content Studio in order to get stuff done, and assist with workflow related tasks, such as getting content published.</p>
 </div>
 </div>
 </div>
@@ -531,7 +536,7 @@ This application can be installed directly from the <a href="https://market.enon
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-07 11:52:56 UTC
+Last updated 2023-08-07 12:14:05 UTC
 </div>
 </div>
 </body>
