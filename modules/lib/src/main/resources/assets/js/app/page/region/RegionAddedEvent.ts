@@ -1,17 +1,18 @@
 import {RegionsChangedEvent} from './RegionsChangedEvent';
 import {RegionPath} from './RegionPath';
+import {ComponentPath} from './ComponentPath';
 
 export class RegionAddedEvent
     extends RegionsChangedEvent {
 
-    private regionPath: RegionPath;
+    private regionPath: ComponentPath;
 
-    constructor(regionPath: RegionPath) {
+    constructor(regionPath: ComponentPath) {
         super();
         this.regionPath = regionPath;
     }
 
-    getRegionPath(): RegionPath {
+    getRegionPath(): ComponentPath {
         return this.regionPath;
     }
 }

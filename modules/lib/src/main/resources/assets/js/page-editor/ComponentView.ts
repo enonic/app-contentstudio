@@ -1,4 +1,3 @@
-import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
@@ -9,7 +8,7 @@ import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {ItemView, ItemViewBuilder} from './ItemView';
 import {ItemViewAddedEvent} from './ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
-import {ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
+import {ItemViewSelectedEventConfig} from './event/outgoing/navigation/SelectComponentEvent';
 import {ComponentViewContextMenuTitle} from './ComponentViewContextMenuTitle';
 import {ComponentItemType} from './ComponentItemType';
 import {ComponentInspectedEvent} from './ComponentInspectedEvent';
@@ -17,22 +16,25 @@ import {ComponentDuplicatedEvent} from './ComponentDuplicatedEvent';
 import {FragmentItemType} from './fragment/FragmentItemType';
 import {ComponentResetEvent as UIComponentResetEvent} from './ComponentResetEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
-import {CreateFragmentViewConfig, CreateItemViewConfig} from './CreateItemViewConfig';
+import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {ItemViewFactory} from './ItemViewFactory';
 import {PageItemType} from './PageItemType';
 import {RegionView} from './RegionView';
 import {PageView} from './PageView';
-import {ComponentFragmentCreatedEvent} from './ComponentFragmentCreatedEvent';
-import {FragmentComponentView} from './fragment/FragmentComponentView';
-import {CreateFragmentRequest} from './CreateFragmentRequest';
-import {Content} from '../app/content/Content';
 import {Component, ComponentPropertyChangedEventHandler, ComponentResetEventHandler} from '../app/page/region/Component';
-import {FragmentComponent} from '../app/page/region/FragmentComponent';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {CreateFragmentEvent} from './event/outgoing/manipulation/CreateFragmentEvent';
+import {LiveEditParams} from './LiveEditParams';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {AddComponenEvent} from './event/outgoing/manipulation/AddComponenEvent';
+import {RemoveComponentRequest} from './event/outgoing/manipulation/RemoveComponentRequest';
+import {DuplicateComponentEvent} from './event/outgoing/manipulation/DuplicateComponentEvent';
+import {LayoutComponentType} from '../app/page/region/LayoutComponentType';
+import {ComponentType} from '../app/page/region/ComponentType';
 
-export class ComponentViewBuilder<COMPONENT extends Component> {
+export class ComponentViewBuilder {
 
     itemViewIdProducer: ItemViewIdProducer;
 
@@ -44,8 +46,6 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
 
     parentElement: Element;
 
-    component: COMPONENT;
-
     element: Element;
 
     positionIndex: number;
@@ -54,14 +54,14 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
 
     placeholder: ItemViewPlaceholder;
 
-    viewer: Viewer<Component>;
-
     inspectActionRequired: boolean;
+
+    liveEditParams: LiveEditParams;
 
     /**
      * Optional. The ItemViewIdProducer of parentRegionView will be used if not set.
      */
-    setItemViewIdProducer(value: ItemViewIdProducer): ComponentViewBuilder<COMPONENT> {
+    setItemViewIdProducer(value: ItemViewIdProducer): this {
         this.itemViewIdProducer = value;
         return this;
     }
@@ -69,75 +69,68 @@ export class ComponentViewBuilder<COMPONENT extends Component> {
     /**
      * Optional. The ItemViewFactory of parentRegionView will be used if not set.
      */
-    setItemViewFactory(value: ItemViewFactory): ComponentViewBuilder<COMPONENT> {
+    setItemViewFactory(value: ItemViewFactory): this {
         this.itemViewFactory = value;
         return this;
     }
 
-    setType(value: ComponentItemType): ComponentViewBuilder<COMPONENT> {
+    setType(value: ComponentItemType): this {
         this.type = value;
         return this;
     }
 
-    setParentRegionView(value: RegionView): ComponentViewBuilder<COMPONENT> {
+    setParentRegionView(value: RegionView): this {
         this.parentRegionView = value;
         return this;
     }
 
-    setParentElement(value: Element): ComponentViewBuilder<COMPONENT> {
+    setParentElement(value: Element): this {
         this.parentElement = value;
         return this;
     }
 
-    setComponent(value: COMPONENT): ComponentViewBuilder<COMPONENT> {
-        this.component = value;
-        return this;
-    }
-
-    setElement(value: Element): ComponentViewBuilder<COMPONENT> {
+    setElement(value: Element): this {
         this.element = value;
         return this;
     }
 
-    setPositionIndex(value: number): ComponentViewBuilder<COMPONENT> {
+    setPositionIndex(value: number): this {
         this.positionIndex = value;
         return this;
     }
 
-    setContextMenuActions(actions: Action[]): ComponentViewBuilder<COMPONENT> {
+    setContextMenuActions(actions: Action[]): this {
         this.contextMenuActions = actions;
         return this;
     }
 
-    setPlaceholder(value: ItemViewPlaceholder): ComponentViewBuilder<COMPONENT> {
+    setPlaceholder(value: ItemViewPlaceholder): this {
         this.placeholder = value;
         return this;
     }
 
-    setInspectActionRequired(value: boolean): ComponentViewBuilder<COMPONENT> {
+    setInspectActionRequired(value: boolean): this {
         this.inspectActionRequired = value;
         return this;
     }
 
-    setViewer(value: Viewer<Component>): ComponentViewBuilder<COMPONENT> {
-        this.viewer = value;
+    setLiveEditParams(value: LiveEditParams): this {
+        this.liveEditParams = value;
         return this;
     }
 }
 
-export class ComponentView<COMPONENT extends Component>
+export class ComponentView
     extends ItemView
     implements Cloneable {
 
-    protected component: COMPONENT;
+    protected empty: boolean;
 
     private moving: boolean = false;
 
     private itemViewAddedListeners: ((event: ItemViewAddedEvent) => void)[] = [];
 
     private itemViewRemovedListeners: ((event: ItemViewRemovedEvent) => void)[] = [];
-
-    private propertyChangedListener: ComponentPropertyChangedEventHandler;
 
     private resetListener: ComponentResetEventHandler;
 
@@ -147,28 +140,28 @@ export class ComponentView<COMPONENT extends Component>
 
     private keyBinding: KeyBinding[];
 
-    constructor(builder: ComponentViewBuilder<COMPONENT>) {
+    constructor(builder: ComponentViewBuilder) {
         super(new ItemViewBuilder()
             .setItemViewIdProducer(
                 builder.itemViewIdProducer ? builder.itemViewIdProducer : builder.parentRegionView.getItemViewIdProducer())
             .setItemViewFactory(builder.itemViewFactory ? builder.itemViewFactory : builder.parentRegionView.getItemViewFactory())
             .setPlaceholder(builder.placeholder)
-            .setViewer(builder.viewer)
             .setType(builder.type)
             .setElement(builder.element)
             .setParentView(builder.parentRegionView)
             .setParentElement(builder.parentElement)
-            .setContextMenuTitle(new ComponentViewContextMenuTitle(builder.component, builder.type))
+            .setLiveEditParams(builder.liveEditParams)
+            .setContextMenuTitle(new ComponentViewContextMenuTitle(builder.type?.getShortName(), builder.type))
         );
 
+        this.empty = StringHelper.isEmpty(builder.element?.getHtml());
         this.initListeners();
-        this.setComponent(builder.component);
         this.addComponentContextMenuActions(builder.inspectActionRequired);
         this.initKeyBoardBindings();
+        this.refreshEmptyState();
     }
 
     protected initListeners() {
-        this.propertyChangedListener = () => this.refreshEmptyState();
         this.resetListener = () => {
             // recreate the component view from scratch
             // if the component has been reset
@@ -177,35 +170,11 @@ export class ComponentView<COMPONENT extends Component>
             this.replaceWith(clone);
             clone.select();
             clone.hideContextMenu();
-
-            new UIComponentResetEvent(clone, this).fire();
         };
-
-        this.onRemoved(event => {
-            if (this.component) {
-                this.unregisterComponentListeners(this.component);
-            }
-        });
-
-        this.onAdded(() => {
-            if (this.component) {
-                this.registerComponentListeners(this.component);
-            }
-        });
-    }
-
-    private registerComponentListeners(component: COMPONENT) {
-        component.onReset(this.resetListener);
-        component.onPropertyChanged(this.propertyChangedListener);
-    }
-
-    unregisterComponentListeners(component: COMPONENT) {
-        component.unPropertyChanged(this.propertyChangedListener);
-        component.unReset(this.resetListener);
     }
 
     protected addComponentContextMenuActions(inspectActionRequired: boolean) {
-        let isFragmentContent = this.liveEditModel.getContent().getType().isFragment();
+        let isFragmentContent = this.getLiveEditParams().isFragment;
         let parentIsPage = this.getParentItemView().getType().equals(PageItemType.get());
         let isTopFragmentComponent = parentIsPage && isFragmentContent;
 
@@ -218,59 +187,33 @@ export class ComponentView<COMPONENT extends Component>
 
         if (inspectActionRequired) {
             actions.push(new Action(i18n('live.view.inspect')).onExecuted(() => {
-                new ComponentInspectedEvent(this).fire();
+                new ComponentInspectedEvent(this.getPath()).fire();
             }));
         }
 
         actions.push(new Action(i18n('live.view.reset')).onExecuted(() => {
-            if (this.component) {
-                this.component.reset();
-            }
+            //
         }));
 
         if (!isTopFragmentComponent) {
             actions.push(new Action(i18n('live.view.remove')).onExecuted(() => {
-                this.deselect();
-                this.remove();
+                new RemoveComponentRequest(this.getPath()).fire();
             }));
+
             actions.push(new Action(i18n('live.view.duplicate')).onExecuted(() => {
                 this.deselect();
 
-                let duplicatedComponent = this.getComponent().duplicate() as COMPONENT;
-                let duplicatedView = this.duplicate(duplicatedComponent);
-
-                duplicatedView.showLoadingSpinner();
-
-                new ComponentDuplicatedEvent(this, duplicatedView).fire();
+                new DuplicateComponentEvent(this.getPath()).fire();
             }));
         }
 
         let isFragmentComponent = this.getType().equals(FragmentItemType.get());
 
-        if (!isFragmentComponent && this.liveEditModel.isFragmentAllowed()) {
+        if (!isFragmentComponent && this.getLiveEditParams().isFragmentAllowed) {
             actions.push(new Action(i18n('live.view.saveAs.fragment')).onExecuted(() => {
                 this.deselect();
-                this.createFragment().then((content: Content): void => {
-                    // replace created fragment in place of source component
 
-                    const regionView = this.getRegionView();
-                    let newComponent = this.createComponent(FragmentItemType.get().toComponentType()) as FragmentComponent;
-                    newComponent.setFragment(content.getContentId(), content.getDisplayName());
-
-                    let fragmentCmpView = this.createView(FragmentItemType.get(),
-                        new CreateFragmentViewConfig()
-                            .setFragmentContent(content)
-                            .setSourceComponentType(this.getComponent().getType())
-                            .setParentView(regionView)
-                            .setParentElement(regionView)
-                            .setData(newComponent));
-
-                    this.addComponentView(fragmentCmpView as ComponentView<COMPONENT>, this.getNewItemIndex());
-                    this.remove();
-
-                    new ComponentFragmentCreatedEvent(fragmentCmpView as FragmentComponentView, this.getComponent().getType(),
-                        content).fire();
-                });
+                new CreateFragmentEvent(this.getPath()).fire();
             }));
         }
 
@@ -304,11 +247,7 @@ export class ComponentView<COMPONENT extends Component>
         super.deselect(silent);
     }
 
-    remove(): ComponentView<COMPONENT> {
-        if (this.component) {
-            this.unregisterComponentListeners(this.component);
-        }
-
+    remove(): ComponentView {
         let parentView = this.getParentItemView();
         if (parentView) {
             parentView.removeComponentView(this);
@@ -323,32 +262,8 @@ export class ComponentView<COMPONENT extends Component>
         return super.getType() as ComponentItemType;
     }
 
-    setComponent(component: COMPONENT) {
-        if (component) {
-            if (this.component) {
-                this.unregisterComponentListeners(this.component);
-            }
-            this.registerComponentListeners(component);
-        }
-
-        this.component = component;
-        this.refreshEmptyState();
-    }
-
-    getComponent(): COMPONENT {
-        return this.component;
-    }
-
-    hasComponentPath(): boolean {
-        return this.component && this.component.hasPath();
-    }
-
-    getComponentPath(): ComponentPath {
-        return this.hasComponentPath() ? this.component.getPath() : null;
-    }
-
     getName(): string {
-        return this.component && this.component.getName() ? this.component.getName().toString() : null;
+        return this.getType().getShortName();
     }
 
     getParentItemView(): RegionView {
@@ -363,26 +278,33 @@ export class ComponentView<COMPONENT extends Component>
         return this.moving;
     }
 
-    clone(): ComponentView<COMPONENT> {
-        const isFragmentContent: boolean = this.liveEditModel.getContent().getType().isFragment();
+    getPath(): ComponentPath {
+        if (this.getType() instanceof ComponentItemType && this.getParentItemView().getType() instanceof PageItemType) {
+            return ComponentPath.root();
+        }
+
+        return new ComponentPath(this.getParentItemView().getComponentViewIndex(this), this.getParentItemView().getPath());
+    }
+
+    clone(): ComponentView {
+        const isFragmentContent: boolean = this.getLiveEditParams().isFragment;
         const index: number = isFragmentContent ? 0 : this.getParentItemView().getComponentViewIndex(this);
 
         return this.createView(this.getType(),
-            new CreateItemViewConfig<RegionView, COMPONENT>().setParentView(this.getParentItemView()).setParentElement(
-                this.getParentElement()).setData(this.getComponent()).setPositionIndex(index)) as ComponentView<COMPONENT>;
+            new CreateItemViewConfig<RegionView>().setParentView(this.getParentItemView()).setParentElement(
+                this.getParentElement()).setPositionIndex(index)) as ComponentView;
     }
 
-    protected duplicate(duplicate: COMPONENT): ComponentView<COMPONENT> {
+    duplicate(): ComponentView {
+        const parentView = this.getParentItemView();
+        const index = parentView.getComponentViewIndex(this);
 
-        let parentView = this.getParentItemView();
-        let index = parentView.getComponentViewIndex(this);
-
-        let duplicateView = this.createView(this.getType(),
-            new CreateItemViewConfig<RegionView, COMPONENT>()
+        const duplicateView = this.createView(this.getType(),
+            new CreateItemViewConfig<RegionView>()
                 .setParentView(this.getParentItemView())
                 .setParentElement(this.getParentElement())
-                .setData(duplicate)
-                .setPositionIndex(index + 1)) as ComponentView<COMPONENT>;
+                .setLiveEditParams(this.getLiveEditParams())
+                .setPositionIndex(index + 1)) as ComponentView;
 
         duplicateView.skipInitOnAdd();
         parentView.addComponentView(duplicateView, index + 1);
@@ -390,37 +312,15 @@ export class ComponentView<COMPONENT extends Component>
         return duplicateView;
     }
 
-    private createFragment(): Q.Promise<Content> {
-        const contentId = this.getPageView().getLiveEditModel().getContent().getContentId();
-        const config = this.getPageView().getLiveEditModel().getPageModel().getConfig();
-
-        const request: CreateFragmentRequest =
-            new CreateFragmentRequest(contentId)
-                .setConfig(config)
-                .setComponent(this.getComponent())
-                .setWorkflow(this.getPageView().getLiveEditModel().getContent().getWorkflow());
-
-        return request.sendAndParse();
-    }
-
     toString() {
-        let extra = '';
-        if (this.hasComponentPath()) {
-            extra = ' : ' + this.getComponentPath().toString();
-        }
-        return super.toString() + extra;
+        return super.toString() + ' : ' + this.getPath().toString();
     }
 
-    replaceWith(replacement: ComponentView<COMPONENT>) {
+    replaceWith(replacement: ComponentView) {
         if (ComponentView.debug) {
             console.log('ComponentView[' + this.toString() + '].replaceWith', this, replacement);
         }
         super.replaceWith(replacement);
-
-        // unbind the old view from the component and bind the new one
-        if (this.component) {
-            this.unregisterComponentListeners(this.component);
-        }
         this.unbindMouseListeners();
 
         let parentIsPage = PageItemType.get().equals(this.getParentItemView().getType());
@@ -445,7 +345,7 @@ export class ComponentView<COMPONENT extends Component>
 
         this.moving = false;
 
-        if (parentRegionView.getRegionPath().equals(toRegionView.getRegionPath()) &&
+        if (parentRegionView.getPath().equals(toRegionView.getPath()) &&
             toIndex === parentRegionView.getComponentViewIndex(this)) {
 
             if (ComponentView.debug) {
@@ -502,7 +402,7 @@ export class ComponentView<COMPONENT extends Component>
         return this.getParentItemView().getComponentViewIndex(this) + 1;
     }
 
-    addComponentView(componentView: ComponentView<COMPONENT>, index: number) {
+    addComponentView(componentView: ComponentView, index: number) {
         this.getParentItemView().addComponentView(componentView, index, true);
     }
 
@@ -515,7 +415,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     isEmpty(): boolean {
-        return !this.component || this.component.isEmpty();
+        return this.empty;
     }
 
     private skipInitOnAdd(): void {

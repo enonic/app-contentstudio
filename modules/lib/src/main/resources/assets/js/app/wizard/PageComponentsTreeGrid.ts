@@ -2,242 +2,331 @@ import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {PageComponentsGridDragHandler} from './PageComponentsGridDragHandler';
-import {ItemView} from '../../page-editor/ItemView';
-import {PageView} from '../../page-editor/PageView';
-import {RegionView} from '../../page-editor/RegionView';
-import {ItemViewId} from '../../page-editor/ItemViewId';
-import {PageItemType} from '../../page-editor/PageItemType';
-import {RegionItemType} from '../../page-editor/RegionItemType';
-import {LayoutItemType} from '../../page-editor/layout/LayoutItemType';
-import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
-import {Content} from '../content/Content';
-import {ComponentView} from '../../page-editor/ComponentView';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
 import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridBuilder';
-import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
-import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {Component} from '../page/region/Component';
-import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
+import {ComponentsTreeItem} from './ComponentsTreeItem';
 import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorRequest';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {Descriptor} from '../page/Descriptor';
-import {TextItemType} from '../../page-editor/text/TextItemType';
-import {TextComponentView} from '../../page-editor/text/TextComponentView';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {PageComponentsTreeGridHelper} from './PageComponentsTreeGridHelper';
-import {ComponentType} from '../page/region/ComponentType';
 import {PartComponentType} from '../page/region/PartComponentType';
+import {Region} from '../page/region/Region';
+import {Page} from '../page/Page';
+import {LayoutComponent} from '../page/region/LayoutComponent';
+import {TreeComponent} from './TreeComponent';
+import {RegionItemType} from '../../page-editor/RegionItemType';
+import {FragmentComponent} from '../page/region/FragmentComponent';
+import {FragmentComponentType} from '../page/region/FragmentComponentType';
+import {TextComponent} from '../page/region/TextComponent';
+import {ItemViewIconClassResolver} from '../../page-editor/ItemViewIconClassResolver';
+import {TextComponentType} from '../page/region/TextComponentType';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
+import {Content} from '../content/Content';
+import {ComponentPath} from '../page/region/ComponentPath';
+import {PageItem} from '../page/region/PageItem';
+import {PageState} from './page/PageState';
+import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {PageItemType} from '../page/region/PageItemType';
 
 export class PageComponentsTreeGrid
-    extends TreeGrid<ItemViewTreeGridWrapper> {
+    extends TreeGrid<ComponentsTreeItem> {
 
-    private pageView: PageView;
-    private content: Content;
-    private nodeExpandedHandler?: ()=> void;
+    private nodeExpandedHandler?: () => void;
 
-    constructor(content: Content, pageView: PageView) {
-        super(new TreeGridBuilder<ItemViewTreeGridWrapper>()
-            .setColumns(PageComponentsTreeGridHelper.generateColumns(content))
+    constructor() {
+        super(new TreeGridBuilder<ComponentsTreeItem>()
+            .setColumns(PageComponentsTreeGridHelper.generateColumns())
             .setOptions(PageComponentsTreeGridHelper.generateOptions())
             .setShowToolbar(false)
-            .setAutoLoad(true)
+            .setAutoLoad(false)
             .prependClasses('page-components-tree-grid')
         );
 
-        this.content = content;
-        this.pageView = pageView;
-
-        (new PageComponentsGridDragHandler(this));
-    }
-
-    dataToTreeNode(data: ItemViewTreeGridWrapper, parent: TreeNode<ItemViewTreeGridWrapper>): TreeNode<ItemViewTreeGridWrapper> {
-        const node: TreeNode<ItemViewTreeGridWrapper> = super.dataToTreeNode(data, parent);
-
-        if (ObjectHelper.iFrameSafeInstanceOf(data.getItemView().getType(), FragmentItemType)) {
-            this.updateTreeNodeWithFragmentsOnLoad(node);
-        }
-
-        if (ObjectHelper.iFrameSafeInstanceOf(data.getItemView().getType(), TextItemType)) {
-            this.bindTreeTextNodeUpdateOnTextComponentModify(data.getItemView() as TextComponentView);
-        }
-
-        return node;
-    }
-
-    private bindTreeTextNodeUpdateOnTextComponentModify(textComponentView: TextComponentView) {
-        const handler = AppHelper.debounce((event) => {
-            this.updateNodeByData(new ItemViewTreeGridWrapper(textComponentView));
-        }, 500, false);
-
-        new MutationObserver(handler).observe(textComponentView.getHTMLElement(), {subtree: true, childList: true, characterData: true});
-    }
-
-    private updateTreeNodeWithFragmentsOnLoad(node: TreeNode<ItemViewTreeGridWrapper>) {
-        const fragmentView: FragmentComponentView = node.getData().getItemView() as FragmentComponentView;
-
-        if (fragmentView.isLoaded()) {
-            return;
-        }
-
-        const loadedListener = () => {
-            this.invalidateNodes([node]);
-            fragmentView.unFragmentContentLoaded(loadedListener);
-        };
-
-        fragmentView.onFragmentContentLoaded(loadedListener);
+        (new PageComponentsGridDragHandler(this, {
+            getPathByItem: this.getPathByItem.bind(this),
+            getItemByPath: this.getItemByPath.bind(this),
+            isDropAllowed: this.isDropAllowed.bind(this),
+        }));
     }
 
     queryScrollable(): Element {
         return this;
     }
 
-    setPageView(pageView: PageView): Q.Promise<void> {
-        this.pageView = pageView;
-        return this.reload();
-    }
-
     setNodeExpandedHandler(handler: () => void) {
         this.nodeExpandedHandler = handler;
     }
 
-    setInvalid(dataIds: string[]) {
-        let root = this.getRoot().getCurrentRoot();
+    setInvalid(paths: ComponentPath[]) {
+        const nodes: TreeNode<ComponentsTreeItem>[] = paths.map((path: ComponentPath) => this.getNodeByPath(path));
         let stylesHash = {};
 
-        dataIds.forEach((dataId) => {
-            let node = root.findNode(dataId);
-            if (node) {
-                let row = this.getRowByNodeId(node.getId());
-                stylesHash[row] = {displayName: 'invalid', menu: 'invalid'};
-            }
+        nodes.filter((node: TreeNode<ComponentsTreeItem>) => !!node).forEach((node: TreeNode<ComponentsTreeItem>) => {
+            const row: number = this.getRowByNodeId(node.getId());
+            stylesHash[row] = {displayName: 'invalid', menu: 'invalid'};
         });
+
         this.getGrid().setCellCssStyles('invalid-highlight', stylesHash);
     }
 
-    hasChildren(data: ItemViewTreeGridWrapper): boolean {
-        return this.getDataChildren(data.getItemView()).length > 0;
+    hasChildren(data: ComponentsTreeItem): boolean {
+        return data.getComponent().hasChildren();
     }
 
-    fetch(node: TreeNode<ItemViewTreeGridWrapper>, dataId?: string): Q.Promise<ItemViewTreeGridWrapper> {
-        const itemViewId: ItemViewId = dataId ? new ItemViewId(parseInt(dataId, 10)) : node.getData().getItemView().getItemId();
-        return Q(new ItemViewTreeGridWrapper(this.pageView.getItemViewById(itemViewId)));
-    }
-
-    fetchRoot(): Q.Promise<ItemViewTreeGridWrapper[]> {
-        if (this.pageView.getFragmentView()) {
-            const itemWrapper: ItemViewTreeGridWrapper = new ItemViewTreeGridWrapper(this.pageView.getFragmentView());
-            return this.fetchDescriptions([itemWrapper]);
-        } else {
-            return Q([new ItemViewTreeGridWrapper(this.pageView)]);
-        }
-    }
-
-    fetchChildren(parentNode: TreeNode<ItemViewTreeGridWrapper>): Q.Promise<ItemViewTreeGridWrapper[]> {
-        const itemWrappers: ItemViewTreeGridWrapper[] =
-            this.getDataChildren(parentNode.getData().getItemView()).map((item: ItemView) => new ItemViewTreeGridWrapper(item));
-
-        return this.fetchDescriptions(itemWrappers);
-    }
-
-    private fetchDescriptions(itemWrappers: ItemViewTreeGridWrapper[]): Q.Promise<ItemViewTreeGridWrapper[]> {
-        return Q.all(itemWrappers.map((itemWrapper: ItemViewTreeGridWrapper) => this.fetchDescription(itemWrapper)));
-    }
-
-    private fetchDescription(itemViewWrapper: ItemViewTreeGridWrapper): Q.Promise<ItemViewTreeGridWrapper> {
-        const itemView: ItemView = itemViewWrapper.getItemView();
-
-        if (!itemView.isPart() && !itemView.isLayout()) {
-            return Q.resolve(itemViewWrapper);
+    private hasComponentChildren(item: PageItem): boolean {
+        if (item instanceof Page) {
+            return !item.getRegions().isEmpty();
         }
 
-        const component: DescriptorBasedComponent = (itemView as ComponentView<DescriptorBasedComponent>).getComponent();
-        if (!component || !component.hasDescriptor()) {
-            return Q.resolve(itemViewWrapper);
+        if (item instanceof Region) {
+            return item.getComponents().length > 0;
         }
 
-        const descriptorKey: string = component.getDescriptorKey().toString();
-        const type: ComponentType = itemView.isLayout() ? LayoutComponentType.get() : PartComponentType.get();
-        const request: GetComponentDescriptorRequest = new GetComponentDescriptorRequest(descriptorKey, type);
+        if (item instanceof LayoutComponent) {
+            return !item.getRegions().isEmpty();
+        }
 
-        return request.sendAndParse().then((descriptor: Descriptor) => {
-            itemViewWrapper.setDisplayName(descriptor.getDisplayName());
-            component.setDescription(descriptor.getDescription());
-            component.setIcon(descriptor.getIcon());
-            return itemViewWrapper;
+        return false;
+    }
+
+    reload(): Q.Promise<void> {
+        if (!PageState.getState()) {
+            return Q.resolve();
+        }
+
+        return super.reload();
+    }
+
+    fetchRoot(): Q.Promise<ComponentsTreeItem[]> {
+        if (PageState.getState().getFragment()) {
+            return this.fetchRootFragment().then((rootFragment: ComponentsTreeItem) => [rootFragment]);
+        }
+
+        return this.fetchRootPageItem().then((rootPageItem: ComponentsTreeItem) => [rootPageItem]);
+    }
+
+    private fetchRootFragment(): Q.Promise<ComponentsTreeItem> {
+        const component: Component = PageState.getState().getFragment();
+
+        return this.fetchDescriptor(component).then((descriptor: Descriptor) => {
+            const fullComponent: TreeComponent = TreeComponent.create()
+                .setDisplayName(descriptor?.getDisplayName())
+                .setDescription(descriptor?.getDescription() || component.getType().getShortName())
+                .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
+                .setHasChildren(!!descriptor?.getRegions()?.length)
+                .setType(component.getType())
+                .build();
+
+            return new ComponentsTreeItem(fullComponent);
         });
     }
 
-    private getDataChildren(data: ItemView): ItemView[] {
-        let children = [];
-        let dataType = data.getType();
-        if (PageItemType.get().equals(dataType)) {
-            let pageView = data as PageView;
-            children = pageView.getRegions();
-            if (children.length === 0) {
-                let fragmentRoot = pageView.getFragmentView();
-                if (fragmentRoot) {
-                    return [fragmentRoot];
-                }
-            }
-        } else if (RegionItemType.get().equals(dataType)) {
-            let regionView = data as RegionView;
-            children = regionView.getComponentViews();
-        } else if (LayoutItemType.get().equals(dataType)) {
-            let layoutView = data as LayoutComponentView;
-            children = layoutView.getRegions();
-        }
-        return children;
+    private fetchRootPageItem(): Q.Promise<ComponentsTreeItem> {
+        return new GetComponentDescriptorRequest(PageState.getState().getController().toString()).sendAndParse().then((descriptor) => {
+            const fullComponent: TreeComponent = TreeComponent.create()
+                .setDisplayName(descriptor?.getDisplayName())
+                .setDescription(descriptor?.getDescription() || this.makeNoDescriptionText())
+                .setIconClass('icon-file')
+                .setHasChildren(this.hasComponentChildren(PageState.getState()))
+                .setType('page')
+                .build();
+
+            return new ComponentsTreeItem(fullComponent);
+        });
     }
 
-    addComponentToParent(component: ComponentView<Component>, parent: RegionView) {
-        const parentNode: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(parent.getItemId().toString());
+    private makeNoDescriptionText(): string {
+        return `<${i18n('text.noDescription')}>`;
+    }
+
+    fetchChildren(parentNode: TreeNode<ComponentsTreeItem>): Q.Promise<ComponentsTreeItem[]> {
+        const path: ComponentPath = this.getNodePath(parentNode);
+        const component: PageItem = PageState.getComponentByPath(path);
+
+        if (component instanceof Page) {
+            return Q.resolve(component.getRegions().getRegions().map((region: Region) => this.regionToComponentsTreeItem(region)));
+        }
+
+        if (component instanceof Region) {
+            return this.fetchRegionItems(component);
+        }
+
+        if (component instanceof LayoutComponent) {
+            return Q.resolve(component.getRegions().getRegions().map((region: Region) => this.regionToComponentsTreeItem(region)));
+        }
+
+        return Q.resolve([]);
+    }
+
+    private regionToComponentsTreeItem(region: Region): ComponentsTreeItem {
+        const fullComponent: TreeComponent = TreeComponent.create()
+            .setDisplayName(region.getName())
+            .setDescription(RegionItemType.get().getShortName())
+            .setIconClass(ItemViewIconClassResolver.resolveByType(RegionItemType.get().getShortName()))
+            .setHasChildren(this.hasComponentChildren(region))
+            .setType('region')
+            .build();
+
+        return new ComponentsTreeItem(fullComponent);
+    }
+
+    private fetchRegionItems(region: Region): Q.Promise<ComponentsTreeItem[]> {
+        const promises: Q.Promise<ComponentsTreeItem>[] = [];
+
+        region.getComponents().forEach((component: Component) => {
+            promises.push(this.fetchTreeItem(component));
+        });
+
+        return Q.all(promises);
+    }
+
+    private fetchTreeItem(component: Component): Q.Promise<ComponentsTreeItem> {
+        return this.fetchComponentItem(component).then((fullComponent: TreeComponent) => {
+            return new ComponentsTreeItem(fullComponent);
+        });
+    }
+
+    private fetchComponentItem(component: Component): Q.Promise<TreeComponent> {
+        if (component instanceof FragmentComponent) {
+            return this.fetchFragmentItem(component);
+        }
+
+        if (component instanceof DescriptorBasedComponent) {
+            return this.fetchDescriptorBasedComponent(component);
+        }
+
+        if (component instanceof TextComponent) {
+            return Q.resolve(this.makeTextComponentItem(component));
+        }
+
+        return Q.resolve(TreeComponent.create().setDisplayName(component.getName().toString()).setDescription(
+            component.getType().getShortName()).setType(component.getType()).build());
+    }
+
+    private fetchFragmentItem(fragmentComponent: FragmentComponent): Q.Promise<TreeComponent> {
+        const fragmentPromise: Q.Promise<Content | null> = fragmentComponent.hasFragment() ? new GetContentByIdRequest(
+            fragmentComponent.getFragment()).sendAndParse() : Q(null);
+
+        return fragmentPromise.then((content: Content | null) => {
+            return TreeComponent.create()
+                .setDisplayName(content?.getDisplayName() || fragmentComponent.getName().toString())
+                .setDescription(content?.getPage()?.getFragment()?.getType().getShortName() || fragmentComponent.getType().getShortName())
+                .setIconClass(ItemViewIconClassResolver.resolveByType(FragmentComponentType.get().getShortName()))
+                .setHasChildren(false)
+                .setType(FragmentComponentType.get())
+                .build();
+        });
+    }
+
+    private fetchDescriptorBasedComponent(component: DescriptorBasedComponent): Q.Promise<TreeComponent> {
+        return this.fetchDescriptor(component).then((descriptor: Descriptor) => {
+            return TreeComponent.create()
+                .setDisplayName(descriptor?.getDisplayName() || component.getName().toString())
+                .setDescription(descriptor?.getDescription() || this.makeNoDescriptionText())
+                .setIconUrl(descriptor?.getIcon())
+                .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
+                .setHasChildren(!!descriptor?.getRegions()?.length)
+                .setType(component.getType())
+                .build();
+        });
+    }
+
+    private makeTextComponentItem(component: TextComponent): TreeComponent {
+        return TreeComponent.create()
+            .setDisplayName(StringHelper.htmlToString(component.getText()) || component.getName().toString())
+            .setDescription(TextComponentType.get().getShortName())
+            .setIconClass(ItemViewIconClassResolver.resolveByType(component.getType().getShortName()))
+            .setHasChildren(false)
+            .setType(TextComponentType.get())
+            .build();
+    }
+
+    private fetchDescriptor(component: Component): Q.Promise<Descriptor | null> {
+        if (!(component instanceof DescriptorBasedComponent)) {
+            return Q.resolve(null);
+        }
+
+        if (!component.hasDescriptor()) {
+            return Q.resolve(null);
+        }
+
+        const descriptorKey: string = component.getDescriptorKey().toString();
+        const type: LayoutComponentType | PartComponentType = component instanceof LayoutComponent ? LayoutComponentType.get() : PartComponentType.get();
+        return new GetComponentDescriptorRequest(descriptorKey, type).sendAndParse();
+    }
+
+    addComponent(component: Component): Q.Promise<ComponentsTreeItem> {
+        const parentNode: TreeNode<ComponentsTreeItem> = this.getNodeByPath(component.getParent().getPath());
         if (!parentNode) {
             return;
         }
 
-        const index: number = parent.getComponentViews().indexOf(component);
+        const index: number = component.getIndex();
         if (index < 0) {
             return;
         }
 
-        const wrapper: ItemViewTreeGridWrapper = new ItemViewTreeGridWrapper(component);
-        this.insertDataToParentNode(wrapper, parentNode, index);
-        this.fetchDescription(wrapper);
+        return this.fetchComponentItem(component).then((fullComponent: TreeComponent) => {
+            const item: ComponentsTreeItem = new ComponentsTreeItem(fullComponent);
+            this.insertDataToParentNode(item, parentNode, index);
+
+            return item;
+        });
+
     }
 
-    refreshComponentNode(componentView: ComponentView<Component>, oldComponentView: ComponentView<Component>, clean?: boolean) {
-        const oldDataId: string = oldComponentView.getItemId().toString();
-        const oldNode: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(oldDataId);
+    reloadItemByPath(path: ComponentPath): void {
+        this.refreshComponentNode(path);
+        this.scrollToItem(path);
+
+        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
+        const type: PageItemType = node.getData().getComponent().getType();
+
+        if (type instanceof LayoutComponentType) {
+            this.expandNode(node);
+            return;
+        }
+    }
+
+    refreshComponentNode(path: ComponentPath, clean?: boolean): Q.Promise<void> {
+        const oldNode: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
+
+        if (oldNode) {
+            return Q.resolve();
+        }
 
         if (clean) {
-            oldNode.getChildren().forEach((childNode: TreeNode<ItemViewTreeGridWrapper>) => {
+            oldNode.getChildren().forEach((childNode: TreeNode<ComponentsTreeItem>) => {
                 this.deleteNode(childNode);
             });
         }
 
-        this.updateNodeByData(new ItemViewTreeGridWrapper(componentView), oldDataId);
+        return this.fetchComponentItem(null).then((treeComponent: TreeComponent) => {
+            this.updateNodeByData(new ComponentsTreeItem(treeComponent), oldNode.getDataId());
 
-        const dataId: string = componentView.getItemId().toString();
-
-        if (componentView.isSelected()) {
-            this.selectNode(dataId);
-        }
-
-        if (ObjectHelper.iFrameSafeInstanceOf(componentView.getType(), TextItemType)) {
-            this.bindTreeTextNodeUpdateOnTextComponentModify(componentView as TextComponentView);
-        }
+            if (this.isItemSelected(path)) {
+                this.selectItemByPath(path);
+            }
+        });
     }
 
-    protected doUpdateNodeByData(nodeToUpdate: TreeNode<ItemViewTreeGridWrapper>, data: ItemViewTreeGridWrapper): void {
+    resetComponentByPath(path: ComponentPath): void {
+
+    }
+
+    protected doUpdateNodeByData(nodeToUpdate: TreeNode<ComponentsTreeItem>, data: ComponentsTreeItem): void {
         nodeToUpdate.setExpandable(this.hasChildren(data));
         super.doUpdateNodeByData(nodeToUpdate, data);
     }
 
-    scrollToItem(dataId: string) {
-        const node: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+    scrollToItem(path: ComponentPath) {
+        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
 
         if (node) {
             this.scrollToRow(this.getRowByNodeId(node.getId()));
@@ -248,6 +337,46 @@ export class PageComponentsTreeGrid
                 itemElement.scrollIntoView();
             }
         }
+    }
+
+    isItemSelected(path: ComponentPath): boolean {
+        if (!this.hasSelectedItems()) {
+            return false;
+        }
+
+        return this.getSelectedDataList().map(item => this.getPathByItem(item)).some(
+            (selectedItemPath: ComponentPath) => selectedItemPath.equals(path));
+    }
+
+    private getNodeByPath(path: ComponentPath): TreeNode<ComponentsTreeItem> {
+        if (!path) {
+            return null;
+        }
+
+        return this.getRoot().getAllDefaultRootNodes().find((node: TreeNode<ComponentsTreeItem>) => {
+            const nodePath = this.getNodePath(node);
+            return path.equals(nodePath);
+        });
+    }
+
+    private getItemByPath(path: ComponentPath): ComponentsTreeItem {
+        return this.getNodeByPath(path)?.getData();
+    }
+
+    private isDropAllowed(draggedItem: ComponentsTreeItem): boolean {
+        if (draggedItem.getType() instanceof FragmentComponentType) {
+            const path: ComponentPath = this.getPathByItem(draggedItem);
+            const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
+            return !this.hasLayout(node);
+        }
+
+        return true;
+    }
+
+    private hasLayout(node: TreeNode<ComponentsTreeItem>): boolean {
+        return node?.getChildren().some((childNode: TreeNode<ComponentsTreeItem>) => {
+           return childNode.getData()?.getComponent().getType() instanceof LayoutComponentType || this.hasLayout(childNode);
+        });
     }
 
     private isElementInViewport(element: HTMLElement): boolean {
@@ -261,10 +390,11 @@ export class PageComponentsTreeGrid
         );
     }
 
-    protected isToBeExpanded(node: TreeNode<ItemViewTreeGridWrapper>): boolean {
+    protected isToBeExpanded(node: TreeNode<ComponentsTreeItem>): boolean {
+        const treeComponent: TreeComponent = node.getData().getComponent();
+
         return super.isToBeExpanded(node) ||
-               !node.getData().getItemView().getType().equals(LayoutItemType.get()) ||
-               node.getData().getItemView().getParentItemView() === this.pageView;
+               !(treeComponent.getType() instanceof LayoutComponentType) || node.getParent() === node.getRoot();
     }
 
     mask() {
@@ -275,45 +405,33 @@ export class PageComponentsTreeGrid
         // skipping mask for now to avoid flickering
     }
 
-    protected expandNode(node?: TreeNode<ItemViewTreeGridWrapper>): Q.Promise<boolean> {
+    protected expandNode(node?: TreeNode<ComponentsTreeItem>): Q.Promise<boolean> {
         return super.expandNode(node).then((expanded: boolean) => {
             this.nodeExpandedHandler?.();
             return expanded;
         });
     }
 
-    protected deleteNode(node: TreeNode<ItemViewTreeGridWrapper>): void {
+    protected deleteNode(node: TreeNode<ComponentsTreeItem>): void {
         if (node.hasChildren()) {
-            node.getChildren().forEach((childNode: TreeNode<ItemViewTreeGridWrapper>) => this.deleteNode(childNode));
+            node.getChildren().forEach((childNode: TreeNode<ComponentsTreeItem>) => this.deleteNode(childNode));
         }
 
         super.deleteNode(node);
     }
 
-    selectItemByDataId(dataId: string): void { // not using selectNode() because it triggers extra selectRow() call
-        if (this.getSelectedItems()[0] !== dataId) { // if not already selected
-            const nodeId: string = this.getRoot().getNodeByDataIdFromCurrent(dataId)?.getId();
-
-            if (nodeId) {
-                this.selectRow(this.getRowByNodeId(nodeId));
-            }
-        }
-    }
-
-    selectItemByComponentView(view: ItemView): void {
-        const dataId: string = view.getItemId().toString();
-
-        this.expandRecursivelyFromTopToView(view.getParentItemView()).then(() => {
-            if (this.getSelectedItems()[0] !== dataId) { // if not already selected
-                const node: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+    selectItemByPath(path: ComponentPath): Q.Promise<void> {
+        return this.expandRecursivelyFromTopToView(path.getParentPath()).then(() => {
+            if (!this.isItemSelected(path)) { // if not already selected
+                const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
                 if (node) {
                     this.selectRow(this.getRowByNodeId(node.getId()));
                 }
             }
-        }).catch(DefaultErrorHandler.handle);
+        });
     }
 
-    private expandRecursivelyFromTopToNode(node?: TreeNode<ItemViewTreeGridWrapper>): Q.Promise<boolean> {
+    private expandRecursivelyFromTopToNode(node?: TreeNode<ComponentsTreeItem>): Q.Promise<boolean> {
         if (!node) {
             return Q.resolve(true);
         }
@@ -326,22 +444,21 @@ export class PageComponentsTreeGrid
         });
     }
 
-    private expandRecursivelyFromTopToView(view?: ItemView): Q.Promise<boolean> {
-        if (!view) {
+    private expandRecursivelyFromTopToView(path?: ComponentPath): Q.Promise<boolean> {
+        if (!path) {
             return Q.resolve(true);
         }
 
-        const dataId: string = view.getItemId().toString();
-        const node: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
 
         if (node) { // ItemView's corresponding node is already in the tree
             return this.expandRecursivelyFromTopToNode(node);
         }
 
         // No node in the tree for the ItemView, looking for the first parent ItemView with a node in the tree
-        return this.expandRecursivelyFromTopToView(view.getParentItemView()).then(() => {
+        return this.expandRecursivelyFromTopToView(path.getParentPath()).then(() => {
             // after parent items expanded, looking for the node again
-            const node: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+            const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
 
             return !!node ? this.expandNode(node) : Q.resolve(false);
         });
@@ -349,9 +466,9 @@ export class PageComponentsTreeGrid
 
     protected selectRow(row: number, debounce?: boolean): void {
         // TreeGrid does not have select/deselect click handler, so need to handle deselect ourselves
-        const currentlySelectedItem: ItemViewTreeGridWrapper = this.getFirstSelectedItem();
+        const currentlySelectedItem: ComponentsTreeItem = this.getFirstSelectedItem();
         super.selectRow(row, debounce);
-        const newlySelectedItem: ItemViewTreeGridWrapper = this.getFirstSelectedItem();
+        const newlySelectedItem: ComponentsTreeItem = this.getFirstSelectedItem();
 
         if (newlySelectedItem === currentlySelectedItem) {
             this.deselectNodes([currentlySelectedItem.getId()]);
@@ -360,6 +477,62 @@ export class PageComponentsTreeGrid
 
     private getRowByNodeId(nodeId: string): number {
         return this.getGrid().getDataView().getRowById(nodeId);
+    }
+
+    deleteItemByPath(path: ComponentPath): void {
+        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
+
+        if (node) {
+            this.deleteNode(node);
+        }
+    }
+
+    updateItemByEvent(event: ComponentUpdatedEvent): void {
+        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(event.getPath());
+
+        if (node) {
+            const item: PageItem = PageState.getState().getComponentByPath(event.getPath());
+
+            if (item instanceof Region) {
+                //
+            } else if (item instanceof Component) {
+                this.fetchTreeItem(item).then((treeComponent: ComponentsTreeItem) => {
+                    node.setData(treeComponent);
+                    node.setExpandable(treeComponent.getComponent().hasChildren());
+                    this.invalidateNodes([node]);
+                }).catch(DefaultErrorHandler.handle);
+            }
+        }
+    }
+
+    getPathByItem(item: ComponentsTreeItem): ComponentPath {
+        if (item.getType() === 'page') {
+            return ComponentPath.root();
+        }
+
+        const node: TreeNode<ComponentsTreeItem> = this.getRoot().getAllDefaultRootNodes().find((node: TreeNode<ComponentsTreeItem>) => {
+            return node.getDataId() === item.getId();
+        });
+
+        return node ? this.getNodePath(node) : null;
+    }
+
+    getNodePath(node: TreeNode<ComponentsTreeItem>): ComponentPath {
+        let result: string = '';
+
+        while (node?.hasParent()) {
+            if (node.getParent() === node.getRoot()) {
+                //
+            } else if (node.getData().getType() === 'region') {
+                result = '/' + node.getData().getComponent().getDisplayName() + result;
+            } else {
+                result = '/' + node.getParent().getChildren().indexOf(node) + result ;
+            }
+
+            node = node.getParent();
+        }
+
+        return ComponentPath.fromString(result);
     }
 
 }

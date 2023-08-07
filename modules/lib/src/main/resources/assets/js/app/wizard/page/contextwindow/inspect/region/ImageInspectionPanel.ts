@@ -21,11 +21,12 @@ import {ContentSummary, ContentSummaryBuilder} from '../../../../../content/Cont
 import {ContentId} from '../../../../../content/ContentId';
 import {ContentPath} from '../../../../../content/ContentPath';
 import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
-import {ComponentPropertyChangedEventHandler} from '../../../../../page/region/Component';
-import {ContentTreeSelectorItem} from '../../../../../item/ContentTreeSelectorItem';
-import {
-    ImageSelectorSelectedOptionsView
-} from '../../../../../inputtype/ui/selector/image/ImageSelectorSelectedOptionsView';
+import {ComponentPropertyChangedEventHandler, ComponentUpdatedEventHandler} from '../../../../../page/region/Component';
+import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
+import {PageState} from '../../../PageState';
+import {ComponentDescriptorUpdatedEvent} from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
+import {ComponentImageUpdatedEvent} from '../../../../../page/region/ComponentImageUpdatedEvent';
+import {ImageSelectorSelectedOptionsView} from '../../../../../inputtype/ui/selector/image/ImageSelectorSelectedOptionsView';
 
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {
@@ -38,7 +39,7 @@ export class ImageInspectionPanel
 
     private handleSelectorEvents: boolean = true;
 
-    private readonly componentPropertyChangedEventHandler: ComponentPropertyChangedEventHandler;
+    private componentUpdateHandler: ComponentUpdatedEventHandler;
 
     constructor() {
         super({
@@ -53,10 +54,10 @@ export class ImageInspectionPanel
 
         this.imageSelectorForm = new ImageSelectorForm(this.imageSelector, i18n('field.image'));
 
-        this.componentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => {
+        this.componentUpdateHandler = (event: ComponentUpdatedEvent): void => {
             // Ensure displayed config form and selector option are removed when image is removed
-            if (event.getPropertyName() === ImageComponent.PROPERTY_IMAGE) {
-                if (!this.component.hasImage()) {
+            if (event instanceof ComponentImageUpdatedEvent && event.getPath().equals(this.component?.getPath())) {
+                if (!event.getImageId()) {
                     this.setupComponentForm(this.component);
                     this.imageSelector.setContent(null);
                 }
@@ -66,10 +67,6 @@ export class ImageInspectionPanel
         this.initSelectorListeners();
         this.initListeners();
         this.appendChild(this.imageSelectorForm);
-    }
-
-    setImageComponentView(imageView: ImageComponentView) {
-        (/*<any>*/this.imageSelector.getLoader()).setContent(imageView.getLiveEditModel().getContent());
     }
 
     setImageComponent(component: ImageComponent) {
@@ -108,13 +105,13 @@ export class ImageInspectionPanel
 
     private registerComponentListeners() {
         if (this.component) {
-            this.component.onPropertyChanged(this.componentPropertyChangedEventHandler);
+            PageState.getEvents().onComponentUpdated(this.componentUpdateHandler);
         }
     }
 
     private unregisterComponentListeners() {
         if (this.component) {
-            this.component.unPropertyChanged(this.componentPropertyChangedEventHandler);
+            PageState.getEvents().unComponentUpdated(this.componentUpdateHandler);
         }
     }
 

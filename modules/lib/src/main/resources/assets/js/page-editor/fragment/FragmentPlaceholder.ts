@@ -13,6 +13,7 @@ import {Content} from '../../app/content/Content';
 import {FragmentComponent} from '../../app/page/region/FragmentComponent';
 import {LayoutComponentType} from '../../app/page/region/LayoutComponentType';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {SetFragmentComponentEvent} from '../event/outgoing/manipulation/SetFragmentComponentEvent';
 
 export class FragmentPlaceholder
     extends ItemViewPlaceholder {
@@ -32,7 +33,7 @@ export class FragmentPlaceholder
 
         this.comboboxWrapper = new DivEl('rich-combobox-wrapper');
 
-        let sitePath = this.fragmentComponentView.getLiveEditModel().getSiteModel().getSite().getPath().toString();
+        let sitePath = this.fragmentComponentView.getLiveEditParams().sitePath;
         let loader = new FragmentOptionDataLoader().setParentSitePath(sitePath);
 
         this.comboBox = ContentComboBox.create()
@@ -47,25 +48,24 @@ export class FragmentPlaceholder
         this.appendChild(this.comboboxWrapper);
 
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
-
-            let component: FragmentComponent = this.fragmentComponentView.getComponent();
             let fragmentContent = event.getSelectedOption().getOption().getDisplayValue();
 
             if (this.isInsideLayout()) {
                 new GetContentByIdRequest(fragmentContent.getContentId()).sendAndParse().done((content: Content) => {
                     let fragmentComponent = content.getPage() ? content.getPage().getFragment() : null;
 
-                    if (fragmentComponent && ObjectHelper.iFrameSafeInstanceOf(fragmentComponent.getType(), LayoutComponentType)) {
+                    if (fragmentComponent && fragmentComponent.getType() instanceof LayoutComponentType) {
                         this.comboBox.clearSelection();
                         new ShowWarningLiveEditEvent(i18n('notify.nestedLayouts')).fire();
-
                     } else {
-                        component.setFragment(fragmentContent.getContentId(), fragmentContent.getDisplayName());
+                        new SetFragmentComponentEvent(this.fragmentComponentView.getPath(),
+                            fragmentContent.getContentId().toString()).fire();
                         this.fragmentComponentView.showLoadingSpinner();
                     }
                 });
             } else {
-                component.setFragment(fragmentContent.getContentId(), fragmentContent.getDisplayName());
+                new SetFragmentComponentEvent(this.fragmentComponentView.getPath(),
+                    fragmentContent.getContentId().toString()).fire();
                 this.fragmentComponentView.showLoadingSpinner();
             }
         });
@@ -80,7 +80,8 @@ export class FragmentPlaceholder
         if (!parent) {
             return false;
         }
-        return ObjectHelper.iFrameSafeInstanceOf(parent.getType(), LayoutItemType);
+
+        return parent.getType() instanceof LayoutItemType;
     }
 
     select() {

@@ -9,9 +9,9 @@ export class ComponentDetachedFromFragmentEvent
 
     private componentType: ComponentType;
 
-    private componentView: ComponentView<Component>;
+    private componentView: ComponentView;
 
-    constructor(componentView: ComponentView<Component>, componentType: ComponentType) {
+    constructor(componentView: ComponentView, componentType: ComponentType) {
         super();
         this.componentView = componentView;
         this.componentType = componentType;
@@ -25,7 +25,7 @@ export class ComponentDetachedFromFragmentEvent
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    getComponentView(): ComponentView<Component> {
+    getComponentView(): ComponentView {
         return this.componentView;
     }
 

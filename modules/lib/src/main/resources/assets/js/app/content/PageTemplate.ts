@@ -63,7 +63,7 @@ export class PageTemplate
         if (!this.isPage()) {
             return false;
         }
-        return this.getPage().hasRegions();
+        return this.getPage().hasNonEmptyRegions();
     }
 
     getRegions(): Regions {

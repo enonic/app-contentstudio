@@ -41,7 +41,7 @@ export class DefaultModelsFactory {
 
                 if (defaultPageTemplateDescriptorPromise) {
                     defaultPageTemplateDescriptorPromise.then((defaultPageTemplateDescriptor: Descriptor) => {
-                        return PageHelper.fetchAndInjectPageRegions(defaultPageTemplate.getPage(), defaultPageTemplateDescriptor).then(() => {
+                        return PageHelper.injectEmptyRegionsIntoPage(defaultPageTemplate.getPage()).then(() => {
                             deferred.resolve(new DefaultModels(defaultPageTemplate, defaultPageTemplateDescriptor));
                         });
                     }).catch((reason) => {

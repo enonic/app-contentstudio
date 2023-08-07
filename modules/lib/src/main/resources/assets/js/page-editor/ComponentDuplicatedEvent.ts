@@ -6,22 +6,22 @@ import {Component} from '../app/page/region/Component';
 export class ComponentDuplicatedEvent
     extends Event {
 
-    private originalComponentView: ComponentView<Component>;
+    private originalComponentView: ComponentView;
 
-    private duplicatedComponentView: ComponentView<Component>;
+    private duplicatedComponentView: ComponentView;
 
-    constructor(originalComponentView: ComponentView<Component>,
-                duplicatedComponentView: ComponentView<Component>) {
+    constructor(originalComponentView: ComponentView,
+                duplicatedComponentView: ComponentView) {
         super();
         this.originalComponentView = originalComponentView;
         this.duplicatedComponentView = duplicatedComponentView;
     }
 
-    getOriginalComponentView(): ComponentView<Component> {
+    getOriginalComponentView(): ComponentView {
         return this.originalComponentView;
     }
 
-    getDuplicatedComponentView(): ComponentView<Component> {
+    getDuplicatedComponentView(): ComponentView {
         return this.duplicatedComponentView;
     }
 

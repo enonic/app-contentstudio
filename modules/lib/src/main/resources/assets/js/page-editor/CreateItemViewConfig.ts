@@ -6,18 +6,19 @@ import {RegionView} from './RegionView';
 import {Content} from '../app/content/Content';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {FragmentComponent} from '../app/page/region/FragmentComponent';
+import {LiveEditParams} from './LiveEditParams';
 
-export class CreateItemViewConfig<PARENT extends ItemView, DATA> {
+export class CreateItemViewConfig<PARENT extends ItemView> {
 
     itemViewIdProducer: ItemViewIdProducer;
 
     itemViewFactory: ItemViewFactory;
 
+    liveEditParams: LiveEditParams;
+
     parentView: PARENT;
 
     parentElement: Element;
-
-    data: DATA;
 
     element: Element;
 
@@ -26,7 +27,7 @@ export class CreateItemViewConfig<PARENT extends ItemView, DATA> {
     /**
      * Optional. The ItemViewIdProducer of parentRegionView will be used if not set.
      */
-    setItemViewIdProducer(value: ItemViewIdProducer): CreateItemViewConfig<PARENT, DATA> {
+    setItemViewIdProducer(value: ItemViewIdProducer): CreateItemViewConfig<PARENT> {
         this.itemViewIdProducer = value;
         return this;
     }
@@ -34,27 +35,22 @@ export class CreateItemViewConfig<PARENT extends ItemView, DATA> {
     /**
      * Optional. The ItemViewFactory of parentRegionView will be used if not set.
      */
-    setItemViewFactory(value: ItemViewFactory): CreateItemViewConfig<PARENT, DATA> {
+    setItemViewFactory(value: ItemViewFactory): this {
         this.itemViewFactory = value;
         return this;
     }
 
-    setParentView(value: PARENT): CreateItemViewConfig<PARENT, DATA> {
+    setParentView(value: PARENT): this {
         this.parentView = value;
         return this;
     }
 
-    setParentElement(value: Element): CreateItemViewConfig<PARENT, DATA> {
+    setParentElement(value: Element): this {
         this.parentElement = value;
         return this;
     }
 
-    setData(value: DATA): CreateItemViewConfig<PARENT, DATA> {
-        this.data = value;
-        return this;
-    }
-
-    setElement(value: Element): CreateItemViewConfig<PARENT, DATA> {
+    setElement(value: Element): this {
         this.element = value;
         return this;
     }
@@ -62,14 +58,19 @@ export class CreateItemViewConfig<PARENT extends ItemView, DATA> {
     /**
      * Optional. If not set then ItemView should be added as last child.
      */
-    setPositionIndex(value: number): CreateItemViewConfig<PARENT, DATA> {
+    setPositionIndex(value: number): this {
         this.positionIndex = value;
+        return this;
+    }
+
+    setLiveEditParams(value: LiveEditParams): this {
+        this.liveEditParams = value;
         return this;
     }
 }
 
 export class CreateFragmentViewConfig
-    extends CreateItemViewConfig<RegionView, FragmentComponent> {
+    extends CreateItemViewConfig<RegionView> {
 
     fragmentContent: Content;
     sourceComponentType: ComponentType;

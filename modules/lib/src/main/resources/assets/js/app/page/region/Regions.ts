@@ -2,15 +2,18 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Region} from './Region';
 import {RegionsChangedEvent} from './RegionsChangedEvent';
-import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
-import {RegionChangedEvent} from './RegionChangedEvent';
 import {RegionAddedEvent} from './RegionAddedEvent';
 import {RegionRemovedEvent} from './RegionRemovedEvent';
 import {RegionJson} from './RegionJson';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
-import {RegionPath} from './RegionPath';
 import {RegionDescriptor} from '../RegionDescriptor';
-import {ComponentPropertyChangedEventHandler} from './Component';
+import {ComponentPath} from './ComponentPath';
+import {ComponentAddedEvent} from './ComponentAddedEvent';
+import {ComponentRemovedEvent} from './ComponentRemovedEvent';
+import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
+import {ComponentEventsHolder} from '../../wizard/page/ComponentEventsHolder';
+import {ComponentEventsWrapper} from '../../wizard/page/ComponentEventsWrapper';
+import {ComponentAddedEventHandler, ComponentRemovedEventHandler, ComponentUpdatedEventHandler} from './Component';
 
 export class Regions
     implements Equitable {
@@ -19,18 +22,19 @@ export class Regions
 
     private regionByName: Map<string, Region> = new Map<string, Region>();
 
-    private changedListeners: ((event: RegionsChangedEvent) => void)[] = [];
+    private readonly componentEventsHolder: ComponentEventsHolder;
 
-    private componentPropertyChangedListeners: ComponentPropertyChangedEventHandler[] = [];
+    private readonly componentAddedHandler: ComponentAddedEventHandler;
 
-    private readonly regionChangedEventHandler: (event: BaseRegionChangedEvent) => void;
+    private readonly componentRemovedHandler: ComponentRemovedEventHandler;
 
-    private readonly componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
+    private readonly componentUpdatedHandler: ComponentUpdatedEventHandler;
 
     constructor(builder: RegionsBuilder) {
-
-        this.regionChangedEventHandler = (event) => this.notifyRegionChanged(event.getPath());
-        this.componentPropertyChangedEventHandler = (event) => this.forwardComponentPropertyChangedEvent(event);
+        this.componentEventsHolder = new ComponentEventsHolder();
+        this.componentAddedHandler = (event: ComponentAddedEvent) => this.notifyComponentAdded(event);
+        this.componentRemovedHandler = (event: ComponentRemovedEvent) => this.notifyComponentRemoved(event);
+        this.componentUpdatedHandler = (event: ComponentUpdatedEvent) => this.notifyComponentUpdated(event);
 
         builder.regions.forEach((region: Region) => {
             if (this.regionByName.has(region.getName())) {
@@ -49,22 +53,28 @@ export class Regions
     }
 
     private registerRegionListeners(region: Region) {
-        region.onChanged(this.regionChangedEventHandler);
-        region.onComponentPropertyChangedEvent(this.componentPropertyChangedEventHandler);
+        region.getEventsManager().onComponentAdded(this.componentAddedHandler);
+        region.getEventsManager().onComponentRemoved(this.componentRemovedHandler);
+        region.getEventsManager().onComponentUpdated(this.componentUpdatedHandler);
     }
 
     private unregisterRegionListeners(region: Region) {
-        region.unChanged(this.regionChangedEventHandler);
-        region.unComponentPropertyChangedEvent(this.componentPropertyChangedEventHandler);
+        region.getEventsManager().unComponentAdded(this.componentAddedHandler);
+        region.getEventsManager().unComponentRemoved(this.componentRemovedHandler);
+        region.getEventsManager().unComponentUpdated(this.componentUpdatedHandler);
     }
 
     removeRegions(regions: Region[]) {
         regions.forEach((region: Region) => {
             this.regionByName.delete(region.getName());
 
-            this.notifyRegionRemoved(region.getPath());
+            this.notifyComponentRemoved(new ComponentRemovedEvent(region.getPath()));
             this.unregisterRegionListeners(region);
         });
+    }
+
+    removeAllRegions(): void {
+        this.removeRegions(this.getRegions());
     }
 
     getRegions(): Region[] {
@@ -106,6 +116,10 @@ export class Regions
         });
     }
 
+    getEventsManager(): ComponentEventsWrapper {
+        return new ComponentEventsWrapper(this.componentEventsHolder);
+    }
+
     public toJson(): RegionJson[] {
 
         let regionJsons: RegionJson[] = [];
@@ -141,73 +155,36 @@ export class Regions
         return new RegionsBuilder(this).build();
     }
 
-    onChanged(listener: (event: BaseRegionChangedEvent) => void) {
-        this.changedListeners.push(listener);
-    }
-
-    unChanged(listener: (event: BaseRegionChangedEvent) => void) {
-        this.changedListeners =
-            this.changedListeners.filter((curr: (event: BaseRegionChangedEvent) => void) => {
-                return listener !== curr;
-            });
-    }
-
-    private notifyChanged(event: RegionsChangedEvent) {
-        if (Regions.debug) {
-            console.debug('Regions.notifyChanged');
-        }
-        this.changedListeners.forEach((listener: (event: RegionsChangedEvent) => void) => {
-            listener(event);
-        });
-    }
-
-    onComponentPropertyChanged(listener: ComponentPropertyChangedEventHandler) {
-        this.componentPropertyChangedListeners.push(listener);
-    }
-
-    unComponentPropertyChanged(listener: ComponentPropertyChangedEventHandler) {
-        this.componentPropertyChangedListeners =
-            this.componentPropertyChangedListeners.filter((curr: ComponentPropertyChangedEventHandler) => {
-                return listener !== curr;
-            });
-    }
-
-    private forwardComponentPropertyChangedEvent(event: ComponentPropertyChangedEvent): void {
-        this.componentPropertyChangedListeners.forEach((listener: ComponentPropertyChangedEventHandler) => {
-            listener(event);
-        });
-    }
-
-    private notifyRegionChanged(regionPath: RegionPath): void {
-        const event: RegionChangedEvent = new RegionChangedEvent(regionPath);
-        if (Regions.debug) {
-            console.debug('Regions.notifyRegionChanged: ' + event.getRegionPath().toString());
-        }
-        this.notifyChanged(event);
-    }
-
-    private notifyRegionAdded(regionPath: RegionPath) {
+    private notifyRegionAdded(regionPath: ComponentPath) {
         const event: RegionAddedEvent = new RegionAddedEvent(regionPath);
 
         if (Regions.debug) {
             console.debug('Regions.notifyRegionAdded: ' + event.getRegionPath().toString());
         }
-
-        this.notifyChanged(event);
     }
 
-    private notifyRegionRemoved(regionPath: RegionPath) {
+    private notifyRegionRemoved(regionPath: ComponentPath) {
         const event: RegionRemovedEvent = new RegionRemovedEvent(regionPath);
 
         if (Regions.debug) {
             console.debug('Regions.notifyRegionRemoved: ' + event.getRegionPath().toString());
         }
 
-        this.notifyChanged(event);
+    }
+
+    notifyComponentAdded(event: ComponentAddedEvent): void {
+        this.componentEventsHolder.notifyComponentAdded(event);
+    }
+
+    notifyComponentRemoved(event: ComponentRemovedEvent): void {
+        this.componentEventsHolder.notifyComponentRemoved(event);
+    }
+
+    notifyComponentUpdated(event: ComponentUpdatedEvent): void {
+        this.componentEventsHolder.notifyComponentUpdated(event);
     }
 
     public static create(): RegionsBuilder {
-
         return new RegionsBuilder();
     }
 }

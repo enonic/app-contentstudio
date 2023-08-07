@@ -1,19 +1,11 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {PageView} from './PageView';
 
 export class PageUnlockedEvent
     extends Event {
 
-    private pageView: PageView;
-
-    constructor(pageView: PageView) {
+    constructor() {
         super();
-        this.pageView = pageView;
-    }
-
-    getPageView(): PageView {
-        return this.pageView;
     }
 
     static on(handler: (event: PageUnlockedEvent) => void, contextWindow: Window = window) {

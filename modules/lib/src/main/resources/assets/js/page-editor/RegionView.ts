@@ -5,49 +5,38 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ItemView, ItemViewBuilder} from './ItemView';
 import {RegionItemType} from './RegionItemType';
 import {RegionViewContextMenuTitle} from './RegionViewContextMenuTitle';
-import {RegionComponentViewer} from './RegionComponentViewer';
 import {RegionPlaceholder} from './RegionPlaceholder';
-import {LiveEditModel} from './LiveEditModel';
 import {ItemViewAddedEvent} from './ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from './ItemViewRemovedEvent';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
-import {ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
-import {RegionSelectedEvent} from './RegionSelectedEvent';
-import {ComponentAddedEvent as PageEditorComponentAddedEvent} from './ComponentAddedEvent';
-import {ComponentRemovedEvent as PageEditorComponentRemovedEvent} from './ComponentRemovedEvent';
+import {ItemViewSelectedEventConfig} from './event/outgoing/navigation/SelectComponentEvent';
 import {ItemType} from './ItemType';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {PageViewController} from './PageViewController';
-import {LayoutItemType} from './layout/LayoutItemType';
 import {ComponentView} from './ComponentView';
 import {PageView} from './PageView';
 import {LayoutComponentView} from './layout/LayoutComponentView';
 import {DragAndDrop} from './DragAndDrop';
 import {Region} from '../app/page/region/Region';
 import {Component} from '../app/page/region/Component';
-import {RegionPath} from '../app/page/region/RegionPath';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {ComponentAddedEvent} from '../app/page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../app/page/region/ComponentRemovedEvent';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {assert} from '@enonic/lib-admin-ui/util/Assert';
+import {LiveEditParams} from './LiveEditParams';
 
 export class RegionViewBuilder {
-
-    liveEditModel: LiveEditModel;
 
     parentElement: Element;
 
     parentView: ItemView;
 
-    region: Region;
-
     element: Element;
 
-    setLiveEditModel(value: LiveEditModel): RegionViewBuilder {
-        this.liveEditModel = value;
-        return this;
-    }
+    name: string;
+
+    liveEditParams: LiveEditParams;
 
     setParentElement(value: Element): RegionViewBuilder {
         this.parentElement = value;
@@ -59,13 +48,18 @@ export class RegionViewBuilder {
         return this;
     }
 
-    setRegion(value: Region): RegionViewBuilder {
-        this.region = value;
+    setElement(value: Element): RegionViewBuilder {
+        this.element = value;
         return this;
     }
 
-    setElement(value: Element): RegionViewBuilder {
-        this.element = value;
+    setName(value: string): RegionViewBuilder {
+        this.name = value;
+        return this;
+    }
+
+    setLiveEditParams(value: LiveEditParams): RegionViewBuilder {
+        this.liveEditParams = value;
         return this;
     }
 }
@@ -73,11 +67,11 @@ export class RegionViewBuilder {
 export class RegionView
     extends ItemView {
 
-    private region: Region;
-
-    private componentViews: ComponentView<Component>[];
+    private componentViews: ComponentView[];
 
     private componentIndex: number;
+
+    private name: string;
 
     private itemViewAddedListeners: ((event: ItemViewAddedEvent) => void)[];
 
@@ -105,14 +99,15 @@ export class RegionView
         super(new ItemViewBuilder()
             .setItemViewIdProducer(builder.parentView.getItemViewIdProducer())
             .setItemViewFactory(builder.parentView.getItemViewFactory())
+            .setLiveEditParams(builder.liveEditParams || builder.parentView?.getLiveEditParams())
             .setType(RegionItemType.get())
             .setElement(builder.element)
-            .setPlaceholder(new RegionPlaceholder(builder.region))
-            .setViewer(new RegionComponentViewer())
+            .setPlaceholder(new RegionPlaceholder())
             .setParentElement(builder.parentElement)
             .setParentView(builder.parentView)
-            .setContextMenuTitle(new RegionViewContextMenuTitle(builder.region)));
+            .setContextMenuTitle(new RegionViewContextMenuTitle(builder.name)));
 
+        this.name = builder.name;
         this.addClassEx('region-view');
 
         this.componentViews = [];
@@ -125,11 +120,10 @@ export class RegionView
         });
         this.initListeners();
 
-        this.setRegion(builder.region);
-
         this.addRegionContextMenuActions();
 
         this.parseComponentViews();
+        this.refreshEmptyState();
     }
 
     private initListeners() {
@@ -141,7 +135,7 @@ export class RegionView
             // Check if removed ItemView is a child, and remove it if so
             if (ObjectHelper.iFrameSafeInstanceOf(event.getView(), ComponentView)) {
 
-                const removedComponentView: ComponentView<Component> = event.getView() as ComponentView<Component>;
+                const removedComponentView: ComponentView = event.getView() as ComponentView;
                 const childIndex = this.getComponentViewIndex(removedComponentView);
                 if (childIndex > -1) {
                     this.componentViews.splice(childIndex, 1);
@@ -152,7 +146,7 @@ export class RegionView
 
         this.componentAddedListener = (event: ComponentAddedEvent) => {
             if (RegionView.debug) {
-                console.log('RegionView.handleComponentAdded: ' + event.getComponentPath().toString());
+                console.log('RegionView.handleComponentAdded: ' + event.getPath().toString());
             }
 
             this.refreshEmptyState();
@@ -161,7 +155,7 @@ export class RegionView
 
         this.componentRemovedListener = (event: ComponentRemovedEvent) => {
             if (RegionView.debug) {
-                console.log('RegionView.handleComponentRemoved: ' + event.getComponentPath().toString());
+                console.log('RegionView.handleComponentRemoved: ' + event.getPath().toString());
             }
 
             this.refreshEmptyState();
@@ -222,54 +216,18 @@ export class RegionView
         }
     }
 
-    setRegion(region: Region) {
-        if (region) {
-            if (this.region) {
-                this.region.unComponentAdded(this.componentAddedListener);
-                this.region.unComponentRemoved(this.componentRemovedListener);
-            }
-            this.region = region;
-
-            this.region.onComponentAdded(this.componentAddedListener);
-            this.region.onComponentRemoved(this.componentRemovedListener);
-
-            const components = region.getComponents();
-            const componentViews = this.getComponentViews();
-
-            componentViews.forEach((view: ComponentView<Component>, index: number) => {
-                view.setComponent(components[index]);
-            });
-        }
-
-        this.refreshEmptyState();
-        this.handleResetContextMenuAction();
-    }
-
-    getRegion(): Region {
-        return this.region;
-    }
-
     getRegionName(): string {
-        return this.getRegionPath() ? this.getRegionPath().getRegionName() : null;
+        return this.getPath()?.getPath().toString();
     }
 
-    getRegionPath(): RegionPath {
-        return this.region ? this.region.getPath() : null;
+    getPath(): ComponentPath {
+        return new ComponentPath(this.name, this.getParentItemView()?.getPath());
     }
 
     getName(): string {
         return this.getRegionName() ? this.getRegionName().toString() : i18n('live.view.itemview.noname');
     }
 
-    /*
-            highlight() {
-                // Don't highlight region on hover
-            }
-
-            unhighlight() {
-                // Don't highlight region on hover
-            }
-    */
     highlightSelected() {
         if (!this.textMode && !this.isDragging()) {
             super.highlightSelected();
@@ -295,29 +253,27 @@ export class RegionView
     }
 
     select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
-        config.newlyCreated = false;
-        config.rightClicked = false;
+        if (config) {
+            config.newlyCreated = false;
+            config.rightClicked = false;
+        }
 
         super.select(config, menuPosition);
-
-        new RegionSelectedEvent(this, config.rightClicked).fire();
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {
         super.selectWithoutMenu(restoredSelection);
-
-        new RegionSelectedEvent(this).fire();
     }
 
     toString() {
         let extra = '';
-        if (this.getRegionPath()) {
-            extra = ' : ' + this.getRegionPath().toString();
+        if (this.getPath()) {
+            extra = ' : ' + this.getPath().toString();
         }
         return super.toString() + extra;
     }
 
-    registerComponentView(componentView: ComponentView<Component>, index: number, newlyCreated: boolean = false) {
+    registerComponentView(componentView: ComponentView, index: number, newlyCreated: boolean = false) {
         if (RegionView.debug) {
             console.log('RegionView[' + this.toString() + '].registerComponentView: ' + componentView.toString() + ' at ' + index);
         }
@@ -327,15 +283,15 @@ export class RegionView
         } else {
             this.componentViews.push(componentView);
         }
-        componentView.setParentItemView(this);
 
+        componentView.setParentItemView(this);
         componentView.onItemViewAdded(this.itemViewAddedListener);
         componentView.onItemViewRemoved(this.itemViewRemovedListener);
 
         this.notifyItemViewAdded(componentView, newlyCreated);
     }
 
-    unregisterComponentView(componentView: ComponentView<Component>) {
+    unregisterComponentView(componentView: ComponentView) {
         if (RegionView.debug) {
             console.log('RegionView[' + this.toString() + '].unregisterComponentView: ' + componentView.toString());
         }
@@ -361,21 +317,17 @@ export class RegionView
         return 0;
     }
 
-    addComponentView(componentView: ComponentView<Component>, index: number, newlyCreated: boolean = false, dragged?: boolean) {
+    addComponentView(componentView: ComponentView, index: number, newlyCreated: boolean = false, dragged?: boolean) {
         if (RegionView.debug) {
             console.log('RegionView[' + this.toString() + ']addComponentView: ' + componentView.toString() + ' at ' + index);
-        }
-        if (componentView.getComponent()) {
-            this.region.addComponent(componentView.getComponent(), index);
         }
 
         this.insertChild(componentView, index);
         this.registerComponentView(componentView, index, newlyCreated || dragged);
-
-        new PageEditorComponentAddedEvent(componentView, this, dragged).fire();
+        this.refreshEmptyState();
     }
 
-    removeComponentView(componentView: ComponentView<Component>, silent: boolean = false) {
+    removeComponentView(componentView: ComponentView, silent: boolean = false) {
         if (RegionView.debug) {
             console.log('RegionView[' + this.toString() + '].removeComponentView: ' + componentView.toString());
         }
@@ -385,59 +337,43 @@ export class RegionView
             this.removeChild(componentView);
         }
 
-        if (componentView.getComponent()) {
-            componentView.getComponent().remove();
-        }
-
-        new PageEditorComponentRemovedEvent(componentView, this).fire();
+        this.refreshEmptyState();
     }
 
-    getComponentViews(): ComponentView<Component>[] {
+    getComponentViews(): ComponentView[] {
         return this.componentViews;
     }
 
-    getComponentViewIndex(view: ComponentView<Component>): number {
+    getComponentViewIndex(view: ComponentView): number {
 
         return this.componentViews.indexOf(view);
     }
 
-    getComponentViewByIndex(index: number): ComponentView<Component> {
+    getComponentViewByPath(path: ComponentPath): ItemView {
+        let result: ItemView = null;
 
-        return this.componentViews[index];
-    }
-
-    getComponentViewByPath(path: ComponentPath): ComponentView<Component> {
-
-        const firstLevelOfPath = path.getFirstLevel();
-
-        if (path.numberOfLevels() === 1) {
-
-            return this.componentViews[firstLevelOfPath.getComponentIndex()];
-        }
-
-        for (const componentView of this.componentViews) {
-            if (componentView.getType().equals(LayoutItemType.get())) {
-
-                const layoutView = componentView as LayoutComponentView;
-                const match = layoutView.getComponentViewByPath(path.removeFirstLevel());
-                if (match) {
-                    return match;
-                }
+        this.componentViews.some((componentView: ComponentView) => {
+            if (path.equals(componentView.getPath())) {
+                result = componentView;
+            } else if (componentView.isLayout()) {
+                result = (componentView as LayoutComponentView).getComponentViewByPath(path);
             }
-        }
 
-        return null;
+            return !!result;
+        });
+
+        return result;
     }
 
     hasOnlyMovingComponentViews(): boolean {
-        return this.componentViews.length > 0 && this.componentViews.every((view: ComponentView<Component>) => {
+        return this.componentViews.length > 0 && this.componentViews.every((view: ComponentView) => {
             return view.isMoving();
         });
     }
 
     isEmpty(): boolean {
         const onlyMoving = this.hasOnlyMovingComponentViews();
-        const empty = !this.region || this.region.isEmpty();
+        const empty = !this.componentViews?.length;
 
         return empty || onlyMoving;
     }
@@ -467,7 +403,7 @@ export class RegionView
 
         let array: ItemView[] = [];
         array.push(this);
-        this.componentViews.forEach((componentView: ComponentView<Component>) => {
+        this.componentViews.forEach((componentView: ComponentView) => {
             const itemViews = componentView.toItemViewArray();
             array = array.concat(itemViews);
         });
@@ -530,43 +466,30 @@ export class RegionView
     }
 
     private doParseComponentViews(parentElement?: Element) {
-
         const children = parentElement ? parentElement.getChildren() : this.getChildren();
-        const region = this.getRegion();
 
         children.forEach((childElement: Element) => {
             const itemType = ItemType.fromElement(childElement);
             const isComponentView = ObjectHelper.iFrameSafeInstanceOf(childElement, ComponentView);
-            let component: Component;
             let componentView;
 
             if (isComponentView) {
-                component = region.getComponentByIndex(this.componentIndex++);
-                if (component) {
-                    // reuse existing component view
-                    componentView = childElement as ComponentView<Component>;
-                    // update view's data
-                    componentView.setComponent(component);
-                    // register it again because we unregistered everything before parsing
-                    this.registerComponentView(componentView, this.componentIndex);
-                }
+                //
             } else if (itemType) {
                 assert(itemType.isComponentType(),
                     'Expected ItemView beneath a Region to be a Component: ' + itemType.getShortName());
                 // components may be nested on different levels so use region wide var for count
-                component = region.getComponentByIndex(this.componentIndex++);
-                if (component) {
 
                     componentView = this.createView(
                         itemType,
-                        new CreateItemViewConfig<RegionView, Component>()
+                        new CreateItemViewConfig<RegionView>()
                             .setParentView(this)
-                            .setData(component)
                             .setElement(childElement)
-                            .setParentElement(parentElement ? parentElement : this)) as ComponentView<Component>;
+                            .setLiveEditParams(this.liveEditParams)
+                            .setParentElement(parentElement ? parentElement : this));
 
-                    this.registerComponentView(componentView, this.componentIndex);
-                }
+                    this.registerComponentView(componentView, this.componentIndex++);
+
             } else {
                 this.doParseComponentViews(childElement);
             }

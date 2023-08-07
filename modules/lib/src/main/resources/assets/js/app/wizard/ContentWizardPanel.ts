@@ -23,7 +23,6 @@ import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
 import {ContentWizardDataLoader} from './ContentWizardDataLoader';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
-import {PageModel} from '../../page-editor/PageModel';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {SiteModel} from '../site/SiteModel';
 import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
@@ -137,8 +136,13 @@ import {PageComponentsWizardStep} from './PageComponentsWizardStep';
 import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
 import {LiveEditPageProxy} from './page/LiveEditPageProxy';
 import {PageComponentsView} from './PageComponentsView';
-import {PageView} from '../../page-editor/PageView';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
+import {PageEventsManager} from './PageEventsManager';
+import {PageState} from './page/PageState';
+import {PageUpdatedEvent} from '../page/event/PageUpdatedEvent';
+import {PageControllerUpdatedEvent} from '../page/event/PageControllerUpdatedEvent';
+import {PageControllerCustomizedEvent} from '../page/event/PageControllerCustomizedEvent';
+import {PageHelper} from '../util/PageHelper';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -550,7 +554,17 @@ export class ContentWizardPanel
                     this.wizardHeader.setName(existing.getName().toString());
                 }
 
+                return this.loadAndSetPageState(loader.content?.getPage()?.clone());
             }).then(() => super.doLoadData());
+    }
+
+    private loadAndSetPageState(page: Page): Q.Promise<void> {
+        const pagePromise: Q.Promise<Page | null> = page ? PageHelper.injectEmptyRegionsIntoPage(page) : Q.resolve(null);
+
+        return pagePromise.then((page: Page | null) => {
+            PageState.setState(page);
+            return Q.resolve();
+        });
     }
 
     protected createFormIcon(): ThumbnailUploaderEl {
@@ -682,20 +696,6 @@ export class ContentWizardPanel
         this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
         this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
         this.liveMask = new LoadMask(this.livePanel);
-
-        liveFormPanel.onPageViewReady((pageView: PageView) => {
-            this.pageComponentsView.setPageView(pageView);
-
-            pageView.onPageLocked((locked: boolean) => {
-                if (!locked) { // add PCV when page is unlocked
-                    this.addPCV();
-
-                    if (!this.isMinimized()) {
-                        this.pageComponentsWizardStep.getTabBarItem().select();
-                    }
-                }
-            });
-        });
 
         return liveFormPanel;
     }
@@ -859,14 +859,15 @@ export class ContentWizardPanel
 
         if (this.isRenderable()) {
             if (this.getPersistedItem().getPage() || this.isWithinSite()) {
-                return this.updateLiveEditModel(contentClone);
+                this.updateLiveEditModel(contentClone);
             }
 
             return Q.resolve();
         }
 
         if (this.getPersistedItem().getPage()) {
-            return this.updateLiveEditModel(contentClone).then(() => this.handleNonRederablePage());
+            this.updateLiveEditModel(contentClone);
+            return this.handleNonRederablePage();
         }
 
         return this.unloadPage();
@@ -927,7 +928,6 @@ export class ContentWizardPanel
                         this.updateButtonsState();
                         this.contextView.updateWidgetsVisibility();
                         this.toggleLiveEdit();
-                        this.togglePageComponentsViewOnDemand();
                     })
                     .catch(DefaultErrorHandler.handle);
             }
@@ -1155,6 +1155,38 @@ export class ContentWizardPanel
             if (this.getPersistedItem().getContentId().equals(event.getContentId())) {
                 this.wizardActions.suspendActions(event.isMask());
             }
+        });
+
+        const pageUpdatedHandler = (event: PageUpdatedEvent) => {
+            this.setMarkedAsReady(false);
+
+            if (!(event instanceof PageControllerCustomizedEvent)) {
+                this.saveChanges().catch(DefaultErrorHandler.handle);
+            }
+        };
+
+        PageState.getEvents().onPageUpdated(pageUpdatedHandler);
+        PageState.getEvents().onPageReset(() => pageUpdatedHandler(null));
+
+        PageEventsManager.get().onCustomizePageRequested(() => {
+            PageEventsManager.get().notifyPageControllerSetRequested(this.defaultModels.getDefaultPageTemplateDescriptor().getKey(), true);
+        });
+
+        PageState.getEvents().onPageUpdated((event: PageUpdatedEvent) => {
+            this.togglePageComponentsViewOnDemand();
+
+            if (event instanceof PageControllerUpdatedEvent) {
+                this.pageComponentsView.setLocked(false);
+                this.pageComponentsView.reload();
+
+                if (!this.isMinimized()) {
+                    this.pageComponentsWizardStep.getTabBarItem().select();
+                }
+            }
+        });
+
+        PageState.getEvents().onPageReset(() => {
+            this.removePCV();
         });
     }
 
@@ -1585,24 +1617,24 @@ export class ContentWizardPanel
         return new ContentWizardDataLoader().loadDefaultModels(site, this.contentType.getContentTypeName()).then(
             defaultModels => {
                 this.defaultModels = defaultModels;
-                return !this.liveEditModel ?
-                       Q(false) :
-                       this.initPageModel(this.liveEditModel, defaultModels).then(() => {
-                           const livePanel = this.getLivePanel();
-                           // pageModel is updated so we need reload unless we're saving already
-                           const needsReload = !this.isSaving();
-                           if (livePanel) {
-                               livePanel.setModel(this.liveEditModel);
-                               this.pageComponentsView?.setContent(this.liveEditModel.getContent());
-                               if (reloadPage) {
-                                   livePanel.clearSelectionAndInspect(true, true);
-                               }
-                               if (needsReload && reloadPage) {
-                                   this.debouncedEditorReload(true);
-                               }
-                           }
-                           return needsReload;
-                       });
+
+                if (this.liveEditModel) {
+                    const livePanel = this.getLivePanel();
+                    // pageModel is updated so we need reload unless we're saving already
+                    const needsReload = !this.isSaving();
+                    if (livePanel) {
+                        livePanel.setModel(this.liveEditModel);
+                        if (reloadPage) {
+                            livePanel.clearSelectionAndInspect(true, true);
+                        }
+                        if (needsReload && reloadPage) {
+                            this.debouncedEditorReload(true);
+                        }
+                    }
+                    return needsReload;
+                }
+
+                return Q(false);
             });
     }
 
@@ -1689,8 +1721,8 @@ export class ContentWizardPanel
         return result;
     }
 
-    private updateLiveEditModel(content: Content): Q.Promise<void> {
-        const site: Site = content.isSite() ? content as Site : this.site;
+    private updateLiveEditModel(content: Content): void {
+        const site: Site = content.isSite() ? content as Site: this.site;
 
         if (this.siteModel) {
             this.updateSiteModel(site);
@@ -1698,18 +1730,13 @@ export class ContentWizardPanel
             this.initSiteModel(site);
         }
 
-        return this.initLiveEditModel(content).then((liveEditModel: LiveEditModel) => {
-            const wasNotRenderable: boolean = !this.liveEditModel;
-            this.liveEditModel = liveEditModel;
+        const wasNotRenderable: boolean = !this.liveEditModel;
+        this.liveEditModel = this.initLiveEditModel(content);
 
-            const showPanel: boolean = wasNotRenderable && this.isRenderable();
-            this.getLivePanel().setModel(this.liveEditModel);
-            this.getLivePanel().clearSelectionAndInspect(showPanel, false);
-            this.pageComponentsView?.setContent(this.liveEditModel.getContent());
-            this.debouncedEditorReload(false);
-
-            return Q();
-        });
+        const showPanel: boolean = wasNotRenderable && this.isRenderable();
+        this.getLivePanel().setModel(this.liveEditModel);
+        this.getLivePanel().clearSelectionAndInspect(showPanel, false);
+        this.debouncedEditorReload(false);
     }
 
     private updatePersistedContent(persistedContent: Content) {
@@ -1775,7 +1802,8 @@ export class ContentWizardPanel
             return Q.resolve();
         }
 
-        return this.updateLiveEditModel(content);
+        this.updateLiveEditModel(content);
+        return Q.resolve();
     }
 
     // sync persisted content extra data with xData
@@ -1932,7 +1960,7 @@ export class ContentWizardPanel
 
                         const debouncedUpdate: () => void = AppHelper.debounce(this.updatePublishStatusOnDataChange.bind(this), 100);
 
-                        this.onLiveModelChanged(debouncedUpdate);
+                        this.onPageStateChanged(debouncedUpdate);
 
                         return Q(null);
                     });
@@ -2001,6 +2029,7 @@ export class ContentWizardPanel
 
         if (this.isPageComponentsViewRequired()) {
             this.pageComponentsWizardStepForm?.layout(this.pageComponentsView);
+            this.pageComponentsView.reload();
         }
 
         return Q.all(formViewLayoutPromises).thenResolve(null);
@@ -2088,19 +2117,13 @@ export class ContentWizardPanel
         });
     }
 
-    private initLiveEditModel(content: Content): Q.Promise<LiveEditModel> {
-        const liveEditModel: LiveEditModel = LiveEditModel.create()
-            .setParentContent(this.parentContent)
+    private initLiveEditModel(content: Content): LiveEditModel {
+        return LiveEditModel.create()
             .setContent(content)
             .setContentFormContext(this.formContext)
             .setSiteModel(this.siteModel)
+            .setDefaultTemplate(this.defaultModels)
             .build();
-
-        return this.initPageModel(liveEditModel, this.defaultModels).then(() => liveEditModel);
-    }
-
-    private initPageModel(liveEditModel: LiveEditModel, defaultModels: DefaultModels): Q.Promise<PageModel> {
-        return liveEditModel.init(defaultModels.getPageTemplate(), defaultModels.getPageDescriptor());
     }
 
     persistNewItem(): Q.Promise<Content> {
@@ -2276,8 +2299,7 @@ export class ContentWizardPanel
     }
 
     private assembleViewedPage(): Page {
-        return (this.getPersistedItem().getPage() && !this.isRenderable()) ?
-               this.getPersistedItem().getPage() : this.getLivePanel()?.getPage();
+        return PageState.getState();
     }
 
     private resolveContentNameForUpdateRequest(): ContentName {
@@ -2557,45 +2579,12 @@ export class ContentWizardPanel
         super.onFormPanelAdded(!this.isSplitEditModeActive());
     }
 
-    onLiveModelChanged(listener: () => void) {
-        if (this.getLivePanel()) {
-            if (this.getLivePanel().getPageView()) {
-                this.onPageChanged(listener);
-            }
-
-            this.getLivePanel().onPageViewReady(() => {
-                this.checkIfRenderable().then(() => {
-                    this.onPageChanged(listener);
-                });
-            });
-        }
-    }
-
-    private onPageChanged(listener: () => void) {
-        const pageView = this.getLivePanel().getPageView();
-
-        if (pageView) {
-            pageView.setRenderable(this.isRenderable());
-            pageView.onChange(listener);
-        }
-
-        const pageModel: PageModel = this.liveEditModel?.getPageModel();
-
-        if (pageModel) {
-            pageModel.onChange(listener);
-        }
-    }
-
-    unLiveModelChanged(listener: () => void) {
-        const pageModel: PageModel = this.liveEditModel ? this.liveEditModel.getPageModel() : null;
-
-        if (pageModel) {
-            pageModel.unPropertyChanged(listener);
-            pageModel.unComponentPropertyChangedEvent(listener);
-            pageModel.unCustomizeChanged(listener);
-            pageModel.unPageModeChanged(listener);
-            pageModel.unReset(listener);
-        }
+    onPageStateChanged(listener: () => void) {
+        PageState.getEvents().onPageReset(listener);
+        PageState.getEvents().onPageUpdated(listener);
+        PageState.getEvents().onComponentUpdated(listener);
+        PageState.getEvents().onComponentAdded(listener);
+        PageState.getEvents().onComponentRemoved(listener);
     }
 
     onDataChanged(listener: () => void) {
@@ -2695,8 +2684,7 @@ export class ContentWizardPanel
     }
 
     private isPageComponentsViewRequired(): boolean {
-        return this.livePanel && (this.getPersistedItem().getPage()?.hasController() || this.getPersistedItem().getPage()?.isFragment() ||
-                                  this.liveEditModel?.getPageModel()?.isCustomized());
+        return PageState.getState()?.hasController() || PageState.getState()?.isFragment();
     }
 
     private togglePageComponentsViewOnDemand() {

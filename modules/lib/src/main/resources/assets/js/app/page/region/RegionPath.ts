@@ -55,19 +55,4 @@ export class RegionPath
 
         return true;
     }
-
-    public static fromString(str: string): RegionPath {
-
-        let lastDivider = str.lastIndexOf(RegionPath.DIVIDER);
-        if (lastDivider === -1) {
-            return new RegionPath(null, str);
-        }
-
-        let regionNameStart = lastDivider + 1;
-
-        let regionName = str.substring(regionNameStart, str.length);
-        let componentPathAsString = str.substring(0, regionNameStart);
-        let parentPath = ComponentPath.fromString(componentPathAsString);
-        return new RegionPath(parentPath, regionName);
-    }
 }

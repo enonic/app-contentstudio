@@ -1,18 +1,21 @@
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {ComponentPath} from './ComponentPath';
 import {RegionPath} from './RegionPath';
+import {ComponentType} from './ComponentType';
+import {Component} from './Component';
 
 export class ComponentAddedEvent
     extends BaseRegionChangedEvent {
 
-    private componentPath: ComponentPath;
+    private readonly component: Component;
+    constructor(component: Component) {
+        super(component.getPath());
 
-    constructor(regionPath: RegionPath, componentPath: ComponentPath) {
-        super(regionPath);
-        this.componentPath = componentPath;
+        this.component = component;
     }
 
-    getComponentPath(): ComponentPath {
-        return this.componentPath;
+    getComponent(): Component {
+        return this.component;
     }
+
 }

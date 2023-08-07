@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
@@ -12,52 +11,57 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {LiveEditPageProxy} from './page/LiveEditPageProxy';
 import {PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
-import {PageView} from '../../page-editor/PageView';
 import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
 import {Highlighter} from '../../page-editor/Highlighter';
-import {ItemViewSelectedEvent} from '../../page-editor/ItemViewSelectedEvent';
-import {ItemViewDeselectedEvent} from '../../page-editor/ItemViewDeselectedEvent';
-import {ComponentAddedEvent} from '../../page-editor/ComponentAddedEvent';
-import {TextComponentView} from '../../page-editor/text/TextComponentView';
-import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
-import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
-import {ComponentRemovedEvent} from '../../page-editor/ComponentRemovedEvent';
-import {ComponentLoadedEvent} from '../../page-editor/ComponentLoadedEvent';
-import {ComponentResetEvent} from '../../page-editor/ComponentResetEvent';
-import {ItemView} from '../../page-editor/ItemView';
-import {ComponentView} from '../../page-editor/ComponentView';
 import {ClickPosition} from '../../page-editor/ClickPosition';
 import {PageViewController} from '../../page-editor/PageViewController';
-import {Content} from '../content/Content';
 import {DataChangedEvent, DataChangedType} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
+import {ComponentsTreeItem} from './ComponentsTreeItem';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {ComponentPath} from '../page/region/ComponentPath';
+import {TreeComponent} from './TreeComponent';
+import {Page} from '../page/Page';
+import {PageEventsManager} from './PageEventsManager';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {TextComponent} from '../page/region/TextComponent';
+import {PageActionsHelper} from './PageActionsHelper';
+import {Component} from '../page/region/Component';
+import {Region} from '../page/region/Region';
+import {PageNavigationHandler} from './PageNavigationHandler';
+import {PageNavigationEvent} from './PageNavigationEvent';
+import {PageNavigationMediator} from './PageNavigationMediator';
+import {PageNavigationEventType} from './PageNavigationEventType';
+import {PageNavigationEventData} from './PageNavigationEventData';
+import {PageState} from './page/PageState';
+import {ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
+import {ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
+import {PageItem} from '../page/region/PageItem';
+import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
+import {PageItemType} from '../page/region/PageItemType';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 
 export class PageComponentsView
-    extends DivEl {
+    extends DivEl implements PageNavigationHandler {
 
     private static LOCKED_CLASS: string = 'locked';
     private static COLLAPSED_CLASS: string = 'collapsed';
     private static COLLAPSE_BUTTON_ICON_CLASS: string = 'icon-newtab';
     private static PCV_COLLAPSED_KEY: string = 'contentstudio:pcv:collapsed';
 
-    private content: Content;
-    private pageView: PageView;
     private liveEditPage: LiveEditPageProxy;
     private contextMenu: ItemViewContextMenu;
+    private contextMenuItemPath: ComponentPath;
 
     private responsiveItem: ResponsiveItem;
 
     private tree: PageComponentsTreeGrid;
     private header: Element;
-    private modal: boolean;
     private draggable: boolean;
-    private selectedItemId: string;
     private dockedParent: Element;
     private toggleButton: Button;
 
@@ -71,7 +75,7 @@ export class PageComponentsView
     private mouseDown: boolean = false;
     public static debug: boolean = false;
 
-    private invalidItemIds: string[] = [];
+    private invalidItemsPaths: ComponentPath[] = [];
 
     private currentUserHasCreateRights: Boolean;
 
@@ -83,6 +87,8 @@ export class PageComponentsView
 
     private modifyPermissions: boolean = false;
 
+    private lastSelectedPath: ComponentPath;
+
     constructor(liveEditPage: LiveEditPageProxy) {
         super('page-components-view');
 
@@ -90,7 +96,11 @@ export class PageComponentsView
 
         this.currentUserHasCreateRights = null;
 
+        PageNavigationMediator.get().addPageNavigationHandler(this);
+
         this.initElements();
+
+        this.createTree();
 
         this.setupListeners();
 
@@ -138,12 +148,16 @@ export class PageComponentsView
         this.onHidden(() => this.hideContextMenu());
 
         this.onShown(() => {
-            if (this.pageView?.isLocked()) {
+            if (this.liveEditPage?.isLocked()) {
                 this.addClass(PageComponentsView.LOCKED_CLASS);
             }
         });
 
         this.whenRendered(() => this.initLiveEditEvents());
+
+        PageEventsManager.get().onFragmentLoadError((path: ComponentPath) => {
+            this.addToInvalidItems(path);
+        });
     }
 
     show(): void {
@@ -176,55 +190,25 @@ export class PageComponentsView
         this.toggleButton.setTitle(this.isCollapsed() ? i18n('field.showComponent') : i18n('field.hideComponent'), false);
     }
 
+    reload(): Q.Promise<void> {
+        return this.tree.reload();
+    }
+
     hide(): void {
         super.hide();
         KeyBindings.get().unbindKeys(this.keyBinding);
-    }
-
-    setPageView(pageView: PageView): void {
-        this.removeClass(PageComponentsView.LOCKED_CLASS);
-
-        this.pageView = pageView;
-        if (!this.tree && this.content && this.pageView) {
-            this.createTree(this.content, this.pageView);
-            this.initLock();
-        } else if (this.tree) {
-            this.tree.deselectAll();
-            Highlighter.get().hide();
-
-            this.tree.setPageView(pageView).then(() => {
-                this.initLock();
-                if (this.selectedItemId) {
-                    this.selectItemByDataId(this.selectedItemId);
-                }
-            });
-        }
-
-        this.pageView.onRemoved((): void => {
-            ResponsiveManager.unAvailableSizeChangedByItem(this.responsiveItem);
-        });
-
-        this.pageView.onPageLocked(this.pageLockedHandler.bind(this));
     }
 
     private initLock(): void {
         this.unContextMenu(this.lockedViewClickHandler);
         this.unClicked(this.lockedViewClickHandler);
 
-        if (this.pageView.isLocked()) {
+        if (this.liveEditPage.isLocked()) {
             this.addClass(PageComponentsView.LOCKED_CLASS);
         }
 
         this.onContextMenu(this.lockedViewClickHandler);
         this.onClicked(this.lockedViewClickHandler);
-    }
-
-    setContent(content: Content): void {
-        this.content = content;
-
-        if (!this.tree && this.content && this.pageView) {
-            this.createTree(this.content, this.pageView);
-        }
     }
 
     setModifyPermissions(modifyPermissions: boolean): boolean {
@@ -233,79 +217,60 @@ export class PageComponentsView
     }
 
     private initLiveEditEvents() {
-        this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent): void => {
-            if (!event.isNewlyCreated() && !this.pageView.isLocked()) {
-                this.selectedItemId = event.getItemView().getItemId().toString();
-                this.tree.selectItemByComponentView(event.getItemView());
+        const eventsManager = PageEventsManager.get();
 
-                if (event.getPosition()) { // scroll to item if it was selected in preview
-                    this.tree.scrollToItem(this.selectedItemId);
-                }
-            }
+        eventsManager.onComponentLoaded((path: ComponentPath): void => {
+            this.tree.reloadItemByPath(path);
         });
 
-        this.liveEditPage.onItemViewDeselected((event: ItemViewDeselectedEvent): void => {
-            this.tree.deselectNodes([event.getItemView().getItemId().toString()]);
-            this.selectedItemId = null;
+        eventsManager.onComponentReset((path: ComponentPath): void => {
+            this.tree.resetComponentByPath(path);
+            this.removeFromInvalidItems(path);
         });
 
-        this.liveEditPage.onComponentAdded((event: ComponentAddedEvent): void => {
-            this.addComponent(event).then(() => {
-                this.handleComponentAdded(event);
-            });
-        });
-
-        this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent): void => {
-            this.tree.deleteNodeByDataId(event.getComponentView().getItemId().toString());
-            this.highlightInvalidItems();
-        });
-
-        this.liveEditPage.onComponentLoaded((event: ComponentLoadedEvent): void => {
-            this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView());
-            this.tree.scrollToItem(event.getNewComponentView().getItemId().toString());
-
-            if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), FragmentComponentView)) {
-                this.bindTreeFragmentNodeUpdateOnComponentLoaded(event.getNewComponentView() as FragmentComponentView);
-                this.bindFragmentLoadErrorHandler(event.getNewComponentView() as FragmentComponentView);
-                return;
-            }
-
-            if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), LayoutComponentView)) {
-                const componentDataId = event.getNewComponentView().getItemId().toString();
-                this.tree.expandNodeByDataId(componentDataId);
-                return;
-            }
-        });
-
-        this.liveEditPage.onComponentReset((event: ComponentResetEvent): void => {
-            const oldDataId: string = event.getOldComponentView().getItemId().toString();
-
-            this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView(), true);
-
-            this.removeFromInvalidItems(oldDataId);
-        });
-
-        this.liveEditPage.onBeforeLoad(() => {
+        eventsManager.onBeforeLoad(() => {
             this.addClass('loading');
         });
 
-        this.liveEditPage.onLoaded(() => {
+        eventsManager.onLoaded(() => {
             this.removeClass('loading');
+        });
+
+        eventsManager.onPageLocked(() => {
+            this.setLocked(true);
+        });
+
+        eventsManager.onPageUnlocked(() => {
+            this.setLocked(false);
+        });
+
+        PageState.getEvents().onComponentAdded((event: ComponentAddedEvent) => {
+            this.addComponent(event.getComponent()).catch(DefaultErrorHandler.handle);
+        });
+
+        PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
+            this.tree.deleteItemByPath(event.getPath());
+            this.highlightInvalidItems();
+        });
+
+        PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
+            this.tree.updateItemByEvent(event);
         });
     }
 
-    private addComponent(event: ComponentAddedEvent): Q.Promise<boolean> {
-        this.tree.addComponentToParent(event.getComponentView(), event.getParentRegionView());
-        return this.tree.expandNodeByDataId(event.getParentRegionView().getItemId().toString());
+    private addComponent(component: Component): Q.Promise<boolean> {
+        return this.tree.addComponent(component).then((item: ComponentsTreeItem) => {
+            return this.tree.expandNodeByDataId(item.getId());
+        });
     }
 
     private handleComponentAdded(event: ComponentAddedEvent): void {
+        /*
         if (event.getComponentView().isSelected()) {
-            const id: string = event.getComponentView().getItemId().toString();
-            this.selectItemByDataId(id);
+            this.tree.selectItemByPath(event.getPath());
         }
 
-        if (this.tree.hasChildren(new ItemViewTreeGridWrapper(event.getComponentView()))) {
+        if (this.tree.hasComponentChildren(event.getComponentView().getComponent())) {
             const componentDataId = event.getComponentView().getItemId().toString();
 
             if (event.isDragged()) {
@@ -314,13 +279,14 @@ export class PageComponentsView
                 this.tree.expandNodeByDataId(componentDataId);
             }
         }
+        */
 
         this.constrainToParent();
         this.highlightInvalidItems();
     }
 
-    private createTree(content: Content, pageView: PageView): void {
-        this.tree = new PageComponentsTreeGrid(content, pageView);
+    private createTree(): void {
+        this.tree = new PageComponentsTreeGrid();
 
         this.clickListener = (event: MouseEvent, data: Slick.Cell): void => {
             const elem: ElementHelper = new ElementHelper(event.target as HTMLElement);
@@ -340,15 +306,16 @@ export class PageComponentsView
         };
 
         this.dblClickListener = (event, data): void => {
-            if (this.pageView.isLocked()) {
+            if (this.liveEditPage.isLocked()) {
                 return;
             }
 
-            const clickedItemView: ItemView = this.tree.getGrid().getDataView().getItem(data.row).getData().getItemView();
-            const isTextComponent: boolean = ObjectHelper.iFrameSafeInstanceOf(clickedItemView, TextComponentView);
+            const node: TreeNode<ComponentsTreeItem> = this.tree.getGrid().getDataView().getItem(data.row);
+            const clickedItem: TreeComponent = node.getData()?.getComponent();
+            const type: PageItemType = clickedItem?.getType();
 
-            if (isTextComponent) {
-                this.editTextComponent(clickedItemView);
+            if (type instanceof TextComponent) {
+                this.editTextComponent(this.tree.getNodePath(node));
             }
         };
 
@@ -372,8 +339,7 @@ export class PageComponentsView
                 rowElement = rowElement.parentElement;
             }
 
-            if (!this.pageView.isLocked()) {
-                this.highlightRow(rowElement, selected);
+            if (!this.liveEditPage.isLocked()) {
                 if (this.isMenuIcon(event.target) && BrowserHelper.isIOS()) {
                     this.showContextMenu(new ElementHelper(rowElement).getSiblingIndex(), {x: event.pageX, y: event.pageY});
                 }
@@ -385,24 +351,25 @@ export class PageComponentsView
         });
 
         this.tree.onSelectionChanged(() => {
-            const currentSelection: ItemViewTreeGridWrapper[] = this.tree.getCurrentSelection();
-            const selectedItem: ItemViewTreeGridWrapper = currentSelection[0];
+            const currentSelection: ComponentsTreeItem[] = this.tree.getCurrentSelection();
+            const selectedItem: ComponentsTreeItem = currentSelection[0];
 
             if (selectedItem) {
-                // only if iframe is visible
-                if (!selectedItem.getItemView().isSelected()) {
-                    this.selectItem(selectedItem.getItemView());
+                const path: ComponentPath = this.tree.getPathByItem(selectedItem);
+                if (!this.lastSelectedPath) { // not spawning event if item was selected as a result of the same event
+                    PageNavigationMediator.get().notify(
+                        new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)), this);
                 }
 
-                if (!!this.contextMenu && !this.contextMenu.belongsToItemView(selectedItem.getItemView())) {
+                if (this.contextMenuItemPath && !this.contextMenuItemPath.equals(path)) {
                     this.hideContextMenu();
                 }
             } else { // if item was deselected by clicking in the pcv grid then need to deselect it in the live edit
-                if (this.selectedItemId) {
-                    this.tree.getItemWithDataId(this.selectedItemId)?.getItemView().deselect();
-                    this.selectedItemId = null;
-                }
+                PageNavigationMediator.get().notify(
+                    new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()), this);
             }
+
+            this.lastSelectedPath = null;
         });
 
         this.tree.getGrid().subscribeOnContextMenu((event): void => {
@@ -414,13 +381,7 @@ export class PageComponentsView
             this.showContextMenu(cell.row, {x: event.pageX, y: event.pageY});
         });
 
-        this.appendChild(this.tree);
-
-        this.tree.onLoaded((): void => {
-            this.subscribeOnFragmentLoadError();
-        });
-
-        this.tree.onDataChanged((event: DataChangedEvent<ItemViewTreeGridWrapper>) => {
+        this.tree.onDataChanged((event: DataChangedEvent<ComponentsTreeItem>) => {
             if (event.getType() !== DataChangedType.UPDATED) {
                 this.constrainToParent();
             }
@@ -435,21 +396,23 @@ export class PageComponentsView
         });
 
         this.tree.setNodeExpandedHandler(() => this.constrainToParent()); // not letting PCV to overflow the page
+
+        this.appendChild(this.tree);
     }
 
     private highlightInvalidItems(): void {
-        this.tree.setInvalid(this.invalidItemIds);
+        this.tree.setInvalid(this.invalidItemsPaths);
     }
 
-    private removeFromInvalidItems(itemId: string): void {
-        this.invalidItemIds = this.invalidItemIds.filter((curr) => {
-            return curr !== itemId;
+    private removeFromInvalidItems(path: ComponentPath): void {
+        this.invalidItemsPaths = this.invalidItemsPaths.filter((curr) => {
+            return !curr.equals(path);
         });
         this.highlightInvalidItems();
     }
 
-    private addToInvalidItems(itemId: string): void {
-        this.invalidItemIds.push(itemId);
+    private addToInvalidItems(path: ComponentPath): void {
+        this.invalidItemsPaths.push(path);
         this.highlightInvalidItems();
     }
 
@@ -457,37 +420,14 @@ export class PageComponentsView
         return element?.className?.indexOf('menu-icon') > -1;
     }
 
-    private subscribeOnFragmentLoadError(): void {
-        this.tree.getGrid().getDataView().getItems().map((dataItem) => {
-            return dataItem.getData().getItemView();
-        }).filter((itemView: ItemView) => {
-            return ObjectHelper.iFrameSafeInstanceOf(itemView, FragmentComponentView);
-        }).forEach((fragmentComponentView: FragmentComponentView) => {
-            this.bindFragmentLoadErrorHandler(fragmentComponentView);
-        });
-    }
-
-    private bindTreeFragmentNodeUpdateOnComponentLoaded(fragmentComponentView: FragmentComponentView): void {
-        fragmentComponentView.onFragmentContentLoaded((e) => {
-            this.tree.updateNodeByData(new ItemViewTreeGridWrapper(e.getFragmentComponentView()));
-        });
-    }
-
-    private bindFragmentLoadErrorHandler(fragmentComponentView: FragmentComponentView): void {
-        fragmentComponentView.onFragmentLoadError((e) => {
-            this.addToInvalidItems(e.getFragmentComponentView().getItemId().toString());
-        });
-    }
-
     private initKeyBoardBindings(): void {
         const removeHandler = () => {
-            const itemViewWrapper: ItemViewTreeGridWrapper = this.tree.getFirstSelectedItem();
+            const itemViewWrapper: ComponentsTreeItem = this.tree.getFirstSelectedItem();
+
 
             if (itemViewWrapper) {
-                if (ObjectHelper.iFrameSafeInstanceOf(itemViewWrapper, ComponentView)) {
-                    itemViewWrapper.getItemView().deselect();
-                    itemViewWrapper.getItemView().remove();
-                }
+                const path: ComponentPath = this.tree.getPathByItem(itemViewWrapper);
+                PageEventsManager.get().notifyComponentRemoveRequested(path);
             }
             return true;
         };
@@ -500,14 +440,6 @@ export class PageComponentsView
 
     private bindMouseListeners(): void {
         this.lockedViewClickHandler = this.lockedViewClickHandler.bind(this);
-    }
-
-    private selectItem(item: ItemView): void {
-        item.selectWithoutMenu();
-    }
-
-    private selectItemByDataId(dataId: string): void {
-        this.tree.selectItemByDataId(dataId);
     }
 
     isDraggable(): boolean {
@@ -622,16 +554,12 @@ export class PageComponentsView
         el.setMaxHeightPx(parentEl.getHeight() - 48);
 
         const top =
-                Math.max(parentOffset.top, Math.min(elOffset.top, parentOffset.top + parentEl.getHeight() - el.getHeightWithBorder()), 48);
+            Math.max(parentOffset.top, Math.min(elOffset.top, parentOffset.top + parentEl.getHeight() - el.getHeightWithBorder()), 48);
         const left =
             Math.max(parentOffset.left, Math.min(elOffset.left, parentOffset.left + parentEl.getWidth() - el.getWidthWithBorder()), 48);
 
         el.setTop(`${top}px`);
         el.setLeft(`${left}px`);
-    }
-
-    isModal(): boolean {
-        return this.modal;
     }
 
     setModal(modal: boolean): PageComponentsView {
@@ -640,19 +568,16 @@ export class PageComponentsView
             // tree may not be yet initialized
             this.tree.getGrid().resizeCanvas();
         }
-        this.modal = modal;
+
         return this;
     }
 
-    private pageLockedHandler(lock: boolean): void {
+    setLocked(lock: boolean): void {
         this.toggleClass(PageComponentsView.LOCKED_CLASS, lock);
-        if (this.tree) {
-            this.tree.reload();
-        }
     }
 
     private lockedViewClickHandler(event: MouseEvent): void {
-        const isUnlocked = !(this.pageView.isLocked() && this.modifyPermissions);
+        const isUnlocked = !(this.liveEditPage.isLocked() && this.modifyPermissions);
 
         if (isUnlocked) {
             return;
@@ -673,23 +598,11 @@ export class PageComponentsView
     }
 
     private showContextMenu(row: number, clickPosition: ClickPosition): void {
-        let node = this.tree.getGrid().getDataView().getItem(row);
-        let itemView: ItemView;
-        let pageView: PageView;
+        const item: ComponentsTreeItem = this.tree.getGrid().getDataView().getItem(row)?.getData();
+        this.contextMenuItemPath = item ? this.tree.getPathByItem(item) : null;
 
-        if (node) {
-            itemView = node.getData().getItemView();
-            pageView = itemView.getPageView();
-        } else {
-            pageView = this.pageView;
-        }
-        let contextMenuActions: Action[];
-
-        if (pageView.isLocked()) {
-            contextMenuActions = pageView.getLockedMenuActions();
-        } else {
-            contextMenuActions = itemView.getContextMenuActions();
-        }
+        const contextMenuActions: Action[] = this.liveEditPage.isLocked() ?
+                                             this.getLockedPageActions() : this.getItemContextMenuActions(item);
 
         if (!this.contextMenu) {
             this.contextMenu = new ItemViewContextMenu(null, contextMenuActions, false);
@@ -697,7 +610,6 @@ export class PageComponentsView
         } else {
             this.contextMenu.setActions(contextMenuActions);
         }
-        this.contextMenu.setItemView(itemView || pageView);
 
         if (this.beforeActionHandler) {
             this.contextMenu.getMenu().unBeforeAction(this.beforeActionHandler);
@@ -716,10 +628,6 @@ export class PageComponentsView
         } else {
             this.afterActionHandler = (action: Action) => {
                 const isViewVisible = (this.getHTMLElement().offsetHeight > 0);
-
-                if (isViewVisible && action.hasParentAction() && action.getParentAction().getLabel() === i18n('live.view.selectparent')) {
-                    this.tree.getFirstSelectedItem().getItemView().hideContextMenu();
-                }
 
                 setTimeout(() => {
                     PageViewController.get().setContextMenuDisabled(false);
@@ -745,6 +653,40 @@ export class PageComponentsView
         this.contextMenu.showAt(x, y, false);
     }
 
+    private getLockedPageActions(): Action[] {
+        const unlockAction = new Action(i18n('live.view.page.customize'));
+
+        unlockAction.onExecuted(() => {
+            this.liveEditPage.setLocked(false);
+        });
+
+        return [unlockAction];
+    }
+
+    private getItemContextMenuActions(item: ComponentsTreeItem): Action[] {
+        if (!item || !item.getComponent()) {
+            return [];
+        }
+
+        const path: ComponentPath = this.tree.getPathByItem(item);
+        const page: Page = PageState.getState();
+        const pageItem: PageItem = path.isRoot() ? page : page.getComponentByPath(path);
+
+        if (pageItem instanceof Page) {
+            return PageActionsHelper.getPageActions();
+        }
+
+        if (pageItem instanceof Component) {
+            return PageActionsHelper.getComponentActions(pageItem);
+        }
+
+        if (pageItem instanceof Region) {
+            return PageActionsHelper.getRegionActions(pageItem);
+        }
+
+        return [];
+    }
+
     private setMenuOpenStyleOnMenuIcon(row: number): void {
         let stylesHash = {};
         stylesHash[row] = {menu: 'menu-open'};
@@ -758,26 +700,6 @@ export class PageComponentsView
     private hideContextMenu(): void {
         if (this.contextMenu?.isVisible()) {
             this.contextMenu.hide();
-        }
-    }
-
-    private highlightRow(rowElement: HTMLElement, selected: boolean): void {
-        if (selected) {
-            Highlighter.get().hide();
-        } else {
-            const elementHelper = new ElementHelper(rowElement);
-            const dimensions = elementHelper.getDimensions();
-            const data: ItemViewTreeGridWrapper = this.tree.getDataByRow(new ElementHelper(rowElement).getSiblingIndex());
-
-            if (data) {
-                if (!BrowserHelper.isMobile()) {
-                    Highlighter.get().highlightElement(dimensions,
-                        data.getItemView().getType().getConfig().getHighlighterStyle());
-                }
-                if (BrowserHelper.isIOS()) {
-                    this.selectItem(data.getItemView());
-                }
-            }
         }
     }
 
@@ -797,18 +719,8 @@ export class PageComponentsView
         });
     }
 
-    private editTextComponent(textComponent: ItemView): void {
-        const contextMenuActions: Action[] = textComponent.getContextMenuActions();
-        let editAction: Action;
-
-        contextMenuActions.some((action: Action) => {
-            if (action.getLabel() === i18n('action.edit')) {
-                editAction = action;
-                return true;
-            }
-        });
-
-        editAction?.execute();
+    private editTextComponent(path: ComponentPath): void {
+        this.liveEditPage.editTextComponentByPath(path);
     }
 
     getEl(): ElementHelper {
@@ -836,5 +748,21 @@ export class PageComponentsView
         this.toggleButton.setTitle(i18n('field.hideComponent'), false);
         this.constrainToParent(); // not letting PCV to overflow the page
         this.tree.getGrid().resizeCanvas();
+    }
+
+    handle(event: PageNavigationEvent): void {
+        if (event.getType() === PageNavigationEventType.SELECT) {
+            this.lastSelectedPath = event.getData().getPath();
+
+            this.tree.selectItemByPath(event.getData().getPath()).then(() => {
+                this.tree.scrollToItem(event.getData().getPath());
+            }).catch(DefaultErrorHandler.handle);
+
+            return;
+        }
+
+        if (event.getType() === PageNavigationEventType.DESELECT) {
+            this.tree.deselectAll();
+        }
     }
 }

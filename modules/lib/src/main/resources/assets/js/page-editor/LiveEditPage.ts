@@ -18,12 +18,46 @@ import {Shader} from './Shader';
 import {Cursor} from './Cursor';
 import {ComponentViewDragStartedEvent} from './ComponentViewDragStartedEvent';
 import {ComponentViewDragStoppedEvent} from './ComponentViewDraggingStoppedEvent';
-import {DefaultItemViewFactory} from './ItemViewFactory';
+import {DefaultItemViewFactory, ItemViewFactory} from './ItemViewFactory';
 import {Exception} from '@enonic/lib-admin-ui/Exception';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ProjectContext} from '../app/project/ProjectContext';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {Project} from '../app/settings/data/project/Project';
+import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
+import {SelectComponentViewEvent} from './event/incoming/navigation/SelectComponentViewEvent';
+import {ComponentPath} from '../app/page/region/ComponentPath';
+import {ItemView} from './ItemView';
+import {DeselectComponentViewEvent} from './event/incoming/navigation/DeselectComponentViewEvent';
+import {EditTextComponentViewEvent} from './event/incoming/manipulation/EditTextComponentViewEvent';
+import {TextComponentView} from './text/TextComponentView';
+import {AddComponentViewEvent} from './event/incoming/manipulation/AddComponentViewEvent';
+import {ComponentType} from '../app/page/region/ComponentType';
+import {RegionView} from './RegionView';
+import {ItemType} from './ItemType';
+import {RemoveComponentViewEvent} from './event/incoming/manipulation/RemoveComponentViewEvent';
+import {ComponentView} from './ComponentView';
+import {Component} from '../app/page/region/Component';
+import * as Q from 'q';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
+import * as $ from 'jquery';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {CreateItemViewConfig} from './CreateItemViewConfig';
+import {ItemViewSelectedEventConfig} from './event/outgoing/navigation/SelectComponentEvent';
+import {ComponentItemType} from './ComponentItemType';
+import {FragmentItemType} from './fragment/FragmentItemType';
+import * as DOMPurify from 'dompurify';
+import {HTMLAreaHelper} from '../app/inputtype/ui/text/HTMLAreaHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {LoadComponentViewEvent} from './event/incoming/manipulation/LoadComponentViewEvent';
+import {LoadComponentFailedEvent} from './event/outgoing/manipulation/LoadComponentFailedEvent';
+import {UriHelper} from '../app/rendering/UriHelper';
+import {RenderingMode} from '../app/rendering/RenderingMode';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ReloadFragmentViewEvent} from './event/incoming/manipulation/ReloadFragmentViewEvent';
+import {FragmentComponentView} from './fragment/FragmentComponentView';
+import {DuplicateComponentViewEvent} from './event/incoming/manipulation/DuplicateComponentViewEvent';
 
 export class LiveEditPage {
 
@@ -47,6 +81,20 @@ export class LiveEditPage {
 
     private dragStoppedListener: () => void;
 
+    private selectComponentRequestedListener: (event: SelectComponentViewEvent) => void;
+
+    private deselectComponentRequestedListener: (event: DeselectComponentViewEvent) => void;
+
+    private editTextComponentRequestedListener: (event: EditTextComponentViewEvent) => void;
+
+    private addItemViewRequestListener: (event: AddComponentViewEvent) => void;
+
+    private removeItemViewRequestListener: (event: RemoveComponentViewEvent) => void;
+
+    private loadComponentRequestListener: (event: LoadComponentViewEvent) => void;
+
+    private duplicateComponentRequested: (event: DuplicateComponentViewEvent) => void;
+
     private static debug: boolean = false;
 
     constructor() {
@@ -68,16 +116,15 @@ export class LiveEditPage {
         }
 
         CONFIG.setConfig(event.getConfig());
-        ProjectContext.get().setProject(event.getProject());
-        i18nInit(CONFIG.getString('services.i18nUrl'), ['i18n/page-editor']).then(() => {
-            const liveEditModel = event.getLiveEditModel();
+        ProjectContext.get().setProject(Project.fromJson(event.getProjectJson()));
 
-            let body = Body.get().loadExistingChildren();
+        i18nInit(CONFIG.getString('services.i18nUrl'), ['i18n/page-editor']).then(() => {
+            const body = Body.get().loadExistingChildren();
             try {
                 this.pageView = new PageViewBuilder()
                     .setItemViewIdProducer(new ItemViewIdProducer())
                     .setItemViewFactory(new DefaultItemViewFactory())
-                    .setLiveEditModel(liveEditModel)
+                    .setLiveEditParams(event.getParams())
                     .setElement(body).build();
             } catch (error) {
                 if (LiveEditPage.debug) {
@@ -184,6 +231,116 @@ export class LiveEditPage {
 
         ComponentViewDragStoppedEvent.on(this.dragStoppedListener);
 
+        this.selectComponentRequestedListener = (event: SelectComponentViewEvent): void => {
+            if (!event.getPath()) {
+                return;
+            }
+
+            const path: ComponentPath = ComponentPath.fromString(event.getPath());
+            const itemView: ItemView = this.getItemViewByPath(path);
+
+            if (itemView && !itemView.isSelected()) {
+                itemView.select(null, ItemViewContextMenuPosition.NONE, event.isSilent());
+            }
+        };
+
+        SelectComponentViewEvent.on(this.selectComponentRequestedListener);
+
+        this.deselectComponentRequestedListener = (event: DeselectComponentViewEvent): void => {
+            const path: ComponentPath = event.getPath() ? ComponentPath.fromString(event.getPath()) : null;
+
+            if (path) {
+                const itemView = this.getItemViewByPath(path);
+
+                if (itemView && !itemView.isSelected()) {
+                    itemView.deselect(true);
+                }
+            } else {
+                this.pageView.getSelectedView()?.deselect(true);
+            }
+        };
+
+        DeselectComponentViewEvent.on(this.deselectComponentRequestedListener);
+
+        this.editTextComponentRequestedListener = (event: EditTextComponentViewEvent): void => {
+            const path: ComponentPath = event.getPath() ? ComponentPath.fromString(event.getPath()) : null;
+
+            if (path) {
+                const itemView: ItemView = this.getItemViewByPath(path);
+
+                if (itemView?.isText()) {
+                    (itemView as TextComponentView).startPageTextEditMode();
+                }
+            }
+        };
+
+        EditTextComponentViewEvent.on(this.editTextComponentRequestedListener);
+
+        this.addItemViewRequestListener = (event: AddComponentViewEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
+            const viewType: ItemType = ItemType.fromComponentType(type);
+            const parentView: ItemView = this.getItemViewByPath(path.getParentPath());
+
+            if (parentView) {
+                parentView.addComponentView(parentView.createView(viewType), path.getPath() as number);
+            }
+        };
+
+        AddComponentViewEvent.on(this.addItemViewRequestListener);
+
+        this.removeItemViewRequestListener = (event: RemoveComponentViewEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            const view: ItemView = this.getItemViewByPath(path);
+
+            if (view) {
+                if (view.isSelected()) {
+                    view.deselect(true);
+                }
+
+                view.remove();
+            }
+        };
+
+        RemoveComponentViewEvent.on(this.removeItemViewRequestListener);
+
+        this.loadComponentRequestListener = (event: LoadComponentViewEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            const view: ItemView = this.getItemViewByPath(path);
+
+            if (view instanceof ComponentView) {
+                this.loadComponent(view, event.getURI()).then(() => {
+
+                }).catch((reason) => {
+                    new LoadComponentFailedEvent(path, reason).fire();
+                });
+            }
+        };
+
+        LoadComponentViewEvent.on(this.loadComponentRequestListener);
+
+        ReloadFragmentViewEvent.on((event: ReloadFragmentViewEvent) => {
+            this.reloadFragment(event);
+        });
+
+        this.duplicateComponentRequested = (event: DuplicateComponentViewEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            const view: ItemView = this.getItemViewByPath(path);
+
+            if (view instanceof ComponentView) {
+                view.duplicate();
+            }
+        };
+
+        DuplicateComponentViewEvent.on(this.duplicateComponentRequested);
+    }
+
+    private getItemViewByPath(path: ComponentPath): ItemView {
+        if (!path) {
+            return;
+        }
+
+        return this.pageView?.getPath().equals(path) ? this.pageView : this.pageView?.getComponentViewByPath(path);
     }
 
     private unregisterGlobalListeners(): void {
@@ -200,6 +357,113 @@ export class LiveEditPage {
 
         ComponentViewDragStoppedEvent.un(this.dragStoppedListener);
 
+        SelectComponentViewEvent.un(this.selectComponentRequestedListener);
+
+        DeselectComponentViewEvent.un(this.deselectComponentRequestedListener);
+
+        EditTextComponentViewEvent.un(this.editTextComponentRequestedListener);
+
+        AddComponentViewEvent.un(this.addItemViewRequestListener);
+
+        RemoveComponentViewEvent.un(this.removeItemViewRequestListener);
+
+        LoadComponentViewEvent.un(this.loadComponentRequestListener);
+
+        DuplicateComponentViewEvent.un(this.duplicateComponentRequested);
     }
 
+    public loadComponent(componentView: ComponentView, componentUrl: string,): Q.Promise<string> {
+        const deferred = Q.defer<string>();
+        assertNotNull(componentView, 'componentView cannot be null');
+        assertNotNull(componentUrl, 'componentUrl cannot be null');
+
+        componentView.showLoadingSpinner();
+
+        $.ajax({
+            url: componentUrl,
+            type: 'GET',
+            success: (htmlAsString: string) => {
+                const newElement: Element = this.wrapLoadedComponentHtml(htmlAsString, componentView.getType());
+                const itemViewIdProducer: ItemViewIdProducer = componentView.getItemViewIdProducer();
+                const itemViewFactory: ItemViewFactory = componentView.getItemViewFactory();
+
+                const createViewConfig: CreateItemViewConfig<RegionView> = new CreateItemViewConfig<RegionView>()
+                    .setItemViewIdProducer(itemViewIdProducer)
+                    .setItemViewFactory(itemViewFactory)
+                    .setLiveEditParams(this.pageView.getLiveEditParams())
+                    .setParentView(componentView.getParentItemView())
+                    .setElement(newElement);
+
+                const newComponentView: ComponentView = itemViewFactory.createView(
+                    componentView.getType(),
+                    createViewConfig) as ComponentView;
+
+                componentView.replaceWith(newComponentView);
+
+                const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
+                event.fire();
+
+                const config = {itemView: newComponentView, position: null} as ItemViewSelectedEventConfig;
+                newComponentView.select(config, null);
+                newComponentView.hideContextMenu();
+
+                deferred.resolve('');
+            },
+            error: (jqXHR: JQueryXHR, textStatus: string, errorThrow: string) => {
+                const responseHtml = $.parseHTML(jqXHR.responseText);
+                let errorMessage = '';
+                responseHtml.forEach((el: HTMLElement, i) => {
+                    if (el.tagName && el.tagName.toLowerCase() === 'title') {
+                        errorMessage = el.innerHTML;
+                    }
+                });
+
+                componentView.hideLoadingSpinner();
+                componentView.showRenderingError(componentUrl, errorMessage);
+
+                deferred.reject(errorMessage);
+            }
+        });
+
+        return deferred.promise;
+    }
+
+    private wrapLoadedComponentHtml(htmlAsString: string, componentType: ComponentItemType): Element {
+        if (FragmentItemType.get().equals(componentType)) {
+            return this.wrapLoadedFragmentHtml(htmlAsString);
+        }
+
+        return Element.fromString(htmlAsString);
+    }
+
+    private wrapLoadedFragmentHtml(htmlAsString: string): Element {
+        const sanitized: string = DOMPurify.sanitize(htmlAsString, {ALLOWED_URI_REGEXP: HTMLAreaHelper.getAllowedUriRegexp()});
+        const sanitizedElement: Element = Element.fromHtml(sanitized);
+
+        const fragmentWrapperEl: Element = new DivEl();
+        fragmentWrapperEl.getEl().setAttribute(`data-${ItemType.ATTRIBUTE_TYPE}`, 'fragment');
+        fragmentWrapperEl.appendChild(sanitizedElement);
+
+        return fragmentWrapperEl;
+    }
+
+    private reloadFragment(event: ReloadFragmentViewEvent): void {
+        const path = ComponentPath.fromString(event.getPath().toString());
+        const fragmentView: ItemView = this.getItemViewByPath(path);
+
+        if (fragmentView instanceof FragmentComponentView) {
+            const componentUrl = UriHelper.getComponentUri(event.getContentId(), fragmentView.getPath(),
+                RenderingMode.EDIT);
+
+            fragmentView.showLoadingSpinner();
+
+            this.loadComponent(fragmentView, componentUrl).catch((errorMessage: string) => {
+                DefaultErrorHandler.handle(errorMessage);
+
+                fragmentView.hideLoadingSpinner();
+                fragmentView.showRenderingError(componentUrl, errorMessage);
+            });
+        }
+
+    }
 }
