@@ -748,7 +748,7 @@ module.exports = {
     },
 
     saveScreenshot: function (name, that) {
-        let screenshotsDir = path.join(__dirname, '/../build/mochawesome-report/screenshots/');
+        let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
         if (!fs.existsSync(screenshotsDir)) {
             fs.mkdirSync(screenshotsDir, {recursive: true});
         }

@@ -24,7 +24,7 @@ Go to 'app-contentstudio' directory and run tests:
 10. gradlew testPageEditorLocal
 11. gradlew testContentStudioProjectsLocal
 
-run tests with geckodriver(Firefox browser):
+Run tests with geckodriver(Firefox browser):
 
 1. gradlew testWizardsGridFirefoxLocal - run ui-tests on local started XP
    gradlew testPageEditorFirefoxLocal
@@ -36,4 +36,17 @@ run tests with geckodriver(Firefox browser):
 7. For switching all tests to FF, specify the suite in gradle.yml:
    suite: [ testContentStudioProjectsFirefox, testPageEditorFirefox, testInputTypesFirefox, testInputTypesFirefox_2, testWizardsGridFirefox, testPublishIssuesFirefox, testModalDialogFirefox ]
 
+ Run tests with WDIO+chrome configuration:
+1. gradlew w_testInputTypes  run ui-tests with WDIO+chrome configuration.
 
+2. Install allure, Manual installation:
+
+   -Download the latest version as zip archive from Maven Central.
+   https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/
+     -Unpack the archive to allure-commandline directory.
+     -Navigate to bin directory.
+     -Use allure.bat for Windows or allure for other Unix platforms.
+     -Add allure to system PATH.
+
+Command for creating reports : allure generate 'available report folder path' && allure open
+allure generate ./allureReports && allure open
