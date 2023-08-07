@@ -6,8 +6,8 @@ exports.config = {
 
     specs: [
         //__dirname +  '/specs/content-types/attachments.wizard.spec.js'
-      // path.join(__dirname, '../specs/content-types/*.spec.js')
-        path.resolve('./specs/content-types/*.spec.js')
+       path.join(__dirname, '../specs/content-types/*.spec.js')
+        //path.resolve('./specs/content-types/*.spec.js')
        //'./specs/content-types/*.spec.js'
     ],
     exclude: [
