@@ -3,8 +3,7 @@ const path = require('path')
 exports.config = {
 
     specs: [
-       path.join(__dirname, '../specs/content-types/*.spec.js')
-        //path.resolve('./specs/content-types/*.spec.js')
+        path.join(__dirname, '../specs/*.spec.js'),
     ],
 
     maxInstances: 1,

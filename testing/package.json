@@ -4,17 +4,6 @@
   "author": "Hauruseu Siarhei",
   "license": "ISC",
   "scripts": {
-    "test": "node ./tasks/test.js",
-    "test_project": "node ./tasks/test-project.js",
-    "test_project_part2": "node ./tasks/test-project-part2.js",
-    "test_page_editor": "node ./tasks/test-page-editor.js",
-    "test_publish_issues": "node tasks/test-publish-issues.js",
-    "test_input_types": "node ./tasks/test-input-types.js",
-    "test_input_types_2": "node ./tasks/test-input-types-2.js",
-    "test_wizards_grid": "node ./tasks/test-wizards-grid.js",
-    "test_modal_dialog": "node tasks/test-modal-dialog.js",
-    "test_hide_default_project": "node tasks/test-hide-default.js",
-
     "test_wizards_grid:firefox": "npx wdio ./wdio.wizard.grid.ff.conf.js",
     "test_input_types:firefox": "npx wdio wdio.input_types.ff.conf.js",
     "test_page_editor:firefox": "npx wdio wdio.page_editor.ff.conf.js",
@@ -22,11 +11,18 @@
     "test_project:firefox": "npx wdio wdio.projects.ff.conf.js",
     "test_publish_issues:firefox": "npx wdio wdio.publish.ff.conf.js",
     "test_modal_dialog:firefox": "npx wdio wdio.modal.dialog.ff.conf.js",
-    "test_input_types:wdio_chrome": "npx wdio ./wdio/wdio.input_types.chrome.conf.js"
+
+    "test_input_types:wdio_chrome": "npx wdio ./wdio/wdio.input_types.chrome.conf.js",
+    "test_input_types_2:wdio_chrome": "npx wdio ./wdio/wdio.input_types_2.chrome.conf.js",
+    "test_modal_dialog:wdio_chrome": "npx wdio ./wdio/wdio.modal.dialog.chrome.conf.js",
+    "test_page_editor:wdio_chrome": "npx wdio ./wdio/wdio.page_editor.chrome.conf.js",
+    "test_project:wdio_chrome": "npx wdio ./wdio/wdio.projects.chrome.conf.js",
+    "test_project_2:wdio_chrome": "npx wdio ./wdio/wdio.projects2.chrome.conf.js",
+    "test_publish_issues:wdio_chrome": "npx wdio ./wdio/wdio.publish.chrome.conf.js",
+    "test_wizards_grid:wdio_chrome": "npx wdio ./wdio/wdio.wizards.grid.chrome.conf.js",
+    "test_hide_default_project:wdio_chrome": "npx wdio ./wdio/wdio.hide.default.project.chrome.conf.js"
   },
   "devDependencies": {
-    "@rpii/wdio-commands": "^8.0.2",
-    "@rpii/wdio-report-events": "8.0.2",
     "@wdio/cli": "^8.13.12",
     "@wdio/dot-reporter": "^8.12.2",
     "@wdio/local-runner": "^8.13.12",
@@ -49,7 +45,7 @@
     "wdio-chromedriver-service": "^8.1.1",
     "wdio-geckodriver-service": "^5.0.2",
     "wdio-html-nice-reporter": "^8.1.0",
-    "webdriverio": "8.13.12",
+    "webdriverio": "8.14.3",
     "@wdio/allure-reporter": "^8.14.0",
     "@wdio/concise-reporter": "^8.14.0"
   },

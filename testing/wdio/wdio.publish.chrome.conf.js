@@ -3,7 +3,8 @@ const path = require('path')
 exports.config = {
 
     specs: [
-       path.join(__dirname, '../specs/content-types/*.spec.js')
+        path.join(__dirname, '../specs/publish/*.spec.js'),
+        path.join(__dirname, '../specs/issue/*.spec.js')
         //path.resolve('./specs/content-types/*.spec.js')
     ],
 
