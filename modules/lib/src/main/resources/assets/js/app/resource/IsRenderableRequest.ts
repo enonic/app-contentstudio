@@ -9,13 +9,13 @@ import {RenderingMode} from '../rendering/RenderingMode';
 import {ContentSummary} from '../content/ContentSummary';
 
 export class IsRenderableRequest
-    extends ResourceRequest<boolean> {
+    extends ResourceRequest<number> {
 
     private item: ContentSummary;
 
-    private mode: RenderingMode;
+    private readonly mode: RenderingMode;
 
-    private static cache: Map<string, boolean> = new Map<string, boolean>();
+    private static cache: Map<string, number | Q.Promise<number>> = new Map<string, number | Q.Promise<number>>();
 
     constructor(summary: ContentSummary, mode?: RenderingMode) {
         super();
@@ -34,8 +34,8 @@ export class IsRenderableRequest
         return Path.create().fromString(url).build();
     }
 
-    protected parseResponse(response: Response): boolean {
-        return true;
+    protected parseResponse(response: Response): number {
+        return response.getStatus();
     }
 
     getParams(): Object {
@@ -48,19 +48,30 @@ export class IsRenderableRequest
         };
     }
 
-    sendAndParse(): Q.Promise<boolean> {
+    sendAndParse(): Q.Promise<number> {
         const id: string = this.item?.getId();
 
         if (id && IsRenderableRequest.cache.has(id)) {
-            return Q(IsRenderableRequest.cache.get(id));
+            const cachedIsRenderable = IsRenderableRequest.cache.get(id);
+            if (typeof cachedIsRenderable === 'number') {
+                return Q(cachedIsRenderable);
+            }
+
+            return cachedIsRenderable;
         }
 
-        return super.sendAndParse().then((isRenderable: boolean) => {
-            IsRenderableRequest.cache.set(id, isRenderable);
-            return isRenderable;
+        const request = super.sendAndParse().then((statusCode: number) => {
+            id && IsRenderableRequest.cache.set(id, statusCode);
+            return statusCode;
         }).catch((error: RequestError) => {
-            IsRenderableRequest.cache.set(id, false);
-            return false;
+            id && IsRenderableRequest.cache.set(id, error.getStatusCode());
+            return error.getStatusCode();
         });
+
+        if (id && !IsRenderableRequest.cache.has(id)) {
+            IsRenderableRequest.cache.set(id, request);
+        }
+
+        return request;
     }
 }

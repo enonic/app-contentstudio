@@ -37,6 +37,7 @@ import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
 import {MovedContentItem} from './MovedContentItem';
 import {ContentQuery} from '../content/ContentQuery';
+import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -492,8 +493,8 @@ export class ContentBrowsePanel
         const selectedItem: ContentSummaryAndCompareStatus = this.treeGrid.getLastSelectedOrHighlightedItem();
 
         if (selectedItem) {
-            new IsRenderableRequest(selectedItem.getContentSummary()).sendAndParse().then((isRenderable: boolean) => {
-                this.treeGrid.updateItemIsRenderable(selectedItem.getId(), isRenderable);
+            new IsRenderableRequest(selectedItem.getContentSummary()).sendAndParse().then((statusCode: number) => {
+                this.treeGrid.updateItemIsRenderable(selectedItem.getId(), statusCode === StatusCode.OK);
                 super.updateActionsAndPreview();
             }).catch(DefaultErrorHandler.handle);
         } else {

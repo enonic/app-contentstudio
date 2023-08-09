@@ -139,6 +139,7 @@ import {LiveEditPageProxy} from './page/LiveEditPageProxy';
 import {PageComponentsView} from './PageComponentsView';
 import {PageView} from '../../page-editor/PageView';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
+import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -2497,7 +2498,8 @@ export class ContentWizardPanel
     }
 
     private checkIfRenderable(item?: ContentSummary): Q.Promise<boolean> {
-        return new IsRenderableRequest(item || this.getPersistedItem(), RenderingMode.EDIT).sendAndParse().then((renderable: boolean) => {
+        return new IsRenderableRequest(item || this.getPersistedItem(), RenderingMode.EDIT).sendAndParse().then((statusCode: number) => {
+            const renderable = statusCode === StatusCode.OK;
             this.renderable = renderable;
             this.contextView?.setIsPageRenderable(renderable);
 
