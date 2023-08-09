@@ -22,6 +22,7 @@ import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
+import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -365,15 +366,13 @@ export class ContentItemPreviewPanel
         this.setPreviewType(PREVIEW_TYPE.PAGE);
     }
 
-    private handlePreviewFailure(response: Response, item: ContentSummaryAndCompareStatus): void {
+    private handlePreviewFailure(item: ContentSummaryAndCompareStatus, response?: Response): void {
         const contentSummary: ContentSummary = item.getContentSummary();
-        if (response.redirected) {
-            this.setPreviewType(PREVIEW_TYPE.EMPTY);
-        } else if (this.isMediaForPreview(contentSummary)) {
+        if (this.isMediaForPreview(contentSummary)) {
             this.setMediaPreviewMode(item);
         } else if (this.isImageForPreview(contentSummary)) {
             this.setImagePreviewMode(item);
-        } else {
+        } else if (response) {
             switch (response.status) {
                 case StatusCode.NOT_FOUND:
                     this.setPreviewType(PREVIEW_TYPE.EMPTY);
@@ -386,19 +385,32 @@ export class ContentItemPreviewPanel
                     break;
             }
         }
+
+        this.setPreviewType(PREVIEW_TYPE.EMPTY);
     }
 
     protected async setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
         const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
 
+        if (item.getType().isShortcut()) {
+            // Special handling for Shortcuts as we don't want to show preview of the target item
+            this.handlePreviewFailure(item);
+            return;
+        }
+
+        if (IsRenderableRequest.isRenderable(item.getId())) {
+            this.handlePreviewSuccess(src);
+            return;
+        }
+
         // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
         await fetch(src, {
             method: 'HEAD'
         }).then((response: Response) => {
-            if (response.redirected || !response.ok) {
-                this.handlePreviewFailure(response, item);
-            } else {
+            if (response.ok) {
                 this.handlePreviewSuccess(src);
+            } else {
+                this.handlePreviewFailure(item, response);
             }
         }).catch(() => {
             this.setPreviewType(PREVIEW_TYPE.FAILED);

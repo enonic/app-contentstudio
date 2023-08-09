@@ -15,7 +15,7 @@ export class IsRenderableRequest
 
     private mode: RenderingMode;
 
-    private static cache: Map<string, boolean> = new Map<string, boolean>();
+    private static cache: Map<string, boolean | Q.Promise<boolean>> = new Map<string, boolean | Q.Promise<boolean>>();
 
     constructor(summary: ContentSummary, mode?: RenderingMode) {
         super();
@@ -48,19 +48,41 @@ export class IsRenderableRequest
         };
     }
 
+    static isRenderable(id: string): boolean {
+        return !!IsRenderableRequest.cache.get(id);
+    }
+
+    private static isDefinedAndBoolean(value: boolean | Q.Promise<boolean> | null | undefined): value is boolean {
+        if (value === undefined) {
+            return false;
+        }
+        return typeof value === 'boolean';
+    }
+
     sendAndParse(): Q.Promise<boolean> {
         const id: string = this.item?.getId();
 
         if (id && IsRenderableRequest.cache.has(id)) {
-            return Q(IsRenderableRequest.cache.get(id));
+            const cachedIsRenderable = IsRenderableRequest.cache.get(id);
+            if (typeof cachedIsRenderable === 'boolean') {
+                return Q(cachedIsRenderable);
+            } else {
+                return cachedIsRenderable as Q.Promise<boolean>;
+            }
         }
 
-        return super.sendAndParse().then((isRenderable: boolean) => {
-            IsRenderableRequest.cache.set(id, isRenderable);
+        const request = super.sendAndParse().then((isRenderable: boolean) => {
+            id && IsRenderableRequest.cache.set(id, isRenderable);
             return isRenderable;
         }).catch((error: RequestError) => {
-            IsRenderableRequest.cache.set(id, false);
+            id && IsRenderableRequest.cache.set(id, false);
             return false;
         });
+
+        if (id && !IsRenderableRequest.cache.has(id)) {
+            IsRenderableRequest.cache.set(id, request);
+        }
+
+        return request;
     }
 }
