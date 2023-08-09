@@ -17,6 +17,7 @@ import {ChildOrder} from './order/ChildOrder';
 import {ContentId} from '../content/ContentId';
 import {FieldOrderExpr, FieldOrderExprBuilder} from './order/FieldOrderExpr';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 
 export class ContentSummaryAndCompareStatusFetcher {
 
@@ -181,8 +182,8 @@ export class ContentSummaryAndCompareStatusFetcher {
     updateRenderableContent(content: ContentSummaryAndCompareStatus, projectName?: string): Q.Promise<void> {
         return new IsRenderableRequest(content.getContentSummary())
             .sendAndParse()
-            .then((isRenderable: boolean) => {
-                content.setRenderable(isRenderable);
+            .then((statusCode: number) => {
+                content.setRenderable(statusCode === StatusCode.OK);
                 return Q(null);
             });
     }
