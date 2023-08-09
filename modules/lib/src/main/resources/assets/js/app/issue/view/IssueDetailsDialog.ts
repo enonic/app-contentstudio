@@ -623,8 +623,9 @@ export class IssueDetailsDialog
         this.excludedToggler.onActiveChanged(loadExcluded => this.publishProcessor.updateLoadExcluded(loadExcluded));
 
         this.getDependantList().onSelectionChanged((original) => {
-            this.stateBar.markEditing(!original);
-            this.markEditing(!original);
+            const isEditing = !original;
+            this.stateBar.markEditing(isEditing);
+            this.markEditing(isEditing);
         });
     }
 
