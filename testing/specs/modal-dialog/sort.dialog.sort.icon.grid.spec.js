@@ -12,7 +12,7 @@ const appConst = require('../../libs/app_const');
 
 describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks the sort-icon in the grid`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 

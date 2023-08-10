@@ -19,7 +19,7 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 
 describe('tests for Sorted versions item', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let PARENT_FOLDER;

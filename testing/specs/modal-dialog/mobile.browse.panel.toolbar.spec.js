@@ -12,16 +12,17 @@ const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel
 
 describe('Tests for browse panel toolbar in mobile mode', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
+    const MOBILE_WIDTH = 414;
+    const MOBILE_HEIGHT = 736;
     if (typeof browser === 'undefined') {
-        webDriverHelper.setupBrowser(414, 736);
-    }else{
-        browser.setWindowSize(414, 736)
+        webDriverHelper.setupBrowser(MOBILE_WIDTH, MOBILE_HEIGHT);
     }
 
     let FOLDER;
 
     it("WHEN Mobile Browse panel is loaded THEN 'New' button should be enabled, 'Edit...','Archive..' buttons should be disabled",
         async () => {
+            await studioUtils.getBrowser().setWindowSize(MOBILE_WIDTH, MOBILE_HEIGHT);
             let mobileContentBrowsePanel = new MobileContentBrowsePanel();
             //1. 'New' button should be enabled, 'Edit...','Archive..' buttons should be disabled
             await mobileContentBrowsePanel.waitForNewButtonEnabled();
@@ -71,7 +72,7 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
     });
     before(async () => {
         if (typeof browser !== 'undefined') {
-            await studioUtils.getBrowser().setWindowSize(414, 736);
+            await studioUtils.getBrowser().setWindowSize(MOBILE_WIDTH, MOBILE_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
     });

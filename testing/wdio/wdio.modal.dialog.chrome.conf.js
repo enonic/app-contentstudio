@@ -51,7 +51,7 @@ exports.config = {
     // Set directory to store all logs into
     outputDir: "./build/logs/",
 
-    reporters: ['spec',
+    reporters: ['spec','concise',
         ['timeline', { outputDir: './build/reports/timeline' }]
     ],
 

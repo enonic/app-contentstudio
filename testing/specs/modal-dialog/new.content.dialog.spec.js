@@ -11,7 +11,7 @@ const appConst = require('../../libs/app_const');
 
 describe('new.content.dialog.spec:  test for New Content Dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -20,13 +20,13 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
-            //'Alt'+ 'n' have been pressed:
+            // 'Alt'+ 'n' have been pressed:
             await contentBrowsePanel.hotKeyNew();
-            //'New Content Dialog should be loaded:
+            // 'New Content Dialog should be loaded:
             await newContentDialog.waitForOpened();
-            //Press 'Esc' key
+            // Press 'Esc' key
             await newContentDialog.pressEscKey();
-            //Verify that the dialog is closed:
+            // Verify that the dialog is closed:
             await newContentDialog.waitForClosed();
         });
 
@@ -34,13 +34,13 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
         async () => {
             let newContentDialog = new NewContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Open New Content Dialog
+            // 1. Open New Content Dialog
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
-            //2. Verify the Upload button
+            // 2. Verify the Upload button
             let isDisplayed = await newContentDialog.waitForUploaderButtonDisplayed();
             assert.isTrue(isDisplayed, "Uploader button should be present in the modal dialog");
-            //3.  Most popular block should be displayed
+            // 3.  Most popular block should be displayed
             await newContentDialog.waitForMostPopularBlockDisplayed();
         });
 
@@ -48,10 +48,10 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
         async () => {
             let newContentDialog = new NewContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Open New Content Dialog
+            // 1. Open New Content Dialog
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
-            //2. Click on Cancel Top button
+            // 2. Click on Cancel Top button
             await newContentDialog.clickOnCancelButtonTop();
             await newContentDialog.waitForClosed();
         });
@@ -60,13 +60,13 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
         async () => {
             let newContentDialog = new NewContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Open New Content Dialog
+            // 1. Open New Content Dialog
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
-            //2. type 'test123' text in the search input
+            // 2. type 'test123' text in the search input
             await newContentDialog.typeSearchText("test123");
             await newContentDialog.pause(500);
-            //3. Verify the list of items
+            // 3. Verify the list of items
             let items = await newContentDialog.getItems();
             await studioUtils.saveScreenshot("new_content_dialog_filtered_2");
             assert.equal(items.length, 0, "list of items should be empty");
@@ -76,18 +76,18 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
         async () => {
             let newContentDialog = new NewContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Open New Content Dialog
+            // 1. Open New Content Dialog
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
-            //2. type 'folder' text in the search input
+            // 2. type 'folder' text in the search input
             await newContentDialog.typeSearchText("folder");
             await newContentDialog.pause(500);
-            //3. Verify the filtered item
+            // 3. Verify the filtered item
             let items = await newContentDialog.getItems();
-            studioUtils.saveScreenshot("new_content_dialog_filtered");
+            await studioUtils.saveScreenshot('new_content_dialog_filtered');
             assert.equal(items.length, 1, "One item should be in the filtered dialog");
             assert.equal(items[0], "Folder", "Expect display name of the type should be displayed");
-            //4. Clear  the filter input:
+            // 4. Clear  the filter input:
             await studioUtils.doPressBackspace();
             await studioUtils.doPressBackspace();
             await studioUtils.doPressBackspace();
@@ -95,7 +95,7 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             await studioUtils.doPressBackspace();
             await studioUtils.doPressBackspace();
             await newContentDialog.pause(1500);
-            //5. Verify items:
+            // 5. Verify items:
             items = await newContentDialog.getItems();
             await studioUtils.saveScreenshot("new_content_dialog_not_filtered");
             assert.equal(items.length, 3, "One item should be in the filtered dialog");
@@ -107,7 +107,7 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
