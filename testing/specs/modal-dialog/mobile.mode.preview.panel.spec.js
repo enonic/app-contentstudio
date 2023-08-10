@@ -14,9 +14,10 @@ const MobileContentWizardPanel = require('../../page_objects/wizardpanel/mobile.
 
 describe('Tests for preview panel in mobile mode', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
-        //set the mobile resolution:
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser(414, 736);
+    }else{
+        browser.setWindowSize(414, 736)
     }
     let FOLDER;
 
