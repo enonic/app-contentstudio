@@ -891,9 +891,14 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async clickOnMoreFoldButton() {
-        await this.waitForMoreButtonDisplayed();
-        await this.clickOnElement(this.moreButton);
-        return this.pause(200);
+        try {
+            await this.waitForMoreButtonDisplayed();
+            await this.clickOnElement(this.moreButton);
+            return await this.pause(200);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_mobile_res');
+            throw new Error('More button, screenshot:  ' + screenshot + '  ' + err);
+        }
     }
 
     waitForFoldWithNameButtonDisplayed(name) {

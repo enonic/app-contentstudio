@@ -19,7 +19,7 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
     }
 
     let SITE;
-    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_02;
+    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.MAN2;
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
 
     it(`Preconditions: new site should be added`,
@@ -62,7 +62,7 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
             await insertImageDialog.waitForDialogVisible();
             // 3. Verify the selected style option in styles selector:
             let actualStyle = await insertImageDialog.getSelectedStyleName();
-            // 4. Verify that 'Avatar' option should be selected in the styles dropdown selector
+            // 4. Verify that 'Avatar' option should be selected in the 'styles' dropdown selector
             await studioUtils.saveScreenshot('image_dialog_custom_style_avatar');
             assert.equal(actualStyle, 'Avatar', "'Avatar' style should be selected in the dropdown");
         });

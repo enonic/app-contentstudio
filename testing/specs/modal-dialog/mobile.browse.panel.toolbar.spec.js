@@ -12,8 +12,10 @@ const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel
 
 describe('Tests for browse panel toolbar in mobile mode', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser(414, 736);
+    }else{
+        browser.setWindowSize(414, 736)
     }
 
     let FOLDER;
@@ -68,7 +70,7 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(414, 736);
         }
         return console.log('specification starting: ' + this.title);
