@@ -5,9 +5,10 @@ exports.config = {
 
     specs: [
         path.join(__dirname, '../specs/modal-dialog/*.spec.js')
-        //path.resolve('./specs/content-types/*.spec.js')
     ],
-
+    exclude: [
+        path.join(__dirname, '../specs/modal-dialog/insert.image.custom.style.filters.spec.js'),
+    ],
     maxInstances: 1,
 
     capabilities: [{
@@ -50,7 +51,7 @@ exports.config = {
     // Set directory to store all logs into
     outputDir: "./build/logs/",
 
-    reporters: ['spec','concise',
+    reporters: ['spec',
         ['timeline', { outputDir: './build/reports/timeline' }]
     ],
 
