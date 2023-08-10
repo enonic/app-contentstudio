@@ -19,10 +19,10 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
     }
 
     let SITE;
-    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_02;
+    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.SEVEROMOR;
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
 
-    it.skip(`Preconditions: new site should be added`,
+    it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
@@ -43,7 +43,7 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
             // 2. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             // 3. Type the 'Avatar' text in filter input and click on the option:
-            await insertImageDialog.doFilterStyleAndClickOnOption("Avatar");
+            await insertImageDialog.doFilterStyleAndClickOnOption('Avatar');
             // 4. save the changes and save the content
             await insertImageDialog.clickOnInsertButton();
             await contentWizard.waitAndClickOnSave();
