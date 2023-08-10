@@ -7,7 +7,6 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const MobileContentBrowsePanel = require('../../page_objects/browsepanel/mobile.content.browse.panel');
-const contentBuilder = require("../../libs/content.builder");
 const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 
 describe('Tests for browse panel toolbar in mobile mode', function () {
@@ -47,6 +46,7 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
             let mobileContentBrowsePanel = new MobileContentBrowsePanel();
             //1.Open Filter Panel, type the name of folder
             await studioUtils.typeNameInFilterPanel(appConst.TEST_FOLDER_NAME);
+            await studioUtils.saveScreenshot("mobile_filter_panel");
             //2. Click on 'Show results' button:
             await filterPanel.clickOnShowResultsButton();
             //3. Load the Preview panel:

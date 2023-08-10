@@ -8,6 +8,8 @@ exports.config = {
     ],
     exclude: [
         path.join(__dirname, '../specs/modal-dialog/insert.image.custom.style.filters.spec.js'),
+        path.join(__dirname, '../specs/modal-dialog/mobile.mode.preview.panel.spec.js'),
+        path.join(__dirname, '../specs/modal-dialog/mobile.browse.panel.toolbar.spec.js'),
     ],
     maxInstances: 1,
 

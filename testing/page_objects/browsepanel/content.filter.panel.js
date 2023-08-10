@@ -121,8 +121,13 @@ class BrowseFilterPanel extends Page {
     }
 
     async clickOnShowResultsButton() {
-        await this.waitForShowResultsButtonDisplayed();
-        return await this.clickOnElement(this.showResultsButton);
+        try {
+            await this.waitForShowResultsButtonDisplayed();
+            return await this.clickOnElement(this.showResultsButton);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_show_results_button');
+            throw new Error("Error when click on Show Results button, screenshot: " + screenshot + ' ' + err);
+        }
     }
 
     waitForCloseDependenciesSectionButtonDisplayed() {
@@ -284,7 +289,7 @@ class BrowseFilterPanel extends Page {
             await this.waitForElementDisplayed(okButton, appConst.mediumTimeout);
             await this.clickOnElement(okButton);
             await this.pause(300);
-        }catch(err) {
+        } catch (err) {
             await this.saveScreenshot('err_filter_owner');
             throw new Error("Error when selecting an option in 'Owner Selector' " + err);
         }

@@ -43,6 +43,7 @@ describe('Tests for preview panel in mobile mode', function () {
     // Verify - Incorrect default state of the publish menu's dropdown icon #5355
     it("GIVEN wizard for new folder is opened WHEN Mark as ready menu item has been clicked THEN content gets ready for publishing",
         async () => {
+            await studioUtils.getBrowser().setWindowSize(MOBILE_WIDTH, MOBILE_HEIGHT);
             let contentWizard = new MobileContentWizardPanel();
             let displayName = contentBuilder.generateRandomName('folder');
             // 1. Open the folder-wizard:
@@ -61,6 +62,7 @@ describe('Tests for preview panel in mobile mode', function () {
 
     it("GIVEN new folder has been created WHEN the folder has been filtered and clicked THEN 'Show results' button gets visible",
         async () => {
+            await studioUtils.getBrowser().setWindowSize(MOBILE_WIDTH, MOBILE_HEIGHT);
             let filterPanel = new FilterPanel();
             let displayName1 = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(displayName1);
