@@ -5,14 +5,7 @@ import {RegionPath} from './RegionPath';
 export class ComponentRemovedEvent
     extends BaseRegionChangedEvent {
 
-    private componentPath: ComponentPath;
-
-    constructor(regionPath: RegionPath, componentPath: ComponentPath) {
-        super(regionPath);
-        this.componentPath = componentPath;
-    }
-
-    getComponentPath(): ComponentPath {
-        return this.componentPath;
+    constructor(componentPath: ComponentPath) {
+        super(componentPath);
     }
 }

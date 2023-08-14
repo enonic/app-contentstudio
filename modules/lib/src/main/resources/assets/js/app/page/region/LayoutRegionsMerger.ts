@@ -82,7 +82,7 @@ export class LayoutRegionsMerger {
 
         layoutDescriptorRegions.forEach((regionDescriptor: RegionDescriptor, idx: number) => {
             let regionName = regionDescriptor.getName();
-            let layoutRegion = Region.create().setName(regionName).setParentPath(parent ? parent.getPath() : null).build();
+            let layoutRegion = Region.create().setName(regionName).setParent(parent).build();
             this.targetRegionsByName[regionName] = layoutRegion;
             this.targetRegionsNameByPosition[idx] = regionName;
         });

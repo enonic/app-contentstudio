@@ -6,28 +6,27 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {PageTemplateOption} from './PageTemplateOption';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {PageModel, SetController, SetTemplate} from '../../../../../../page-editor/PageModel';
 import {GetPageTemplatesByCanRenderRequest} from './GetPageTemplatesByCanRenderRequest';
 import {PageTemplateLoader} from './PageTemplateLoader';
 import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
 import {PageTemplate} from '../../../../../content/PageTemplate';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
-import {PageTemplateKey} from '../../../../../page/PageTemplateKey';
 import {PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './PageTemplateAndSelectorViewer';
 import {PageControllerOption} from './PageControllerOption';
-import {PageMode} from '../../../../../page/PageMode';
 import {Dropdown, DropdownConfig} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {ContentServerChangeItem} from '../../../../../event/ContentServerChangeItem';
-import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {Descriptor} from '../../../../../page/Descriptor';
 import {ComponentDescriptorsLoader} from '../region/ComponentDescriptorsLoader';
 import {PageComponentType} from '../../../../../page/region/PageComponentType';
-import {DescriptorKey} from '../../../../../page/DescriptorKey';
+import {PageState} from '../../../PageState';
+import {PageEventsManager} from '../../../../PageEventsManager';
+import {PageUpdatedEvent} from '../../../../../page/event/PageUpdatedEvent';
+import {PageControllerUpdatedEvent} from '../../../../../page/event/PageControllerUpdatedEvent';
+import {PageTemplateUpdatedEvent} from '../../../../../page/event/PageTemplateUpdatedEvent';
+import {Page} from '../../../../../page/Page';
 
 export class PageTemplateAndControllerSelector
     extends Dropdown<PageTemplateAndControllerOption> {
@@ -52,9 +51,9 @@ export class PageTemplateAndControllerSelector
 
     setModel(model: LiveEditModel) {
         this.liveEditModel = model;
-        PageTemplateAndSelectorViewer.setDefaultPageTemplate(this.liveEditModel.getPageModel().getDefaultPageTemplate());
-        const pageModel = this.liveEditModel.getPageModel();
-        if (!pageModel.isPageTemplate() && pageModel.getMode() !== PageMode.FRAGMENT) {
+        PageTemplateAndSelectorViewer.setDefaultPageTemplate(this.liveEditModel.getDefaultModels().getDefaultPageTemplate());
+
+        if (!this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.isFragment()) {
             this.autoOption = Option.create<PageTemplateOption>()
                 .setValue('__auto__')
                 .setDisplayValue(new PageTemplateOption())
@@ -114,7 +113,6 @@ export class PageTemplateAndControllerSelector
                 this.openConfirmationDialog(i18n('dialog.controller.change'), event, selectionHandler);
                 // template -> controller
             } else {
-                this.doResetTemplate();
                 this.doSelectController(selectedOption as PageControllerOption);
             }
         });
@@ -137,38 +135,17 @@ export class PageTemplateAndControllerSelector
     }
 
     private doSelectTemplate(selectedOption: PageTemplateOption) {
-        const pageModel = this.liveEditModel.getPageModel();
-        pageModel.setCustomized(false);
-
         const pageTemplate: PageTemplate = selectedOption.getData();
 
         if (pageTemplate) {
-            new GetComponentDescriptorRequest(pageTemplate.getController().toString())
-                .sendAndParse()
-                .then((pageDescriptor: Descriptor) => {
-                    const setTemplate = new SetTemplate(this).setTemplate(pageTemplate, pageDescriptor);
-                    pageModel.setTemplate(setTemplate, true);
-                }).catch((reason) => {
-                DefaultErrorHandler.handle(reason);
-            }).done();
-        } else if (pageModel.hasDefaultPageTemplate()) {
-            pageModel.setAutomaticTemplate(this, true);
+            PageEventsManager.get().notifyPageTemplateSetRequested(pageTemplate.getKey());
         } else {
-            pageModel.reset(this);
+            PageEventsManager.get().notifyPageResetRequested();
         }
     }
 
-    doResetTemplate() {
-        const pageModel = this.liveEditModel.getPageModel();
-
-        pageModel.setTemplateContoller(true);
-    }
-
     private doSelectController(selectedOption: PageControllerOption) {
-        const pageDescriptor: Descriptor = selectedOption.getData();
-        const setController = new SetController(this).setDescriptor(pageDescriptor).setConfig(new PropertyTree());
-
-        this.liveEditModel.getPageModel().setController(setController);
+        PageEventsManager.get().notifyPageControllerSetRequested(selectedOption.getData().getKey());
     }
 
     private static isDescendantTemplate(summary: ContentSummaryAndCompareStatus, liveEditModel: LiveEditModel): boolean {
@@ -276,37 +253,35 @@ export class PageTemplateAndControllerSelector
     }
 
     private selectInitialOption() {
-        const pageModel: PageModel = this.liveEditModel.getPageModel();
+        const currentPageState: Page = PageState.getState();
 
-        if (pageModel.hasController()) {
-            if (pageModel.getController().getKey().toString() !== this.getValue()) {
-                this.selectOptionByValue(pageModel.getController().getKey().toString());
+        if (currentPageState?.hasController()) {
+            if (currentPageState.getController().toString() !== this.getValue()) {
+                this.selectOptionByValue(currentPageState.getController().toString());
             }
-        } else if (pageModel.hasTemplate()) {
-            this.selectOptionByValue(pageModel.getTemplateKey().toString());
+        } else if (currentPageState?.hasTemplate()) {
+            this.selectOptionByValue(currentPageState.getTemplate().toString());
         } else if (this.autoOption) {
             this.selectOption(this.autoOption, true);
         }
     }
 
     private initPageModelListeners() {
-        this.liveEditModel.getPageModel().onPropertyChanged((event: PropertyChangedEvent) => {
-            if (event.getPropertyName() === PageModel.PROPERTY_TEMPLATE && this !== event.getSource()) {
-                let pageTemplateKey = event.getNewValue() as PageTemplateKey;
+        PageState.getEvents().onPageUpdated((event: PageUpdatedEvent) => {
+            if (event instanceof PageTemplateUpdatedEvent) {
+                let pageTemplateKey = event.getPageTemplate();
+
                 if (pageTemplateKey) {
                     this.selectOptionByValue(pageTemplateKey.toString());
                 } else if (this.autoOption) {
                     this.selectOption(this.autoOption, true);
                 }
-            } else if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER && this !== event.getSource()) {
-                let descriptorKey = event.getNewValue() as DescriptorKey;
-                if (descriptorKey) {
-                    this.selectOptionByValue(descriptorKey.toString());
-                }
+            } else if (event instanceof PageControllerUpdatedEvent) {
+                this.selectOptionByValue(event.getPageController().toString());
             }
         });
 
-        this.liveEditModel.getPageModel().onReset(() => {
+        PageState.getEvents().onPageReset(() => {
             if (this.autoOption) {
                 this.selectOption(this.autoOption, true);
             } else {

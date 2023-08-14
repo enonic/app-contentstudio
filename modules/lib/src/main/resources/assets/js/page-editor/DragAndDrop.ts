@@ -24,6 +24,9 @@ import {LayoutItemType} from './layout/LayoutItemType';
 import {Component} from '../app/page/region/Component';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {assertState} from '@enonic/lib-admin-ui/util/Assert';
+import {AddComponentEvent} from './event/outgoing/manipulation/AddComponentEvent';
+import {ComponentPath} from '../app/page/region/ComponentPath';
+import {MoveComponentEvent} from './event/outgoing/manipulation/MoveComponentEvent';
 
 export class DragAndDrop {
 
@@ -56,12 +59,12 @@ export class DragAndDrop {
 
     private newItemItemType: ItemType;
 
-    private draggedComponentView: ComponentView<Component>;
+    private draggedComponentView: ComponentView;
 
-    private dragStartedListeners: ((componentView: ComponentView<Component>) => void)[] = [];
-    private dragStoppedListeners: ((componentView: ComponentView<Component>) => void)[] = [];
-    private droppedListeners: ((componentView: ComponentView<Component>, regionView: RegionView) => void)[] = [];
-    private canceledListeners: ((componentView: ComponentView<Component>) => void)[] = [];
+    private dragStartedListeners: ((componentView: ComponentView) => void)[] = [];
+    private dragStoppedListeners: ((componentView: ComponentView) => void)[] = [];
+    private droppedListeners: ((componentView: ComponentView, regionView: RegionView) => void)[] = [];
+    private canceledListeners: ((componentView: ComponentView) => void)[] = [];
 
     public static init(pageView: PageView) {
         DragAndDrop.instance = new DragAndDrop(pageView);
@@ -98,7 +101,7 @@ export class DragAndDrop {
 
         // Make sure no other region has the over class
         this.pageView.getItemViewsByType(RegionItemType.get()).forEach((region: RegionView) => {
-            region.toggleClass(this.DRAGGED_OVER_CLASS, region.getRegionPath().equals(regionView.getRegionPath()));
+            region.toggleClass(this.DRAGGED_OVER_CLASS, region.getPath().equals(regionView.getPath()));
         });
 
         // Need to update empty state if the only item
@@ -294,22 +297,19 @@ export class DragAndDrop {
                 // Create component and view if we drag from context window
                 let componentType: ComponentItemType = this.newItemItemType as ComponentItemType;
 
-                let newComponent = regionView.createComponent(componentType.toComponentType());
-
                 this.draggedComponentView = this.pageView.createView(componentType,
-                    new CreateItemViewConfig<RegionView, Component>()
+                    new CreateItemViewConfig<RegionView>()
                         .setParentView(regionView)
+                        .setLiveEditParams(this.pageView.getLiveEditParams())
                         .setParentElement(regionView)
-                        .setData(newComponent)
-                        .setPositionIndex(componentIndex)) as ComponentView<Component>;
+                        .setPositionIndex(componentIndex)) as ComponentView;
 
-                regionView.addComponentView(this.draggedComponentView, componentIndex, true);
+                new AddComponentEvent(new ComponentPath(componentIndex, regionView.getPath()), componentType.toComponentType()).fire();
 
             } else {
-                // Move component to other region
-                if (this.draggedComponentView.hasComponentPath()) {
-                    this.draggedComponentView.moveToRegion(regionView, componentIndex);
-                }
+                const from: ComponentPath = this.draggedComponentView.getPath();
+                const to: ComponentPath = new ComponentPath(componentIndex, regionView.getPath());
+                new MoveComponentEvent(from ,to).fire();
             }
 
             this.notifyDropped(this.draggedComponentView, regionView);
@@ -461,17 +461,17 @@ export class DragAndDrop {
         this.notifyCanceled(this.draggedComponentView);
     }
 
-    onDragStarted(listener: (componentView: ComponentView<Component>) => void) {
+    onDragStarted(listener: (componentView: ComponentView) => void) {
         this.dragStartedListeners.push(listener);
     }
 
-    unDragStarted(listener: (componentView: ComponentView<Component>) => void) {
+    unDragStarted(listener: (componentView: ComponentView) => void) {
         this.dragStartedListeners = this.dragStartedListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private notifyDragStarted(componentView: ComponentView<Component>) {
+    private notifyDragStarted(componentView: ComponentView) {
         if (DragAndDrop.debug) {
             console.log('DragAndDrop.notifyDragStarted', componentView);
         }
@@ -482,20 +482,20 @@ export class DragAndDrop {
             curr(componentView);
         });
 
-        new ComponentViewDragStartedEvent(componentView).fire();
+        new ComponentViewDragStartedEvent(componentView?.getPath()).fire();
     }
 
-    onDragStopped(listener: (componentView: ComponentView<Component>) => void) {
+    onDragStopped(listener: (componentView: ComponentView) => void) {
         this.dragStoppedListeners.push(listener);
     }
 
-    unDragStopped(listener: (componentView: ComponentView<Component>) => void) {
+    unDragStopped(listener: (componentView: ComponentView) => void) {
         this.dragStoppedListeners = this.dragStoppedListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private notifyDragStopped(componentView: ComponentView<Component>) {
+    private notifyDragStopped(componentView: ComponentView) {
         if (DragAndDrop.debug) {
             console.log('DragAndDrop.notifyDragStopped', componentView);
         }
@@ -506,20 +506,20 @@ export class DragAndDrop {
             curr(componentView);
         });
 
-        new ComponentViewDragStoppedEvent(componentView).fire();
+        new ComponentViewDragStoppedEvent(componentView?.getPath()).fire();
     }
 
-    onDropped(listener: (componentView: ComponentView<Component>, regionView: RegionView) => void) {
+    onDropped(listener: (componentView: ComponentView, regionView: RegionView) => void) {
         this.droppedListeners.push(listener);
     }
 
-    unDropped(listener: (componentView: ComponentView<Component>, regionView: RegionView) => void) {
+    unDropped(listener: (componentView: ComponentView, regionView: RegionView) => void) {
         this.droppedListeners = this.droppedListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private notifyDropped(componentView: ComponentView<Component>, regionView: RegionView) {
+    private notifyDropped(componentView: ComponentView, regionView: RegionView) {
         if (DragAndDrop.debug) {
             console.log('DragAndDrop.notifyDropped', componentView, regionView);
         }
@@ -532,17 +532,17 @@ export class DragAndDrop {
         new ComponentViewDragDroppedEvent(componentView, regionView).fire();
     }
 
-    onCanceled(listener: (componentView: ComponentView<Component>) => void) {
+    onCanceled(listener: (componentView: ComponentView) => void) {
         this.canceledListeners.push(listener);
     }
 
-    unCanceled(listener: (componentView: ComponentView<Component>) => void) {
+    unCanceled(listener: (componentView: ComponentView) => void) {
         this.canceledListeners = this.canceledListeners.filter((curr) => {
             return curr !== listener;
         });
     }
 
-    private notifyCanceled(componentView: ComponentView<Component>) {
+    private notifyCanceled(componentView: ComponentView) {
         if (DragAndDrop.debug) {
             console.log('DragAndDrop.notifyCanceled', componentView);
         }
@@ -604,7 +604,7 @@ export class DragAndDrop {
         return isLayout;
     }
 
-    private getComponentView(jq: JQuery): ComponentView<Component> {
+    private getComponentView(jq: JQuery): ComponentView {
         let comp = this.pageView.getComponentViewByElement(jq.get(0));
         assertState(!!comp, i18n('live.view.drag.error.compviewisnull'));
         return comp;

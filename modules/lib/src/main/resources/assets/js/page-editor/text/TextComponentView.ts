@@ -5,7 +5,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {TextItemType} from './TextItemType';
 import {TextPlaceholder} from './TextPlaceholder';
-import {TextComponentViewer} from './TextComponentViewer';
 import {LiveEditPageDialogCreatedEvent, LiveEditPageDialogCreatedEventHandler} from '../LiveEditPageDialogCreatedEvent';
 import {Highlighter} from '../Highlighter';
 import {ItemView} from '../ItemView';
@@ -22,18 +21,18 @@ import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import * as Q from 'q';
-import {ContentSummary} from '../../app/content/ContentSummary';
-import {ContentPath} from '../../app/content/ContentPath';
-import {ItemViewSelectedEvent} from '../ItemViewSelectedEvent';
+import {SelectComponentEvent} from '../event/outgoing/navigation/SelectComponentEvent';
 import {SelectedHighlighter} from '../SelectedHighlighter';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import {UpdateTextComponentEvent} from '../event/outgoing/manipulation/UpdateTextComponentEvent';
+import {ContentContext} from '../../app/wizard/ContentContext';
 
 export class TextComponentViewBuilder
-    extends ComponentViewBuilder<TextComponent> {
+    extends ComponentViewBuilder {
     constructor() {
         super();
         this.setType(TextItemType.get());
@@ -41,7 +40,7 @@ export class TextComponentViewBuilder
 }
 
 export class TextComponentView
-    extends ComponentView<TextComponent> {
+    extends ComponentView {
 
     private htmlAreaEditor?: HtmlEditor;
 
@@ -72,9 +71,7 @@ export class TextComponentView
     private winBlurred: boolean;
 
     constructor(builder: TextComponentViewBuilder) {
-        super(builder.setViewer(new TextComponentViewer()).setComponent(builder.component));
-
-        this.liveEditModel = builder.parentRegionView.getLiveEditModel();
+        super(builder);
 
         this.addTextContextMenuActions();
         this.addClassEx('text-view');
@@ -140,7 +137,7 @@ export class TextComponentView
             this.highlightSelected();
         }
 
-        new ItemViewSelectedEvent({itemView: this, position: null}).fire();
+        new SelectComponentEvent({itemView: this, position: null}).fire();
     }
 
     private bindWindowFocusEvents(): void {
@@ -170,18 +167,6 @@ export class TextComponentView
         this.unhighlight();
     }
 
-    private getContent(): ContentSummary {
-        return this.liveEditModel.getContent();
-    }
-
-    private getContentPath(): ContentPath {
-        return this.liveEditModel.getContent().getPath();
-    }
-
-    private getApplicationKeys(): ApplicationKey[] {
-        return this.liveEditModel.getSiteModel().getSite().getApplicationKeys();
-    }
-
     highlight() {
         if (!this.isEditMode() && !this.isDragging()) {
             super.highlight();
@@ -200,7 +185,7 @@ export class TextComponentView
 
     private fetchStylesAndInitEditor(): void {
         // convert image urls in text component for web
-        StylesRequest.fetchStyles(this.getContent().getId()).then(() => {
+        StylesRequest.fetchStyles(this.getLiveEditParams().contentId).then(() => {
             this.initEditor();
         }).catch(DefaultErrorHandler.handle);
     }
@@ -302,11 +287,13 @@ export class TextComponentView
                 this.initEditor();
             }
 
-            if (this.component.isEmpty()) {
+            this.removePlaceholder();
+
+            if (this.isEmpty()) {
                 if (this.isEditorReady()) {
                     this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
                 }
-                this.setHtml(TextComponentView.DEFAULT_TEXT, false);
+           //     this.setHtml(TextComponentView.DEFAULT_TEXT, false);
             }
         } else {
             if (this.isEditorReady()) {
@@ -408,6 +395,7 @@ export class TextComponentView
     }
 
     private doInitEditor(): void {
+        const componentText: string = this.getEl().getInnerHtml();
         this.setContentEditable(true);
         this.isInitializingEditor = true;
         const createDialogHandler: (event: CreateHtmlAreaDialogEvent) => void = event => {
@@ -424,11 +412,11 @@ export class TextComponentView
             .setMouseLeaveHandler(this.onMouseLeftHandler.bind(this))
             .setKeydownHandler(this.onKeydownHandler.bind(this))
             .setNodeChangeHandler(this.processEditorValue.bind(this))
-            .setEditorReadyHandler(this.handleEditorCreated.bind(this))
+            .setEditorReadyHandler(this.handleEditorCreated.bind(this, componentText))
             .setFixedToolbarContainer(PageViewController.get().getEditorToolbarContainerId())
-            .setContent(this.getContent())
+            .setContent(ContentContext.get().getContent()?.getContentSummary())
             .setEditableSourceCode(this.editableSourceCode)
-            .setApplicationKeys(this.getApplicationKeys())
+            .setApplicationKeys(this.getLiveEditParams().applicationKeys?.map(key => ApplicationKey.fromString(key)))
             .setLangDirection(this.getLangDirection())
             .build();
 
@@ -438,12 +426,12 @@ export class TextComponentView
             this.htmlAreaEditor.on('focus', () => {
                 this.selectWhileEditing();
             });
-        });
+        }).catch(DefaultErrorHandler.handle);
     }
 
-    private handleEditorCreated() {
-        const data: string = this.component.getText() ?
-                             HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText(), this.getContent().getId()) :
+    private handleEditorCreated(componentText: string): void {
+        const data: string = componentText ?
+                             HTMLAreaHelper.convertRenderSrcToPreviewSrc(componentText, this.getLiveEditParams().contentId) :
                              TextComponentView.DEFAULT_TEXT;
         this.htmlAreaEditor.setData(data);
 
@@ -491,12 +479,24 @@ export class TextComponentView
 
         const text: string = this.isEditorEmpty() ? TextComponentView.DEFAULT_TEXT :
                              HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData());
-        this.component.setText(text);
+
+        this.refreshEmptyState();
+
+        new UpdateTextComponentEvent(this.getPath(), text).fire();
+    }
+
+    isEmpty(): boolean {
+        return this.isEditorEmpty();
     }
 
     private isEditorEmpty(): boolean {
-        const editorContent = this.htmlAreaEditor.getData();
-        return editorContent.trim() === '' || editorContent === '<h2>&nbsp;</h2>';
+        if (this.htmlAreaEditor) {
+            const editorContent = this.htmlAreaEditor.getData();
+            return editorContent.trim() === '' || editorContent === '<h2>&nbsp;</h2>';
+        }
+
+        // careful with this one, potential issues with calculating if element is empty, e.g. image only or empty table
+        return this.getHTMLElement().innerHTML.length === 0 || this.getHTMLElement().innerHTML === '<p><br></p>';
     }
 
     private destroyEditor(): void {
@@ -543,16 +543,6 @@ export class TextComponentView
         return !!this.htmlAreaEditor || this.isInitializingEditor;
     }
 
-    extractText(): string {
-        if (this.isEditorReady()) { // that makes editor cleanup
-            this.htmlAreaEditor.resetSelection();
-
-            return this.htmlAreaEditor.extractText();
-        }
-
-        return this.getHTMLElement().textContent.trim();
-    }
-
     scrollComponentIntoView() {
         if (!this.getPageView().isTextEditMode()) {
             super.scrollComponentIntoView();
@@ -580,7 +570,7 @@ export class TextComponentView
     }
 
     private getLangDirection(): LangDirection {
-        const lang: string = this.getContent().getLanguage();
+        const lang: string = this.getLiveEditParams().language;
 
         if (Locale.supportsRtl(lang)) {
             return LangDirection.RTL;
@@ -597,16 +587,25 @@ export class TextComponentView
     }
 
     private togglePlaceholder(): void {
-        if (this.isEmpty() && !this.isEditMode()) {
-            if (!this.placeholder) {
-                this.placeholder = new TextPlaceholder();
-            }
+        if (this.isEditorEmpty()) {
+            if (!this.isEditMode()) {
+                if (!this.placeholder) {
+                    this.placeholder = new TextPlaceholder();
+                }
 
-            if (!this.contains(this.placeholder)) {
-                this.appendChild(this.placeholder);
+                if (!this.contains(this.placeholder)) {
+                    this.appendChild(this.placeholder);
+                }
             }
-        } else if (this.placeholder && this.contains(this.placeholder)) {
+        } else {
+            this.removePlaceholder();
+        }
+    }
+
+    private removePlaceholder(): void {
+        if (this.placeholder && this.contains(this.placeholder)) {
             this.removeChild(this.placeholder);
         }
     }
+
 }

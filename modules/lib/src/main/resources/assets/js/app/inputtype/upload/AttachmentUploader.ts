@@ -26,6 +26,7 @@ import {ValidationError} from '@enonic/lib-admin-ui/ValidationError';
 import {InputValidationRecording} from '@enonic/lib-admin-ui/form/inputtype/InputValidationRecording';
 import {AttachmentItem} from '../ui/upload/AttachmentItem';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/form/inputtype/ValueChangedEvent';
+import {PageHelper} from '../../util/PageHelper';
 
 export class AttachmentUploader
     extends BaseInputTypeManagingAdd {
@@ -177,13 +178,13 @@ export class AttachmentUploader
         const content: Content = this.context.content as Content;
         const page: Page = content.getPage();
 
-        if (!page.hasRegions()) {
+        if (!page.hasNonEmptyRegions()) {
             return false;
         }
 
         const attachmentInputName: string = this.getInput().getName();
 
-        return page.getPropertyValueUsageCount(page, attachmentInputName, attachmentName) > 1;
+        return PageHelper.getPropertyValueUsageCount(page, attachmentInputName, attachmentName) > 1;
     }
 
     private deleteAttachment(itemName: string): Q.Promise<Content> {

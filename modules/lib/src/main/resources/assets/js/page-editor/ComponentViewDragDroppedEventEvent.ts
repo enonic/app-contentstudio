@@ -7,17 +7,17 @@ import {Component} from '../app/page/region/Component';
 export class ComponentViewDragDroppedEvent
     extends Event {
 
-    private componentView: ComponentView<Component>;
+    private componentView: ComponentView;
     private regionView: RegionView;
 
-    constructor(view: ComponentView<Component>, region: RegionView) {
+    constructor(view: ComponentView, region: RegionView) {
         super();
 
         this.componentView = view;
         this.regionView = region;
     }
 
-    getComponentView(): ComponentView<Component> {
+    getComponentView(): ComponentView {
         return this.componentView;
     }
 

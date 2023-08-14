@@ -4,8 +4,6 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {SaveAsTemplateAction} from '../../../../action/SaveAsTemplateAction';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {PageModel} from '../../../../../../page-editor/PageModel';
-import {PageMode} from '../../../../../page/PageMode';
 import {PageTemplateAndControllerSelector} from './PageTemplateAndControllerSelector';
 import {PageTemplateAndControllerForm} from './PageTemplateAndControllerForm';
 import {ContentFormContext} from '../../../../../ContentFormContext';
@@ -14,8 +12,9 @@ import {FormContextBuilder} from '@enonic/lib-admin-ui/form/FormContext';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {Descriptor} from '../../../../../page/Descriptor';
+import {PageState} from '../../../PageState';
+import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
@@ -65,10 +64,6 @@ export class PageInspectionPanel
         return i18n('widget.components.insert.page');
     }
 
-    getDescriptor(): Descriptor {
-        return this.liveEditModel?.getPageModel()?.getDescriptor();
-    }
-
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.insertChild(this.pageTemplateAndControllerForm, 0);
@@ -90,47 +85,21 @@ class BaseInspectionHandler {
 
     configForm: FormView;
 
-    private propertyChangedListener: (event: PropertyChangedEvent) => void;
-
     constructor(pageInspectionPanel: PageInspectionPanel) {
         this.pageInspectionPanel = pageInspectionPanel;
         this.initPropertyChangedListener();
     }
 
     private initPropertyChangedListener() {
-        this.propertyChangedListener = (event: PropertyChangedEvent) => {
-            if (this === event.getSource()) {
-                return;
-            }
-
-            if ([PageModel.PROPERTY_CONFIG, PageModel.PROPERTY_CONTROLLER].indexOf(event.getPropertyName()) === -1) {
-                return;
-            }
-
-            if (event.getPropertyName() === PageModel.PROPERTY_CONTROLLER) {
-                // empty
-            }
-
-            if (this.liveEditModel.getPageModel().hasController()) {
+        PageState.getEvents().onPageUpdated(() => {
+            if (PageState.getState().hasController()) {
                 this.refreshConfigForm();
             }
-        };
+        });
     }
 
     setModel(liveEditModel: LiveEditModel) {
-        this.unbindListeners();
         this.liveEditModel = liveEditModel;
-        this.bindListeners();
-    }
-
-    private unbindListeners() {
-        if (this.liveEditModel && this.liveEditModel.getPageModel()) {
-            this.liveEditModel.getPageModel().unPropertyChanged(this.propertyChangedListener);
-        }
-    }
-
-    private bindListeners() {
-        this.liveEditModel.getPageModel().onPropertyChanged(this.propertyChangedListener);
     }
 
     refreshConfigForm() {
@@ -139,36 +108,27 @@ class BaseInspectionHandler {
             this.configForm = null;
         }
 
-        const pageModel: PageModel = this.liveEditModel.getPageModel();
-        const pageDescriptor: Descriptor = pageModel.getDescriptor();
-
-        if (!pageDescriptor || pageModel.getMode() === PageMode.FORCED_TEMPLATE || pageModel.getMode() === PageMode.AUTOMATIC) {
+        if (!PageState.getState()?.hasController()) {
             return;
         }
 
-        const config: PropertyTree = pageModel.getConfig();
+        const config: PropertyTree = PageState.getState()?.getConfig();
         const context: ContentFormContext = this.liveEditModel.getFormContext();
-
         const root: PropertySet = config ? config.getRoot() : null;
-        this.configForm = new FormView(context ? context : new FormContextBuilder().build(), pageDescriptor.getConfig(), root);
-        this.configForm.setLazyRender(false);
-        this.pageInspectionPanel.appendChild(this.configForm);
-        this.liveEditModel.getPageModel().setIgnorePropertyChanges(true);
-        this.configForm.layout().catch((reason) => {
-            DefaultErrorHandler.handle(reason);
-        }).finally(() => {
-            this.liveEditModel.getPageModel().setIgnorePropertyChanges(false);
-        }).done();
+
+        new GetComponentDescriptorRequest(PageState.getState().getController().toString()).sendAndParse().then((descriptor: Descriptor) => {
+            this.configForm = new FormView(context ? context : new FormContextBuilder().build(), descriptor.getConfig(), root);
+            this.configForm.setLazyRender(false);
+            this.pageInspectionPanel.appendChild(this.configForm);
+
+            this.configForm.layout().catch(DefaultErrorHandler.handle);
+        }).catch(DefaultErrorHandler.handle);
     }
 
     refreshConfigView() {
-        if (!this.liveEditModel.getPageModel().isPageTemplate()) {
-            const pageModel: PageModel = this.liveEditModel.getPageModel();
-            const pageMode: PageMode = pageModel.getMode();
-            if (pageMode === PageMode.FORCED_TEMPLATE || pageMode === PageMode.AUTOMATIC) {
+        if (!this.liveEditModel.getContent().isPageTemplate()) {
+            if (PageState.getState()?.hasTemplate() || (!PageState.getState()) && this.liveEditModel.getDefaultModels()?.hasDefaultPageTemplate()) {
                 this.refreshConfigForm();
-            } else {
-                throw new Error('Unsupported PageMode: ' + PageMode[pageMode]);
             }
         }
     }

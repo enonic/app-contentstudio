@@ -7,22 +7,22 @@ import {Component} from '../app/page/region/Component';
 export class ComponentViewDragCanceledEvent
     extends Event {
 
-    private componentView: ComponentView<Component>;
+    private readonly componentView: ComponentView;
 
-    constructor(componentView: ComponentView<Component>) {
+    constructor(componentView: ComponentView) {
         super();
         this.componentView = componentView;
     }
 
-    getComponentView(): ComponentView<Component> {
+    getComponentView(): ComponentView {
         return this.componentView;
     }
 
-    static on(handler: (event: ComponentViewDragStoppedEvent) => void, contextWindow: Window = window) {
+    static on(handler: (event: ComponentViewDragCanceledEvent) => void, contextWindow: Window = window) {
         Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    static un(handler: (event: ComponentViewDragStoppedEvent) => void, contextWindow: Window = window) {
+    static un(handler: (event: ComponentViewDragCanceledEvent) => void, contextWindow: Window = window) {
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }
