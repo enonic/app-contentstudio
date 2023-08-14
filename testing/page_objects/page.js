@@ -141,7 +141,7 @@ class Page {
     }
 
     saveScreenshot(name) {
-        let screenshotsDir = path.join(__dirname, '/../build/mochawesome-report/screenshots/');
+        let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
         if (!fs.existsSync(screenshotsDir)) {
             fs.mkdirSync(screenshotsDir, {recursive: true});
         }

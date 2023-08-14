@@ -140,10 +140,15 @@ class InsertImageDialog extends Page {
     }
 
     async clickOnInsertButton() {
-        await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
-        await this.clickOnElement(this.insertButton);
-        await this.waitForDialogClosed();
-        return await this.pause(500);
+        try {
+            await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
+            await this.clickOnElement(this.insertButton);
+            await this.waitForDialogClosed();
+            return await this.pause(500);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_insert_image_button');
+            throw new Error('Insert Image Dialog, error when click on the Insert button, screenshot:  ' + screenshot + '  ' + err);
+        }
     }
 
     clickOnUpdateButton() {
@@ -225,4 +230,3 @@ class InsertImageDialog extends Page {
 }
 
 module.exports = InsertImageDialog;
-

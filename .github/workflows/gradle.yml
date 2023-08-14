@@ -66,7 +66,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                suite: [ testProjects, testProjects_2, testPageEditor, testInputTypes, testInputTypes_2, testWizardsGrid, testPublishIssues, testModalDialog, testHiddenDefaultProject ]
+                suite: [ w_testProjects, w_testProjects_2, w_testPageEditor, w_testInputTypes, w_testInputTypes_2, w_testWizardsGrid, w_testPublishIssues, w_testModalDialog, w_testHiddenDefProject ]
 
         runs-on: ubuntu-latest
 
@@ -120,4 +120,4 @@ jobs:
                 with:
                     name: 'ui-test-report-${{ matrix.suite }}'
                     path: |
-                        testing/build/mochawesome-report
+                        testing/build/reports

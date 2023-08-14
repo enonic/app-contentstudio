@@ -7,19 +7,21 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const MobileContentBrowsePanel = require('../../page_objects/browsepanel/mobile.content.browse.panel');
-const contentBuilder = require("../../libs/content.builder");
 const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 
 describe('Tests for browse panel toolbar in mobile mode', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
-        webDriverHelper.setupBrowser(414, 736);
+    const MOBILE_WIDTH = 414;
+    const MOBILE_HEIGHT = 736;
+    if (typeof browser === 'undefined') {
+        webDriverHelper.setupBrowser(MOBILE_WIDTH, MOBILE_HEIGHT);
     }
 
     let FOLDER;
 
     it("WHEN Mobile Browse panel is loaded THEN 'New' button should be enabled, 'Edit...','Archive..' buttons should be disabled",
         async () => {
+            await studioUtils.getBrowser().setWindowSize(MOBILE_WIDTH, MOBILE_HEIGHT);
             let mobileContentBrowsePanel = new MobileContentBrowsePanel();
             //1. 'New' button should be enabled, 'Edit...','Archive..' buttons should be disabled
             await mobileContentBrowsePanel.waitForNewButtonEnabled();
@@ -44,6 +46,7 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
             let mobileContentBrowsePanel = new MobileContentBrowsePanel();
             //1.Open Filter Panel, type the name of folder
             await studioUtils.typeNameInFilterPanel(appConst.TEST_FOLDER_NAME);
+            await studioUtils.saveScreenshot("mobile_filter_panel");
             //2. Click on 'Show results' button:
             await filterPanel.clickOnShowResultsButton();
             //3. Load the Preview panel:
@@ -68,8 +71,8 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
-            await studioUtils.getBrowser().setWindowSize(414, 736);
+        if (typeof browser !== 'undefined') {
+            await studioUtils.getBrowser().setWindowSize(MOBILE_WIDTH, MOBILE_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
     });

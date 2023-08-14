@@ -66,52 +66,31 @@ describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', f
                 "'Invalid value entered' validation message gets visible");
         });
 
-    it("GIVEN required inputs are filled WHEN 'Insert' button has been pressed THEN validation message should appear in the dialog",
+    it("GIVEN valid data is in 'Email' link inputs WHEN 'Insert' button has been pressed THEN expected email-link should appear in the htmlArea",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            //1. Open new wizard for htmlArea content:
+            // 1. Open new wizard for htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
+            // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            //3. Go to Email tab:
+            // 3. Go to Email tab:
             await insertLinkDialog.clickOnBarItem("Email");
             await insertLinkDialog.typeInLinkTextInput("Email link");
-            //4. Fill in the tooltip input:
+            // 4. Fill in the tooltip input:
             await insertLinkDialog.typeInLinkTooltip("Email");
-            //5. Fill in the email input (invalid value):
+            // 5. Fill in the email input (invalid value):
             await insertLinkDialog.typeTextInEmailInput(VALID_EMAIL);
-            //6. click on 'Insert' button:
+            // 6. click on 'Insert' button:
             await insertLinkDialog.clickOnInsertButton();
-            //7. Verify that expected email link is present in the htmlArea
+            await insertLinkDialog.waitForDialogClosed();
+            await studioUtils.saveScreenshot("email_link_inserted");
+            // 7. Verify that expected email link is present in the htmlArea
             let result = await htmlAreaForm.getTextFromHtmlArea();
             assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART_1), "Expected text should be inserted in HtmlArea");
             assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART_2), "Expected text should be inserted in HtmlArea");
         });
 
-
-    it("GIVEN required inputs are filled WHEN 'Insert' button has been pressed THEN validation message should appear in the dialog",
-        async () => {
-            let htmlAreaForm = new HtmlAreaForm();
-            //1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            await htmlAreaForm.pause(1000);
-            //2. Open 'Insert Link' dialog:
-            let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            //3. Go to 'Email' tab:
-            await insertLinkDialog.clickOnBarItem("Email");
-            await insertLinkDialog.typeInLinkTextInput("Email link");
-            //4. Fill in the tooltip input:
-            await insertLinkDialog.typeInLinkTooltip("Email");
-            //5. Fill in the email input (invalid value):
-            await insertLinkDialog.typeTextInEmailInput(VALID_EMAIL);
-            //6. click on 'Insert' button:
-            await insertLinkDialog.clickOnInsertButton();
-            //7. Verify that expected email link is present in the htmlArea
-            let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART_1), "Expected text should be inserted in HtmlArea");
-            assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART_2), "Expected text should be inserted in HtmlArea");
-        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

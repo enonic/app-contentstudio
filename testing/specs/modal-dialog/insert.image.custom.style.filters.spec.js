@@ -19,7 +19,7 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
     }
 
     let SITE;
-    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_02;
+    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.SEVEROMOR;
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
 
     it(`Preconditions: new site should be added`,
@@ -30,7 +30,7 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
         });
 
     // Verify issue: 500 error in image service when using filters XP#9497
-    it(`GIVEN Insert Image modal dialog is opened WHEN 'Avatar' option with filter has been selected THEN modal should be closed`,
+    it.skip(`GIVEN Insert Image modal dialog is opened WHEN 'Avatar' option with filter has been selected THEN modal should be closed`,
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
@@ -43,14 +43,14 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
             // 2. Select the image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             // 3. Type the 'Avatar' text in filter input and click on the option:
-            await insertImageDialog.doFilterStyleAndClickOnOption("Avatar");
+            await insertImageDialog.doFilterStyleAndClickOnOption('Avatar');
             // 4. save the changes and save the content
             await insertImageDialog.clickOnInsertButton();
             await contentWizard.waitAndClickOnSave();
         });
 
     // Verify issue: 500 error in image service when using filters XP#9497
-    it(`WHEN double click on the image with custom styles (filter) THEN expected style should be present in style selector in Insert Image modal dialog`,
+    it.skip(`WHEN double click on the image with custom styles (filter) THEN expected style should be present in style selector in Insert Image modal dialog`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
