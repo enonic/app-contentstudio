@@ -32,7 +32,7 @@
     "@wdio/selenium-standalone-service": "^8.12.1",
     "@wdio/spec-reporter": "^8.12.2",
     "assert": "^2.0.0",
-    "big-json": "^3.1.0",
+    "big-json": "^3.2.0",
     "chai": "^4.3.7",
     "chromedriver": "^115.0.0",
     "geckodriver": "^4.2.0",
