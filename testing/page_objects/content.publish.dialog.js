@@ -344,7 +344,7 @@ class ContentPublishDialog extends Page {
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_show_excluded_btn');
             await this.saveScreenshot(screenshot);
-            throw new Error(`'Show excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
+            throw new Error(`'Show excluded items' button should be visible! screenshot: ${screenshot} ` + err)
         }
     }
 
@@ -354,7 +354,7 @@ class ContentPublishDialog extends Page {
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_show_excluded_btn');
             await this.saveScreenshot(screenshot);
-            throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + +err)
+            throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + err)
         }
     }
 
@@ -364,7 +364,7 @@ class ContentPublishDialog extends Page {
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
             await this.saveScreenshot(screenshot);
-            throw new Error(`'Hide excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
+            throw new Error(`'Hide excluded items' button should be visible! screenshot: ${screenshot} ` + err)
         }
     }
 
@@ -374,7 +374,7 @@ class ContentPublishDialog extends Page {
         } catch (err) {
             let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
             await this.saveScreenshot(screenshot);
-            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + +err)
+            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + err)
         }
     }
 

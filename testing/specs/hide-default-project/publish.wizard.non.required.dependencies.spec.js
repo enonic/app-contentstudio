@@ -108,6 +108,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await contentBrowsePanel.waitForNotificationMessage();
             // 2. Publish wizard should be automatically loaded:
             await contentPublishDialog.waitForDialogOpened();
+            await studioUtils.saveScreenshot('publish_dlg_show_excluded_0');
             // 3. Verify that 'show excluded' button is displayed:
             await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
             // 4. Click on 'show excluded' button:
@@ -131,10 +132,12 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await contentBrowsePanel.clickOnPublishButton();
             // 2. Publish wizard should be automatically loaded:
             await contentPublishDialog.waitForDialogOpened();
+            await studioUtils.saveScreenshot('publish_dlg_show_excluded_1');
             // 3. Click on 'show excluded' button:
             await contentPublishDialog.clickOnShowExcludedItemsButton();
             // 5. Verify that 'show excluded' button is not displayed now:
             await contentPublishDialog.clickOnHideExcludedItemsButton();
+            await studioUtils.saveScreenshot('publish_dlg_show_excluded_2');
             // 6. Verify that the dependency items are not shown in the list:
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 0, 'dependencies list should be empty');
@@ -156,10 +159,12 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             // 2. 'Create Issue' dialog should be loaded:
             await createIssueDialog.waitForDialogLoaded();
+            await studioUtils.saveScreenshot('create_issue_dlg_show_excluded_1');
             // 3. Verify that 'show excluded' button is displayed:
             await createIssueDialog.waitForShowExcludedItemsButtonDisplayed();
             // 4. Click on 'show excluded' button:
             await createIssueDialog.clickOnShowExcludedItemsButton();
+            await studioUtils.saveScreenshot('create_issue_dlg_show_excluded_2');
             // 5. Verify that the only one dependency item is shown in the list:
             let depItems = await createIssueDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 1, 'The only one dependent item should be in the dependencies list');
@@ -174,9 +179,11 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             let createIssueDialog = new CreateIssueDialog();
             // 1. Select the existing site with a dependency click on 'Mark as Ready' button::
             await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.pause(1500);
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             // 2. Create issue dialog should be loaded:
             await createIssueDialog.waitForDialogLoaded();
+            await createIssueDialog.pause(1000);
             await createIssueDialog.selectItemsInContentCombobox(TEST_FOLDER.displayName);
             await studioUtils.saveScreenshot('create_issue_dlg_item_added');
             // 3. Verify - 'show excluded' button should be hidden:
