@@ -39,7 +39,7 @@
     "glob": "10.3.3",
     "mocha": "^10.2.0",
     "properties-reader": "2.2.0",
-    "selenium-standalone": "^8.3.0",
+    "selenium-standalone": "^9.0.3",
     "wdio-chromedriver-service": "^8.1.1",
     "wdio-geckodriver-service": "^5.0.2",
     "webdriverio": "8.14.3",
