@@ -70,7 +70,7 @@ describe('Generate name for fragments specification', function () {
             await pageComponentsWizardStepForm.waitForLoaded();
             // 7. Only one item should be present in Page Component wizard step
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
-            assert.equal(result.length,1,'One item should be displayed in the Page Component wizard step');
+            assert.equal(result.length, 1, 'One item should be displayed in the Page Component wizard step');
             assert.isTrue(result.includes('Text'), 'City list part should be present in the dialog');
 
         });
