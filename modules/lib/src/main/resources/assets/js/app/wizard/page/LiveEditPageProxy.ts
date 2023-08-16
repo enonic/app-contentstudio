@@ -1,74 +1,89 @@
-import * as $ from 'jquery';
-import * as Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {LiveEditModel} from '../../../page-editor/LiveEditModel';
-import {PageView} from '../../../page-editor/PageView';
 import {ComponentViewDragStartedEvent} from '../../../page-editor/ComponentViewDragStartedEvent';
 import {ComponentViewDragStoppedEvent} from '../../../page-editor/ComponentViewDraggingStoppedEvent';
 import {ComponentViewDragCanceledEvent} from '../../../page-editor/ComponentViewDragCanceledEvent';
 import {ComponentViewDragDroppedEvent} from '../../../page-editor/ComponentViewDragDroppedEventEvent';
-import {PageSelectedEvent} from '../../../page-editor/PageSelectedEvent';
-import {PageLockedEvent} from '../../../page-editor/PageLockedEvent';
-import {PageUnlockedEvent} from '../../../page-editor/PageUnlockedEvent';
-import {PageUnloadedEvent} from '../../../page-editor/PageUnloadedEvent';
-import {PageTextModeStartedEvent} from '../../../page-editor/PageTextModeStartedEvent';
-import {RegionSelectedEvent} from '../../../page-editor/RegionSelectedEvent';
-import {ItemViewSelectedEvent, ItemViewSelectedEventConfig} from '../../../page-editor/ItemViewSelectedEvent';
-import {ItemViewDeselectedEvent} from '../../../page-editor/ItemViewDeselectedEvent';
-import {ComponentAddedEvent} from '../../../page-editor/ComponentAddedEvent';
-import {ComponentRemovedEvent} from '../../../page-editor/ComponentRemovedEvent';
-import {ComponentDuplicatedEvent} from '../../../page-editor/ComponentDuplicatedEvent';
+import {PageLockedEvent} from '../../../page-editor/event/outgoing/manipulation/PageLockedEvent';
+import {PageUnlockedEvent} from '../../../page-editor/event/outgoing/manipulation/PageUnlockedEvent';
+import {SelectComponentEvent} from '../../../page-editor/event/outgoing/navigation/SelectComponentEvent';
+import {DeselectComponentEvent} from '../../../page-editor/event/outgoing/navigation/DeselectComponentEvent';
 import {ComponentInspectedEvent} from '../../../page-editor/ComponentInspectedEvent';
-import {PageInspectedEvent} from '../../../page-editor/PageInspectedEvent';
 import {ComponentLoadedEvent} from '../../../page-editor/ComponentLoadedEvent';
 import {ComponentResetEvent} from '../../../page-editor/ComponentResetEvent';
 import {LiveEditPageViewReadyEvent} from '../../../page-editor/LiveEditPageViewReadyEvent';
 import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/LiveEditPageInitializationErrorEvent';
-import {ComponentFragmentCreatedEvent} from '../../../page-editor/ComponentFragmentCreatedEvent';
 import {FragmentComponentReloadRequiredEvent} from '../../../page-editor/FragmentComponentReloadRequiredEvent';
 import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEditEvent';
 import {InitializeLiveEditEvent} from '../../../page-editor/InitializeLiveEditEvent';
-import {ComponentView} from '../../../page-editor/ComponentView';
-import {RegionView} from '../../../page-editor/RegionView';
-import {CreateItemViewConfig} from '../../../page-editor/CreateItemViewConfig';
 import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/SkipLiveEditReloadConfirmationEvent';
-import {LiveEditPageDialogCreatedEvent} from '../../../page-editor/LiveEditPageDialogCreatedEvent';
-import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/ComponentDetachedFromFragmentEvent';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {Component} from '../../page/region/Component';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
-import {Regions} from '../../page/region/Regions';
 import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
-import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {GLOBAL, GlobalLibAdmin, Store} from '@enonic/lib-admin-ui/store/Store';
-import {IEObjectHolder} from './IEObjectHolder';
-import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
-import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
-import {Descriptor} from '../../page/Descriptor';
 import {ContentId} from '../../content/ContentId';
 import {CreateHtmlAreaMacroDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaMacroDialogEvent';
 import {CreateHtmlAreaContentDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
-import {FragmentItemType} from '../../../page-editor/fragment/FragmentItemType';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ItemType} from '../../../page-editor/ItemType';
-import {ComponentItemType} from '../../../page-editor/ComponentItemType';
-import * as DOMPurify from 'dompurify';
-import {HTMLAreaHelper} from '../../inputtype/ui/text/HTMLAreaHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ComponentPath} from '../../page/region/ComponentPath';
+import {PageEventsManager} from '../PageEventsManager';
+import {LiveEditPageDialogCreatedEvent} from '../../../page-editor/LiveEditPageDialogCreatedEvent';
+import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {SaveAsTemplateEvent} from '../../../page-editor/SaveAsTemplateEvent';
+import {FragmentLoadErrorEvent} from '../../../page-editor/FragmentLoadErrorEvent';
+import {PageNavigationHandler} from '../PageNavigationHandler';
+import {PageNavigationEvent} from '../PageNavigationEvent';
+import {PageNavigationMediator} from '../PageNavigationMediator';
+import {PageNavigationEventType} from '../PageNavigationEventType';
+import {PageNavigationEventData} from '../PageNavigationEventData';
+import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
+import {LiveEditParams} from '../../../page-editor/LiveEditParams';
+import {CreateFragmentEvent} from '../../../page-editor/event/outgoing/manipulation/CreateFragmentEvent';
+import {PageResetEvent} from '../../../page-editor/event/outgoing/manipulation/PageResetEvent';
+import {SelectPageDescriptorEvent} from '../../../page-editor/event/outgoing/manipulation/SelectPageDescriptorEvent';
+import {SelectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/SelectComponentViewEvent';
+import {DeselectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/DeselectComponentViewEvent';
+import {EditTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/EditTextComponentViewEvent';
+import {PageState} from './PageState';
+import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
+import {AddComponentEvent} from '../../../page-editor/event/outgoing/manipulation/AddComponentEvent';
+import {ComponentType} from '../../page/region/ComponentType';
+import {AddComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/AddComponentViewEvent';
+import {RemoveComponentRequest} from '../../../page-editor/event/outgoing/manipulation/RemoveComponentRequest';
+import {ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
+import {RemoveComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/RemoveComponentViewEvent';
+import {LoadComponentFailedEvent} from '../../../page-editor/event/outgoing/manipulation/LoadComponentFailedEvent';
+import {LoadComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/LoadComponentViewEvent';
+import {DuplicateComponentEvent} from '../../../page-editor/event/outgoing/manipulation/DuplicateComponentEvent';
+import {SetFragmentComponentEvent} from '../../../page-editor/event/outgoing/manipulation/SetFragmentComponentEvent';
+import {DescriptorKey} from '../../page/DescriptorKey';
+import {SetComponentDescriptorEvent} from '../../../page-editor/event/outgoing/manipulation/SetComponentDescriptorEvent';
+import {UpdateTextComponentEvent} from '../../../page-editor/event/outgoing/manipulation/UpdateTextComponentEvent';
+import {DuplicateComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
+import {CustomizePageEvent} from '../../../page-editor/event/outgoing/manipulation/CustomizePageEvent';
+import {PageHelper} from '../../util/PageHelper';
+import {MoveComponentEvent} from '../../../page-editor/event/outgoing/manipulation/MoveComponentEvent';
+import {MoveComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/MoveComponentViewEvent';
+import {DetachFragmentEvent} from '../../../page-editor/event/outgoing/manipulation/DetachFragmentEvent';
+import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEvent';
+import {ComponentMovedEvent} from '../../page/region/ComponentMovedEvent';
+import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnMoveEvent';
+import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
+import {LiveEditPage} from '../../../page-editor/LiveEditPage';
+import {FragmentComponent} from '../../page/region/FragmentComponent';
+import {SetPageLockStateEvent} from '../../../page-editor/event/incoming/manipulation/SetPageLockStateEvent';
+import {SetModifyAllowedEvent} from '../../../page-editor/event/incoming/manipulation/SetModifyAllowedEvent';
+import {CreateOrDestroyDraggableEvent} from '../../../page-editor/event/incoming/manipulation/CreateOrDestroyDraggableEvent';
 
-export class LiveEditPageProxy {
+// This class is responsible for communication between the live edit iframe and the main iframe
+export class LiveEditPageProxy
+    implements PageNavigationHandler {
 
     private liveEditModel?: LiveEditModel;
-
-    private pageView?: PageView;
 
     private liveEditIFrame?: IFrameEl;
 
@@ -80,84 +95,24 @@ export class LiveEditPageProxy {
 
     private dragMask: DragMask;
 
-    private beforeLoadListeners: (() => void)[] = [];
-
-    private loadedListeners: (() => void)[] = [];
-
-    private componentViewDragStartedListeners: ((event: ComponentViewDragStartedEvent) => void)[] = [];
-
-    private componentViewDragStoppedListeners: ((event: ComponentViewDragStoppedEvent) => void)[] = [];
-
-    private componentViewDragCanceledListeners: ((event: ComponentViewDragCanceledEvent) => void)[] = [];
-
-    private componentViewDragDroppedListeners: ((event: ComponentViewDragDroppedEvent) => void)[] = [];
-
-    private pageSelectedListeners: ((event: PageSelectedEvent) => void)[] = [];
-
-    private pageLockedListeners: ((event: PageLockedEvent) => void)[] = [];
-
-    private pageUnlockedListeners: ((event: PageUnlockedEvent) => void)[] = [];
-
-    private pageTextModeStartedListeners: ((event: PageTextModeStartedEvent) => void)[] = [];
-
-    private regionSelectedListeners: ((event: RegionSelectedEvent) => void)[] = [];
-
-    private itemViewSelectedListeners: ((event: ItemViewSelectedEvent) => void)[] = [];
-
-    private itemViewDeselectedListeners: ((event: ItemViewDeselectedEvent) => void)[] = [];
-
-    private componentAddedListeners: ((event: ComponentAddedEvent) => void)[] = [];
-
-    private componentRemovedListeners: ((event: ComponentRemovedEvent) => void)[] = [];
-
-    private componentDuplicatedListeners: ((event: ComponentDuplicatedEvent) => void)[] = [];
-
-    private componentInspectedListeners: ((event: ComponentInspectedEvent) => void)[] = [];
-
-    private pageInspectedListeners: ((event: PageInspectedEvent) => void)[] = [];
-
-    private componentLoadedListeners: ((event: ComponentLoadedEvent) => void)[] = [];
-
-    private componentResetListeners: ((event: ComponentResetEvent) => void)[] = [];
-
-    private liveEditPageViewReadyListeners: ((event: LiveEditPageViewReadyEvent) => void)[] = [];
-
-    private liveEditPageInitErrorListeners: ((event: LiveEditPageInitializationErrorEvent) => void)[] = [];
-
-    private fragmentCreatedListeners: ((event: ComponentFragmentCreatedEvent) => void)[] = [];
-
-    private componentDetachedListeners: ((event: ComponentDetachedFromFragmentEvent) => void)[] = [];
-
-    private fragmentLoadedListeners: ((event: FragmentComponentReloadRequiredEvent) => void)[] = [];
-
-    private showWarningListeners: ((event: ShowWarningLiveEditEvent) => void)[] = [];
-
-    private editContentListeners: ((event: EditContentEvent) => void)[] = [];
-
-    private createHtmlAreaDialogListeners: ((event: CreateHtmlAreaDialogEvent) => void)[] = [];
-
     private static debug: boolean = false;
 
-    private ieObjectHolder: IEObjectHolder;
-
     private modifyPermissions: boolean;
+
+    private isPageLocked: boolean;
 
     constructor(contentId: ContentId) {
         this.contentId = contentId;
 
-        this.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
-            if (LiveEditPageProxy.debug) {
-                console.debug('LiveEditPageProxy.onLiveEditPageViewReady at ' + new Date().toISOString());
-            }
-            this.pageView = event.getPageView();
+        this.initListeners();
+    }
 
-            if (ObjectHelper.isDefined(this.modifyPermissions)) {
-                this.pageView.setModifyPermissions(this.modifyPermissions);
-            }
-        });
+    private initListeners(): void {
+        PageNavigationMediator.get().addPageNavigationHandler(this);
+
 
         EmulatedEvent.on((event: EmulatedEvent) => {
-            if (!this.pageView) {
+            if (!this.liveEditWindow) {
                 return;
             }
 
@@ -170,6 +125,13 @@ export class LiveEditPageProxy {
                 this.updateLiveEditFrameContainerHeight(event.getDevice().getHeight());
             }
         });
+
+        WindowDOM.get().onUnload(() => {
+           sessionStorage.removeItem(`${LiveEditPage.SELECTED_PATH_STORAGE_KEY}:${this.contentId.toString()}`);
+           sessionStorage.removeItem(`${LiveEditPage.SELECTED_TEXT_CURSOR_POS_STORAGE_KEY}:${this.contentId.toString()}`);
+        });
+
+        this.listenToMainFrameEvents();
     }
 
     private createLiveEditIFrame(): IFrameEl {
@@ -233,7 +195,10 @@ export class LiveEditPageProxy {
 
     public setModifyPermissions(modifyPermissions: boolean): void {
         this.modifyPermissions = modifyPermissions;
-        this.pageView?.setModifyPermissions(modifyPermissions);
+
+        if (this.liveEditWindow) {
+            new SetModifyAllowedEvent(modifyPermissions).fire(this.liveEditWindow);
+        }
     }
 
     public setWidth(value: string) {
@@ -269,13 +234,15 @@ export class LiveEditPageProxy {
     }
 
     public createDraggable(item: JQuery) {
-        this.pageView.createDraggable(item);
-        //this.liveEditWindow.DragAndDrop.get().createDraggable(item);
+        if (this.liveEditWindow) {
+            new CreateOrDestroyDraggableEvent(item, true).fire(this.liveEditWindow);
+        }
     }
 
     public destroyDraggable(item: JQuery) {
-        this.pageView.destroyDraggable(item);
-        //this.liveEditWindow.DragAndDrop.get().destroyDraggable(item);
+        if (this.liveEditWindow) {
+            new CreateOrDestroyDraggableEvent(item, false).fire(this.liveEditWindow);
+        }
     }
 
     public getDragMask(): DragMask {
@@ -306,27 +273,18 @@ export class LiveEditPageProxy {
             this.dragMask = new DragMask(this.liveEditIFrame);
         }
 
-        this.notifyBeforeLoad();
+        PageEventsManager.get().notifyBeforeLoad();
 
         let scrollTop;
-        if (this.pageView) {
 
-            if (this.livejq && this.liveEditWindow) {
-                // Store vertical scroll position inside the iFrame
-                // to be able to scroll to it after reload
-                scrollTop = this.livejq(this.liveEditWindow).scrollTop();
-            }
-
-            // do this to unregister all dependencies of current page view
-            this.pageView.remove();
-            this.pageView = null;
+        if (this.livejq && this.liveEditWindow) {
+            // Store vertical scroll position inside the iFrame
+            // to be able to scroll to it after reload
+            scrollTop = this.livejq(this.liveEditWindow).scrollTop();
         }
+
         let contentId = this.contentId.toString();
         let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT);
-
-        if (BrowserHelper.isIE()) {
-            this.copyObjectsBeforeFrameReloadForIE();
-        }
 
         if (!this.liveEditWindow) {
             this.liveEditIFrame.setSrc(pageUrl);
@@ -356,12 +314,10 @@ export class LiveEditPageProxy {
     }
 
     public unload(): void {
-        this.pageView?.remove();
-        this.pageView = null;
-
         this.liveEditIFrame?.getEl().removeAttribute('src');
         this.liveEditIFrame?.remove();
         this.dragMask?.remove();
+        this.isPageLocked = false;
 
         if (this.liveEditWindow) {
             this.stopListening(this.liveEditWindow);
@@ -402,18 +358,14 @@ export class LiveEditPageProxy {
 
                 this.livejq = livejq as JQueryStatic;
 
-                this.listenToPage(this.liveEditWindow);
+                this.listenToLivePageEvents(this.liveEditWindow);
 
-                if (BrowserHelper.isIE()) {
-                    this.resetObjectsAfterFrameReloadForIE();
-                    this.disableLinksInLiveEditForIE();
-                }
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
                 }
 
                 if (this.liveEditModel) {
-                    new InitializeLiveEditEvent(this.liveEditModel).fire(this.liveEditWindow);
+                    new InitializeLiveEditEvent(this.createLiveEditParams()).fire(this.liveEditWindow);
                 }
             } else {
                 if (LiveEditPageProxy.debug) {
@@ -421,88 +373,76 @@ export class LiveEditPageProxy {
                 }
 
                 if (this.liveEditModel) {
-                    this.notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
+                    PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
                 }
             }
         }
 
         // Notify loaded no matter the result
-        this.notifyLoaded();
+        PageEventsManager.get().notifyLoaded();
     }
 
-    public loadComponent(componentView: ComponentView<Component>, componentUrl: string,
-                         avoidInspectComponentRefresh?: boolean): Q.Promise<string> {
+    private createLiveEditParams(): LiveEditParams {
+        const isFragment = this.liveEditModel.getContent().getType().isFragment();
+        const displayName = this.liveEditModel.getContent().getDisplayName();
+        const locked = !this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.hasController() && !isFragment;
+        const isFragmentAllowed = this.liveEditModel.isFragmentAllowed();
+        const isResetEnabled =  PageState.getState()?.hasController();
+        const pageName = displayName;
+        const pageIconClass = PageHelper.getPageIconClass(PageState.getState());
+        const isPageEmpty = this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.hasController();
+        const applicationKeys = this.liveEditModel.getSiteModel().getSite().getApplicationKeys().map((key) => key.toString());
+        const contentId = this.liveEditModel.getContent().getId();
+        const language = this.liveEditModel.getContent()?.getLanguage();
+        const contentType = this.liveEditModel.getContent().getType()?.toString();
+        const sitePath: string = this.liveEditModel.getSiteModel().getSite().getPath().toString();
+        const modifyPermissions: boolean = this.modifyPermissions;
+        // the only thing that should work from live frame is to ask for fragment id by path to keep live frame clean
+        const getFragmentIdByPath = (path: string): string | undefined => {
+            const componentPath = ComponentPath.fromString(path);
+            const component = PageState.getComponentByPath(componentPath);
 
-        const deferred = Q.defer<string>();
-        assertNotNull(componentView, 'componentView cannot be null');
-        assertNotNull(componentUrl, 'componentUrl cannot be null');
-
-        $.ajax({
-            url: componentUrl,
-            type: 'GET',
-            success: (htmlAsString: string) => {
-                const newElement: Element = this.wrapLoadedComponentHtml(htmlAsString, componentView.getType());
-                const itemViewIdProducer: ItemViewIdProducer = componentView.getItemViewIdProducer();
-                const itemViewFactory: ItemViewFactory = componentView.getItemViewFactory();
-
-                const createViewConfig: CreateItemViewConfig<RegionView, Component> = new CreateItemViewConfig<RegionView, Component>()
-                    .setItemViewIdProducer(itemViewIdProducer)
-                    .setItemViewFactory(itemViewFactory)
-                    .setParentView(componentView.getParentItemView())
-                    .setData(componentView.getComponent())
-                    .setElement(newElement);
-
-                const newComponentView: ComponentView<Component> = itemViewFactory.createView(
-                    componentView.getType(),
-                    createViewConfig) as ComponentView<Component>;
-
-                componentView.replaceWith(newComponentView);
-
-                const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView, componentView);
-                event.fire(this.liveEditWindow);
-
-                const config = {itemView: newComponentView, position: null, avoidInspectComponentRefresh} as ItemViewSelectedEventConfig;
-                newComponentView.select(config, null);
-                newComponentView.hideContextMenu();
-
-                deferred.resolve('');
-            },
-            error: (jqXHR: JQueryXHR, textStatus: string, errorThrow: string) => {
-                const responseHtml = $.parseHTML(jqXHR.responseText);
-                let errorMessage = '';
-                responseHtml.forEach((el: HTMLElement, i) => {
-                    if (el.tagName && el.tagName.toLowerCase() === 'title') {
-                        errorMessage = el.innerHTML;
-                    }
-                });
-                deferred.reject(errorMessage);
+            if (component instanceof FragmentComponent) {
+                return component.getFragment()?.toString();
             }
-        });
 
-        return deferred.promise;
+            return undefined;
+        };
+
+        return {
+            isFragment,
+            displayName,
+            locked,
+            isFragmentAllowed,
+            isResetEnabled,
+            pageName,
+            pageIconClass,
+            isPageEmpty,
+            applicationKeys,
+            contentId,
+            language,
+            contentType,
+            sitePath,
+            modifyPermissions,
+            getFragmentIdByPath,
+        };
     }
 
-    private wrapLoadedComponentHtml(htmlAsString: string, componentType: ComponentItemType): Element {
-        if (FragmentItemType.get().equals(componentType)) {
-            return this.wrapLoadedFragmentHtml(htmlAsString);
+    isLocked(): boolean {
+        return this.isPageLocked;
+    }
+
+    setLocked(locked: boolean): void {
+        if (this.liveEditWindow) {
+            new SetPageLockStateEvent(locked).fire(this.liveEditWindow);
         }
-
-        return Element.fromString(htmlAsString);
     }
 
-    private wrapLoadedFragmentHtml(htmlAsString: string): Element {
-        const sanitized: string = DOMPurify.sanitize(htmlAsString, {ALLOWED_URI_REGEXP: HTMLAreaHelper.getAllowedUriRegexp()});
-        const sanitizedElement: Element = Element.fromHtml(sanitized);
-
-        const fragmentWrapperEl: Element = new DivEl();
-        fragmentWrapperEl.getEl().setAttribute(`data-${ItemType.ATTRIBUTE_TYPE}`, 'fragment');
-        fragmentWrapperEl.appendChild(sanitizedElement);
-
-        return fragmentWrapperEl;
+    public loadComponent(path: ComponentPath, uri: string): void {
+        new LoadComponentViewEvent(path, uri).fire(this.liveEditWindow);
     }
 
     public stopListening(contextWindow: Window) {
-
         ComponentViewDragStartedEvent.un(null, contextWindow);
 
         ComponentViewDragStoppedEvent.un(null, contextWindow);
@@ -511,33 +451,15 @@ export class LiveEditPageProxy {
 
         ComponentViewDragDroppedEvent.un(null, contextWindow);
 
-        PageSelectedEvent.un(null, contextWindow);
-
         PageLockedEvent.un(null, contextWindow);
 
         PageUnlockedEvent.un(null, contextWindow);
 
-        PageUnloadedEvent.un(null, contextWindow);
+        SelectComponentEvent.un(null, contextWindow);
 
-        PageTextModeStartedEvent.un(null, contextWindow);
-
-        RegionSelectedEvent.un(null, contextWindow);
-
-        ItemViewSelectedEvent.un(null, contextWindow);
-
-        ItemViewDeselectedEvent.un(null, contextWindow);
-
-        ComponentAddedEvent.un(null, contextWindow);
-
-        ComponentRemovedEvent.un(null, contextWindow);
-
-        ComponentDuplicatedEvent.un(null, contextWindow);
+        DeselectComponentEvent.un(null, contextWindow);
 
         ComponentInspectedEvent.un(null, contextWindow);
-
-        PageInspectedEvent.un(null, contextWindow);
-
-        ComponentFragmentCreatedEvent.un(null, contextWindow);
 
         FragmentComponentReloadRequiredEvent.un(null, contextWindow);
 
@@ -552,452 +474,257 @@ export class LiveEditPageProxy {
         LiveEditPageInitializationErrorEvent.un(null, contextWindow);
 
         CreateHtmlAreaDialogEvent.un(null, contextWindow);
+
+        UpdateTextComponentEvent.un(null, contextWindow);
+
+        CustomizePageEvent.un(null, contextWindow);
+
+        SetComponentDescriptorEvent.un(null, contextWindow);
+
+        AddComponentEvent.un(null, contextWindow);
+
+        RemoveComponentRequest.un(null, contextWindow);
+
+        PageResetEvent.un(null, contextWindow);
+
+        DuplicateComponentEvent.un(null, contextWindow);
+
+        SetFragmentComponentEvent.un(null, contextWindow);
+
+        MoveComponentEvent.un(null, contextWindow);
+
+        CreateFragmentEvent.un(null, contextWindow);
+
+        DetachFragmentEvent.un(null, contextWindow);
     }
 
-    public listenToPage(contextWindow: Window) {
+    public listenToLivePageEvents(contextWindow: Window) {
+        const eventsManager: PageEventsManager = PageEventsManager.get();
 
         MinimizeWizardPanelEvent.on(() => {
             new MinimizeWizardPanelEvent().fire(contextWindow);
         });
 
-        ComponentViewDragStartedEvent.on(this.notifyComponentViewDragStarted.bind(this), contextWindow);
+        ComponentViewDragStartedEvent.on((event: ComponentViewDragStartedEvent) => {
+            eventsManager.notifyComponentDragStarted(event.getPath());
+        }, contextWindow);
 
-        ComponentViewDragStoppedEvent.on(this.notifyComponentViewDragStopped.bind(this), contextWindow);
+        ComponentViewDragStoppedEvent.on((event: ComponentViewDragStoppedEvent) => {
+            eventsManager.notifyComponentDragStopped(event.getPath());
+        }, contextWindow);
 
-        ComponentViewDragCanceledEvent.on(this.notifyComponentViewDragCanceled.bind(this), contextWindow);
+        ComponentViewDragCanceledEvent.on((event: ComponentViewDragCanceledEvent) => {
+            eventsManager.notifyComponentViewDragCanceled(event);
+        }, contextWindow);
 
-        ComponentViewDragDroppedEvent.on(this.notifyComponentViewDragDropped.bind(this), contextWindow);
+        ComponentViewDragDroppedEvent.on((event: ComponentViewDragDroppedEvent) => {
+            eventsManager.notifyComponentViewDragDropped(event);
+        }, contextWindow);
 
-        PageSelectedEvent.on(this.notifyPageSelected.bind(this), contextWindow);
+        PageLockedEvent.on((event: PageLockedEvent) => {
+            this.isPageLocked = true;
+            eventsManager.notifyPageLocked(event);
+        }, contextWindow);
 
-        PageLockedEvent.on(this.notifyPageLocked.bind(this), contextWindow);
+        PageUnlockedEvent.on((event: PageUnlockedEvent) => {
+            this.isPageLocked = false;
+            eventsManager.notifyPageUnlocked(event);
+        }, contextWindow);
 
-        PageUnlockedEvent.on(this.notifyPageUnlocked.bind(this), contextWindow);
+        SelectComponentEvent.on((event: SelectComponentEvent) => {
+            const pathAsString: string = event.getComponentPathAsString();
+            const path: ComponentPath = ComponentPath.fromString(pathAsString);
 
-        PageTextModeStartedEvent.on(this.notifyPageTextModeStarted.bind(this), contextWindow);
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)), this);
+        }, contextWindow);
 
-        RegionSelectedEvent.on(this.notifyRegionSelected.bind(this), contextWindow);
+        DeselectComponentEvent.on(() => {
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.DESELECT, new PageNavigationEventData()), this);
+        }, contextWindow);
 
-        ItemViewSelectedEvent.on(this.notifyItemViewSelected.bind(this), contextWindow);
+        ComponentInspectedEvent.on((event: ComponentInspectedEvent) => {
+            const pathAsString: string = event.getComponentPathAsString();
+            const path: ComponentPath = ComponentPath.fromString(pathAsString);
 
-        ItemViewDeselectedEvent.on(this.notifyItemViewDeselected.bind(this), contextWindow);
+            PageNavigationMediator.get().notify(
+                new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(path)));
+        }, contextWindow);
 
-        ComponentAddedEvent.on(this.notifyComponentAdded.bind(this), contextWindow);
+        ShowWarningLiveEditEvent.on((event: ShowWarningLiveEditEvent) => {
+            eventsManager.notifyShowWarning(event);
+        }, contextWindow);
 
-        ComponentRemovedEvent.on(this.notifyComponentRemoved.bind(this), contextWindow);
+        EditContentEvent.on((event: EditContentEvent) => {
+            eventsManager.notifyEditContent(event);
+        }, contextWindow);
 
-        ComponentDuplicatedEvent.on(this.notifyComponentDuplicated.bind(this), contextWindow);
+        ComponentLoadedEvent.on((event: ComponentLoadedEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getPath().toString());
+            eventsManager.notifyComponentLoaded(path);
+        }, contextWindow);
 
-        ComponentInspectedEvent.on(this.notifyComponentInspected.bind(this), contextWindow);
+        ComponentResetEvent.on((event: ComponentResetEvent) => {
+            eventsManager.notifyComponentReset(event.getPath());
+        }, contextWindow);
 
-        PageInspectedEvent.on(this.notifyPageInspected.bind(this), contextWindow);
+        LiveEditPageViewReadyEvent.on((event: LiveEditPageViewReadyEvent) => {
+            eventsManager.notifyLiveEditPageViewReady(event);
+        }, contextWindow);
 
-        ComponentFragmentCreatedEvent.on(this.notifyFragmentCreated.bind(this), contextWindow);
+        LiveEditPageInitializationErrorEvent.on((event: LiveEditPageInitializationErrorEvent) => {
+            eventsManager.notifyLiveEditPageInitializationError(event);
+        }, contextWindow);
 
-        ComponentDetachedFromFragmentEvent.on(this.notifyComponentDetached.bind(this), contextWindow);
+        CreateHtmlAreaDialogEvent.on((event: CreateHtmlAreaDialogEvent) => {
+            eventsManager.notifyLiveEditPageDialogCreate(event);
+        }, contextWindow);
 
-        FragmentComponentReloadRequiredEvent.on(this.notifyFragmentReloadRequired.bind(this), contextWindow);
+        CreateHtmlAreaMacroDialogEvent.on((event: CreateHtmlAreaMacroDialogEvent) => {
+            eventsManager.notifyLiveEditPageDialogCreate(event);
+        }, contextWindow);
 
-        ShowWarningLiveEditEvent.on(this.notifyShowWarning.bind(this), contextWindow);
+        CreateHtmlAreaContentDialogEvent.on((event: CreateHtmlAreaContentDialogEvent) => {
+            eventsManager.notifyLiveEditPageDialogCreate(event);
+        }, contextWindow);
 
-        EditContentEvent.on(this.notifyEditContent.bind(this), contextWindow);
+        eventsManager.onDialogCreated((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => {
+            new LiveEditPageDialogCreatedEvent(modalDialog, config).fire(this.liveEditWindow);
+        });
 
-        ComponentLoadedEvent.on(this.notifyComponentLoaded.bind(this), contextWindow);
+        SaveAsTemplateEvent.on(() => {
+            eventsManager.notifyPageSaveAsTemplate();
+        }, contextWindow);
 
-        ComponentResetEvent.on(this.notifyComponentReset.bind(this), contextWindow);
+        FragmentLoadErrorEvent.on((event: FragmentLoadErrorEvent) => {
+            eventsManager.notifyFragmentLoadError(event.getFragmentComponentView().getPath());
+        }, contextWindow);
 
-        LiveEditPageViewReadyEvent.on(this.notifyLiveEditPageViewReady.bind(this), contextWindow);
+        CreateFragmentEvent.on((event: CreateFragmentEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
 
-        LiveEditPageInitializationErrorEvent.on(this.notifyLiveEditPageInitializationError.bind(this), contextWindow);
+            PageEventsManager.get().notifyComponentCreateFragmentRequested(path);
+        }, contextWindow);
 
-        CreateHtmlAreaDialogEvent.on(this.notifyLiveEditPageDialogCreate.bind(this), contextWindow);
+        PageResetEvent.on(() => {
+            PageEventsManager.get().notifyPageResetRequested();
+        }, contextWindow);
 
-        CreateHtmlAreaMacroDialogEvent.on(this.notifyLiveEditPageDialogCreate.bind(this), contextWindow);
+        // Remove page placeholder from live edit and use one entry point (LiveEditPagePlaceholder) in liveformpanel
+        SelectPageDescriptorEvent.on((event: SelectPageDescriptorEvent) => {
+            PageEventsManager.get().notifyPageControllerSetRequested(DescriptorKey.fromString(event.getDescriptor()));
+        }, contextWindow);
 
-        CreateHtmlAreaContentDialogEvent.on(this.notifyLiveEditPageDialogCreate.bind(this), contextWindow);
-    }
+        AddComponentEvent.on((event: AddComponentEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
 
-    onLoaded(listener: () => void) {
-        this.loadedListeners.push(listener);
-    }
+            PageEventsManager.get().notifyComponentAddRequested(path, type);
+        }, contextWindow);
 
-    unLoaded(listener: () => void) {
-        this.loadedListeners = this.loadedListeners
-            .filter(function (curr: () => void) {
-                return curr !== listener;
-            });
-    }
+        RemoveComponentRequest.on((event: RemoveComponentRequest) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            PageEventsManager.get().notifyComponentRemoveRequested(path);
+        }, contextWindow);
 
-    private notifyLoaded() {
-        this.loadedListeners.forEach((listener) => {
-            listener();
+        LoadComponentFailedEvent.on((event: LoadComponentFailedEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+
+            PageEventsManager.get().notifyComponentLoadFailed(path, event.getError());
+        });
+
+        DuplicateComponentEvent.on((event: DuplicateComponentEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            PageEventsManager.get().notifyComponentDuplicateRequested(path);
+        }, contextWindow);
+
+        SetFragmentComponentEvent.on((event: SetFragmentComponentEvent): void => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+
+            PageEventsManager.get().notifySetFragmentComponentRequested(path, event.getContentId());
+        }, contextWindow);
+
+        SetComponentDescriptorEvent.on((event: SetComponentDescriptorEvent): void => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            PageEventsManager.get().notifyComponentDescriptorSetRequested(path, DescriptorKey.fromString(event.getDescriptor()));
+        }, contextWindow);
+
+        UpdateTextComponentEvent.on((event: UpdateTextComponentEvent): void => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+
+            PageEventsManager.get().notifyTextComponentUpdateRequested(path, event.getText());
+        }, contextWindow);
+
+        CustomizePageEvent.on((event: CustomizePageEvent): void => {
+            PageEventsManager.get().notifyCustomizePageRequested();
+        }, contextWindow);
+
+        MoveComponentEvent.on((event: MoveComponentEvent): void => {
+            const from: ComponentPath = ComponentPath.fromString(event.getFrom().toString());
+            const to: ComponentPath = ComponentPath.fromString(event.getTo().toString());
+
+            PageEventsManager.get().notifyComponentMoveRequested(from, to);
+        }, contextWindow);
+
+        DetachFragmentEvent.on((event: DetachFragmentEvent): void => {
+            const from: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+
+            PageEventsManager.get().notifyComponentDetachFragmentRequested(from);
         });
     }
 
-    onBeforeLoad(listener: () => void) {
-        this.beforeLoadListeners.push(listener);
-    }
+    private listenToMainFrameEvents() {
+        PageEventsManager.get().onDialogCreated((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => {
+            if (this.liveEditWindow) {
+                new LiveEditPageDialogCreatedEvent(modalDialog, config).fire(this.liveEditWindow);
+            }
+        });
 
-    unBeforeLoad(listener: () => void) {
-        this.beforeLoadListeners = this.beforeLoadListeners
-            .filter(function (curr: () => void) {
-                return curr !== listener;
-            });
-    }
+        PageState.getEvents().onComponentAdded((event: ComponentAddedEvent): void => {
+            if (this.liveEditWindow) {
+                if (event instanceof ComponentDuplicatedEvent) {
+                    new DuplicateComponentViewEvent(event.getPath()).fire(this.liveEditWindow);
+                } else if (event instanceof ComponentMovedEvent) {
+                    new MoveComponentViewEvent(event.getFrom(), event.getTo()).fire(this.liveEditWindow);
+                } else {
+                    new AddComponentViewEvent(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
+                }
+            }
+        });
 
-    private notifyBeforeLoad() {
-        this.beforeLoadListeners.forEach((listener) => {
-            listener();
+        PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
+            if (this.liveEditWindow) {
+                if (event instanceof ComponentRemovedOnMoveEvent) {
+                    // do nothing since component is being moved
+                } else {
+                    new RemoveComponentViewEvent(event.getPath()).fire(this.liveEditWindow);
+                }
+            }
+        });
+
+        BeforeContentSavedEvent.on(() => {
+            if (this.liveEditWindow) {
+                new BeforeContentSavedEvent().fire(this.liveEditWindow);
+            }
+        });
+
+        EditTextComponentViewEvent.on((event: EditTextComponentViewEvent) => {
+            if (this.liveEditWindow) {
+                new EditTextComponentViewEvent(event.getPath()).fire(this.liveEditWindow);
+            }
         });
     }
 
-    onComponentViewDragStarted(listener: (event: ComponentViewDragStartedEvent) => void) {
-        this.componentViewDragStartedListeners.push(listener);
-    }
-
-    unComponentViewDragStarted(listener: (event: ComponentViewDragStartedEvent) => void) {
-        this.componentViewDragStartedListeners = this.componentViewDragStartedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyComponentViewDragStarted(event: ComponentViewDragStartedEvent) {
-        this.componentViewDragStartedListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentViewDragStopped(listener: (event: ComponentViewDragStoppedEvent) => void) {
-        this.componentViewDragStoppedListeners.push(listener);
-    }
-
-    unComponentViewDragStopped(listener: (event: ComponentViewDragStoppedEvent) => void) {
-        this.componentViewDragStoppedListeners = this.componentViewDragStoppedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyComponentViewDragStopped(event: ComponentViewDragStoppedEvent) {
-        this.componentViewDragStoppedListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentViewDragCanceled(listener: (event: ComponentViewDragCanceledEvent) => void) {
-        this.componentViewDragCanceledListeners.push(listener);
-    }
-
-    unComponentViewDragCanceled(listener: (event: ComponentViewDragCanceledEvent) => void) {
-        this.componentViewDragCanceledListeners = this.componentViewDragCanceledListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyComponentViewDragCanceled(event: ComponentViewDragCanceledEvent) {
-        this.componentViewDragCanceledListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentViewDragDropped(listener: (event: ComponentViewDragDroppedEvent) => void) {
-        this.componentViewDragDroppedListeners.push(listener);
-    }
-
-    unComponentViewDragDropped(listener: (event: ComponentViewDragDroppedEvent) => void) {
-        this.componentViewDragDroppedListeners = this.componentViewDragDroppedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyComponentViewDragDropped(event: ComponentViewDragDroppedEvent) {
-        this.componentViewDragDroppedListeners.forEach((listener) => listener(event));
-    }
-
-    onPageSelected(listener: (event: PageSelectedEvent) => void) {
-        this.pageSelectedListeners.push(listener);
-    }
-
-    unPageSelected(listener: (event: PageSelectedEvent) => void) {
-        this.pageSelectedListeners = this.pageSelectedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyPageSelected(event: PageSelectedEvent) {
-        this.pageSelectedListeners.forEach((listener) => listener(event));
-    }
-
-    onPageLocked(listener: (event: PageLockedEvent) => void) {
-        this.pageLockedListeners.push(listener);
-    }
-
-    unPageLocked(listener: (event: PageLockedEvent) => void) {
-        this.pageLockedListeners = this.pageLockedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyPageLocked(event: PageLockedEvent) {
-        this.pageLockedListeners.forEach((listener) => listener(event));
-    }
-
-    onPageUnlocked(listener: (event: PageUnlockedEvent) => void) {
-        this.pageUnlockedListeners.push(listener);
-    }
-
-    unPageUnlocked(listener: (event: PageUnlockedEvent) => void) {
-        this.pageUnlockedListeners = this.pageUnlockedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyPageUnlocked(event: PageUnlockedEvent) {
-        this.pageUnlockedListeners.forEach((listener) => listener(event));
-    }
-
-    onPageTextModeStarted(listener: (event: PageTextModeStartedEvent) => void) {
-        this.pageTextModeStartedListeners.push(listener);
-    }
-
-    unPageTextModeStarted(listener: (event: PageTextModeStartedEvent) => void) {
-        this.pageTextModeStartedListeners = this.pageTextModeStartedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyPageTextModeStarted(event: PageTextModeStartedEvent) {
-        this.pageTextModeStartedListeners.forEach((listener) => listener(event));
-    }
-
-    onRegionSelected(listener: (event: RegionSelectedEvent) => void) {
-        this.regionSelectedListeners.push(listener);
-    }
-
-    unRegionSelected(listener: (event: RegionSelectedEvent) => void) {
-        this.regionSelectedListeners = this.regionSelectedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyRegionSelected(event: RegionSelectedEvent) {
-        this.regionSelectedListeners.forEach((listener) => listener(event));
-    }
-
-    onItemViewSelected(listener: (event: ItemViewSelectedEvent) => void) {
-        this.itemViewSelectedListeners.push(listener);
-    }
-
-    unItemViewSelected(listener: (event: ItemViewSelectedEvent) => void) {
-        this.itemViewSelectedListeners = this.itemViewSelectedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyItemViewSelected(event: ItemViewSelectedEvent) {
-        this.itemViewSelectedListeners.forEach((listener) => listener(event));
-    }
-
-    onItemViewDeselected(listener: (event: ItemViewDeselectedEvent) => void) {
-        this.itemViewDeselectedListeners.push(listener);
-    }
-
-    unItemViewDeselected(listener: (event: ItemViewDeselectedEvent) => void) {
-        this.itemViewDeselectedListeners = this.itemViewDeselectedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyItemViewDeselected(event: ItemViewDeselectedEvent) {
-        this.itemViewDeselectedListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.componentAddedListeners.push(listener);
-    }
-
-    unComponentAdded(listener: (event: ComponentAddedEvent) => void) {
-        this.componentAddedListeners = this.componentAddedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyComponentAdded(event: ComponentAddedEvent) {
-        this.componentAddedListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.componentRemovedListeners.push(listener);
-    }
-
-    unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
-        this.componentRemovedListeners = this.componentRemovedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyComponentRemoved(event: ComponentRemovedEvent) {
-        this.componentRemovedListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentDuplicated(listener: (event: ComponentDuplicatedEvent) => void) {
-        this.componentDuplicatedListeners.push(listener);
-    }
-
-    unComponentDuplicated(listener: (event: ComponentDuplicatedEvent) => void) {
-        this.componentDuplicatedListeners = this.componentDuplicatedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyComponentDuplicated(event: ComponentDuplicatedEvent) {
-        this.componentDuplicatedListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentInspected(listener: (event: ComponentInspectedEvent) => void) {
-        this.componentInspectedListeners.push(listener);
-    }
-
-    unComponentInspected(listener: (event: ComponentInspectedEvent) => void) {
-        this.componentInspectedListeners = this.componentInspectedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyComponentInspected(event: ComponentInspectedEvent) {
-        this.componentInspectedListeners.forEach((listener) => listener(event));
-    }
-
-    onPageInspected(listener: (event: PageInspectedEvent) => void) {
-        this.pageInspectedListeners.push(listener);
-    }
-
-    unPageInspected(listener: (event: PageInspectedEvent) => void) {
-        this.pageInspectedListeners = this.pageInspectedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyPageInspected(event: PageInspectedEvent) {
-        this.pageInspectedListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentLoaded(listener: (event: ComponentLoadedEvent) => void) {
-        this.componentLoadedListeners.push(listener);
-    }
-
-    unComponentLoaded(listener: (event: ComponentLoadedEvent) => void) {
-        this.componentLoadedListeners = this.componentLoadedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyComponentLoaded(event: ComponentLoadedEvent) {
-        this.componentLoadedListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentReset(listener: (event: ComponentResetEvent) => void) {
-        this.componentResetListeners.push(listener);
-    }
-
-    unComponentReset(listener: (event: ComponentResetEvent) => void) {
-        this.componentResetListeners = this.componentResetListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyComponentReset(event: ComponentResetEvent) {
-        this.componentResetListeners.forEach((listener) => listener(event));
-    }
-
-    onLiveEditPageViewReady(listener: (event: LiveEditPageViewReadyEvent) => void) {
-        this.liveEditPageViewReadyListeners.push(listener);
-    }
-
-    unLiveEditPageViewReady(listener: (event: LiveEditPageViewReadyEvent) => void) {
-        this.liveEditPageViewReadyListeners = this.liveEditPageViewReadyListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyLiveEditPageViewReady(event: LiveEditPageViewReadyEvent) {
-        this.liveEditPageViewReadyListeners.forEach((listener) => listener(event));
-    }
-
-    onLiveEditPageInitializationError(listener: (event: LiveEditPageInitializationErrorEvent) => void) {
-        this.liveEditPageInitErrorListeners.push(listener);
-    }
-
-    unLiveEditPageInitializationError(listener: (event: LiveEditPageInitializationErrorEvent) => void) {
-        this.liveEditPageInitErrorListeners = this.liveEditPageInitErrorListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyLiveEditPageInitializationError(event: LiveEditPageInitializationErrorEvent) {
-        this.liveEditPageInitErrorListeners.forEach((listener) => listener(event));
-    }
-
-    onLiveEditPageDialogCreate(listener: (event: CreateHtmlAreaDialogEvent) => void) {
-        this.createHtmlAreaDialogListeners.push(listener);
-    }
-
-    unLiveEditPageDialogCreate(listener: (event: CreateHtmlAreaDialogEvent) => void) {
-        this.createHtmlAreaDialogListeners = this.createHtmlAreaDialogListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyLiveEditPageDialogCreate(event: CreateHtmlAreaDialogEvent) {
-        this.createHtmlAreaDialogListeners.forEach((listener) => listener(event));
-    }
-
-    notifyLiveEditPageDialogCreated(modalDialog: ModalDialog, config: HtmlAreaDialogConfig) {
-        new LiveEditPageDialogCreatedEvent(modalDialog, config).fire(this.liveEditWindow);
-    }
-
-    onComponentFragmentCreated(listener: (event: ComponentFragmentCreatedEvent) => void) {
-        this.fragmentCreatedListeners.push(listener);
-    }
-
-    unComponentFragmentCreated(listener: (event: ComponentFragmentCreatedEvent) => void) {
-        this.fragmentCreatedListeners = this.fragmentCreatedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyFragmentCreated(event: ComponentFragmentCreatedEvent) {
-        this.fragmentCreatedListeners.forEach((listener) => listener(event));
-    }
-
-    onComponentDetached(listener: (event: ComponentDetachedFromFragmentEvent) => void) {
-        this.componentDetachedListeners.push(listener);
-    }
-
-    unComponentDetached(listener: (event: ComponentDetachedFromFragmentEvent) => void) {
-        this.componentDetachedListeners = this.componentDetachedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyComponentDetached(event: ComponentDetachedFromFragmentEvent) {
-        this.componentDetachedListeners.forEach((listener) => listener(event));
-    }
-
-    onFragmentReloadRequired(listener: (event: FragmentComponentReloadRequiredEvent) => void) {
-        this.fragmentLoadedListeners.push(listener);
-    }
-
-    unFragmentReloadRequired(listener: (event: FragmentComponentReloadRequiredEvent) => void) {
-        this.fragmentLoadedListeners = this.fragmentLoadedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyFragmentReloadRequired(event: FragmentComponentReloadRequiredEvent) {
-        this.fragmentLoadedListeners.forEach((listener) => listener(event));
-    }
-
-    onShowWarning(listener: (event: ShowWarningLiveEditEvent) => void) {
-        this.showWarningListeners.push(listener);
-    }
-
-    unShowWarning(listener: (event: ShowWarningLiveEditEvent) => void) {
-        this.showWarningListeners = this.showWarningListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyShowWarning(event: ShowWarningLiveEditEvent) {
-        this.showWarningListeners.forEach((listener) => listener(event));
-    }
-
-    onEditContent(listener: (event: EditContentEvent) => void) {
-        this.editContentListeners.push(listener);
-    }
-
-    unEditContent(listener: (event: EditContentEvent) => void) {
-        this.editContentListeners = this.editContentListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyEditContent(event: EditContentEvent) {
-        this.editContentListeners.forEach((listener) => listener(event));
-    }
-
-    private copyObjectsBeforeFrameReloadForIE() {
-        const controller: Descriptor = this.liveEditModel.getPageModel().getController();
-        const regions: Regions = this.liveEditModel.getPageModel().getRegions();
-
-        this.ieObjectHolder = new IEObjectHolder();
-        this.ieObjectHolder.setController(controller);
-        this.ieObjectHolder.setRegions(regions);
-    }
-
-    private resetObjectsAfterFrameReloadForIE() {
-        this.resetControllerForIE();
-        this.resetRegionsForIE();
-        this.ieObjectHolder.reset();
-    }
-
-    private resetControllerForIE() {
-        if (this.ieObjectHolder.hasController()) {
-            this.liveEditModel.getPageModel().setControllerDescriptor(this.ieObjectHolder.getPageDescriptorCopy());
+    handle(event: PageNavigationEvent): void {
+        if (event.getType() === PageNavigationEventType.SELECT) {
+            new SelectComponentViewEvent(event.getData().getPath()?.toString()).fire(this.liveEditWindow);
+            return;
+        }
+
+        if (event.getType() === PageNavigationEventType.DESELECT) {
+            new DeselectComponentViewEvent(event.getData().getPath()?.toString()).fire(this.liveEditWindow);
+            return;
         }
     }
-
-    private resetRegionsForIE() {
-        if (this.ieObjectHolder.hasRegionsCopy()) {
-            this.liveEditModel.getPageModel().setRegions(this.ieObjectHolder.getRegionsCopy());
-        }
-    }
-
-    private disableLinksInLiveEditForIE() {
-        if (this.livejq) {
-            this.livejq('a').attr('disabled', 'disabled'); // this works only in IE
-        }
-    }
-
 }

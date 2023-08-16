@@ -6,9 +6,8 @@ import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 export class PageViewContextMenuTitle
     extends ItemViewContextMenuTitle {
 
-    constructor(content: Content) {
-        let name = !!content.getDisplayName() ? content.getDisplayName() : NamePrettyfier.prettifyUnnamed();
-        super(name, PageItemType.get().getConfig().getIconCls());
+    constructor(displayName: string) {
+        super(displayName || NamePrettyfier.prettifyUnnamed(), PageItemType.get().getConfig().getIconCls());
     }
 
 }

@@ -4,7 +4,6 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {DescriptorBasedComponent} from '../../../../../page/region/DescriptorBasedComponent';
-import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
 import {DescriptorBasedDropdownForm} from './DescriptorBasedDropdownForm';
 import {ComponentDescriptorsDropdown} from './ComponentDescriptorsDropdown';
 import {SiteModel} from '../../../../../site/SiteModel';
@@ -19,7 +18,11 @@ import {ComponentType} from '../../../../../page/region/ComponentType';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {DescriptorViewer} from '../DescriptorViewer';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {ComponentPropertyChangedEventHandler} from '../../../../../page/region/Component';
+import {ComponentUpdatedEventHandler} from '../../../../../page/region/Component';
+import {PageState} from '../../../PageState';
+import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
+import {ComponentDescriptorUpdatedEvent} from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
+import {PageEventsManager} from '../../../../PageEventsManager';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {
@@ -38,7 +41,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private loadMask: LoadMask;
 
-    private componentPropertyChangedEventHandler: ComponentPropertyChangedEventHandler;
+    private componentUpdateHandler: ComponentUpdatedEventHandler;
 
     private applicationUnavailableListener: (applicationEvent: ApplicationEvent) => void;
 
@@ -62,7 +65,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 
     private initListeners() {
-        this.componentPropertyChangedEventHandler = this.componentPropertyChangedHandler.bind(this);
+        this.componentUpdateHandler = this.handleComponentUpdated.bind(this);
         this.applicationUnavailableListener = this.applicationUnavailableHandler.bind(this);
         this.debouncedDescriptorsReload = AppHelper.debounce(this.reloadDescriptors.bind(this), 100);
 
@@ -127,23 +130,23 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private registerComponentListeners() {
         if (this.component) {
-            this.component.onPropertyChanged(this.componentPropertyChangedEventHandler);
+            PageState.getEvents().onComponentUpdated(this.componentUpdateHandler);
         }
     }
 
     private unregisterComponentListeners() {
         if (this.component) {
-            this.component.unPropertyChanged(this.componentPropertyChangedEventHandler);
+            PageState.getEvents().unComponentUpdated(this.componentUpdateHandler);
         }
     }
 
-    private componentPropertyChangedHandler(event: ComponentPropertyChangedEvent) {
+    private handleComponentUpdated(event: ComponentUpdatedEvent): void {
         // Ensure displayed config form and selector option are removed when descriptor is removed
-        if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
-            if (!this.component.hasDescriptor()) {
-                this.setSelectorValue(null);
-            } else {
+        if (event.getPath().equals(this.component?.getPath()) && event instanceof ComponentDescriptorUpdatedEvent) {
+            if (event.getDescriptorKey()) {
                 this.cleanFormView();
+            } else {
+                this.setSelectorValue(null);
             }
         }
     }
@@ -200,7 +203,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     private initSelectorListeners() {
         this.selector.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
             const descriptor: Descriptor = event.getOption().getDisplayValue();
-            this.component.setDescriptor(descriptor);
+            PageEventsManager.get().notifyComponentDescriptorSetRequested(this.getComponent().getPath(), descriptor.getKey());
         });
     }
 
@@ -213,7 +216,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.mask();
         const form: Form = descriptor.getConfig();
         const config: PropertyTree = this.component.getConfig();
-        this.formView = new FormView(this.formContext, form, config.getRoot());
+        this.formView = new FormView(this.liveEditModel.getFormContext(), form, config.getRoot());
         this.formView.setLazyRender(false);
         this.appendChild(this.formView);
         this.component.setDisableEventForwarding(true);

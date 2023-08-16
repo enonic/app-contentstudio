@@ -4,7 +4,6 @@ import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {LayoutItemType} from './LayoutItemType';
 import {ItemViewAddedEvent} from '../ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from '../ItemViewRemovedEvent';
-import {LayoutComponentViewer} from './LayoutComponentViewer';
 import {LayoutPlaceholder} from './LayoutPlaceholder';
 import {ItemView} from '../ItemView';
 import {ItemType} from '../ItemType';
@@ -13,10 +12,9 @@ import {DragAndDrop} from '../DragAndDrop';
 import {RegionView, RegionViewBuilder} from '../RegionView';
 import {LayoutComponent} from '../../app/page/region/LayoutComponent';
 import {ComponentPath} from '../../app/page/region/ComponentPath';
-import {Component} from '../../app/page/region/Component';
 
 export class LayoutComponentViewBuilder
-    extends ComponentViewBuilder<LayoutComponent> {
+    extends ComponentViewBuilder {
 
     constructor() {
         super();
@@ -25,7 +23,7 @@ export class LayoutComponentViewBuilder
 }
 
 export class LayoutComponentView
-    extends ComponentView<LayoutComponent> {
+    extends ComponentView {
 
     private regionViews: RegionView[];
 
@@ -36,12 +34,11 @@ export class LayoutComponentView
     public static debug: boolean = false;
 
     constructor(builder: LayoutComponentViewBuilder) {
-        super(builder.setViewer(new LayoutComponentViewer()).setInspectActionRequired(true));
+        super(builder.setInspectActionRequired(true));
 
         this.setPlaceholder(new LayoutPlaceholder(this));
         this.regionViews = [];
 
-        this.liveEditModel = builder.parentRegionView.getLiveEditModel();
         LayoutComponentView.debug = false;
 
         this.itemViewAddedListener = (event: ItemViewAddedEvent) => this.notifyItemViewAdded(event.getView(), event.isNewlyCreated());
@@ -64,37 +61,20 @@ export class LayoutComponentView
         return DragAndDrop.get().isDragging();
     }
 
-    getComponentViewByPath(path: ComponentPath): ComponentView<Component> {
+    getComponentViewByPath(path: ComponentPath): ItemView {
+        let result: ItemView = null;
 
-        let firstLevelOfPath = path.getFirstLevel();
-
-        for (const regionView of this.regionViews) {
-            if (firstLevelOfPath.getRegionName() === regionView.getRegionName()) {
-                if (path.numberOfLevels() === 1) {
-                    return regionView.getComponentViewByIndex(firstLevelOfPath.getComponentIndex());
-                }
-
-                const index = firstLevelOfPath.getComponentIndex();
-                const layoutView: LayoutComponentView = regionView.getComponentViewByIndex(index) as LayoutComponentView;
-                return layoutView.getComponentViewByPath(path.removeFirstLevel());
+        this.regionViews.some((regionView: RegionView) => {
+            if (regionView.getPath().equals(path)) {
+                result = regionView;
+            } else {
+                result = regionView.getComponentViewByPath(path);
             }
-        }
 
-        return null;
-    }
-
-    setComponent(layoutComponent: LayoutComponent) {
-        super.setComponent(layoutComponent);
-
-        if (!this.regionViews) {
-            return;
-        }
-
-        let regions = layoutComponent.getRegions().getRegions();
-        this.regionViews.forEach((regionView: RegionView, index: number) => {
-            let region = regions[index];
-            regionView.setRegion(region);
+            return !!result;
         });
+
+        return result;
     }
 
     getRegions(): RegionView[] {
@@ -123,45 +103,24 @@ export class LayoutComponentView
     }
 
     private doParseRegions(parentElement?: Element) {
-
-        let layoutComponent: LayoutComponent = this.getComponent();
-        let layoutRegions = layoutComponent.getRegions();
-        if (!layoutRegions) {
-            return;
-        }
         let children = parentElement ? parentElement.getChildren() : this.getChildren();
 
         children.forEach((childElement: Element) => {
             let itemType = ItemType.fromElement(childElement);
             let isRegionView = ObjectHelper.iFrameSafeInstanceOf(childElement, RegionView);
-            let region;
-            let regionName;
-            let regionView;
 
             if (isRegionView) {
-                regionName = RegionItemType.getRegionName(childElement);
-                region = layoutRegions.getRegionByName(regionName);
-                if (region) {
-                    // reuse existing region view
-                    regionView = childElement as RegionView;
-                    // update view's data
-                    regionView.setRegion(region);
-                    // register it again because we unregistered everything before parsing
-                    this.registerRegionView(regionView);
-                }
-
+                //
             } else if (itemType && RegionItemType.get().equals(itemType)) {
-                regionName = RegionItemType.getRegionName(childElement);
-                region = layoutRegions.getRegionByName(regionName);
+                const regionName = RegionItemType.getRegionName(childElement);
+                const builder = new RegionViewBuilder()
+                    .setParentView(this)
+                    .setParentElement(parentElement ? parentElement : this)
+                    .setName(regionName)
+                    .setLiveEditParams(this.liveEditParams)
+                    .setElement(childElement);
 
-                if (region) {
-                    regionView = new RegionView(
-                        new RegionViewBuilder().setParentView(this).setParentElement(parentElement ? parentElement : this).setRegion(
-                            region).setElement(childElement));
-
-                    this.registerRegionView(regionView);
-                }
-
+                this.registerRegionView(new RegionView(builder));
             } else {
                 this.doParseRegions(childElement);
             }

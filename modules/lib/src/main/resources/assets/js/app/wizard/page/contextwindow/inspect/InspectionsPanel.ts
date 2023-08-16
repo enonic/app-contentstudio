@@ -15,6 +15,7 @@ import {DeckPanel} from '@enonic/lib-admin-ui/ui/panel/DeckPanel';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {DescriptorBasedComponentInspectionPanel} from './region/DescriptorBasedComponentInspectionPanel';
 import {Descriptor} from '../../../../page/Descriptor';
+import {PageState} from '../../PageState';
 
 export interface InspectionsPanelConfig {
     contentInspectionPanel: ContentInspectionPanel;
@@ -83,14 +84,7 @@ export class InspectionsPanel
     }
 
     public updateButtonsVisibility(descriptor?: Descriptor): void {
-        let thisDescriptor: Descriptor = descriptor;
-        if (!thisDescriptor) {
-            const panel: Panel = this.deck.getPanelShown();
-            if (panel instanceof DescriptorBasedComponentInspectionPanel || panel instanceof PageInspectionPanel) {
-                thisDescriptor = panel.getDescriptor();
-            }
-        }
-        const showButtons = thisDescriptor ? thisDescriptor.getConfig()?.getFormItems().length > 0 : false;
+        const showButtons = descriptor ? descriptor.getConfig()?.getFormItems().length > 0 : false;
         this.setButtonContainerVisible(showButtons);
     }
 

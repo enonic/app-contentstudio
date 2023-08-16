@@ -1,37 +1,37 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {LiveEditModel} from './LiveEditModel';
 import {ProjectContext} from '../app/project/ProjectContext';
-import {Project} from '../app/settings/data/project/Project';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {JSONObject} from '@enonic/lib-admin-ui/types';
+import {ProjectJson} from '../app/settings/resource/json/ProjectJson';
+import {LiveEditParams} from './LiveEditParams';
 
 export class InitializeLiveEditEvent
     extends Event {
 
-    private readonly liveEditModel: LiveEditModel;
-
-    private readonly project: Project;
+    private readonly projectJson: ProjectJson;
 
     private readonly config: JSONObject;
 
-    constructor(liveEditModel: LiveEditModel) {
+    private readonly liveEditParams: LiveEditParams;
+
+    constructor(liveEditParams?: LiveEditParams) {
         super();
-        this.liveEditModel = liveEditModel;
-        this.project = ProjectContext.get().getProject();
+        this.projectJson = ProjectContext.get().getProject().toJson();
         this.config = CONFIG.getConfig();
+        this.liveEditParams = liveEditParams;
     }
 
-    getLiveEditModel(): LiveEditModel {
-        return this.liveEditModel;
-    }
-
-    getProject(): Project {
-        return this.project;
+    getProjectJson(): ProjectJson {
+        return this.projectJson;
     }
 
     getConfig(): JSONObject {
         return this.config;
+    }
+
+    getParams(): LiveEditParams {
+        return this.liveEditParams;
     }
 
     static on(handler: (event: InitializeLiveEditEvent) => void, contextWindow: Window = window) {

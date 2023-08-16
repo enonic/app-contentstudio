@@ -6,6 +6,7 @@ import {ComponentName} from './ComponentName';
 import {FragmentComponentType} from './FragmentComponentType';
 import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
 import {ContentId} from '../../content/ContentId';
+import {ComponentFragmentUpdatedEvent} from './ComponentFragmentUpdatedEvent';
 
 export class FragmentComponent
     extends ConfigBasedComponent {
@@ -31,7 +32,7 @@ export class FragmentComponent
         this.setName(name ? new ComponentName(name) : this.getType().getDefaultName());
 
         if (!ObjectHelper.equals(oldValue, contentId)) {
-            this.notifyPropertyChanged(FragmentComponent.PROPERTY_FRAGMENT);
+            this.notifyComponentUpdated(new ComponentFragmentUpdatedEvent(this.getPath(), contentId));
         }
     }
 
@@ -79,7 +80,7 @@ export class FragmentComponent
 }
 
 export class FragmentComponentBuilder
-    extends ConfigBasedComponentBuilder<FragmentComponent> {
+    extends ConfigBasedComponentBuilder {
 
     fragment: ContentId;
 
@@ -93,12 +94,12 @@ export class FragmentComponentBuilder
         this.setType(FragmentComponentType.get());
     }
 
-    public setFragment(value: ContentId): FragmentComponentBuilder {
+    public setFragment(value: ContentId): this {
         this.fragment = value;
         return this;
     }
 
-    public fromJson(json: FragmentComponentJson): FragmentComponentBuilder {
+    public fromJson(json: FragmentComponentJson): this {
         super.fromJson(json);
 
         if (json.fragment) {

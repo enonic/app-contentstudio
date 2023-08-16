@@ -6,13 +6,11 @@ import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 export class RegionPlaceholder
     extends ItemViewPlaceholder {
 
-    private region: Region;
 
-    constructor(region: Region) {
+    constructor() {
         super();
         this.addClassEx('region-placeholder');
 
-        this.region = region;
 
         let dragComponentsHereEl = new PEl();
         dragComponentsHereEl.setHtml(i18n('live.view.drag.drophere'));

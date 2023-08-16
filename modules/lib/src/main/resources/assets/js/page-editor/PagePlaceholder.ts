@@ -10,7 +10,9 @@ import {ContentType} from '../app/inputtype/schema/ContentType';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {Descriptor} from '../app/page/Descriptor';
 import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
-import {SetController} from './PageModel';
+import {ContentId} from '../app/content/ContentId';
+import {SelectPageDescriptorEvent} from './event/outgoing/manipulation/SelectPageDescriptorEvent';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 export class PagePlaceholder
     extends ItemViewPlaceholder {
@@ -45,26 +47,25 @@ export class PagePlaceholder
 
         this.controllerDropdown.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
             const pageDescriptor: Descriptor = event.getOption().getDisplayValue();
-            const setController: SetController = new SetController(this).setDescriptor(pageDescriptor);
-            this.pageView.getLiveEditModel().getPageModel().setController(setController);
+            new SelectPageDescriptorEvent(pageDescriptor.getKey().toString()).fire();
         });
     }
 
     private initElements() {
         this.infoBlock = new PagePlaceholderInfoBlock();
-        this.controllerDropdown = new PageDescriptorDropdown(this.pageView.getLiveEditModel().getContent().getContentId());
+        this.controllerDropdown = new PageDescriptorDropdown(new ContentId(this.pageView.getLiveEditParams().contentId));
         this.pageDescriptorPlaceholder = new DivEl('page-descriptor-placeholder', StyleHelper.getCurrentPrefix());
     }
 
     private dataLoadedHandler: (event: LoadedDataEvent<Descriptor>) => void = (event: LoadedDataEvent<Descriptor>) => {
         if (event.getData().length > 0) {
             this.controllerDropdown.show();
-            let content = this.pageView.getLiveEditModel().getContent();
-            if (!content.isPageTemplate()) {
-                new GetContentTypeByNameRequest(content.getType()).sendAndParse().then((contentType: ContentType) => {
+            const type = new ContentTypeName(this.pageView.getLiveEditParams().contentType);
+            if (!type.isPageTemplate()) {
+                new GetContentTypeByNameRequest(type).sendAndParse().then((contentType: ContentType) => {
                     this.infoBlock.setTextForContent(contentType.getDisplayName());
                 }).catch((reason) => {
-                    this.infoBlock.setTextForContent(content.getType().toString());
+                    this.infoBlock.setTextForContent(type.toString());
                     DefaultErrorHandler.handle(reason);
                 }).done();
             } else {

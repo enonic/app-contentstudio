@@ -13,8 +13,6 @@ export abstract class ComponentInspectionPanel<COMPONENT extends Component>
 
     liveEditModel: LiveEditModel;
 
-    formContext: ContentFormContext;
-
     protected component: COMPONENT;
 
     protected constructor(config: ComponentInspectionPanelConfig) {
@@ -22,9 +20,7 @@ export abstract class ComponentInspectionPanel<COMPONENT extends Component>
     }
 
     setModel(liveEditModel: LiveEditModel) {
-
         this.liveEditModel = liveEditModel;
-        this.formContext = liveEditModel.getFormContext();
     }
 
     setComponent(component: COMPONENT) {

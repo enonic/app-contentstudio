@@ -5,8 +5,8 @@ import {Region} from '../app/page/region/Region';
 export class RegionViewContextMenuTitle
     extends ItemViewContextMenuTitle {
 
-    constructor(region: Region) {
-        super(region.getName(), RegionItemType.get().getConfig().getIconCls());
+    constructor(name: string) {
+        super(name, RegionItemType.get().getConfig().getIconCls());
     }
 
 }

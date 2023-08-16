@@ -4,6 +4,7 @@ import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './Descr
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {PartComponentJson} from './PartComponentJson';
 import {PartComponentType} from './PartComponentType';
+import {Region} from './Region';
 
 export class PartComponent
     extends DescriptorBasedComponent {
@@ -39,7 +40,7 @@ export class PartComponent
 }
 
 export class PartComponentBuilder
-    extends DescriptorBasedComponentBuilder<PartComponent> {
+    extends DescriptorBasedComponentBuilder {
 
     constructor(source?: PartComponent) {
         super(source);

@@ -6,6 +6,7 @@ import {PageDescriptorDropdown} from './contextwindow/inspect/page/PageDescripto
 import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ContentType} from '../../inputtype/schema/ContentType';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {PageEventsManager} from '../PageEventsManager';
 
 export class LiveEditPagePlaceholder
     extends DivEl {
@@ -17,8 +18,6 @@ export class LiveEditPagePlaceholder
     private pagePlaceholderInfoBlock?: PagePlaceholderInfoBlock;
 
     private controllerDropdown?: PageDescriptorDropdown;
-
-    private controllerSelectedListeners: ((descriptor: Descriptor) => void)[] = [];
 
     private enabled: boolean = true;
 
@@ -70,7 +69,7 @@ export class LiveEditPagePlaceholder
         controllerDropdown.addClass('page-placeholder-dropdown');
 
         controllerDropdown.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
-            this.notifyControllerSelected(event.getOption().getDisplayValue());
+            PageEventsManager.get().notifyPageControllerSetRequested(event.getOption().getDisplayValue().getKey());
         });
 
         return controllerDropdown;
@@ -90,18 +89,6 @@ export class LiveEditPagePlaceholder
 
     setErrorTexts(message: string, description: string): void {
         this.pagePlaceholderInfoBlock.setErrorTexts(message, description);
-    }
-
-    onControllerSelected(listener: (descriptor: Descriptor) => void) {
-        this.controllerSelectedListeners.push(listener);
-    }
-
-    unControllerSelected(listener: (descriptor: Descriptor) => void) {
-        this.controllerSelectedListeners = this.controllerSelectedListeners.filter((curr) => (curr !== listener));
-    }
-
-    private notifyControllerSelected(descriptor: Descriptor) {
-        this.controllerSelectedListeners.forEach((listener) => listener(descriptor));
     }
 
     setEnabled(value: boolean): void {

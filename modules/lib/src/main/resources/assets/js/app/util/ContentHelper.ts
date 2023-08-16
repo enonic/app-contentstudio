@@ -19,6 +19,8 @@ import {WorkflowState} from '../content/WorkflowState';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentPath} from '../content/ContentPath';
+import {PageHelper} from './PageHelper';
+import {Page} from '../page/Page';
 
 export class ContentHelper {
 
@@ -42,18 +44,18 @@ export class ContentHelper {
         const page = content.getPage();
 
         if (page) {
-            if (page.doesFragmentContainId(contentId)) {
+            if (PageHelper.doesFragmentContainId(page.getFragment(), contentId)) {
                 return Q(true);
             }
 
             // return page.doRegionComponentsContainId(contentId);
             const fragments: ContentId[] = [];
-            const containsId = page.getRegions() && page.doRegionsContainId(page.getRegions().getRegions(), contentId, fragments);
+            const containsId = page.getRegions() && PageHelper.doRegionsContainId(page.getRegions().getRegions(), contentId, fragments);
             if (!containsId && fragments.length > 0) {
                 return Q.all(fragments.map(fragmentId => new GetContentByIdRequest(fragmentId).sendAndParse()))
                     .then((fragmentContents: Content[]) => {
                         return fragmentContents.some((fragmentContent: Content) => {
-                            return fragmentContent.getPage().doesFragmentContainId(contentId);
+                            return PageHelper.doesFragmentContainId(fragmentContent.getPage().getFragment(), contentId);
                         });
                     });
             } else {

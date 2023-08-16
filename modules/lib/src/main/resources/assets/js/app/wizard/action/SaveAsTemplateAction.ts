@@ -1,7 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {PageModel} from '../../../page-editor/PageModel';
 import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
 import {CreatePageTemplateRequest} from '../CreatePageTemplateRequest';
 import {EditContentEvent} from '../../event/EditContentEvent';
@@ -9,6 +8,7 @@ import {Site} from '../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Permission} from '../../access/Permission';
 import {ContentSummary} from '../../content/ContentSummary';
+import {PageState} from '../page/PageState';
 
 export class SaveAsTemplateAction
     extends Action {
@@ -19,8 +19,6 @@ export class SaveAsTemplateAction
 
     private contentSummary: ContentSummary;
 
-    private pageModel: PageModel;
-
     private site: Site;
 
     private constructor() {
@@ -28,9 +26,9 @@ export class SaveAsTemplateAction
 
         this.onExecuted(action => {
             new CreatePageTemplateRequest()
-                .setController(this.pageModel.getController().getKey())
-                .setRegions(this.pageModel.getRegions())
-                .setConfig(this.pageModel.getConfig())
+                .setController(PageState.getState().getController())
+                .setRegions(PageState.getState().getRegions())
+                .setConfig(PageState.getState().getConfig())
                 .setDisplayName(this.contentSummary.getDisplayName())
                 .setSite(this.site ? this.site.getPath() : null)
                 .setSupports(this.contentSummary.getType())
@@ -52,7 +50,7 @@ export class SaveAsTemplateAction
     }
 
     updateVisibility() {
-        if (this.pageModel.getController() && !this.contentSummary.isPageTemplate()) {
+        if (PageState.getState()?.hasController() && !this.contentSummary.isPageTemplate()) {
             if (this.userHasCreateRights === undefined) {
                 new GetPermittedActionsRequest()
                     .addContentIds(this.contentSummary.getContentId())
@@ -77,11 +75,6 @@ export class SaveAsTemplateAction
 
     setSite(site: Site): SaveAsTemplateAction {
         this.site = site;
-        return this;
-    }
-
-    setPageModel(model: PageModel): SaveAsTemplateAction {
-        this.pageModel = model;
         return this;
     }
 }

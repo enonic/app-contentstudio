@@ -14,6 +14,7 @@ import {Content} from '../../content/Content';
 import {ImageHelper} from '../../util/ImageHelper';
 import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
 import {ContentId} from '../../content/ContentId';
+import {ComponentImageUpdatedEvent} from './ComponentImageUpdatedEvent';
 
 export class ImageComponent
     extends ConfigBasedComponent {
@@ -57,7 +58,7 @@ export class ImageComponent
         this.updateConfigImageCaption(ImageHelper.getImageCaption(imageContent));
 
         if (!ObjectHelper.equals(oldValue, this.image)) {
-            this.notifyPropertyChanged(ImageComponent.PROPERTY_IMAGE);
+            this.notifyComponentUpdated(new ComponentImageUpdatedEvent(this.getPath(), this.image));
         }
     }
 
@@ -72,7 +73,7 @@ export class ImageComponent
         this.setName(this.getType().getDefaultName());
 
         if (hadImageBeforeReset) {
-            this.notifyPropertyChanged(ImageComponent.PROPERTY_IMAGE);
+            this.notifyComponentUpdated(new ComponentImageUpdatedEvent(this.getPath(), this.image));
         }
     }
 
@@ -121,7 +122,7 @@ export class ImageComponent
 }
 
 export class ImageComponentBuilder
-    extends ConfigBasedComponentBuilder<ImageComponent> {
+    extends ConfigBasedComponentBuilder {
 
     image: ContentId;
 
@@ -135,12 +136,12 @@ export class ImageComponentBuilder
         this.setType(ImageComponentType.get());
     }
 
-    public setImage(value: ContentId): ImageComponentBuilder {
+    public setImage(value: ContentId): this {
         this.image = value;
         return this;
     }
 
-    public fromJson(json: ImageComponentJson): ImageComponentBuilder {
+    public fromJson(json: ImageComponentJson): this {
         super.fromJson(json);
 
         if (json.image) {

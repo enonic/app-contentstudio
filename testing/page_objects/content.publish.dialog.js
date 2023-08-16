@@ -2,7 +2,6 @@ const Page = require('./page');
 const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
 const DateTimeRange = require('../page_objects/components/datetime.range');
-const DependantsControls = require('./issue/dependant.controls');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentPublishDialog')]",
@@ -23,6 +22,7 @@ const XPATH = {
     invalidStateEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-invalid')]]",
     inProgressSpan: "//span[contains(@class,'entry-text') and text()='In progress']",
     contentSummaryByDisplayName: displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
+    dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     dependentItemContentStatus: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     contentStatus: displayName => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
     removeItemIconByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]//div[@class='icon remove']`,
@@ -31,9 +31,12 @@ const XPATH = {
 
 class ContentPublishDialog extends Page {
 
-    constructor() {
-        super();
-        this.dependantsControls = new DependantsControls(XPATH.container);
+    get applySelectionButton() {
+        return XPATH.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Apply');
+    }
+
+    get cancelSelectionButton() {
+        return XPATH.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Cancel');
     }
 
     get cancelButtonTop() {
@@ -46,6 +49,14 @@ class ContentPublishDialog extends Page {
 
     get changeLogInput() {
         return XPATH.container + XPATH.changeLogInput;
+    }
+
+    get showExcludedItemsButton() {
+        return XPATH.container + lib.togglerButton('Show excluded');
+    }
+
+    get hideExcludedItemsButton() {
+        return XPATH.container + lib.togglerButton('Hide excluded');
     }
 
     get logMessageLink() {
@@ -80,6 +91,10 @@ class ContentPublishDialog extends Page {
         return XPATH.container + XPATH.inProgressStateEntryDiv + lib.PUBLISH_DIALOG.EXCLUDE_BTN;
     }
 
+    get allDependantsCheckbox() {
+        return XPATH.container + lib.checkBoxDiv('All');
+    }
+
     async waitForDependantsBlockDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.dependantsBlock, appConst.mediumTimeout);
@@ -98,6 +113,7 @@ class ContentPublishDialog extends Page {
         }
     }
 
+
     waitForExcludeInvalidItemsButtonDisplayed() {
         return this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
     }
@@ -112,6 +128,81 @@ class ContentPublishDialog extends Page {
 
     waitForExcludeItemsInProgressButtonDisplayed() {
         return this.waitForElementDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+    }
+
+    async waitForCancelSelectionButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.cancelSelectionButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_cancel_btn');
+            throw new Error(`Cancel selection button is not displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async waitForApplySelectionButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.applySelectionButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
+            throw new Error(`Apply selection button is not displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async waitForApplySelectionButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.applySelectionButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
+            throw new Error(`Apply selection button should not be displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    waitForAllDependantsCheckboxDisplayed() {
+        return this.waitForElementDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
+    }
+
+    async waitForAllDependantsCheckboxDisabled() {
+        let selector = this.allDependantsCheckbox;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(selector, "class");
+            return text.includes('disabled');
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be disabled"});
+    }
+
+    async waitForAllDependantsCheckboxEnabled() {
+        let selector = this.allDependantsCheckbox;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(selector, "class");
+            return !text.includes('disabled');
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be enabled"});
+    }
+
+    waitForAllDependantsCheckboxNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
+    }
+
+    async clickOnAllCheckbox() {
+        await this.waitForAllDependantsCheckboxDisplayed();
+        await this.clickOnElement(this.allDependantsCheckbox + '//label');
+    }
+
+    async isAllDependantsCheckboxSelected() {
+        // 1. div-checkbox should be displayed:
+        await this.waitForAllDependantsCheckboxDisplayed();
+        // 2. Check the input:
+        return await this.isSelected(this.allDependantsCheckbox + lib.CHECKBOX_INPUT);
+    }
+
+    async isDependantCheckboxSelected(displayName) {
+        let checkBoxInputLocator = XPATH.container + XPATH.dependentItemToPublish(displayName) + lib.CHECKBOX_INPUT;
+        await this.waitForElementDisplayed(XPATH.container + XPATH.dependentItemToPublish(displayName), appConst.mediumTimeout);
+        return await this.isSelected(checkBoxInputLocator);
+    }
+
+    async isDependantCheckboxEnabled(displayName) {
+        let checkBoxInputLocator = XPATH.container + XPATH.dependentItemToPublish(displayName) + lib.CHECKBOX_INPUT;
+        await this.waitForElementDisplayed(XPATH.container + XPATH.dependentItemToPublish(displayName), appConst.mediumTimeout);
+        return await this.isElementEnabled(checkBoxInputLocator);
     }
 
     async clickOnExcludeInvalidItemsButton() {
@@ -223,6 +314,70 @@ class ContentPublishDialog extends Page {
         return this.waitForElementDisabled(this.scheduleButton, appConst.mediumTimeout);
     }
 
+    async clickOnShowExcludedItemsButton() {
+        try {
+            await this.waitForShowExcludedItemsButtonDisplayed();
+            await this.clickOnElement(this.showExcludedItemsButton);
+            await this.pause(400);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error when clicking on Show Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
+        }
+    }
+
+    async clickOnHideExcludedItemsButton() {
+        try {
+            await this.waitForHideExcludedItemsButtonDisplayed();
+            await this.clickOnElement(this.hideExcludedItemsButton);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error('Error when clicking on Hide Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
+        }
+    }
+
+    async waitForShowExcludedItemsButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`'Show excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
+    async waitForShowExcludedItemsButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
+    async waitForHideExcludedItemsButtonDisplayed() {
+        try {
+            return this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`'Hide excluded items' button should be visible! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
+    async waitForHideExcludedItemsButtonNotDisplayed() {
+        try {
+            return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
+            await this.saveScreenshot(screenshot);
+            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + +err)
+        }
+    }
+
     async clickOnIncludeChildrenToogler() {
         try {
             await this.waitForElementDisplayed(this.includeChildrenToogler, appConst.mediumTimeout);
@@ -312,6 +467,7 @@ class ContentPublishDialog extends Page {
         return attr.includes('removable');
     }
 
+
     async clickOnCancelTopButton() {
         await this.pause(400);
         await this.clickOnElement(this.cancelButtonTop);
@@ -352,6 +508,13 @@ class ContentPublishDialog extends Page {
         return number.substring(startIndex + 1, endIndex);
     }
 
+    async clickOnCheckboxInDependentItem(displayName) {
+        let selector = XPATH.dependentItemToPublish(displayName) + "//div[contains(@id,'Checkbox')]";
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        await this.clickOnElement(selector);
+        return await this.pause(400);
+    }
+
     async getItemsToPublish() {
         let selector = XPATH.container + XPATH.publishItemList + lib.H6_DISPLAY_NAME;
         let result = await this.getTextInElements(selector);
@@ -360,6 +523,13 @@ class ContentPublishDialog extends Page {
 
     async clickOnMainItemAndSwitchToWizard(displayName) {
         let selector = XPATH.publishItemList + XPATH.mainItemDivByName(displayName);
+        await this.clickOnElement(selector);
+        await this.pause(1000);
+        return await this.getBrowser().switchWindow(displayName);
+    }
+
+    async clickOnDependantItemAndSwitchToWizard(displayName) {
+        let selector = XPATH.publishItemList + XPATH.dependentItemToPublish(displayName);
         await this.clickOnElement(selector);
         await this.pause(1000);
         return await this.getBrowser().switchWindow(displayName);
@@ -412,102 +582,39 @@ class ContentPublishDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
+    async clickOnApplySelectionButton() {
+        await this.waitForApplySelectionButtonDisplayed();
+        await this.clickOnElement(this.applySelectionButton);
+        return await this.pause(500);
+    }
+
+    async clickOnCancelSelectionButton() {
+        await this.waitForCancelSelectionButtonDisplayed();
+        await this.clickOnElement(this.cancelSelectionButton);
+        return await this.pause(500);
+    }
+
     async waitForExcludedNote() {
         let locator = XPATH.container + XPATH.excludedItemsNote;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return this.getText(locator);
     }
 
+    async clickOnShowExcludedItemsButton() {
+        await this.waitForShowExcludedItemsButtonDisplayed()
+        await this.clickOnElement(this.showExcludedItemsButton);
+        return await this.pause(1000);
+    }
+
+    async getNumberInAllCheckbox() {
+        let locator = this.allDependantsCheckbox + '//label';
+        return await this.getText(locator);
+    }
 
     async getNumberOfInvalidItems() {
         let locator = XPATH.container + XPATH.dialogStateBarDiv + "//span[contains(.,'Invalid item(s)')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getAttribute(locator, 'data-count');
-    }
-
-    // dependant controls:
-    async waitForHideExcludedItemsButtonNotDisplayed() {
-        return await this.dependantsControls.waitForHideExcludedItemsButtonNotDisplayed();
-    }
-
-    async waitForHideExcludedItemsButtonDisplayed() {
-        return await this.dependantsControls.waitForHideExcludedItemsButtonDisplayed();
-    }
-
-    async clickOnHideExcludedItemsButton() {
-        return await this.dependantsControls.clickOnHideExcludedItemsButton();
-    }
-
-    async clickOnShowExcludedItemsButton() {
-        return await this.dependantsControls.clickOnShowExcludedItemsButton()
-    }
-
-    async waitForShowExcludedItemsButtonDisplayed() {
-        return await this.dependantsControls.waitForShowExcludedItemsButtonDisplayed();
-    }
-
-    async waitForShowExcludedItemsButtonNotDisplayed() {
-        return await this.dependantsControls.waitForShowExcludedItemsButtonNotDisplayed();
-    }
-
-    async getNumberInAllCheckbox() {
-        return await this.dependantsControls.getNumberInAllCheckbox();
-    }
-
-    async waitForAllDependantsCheckboxDisplayed() {
-        return await this.dependantsControls.waitForAllDependantsCheckboxDisplayed();
-    }
-
-    async waitForAllDependantsCheckboxDisabled() {
-        return await this.dependantsControls.waitForAllDependantsCheckboxDisabled();
-    }
-
-    async waitForAllDependantsCheckboxEnabled() {
-        return await this.dependantsControls.waitForAllDependantsCheckboxEnabled();
-    }
-
-    async waitForAllDependantsCheckboxNotDisplayed() {
-        return await this.dependantsControls.waitForAllDependantsCheckboxNotDisplayed();
-    }
-
-    async clickOnAllCheckbox() {
-        return await this.dependantsControls.clickOnAllCheckbox();
-    }
-
-    async isAllDependantsCheckboxSelected() {
-        return await this.dependantsControls.isAllDependantsCheckboxSelected();
-    }
-
-    async isDependantCheckboxSelected(displayName) {
-        return await this.dependantsControls.isDependantCheckboxSelected(displayName);
-    }
-
-    async isDependantCheckboxEnabled(displayName) {
-        return await this.dependantsControls.isDependantCheckboxEnabled(displayName);
-    }
-
-    async waitForApplySelectionButtonDisplayed() {
-        return await this.dependantsControls.waitForApplySelectionButtonDisplayed();
-    }
-
-    async waitForApplySelectionButtonNotDisplayed() {
-        return await this.dependantsControls.waitForApplySelectionButtonNotDisplayed();
-    }
-
-    async clickOnApplySelectionButton() {
-        return await this.dependantsControls.clickOnApplySelectionButton();
-    }
-
-    async clickOnCancelSelectionButton() {
-        return await this.dependantsControls.clickOnCancelSelectionButton();
-    }
-
-    async clickOnCheckboxInDependentItem(displayName) {
-        return this.dependantsControls.clickOnCheckboxInDependentItem(displayName);
-    }
-
-    async clickOnDependantItemAndSwitchToWizard(displayName) {
-        return await this.dependantsControls.clickOnDependantItemAndSwitchToWizard(displayName);
     }
 
 }

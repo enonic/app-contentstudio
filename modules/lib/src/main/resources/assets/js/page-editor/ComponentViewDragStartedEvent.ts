@@ -2,19 +2,20 @@ import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 import {Component} from '../app/page/region/Component';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 
 export class ComponentViewDragStartedEvent
     extends Event {
 
-    private componentView: ComponentView<Component>;
+    private readonly path: ComponentPath;
 
-    constructor(componentView?: ComponentView<Component>) {
+    constructor(path: ComponentPath) {
         super();
-        this.componentView = componentView;
+        this.path = path;
     }
 
-    getComponentView(): ComponentView<Component> {
-        return this.componentView;
+    getPath(): ComponentPath {
+        return this.path;
     }
 
     static on(handler: (event: ComponentViewDragStartedEvent) => void, contextWindow: Window = window) {
