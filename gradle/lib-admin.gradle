@@ -54,7 +54,7 @@ ext {
 afterEvaluate {
     if ( hasTask( 'clean' ) )
     {
-        task flush( type: Delete ) {
+        tasks.register( 'flush', Delete ) {
             description = 'Clean the project from built sources and dependencies'
             delete '.xp'
         }

@@ -15,14 +15,17 @@ dependencies {
     devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
-task lint( type: NpmTask, group: "verification", dependsOn: npmInstall ) {
+tasks.register( 'lint', NpmTask ) {
+    dependsOn npmInstall
+    group 'verification'
     args = ['run', 'lint']
     outputs.upToDateWhen { false }
 }
 
 check.dependsOn lint
 
-task typescript( type: NpmTask, dependsOn: npmInstall ) {
+tasks.register( 'typescript', NpmTask ) {
+    dependsOn npmInstall
     description = 'Build JS and DTS'
     def buildEnv = isProd() ? 'prod' : 'dev'
     environment = ['NODE_ENV': nodeEnvironment()]
@@ -33,7 +36,8 @@ task typescript( type: NpmTask, dependsOn: npmInstall ) {
                   "$buildDir/resources/main/dev/$archivesBaseName" )
 }
 
-task copyJS( type: Copy, dependsOn: typescript ) {
+tasks.register( 'copyJS', Copy ) {
+    dependsOn typescript
     if ( !isProd() )
     {
         from "$buildDir/tmp/src/main/resources/assets/js/"
@@ -44,14 +48,15 @@ task copyJS( type: Copy, dependsOn: typescript ) {
     outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
 }
 
-task copyPackage( type: NodeTask, dependsOn: typescript ) {
+tasks.register( 'copyPackage', NodeTask ) {
+    dependsOn typescript
     script = file( 'util/modify.js' )
     args = ["--out=$buildDir/resources/main/dev/$archivesBaseName"]
     inputs.file "./package.json"
     outputs.file "$buildDir/resources/main/dev/$archivesBaseName/package.json"
 }
 
-task devJar( type: Jar ) {
+tasks.register( 'devJar', Jar ) {
     archiveClassifier = 'dev-resources'
     from sourceSets.main.output
     include 'dev/**'

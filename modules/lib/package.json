@@ -1,6 +1,6 @@
 {
   "name": "lib-contentstudio",
-  "version": "4.6.0",
+  "version": "5.1.0",
   "description": "Enonix XP - Content Studio Library",
   "license": "GPL-3.0",
   "repository": {
@@ -54,7 +54,7 @@
     "typescript": "^5.1.6"
   },
   "engines": {
-    "node": ">= 18.12.1",
-    "npm": ">= 8.19.2"
+    "node": ">= 18.17.1",
+    "npm": ">= 9.6.7"
   }
 }

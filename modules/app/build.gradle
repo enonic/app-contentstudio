@@ -57,14 +57,17 @@ afterEvaluate {
 }
 
 
-task lint( type: NpmTask, group: "verification", dependsOn: npmInstall ) {
+tasks.register( 'lint', NpmTask ) {
+    dependsOn npmInstall
+    group 'verification'
     args = ['run', 'lint']
     outputs.upToDateWhen { false }
 }
 
 check.dependsOn lint
 
-task webpack( type: NpmTask, dependsOn: npmInstall ) {
+tasks.register( 'webpack', NpmTask ) {
+    dependsOn npmInstall
     environment = ['NODE_ENV': nodeEnvironment()]
     description = 'Build UI resources (ts, css, etc).'
     args = ['run', 'build']
@@ -88,8 +91,6 @@ jar {
     {
         exclude 'assets/**/*.map'
     }
-
-    outputs.dir "$buildDir/resources/main"
 
     dependsOn += test
     dependsOn += webpack
