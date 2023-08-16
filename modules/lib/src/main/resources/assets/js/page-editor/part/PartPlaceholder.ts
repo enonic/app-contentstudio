@@ -18,11 +18,7 @@ export class PartPlaceholder
 
         this.displayName = new H3El('display-name');
         this.appendChild(this.displayName);
-
-        const partComponent = partView.getComponent();
-        if (partComponent && partComponent.getName()) {
-            this.setDisplayName(partComponent.getName().toString());
-        }
+        this.setDisplayName(this.getType().getShortName());
     }
 
     setDisplayName(name: string) {

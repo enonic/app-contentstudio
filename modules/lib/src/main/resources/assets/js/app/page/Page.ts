@@ -7,26 +7,32 @@ import {PageTemplateKey} from './PageTemplateKey';
 import {Regions} from './region/Regions';
 import {Component} from './region/Component';
 import {ImageComponentType} from './region/ImageComponentType';
-import {ImageComponent} from './region/ImageComponent';
 import {Region} from './region/Region';
 import {FragmentComponentType} from './region/FragmentComponentType';
-import {FragmentComponent} from './region/FragmentComponent';
-import {LayoutComponent} from './region/LayoutComponent';
 import {LayoutComponentType} from './region/LayoutComponentType';
 import {ComponentTypeWrapperJson} from './region/ComponentTypeWrapperJson';
 import {ComponentFactory} from './region/ComponentFactory';
 import {PageJson} from './PageJson';
 import {ComponentPath} from './region/ComponentPath';
-import {ComponentType} from './region/ComponentType';
 import {TextComponentType} from './region/TextComponentType';
 import {PartComponentType} from './region/PartComponentType';
 import {ComponentJson} from './region/ComponentJson';
-import {ConfigBasedComponent} from './region/ConfigBasedComponent';
 import {DescriptorKey} from './DescriptorKey';
-import {ContentId} from '../content/ContentId';
+import {PageItem} from './region/PageItem';
+import {ComponentAddedEvent} from './region/ComponentAddedEvent';
+import {ComponentRemovedEvent} from './region/ComponentRemovedEvent';
+import {ComponentUpdatedEvent} from './region/ComponentUpdatedEvent';
+import {PageUpdatedEvent} from './event/PageUpdatedEvent';
+import {PageItemType} from './region/PageItemType';
+import {LayoutComponent} from './region/LayoutComponent';
+
+export type PageUpdatedEventHandler = (event: PageUpdatedEvent) => void;
+export type PageTemplateSetHandler = (template: PageTemplateKey) => void;
+export type PageControllerSetHandler = (controller: DescriptorKey) => void;
+export type PageResetHandler = () => void;
 
 export class Page
-    implements Equitable, Cloneable {
+    implements Equitable, Cloneable, PageItem {
 
     private readonly controller: DescriptorKey;
 
@@ -44,6 +50,8 @@ export class Page
         this.regions = builder.regions;
         this.fragment = builder.fragment;
         this.config = builder.config;
+
+        this.regions?.getRegions().forEach((region: Region) => region.setParent(this));
     }
 
     hasController(): boolean {
@@ -62,12 +70,8 @@ export class Page
         return this.template;
     }
 
-    hasRegions(): boolean {
-        return this.regions != null;
-    }
-
     hasNonEmptyRegions(): boolean {
-        return this.hasRegions() && !this.getRegions().isEmpty();
+        return this.regions != null && !this.getRegions().isEmpty();
     }
 
     getRegions(): Regions {
@@ -92,6 +96,10 @@ export class Page
 
     isFragment(): boolean {
         return this.fragment != null;
+    }
+
+    getPath(): ComponentPath {
+        return ComponentPath.root();
     }
 
     equals(o: Equitable): boolean {
@@ -163,94 +171,66 @@ export class Page
     }
 
     clone(): Page {
-
         return new PageBuilder(this).build();
     }
 
-    public doesFragmentContainId(id: ContentId): boolean {
-        let containsId = false;
-        const fragmentCmp = this.getFragment();
-        if (fragmentCmp && ObjectHelper.iFrameSafeInstanceOf(fragmentCmp.getType(), ImageComponentType)) {
-            const imageCmp: ImageComponent = fragmentCmp as ImageComponent;
-            containsId = imageCmp.hasImage() && imageCmp.getImage().equals(id);
+    getType(): PageItemType {
+        return 'page';
+    }
+
+    getComponentByPath(path: ComponentPath): PageItem {
+        if (path.isRoot()) {
+            return this.isFragment() ? this.getFragment() : this;
         }
 
-        return containsId;
-    }
+        let result = null;
 
-    public doRegionsContainId(regions: Region[], id: ContentId, fragments: ContentId[] = []): boolean {
-        return regions.some((region: Region) => {
-            return region.getComponents().some((component: Component) => {
-                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), FragmentComponentType)) {
-                    const contentId = (component as FragmentComponent).getFragment();
-                    if (contentId) {
-                        fragments.push(contentId);
-                    }
-                }
-                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), ImageComponentType)) {
-                    return (component as ImageComponent).getImage().equals(id);
-                }
-                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), LayoutComponentType)) {
-                    return this.doRegionsContainId((component as LayoutComponent).getRegions().getRegions(),
-                        id,
-                        fragments);
-                }
-                return false;
-            });
-        });
-    }
-
-    public getPropertyValueUsageCount(container: Page | LayoutComponent, name: string, value: string, startFrom: number = 0): number {
-        let counter: number = startFrom;
-        const regions: Region[] = container.getRegions().getRegions();
-
-        regions.forEach((region: Region) => {
-            region.getComponents().forEach((component: Component) => {
-                if (ObjectHelper.iFrameSafeInstanceOf(component, ConfigBasedComponent)) {
-                    const config: PropertyTree = (component as ConfigBasedComponent).getConfig();
-
-                    if (config.getProperty(name)?.getString() === value) {
-                        counter++;
-                    }
-                }
-
-                if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-                    counter = this.getPropertyValueUsageCount(component as LayoutComponent, name, value, counter);
-                }
-            });
-        });
-
-        return counter;
-    }
-
-    findComponentByPath(componentPath: ComponentPath, regions?: Region[]): Component {
-        if (componentPath == null) {
-            return null;
-        }
-
-        const regionsList = regions != null ? regions : this.getRegions().getRegions();
-
-        for (const region of regionsList) {
-            const regionPath = `${region.getPath().toString()}/`;
-            if (componentPath.toString().indexOf(regionPath) !== 0) {
-                continue;
+        this.getActiveRegions()?.getRegions().some((region: Region) => {
+            if (region.getPath().equals(path)) {
+                result = region;
+                return true;
             }
 
-            const components = region.getComponents();
-            for (const component of components) {
-                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), ComponentType)) {
-                    if ((component).getPath().equals(componentPath)) {
-                        return component;
-                    }
-                }
-                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), LayoutComponentType)) {
-                    const layout = component as LayoutComponent;
-                    return this.findComponentByPath(componentPath, layout.getRegions().getRegions());
-                }
-            }
-        }
+            result = region.getComponentByPath(path);
 
+            return !!result;
+        });
+
+        return result;
+    }
+
+    private getActiveRegions(): Regions {
+        return this.fragment instanceof LayoutComponent ? this.fragment.getRegions() : this.regions;
+    }
+
+    getParent(): PageItem {
         return null;
+    }
+
+    onComponentAdded(listener: (event: ComponentAddedEvent) => void) {
+        this.getActiveRegions()?.getEventsManager().onComponentAdded(listener);
+    }
+
+    unComponentAdded(listener: (event: ComponentAddedEvent) => void) {
+        this.getActiveRegions()?.getEventsManager().unComponentAdded(listener);
+    }
+
+    onComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
+        this.getActiveRegions()?.getEventsManager().onComponentRemoved(listener);
+    }
+
+    unComponentRemoved(listener: (event: ComponentRemovedEvent) => void) {
+        this.getActiveRegions()?.getEventsManager().unComponentRemoved(listener);
+    }
+
+    onComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
+        this.getActiveRegions()?.getEventsManager().onComponentUpdated(listener);
+        this.fragment?.onComponentUpdated(listener);
+    }
+
+    unComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
+        this.getActiveRegions()?.getEventsManager().onComponentUpdated(listener);
+        this.fragment?.unComponentUpdated(listener);
     }
 }
 
@@ -270,7 +250,7 @@ export class PageBuilder {
         if (source) {
             this.controller = source.getController();
             this.template = source.getTemplate();
-            this.regions = source.getRegions() ? source.getRegions().clone() : Regions.create().build();
+            this.regions = source.getRegions()?.clone();
             this.config = source.getConfig() ? source.getConfig().copy() : null;
             this.fragment = source.isFragment() ? source.getFragment().clone() : null;
         }
@@ -279,7 +259,7 @@ export class PageBuilder {
     public fromJson(json: PageJson): PageBuilder {
         this.setController(json.controller ? DescriptorKey.fromString(json.controller) : null);
         this.setTemplate(json.template ? PageTemplateKey.fromString(json.template) : null);
-        this.setRegions(json.regions != null ? ComponentFactory.createRegionsFromJson(json.regions) : Regions.create().build());
+        this.setRegions(json.regions != null ? ComponentFactory.createRegionsFromJson(json.regions) : null);
         this.setConfig(json.config != null
                        ? PropertyTree.fromJson(json.config)
                        : null);

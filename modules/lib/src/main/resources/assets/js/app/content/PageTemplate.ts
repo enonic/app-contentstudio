@@ -30,19 +30,6 @@ export class PageTemplate
         return PageTemplateKey.fromContentId(this.getContentId());
     }
 
-    getPageMode(): PageMode {
-
-        if (this.isPage()) {
-            if (this.getPage().hasController()) {
-                return PageMode.FORCED_CONTROLLER;
-            } else {
-                throw new Error('Illegal state: A PageTemplate\'s Page must a controller set');
-            }
-        } else {
-            return PageMode.NO_CONTROLLER;
-        }
-    }
-
     getController(): DescriptorKey {
 
         return this.getPage().getController();
@@ -63,7 +50,7 @@ export class PageTemplate
         if (!this.isPage()) {
             return false;
         }
-        return this.getPage().hasRegions();
+        return this.getPage().hasNonEmptyRegions();
     }
 
     getRegions(): Regions {

@@ -6,24 +6,18 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {DescriptorKey} from '../DescriptorKey';
 import {Descriptor} from '../Descriptor';
+import {ComponentDescriptorUpdatedEvent} from './ComponentDescriptorUpdatedEvent';
+import {ComponentConfigUpdatedEvent} from './ComponentConfigUpdatedEvent';
 
 export abstract class DescriptorBasedComponent
     extends ConfigBasedComponent {
 
-    public static PROPERTY_DESCRIPTOR: string = 'descriptor';
-
     private descriptorKey: DescriptorKey;
 
-    private description: string;
-
-    private icon: string;
-
-    constructor(builder: DescriptorBasedComponentBuilder<DescriptorBasedComponent>) {
+    protected constructor(builder: DescriptorBasedComponentBuilder) {
         super(builder);
 
         this.descriptorKey = builder.descriptor;
-        this.description = builder.description;
-        this.icon = builder.icon;
     }
 
     hasDescriptor(): boolean {
@@ -35,16 +29,17 @@ export abstract class DescriptorBasedComponent
     }
 
     setDescriptor(descriptor: Descriptor) {
-        const oldDescriptorKeyValue = this.descriptorKey;
-        this.descriptorKey = descriptor ? descriptor.getKey() : null;
-
-        this.icon = descriptor ? descriptor.getIcon() : null;
-
+        this.setDescriptorKey(descriptor?.getKey());
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
-        this.description = descriptor ? descriptor.getDescription() : null;
+    }
+
+    private setDescriptorKey(descriptorKey: DescriptorKey) {
+        const oldDescriptorKeyValue = this.descriptorKey;
+
+        this.descriptorKey = descriptorKey;
 
         if (!ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
-            this.notifyPropertyChanged(DescriptorBasedComponent.PROPERTY_DESCRIPTOR);
+            this.notifyComponentUpdated(new ComponentDescriptorUpdatedEvent(this.getPath(), this.descriptorKey));
         }
 
         this.setConfig(new PropertyTree());
@@ -59,24 +54,8 @@ export abstract class DescriptorBasedComponent
         this.config.onChanged(this.configChangedHandler);
 
         if (!ObjectHelper.equals(oldValue, config)) {
-            this.notifyPropertyChanged(ConfigBasedComponent.PROPERTY_CONFIG);
+            this.notifyComponentUpdated(new ComponentConfigUpdatedEvent(this.getPath(), config));
         }
-    }
-
-    getDescription(): string {
-        return this.description;
-    }
-
-    setDescription(value: string) {
-        this.description = value;
-    }
-
-    getIcon(): string {
-        return this.icon;
-    }
-
-    setIcon(value: string) {
-        this.icon = value;
     }
 
     doReset() {
@@ -111,8 +90,8 @@ export abstract class DescriptorBasedComponent
     }
 }
 
-export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends DescriptorBasedComponent>
-    extends ConfigBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+export abstract class DescriptorBasedComponentBuilder
+    extends ConfigBasedComponentBuilder {
 
     descriptor: DescriptorKey;
 
@@ -120,16 +99,14 @@ export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends 
 
     icon: string;
 
-    constructor(source?: DescriptorBasedComponent) {
+    protected constructor(source?: DescriptorBasedComponent) {
         super(source);
         if (source) {
             this.descriptor = source.getDescriptorKey();
-            this.description = source.getDescription();
-            this.icon = source.getIcon();
         }
     }
 
-    public fromJson(json: DescriptorBasedComponentJson): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+    public fromJson(json: DescriptorBasedComponentJson): this {
         super.fromJson(json);
 
         if (json.descriptor) {
@@ -139,17 +116,17 @@ export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends 
         return this;
     }
 
-    public setDescriptor(value: DescriptorKey): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+    public setDescriptor(value: DescriptorKey): this {
         this.descriptor = value;
         return this;
     }
 
-    public setDescription(value: string): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+    public setDescription(value: string): this {
         this.description = value;
         return this;
     }
 
-    public setIcon(value: string): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+    public setIcon(value: string): this {
         this.icon = value;
         return this;
     }

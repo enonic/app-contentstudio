@@ -6,15 +6,16 @@ import {ComponentView} from './ComponentView';
 import {DescriptorBasedComponent} from '../app/page/region/DescriptorBasedComponent';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {ContentId} from '../app/content/ContentId';
+import {SetComponentDescriptorEvent} from './event/outgoing/manipulation/SetComponentDescriptorEvent';
 
 export abstract class ComponentViewPlaceholder<T extends DescriptorBasedComponent>
     extends ItemViewPlaceholder {
 
     private comboBox: ComponentDescriptorsComboBox;
 
-    private readonly componentView: ComponentView<T>;
+    private readonly componentView: ComponentView;
 
-    protected constructor(componentView: ComponentView<T>) {
+    protected constructor(componentView: ComponentView) {
         super();
 
         this.componentView = componentView;
@@ -25,17 +26,16 @@ export abstract class ComponentViewPlaceholder<T extends DescriptorBasedComponen
 
     protected initElements(): void {
         this.comboBox = new ComponentDescriptorsComboBox(this.getType());
-        this.comboBox.setContentId(this.componentView.getLiveEditModel().getContent().getContentId());
+        this.comboBox.setContentId(new ContentId(this.componentView.getLiveEditParams().contentId));
         this.appendChild(this.comboBox);
     }
 
     protected initListeners(): void {
-        const component: T = this.componentView.getComponent();
-
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<Descriptor>) => {
             this.componentView.showLoadingSpinner();
             const descriptor: Descriptor = event.getSelectedOption().getOption().getDisplayValue();
-            component.setDescriptor(descriptor);
+
+            new SetComponentDescriptorEvent(this.componentView.getPath(), descriptor.getKey().toString()).fire();
         });
 
         // not letting events to fire on ItemView
@@ -43,18 +43,11 @@ export abstract class ComponentViewPlaceholder<T extends DescriptorBasedComponen
             event.stopPropagation();
         });
 
-        const siteModel = this.componentView.getLiveEditModel().getSiteModel();
-        const listener = () => this.reloadDescriptors(this.componentView.getLiveEditModel().getContent().getContentId());
+        const contentId = new ContentId(this.componentView.getLiveEditParams().contentId);
+        const listener = () => this.reloadDescriptors(contentId);
 
-        siteModel.onApplicationAdded(listener);
-        siteModel.onApplicationRemoved(listener);
-        siteModel.onSiteModelUpdated(listener);
+        // handle application events and trigger listener
 
-        this.onRemoved(() => {
-            siteModel.unApplicationAdded(listener);
-            siteModel.unApplicationRemoved(listener);
-            siteModel.unSiteModelUpdated(listener);
-        });
     }
 
     getType(): ComponentType {

@@ -41,9 +41,7 @@ export class DefaultModelsFactory {
 
                 if (defaultPageTemplateDescriptorPromise) {
                     defaultPageTemplateDescriptorPromise.then((defaultPageTemplateDescriptor: Descriptor) => {
-                        return PageHelper.fetchAndInjectPageRegions(defaultPageTemplate.getPage(), defaultPageTemplateDescriptor).then(() => {
-                            deferred.resolve(new DefaultModels(defaultPageTemplate, defaultPageTemplateDescriptor));
-                        });
+                        deferred.resolve(new DefaultModels(defaultPageTemplate, defaultPageTemplateDescriptor));
                     }).catch((reason) => {
                         const msg = i18n('notify.wizard.noDescriptor', defaultPageTemplate.getController());
                         deferred.reject(new Exception(msg, ExceptionType.WARNING));

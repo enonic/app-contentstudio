@@ -8,7 +8,6 @@ import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveMa
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {ItemType} from './ItemType';
-import {LiveEditModel} from './LiveEditModel';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
@@ -18,8 +17,8 @@ import {Highlighter} from './Highlighter';
 import {SelectedHighlighter} from './SelectedHighlighter';
 import {Cursor} from './Cursor';
 import {ItemViewId} from './ItemViewId';
-import {ItemViewSelectedEvent, ItemViewSelectedEventConfig} from './ItemViewSelectedEvent';
-import {ItemViewDeselectedEvent} from './ItemViewDeselectedEvent';
+import {ItemViewSelectedEventConfig, SelectComponentEvent} from './event/outgoing/navigation/SelectComponentEvent';
+import {DeselectComponentEvent} from './event/outgoing/navigation/DeselectComponentEvent';
 import {ItemViewIconClassResolver} from './ItemViewIconClassResolver';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {ClickPosition} from './ClickPosition';
@@ -31,29 +30,17 @@ import {PageViewController} from './PageViewController';
 import {ItemViewFactory} from './ItemViewFactory';
 import {RegionItemType} from './RegionItemType';
 import {PageItemType} from './PageItemType';
-import {Content} from '../app/content/Content';
-import {Component, ComponentBuilder} from '../app/page/region/Component';
-import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from '../app/page/region/DescriptorBasedComponent';
-import {ComponentType} from '../app/page/region/ComponentType';
-import {FragmentComponentBuilder} from '../app/page/region/FragmentComponent';
-import {FragmentComponentType} from '../app/page/region/FragmentComponentType';
-import {ImageComponentType} from '../app/page/region/ImageComponentType';
-import {ImageComponentBuilder} from '../app/page/region/ImageComponent';
-import {LayoutComponentType} from '../app/page/region/LayoutComponentType';
-import {LayoutComponentBuilder} from '../app/page/region/LayoutComponent';
-import {PartComponentType} from '../app/page/region/PartComponentType';
-import {PartComponentBuilder} from '../app/page/region/PartComponent';
-import {TextComponentType} from '../app/page/region/TextComponentType';
-import {TextComponentBuilder} from '../app/page/region/TextComponent';
+import {Component} from '../app/page/region/Component';
 import {PageView} from './PageView';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
-import {ContentIconUrlResolver} from '../app/content/ContentIconUrlResolver';
+import {ComponentPath} from '../app/page/region/ComponentPath';
+import {LiveEditParams} from './LiveEditParams';
+import {AddComponentEvent} from './event/outgoing/manipulation/AddComponentEvent';
 import {Region} from '../app/page/region/Region';
+import {Content} from '../app/content/Content';
 import {ContentSummary} from '../app/content/ContentSummary';
 
 export interface ElementDimensions {
@@ -67,9 +54,9 @@ export type BaseComponent = Component | Region | Content | ContentSummary;
 
 export class ItemViewBuilder {
 
-    liveEditModel: LiveEditModel;
-
     itemViewIdProducer: ItemViewIdProducer;
+
+    liveEditParams: LiveEditParams;
 
     itemViewFactory: ItemViewFactory;
 
@@ -87,70 +74,63 @@ export class ItemViewBuilder {
 
     placeholder: ItemViewPlaceholder;
 
-    viewer: Viewer<BaseComponent>;
-
-    setLiveEditModel(value: LiveEditModel): ItemViewBuilder {
-        this.liveEditModel = value;
-        return this;
-    }
-
-    setItemViewIdProducer(value: ItemViewIdProducer): ItemViewBuilder {
+    setItemViewIdProducer(value: ItemViewIdProducer): this {
         this.itemViewIdProducer = value;
         return this;
     }
 
-    setItemViewFactory(value: ItemViewFactory): ItemViewBuilder {
+    setItemViewFactory(value: ItemViewFactory): this {
         this.itemViewFactory = value;
         return this;
     }
 
-    setType(value: ItemType): ItemViewBuilder {
+    setType(value: ItemType): this {
         this.type = value;
         return this;
     }
 
-    setElement(value: Element): ItemViewBuilder {
+    setElement(value: Element): this {
         this.element = value;
         return this;
     }
 
-    setPlaceholder(value: ItemViewPlaceholder): ItemViewBuilder {
+    setPlaceholder(value: ItemViewPlaceholder): this {
         this.placeholder = value;
         return this;
     }
 
-    setViewer(value: Viewer<BaseComponent>): ItemViewBuilder {
-        this.viewer = value;
-        return this;
-    }
-
-    setParentView(value: ItemView): ItemViewBuilder {
+    setParentView(value: ItemView): this {
         this.parentView = value;
         return this;
     }
 
-    setParentElement(value: Element): ItemViewBuilder {
+    setParentElement(value: Element): this {
         this.parentElement = value;
         return this;
     }
 
-    setContextMenuActions(actions: Action[]): ItemViewBuilder {
+    setContextMenuActions(actions: Action[]): this {
         this.contextMenuActions = actions;
         return this;
     }
 
-    setContextMenuTitle(title: ItemViewContextMenuTitle): ItemViewBuilder {
+    setContextMenuTitle(title: ItemViewContextMenuTitle): this {
         this.contextMenuTitle = title;
+        return this;
+    }
+
+    setLiveEditParams(value: LiveEditParams): this {
+        this.liveEditParams = value;
         return this;
     }
 }
 
-export class ItemView
+export abstract class ItemView
     extends Element implements IDentifiable {
 
-    protected liveEditModel: LiveEditModel;
-
     protected placeholder?: ItemViewPlaceholder;
+
+    protected liveEditParams: LiveEditParams;
 
     private itemViewIdProducer: ItemViewIdProducer;
 
@@ -167,8 +147,6 @@ export class ItemView
     private contextMenuTitle: ItemViewContextMenuTitle;
 
     private contextMenuActions: Action[];
-
-    private readonly viewer: Viewer<BaseComponent>;
 
     private mouseOver: boolean;
 
@@ -193,7 +171,7 @@ export class ItemView
 
     public static debug: boolean;
 
-    constructor(builder: ItemViewBuilder) {
+    protected constructor(builder: ItemViewBuilder) {
         assertNotNull(builder.type, 'type cannot be null');
 
         let props: ElementBuilder = null;
@@ -214,8 +192,8 @@ export class ItemView
         super(props);
 
         this.type = builder.type;
+        this.liveEditParams = builder.liveEditParams;
         this.parentItemView = builder.parentView;
-        this.liveEditModel = builder.liveEditModel ? builder.liveEditModel : builder.parentView.getLiveEditModel();
         this.itemViewIdProducer = builder.itemViewIdProducer;
         this.itemViewFactory = builder.itemViewFactory;
         this.contextMenuTitle = builder.contextMenuTitle;
@@ -235,8 +213,6 @@ export class ItemView
         if (!builder.element) {
             this.getEl().setData(ItemType.ATTRIBUTE_TYPE, builder.type.getShortName());
         }
-
-        this.viewer = builder.viewer;
 
         // remove old placeholder in case of parsing already parsed page again
         for (const child of this.getChildren()) {
@@ -384,7 +360,7 @@ export class ItemView
                 }
 
                 // restored selection: true to nake context panel not open
-                new ItemViewSelectedEvent({itemView: this, position: clickPosition, restoredSelection: true}).fire();
+                new SelectComponentEvent({itemView: this, position: clickPosition, restoredSelection: true}).fire();
             } else {
                 if (this.contextMenu?.isVisible()) {
                     this.hideContextMenu();
@@ -634,6 +610,8 @@ export class ItemView
         return this.contextMenu;
     }
 
+    abstract getPath(): ComponentPath;
+
     handleClick(event: MouseEvent) {
         event.stopPropagation();
 
@@ -725,6 +703,10 @@ export class ItemView
 
     getItemViewFactory(): ItemViewFactory {
         return this.itemViewFactory;
+    }
+
+    getLiveEditParams(): LiveEditParams {
+        return this.liveEditParams;
     }
 
     showContextMenu(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition) {
@@ -821,20 +803,20 @@ export class ItemView
         return this.getEl().hasAttribute('data-live-edit-selected');
     }
 
-    select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
+    select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition, silent?: boolean) {
 
         Highlighter.get().hide();
         this.selectItem();
         this.showContextMenu(config?.position, menuPosition);
 
-        if (config) {
-            new ItemViewSelectedEvent(config).fire();
+        if (!silent && config) {
+            new SelectComponentEvent(config).fire();
         }
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {
         this.selectItem();
-        new ItemViewSelectedEvent({itemView: this, position: null, restoredSelection}).fire();
+        new SelectComponentEvent({itemView: this, position: null, restoredSelection}).fire();
     }
 
     private selectItem() {
@@ -881,7 +863,7 @@ export class ItemView
         }
 
         if (!silent) {
-            new ItemViewDeselectedEvent(this).fire();
+            new DeselectComponentEvent(this.getPath()).fire();
         }
     }
 
@@ -906,10 +888,6 @@ export class ItemView
 
     getName(): string {
         return i18n('live.view.itemview.noname');
-    }
-
-    getIconUrl(content: Content): string {
-        return new ContentIconUrlResolver().setContent(content).resolve();
     }
 
     getIconClass() {
@@ -941,14 +919,6 @@ export class ItemView
 
     toString(): string {
         return this.getItemId().toNumber() + ' : ' + this.getType().getShortName();
-    }
-
-    getLiveEditModel(): LiveEditModel {
-        return this.liveEditModel;
-    }
-
-    getViewer(): Viewer<BaseComponent> {
-        return this.viewer;
     }
 
     static findParentItemViewAsHTMLElement(htmlElement: HTMLElement): HTMLElement {
@@ -1022,58 +992,29 @@ export class ItemView
         }
     }
 
-    protected addComponentView(componentView: ItemView, index?: number, newlyCreated: boolean = false) {
+    addComponentView(componentView: ItemView, index?: number, newlyCreated: boolean = false) {
         throw new Error('Must be implemented by inheritors');
     }
 
-    protected getNewItemIndex(): number {
+    getNewItemIndex(): number {
         throw new Error('Must be implemented by inheritors');
     }
 
-    public createView(type: ItemType, config?: CreateItemViewConfig<ItemView, Component>): ItemView {
+    public createView(type: ItemType, config?: CreateItemViewConfig<ItemView>): ItemView {
         if (!config) {
             const regionView = this.getRegionView();
-            let newComponent = this.createComponent(type.toComponentType());
-            config = new CreateItemViewConfig<ItemView, Component>()
+            config = new CreateItemViewConfig<ItemView>()
                 .setParentView(regionView)
                 .setParentElement(regionView)
-                .setData(newComponent);
+                .setLiveEditParams(regionView.getLiveEditParams());
         }
         return this.itemViewFactory.createView(type, config);
     }
 
-    public createComponent(componentType: ComponentType): Component {
+    private getInsertActions(): Action[] {
+        const isFragmentContent = this.liveEditParams.isFragment;
 
-        let builder = this.createBuilder(componentType).setName(componentType.getDefaultName());
-
-        if (ObjectHelper.iFrameSafeInstanceOf(builder, DescriptorBasedComponentBuilder)) {
-            let descriptorBuilder = builder as DescriptorBasedComponentBuilder<DescriptorBasedComponent>;
-            descriptorBuilder.setConfig(new PropertyTree());
-        }
-
-        return builder.build();
-    }
-
-    private createBuilder(componentType: ComponentType): ComponentBuilder<Component> {
-        if (ObjectHelper.iFrameSafeInstanceOf(componentType, FragmentComponentType)) {
-            return new FragmentComponentBuilder();
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, ImageComponentType)) {
-            return new ImageComponentBuilder();
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, LayoutComponentType)) {
-            return new LayoutComponentBuilder();
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, PartComponentType)) {
-            return new PartComponentBuilder();
-        } else if (ObjectHelper.iFrameSafeInstanceOf(componentType, TextComponentType)) {
-            return new TextComponentBuilder();
-        } else {
-            return new ComponentBuilder();
-        }
-    }
-
-    private getInsertActions(liveEditModel: LiveEditModel): Action[] {
-        let isFragmentContent = liveEditModel.getContent().getType().isFragment();
-
-        let actions = [this.createInsertSubAction('part', PartItemType.get())];
+        const actions = [this.createInsertSubAction('part', PartItemType.get())];
 
         let isInRegion = this.getRegionView().getType().equals(RegionItemType.get());
         if (isInRegion && !this.getRegionView().hasParentLayoutComponentView() && !isFragmentContent) {
@@ -1102,6 +1043,10 @@ export class ItemView
         return PartItemType.get().equals(this.getType());
     }
 
+    isText(): boolean {
+        return TextItemType.get().equals(this.getType());
+    }
+
     getPageView(): PageView {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let itemView: ItemView = this;
@@ -1112,7 +1057,7 @@ export class ItemView
     }
 
     protected createInsertAction(): Action {
-        return new Action(i18n('widget.components.insert')).setChildActions(this.getInsertActions(this.liveEditModel)).setVisible(false);
+        return new Action(i18n('widget.components.insert')).setChildActions(this.getInsertActions()).setVisible(false);
     }
 
     protected createSelectParentAction(): Action {
@@ -1137,14 +1082,21 @@ export class ItemView
     }
 
     private createInsertSubAction(label: string, componentItemType: ItemType): Action {
-        let action = new Action(i18n('widget.components.insert.' + label)).onExecuted(() => {
-            let componentView = this.createView(componentItemType);
-            this.addComponentView(componentView, this.getNewItemIndex(), true);
+        const action = new Action(i18n('widget.components.insert.' + label)).onExecuted(() => {
+            new AddComponentEvent(this.makeInsertPathForNewItem(), componentItemType.toComponentType()).fire();
         });
 
         action.setVisible(false).setIconClass(StyleHelper.getCommonIconCls(label));
 
         return action;
+    }
+
+    private makeInsertPathForNewItem(): ComponentPath {
+        if (this.getType() instanceof RegionItemType) {
+            return new ComponentPath(this.getNewItemIndex(), this.getPath());
+        }
+
+        return new ComponentPath(this.getNewItemIndex(), this.getPath().getParentPath());
     }
 
     isChildOfItemView(itemView: ItemView) {

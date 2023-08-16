@@ -6,6 +6,7 @@ import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {TextComponentJson} from './TextComponentJson';
 import {TextComponentType} from './TextComponentType';
 import {ComponentName} from './ComponentName';
+import {ComponentTextUpdatedEvent} from './ComponentTextUpdatedEvent';
 
 export class TextComponent
     extends Component {
@@ -16,6 +17,7 @@ export class TextComponent
 
     constructor(builder?: TextComponentBuilder) {
         super(builder);
+
         if (builder) {
             this.setText(builder.text, true);
         }
@@ -29,7 +31,7 @@ export class TextComponent
         this.text = StringHelper.isBlank(value) ? undefined : value;
 
         if (!silent) {
-            this.notifyPropertyChanged(TextComponent.PROPERTY_TEXT);
+            this.notifyComponentUpdated(new ComponentTextUpdatedEvent(this.getPath(), value));
         }
     }
 
@@ -52,22 +54,15 @@ export class TextComponent
     }
 
     equals(o: Equitable): boolean {
-
-        if (!ObjectHelper.iFrameSafeInstanceOf(o, TextComponent)) {
+        if (!(o instanceof TextComponent)) {
             return false;
         }
-
-        let other = o as TextComponent;
 
         if (!super.equals(o)) {
             return false;
         }
 
-        if (!ObjectHelper.stringEquals(this.text, other.text)) {
-            return false;
-        }
-
-        return true;
+        return ObjectHelper.stringEquals(this.text, o.text);
     }
 
     clone(): TextComponent {
@@ -76,12 +71,11 @@ export class TextComponent
 }
 
 export class TextComponentBuilder
-    extends ComponentBuilder<TextComponent> {
+    extends ComponentBuilder {
 
     text: string;
 
     constructor(source?: TextComponent) {
-
         super(source);
 
         if (source) {
@@ -91,7 +85,7 @@ export class TextComponentBuilder
         this.setType(TextComponentType.get());
     }
 
-    public fromJson(json: TextComponentJson): TextComponentBuilder {
+    public fromJson(json: TextComponentJson): this {
 
         if (json.text) {
             this.setText(json.text);
@@ -102,7 +96,7 @@ export class TextComponentBuilder
         return this;
     }
 
-    public setText(value: string): TextComponentBuilder {
+    public setText(value: string): this {
         this.text = value;
         return this;
     }

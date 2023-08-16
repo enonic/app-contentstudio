@@ -9,42 +9,33 @@ import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
 import {ComponentPropertyValueChangedEvent} from './ComponentPropertyValueChangedEvent';
 import {ComponentResetEvent} from './ComponentResetEvent';
 import {ComponentType} from './ComponentType';
-import {ComponentPath, ComponentPathRegionAndComponent} from './ComponentPath';
+import {ComponentPath} from './ComponentPath';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ComponentJson} from './ComponentJson';
-import {RegionPath} from './RegionPath';
-import {assert, assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
+import {PageItem} from './PageItem';
+import {ComponentAddedEvent} from './ComponentAddedEvent';
+import {ComponentRemovedEvent} from './ComponentRemovedEvent';
+import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
 
-export type ComponentPropertyChangedEventHandler =  (event: ComponentPropertyChangedEvent) => void;
-export type ComponentChangedEventHandler =  (event: ComponentChangedEvent) => void;
-export type ComponentPropertyValueChangedEventHandler =  (event: ComponentPropertyValueChangedEvent) => void;
-export type ComponentResetEventHandler =  (event: ComponentResetEvent) => void;
+export type ComponentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => void;
+export type ComponentResetEventHandler = (event: ComponentResetEvent) => void;
+export type ComponentAddedEventHandler = (event: ComponentAddedEvent) => void;
+export type ComponentRemovedEventHandler = (event: ComponentRemovedEvent) => void;
+export type ComponentUpdatedEventHandler = (event: ComponentUpdatedEvent) => void;
 
 export abstract class Component
-    implements Equitable, Cloneable {
-
-    public static PROPERTY_NAME: string = 'name';
-
-    private index: number = -1;
+    implements Equitable, Cloneable, PageItem {
 
     private name: ComponentName;
 
     private parent: Region;
 
-    private changedListeners: ComponentChangedEventHandler[] = [];
-
-    private propertyChangedListeners: ComponentPropertyChangedEventHandler[] = [];
-
-    private propertyValueChangedListeners: ComponentPropertyValueChangedEventHandler[] = [];
-
-    private resetListeners: ComponentResetEventHandler[] = [];
+    private componentUpdatedListeners: ((event: ComponentUpdatedEvent) => void)[] = [];
 
     private readonly type: ComponentType;
 
-    protected constructor(builder: ComponentBuilder<Component>) {
-
+    protected constructor(builder: ComponentBuilder) {
         this.name = builder.name;
-        this.index = builder.index;
         this.parent = builder.parent;
         this.type = builder.type;
     }
@@ -53,38 +44,16 @@ export abstract class Component
         this.parent = parent;
     }
 
-    setIndex(value: number) {
-        this.index = value;
-    }
-
     getIndex(): number {
-        return this.index;
+        return this.parent?.getComponentIndex(this) ?? -1;
     }
 
     getType(): ComponentType {
         return this.type;
     }
 
-    hasPath(): boolean {
-        return !!this.parent && this.index >= 0;
-    }
-
     getPath(): ComponentPath {
-        return this.hasPath() ? Component.fromRegionPathAndComponentIndex(this.parent.getPath(), this.index) : null;
-    }
-
-    public static fromRegionPathAndComponentIndex(regionPath: RegionPath, componentIndex: number): ComponentPath {
-        assertNotNull(regionPath, 'regionPath cannot be null');
-        assert(componentIndex >= 0, 'componentIndex must be zero or more');
-
-        let regionAndComponentList: ComponentPathRegionAndComponent[] = [];
-        if (regionPath.getParentComponentPath()) {
-            regionPath.getParentComponentPath().getLevels().forEach((regionAndComponent: ComponentPathRegionAndComponent) => {
-                regionAndComponentList.push(regionAndComponent);
-            });
-        }
-        regionAndComponentList.push(new ComponentPathRegionAndComponent(regionPath.getRegionName(), componentIndex));
-        return new ComponentPath(regionAndComponentList);
+        return this.parent ? new ComponentPath(this.getIndex(), this.parent.getPath()) : ComponentPath.root();
     }
 
     getName(): ComponentName {
@@ -92,11 +61,7 @@ export abstract class Component
     }
 
     setName(newValue: ComponentName) {
-        let oldValue = this.name;
         this.name = newValue;
-        if (!ObjectHelper.equals(oldValue, newValue)) {
-            this.notifyPropertyChanged(Component.PROPERTY_NAME);
-        }
     }
 
     doReset() {
@@ -105,7 +70,6 @@ export abstract class Component
 
     reset() {
         this.doReset();
-        this.notifyResetEvent();
     }
 
     isEmpty(): boolean {
@@ -137,114 +101,31 @@ export abstract class Component
     }
 
     equals(o: Equitable): boolean {
+        return o instanceof Component;
+    }
 
-        if (!ObjectHelper.iFrameSafeInstanceOf(o, Component)) {
-            return false;
-        }
-
-        let other = o as Component;
-
-        if (!ObjectHelper.equals(this.name, other.name)) {
-            return false;
-        }
-
-        return true;
+    getComponentByPath(path: ComponentPath): PageItem {
+        return null;
     }
 
     clone(): Component {
         throw new Error('Must be implemented by inheritors');
     }
 
-    onChanged(listener: ComponentChangedEventHandler) {
-        this.changedListeners.push(listener);
+    onComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
+        this.componentUpdatedListeners.push(listener);
     }
 
-    unChanged(listener: ComponentChangedEventHandler) {
-        this.changedListeners =
-            this.changedListeners.filter((curr: ComponentPropertyChangedEventHandler) => {
-                return listener !== curr;
-            });
+    unComponentUpdated(listener: (event: ComponentUpdatedEvent) => void) {
+        this.componentUpdatedListeners = this.componentUpdatedListeners.filter(l => l !== listener);
     }
 
-    private notifyChangedEvent(event: ComponentChangedEvent) {
-        this.changedListeners.forEach((listener: ComponentChangedEventHandler) => {
-            listener(event);
-        });
-    }
-
-    onReset(listener: ComponentResetEventHandler) {
-        if (!this.resetListeners.some((existingListener: ComponentResetEventHandler) => existingListener === listener)) {
-            this.resetListeners.push(listener);
-        }
-    }
-
-    unReset(listener: ComponentResetEventHandler) {
-        this.resetListeners = this.resetListeners.filter((curr: ComponentResetEventHandler) => {
-            return listener !== curr;
-        });
-    }
-
-    private notifyResetEvent() {
-        let event = new ComponentResetEvent(this.getPath());
-        this.resetListeners.forEach((listener: ComponentResetEventHandler) => {
-            listener(event);
-        });
-    }
-
-    /**
-     * Observe when a property of Component have been reassigned.
-     */
-    onPropertyChanged(listener: ComponentPropertyChangedEventHandler) {
-        if (!this.propertyChangedListeners.some((currentListener: ComponentPropertyChangedEventHandler) => currentListener === listener)) {
-            this.propertyChangedListeners.push(listener);
-        }
-    }
-
-    unPropertyChanged(listener: ComponentPropertyChangedEventHandler) {
-        this.propertyChangedListeners =
-            this.propertyChangedListeners.filter((curr: ComponentPropertyChangedEventHandler) => {
-                return listener !== curr;
-            });
-    }
-
-    notifyPropertyChanged(propertyName: string) {
-        let event = ComponentPropertyChangedEvent.create().setComponent(this).setPropertyName(propertyName).build();
-        this.propertyChangedListeners.forEach((listener: ComponentPropertyChangedEventHandler) => {
-            listener(event);
-        });
-        this.notifyChangedEvent(event);
-    }
-
-    forwardComponentPropertyChangedEvent(event: ComponentPropertyChangedEvent) {
-        this.propertyChangedListeners.forEach((listener: ComponentPropertyChangedEventHandler) => {
-            listener(event);
-        });
-    }
-
-    /**
-     * Observe when a property of Component have changed (happens only for mutable objects).
-     */
-    onPropertyValueChanged(listener: ComponentPropertyValueChangedEventHandler) {
-        this.propertyValueChangedListeners.push(listener);
-    }
-
-    unPropertyValueChanged(listener: ComponentPropertyValueChangedEventHandler) {
-        this.propertyValueChangedListeners =
-            this.propertyValueChangedListeners.filter((curr: ComponentPropertyValueChangedEventHandler) => {
-                return listener !== curr;
-            });
-    }
-
-    notifyPropertyValueChanged(propertyName: string) {
-        let event = new ComponentPropertyValueChangedEvent(this.getPath(), propertyName);
-        this.propertyValueChangedListeners.forEach((listener: ComponentPropertyValueChangedEventHandler) => {
-            listener(event);
-        });
-        this.notifyChangedEvent(event);
+    notifyComponentUpdated(event: ComponentUpdatedEvent) {
+        this.componentUpdatedListeners.forEach(listener => listener(event));
     }
 }
 
-export class ComponentBuilder<COMPONENT extends Component> {
+export abstract class ComponentBuilder {
 
     name: ComponentName;
 
@@ -254,7 +135,7 @@ export class ComponentBuilder<COMPONENT extends Component> {
 
     type: ComponentType;
 
-    constructor(source?: Component) {
+    protected constructor(source?: Component) {
         if (source) {
             this.name = source.getName();
             this.parent = source.getParent();
@@ -263,33 +144,31 @@ export class ComponentBuilder<COMPONENT extends Component> {
         }
     }
 
-    public setIndex(value: number): ComponentBuilder<COMPONENT> {
+    public setIndex(value: number): this {
         this.index = value;
         return this;
     }
 
-    public setName(value: ComponentName): ComponentBuilder<COMPONENT> {
+    public setName(value: ComponentName): this {
         this.name = value;
         return this;
     }
 
-    public setParent(value: Region): ComponentBuilder<COMPONENT> {
+    public setParent(value: Region): this {
         this.parent = value;
         return this;
     }
 
-    public setType(value: ComponentType): ComponentBuilder<COMPONENT> {
+    public setType(value: ComponentType): this {
         this.type = value;
         return this;
     }
 
-    public fromJson(json: ComponentJson): ComponentBuilder<COMPONENT> {
+    public fromJson(json: ComponentJson): this {
         this.setName(json.name ? new ComponentName(json.name) : null);
 
         return this;
     }
 
-    public build(): COMPONENT {
-        throw new Error('Must be implemented by inheritor');
-    }
+    public abstract build(): Component;
 }

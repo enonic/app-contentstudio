@@ -40,19 +40,17 @@ export class ImagePlaceholder
     private initImageCombobox(imageView: ImageComponentView) {
         this.comboBox = ImageContentComboBox.create()
             .setMaximumOccurrences(1)
-            .setContent(imageView.getLiveEditModel().getContent())
             .setTreegridDropdownEnabled(false)
             .setMinWidth(270)
             .build();
 
         this.comboBox.getComboBox().getInput().setPlaceholder(i18n('field.image.option.placeholder'));
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
-            const component: ImageComponent = this.imageComponentView.getComponent();
             const imageContentSummary: ContentSummary =
                 (event.getSelectedOption().getOption().getDisplayValue()).getContentSummary();
 
             new GetContentByIdRequest(imageContentSummary.getContentId()).sendAndParse().then((imageContent: Content) => {
-                component.setImage(imageContent);
+                // component.setImage(imageContent);
             }).catch(DefaultErrorHandler.handle);
 
             this.imageComponentView.showLoadingSpinner();
@@ -62,7 +60,7 @@ export class ImagePlaceholder
     private initImageUploader(imageView: ImageComponentView) {
         this.imageUploader = new ImageUploaderEl({
             params: {
-                parent: imageView.getLiveEditModel().getContent().getContentId().toString()
+                parent: this.imageComponentView.getLiveEditParams().contentId
             },
             operation: MediaUploaderElOperation.create,
             name: 'image-selector-placeholder-upload',
@@ -74,13 +72,6 @@ export class ImagePlaceholder
         });
 
         this.imageUploader.getUploadButton().onClicked(() => this.comboboxWrapper.show());
-
-        this.imageUploader.onFileUploaded((event: UploadedEvent<Content>) => {
-            const createdImage: Content = event.getUploadItem().getModel();
-            const component: ImageComponent = this.imageComponentView.getComponent();
-
-            component.setImage(createdImage);
-        });
 
         this.imageUploader.addDropzone(this.comboBox.getId());
     }

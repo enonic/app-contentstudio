@@ -1,27 +1,30 @@
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Regions} from './Regions';
 import {Region} from './Region';
-import {ComponentPath, ComponentPathRegionAndComponent} from './ComponentPath';
-import {Component} from './Component';
+import {ComponentPath} from './ComponentPath';
 import {LayoutComponentJson} from './LayoutComponentJson';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {LayoutComponentType} from './LayoutComponentType';
 import {LayoutRegionsMerger} from './LayoutRegionsMerger';
 import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './DescriptorBasedComponent';
 import {Descriptor} from '../Descriptor';
-import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
-import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
+import {PageItem} from './PageItem';
+import {ComponentAddedEvent} from './ComponentAddedEvent';
+import {ComponentRemovedEvent} from './ComponentRemovedEvent';
+import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
+import {ComponentAddedEventHandler, ComponentRemovedEventHandler, ComponentUpdatedEventHandler} from './Component';
 
 export class LayoutComponent
     extends DescriptorBasedComponent {
 
     private regions: Regions;
 
-    private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
+    private componentAddedEventHandler: ComponentAddedEventHandler;
 
-    private regionsChangedEventHandler: (event: BaseRegionChangedEvent) => void;
+    private componentRemovedEventHandler: ComponentRemovedEventHandler;
+
+    private componentUpdatedEventHandler: ComponentUpdatedEventHandler;
 
     constructor(builder: LayoutComponentBuilder) {
         super(builder);
@@ -31,42 +34,14 @@ export class LayoutComponent
     }
 
     private initRegionsListeners() {
-        this.componentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => this.forwardComponentPropertyChangedEvent(event);
-
-        this.regionsChangedEventHandler = (event: BaseRegionChangedEvent) => {
-            if (LayoutComponent.debug) {
-                console.debug('LayoutComponent[' + this.getPath().toString() + '].onChanged: ', event);
-            }
-            this.notifyPropertyValueChanged('regions');
-        };
+        this.componentAddedEventHandler = (event: ComponentAddedEvent) => this.getParent()?.notifyComponentAddedEvent(event);
+        this.componentRemovedEventHandler = (event: ComponentRemovedEvent) => this.getParent()?.notifyComponentRemovedEvent(event);
+        this.componentUpdatedEventHandler = (event: ComponentUpdatedEvent) => this.getParent()?.notifyComponentUpdatedEvent(event);
     }
 
     private initRegions(regions: Regions) {
-        const result: Regions = !!regions ? this.updateRegionsParentPath(regions) : Regions.create().build();
+        const result: Regions = regions || Regions.create().build();
         this.setRegions(result);
-    }
-
-    private updateRegionsParentPath(regions: Regions): Regions {
-        const newPath: ComponentPath = this.getPath();
-        regions.getRegions().forEach((region: Region) => region.setParentPath(newPath));
-
-        return regions;
-    }
-
-    public getComponent(path: ComponentPath): Component {
-        const first: ComponentPathRegionAndComponent = path.getFirstLevel();
-        const region = this.regions.getRegionByName(first.getRegionName());
-        const component = region.getComponentByIndex(first.getComponentIndex());
-
-        if (path.numberOfLevels() === 1) {
-            return component;
-        }
-
-        if (!ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-            throw new Error('Expected component to be a LayoutComponent: ' + ClassHelper.getClassName(component));
-        }
-
-        return (component as LayoutComponent).getComponent(path.removeFirstLevel());
     }
 
     public getRegions(): Regions {
@@ -81,33 +56,28 @@ export class LayoutComponent
         }
 
         this.regions = value;
+        this.regions.getRegions().forEach((region) => region.setParent(this));
         this.registerRegionsListeners();
 
         if (!ObjectHelper.equals(oldValue, value)) {
             if (LayoutComponent.debug) {
                 console.debug('LayoutComponent[' + this.getPath().toString() + '].regions reassigned: ', event);
             }
-            this.notifyPropertyChanged('regions');
-        }
-    }
-
-    setIndex(value: number) {
-        const indexChanged: boolean = value !== this.getIndex();
-        super.setIndex(value);
-        if (indexChanged && !!this.regions) {
-            this.updateRegionsParentPath(this.regions);
         }
     }
 
     setDescriptor(descriptor: Descriptor) {
         super.setDescriptor(descriptor);
 
+        this.regions.getRegions().forEach((region: Region) => region.empty());
+        this.regions.removeAllRegions();
+
         if (descriptor) {
             this.addRegions(descriptor);
         }
     }
 
-    addRegions(descriptor: Descriptor) {
+    private addRegions(descriptor: Descriptor) {
         const sourceRegions = this.getRegions();
         const mergedRegions = new LayoutRegionsMerger().merge(sourceRegions, descriptor.getRegions(), this);
         this.setRegions(mergedRegions);
@@ -141,24 +111,43 @@ export class LayoutComponent
         return super.equals(o);
     }
 
+    getComponentByPath(path: ComponentPath): PageItem {
+        let result = null;
+
+        this.regions.getRegions().some((region: Region) => {
+            if (region.getPath().equals(path)) {
+                result = region;
+                return true;
+            }
+
+            result = region.getComponentByPath(path);
+
+            return !!result;
+        });
+
+        return result;
+    }
+
     clone(): LayoutComponent {
         return new LayoutComponentBuilder(this).build();
     }
 
-    private registerRegionsListeners() {
-        this.regions.onChanged(this.regionsChangedEventHandler);
-        this.regions.onComponentPropertyChanged(this.componentPropertyChangedEventHandler);
+    private registerRegionsListeners(): void {
+        this.regions.getEventsManager().onComponentAdded(this.componentAddedEventHandler);
+        this.regions.getEventsManager().onComponentRemoved(this.componentRemovedEventHandler);
+        this.regions.getEventsManager().onComponentUpdated(this.componentUpdatedEventHandler);
     }
 
-    private unregisterRegionsListeners() {
-        this.regions.unChanged(this.regionsChangedEventHandler);
-        this.regions.unComponentPropertyChanged(this.componentPropertyChangedEventHandler);
+    private unregisterRegionsListeners(): void {
+        this.regions.getEventsManager().unComponentAdded(this.componentAddedEventHandler);
+        this.regions.getEventsManager().unComponentRemoved(this.componentRemovedEventHandler);
+        this.regions.getEventsManager().unComponentUpdated(this.componentUpdatedEventHandler);
     }
 
 }
 
 export class LayoutComponentBuilder
-    extends DescriptorBasedComponentBuilder<LayoutComponent> {
+    extends DescriptorBasedComponentBuilder {
 
     regions: Regions;
 
@@ -173,7 +162,7 @@ export class LayoutComponentBuilder
         this.setType(LayoutComponentType.get());
     }
 
-    public setRegions(value: Regions): LayoutComponentBuilder {
+    public setRegions(value: Regions): this {
         this.regions = value;
         return this;
     }

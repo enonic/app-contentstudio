@@ -3,6 +3,7 @@ import {ItemView, ItemViewBuilder} from './ItemView';
 import {PartComponentView} from './part/PartComponentView';
 import {ContentItemType} from './ContentItemType';
 import {ContentViewContextMenuTitle} from './ContentViewContextMenuTitle';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 
 export class ContentViewBuilder {
 
@@ -48,6 +49,10 @@ export class ContentView
 
     isEmpty(): boolean {
         return false;
+    }
+
+    getPath(): ComponentPath {
+        return null;
     }
 
     getParentItemView(): PartComponentView {
