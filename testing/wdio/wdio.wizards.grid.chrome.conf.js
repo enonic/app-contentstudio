@@ -47,7 +47,7 @@ exports.config = {
         timeout: 160000
     },
     // Set directory to store all logs into
-    outputDir: "./build/logs/",
+    outputDir: "./build/reports/logs/",
 
     reporters: ['spec','concise',
         ['timeline', { outputDir: './build/reports/timeline' }]
