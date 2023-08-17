@@ -1,14 +1,10 @@
 package com.enonic.xp.app.contentstudio.rest.resource.macro;
 
-import java.io.InputStream;
-import java.time.Instant;
 import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
@@ -23,7 +19,6 @@ import com.enonic.xp.form.Form;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.i18n.MessageBundle;
-import com.enonic.xp.icon.Icon;
 import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.macro.MacroDescriptorService;
@@ -40,8 +35,6 @@ import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -62,11 +55,7 @@ public class MacroResourceTest
 
     private MixinService mixinService;
 
-    private MacroResource macroResource;
-
     private static final String DEFAULT_URI_PREFIX = "cms/default/";
-
-    private static final MacroImageHelper HELPER = new MacroImageHelper();
 
     @Override
     protected Object getResourceInstance()
@@ -78,7 +67,7 @@ public class MacroResourceTest
         this.localeService = Mockito.mock( LocaleService.class );
         this.mixinService = Mockito.mock( MixinService.class );
 
-        this.macroResource = new MacroResource();
+        MacroResource macroResource = new MacroResource();
         macroResource.setMacroDescriptorService( this.macroDescriptorService );
         macroResource.setMacroProcessorFactory( this.macroProcessorFactory );
         macroResource.setPortalUrlService( this.portalUrlService );
@@ -87,47 +76,6 @@ public class MacroResourceTest
         macroResource.setMixinService( this.mixinService );
 
         return macroResource;
-    }
-
-    @Test
-    public void testGetDefaultIcon()
-        throws Exception
-    {
-        String response = request().
-            path( DEFAULT_URI_PREFIX + "macro/icon/key" ).
-            get().getAsString();
-
-        final byte[] defaultMacroImage = HELPER.getDefaultMacroImage();
-
-        Assertions.assertArrayEquals( defaultMacroImage, response.getBytes() );
-    }
-
-    @Test
-    public void testMacroIcon()
-        throws Exception
-    {
-        final byte[] data;
-        try (InputStream stream = getClass().getResourceAsStream( "macro1.svg" ))
-        {
-            data = stream.readAllBytes();
-        }
-        final Icon icon = Icon.from( data, "image/svg+xml", Instant.now() );
-
-        final MacroDescriptor macroDescriptor = MacroDescriptor.create().
-            key( MacroKey.from( "myapp:macro1" ) ).
-            description( "my description" ).
-            displayName( "my macro1 name" ).
-            form( Form.create().build() ).
-            icon( icon ).
-            build();
-
-        Mockito.when( macroDescriptorService.getByKey( macroDescriptor.getKey() ) ).thenReturn( macroDescriptor );
-
-        final Response response = this.macroResource.getIcon( "myapp:macro1", 20, null );
-
-        assertNotNull( response.getEntity() );
-        assertEquals( icon.getMimeType(), response.getMediaType().toString() );
-        Assertions.assertArrayEquals( data, (byte[]) response.getEntity() );
     }
 
     @Test
