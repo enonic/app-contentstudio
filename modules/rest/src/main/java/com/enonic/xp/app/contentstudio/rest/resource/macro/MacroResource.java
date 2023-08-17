@@ -9,15 +9,11 @@ import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -48,7 +44,6 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.data.Property;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.i18n.LocaleService;
-import com.enonic.xp.icon.Icon;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.macro.Macro;
 import com.enonic.xp.macro.MacroDescriptor;
@@ -69,7 +64,6 @@ import com.enonic.xp.site.Site;
 import com.enonic.xp.web.HttpMethod;
 import com.enonic.xp.web.servlet.ServletRequestUrlHelper;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 
 @Path(ResourceConstants.REST_ROOT + "cms/{project:([^/]+)}/macro")
@@ -82,8 +76,6 @@ public final class MacroResource
 
     private MacroDescriptorService macroDescriptorService;
 
-    private MacroIconResolver macroIconResolver;
-
     private MacroIconUrlResolver macroIconUrlResolver;
 
     private MacroProcessorFactory macroProcessorFactory;
@@ -95,10 +87,6 @@ public final class MacroResource
     private LocaleService localeService;
 
     private MixinService mixinService;
-
-    private static final MacroImageHelper HELPER = new MacroImageHelper();
-
-    private static final String DEFAULT_MIME_TYPE = "image/svg+xml";
 
     @POST
     @Path("getByApps")
@@ -122,36 +110,6 @@ public final class MacroResource
         } );
 
         return new MacrosJson( macroDescriptorJsons );
-    }
-
-    @GET
-    @Path("icon/{macroKey}")
-    @Produces("image/*")
-    public Response getIcon( @PathParam("macroKey") final String macroKeyStr, @QueryParam("size") @DefaultValue("128") final int size,
-                             @QueryParam("hash") final String hash )
-        throws Exception
-    {
-        final MacroKey macroKey = MacroKey.from( macroKeyStr );
-        final Icon icon = this.macroIconResolver.resolveIcon( macroKey );
-
-        final Response.ResponseBuilder responseBuilder;
-        if ( icon == null )
-        {
-            final byte[] defaultMacroImage = HELPER.getDefaultMacroImage();
-            responseBuilder = Response.ok( defaultMacroImage, DEFAULT_MIME_TYPE );
-            applyMaxAge( Integer.MAX_VALUE, responseBuilder );
-        }
-        else
-        {
-            final byte[] image = HELPER.readIconImage( icon, size );
-            responseBuilder = Response.ok( image, icon.getMimeType() );
-            if ( !isNullOrEmpty( hash ) )
-            {
-                applyMaxAge( Integer.MAX_VALUE, responseBuilder );
-            }
-        }
-
-        return responseBuilder.build();
     }
 
     @POST
@@ -270,14 +228,6 @@ public final class MacroResource
         return context.build();
     }
 
-    private void applyMaxAge( int maxAge, final Response.ResponseBuilder responseBuilder )
-    {
-        final CacheControl cacheControl = new CacheControl();
-        cacheControl.setMaxAge( maxAge );
-        responseBuilder.cacheControl( cacheControl );
-    }
-
-
     private Content getContent( final ContentPath contentPath )
     {
         try
@@ -332,8 +282,8 @@ public final class MacroResource
     public void setMacroDescriptorService( final MacroDescriptorService macroDescriptorService )
     {
         this.macroDescriptorService = macroDescriptorService;
-        this.macroIconResolver = new MacroIconResolver( this.macroDescriptorService );
-        this.macroIconUrlResolver = new MacroIconUrlResolver( this.macroIconResolver );
+        MacroIconResolver macroIconResolver = new MacroIconResolver(this.macroDescriptorService);
+        this.macroIconUrlResolver = new MacroIconUrlResolver(macroIconResolver);
     }
 
     @Reference
