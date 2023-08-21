@@ -13,7 +13,6 @@ const ProjectWizardDialogSummaryStep = require('../page_objects/project/project-
 const appConst = require("./app_const");
 const path = require('path');
 const fs = require('fs');
-const addContext = require('mochawesome/addContext');
 const webDriverHelper = require('./WebDriverHelper');
 
 module.exports = {
@@ -148,6 +147,10 @@ module.exports = {
             throw new Error("Error when saving a project, screenshot:" + screenshot + "  " + err);
         }
     },
+    async waitForElementDisplayed(locator, ms) {
+        let element = await this.getBrowser().$(locator);
+        return await element.waitForDisplayed(ms);
+    },
     async fillFormsWizardAndClickOnCreateButton(project) {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         let summaryStep = new ProjectWizardDialogSummaryStep();
@@ -176,14 +179,11 @@ module.exports = {
         return await settingsBrowsePanel.waitForNotificationMessage();
     },
     saveScreenshot(name, that) {
-        let screenshotsDir = path.join(__dirname, '/../build/mochawesome-report/screenshots/');
+        let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
         if (!fs.existsSync(screenshotsDir)) {
             fs.mkdirSync(screenshotsDir, {recursive: true});
         }
         return this.getBrowser().saveScreenshot(screenshotsDir + name + '.png').then(() => {
-            if (that) {
-                addContext(that, 'screenshots/' + name + '.png');
-            }
             return console.log('screenshot saved ' + name);
         }).catch(err => {
             return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);

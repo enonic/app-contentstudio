@@ -12,19 +12,7 @@ Before trying to run tests, you need to verify that the following software are i
 
 Go to 'app-contentstudio' directory and run tests:
 
-1. gradlew testContentStudioApp
-2. gradlew runSeparateTestLocally -Pt_name=overwrite.permissions.spec --project-cache-dir d:/cache
-3. gradlew testContentStudioProjects --project-cache-dir d:/cache
-4. gradlew testPublishIssues --project-cache-dir d:/cache
-5. gradlew testWizardsGrid --project-cache-dir d:/cache
-6. gradlew testInputTypes_2_Local --project-cache-dir d:/cache
-7. gradlew testPublishIssuesLocal
-8. gradlew testWizardsGridLocal
-9. gradlew testInputTypesLocal
-10. gradlew testPageEditorLocal
-11. gradlew testContentStudioProjectsLocal
-
-run tests with geckodriver(Firefox browser):
+Run tests with geckodriver(Firefox browser):
 
 1. gradlew testWizardsGridFirefoxLocal - run ui-tests on local started XP
    gradlew testPageEditorFirefoxLocal
@@ -36,4 +24,6 @@ run tests with geckodriver(Firefox browser):
 7. For switching all tests to FF, specify the suite in gradle.yml:
    suite: [ testContentStudioProjectsFirefox, testPageEditorFirefox, testInputTypesFirefox, testInputTypesFirefox_2, testWizardsGridFirefox, testPublishIssuesFirefox, testModalDialogFirefox ]
 
-
+ Run tests with WDIO+chrome configuration:
+1. gradlew w_testInputTypes
+2. gradlew w_testModalDialog

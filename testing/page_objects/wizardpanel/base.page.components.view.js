@@ -5,13 +5,11 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const xpath = {
-    container: "//div[contains(@id,'PageComponentsView')]",
-    closeButton: "//button[contains(@id,'CloseButton')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
     pageComponentsTreeGrid: `//div[contains(@id,'PageComponentsTreeGrid')]`,
     fragmentsName: "//div[contains(@id,'PageComponentsItemViewer') and descendant::div[contains(@class,'icon-fragment')]]" +
                    lib.H6_DISPLAY_NAME,
-    contextMenuItemByName: function (name) {
+    contextMenuItemByName(name) {
         return `//dl[contains(@id,'TreeContextMenu')]//*[contains(@id,'TreeMenuItem') and text()='${name}']`;
     },
     componentByName(name) {
@@ -62,10 +60,15 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(toggleIcon);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_component_view');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_component_view');
             throw new Error('Page Component View, Error when clicking on `toggle icon in the row` screenshot: ' + screenshot + '  ' + err);
         }
+    }
+
+    async getContextMenuItems() {
+        let locator = "//dl[contains(@id,'TreeContextMenu')]//*[contains(@id,'TreeMenuItem')]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
     }
 
     async openMenu(componentName) {
@@ -120,7 +123,6 @@ class BasePageComponentView extends Page {
         return result;
     }
 
-
     async clickOnMenuItem(menuItem) {
         try {
             let selector = xpath.contextMenuItemByName(menuItem);
@@ -133,7 +135,6 @@ class BasePageComponentView extends Page {
             throw new Error("Error - Page Component View: Menu Item, screenshot " + screenshot + ' ' + err);
         }
     }
-
 
     async swapComponents(sourceName, destinationName) {
         let sourceElem = this.container + xpath.componentByName(sourceName);

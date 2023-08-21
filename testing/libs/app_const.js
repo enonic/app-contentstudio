@@ -187,6 +187,9 @@ module.exports = Object.freeze({
         DEFAULT: 'default',
         MAIN_REGION: 'main region',
     },
+    LAYOUT_NAME: {
+        COL_3: '3-col',
+    },
     EMULATOR_RESOLUTION: {
         MEDIUM_PHONE: 'Medium Phone',
         LARGE_PHONE: 'Large Phone',

@@ -35,13 +35,12 @@ const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wi
 const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
 const fs = require('fs');
 const path = require('path');
-const addContext = require('mochawesome/addContext');
 const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
 const ScheduleWidgetItem = require('../page_objects/browsepanel/detailspanel/schedule.widget.itemview');
 const EditSettingDialog = require('../page_objects/details_panel/edit.settings.dialog');
 const EditScheduleDialog = require('../page_objects/details_panel/edit.schedule.dialog');
 const InsertLinkDialogContentPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
-const InsertLinkDialogUrlPanel= require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
+const InsertLinkDialogUrlPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 
 module.exports = {
 
@@ -131,10 +130,13 @@ module.exports = {
         return await insertLinkDialog.pause(700);
     },
 
-    async insertContentLinkInCke(text, contentDisplayName) {
+    async insertContentLinkInCke(text, contentDisplayName, entireProject) {
         let insertLinkDialog = new InsertLinkDialog();
         let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
         await insertLinkDialog.typeInLinkTextInput(text);
+        if (entireProject) {
+            await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
+        }
         await insertLinkDialogContentPanel.selectTargetInContentSelector(contentDisplayName);
         this.saveScreenshot('content_link_dialog');
         await insertLinkDialog.clickOnInsertButton();
@@ -744,15 +746,12 @@ module.exports = {
         });
     },
 
-    saveScreenshot: function (name, that) {
-        let screenshotsDir = path.join(__dirname, '/../build/mochawesome-report/screenshots/');
+    saveScreenshot (name, that) {
+        let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
         if (!fs.existsSync(screenshotsDir)) {
             fs.mkdirSync(screenshotsDir, {recursive: true});
         }
         return this.getBrowser().saveScreenshot(screenshotsDir + name + '.png').then(() => {
-            if (that) {
-                addContext(that, 'screenshots/' + name + '.png');
-            }
             return console.log('screenshot saved ' + name);
         }).catch(err => {
             return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);

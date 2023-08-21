@@ -95,72 +95,6 @@ task stopServer {
 
 task buildApplications( dependsOn: ['test-applications:simple-page:install'] )
 
-// run task in the task.js. Name of the task is 'test'
-task testContentStudioApp( type: NpmTask,
-                           dependsOn: [npmInstall, startServer, copyApps] ) {
-    args = ['test']
-    finalizedBy stopServer
-}
-
-task testProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
-    args = ['run-script', 'test_project']
-    finalizedBy stopServer
-}
-
-task testProjects_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
-    args = ['run-script', 'test_project_part2']
-    finalizedBy stopServer
-}
-task testContentStudioProjectsLocal( type: NpmTask, dependsOn: [npmInstall] ) {
-    args = ['run-script', 'test_project']
-}
-task testPageEditor( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
-    args = ['run-script', 'test_page_editor']
-    finalizedBy stopServer
-}
-task testPageEditorLocal( type: NpmTask, dependsOn: [npmInstall] ) {
-    args = ['run-script', 'test_page_editor']
-}
-task testInputTypes( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
-    args = ['run-script', 'test_input_types']
-    finalizedBy stopServer
-}
-
-task testInputTypes_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
-    args = ['run-script', 'test_input_types_2']
-    finalizedBy stopServer
-}
-
-task testInputTypes_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
-    args = ['run-script', 'test_input_types_2']
-}
-task testInputTypesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
-    args = ['run-script', 'test_input_types']
-}
-
-task testWizardsGrid( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
-    args = ['run-script', 'test_wizards_grid']
-    finalizedBy stopServer
-}
-task testWizardsGridLocal( type: NpmTask, dependsOn: [npmInstall] ) {
-    args = ['run-script', 'test_wizards_grid']
-}
-task testPublishIssues( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
-    args = ['run-script', 'test_publish_issues']
-    finalizedBy stopServer
-}
-task testModalDialog( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
-    args = ['run-script', 'test_modal_dialog']
-    finalizedBy stopServer
-}
-
-task testPublishIssuesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
-    args = ['run-script', 'test_publish_issues']
-}
-task testModalDialogLocal( type: NpmTask, dependsOn: [npmInstall] ) {
-    args = ['run-script', 'test_modal_dialog']
-}
-
 /////////////////////////////Firefox geckodriver:
 task testWizardsGridFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_wizards_grid:firefox']
@@ -218,4 +152,72 @@ task testPublishIssuesFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 
 task testModalDialogFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_modal_dialog:firefox']
+}
+
+///////////////// CHROME WDIO , startServer, copyApps
+task w_testInputTypes( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_input_types:wdio_chrome']
+    finalizedBy stopServer
+}
+
+task w_testInputTypesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_input_types:wdio_chrome']
+}
+
+task w_testInputTypes_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_input_types_2:wdio_chrome']
+    finalizedBy stopServer
+}
+
+task w_testInputTypes_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_input_types_2:wdio_chrome']
+}
+
+task w_testModalDialog( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_modal_dialog:wdio_chrome']
+    finalizedBy stopServer
+}
+
+task w_testModalDialogLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_modal_dialog:wdio_chrome']
+}
+
+task w_testWizardsGrid( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_wizards_grid:wdio_chrome']
+    finalizedBy stopServer
+}
+
+task w_testWizardsGridLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_wizards_grid:wdio_chrome']
+}
+
+task w_testPublishIssues( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_publish_issues:wdio_chrome']
+    finalizedBy stopServer
+}
+task w_testPublishIssuesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_publish_issues:wdio_chrome']
+}
+
+task w_testProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_project:wdio_chrome']
+    finalizedBy stopServer
+}
+
+task w_testProjects_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_project_2:wdio_chrome']
+    finalizedBy stopServer
+}
+
+task w_testProjectsLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_project:wdio_chrome']
+}
+
+task w_testPageEditor( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_page_editor:wdio_chrome']
+    finalizedBy stopServer
+}
+
+task w_testPageEditorLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_page_editor:wdio_chrome']
 }
