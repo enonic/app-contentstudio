@@ -24,7 +24,7 @@
     "test_hide_default_project:wdio_chrome": "npx wdio ./wdio/wdio.hide.default.project.chrome.conf.js"
   },
   "devDependencies": {
-    "@wdio/cli": "^8.14.6",
+    "@wdio/cli": "^8.15.5",
     "@wdio/dot-reporter": "^8.12.2",
     "@wdio/local-runner": "^8.14.6",
     "@wdio/mocha-framework": "^8.12.1",
