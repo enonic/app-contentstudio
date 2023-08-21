@@ -81,8 +81,6 @@ export class LiveEditPage {
 
     private skipConfirmationListener: (event: SkipLiveEditReloadConfirmationEvent) => void;
 
-    private beforeUnloadListener: (event: UIEvent) => void;
-
     private unloadListener: (event: UIEvent) => void;
 
     private componentLoadedListener: (event: ComponentLoadedEvent) => void;
@@ -201,20 +199,7 @@ export class LiveEditPage {
     }
 
     private registerGlobalListeners(): void {
-
-        this.beforeUnloadListener = (event) => {
-            if (!this.skipNextReloadConfirmation) {
-                const message = 'This will close this wizard!';
-                const e: { returnValue: boolean | string } = event || window.event || {returnValue: ''};
-                e['returnValue'] = message;
-                return message;
-            }
-        };
-
-        WindowDOM.get().onBeforeUnload(this.beforeUnloadListener);
-
         this.unloadListener = () => {
-
             if (!this.skipNextReloadConfirmation) {
                 // do remove to trigger model unbinding
             } else {
@@ -438,8 +423,6 @@ export class LiveEditPage {
     }
 
     private unregisterGlobalListeners(): void {
-
-        WindowDOM.get().unBeforeUnload(this.beforeUnloadListener);
 
         WindowDOM.get().unUnload(this.unloadListener);
 
