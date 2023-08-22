@@ -5,7 +5,6 @@ exports.config = {
 
     specs: [
         path.join(__dirname, '../specs/project/*.spec.js')
-        //path.resolve('./specs/content-types/*.spec.js')
     ],
 
     maxInstances: 1,
