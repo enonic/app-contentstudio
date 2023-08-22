@@ -87,6 +87,8 @@ import {ComponentDetachedEvent} from '../../page/region/ComponentDetachedEvent';
 import {ComponentFragmentCreatedEvent} from '../../page/region/ComponentFragmentCreatedEvent';
 import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEvent';
 import {PageNavigationEventData} from '../PageNavigationEventData';
+import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
+import {ToggleContextPanelEvent} from '../../view/context/ToggleContextPanelEvent';
 
 export interface LiveFormPanelConfig {
 
@@ -816,17 +818,23 @@ export class LiveFormPanel
         }
     }
 
-    private inspectComponent(component: Component, showWidget: boolean = true, showPanel: boolean = true) {
+    private inspectComponent(component: Component) {
         assertNotNull(component, 'component cannot be null');
 
-        const waitForContextPanel = showPanel && ContextSplitPanel.isCollapsed();
+        // not showing/hiding inspection panel if component has no descriptor
+        const isPanelToHide: boolean = component instanceof DescriptorBasedComponent && !component.hasDescriptor() && this.isShown();
+        const waitForContextPanel = !isPanelToHide && ContextSplitPanel.isCollapsed();
+
+        if (isPanelToHide && ContextSplitPanel.isExpanded()) {
+            new ToggleContextPanelEvent().fire();
+        }
 
         if (waitForContextPanel) {
             // Wait until ContextPanel is expanded before activating the InspectPanel inside
             const stateChangeHandler = (event: ContextPanelStateEvent) => {
                 if (ContextSplitPanel.isExpanded()) {
                     setTimeout(() => {
-                        this.doInspectComponent(component, showWidget, showPanel);
+                        this.doInspectComponent(component, true, !isPanelToHide);
                     }, 500);
                 }
                 ContextPanelStateEvent.un(stateChangeHandler);
@@ -835,14 +843,14 @@ export class LiveFormPanel
         }
 
         if (this.isPanelSelectable()) {
-            new InspectEvent(showWidget, showPanel).fire();
+            new InspectEvent(true, !isPanelToHide).fire();
         }
 
         if (waitForContextPanel) {
             return;
         }
 
-        this.doInspectComponent(component, showWidget, showPanel);
+        this.doInspectComponent(component, true, !isPanelToHide);
     }
 
     private isPanelSelectable(): boolean {
