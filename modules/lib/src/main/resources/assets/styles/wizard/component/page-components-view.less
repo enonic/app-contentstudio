@@ -77,11 +77,33 @@
                 cursor: pointer;
               }
             }
+
+            .names-and-icon-viewer.invalid {
+              .names-and-icon-view {
+                .xp-admin-common-wrapper {
+                  &::before {
+                    font-size: 16px;
+                  }
+                }
+
+                .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
+                  color: @admin-red;
+                }
+              }
+            }
           }
 
           .selected {
             .font-icon-default {
               color: @admin-white;
+            }
+
+            .names-and-icon-viewer.invalid {
+              .names-and-icon-view {
+                .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
+                  color: @input-light-red;
+                }
+              }
             }
           }
 
@@ -137,10 +159,6 @@
                   }
                 }
               }
-            }
-
-            &.invalid {
-              background-color: @admin-input-red;
             }
           }
         }

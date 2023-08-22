@@ -23,4 +23,13 @@ export class PageComponentsItemViewer
     resolveIconClass(object: ComponentsTreeItem): string {
         return object.getComponent().getIconClass();
     }
+
+    doLayout(object: ComponentsTreeItem) {
+        super.doLayout(object);
+
+        if (object.isInvalid()) {
+            this.addClass('invalid');
+            this.namesAndIconView.getFirstChild().addClass('icon-state-invalid');
+        }
+    }
 }
