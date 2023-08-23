@@ -23,12 +23,17 @@ class LayoutInspectionPanel extends Page {
     }
 
     async typeNameAndSelectLayout(displayName) {
+        try {
         let optionSelector = lib.slickRowByDisplayName(xpath.layoutDropdown, displayName);
         await this.waitForElementDisplayed(this.layoutDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, appConst.longTimeout);
         await this.typeTextInInput(this.layoutDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, displayName);
         await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
         await this.clickOnElement(optionSelector);
         return await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_layout_inspect_panel');
+            throw new Error('Layout Inspect Panel, Error during selecting a layout in the dropdown , screenshot:' +screenshot+ ' ' + err);
+        }
     }
 
     waitForOpened() {

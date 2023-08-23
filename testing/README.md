@@ -25,4 +25,5 @@ Run tests with geckodriver(Firefox browser):
    suite: [ testContentStudioProjectsFirefox, testPageEditorFirefox, testInputTypesFirefox, testInputTypesFirefox_2, testWizardsGridFirefox, testPublishIssuesFirefox, testModalDialogFirefox ]
 
  Run tests with WDIO+chrome configuration:
-1. gradlew w_testInputTypes  run ui-tests with WDIO+chrome configuration.
+1. gradlew w_testInputTypes
+2. gradlew
