@@ -4,9 +4,9 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 export class InspectEvent
     extends Event {
 
-    private showWidget: boolean;
+    private readonly showWidget: boolean;
 
-    private showPanel: boolean;
+    private readonly showPanel: boolean;
 
     constructor(showWidget: boolean, showPanel: boolean, name?: string) {
         super(name);

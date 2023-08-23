@@ -525,7 +525,7 @@ export class DragAndDrop {
         });
 
         this.wasDropped = true;
-        new ComponentViewDragDroppedEvent(componentView, regionView).fire();
+        new ComponentViewDragDroppedEvent(componentView.getPath()).fire();
     }
 
     onCanceled(listener: (componentView: ComponentView) => void) {

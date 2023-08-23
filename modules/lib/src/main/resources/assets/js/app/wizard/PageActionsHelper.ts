@@ -35,11 +35,11 @@ export class PageActionsHelper {
         if (page.isFragment()) {
             const result = [inspectAction];
 
-            const resetComponentAction = new Action(i18n('action.component.reset')).onExecuted(() => {
-                PageEventsManager.get().notifyComponentResetRequested(page.getPath());
-            });
-
-            result.push(resetComponentAction);
+            if (!page.getFragment().isEmpty()) {
+                result.push(new Action(i18n('action.component.reset')).onExecuted(() => {
+                    PageEventsManager.get().notifyComponentResetRequested(page.getPath());
+                }));
+            }
 
             if (page.getFragment() instanceof TextComponent) {
                 result.push(new Action(i18n('action.edit')).onExecuted(() => {
@@ -74,9 +74,11 @@ export class PageActionsHelper {
                 new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(component.getPath())));
         }));
 
-        actions.push(new Action(i18n('action.component.reset')).onExecuted(() => {
-            PageEventsManager.get().notifyComponentResetRequested(component.getPath());
-        }));
+        if (!component.isEmpty()) {
+            actions.push(new Action(i18n('action.component.reset')).onExecuted(() => {
+                PageEventsManager.get().notifyComponentResetRequested(component.getPath());
+            }));
+        }
 
         if (component.getParent()) {
             actions.push(new Action(i18n('action.component.remove')).onExecuted(() => {
