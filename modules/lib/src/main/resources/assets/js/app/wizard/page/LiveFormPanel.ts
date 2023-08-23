@@ -392,20 +392,20 @@ export class LiveFormPanel
         const saveAction: Action = new Action(i18n('action.apply'));
 
         saveAction.onExecuted(() => {
-                const selectedItem = this.lastInspectedItemPath ? PageState.getComponentByPath(this.lastInspectedItemPath) : null;
+            const selectedItem = this.lastInspectedItemPath ? PageState.getComponentByPath(this.lastInspectedItemPath) : null;
 
-                if (selectedItem instanceof Component) {
-                    const persistedContent = this.contentWizardPanel.getPersistedItem();
-                    const viewedPage: Page = PageState.getState();
-                    const savedPage: Page = persistedContent.getPage()?.clone();
+            if (selectedItem instanceof Component) {
+                const persistedContent = this.contentWizardPanel.getPersistedItem();
+                const viewedPage: Page = PageState.getState();
+                const savedPage: Page = persistedContent.getPage()?.clone();
 
-                    if (!ObjectHelper.equals(viewedPage, savedPage)) {
-                        this.contentWizardPanel.setMarkedAsReady(false);
-                    }
-
-                    this.saveAndReloadOnlyComponent(selectedItem.getPath());
-                    return;
+                if (!ObjectHelper.equals(viewedPage, savedPage)) {
+                    this.contentWizardPanel.setMarkedAsReady(false);
                 }
+
+                this.saveAndReloadOnlyComponent(selectedItem.getPath());
+                return;
+            }
 
 
             this.contentWizardPanel.saveChanges().catch((error) => {
@@ -629,6 +629,14 @@ export class LiveFormPanel
         this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
             this.pageSkipReload = false;
             this.reloadComponent(path);
+
+            // saved component will have default config props populated, so we need to make it a part of a state
+            const changedComponent = PageState.getState().getComponentByPath(path);
+            const persistedComponent = this.contentWizardPanel.getPersistedItem().getPage()?.getComponentByPath(path);
+
+            if (changedComponent instanceof DescriptorBasedComponent && persistedComponent instanceof DescriptorBasedComponent) {
+                changedComponent.setConfig(persistedComponent.getConfig().copy());
+            }
         });
     }
 
