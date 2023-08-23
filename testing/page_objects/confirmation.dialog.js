@@ -42,10 +42,14 @@ class ConfirmationDialog extends Page {
         return await this.pause(appConst.TIMEOUT_1);
     }
 
-    waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
-            throw new Error("Confirmation dialog is not loaded! " + err);
-        })
+    async waitForDialogOpened() {
+        try {
+            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+            await this.pause(700);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_confirmation_dlg');
+            throw new Error("Confirmation dialog is not loaded! screenshot: " + screenshot + ' ' + err);
+        }
     }
 
     isDialogVisible() {
@@ -53,8 +57,13 @@ class ConfirmationDialog extends Page {
     }
 
     async waitForDialogClosed() {
+        try {
         await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
         return await this.pause(400);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_confirmation_dlg_closing');
+            throw new Error("Confirmation dialog should be closed! screenshot:" + screenshot + ' ' + err);
+        }
     }
 
     isWarningMessageVisible() {

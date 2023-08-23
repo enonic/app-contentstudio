@@ -45,25 +45,28 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let layoutInspectionPanel = new LayoutInspectionPanel();
             let contentWizardPanel = new ContentWizardPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            //1. Open new site-wizard, select an application and controller:
+            // 1. Open new site-wizard, select an application and controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
-            //2. Click on minimize-toggler  expand Live Edit and open 'Page Component view' modal dialog:
+            // 2. Click on minimize-toggler  expand Live Edit and open 'Page Component view' modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            // 3. Verifies #6393: we keep 'Inspect panel' collapsed (or collapse it if it was expanded).
+            // So need to open 'Inspect panel':
+            await contentWizardPanel.clickOnDetailsPanelToggleButton();
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_2_COL);
             await pageComponentView.pause(500);
             let actualDescriptionLayout = await pageComponentView.getComponentDescription(LAYOUT_2_COL);
             assert.equal(actualDescriptionLayout, '2 column layout', 'Expected description should be displayed in the layout item');
-            //3. Verify that the site is automatically saved after selecting a layout in the dropdown:
+            // 4. Verify that the site is automatically saved after selecting a layout in the dropdown:
             await pageComponentView.openMenu(LAYOUT_2_COL);
-            //4. Click on 'Save as Fragment' menu item. (Save the layout as fragment)
+            // 5. Click on 'Save as Fragment' menu item. (Save the layout as fragment)
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizardPanel.pause(2000);
             await contentWizardPanel.waitForSpinnerNotVisible();
-            //5. Type new site's name and save:
+            // 6. Type new site's name and save:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await contentWizardPanel.typeDisplayName(SITE_1_NAME);
             await contentWizardPanel.pause(700);
@@ -72,10 +75,10 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             // wait for the description is refreshing:
             await contentWizardPanel.pause(3000);
             await studioUtils.saveScreenshot('fragment_path_updated');
-            // 6. Fragment Inspection Panel should be loaded automatically in the site wizard. Verify that path is updated in the dropdown:
+            // 7. Fragment Inspection Panel should be loaded automatically in the site wizard. Verify that path is updated in the dropdown:
             let actualPath = await fragmentInspectionPanel.getSelectedOptionPath();
             assert.include(actualPath, SITE_1_NAME, 'Path should be updated in Fragment Inspection Panel');
-            // 7. Verify that expected description should be present in the site in wizard step:
+            // 8. Verify that expected description should be present in the site in wizard step:
             let actualDescriptionFragment = await pageComponentsWizardStepForm.getComponentDescription(LAYOUT_2_COL);
             assert.equal(actualDescriptionFragment, FRAGMENT_LAYOUT_DESCRIPTION, "'layout' description should be present in 'fragment item'");
         });
@@ -86,25 +89,26 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let fragmentInspectionPanel = new FragmentInspectionPanel();
             let layoutInspectionPanel = new LayoutInspectionPanel();
             let contentWizardPanel = new ContentWizardPanel();
-            //1. Open the existing site with a fragment:
+            // 1. Open the existing site with a fragment:
             await studioUtils.selectAndOpenContentInWizard(SITE_1_NAME);
-            //2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            await contentWizardPanel.clickOnDetailsPanelToggleButton();
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
-            //3. Verify that the site is automatically saved after selecting a layout in the dropdown:
+            // 3. Verify that the site is automatically saved after selecting a layout in the dropdown:
             await contentWizardPanel.waitForNotificationMessage();
             await pageComponentView.openMenu(LAYOUT_3_COL);
-            //3. Click on 'Save as Fragment' menu item. (Save the layout as fragment)
+            // 4. Click on 'Save as Fragment' menu item. (Save the layout as fragment)
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizardPanel.pause(7000);
             await contentWizardPanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
-            //5. Fragment Inspection Panel should be loaded automatically. Verify that path is updated in the dropdown:
+            // 5. Fragment Inspection Panel should be loaded automatically. Verify that path is updated in the dropdown:
             await fragmentInspectionPanel.clickOnFragmentDropdownHandle();
             await studioUtils.saveScreenshot('fragment_inspect_panel_options');
             let actualOptions = await fragmentInspectionPanel.getFragmentDropdownOptions();
-            //6. Verify that options in the dropdown list are refreshed:
+            // 6. Verify that options in the dropdown list are refreshed:
             assert.equal(actualOptions.length, 2, 'Two options should be present in the dropdown list');
             assert.isTrue(actualOptions.includes(LAYOUT_2_COL), 'The first layout should be present in the dropdown options');
             assert.isTrue(actualOptions.includes(LAYOUT_3_COL), 'The first layout should be present in the dropdown options');
@@ -115,22 +119,22 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let pageComponentView = new PageComponentView();
             let fragmentInspectionPanel = new FragmentInspectionPanel();
             let contentWizard = new ContentWizardPanel();
-            //1. Open the existing site with a fragment:
+            // 1. Open the existing site with a fragment:
             await studioUtils.selectAndOpenContentInWizard(SITE_1_NAME);
-            //2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.clickOnComponent(LAYOUT_2_COL);
             await fragmentInspectionPanel.waitForOpened();
-            //3. Click on Edit Fragment in Inspect Panel:
+            // 3. Click on Edit Fragment in Inspect Panel:
             await fragmentInspectionPanel.clickOnEditFragmentButton();
             await studioUtils.doSwitchToNextTab();
             // Verify the wizard-step:
             let result = await contentWizard.isWizardStepPresent('Fragment');
             assert.isTrue(result, 'Fragment wizard step should be present in the page');
-            //Verify the display name
+            // Verify the display name
             let displayName = await contentWizard.getDisplayName();
             assert.equal(displayName, LAYOUT_2_COL, 'Expected display name should be present');
-            //Verify 'Preview' button:
+            // Verify 'Preview' button:
             await contentWizard.waitForPreviewButtonDisplayed();
         });
 
@@ -181,8 +185,8 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             assert.equal(result[2], LAYOUT_3_COL, "Two 3-col fragments should be present in the Page Component View");
             assert.equal(result[3], LAYOUT_3_COL, "Two 3-col fragments should be present in the Page Component View");
 
-            //Verify issue https://github.com/enonic/app-contentstudio/issues/1504
-            //Fragment Wizard - Save button remains enabled after updating a fragment #1504
+            // Verify issue https://github.com/enonic/app-contentstudio/issues/1504
+            // Fragment Wizard - Save button remains enabled after updating a fragment #1504
             await contentWizard.waitForSaveButtonDisabled();
         });
 
@@ -214,25 +218,25 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let siteFormPanel = new SiteFormPanel();
             let wizardDetailsPanel = new WizardDetailsPanel();
             let contentWizardPanel = new ContentWizardPanel();
-            //1. Open new site-wizard, select an application and controller:
+            // 1. Open new site-wizard, select an application and controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizardPanel.typeDisplayName(SITE_2_NAME);
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
             await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
             await wizardDetailsPanel.waitForDetailsPanelLoaded();
-            //2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
+            // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
             await studioUtils.saveScreenshot("fragment_layout_inspection1");
-            //3. Save the layout component as fragment
+            // 3. Save the layout component as fragment
             await pageComponentView.selectMenuItem(["Insert", "Fragment"]);
-            //4. Verify that Edit Fragment button is disabled
+            // 4. Verify that Edit Fragment button is disabled
             await studioUtils.saveScreenshot("fragment_layout_inspection2");
             await fragmentInspectionPanel.waitForEditFragmentButtonDisabled();
-            //5. Expand the fragment dropdown options and verify that the list of options is empty:'No matching items'
+            // 5. Expand the fragment dropdown options and verify that the list of options is empty:'No matching items'
             await fragmentInspectionPanel.clickOnFragmentDropdownHandle();
             await studioUtils.saveScreenshot("fragment_inspect_panel_empty_options");
-            //6. Verify that 'No matching items' text is displayed in the fragment dropdown (fragments from another sites should not be available)
+            // 6. Verify that 'No matching items' text is displayed in the fragment dropdown (fragments from another sites should not be available)
             await fragmentInspectionPanel.waitForEmptyOptionsMessage();
         });
 

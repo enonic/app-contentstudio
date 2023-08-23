@@ -1,5 +1,4 @@
-const path = require('path')
-const {ReportAggregator, HtmlReporter} = require('wdio-html-nice-reporter');
+import  {ReportAggregator, HtmlReporter}  from 'wdio-html-nice-reporter';
 exports.config = {
 
     //
@@ -52,9 +51,7 @@ exports.config = {
     services: ['geckodriver'],
 
     framework: 'mocha',
-    mochaOpts: {
-        timeout: 70000
-    },
+
     // Set directory to store all logs into
     outputDir: "./build/mochawesome-report/",
 

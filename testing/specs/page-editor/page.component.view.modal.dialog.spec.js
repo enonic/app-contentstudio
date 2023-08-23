@@ -61,10 +61,39 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await studioUtils.doSwitchToNextTab();
             // 6. Verify that 'Page Component wizard' step is present in the page-template wizard:
             await contentWizardPanel.waitForOpened();
-            await studioUtils.saveScreenshot('template_page_component_step');
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.isTrue(result.includes('main region'), 'main region item should be displayed in the modal dialog');
             assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
+        });
+
+    // Verify issue https://github.com/enonic/app-contentstudio/issues/6486
+    // Page component dialog/step remains visible after reverting a site with template #6486
+    it(`GIVEN existing site has been opened WHEN the previous version has been reverted THEN 'Page Component View' step should not be displayed`,
+        async () => {
+            let contentWizard = new ContentWizardPanel();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            let detailsPanel = new WizardDetailsPanel();
+            let versionsWidget = new WizardVersionsWidget();
+            let pageComponentViewDialog = new PageComponentView();
+            // 1. Open new site-wizard
+            await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
+            // 2. Verify that the wizard step is loaded:
+            await pageComponentsWizardStepForm.waitForLoaded();
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Open details panel:
+            await contentWizard.openDetailsPanel();
+            // 4. Open versions widget:
+            await detailsPanel.openVersionHistory();
+            await versionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
+            // 5. Revert the version without a controller:
+            await versionsWidget.clickOnRevertButton();
+            await versionsWidget.pause(2000);
+            // 6. Verify that PCV is not visible now:
+            await studioUtils.saveScreenshot('pcv_hidden_after_reverting');
+            await pageComponentViewDialog.waitForNotDisplayed();
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await versionsWidget.pause(1000);
+            await pageComponentsWizardStepForm.waitForNotDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
@@ -75,5 +104,4 @@ describe('template.config.spec: template config should be displayed in the Inspe
         }
         return console.log('specification starting: ' + this.title);
     });
-
 });
