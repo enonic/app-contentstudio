@@ -176,9 +176,11 @@ export class ComponentView
             }));
         }
 
-        actions.push(new Action(i18n('live.view.reset')).onExecuted(() => {
-            new ResetComponentEvent(this.getPath()).fire();
-        }));
+        if (!this.empty) {
+            actions.push(new Action(i18n('live.view.reset')).onExecuted(() => {
+                new ResetComponentEvent(this.getPath()).fire();
+            }));
+        }
 
         if (!isTopFragmentComponent) {
             actions.push(new Action(i18n('live.view.remove')).onExecuted(() => {

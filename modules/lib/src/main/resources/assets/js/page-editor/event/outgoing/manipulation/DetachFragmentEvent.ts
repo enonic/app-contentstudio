@@ -6,6 +6,7 @@ export class DetachFragmentEvent
     extends Event {
 
     private readonly path: ComponentPath;
+
     constructor(path: ComponentPath) {
         super();
         this.path = path;

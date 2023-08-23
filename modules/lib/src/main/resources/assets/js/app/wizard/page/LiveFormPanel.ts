@@ -688,11 +688,8 @@ export class LiveFormPanel
             this.clearSelection();
         });
 
-        eventsManager.onComponentViewDragDropped((event: ComponentViewDragDroppedEvent) => {
-            let componentView = event.getComponentView();
-            if (!componentView.isEmpty()) {
-                this.inspectComponentByPath(componentView.getPath());
-            }
+        eventsManager.onComponentDragDropped((path: ComponentPath) => {
+            this.inspectPageItemByPath(path);
         });
 
         eventsManager.onShowWarning((event: ShowWarningLiveEditEvent) => {
@@ -806,12 +803,12 @@ export class LiveFormPanel
         );
     }
 
-    private doInspectComponent(component: Component, showWidget: boolean, showPanel: boolean) {
+    private doInspectComponent(component: Component, showPanel: boolean) {
         const showInspectionPanel = (panel: BaseInspectionPanel) =>
             this.contextWindow.showInspectionPanel(
                 getInspectParameters({
                     panel,
-                    showWidget,
+                    showWidget: true,
                     showPanel,
                     keepPanelSelection: false,
                     silent: true
@@ -838,7 +835,7 @@ export class LiveFormPanel
         }
     }
 
-    private inspectComponent(component: Component) {
+    private inspectComponentOnDemand(component: Component): void {
         assertNotNull(component, 'component cannot be null');
 
         // not showing/hiding inspection panel if component has no descriptor
@@ -854,7 +851,7 @@ export class LiveFormPanel
             const stateChangeHandler = (event: ContextPanelStateEvent) => {
                 if (ContextSplitPanel.isExpanded()) {
                     setTimeout(() => {
-                        this.doInspectComponent(component, true, !isPanelToHide);
+                        this.doInspectComponent(component, !isPanelToHide);
                     }, 500);
                 }
                 ContextPanelStateEvent.un(stateChangeHandler);
@@ -862,19 +859,21 @@ export class LiveFormPanel
             ContextPanelStateEvent.on(stateChangeHandler);
         }
 
-        if (this.isPanelSelectable()) {
-            new InspectEvent(true, !isPanelToHide).fire();
-        }
+        new InspectEvent(true, !isPanelToHide).fire();
 
         if (waitForContextPanel) {
             return;
         }
 
-        this.doInspectComponent(component, true, !isPanelToHide);
+        this.doInspectComponent(component, !isPanelToHide);
     }
 
-    private isPanelSelectable(): boolean {
-        return !PageState.getState().isFragment();
+    private openComponentInspect(component: Component): void {
+        assertNotNull(component, 'component cannot be null');
+
+        new InspectEvent(true, true).fire();
+
+        this.doInspectComponent(component, true);
     }
 
     isShown(): boolean {
@@ -936,23 +935,27 @@ export class LiveFormPanel
         }
 
         if (event.getType() === PageNavigationEventType.SELECT) {
-            this.inspectComponentByPath(event.getData().getPath());
+            this.inspectPageItemByPath(event.getData().getPath());
             return;
         }
 
         if (event.getType() === PageNavigationEventType.INSPECT) {
-            this.inspectComponentByPath(event.getData().getPath());
+            this.inspectPageItemByPath(event.getData().getPath(), true);
             return;
         }
     }
 
-    private inspectComponentByPath(path: ComponentPath): void {
+    private inspectPageItemByPath(path: ComponentPath, force?: boolean): void {
         this.lastInspectedItemPath = path;
         const currentPage: Page = PageState.getState();
         const item: PageItem = currentPage?.getComponentByPath(path);
 
         if (item instanceof Component) {
-            this.inspectComponent(item);
+            if (force) { // force inspecting component
+                this.openComponentInspect(item);
+            } else { // inspect component only if inspection panel is open, close if no descriptor
+                this.inspectComponentOnDemand(item);
+            }
         } else if (item instanceof Region) {
             this.inspectRegion(path, true);
         } else if (item instanceof Page || (!currentPage && path.isRoot())) {
