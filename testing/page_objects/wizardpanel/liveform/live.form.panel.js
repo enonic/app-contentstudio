@@ -3,6 +3,7 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
+const lib = require('../../../libs/elements');
 const ContentWizard = require('../content.wizard.panel');
 const LoaderComboBox = require('../../../page_objects/components/loader.combobox');
 const xpath = {
@@ -28,6 +29,11 @@ class LiveFormPanel extends Page {
 
     waitForHidden() {
         return this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
+    }
+
+    async waitForLayoutComboBoxOptionFilterDisplayed() {
+        let locator = `//div[contains(@id,'LayoutPlaceholder')]` + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout)
     }
 
     async selectLayoutByDisplayName(displayName) {
@@ -81,6 +87,15 @@ class LiveFormPanel extends Page {
             await this.saveScreenshot(screenshot);
             throw new Error('Error, Live Edit frame, text component, screenshot ' + screenshot + ' ' + err);
         }
+    }
+    async waitForTextComponentEmpty(index){
+        let locator = xpath.sectionTextComponentView;
+        //let elements = await this.findElements(locator);
+        await this.getBrowser().waitUntil(async () => {
+            let elements = await this.findElements(locator);
+            let text = await elements[index].getAttribute("class");
+            return text.includes('empty');
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Text component should be empty"});
     }
 
     async getTextInLayoutComponent() {

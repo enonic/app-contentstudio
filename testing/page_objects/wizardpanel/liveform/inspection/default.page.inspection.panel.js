@@ -6,8 +6,6 @@ const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'PageInspectionPanel')]`,
-    imageContentComboBox: `//div[contains(@id,'ImageContentComboBox')]`,
-    applyButton: ``,
 };
 
 //Context Window, Inspect tab for Default page

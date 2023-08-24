@@ -25,7 +25,13 @@ class LayoutConfigInspectPanel extends Page {
     }
 
     async typeTextInOption1TextInput(text) {
-        await this.typeTextInInput(this.option1TextInput, text);
+        try {
+            await this.waitForElementDisplayed(this.option1TextInput, appConst.mediumTimeout);
+            await this.typeTextInInput(this.option1TextInput, text);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_layout_config');
+            throw new Error("Inspect Panel, Layout config - option1 text input, screenshot:" + screenshot + ' ' + err);
+        }
     }
 
     async getTextInOption1TextInput() {

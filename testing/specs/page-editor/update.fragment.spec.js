@@ -11,6 +11,7 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../../libs/app_const');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 
 describe('Test for updating text in fragment', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -52,7 +53,7 @@ describe('Test for updating text in fragment', function () {
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(GENERATED_TEXT_1);
             // 7. Update the text in the fragment
-            await pageComponentView.selectMenuItem(['Edit']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT]);
             await textComponentCke.insertTextInCkeEditorSection(GENERATED_TEXT_2);
             // 8. Save the fragment:
             await contentWizard.waitAndClickOnSave();
@@ -63,6 +64,49 @@ describe('Test for updating text in fragment', function () {
             // 10. Verify  that text is updated in the Live Form panel"
             let actualTxt = await liveFormPanel.getTextInFragmentComponent();
             assert.equal(actualTxt, GENERATED_TEXT_2, 'Site wizard - Text should be updated in the fragment component');
+        });
+
+    // Verify https://github.com/enonic/app-contentstudio/issues/6674
+    it(`GIVEN existing text-fragment has been opened WHEN 'Context menu' has been opened in wizard-PCV THEN Inspect, Reset, Edit menu items should be displayed`,
+        async () => {
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            // 1. Open the existing text fragment:
+            let fragmentDisplayName = GENERATED_TEXT_1;
+            await studioUtils.selectByDisplayNameAndOpenContent(fragmentDisplayName);
+            // 2. Expand the context menu in the Wizard Step form:
+            await pageComponentsWizardStepForm.openMenu(GENERATED_TEXT_2);
+            await studioUtils.saveScreenshot('fragment_txt_context_menu');
+            // 3. Verify the menu items:
+            let menuItems = await pageComponentsWizardStepForm.getContextMenuItems();
+            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET), "'Reset' menu item should be present in the context menu");
+            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT), "'Edit' menu item should be present in the context menu");
+            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT), "'Inspect' menu item should be present in the context menu");
+            assert.equal(menuItems.length, 3, "The only three menu items should be present in the Context Menu");
+        });
+
+    it(`GIVEN existing text-fragment has been opened WHEN 'Reset' menu item has been clicked in Context Menu THEN text should be cleared in the input in Live Edit`,
+        async () => {
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            let contentWizard = new ContentWizard();
+            let liveFormPanel = new LiveFormPanel();
+            // 1. Open the existing text fragment:
+            let fragmentDisplayName = GENERATED_TEXT_1;
+            await studioUtils.selectByDisplayNameAndOpenContent(fragmentDisplayName);
+            await contentWizard.switchToLiveEditFrame();
+            // 2. Verify that expected text is present in the Live Edit:
+            let actualText1 = await liveFormPanel.getTextInTextComponent();
+            assert.equal(actualText1, GENERATED_TEXT_2, 'Fragment wizard - Expected text should be present in Live Edit')
+            await contentWizard.switchToMainFrame();
+            // 3. Expand the context menu in the Wizard Step form:
+            await pageComponentsWizardStepForm.openMenu(GENERATED_TEXT_2);
+            // 4. Click on 'Reset' menu item:
+            await pageComponentsWizardStepForm.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET);
+            await studioUtils.saveScreenshot('fragment_txt_reset');
+            await contentWizard.switchToLiveEditFrame();
+            // 5. Verify that the text component is cleared
+            await liveFormPanel.waitForTextComponentEmpty(0);
+            await contentWizard.switchToMainFrame();
+            await contentWizard.waitForSaveButtonEnabled();
         });
 
 
