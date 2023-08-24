@@ -4,13 +4,10 @@ import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {ImageSelectorForm} from './ImageSelectorForm';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
-import {ImageComponentView} from '../../../../../../page-editor/image/ImageComponentView';
 import {GetContentSummaryByIdRequest} from '../../../../../resource/GetContentSummaryByIdRequest';
 import {ImageContentComboBox} from '../../../../../inputtype/ui/selector/image/ImageContentComboBox';
-import {ContentSelectedOptionsView} from '../../../../../inputtype/ui/selector/ContentComboBox';
 import {MediaTreeSelectorItem} from '../../../../../inputtype/ui/selector/media/MediaTreeSelectorItem';
 import {ImageComponent} from '../../../../../page/region/ImageComponent';
-import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
 import {Content} from '../../../../../content/Content';
 import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
@@ -21,10 +18,9 @@ import {ContentSummary, ContentSummaryBuilder} from '../../../../../content/Cont
 import {ContentId} from '../../../../../content/ContentId';
 import {ContentPath} from '../../../../../content/ContentPath';
 import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
-import {ComponentPropertyChangedEventHandler, ComponentUpdatedEventHandler} from '../../../../../page/region/Component';
+import {ComponentUpdatedEventHandler} from '../../../../../page/region/Component';
 import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
 import {PageState} from '../../../PageState';
-import {ComponentDescriptorUpdatedEvent} from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
 import {ComponentImageUpdatedEvent} from '../../../../../page/region/ComponentImageUpdatedEvent';
 import {ImageSelectorSelectedOptionsView} from '../../../../../inputtype/ui/selector/image/ImageSelectorSelectedOptionsView';
 

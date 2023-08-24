@@ -27,6 +27,7 @@ import {LiveEditParams} from './LiveEditParams';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {RemoveComponentRequest} from './event/outgoing/manipulation/RemoveComponentRequest';
 import {DuplicateComponentEvent} from './event/outgoing/manipulation/DuplicateComponentEvent';
+import {ResetComponentEvent} from './event/outgoing/manipulation/ResetComponentEvent';
 
 export class ComponentViewBuilder {
 
@@ -126,8 +127,6 @@ export class ComponentView
 
     private itemViewRemovedListeners: ((event: ItemViewRemovedEvent) => void)[] = [];
 
-    private resetListener: ComponentResetEventHandler;
-
     protected initOnAdd: boolean = true;
 
     public static debug: boolean = false;
@@ -156,15 +155,7 @@ export class ComponentView
     }
 
     protected initListeners() {
-        this.resetListener = () => {
-            // recreate the component view from scratch
-            // if the component has been reset
-            this.deselect();
-            let clone = this.clone();
-            this.replaceWith(clone);
-            clone.select();
-            clone.hideContextMenu();
-        };
+     //
     }
 
     protected addComponentContextMenuActions(inspectActionRequired: boolean) {
@@ -186,7 +177,7 @@ export class ComponentView
         }
 
         actions.push(new Action(i18n('live.view.reset')).onExecuted(() => {
-            //
+            new ResetComponentEvent(this.getPath()).fire();
         }));
 
         if (!isTopFragmentComponent) {
@@ -283,10 +274,13 @@ export class ComponentView
     clone(): ComponentView {
         const isFragmentContent: boolean = this.getLiveEditParams().isFragment;
         const index: number = isFragmentContent ? 0 : this.getParentItemView().getComponentViewIndex(this);
+        const config = new CreateItemViewConfig<RegionView>()
+            .setParentView(this.getParentItemView())
+            .setParentElement(this.getParentElement())
+            .setPositionIndex(index)
+            .setLiveEditParams(this.getLiveEditParams());
 
-        return this.createView(this.getType(),
-            new CreateItemViewConfig<RegionView>().setParentView(this.getParentItemView()).setParentElement(
-                this.getParentElement()).setPositionIndex(index)) as ComponentView;
+        return this.createView(this.getType(), config) as ComponentView;
     }
 
     duplicate(): ComponentView {
@@ -410,6 +404,16 @@ export class ComponentView
 
     isEmpty(): boolean {
         return this.empty;
+    }
+
+    reset(): void {
+        // recreate the component view from scratch
+        // if the component has been reset
+        this.empty = true;
+        let clone = this.clone();
+        this.replaceWith(clone);
+        clone.select();
+        clone.hideContextMenu();
     }
 
     private skipInitOnAdd(): void {

@@ -5,7 +5,6 @@ import {PageView, PageViewBuilder} from './PageView';
 import {InitializeLiveEditEvent} from './InitializeLiveEditEvent';
 import {SkipLiveEditReloadConfirmationEvent} from './SkipLiveEditReloadConfirmationEvent';
 import {ComponentLoadedEvent} from './ComponentLoadedEvent';
-import {ComponentResetEvent} from './ComponentResetEvent';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {LiveEditPageInitializationErrorEvent} from './LiveEditPageInitializationErrorEvent';
 import {DragAndDrop} from './DragAndDrop';
@@ -66,6 +65,7 @@ import {ContentContext} from '../app/wizard/ContentContext';
 import {SetPageLockStateEvent} from './event/incoming/manipulation/SetPageLockStateEvent';
 import {SetModifyAllowedEvent} from './event/incoming/manipulation/SetModifyAllowedEvent';
 import {CreateOrDestroyDraggableEvent} from './event/incoming/manipulation/CreateOrDestroyDraggableEvent';
+import {ResetComponentViewEvent} from './event/incoming/manipulation/ResetComponentViewEvent';
 
 export class LiveEditPage {
 
@@ -84,8 +84,6 @@ export class LiveEditPage {
     private unloadListener: (event: UIEvent) => void;
 
     private componentLoadedListener: (event: ComponentLoadedEvent) => void;
-
-    private componentResetListener: (event: ComponentResetEvent) => void;
 
     private dragStartedListener: () => void;
 
@@ -114,6 +112,8 @@ export class LiveEditPage {
     private setModifyAllowedListener: (event: SetModifyAllowedEvent) => void;
 
     private createOrDestroyDraggableListener: (event: CreateOrDestroyDraggableEvent) => void;
+
+    private resetComponentViewRequestListener: (event: ResetComponentViewEvent) => void;
 
     private static debug: boolean = false;
 
@@ -220,12 +220,6 @@ export class LiveEditPage {
         };
 
         ComponentLoadedEvent.on(this.componentLoadedListener);
-
-        this.componentResetListener = (event: ComponentResetEvent) => {
-            DragAndDrop.get().refreshSortable();
-        };
-
-        ComponentResetEvent.on(this.componentResetListener);
 
         this.dragStartedListener = () => {
             Highlighter.get().hide();
@@ -412,6 +406,17 @@ export class LiveEditPage {
         };
 
         CreateOrDestroyDraggableEvent.on(this.createOrDestroyDraggableListener);
+
+        this.resetComponentViewRequestListener = (event: ResetComponentViewEvent): void => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            const view: ItemView = this.getItemViewByPath(path);
+
+            if (view instanceof ComponentView) {
+                view.reset();
+            }
+        };
+
+        ResetComponentViewEvent.on(this.resetComponentViewRequestListener);
     }
 
     private getItemViewByPath(path: ComponentPath): ItemView {
@@ -427,8 +432,6 @@ export class LiveEditPage {
         WindowDOM.get().unUnload(this.unloadListener);
 
         ComponentLoadedEvent.un(this.componentLoadedListener);
-
-        ComponentResetEvent.un(this.componentResetListener);
 
         ComponentViewDragStartedEvent.un(this.dragStartedListener);
 
@@ -457,6 +460,8 @@ export class LiveEditPage {
         SetModifyAllowedEvent.un(this.setModifyAllowedListener);
 
         CreateOrDestroyDraggableEvent.un(this.createOrDestroyDraggableListener);
+
+        ResetComponentViewEvent.un(this.resetComponentViewRequestListener);
     }
 
     public loadComponent(componentView: ComponentView, componentUrl: string,): Q.Promise<string> {
