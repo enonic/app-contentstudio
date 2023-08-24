@@ -10,7 +10,6 @@ import {SelectComponentEvent} from '../../../page-editor/event/outgoing/navigati
 import {DeselectComponentEvent} from '../../../page-editor/event/outgoing/navigation/DeselectComponentEvent';
 import {ComponentInspectedEvent} from '../../../page-editor/ComponentInspectedEvent';
 import {ComponentLoadedEvent} from '../../../page-editor/ComponentLoadedEvent';
-import {ComponentResetEvent} from '../../../page-editor/ComponentResetEvent';
 import {LiveEditPageViewReadyEvent} from '../../../page-editor/LiveEditPageViewReadyEvent';
 import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/LiveEditPageInitializationErrorEvent';
 import {FragmentComponentReloadRequiredEvent} from '../../../page-editor/FragmentComponentReloadRequiredEvent';
@@ -80,6 +79,8 @@ import {SetModifyAllowedEvent} from '../../../page-editor/event/incoming/manipul
 import {CreateOrDestroyDraggableEvent} from '../../../page-editor/event/incoming/manipulation/CreateOrDestroyDraggableEvent';
 import {PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
 import {PageControllerCustomizedEvent} from '../../page/event/PageControllerCustomizedEvent';
+import {ResetComponentEvent} from '../../../page-editor/event/outgoing/manipulation/ResetComponentEvent';
+import {ResetComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/ResetComponentViewEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -469,8 +470,6 @@ export class LiveEditPageProxy
 
         ComponentLoadedEvent.un(null, contextWindow);
 
-        ComponentResetEvent.un(null, contextWindow);
-
         LiveEditPageViewReadyEvent.un(null, contextWindow);
 
         LiveEditPageInitializationErrorEvent.un(null, contextWindow);
@@ -498,6 +497,8 @@ export class LiveEditPageProxy
         CreateFragmentEvent.un(null, contextWindow);
 
         DetachFragmentEvent.un(null, contextWindow);
+
+        ResetComponentEvent.un(null, contextWindow);
     }
 
     public listenToLivePageEvents(contextWindow: Window) {
@@ -567,10 +568,6 @@ export class LiveEditPageProxy
             eventsManager.notifyComponentLoaded(path);
         }, contextWindow);
 
-        ComponentResetEvent.on((event: ComponentResetEvent) => {
-            eventsManager.notifyComponentReset(event.getPath());
-        }, contextWindow);
-
         LiveEditPageViewReadyEvent.on((event: LiveEditPageViewReadyEvent) => {
             eventsManager.notifyLiveEditPageViewReady(event);
         }, contextWindow);
@@ -590,10 +587,6 @@ export class LiveEditPageProxy
         CreateHtmlAreaContentDialogEvent.on((event: CreateHtmlAreaContentDialogEvent) => {
             eventsManager.notifyLiveEditPageDialogCreate(event);
         }, contextWindow);
-
-        eventsManager.onDialogCreated((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => {
-            new LiveEditPageDialogCreatedEvent(modalDialog, config).fire(this.liveEditWindow);
-        });
 
         SaveAsTemplateEvent.on(() => {
             eventsManager.notifyPageSaveAsTemplate();
@@ -680,7 +673,13 @@ export class LiveEditPageProxy
             const from: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
 
             PageEventsManager.get().notifyComponentDetachFragmentRequested(from);
-        });
+        }, contextWindow);
+
+        ResetComponentEvent.on((event: ResetComponentEvent): void => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+
+            PageEventsManager.get().notifyComponentResetRequested(path);
+        }, contextWindow);
     }
 
     private listenToMainFrameEvents() {
@@ -723,6 +722,12 @@ export class LiveEditPageProxy
                 new EditTextComponentViewEvent(event.getPath()).fire(this.liveEditWindow);
             }
         });
+    }
+
+    resetComponent(path: ComponentPath): void {
+        if (this.liveEditWindow) {
+            new ResetComponentViewEvent(path).fire(this.liveEditWindow);
+        }
     }
 
     handle(event: PageNavigationEvent): void {

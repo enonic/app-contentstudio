@@ -312,10 +312,6 @@ export class PageComponentsTreeGrid
         });
     }
 
-    resetComponentByPath(path: ComponentPath): void {
-
-    }
-
     protected doUpdateNodeByData(nodeToUpdate: TreeNode<ComponentsTreeItem>, data: ComponentsTreeItem): void {
         nodeToUpdate.setExpandable(this.hasChildren(data));
         super.doUpdateNodeByData(nodeToUpdate, data);

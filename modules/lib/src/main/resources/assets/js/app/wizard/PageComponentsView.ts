@@ -202,10 +202,6 @@ export class PageComponentsView
             this.tree.reloadItemByPath(path);
         });
 
-        eventsManager.onComponentReset((path: ComponentPath): void => {
-            this.tree.resetComponentByPath(path);
-        });
-
         eventsManager.onBeforeLoad(() => {
             this.addClass('loading');
         });

@@ -12,7 +12,6 @@ import {PageViewController} from '../PageViewController';
 import {DragAndDrop} from '../DragAndDrop';
 import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
 import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
-import {TextComponent} from '../../app/page/region/TextComponent';
 import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
 import {HtmlEditor, HtmlEditorCursorPosition} from '../../app/inputtype/ui/text/HtmlEditor';
 import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
@@ -605,6 +604,14 @@ export class TextComponentView
     private removePlaceholder(): void {
         if (this.placeholder && this.contains(this.placeholder)) {
             this.removeChild(this.placeholder);
+        }
+    }
+
+    reset(): void {
+        if (this.isEditorReady()) {
+            this.htmlAreaEditor.setData(TextComponentView.DEFAULT_TEXT);
+        } else {
+            this.setHtml(TextComponentView.DEFAULT_TEXT, false);
         }
     }
 

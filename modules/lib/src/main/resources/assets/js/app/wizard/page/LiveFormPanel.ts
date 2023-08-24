@@ -89,6 +89,8 @@ import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEve
 import {PageNavigationEventData} from '../PageNavigationEventData';
 import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
 import {ToggleContextPanelEvent} from '../../view/context/ToggleContextPanelEvent';
+import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export interface LiveFormPanelConfig {
 
@@ -268,16 +270,26 @@ export class LiveFormPanel
                 if (event.getDescriptorKey()) {
                     this.contentWizardPanel.setMarkedAsReady(false);
                     this.saveAndReloadOnlyComponent(event.getPath());
+                } else {
+                    this.liveEditPageProxy.resetComponent(event.getPath());
                 }
             } else if (event instanceof ComponentImageUpdatedEvent) {
                 if (event.getImageId()) {
                     this.contentWizardPanel.setMarkedAsReady(false);
                     this.saveAndReloadOnlyComponent(event.getPath());
+                } else {
+                    this.liveEditPageProxy.resetComponent(event.getPath());
                 }
             } else if (event instanceof ComponentFragmentUpdatedEvent) {
                 if (event.getFragmentId()) {
                     this.contentWizardPanel.setMarkedAsReady(false);
                     this.saveAndReloadOnlyComponent(event.getPath());
+                } else {
+                    this.liveEditPageProxy.resetComponent(event.getPath());
+                }
+            } else if (event instanceof ComponentTextUpdatedEvent) {
+                if (StringHelper.isEmpty(event.getText())) {
+                    this.liveEditPageProxy.resetComponent(event.getPath());
                 }
             }
         };

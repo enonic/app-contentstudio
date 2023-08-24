@@ -1,13 +1,8 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ComponentName} from './ComponentName';
 import {Region} from './Region';
-import {ComponentChangedEvent} from './ComponentChangedEvent';
-import {ComponentPropertyChangedEvent} from './ComponentPropertyChangedEvent';
-import {ComponentPropertyValueChangedEvent} from './ComponentPropertyValueChangedEvent';
-import {ComponentResetEvent} from './ComponentResetEvent';
 import {ComponentType} from './ComponentType';
 import {ComponentPath} from './ComponentPath';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
@@ -17,8 +12,7 @@ import {ComponentAddedEvent} from './ComponentAddedEvent';
 import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
 
-export type ComponentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => void;
-export type ComponentResetEventHandler = (event: ComponentResetEvent) => void;
+export type ComponentResetEventHandler = () => void;
 export type ComponentAddedEventHandler = (event: ComponentAddedEvent) => void;
 export type ComponentRemovedEventHandler = (event: ComponentRemovedEvent) => void;
 export type ComponentUpdatedEventHandler = (event: ComponentUpdatedEvent) => void;
