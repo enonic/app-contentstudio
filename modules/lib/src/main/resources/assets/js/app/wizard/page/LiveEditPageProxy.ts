@@ -78,6 +78,8 @@ import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {SetPageLockStateEvent} from '../../../page-editor/event/incoming/manipulation/SetPageLockStateEvent';
 import {SetModifyAllowedEvent} from '../../../page-editor/event/incoming/manipulation/SetModifyAllowedEvent';
 import {CreateOrDestroyDraggableEvent} from '../../../page-editor/event/incoming/manipulation/CreateOrDestroyDraggableEvent';
+import {PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
+import {PageControllerCustomizedEvent} from '../../page/event/PageControllerCustomizedEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -620,7 +622,14 @@ export class LiveEditPageProxy
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
 
-            PageEventsManager.get().notifyComponentAddRequested(path, type);
+            // if an item is added on a locked non-customized page, we need to customize it first, and then add a new item
+            if (this.isPageLocked) {
+                // in future might perform some validation here, access rights check etc
+                this.addItemOnPageCustomized(path, type);
+                PageEventsManager.get().notifyCustomizePageRequested();
+            } else {
+                PageEventsManager.get().notifyComponentAddRequested(path, type);
+            }
         }, contextWindow);
 
         RemoveComponentRequest.on((event: RemoveComponentRequest) => {
@@ -726,5 +735,17 @@ export class LiveEditPageProxy
             new DeselectComponentViewEvent(event.getData().getPath()?.toString()).fire(this.liveEditWindow);
             return;
         }
+    }
+
+    private addItemOnPageCustomized(path: ComponentPath, type: ComponentType): void {
+        const listener = (event: PageUpdatedEvent): void => {
+            if (event instanceof PageControllerCustomizedEvent) {
+                PageState.getEvents().unPageUpdated(listener);
+
+                PageEventsManager.get().notifyComponentAddRequested(path, type);
+            }
+        };
+
+        PageState.getEvents().onPageUpdated(listener);
     }
 }

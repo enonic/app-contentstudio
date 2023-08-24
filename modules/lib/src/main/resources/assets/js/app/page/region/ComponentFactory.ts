@@ -8,7 +8,6 @@ import {TextComponentBuilder} from './TextComponent';
 import {FragmentComponentBuilder} from './FragmentComponent';
 import {RegionJson} from './RegionJson';
 import {Regions} from './Regions';
-import {ComponentPath} from './ComponentPath';
 import {Page} from '../Page';
 import {ComponentType} from './ComponentType';
 import {FragmentComponentType} from './FragmentComponentType';
@@ -16,7 +15,6 @@ import {LayoutComponentType} from './LayoutComponentType';
 import {PartComponentType} from './PartComponentType';
 import {TextComponentType} from './TextComponentType';
 import {ImageComponentType} from './ImageComponentType';
-import {PageComponentType} from './PageComponentType';
 
 export class ComponentFactory {
 
@@ -27,11 +25,13 @@ export class ComponentFactory {
         } else if (json.ImageComponent) {
             return new ImageComponentBuilder().fromJson(json.ImageComponent).setParent(region).build();
         } else if (json.LayoutComponent) {
-            const layout = new LayoutComponentBuilder().fromJson(json.LayoutComponent).setParent(region).setIndex(
-                componentIndex).build();
-            const regions = ComponentFactory.createRegionsFromJson(json.LayoutComponent.regions, layout);
-            layout.setRegions(regions);
-            return layout;
+            const regions = ComponentFactory.createRegionsFromJson(json.LayoutComponent.regions);
+            return new LayoutComponentBuilder()
+                .fromJson(json.LayoutComponent)
+                .setParent(region)
+                .setIndex(componentIndex)
+                .setRegions(regions)
+                .build();
         } else if (json.TextComponent) {
             return new TextComponentBuilder().fromJson(json.TextComponent).setParent(region).setIndex(componentIndex).build();
         } else if (json.FragmentComponent) {

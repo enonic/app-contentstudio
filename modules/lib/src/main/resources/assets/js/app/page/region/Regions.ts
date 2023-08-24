@@ -1,11 +1,9 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Region} from './Region';
-import {RegionsChangedEvent} from './RegionsChangedEvent';
 import {RegionAddedEvent} from './RegionAddedEvent';
 import {RegionRemovedEvent} from './RegionRemovedEvent';
 import {RegionJson} from './RegionJson';
-import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {RegionDescriptor} from '../RegionDescriptor';
 import {ComponentPath} from './ComponentPath';
 import {ComponentAddedEvent} from './ComponentAddedEvent';
@@ -20,7 +18,7 @@ export class Regions
 
     public static debug: boolean = false;
 
-    private regionByName: Map<string, Region> = new Map<string, Region>();
+    private readonly regionByName: Map<string, Region> = new Map<string, Region>();
 
     private readonly componentEventsHolder: ComponentEventsHolder;
 
@@ -45,14 +43,14 @@ export class Regions
         });
     }
 
-    addRegion(region: Region) {
+    addRegion(region: Region): void {
         this.regionByName.set(region.getName(), region);
 
         this.notifyRegionAdded(region.getPath());
         this.registerRegionListeners(region);
     }
 
-    private registerRegionListeners(region: Region) {
+    private registerRegionListeners(region: Region): void {
         region.getEventsManager().onComponentAdded(this.componentAddedHandler);
         region.getEventsManager().onComponentRemoved(this.componentRemovedHandler);
         region.getEventsManager().onComponentUpdated(this.componentUpdatedHandler);

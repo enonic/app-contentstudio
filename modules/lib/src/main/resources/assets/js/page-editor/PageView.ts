@@ -319,12 +319,6 @@ export class PageView
     }
 
     private listenToMouseEvents() {
-        Shader.get().onUnlockClicked((event: MouseEvent) => {
-            if (this.isLocked()) {
-                this.setLocked(false);
-            }
-        });
-
         this.onMouseOverView(() => {
             if (this.isDragging() && this.lockedContextMenu) {
                 if (this.lockedContextMenu.isVisible()) {
@@ -361,7 +355,6 @@ export class PageView
         const unlockAction = new Action(i18n('live.view.page.customize'));
 
         unlockAction.onExecuted(() => {
-            this.setLocked(false);
             new CustomizePageEvent().fire();
         });
 

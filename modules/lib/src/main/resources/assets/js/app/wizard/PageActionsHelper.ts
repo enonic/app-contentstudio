@@ -32,7 +32,25 @@ export class PageActionsHelper {
                 new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(ComponentPath.root())));
         });
 
-        const resetAction = new Action(i18n('action.component.reset')).onExecuted(() => {
+        if (page.isFragment()) {
+            const result = [inspectAction];
+
+            const resetComponentAction = new Action(i18n('action.component.reset')).onExecuted(() => {
+                PageEventsManager.get().notifyComponentResetRequested(page.getPath());
+            });
+
+            result.push(resetComponentAction);
+
+            if (page.getFragment() instanceof TextComponent) {
+                result.push(new Action(i18n('action.edit')).onExecuted(() => {
+                    new EditTextComponentViewEvent(page.getPath().toString()).fire();
+                }));
+            }
+
+            return result;
+        }
+
+        const pageResetAction = new Action(i18n('action.component.reset')).onExecuted(() => {
             PageEventsManager.get().notifyPageResetRequested();
         });
 
@@ -40,15 +58,7 @@ export class PageActionsHelper {
             SaveAsTemplateAction.get().execute();
         });
 
-        const result = [inspectAction, resetAction, saveAsTemplateAction];
-
-        if (page.isFragment() && page.getFragment() instanceof TextComponent) {
-            result.push(new Action(i18n('action.edit')).onExecuted(() => {
-                new EditTextComponentViewEvent(page.getPath().toString()).fire();
-            }));
-        }
-
-        return result;
+        return [inspectAction, pageResetAction, saveAsTemplateAction];
     }
 
     static getComponentActions(component: Component): Action[] {
@@ -135,9 +145,8 @@ export class PageActionsHelper {
     }
 
     private static isInsertLayoutAllowed(component: PageItem): boolean {
-        const parenRegion: PageItem = component.getParent();
         let result: boolean = true;
-        let parent: PageItem = parenRegion.getParent();
+        let parent: PageItem = component.getParent();
 
         while (parent) {
             if (parent instanceof LayoutComponent) { // layout within layout is not allowed

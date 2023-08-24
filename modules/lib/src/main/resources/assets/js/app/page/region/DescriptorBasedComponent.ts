@@ -40,9 +40,8 @@ export abstract class DescriptorBasedComponent
 
         if (!ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
             this.notifyComponentUpdated(new ComponentDescriptorUpdatedEvent(this.getPath(), this.descriptorKey));
+            this.setConfig(new PropertyTree());
         }
-
-        this.setConfig(new PropertyTree());
     }
 
     setConfig(config: PropertyTree) {
