@@ -48,7 +48,7 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser(w, h) {
             automationProtocol: "webdriver",
             capabilities: {
                 browserName: browser_name,
-                browserVersion: '115.0.5790.170',
+                browserVersion: '116.0.5845.96',
                 'goog:chromeOptions': makeChromeOptions(isHeadless, width, height)
             }
         };

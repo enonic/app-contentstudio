@@ -53,6 +53,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             // 6. Close the notification message:
             await contentWizard.removeNotificationMessage();
             // 7. Layout Inspect panel should be loaded, insert a text in the input in Config:
+            // 'option 1' should be selected in the option-set by default:  <default>true</default>
             await layoutConfigInspectPanel.typeTextInOption1TextInput(OPTION_1_TXT);
             // 8. Verify - Save button gets enabled after the changes in Inspect Panel
             await contentWizard.waitForSaveButtonEnabled();
