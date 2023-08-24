@@ -31,21 +31,7 @@ export class PageHelper {
         }
 
         return this.loadDescriptor(layout.getDescriptorKey(), LayoutComponentType.get()).then((descriptor: Descriptor) => {
-            const builder: RegionsBuilder = Regions.create();
-
-            descriptor.getRegions().forEach((regionDescriptor: RegionDescriptor) => {
-                const regionToAdd: Region = layout.getRegions()?.getRegionByName(regionDescriptor.getName())?.clone() ||
-                                            Region.create().setName(regionDescriptor.getName()).setParent(layout).build();
-                builder.addRegion(regionToAdd);
-            });
-
-            layout.getRegions().getRegions().forEach((persistedRegion: Region) => {
-                if (!descriptor.getRegions().some((d) => d.getName() === persistedRegion.getName())) {
-                    builder.addRegion(persistedRegion);
-                }
-            });
-
-            layout.setRegions(builder.build());
+            layout.setDescriptor(descriptor);
 
             return Q.resolve();
         });

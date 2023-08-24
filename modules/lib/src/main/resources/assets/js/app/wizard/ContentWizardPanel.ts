@@ -1179,7 +1179,7 @@ export class ContentWizardPanel
             this.saveChanges().catch(DefaultErrorHandler.handle);
         });
 
-        // make default models static and remove that call by directly using DefaultModels in PageState
+        // to be changed: make default models static and remove that call by directly using DefaultModels in PageState
         PageEventsManager.get().onCustomizePageRequested(() => {
             PageEventsManager.get().notifySetCustomizedPageRequested(this.defaultModels.getDefaultPageTemplate());
         });
@@ -1188,7 +1188,9 @@ export class ContentWizardPanel
             this.togglePageComponentsViewOnDemand();
             this.setMarkedAsReady(false);
 
-            if (!(event instanceof PageControllerCustomizedEvent)) {
+            if (event instanceof PageControllerCustomizedEvent) {
+                this.liveEditPage?.setLocked(false);
+            } else { // saving page on all page updates except when page is being customized
                 this.saveChanges().catch(DefaultErrorHandler.handle);
             }
 

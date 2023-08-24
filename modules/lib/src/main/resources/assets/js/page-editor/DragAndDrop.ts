@@ -291,9 +291,6 @@ export class DragAndDrop {
                 regionView.getHTMLElement()).index(ui.item);
 
             if (this.isDraggingFromContextWindow()) {
-                if (this.pageView.isLocked()) {
-                    this.pageView.setLocked(false);
-                }
                 // Create component and view if we drag from context window
                 let componentType: ComponentItemType = this.newItemItemType as ComponentItemType;
 
@@ -305,7 +302,6 @@ export class DragAndDrop {
                         .setPositionIndex(componentIndex)) as ComponentView;
 
                 new AddComponentEvent(new ComponentPath(componentIndex, regionView.getPath()), componentType.toComponentType()).fire();
-
             } else {
                 const from: ComponentPath = this.draggedComponentView.getPath();
                 const to: ComponentPath = new ComponentPath(componentIndex, regionView.getPath());

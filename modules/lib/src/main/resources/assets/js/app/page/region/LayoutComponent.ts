@@ -18,7 +18,7 @@ import {ComponentAddedEventHandler, ComponentRemovedEventHandler, ComponentUpdat
 export class LayoutComponent
     extends DescriptorBasedComponent {
 
-    private regions: Regions;
+    private readonly regions: Regions;
 
     private componentAddedEventHandler: ComponentAddedEventHandler;
 
@@ -29,8 +29,11 @@ export class LayoutComponent
     constructor(builder: LayoutComponentBuilder) {
         super(builder);
 
+        this.regions = builder.regions || Regions.create().build();
+
+        this.updateRegionsParent();
         this.initRegionsListeners();
-        this.initRegions(builder.regions);
+        this.registerRegionsListeners();
     }
 
     private initRegionsListeners() {
@@ -39,48 +42,31 @@ export class LayoutComponent
         this.componentUpdatedEventHandler = (event: ComponentUpdatedEvent) => this.getParent()?.notifyComponentUpdatedEvent(event);
     }
 
-    private initRegions(regions: Regions) {
-        const result: Regions = regions || Regions.create().build();
-        this.setRegions(result);
-    }
-
     public getRegions(): Regions {
         return this.regions;
-    }
-
-    public setRegions(value: Regions) {
-        const oldValue = this.regions;
-
-        if (oldValue) {
-            this.unregisterRegionsListeners();
-        }
-
-        this.regions = value;
-        this.regions.getRegions().forEach((region) => region.setParent(this));
-        this.registerRegionsListeners();
-
-        if (!ObjectHelper.equals(oldValue, value)) {
-            if (LayoutComponent.debug) {
-                console.debug('LayoutComponent[' + this.getPath().toString() + '].regions reassigned: ', event);
-            }
-        }
     }
 
     setDescriptor(descriptor: Descriptor) {
         super.setDescriptor(descriptor);
 
-        this.regions.getRegions().forEach((region: Region) => region.empty());
-        this.regions.removeAllRegions();
-
-        if (descriptor) {
-            this.addRegions(descriptor);
+        if (descriptor?.getRegions().length > 0) {
+            this.mergeDescriptorRegions(descriptor);
+        } else {
+            this.getRegions().removeAllRegions();
         }
     }
 
-    private addRegions(descriptor: Descriptor) {
-        const sourceRegions = this.getRegions();
-        const mergedRegions = new LayoutRegionsMerger().merge(sourceRegions, descriptor.getRegions(), this);
-        this.setRegions(mergedRegions);
+    // preserving this merging logic for now for the sake of backward compatibility
+    private mergeDescriptorRegions(descriptor: Descriptor) {
+        // merge existing regions that might already have components within with newly added from descriptor
+        const mergedRegions = new LayoutRegionsMerger().merge(this.regions, descriptor.getRegions(), this);
+        // remove all existing regions and add merged regions
+        this.getRegions().removeAllRegions();
+
+        mergedRegions.getRegions().forEach((region: Region) => {
+           this.getRegions().addRegion(region);
+           region.setParent(this);
+        });
     }
 
     isEmpty(): boolean {
@@ -132,18 +118,15 @@ export class LayoutComponent
         return new LayoutComponentBuilder(this).build();
     }
 
+    private updateRegionsParent(): void {
+        this.regions.getRegions().forEach((region) => region.setParent(this));
+    }
+
     private registerRegionsListeners(): void {
         this.regions.getEventsManager().onComponentAdded(this.componentAddedEventHandler);
         this.regions.getEventsManager().onComponentRemoved(this.componentRemovedEventHandler);
         this.regions.getEventsManager().onComponentUpdated(this.componentUpdatedEventHandler);
     }
-
-    private unregisterRegionsListeners(): void {
-        this.regions.getEventsManager().unComponentAdded(this.componentAddedEventHandler);
-        this.regions.getEventsManager().unComponentRemoved(this.componentRemovedEventHandler);
-        this.regions.getEventsManager().unComponentUpdated(this.componentUpdatedEventHandler);
-    }
-
 }
 
 export class LayoutComponentBuilder

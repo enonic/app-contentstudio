@@ -21,7 +21,6 @@ export class Shader {
     private shaders: Element[];
 
     private clickListeners: ((event: MouseEvent) => void)[] = [];
-    private unlockClickedListeners: ((event: MouseEvent) => void)[] = [];
     private mouseEnterListeners: ((event: MouseEvent) => void)[] = [];
     private mouseLeaveListeners: ((event: MouseEvent) => void)[] = [];
     private mouseMoveListeners: ((event: MouseEvent) => void)[] = [];
@@ -102,16 +101,6 @@ export class Shader {
 
     isVisible(): boolean {
         return this.shaders.some((shader: Element) => shader.isVisible());
-    }
-
-    onUnlockClicked(listener: (event: MouseEvent) => void) {
-        this.unlockClickedListeners.push(listener);
-    }
-
-    unUnlockClicked(listener: (event: MouseEvent) => void) {
-        this.unlockClickedListeners = this.unlockClickedListeners.filter((curr) => {
-            return listener !== curr;
-        });
     }
 
     onMouseEnter(listener: (event: MouseEvent) => void) {
