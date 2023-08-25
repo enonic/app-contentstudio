@@ -4,8 +4,7 @@ const { TimelineService } = require('wdio-timeline-reporter/timeline-service');
 exports.config = {
 
     specs: [
-        path.join(__dirname, '../specs/content-types/*.spec.js')
-        //path.resolve('./specs/content-types/*.spec.js')
+        path.join(__dirname, '../specs/content-types-2/*.spec.js')
     ],
 
     maxInstances: 1,
