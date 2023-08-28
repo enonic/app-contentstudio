@@ -3,26 +3,21 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 import {RegionView} from './RegionView';
 import {Component} from '../app/page/region/Component';
+import {ComponentPath} from '../app/page/region/ComponentPath';
 
 export class ComponentViewDragDroppedEvent
     extends Event {
 
-    private componentView: ComponentView;
-    private regionView: RegionView;
+    private readonly path: ComponentPath;
 
-    constructor(view: ComponentView, region: RegionView) {
+    constructor(path: ComponentPath) {
         super();
 
-        this.componentView = view;
-        this.regionView = region;
+        this.path = path;
     }
 
-    getComponentView(): ComponentView {
-        return this.componentView;
-    }
-
-    getRegionView(): RegionView {
-        return this.regionView;
+    getComponentPath(): ComponentPath {
+        return this.path;
     }
 
     static on(handler: (event: ComponentViewDragDroppedEvent) => void, contextWindow: Window = window) {
