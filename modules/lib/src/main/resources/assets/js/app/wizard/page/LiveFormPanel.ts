@@ -71,7 +71,7 @@ import {PartComponent} from '../../page/region/PartComponent';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
 import {ImageComponent} from '../../page/region/ImageComponent';
 import {FragmentComponent} from '../../page/region/FragmentComponent';
-import {ComponentPath} from '../../page/region/ComponentPath';
+import {ComponentPath, ComponentPathRegionAndComponent} from '../../page/region/ComponentPath';
 import {PageMode} from '../../page/PageMode';
 import {RegionPath} from '../../page/region/RegionPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
@@ -730,6 +730,11 @@ export class LiveFormPanel
 
         this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
             this.pageSkipReload = false;
+
+            if (componentView.isPart() || componentView.isLayout()) {
+                this.updateConfigOfSavedComponent(<LayoutComponentView | PartComponentView>componentView);
+            }
+
             componentView.showLoadingSpinner();
             return this.liveEditPageProxy.loadComponent(componentView, componentUrl, avoidInspectComponentRefresh);
         }).catch((error: any) => {
@@ -738,6 +743,57 @@ export class LiveFormPanel
             componentView.hideLoadingSpinner();
             componentView.showRenderingError(componentUrl, error.message);
         }).done();
+    }
+
+    private updateConfigOfSavedComponent(componentView: LayoutComponentView | PartComponentView): void {
+        const path: ComponentPath = ComponentPath.fromString(componentView.getComponentPath()?.toString());
+        const persistedComponent = this.getComponentFromPersistedContent(path);
+
+        // component's config gets populated with default values when saved, need to updated viewed component with same values
+        if (persistedComponent?.getType().getShortName() === componentView.getType().getShortName()) {
+            const enrichedConfig = (<DescriptorBasedComponent>persistedComponent).getConfig().copy();
+            (<DescriptorBasedComponent>componentView.getComponent()).setConfig(enrichedConfig);
+        }
+    }
+
+    private getComponentFromPersistedContent(path: ComponentPath): Component {
+        const page: Page = this.contentWizardPanel.getPersistedItem().getPage();
+
+        return page.isFragment() ?
+               this.getComponentFromPersistedFragment(path, page.getFragment()) :
+               this.getComponentFromPersistedPage(path, page);
+    }
+
+    private getComponentFromPersistedPage(path: ComponentPath, page: Page): Component {
+        if (!path) {
+            return null;
+        }
+
+        const first: ComponentPathRegionAndComponent = path.getFirstLevel();
+        const region = page.getRegions().getRegionByName(first.getRegionName());
+        const component = region?.getComponentByIndex(first.getComponentIndex());
+
+        if (path.numberOfLevels() === 1) {
+            return component;
+        }
+
+        if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
+            return (<LayoutComponent> component).getComponent(path.removeFirstLevel());
+        }
+
+        return null;
+    }
+
+    private getComponentFromPersistedFragment(path: ComponentPath, fragment: Component): Component {
+        if (!path) {
+            return fragment;
+        }
+
+        if (ObjectHelper.iFrameSafeInstanceOf(fragment, LayoutComponent)) {
+            return (<LayoutComponent> fragment).getComponent(path);
+        }
+
+        return null;
     }
 
     private addPageProxyEventListeners() {
