@@ -1,29 +1,29 @@
 /*global CKEDITOR*/
 
-import * as Q from 'q';
+import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {NotificationMessage} from '@enonic/lib-admin-ui/notify/NotificationMessage';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {HtmlEditorParams} from './HtmlEditorParams';
-import {Styles} from './styles/Styles';
-import {StyleHelper} from './styles/StyleHelper';
-import {StylesRequest} from './styles/StylesRequest';
-import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
-import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
-import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
-import {NotificationMessage} from '@enonic/lib-admin-ui/notify/NotificationMessage';
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
-import {UrlHelper} from '../../../util/UrlHelper';
+import * as Q from 'q';
 import {ContentPath} from '../../../content/ContentPath';
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
-import {HTMLAreaHelper} from './HTMLAreaHelper';
+import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
+import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
+import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
+import {UrlHelper} from '../../../util/UrlHelper';
 import {CreateHtmlAreaDialogEventGenerator} from './CreateHtmlAreaDialogEventGenerator';
-import eventInfo = CKEDITOR.eventInfo;
+import {HTMLAreaHelper} from './HTMLAreaHelper';
+import {HtmlEditorParams} from './HtmlEditorParams';
+import {StyleHelper} from './styles/StyleHelper';
+import {Styles} from './styles/Styles';
+import {StylesRequest} from './styles/StylesRequest';
 import editor = CKEDITOR.editor;
+import eventInfo = CKEDITOR.eventInfo;
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -670,7 +670,8 @@ export class HtmlEditor {
         this.editor.addCommand('address', commandDef);
 
         this.editor.on('instanceReady', () => {
-            this.editor.setKeystroke(CKEDITOR.CTRL + 70, 'find'); // open find dialog on CTRL + F
+            this.editor.setKeystroke(CKEDITOR.CTRL + 70, 'toggleFind'); // open find dialog on CTRL + F
+            this.editor.setKeystroke(CKEDITOR.CTRL + 82, 'toggleFindAndReplace'); // open find dialog on CTRL + R
             this.editor.setKeystroke(CKEDITOR.CTRL + 75, 'link'); // open link dialog on CTRL + K
             this.editor.setKeystroke(CKEDITOR.CTRL + 76, 'image'); // open link dialog on CTRL + L
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 49, 'h1'); // apply Heading 1 format
@@ -853,7 +854,7 @@ class HtmlEditorConfigBuilder {
         ['Styles', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
-        ['SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
+        ['FindAndReplace', 'SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
         ['Table'], ['PasteModeSwitcher']
     ];
 
@@ -948,7 +949,7 @@ class HtmlEditorConfigBuilder {
             ],
             removePlugins: this.getPluginsToRemove(),
             removeButtons: this.disabledTools?.join(),
-            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog',
+            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,findAndReplace',
             extraAllowedContent: this.getExtraAllowedContent(),
             stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
             image2_disableResizer: true,

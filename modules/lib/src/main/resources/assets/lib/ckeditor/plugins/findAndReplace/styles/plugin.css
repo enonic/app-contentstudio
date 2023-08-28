@@ -1,0 +1,15 @@
+.fnr-panel {
+    width: 344px;
+}
+
+.fnr-mode_find {
+    height: 68px;
+}
+
+.fnr-mode_replace {
+    height: 112px;
+}
+
+.fnr-panel_movedRight {
+    margin-left: 33px;
+}

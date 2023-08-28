@@ -1,11 +1,11 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {Project} from '../../../settings/data/project/Project';
-import eventInfo = CKEDITOR.eventInfo;
 import {FullScreenDialogParams, MacroDialogParams} from './HtmlEditor';
+import eventInfo = CKEDITOR.eventInfo;
 
 export enum HtmlAreaDialogType {
-    ANCHOR, IMAGE, LINK, MACRO, SEARCHREPLACE, CODE, SPECIALCHAR, FULLSCREEN, TABLE, NUMBERED_LIST, BULLETED_LIST
+    ANCHOR, IMAGE, LINK, MACRO, CODE, SPECIALCHAR, FULLSCREEN, TABLE, NUMBERED_LIST, BULLETED_LIST
 }
 
 export type HtmlAreaDialogConfig = eventInfo | MacroDialogParams | FullScreenDialogParams;

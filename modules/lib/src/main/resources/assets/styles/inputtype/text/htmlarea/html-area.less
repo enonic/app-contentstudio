@@ -1,6 +1,18 @@
 .html-area {
   // next is cke related styles
 
+  .sticky-dock {
+    position: sticky;
+    top: @toolbar-height;
+    height: 0;
+    width: 100%;
+    overflow: visible;
+    z-index: 1996;
+  }
+
+  .sticky-dock-content {
+  }
+
   .cke_top,
   .cke_bottom {
     display: none;
@@ -152,6 +164,10 @@
 }
 
 .wizard-step-form .html-area {
+  .sticky-dock {
+    top: 37px;
+  }
+
   .cke_top {
     top: @toolbar-height;
   }

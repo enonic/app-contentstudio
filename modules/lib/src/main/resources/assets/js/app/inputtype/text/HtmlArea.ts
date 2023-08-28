@@ -1,39 +1,39 @@
-import * as $ from 'jquery';
-import 'jquery-simulate/jquery.simulate.js';
-import * as Q from 'q';
-import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
-import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {Class} from '@enonic/lib-admin-ui/Class';
 import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
-import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
-import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
+import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import {BaseInputTypeNotManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeNotManagingAdd';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import * as $ from 'jquery';
+import 'jquery-simulate/jquery.simulate.js';
+import * as Q from 'q';
+import {ContentSummary} from '../../content/ContentSummary';
+import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
+import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
 import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
-import {BaseInputTypeNotManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeNotManagingAdd';
-import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
-import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
-import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {ContentSummary} from '../../content/ContentSummary';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
-import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
-import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
+import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
@@ -53,6 +53,8 @@ export class HtmlArea
     private enabledTools: string[];
     private disabledTools: string[];
     private allowHeadingsConfig: string;
+
+    private textAreaEl: TextArea;
 
     private enabled: boolean = true;
 
@@ -116,32 +118,32 @@ export class HtmlArea
             property.convertValueType(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
 
-        const textAreaEl: TextArea = new TextArea(this.getInput().getName() + '-' + index);
+        this.textAreaEl = new TextArea(this.getInput().getName() + '-' + index);
 
         if (this.content) {
             StylesRequest.fetchStyles(this.content.getId());
         }
 
-        const editorId = textAreaEl.getId();
+        const editorId = this.textAreaEl.getId();
 
         const clazz = editorId.replace(/\./g, '_');
-        textAreaEl.addClass(clazz);
+        this.textAreaEl.addClass(clazz);
 
         const textAreaWrapper = new TextAreaWrapper('text-area-wrapper');
 
-        textAreaEl.onRendered(() => {
+        this.textAreaEl.onRendered(() => {
             this.authRequest.then(() => {
                 this.initEditor(editorId, property, textAreaWrapper).then(() => {
-                    this.editors.push({id: editorId, textAreaWrapper, textAreaEl, property, hasStickyToolbar: false});
+                    this.editors.push({id: editorId, textAreaWrapper, textAreaEl: this.textAreaEl, property, hasStickyToolbar: false});
                 });
             });
         });
 
-        textAreaEl.onValueChanged((event: ValueChangedEvent) => {
+        this.textAreaEl.onValueChanged((event: ValueChangedEvent) => {
             this.handleOccurrenceInputValueChanged(textAreaWrapper, event);
         });
 
-        textAreaWrapper.appendChild(textAreaEl);
+        textAreaWrapper.appendChildren(new DivEl('sticky-dock'), this.textAreaEl);
 
         this.setFocusOnEditorAfterCreate(textAreaWrapper, editorId);
 
@@ -283,8 +285,8 @@ export class HtmlArea
         };
 
         const editorReadyHandler = () => {
-            this.setEditorContent(textAreaWrapper.getFirstChild() as TextArea, property);
-            const editor: HtmlAreaOccurrenceInfo = this.editors.find((editor: HtmlAreaOccurrenceInfo) => editor.id === id);
+            this.setEditorContent(this.textAreaEl, property);
+            const editor = this.editors.find((editor: HtmlAreaOccurrenceInfo) => editor.id === id);
 
             if (editor && !this.enabled) {
                 this.setEditorEnabled(editor, false);
@@ -484,10 +486,8 @@ export class HtmlArea
 
     private handleEditorValueChanged(id: string, occurrence: Element) {
         const value: string = HtmlEditor.getData(id);
-        const textArea: TextArea = occurrence.getFirstChild() as TextArea;
-
-        if (value !== textArea.getValue()) {
-            textArea.setValue(value, false, true);
+        if (value !== this.textAreaEl.getValue()) {
+            this.textAreaEl.setValue(value, false, true);
         }
     }
 

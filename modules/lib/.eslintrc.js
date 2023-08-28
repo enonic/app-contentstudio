@@ -1,7 +1,10 @@
 module.exports = {
     extends: '@enonic/eslint-config',
     parserOptions: {
-        project: './tsconfig.json',
+        project: [
+            './tsconfig.json',
+            './src/main/resources/assets/lib/ckeditor/tsconfig.json'
+        ],
         tsconfigRootDir: __dirname,
     },
     'rules': {
