@@ -1,10 +1,10 @@
-import {HtmlEditorParams} from './HtmlEditorParams';
-import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
-import {CreateHtmlAreaContentDialogEvent} from './CreateHtmlAreaContentDialogEvent';
-import {CreateHtmlAreaMacroDialogEvent} from './CreateHtmlAreaMacroDialogEvent';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import eventInfo = CKEDITOR.eventInfo;
+import {CreateHtmlAreaContentDialogEvent} from './CreateHtmlAreaContentDialogEvent';
+import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
+import {CreateHtmlAreaMacroDialogEvent} from './CreateHtmlAreaMacroDialogEvent';
 import {FullScreenDialogParams, MacroDialogParams} from './HtmlEditor';
+import {HtmlEditorParams} from './HtmlEditorParams';
+import eventInfo = CKEDITOR.eventInfo;
 
 export class CreateHtmlAreaDialogEventGenerator {
 
@@ -41,10 +41,6 @@ export class CreateHtmlAreaDialogEventGenerator {
 
         if (name === 'specialchar') {
             return HtmlAreaDialogType.SPECIALCHAR;
-        }
-
-        if (name === 'find') {
-            return HtmlAreaDialogType.SEARCHREPLACE;
         }
 
         if (name === 'link') {

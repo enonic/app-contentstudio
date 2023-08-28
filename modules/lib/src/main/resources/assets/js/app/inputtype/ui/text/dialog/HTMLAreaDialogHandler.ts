@@ -1,19 +1,18 @@
-import {ModalDialog} from './ModalDialog';
-import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../CreateHtmlAreaDialogEvent';
-import {LinkModalDialog} from './LinkModalDialog';
-import {ImageModalDialog} from './image/ImageModalDialog';
-import {AnchorModalDialog} from './AnchorModalDialog';
-import {MacroModalDialog} from './MacroModalDialog';
-import {CodeDialog} from './CodeDialog';
-import {FindAndReplaceDialog} from './FindAndReplaceDialog';
-import {SpecialCharDialog} from './SpecialCharDialog';
-import {FullscreenDialog} from './FullscreenDialog';
-import {TableDialog} from './TableDialog';
-import {NumberedListModalDialog} from './NumberedListModalDialog';
-import {BulletedListModalDialog} from './BulletedListModalDialog';
 import {CreateHtmlAreaContentDialogEvent} from '../CreateHtmlAreaContentDialogEvent';
+import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../CreateHtmlAreaDialogEvent';
 import {CreateHtmlAreaMacroDialogEvent} from '../CreateHtmlAreaMacroDialogEvent';
 import {FullScreenDialogParams, MacroDialogParams} from '../HtmlEditor';
+import {AnchorModalDialog} from './AnchorModalDialog';
+import {BulletedListModalDialog} from './BulletedListModalDialog';
+import {CodeDialog} from './CodeDialog';
+import {FullscreenDialog} from './FullscreenDialog';
+import {ImageModalDialog} from './image/ImageModalDialog';
+import {LinkModalDialog} from './LinkModalDialog';
+import {MacroModalDialog} from './MacroModalDialog';
+import {ModalDialog} from './ModalDialog';
+import {NumberedListModalDialog} from './NumberedListModalDialog';
+import {SpecialCharDialog} from './SpecialCharDialog';
+import {TableDialog} from './TableDialog';
 import eventInfo = CKEDITOR.eventInfo;
 
 export class HTMLAreaDialogHandler {
@@ -33,9 +32,6 @@ export class HTMLAreaDialogHandler {
             break;
         case HtmlAreaDialogType.MACRO:
             modalDialog = this.openMacroDialog(event as CreateHtmlAreaMacroDialogEvent);
-            break;
-        case HtmlAreaDialogType.SEARCHREPLACE:
-            modalDialog = this.openSearchReplaceDialog(event);
             break;
         case HtmlAreaDialogType.CODE:
             modalDialog = this.openCodeDialog(event);
@@ -79,10 +75,6 @@ export class HTMLAreaDialogHandler {
 
     private static openCodeDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
         return this.openDialog(new CodeDialog(event.getConfig() as eventInfo));
-    }
-
-    private static openSearchReplaceDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return this.openDialog(new FindAndReplaceDialog(event.getConfig() as eventInfo));
     }
 
     private static openSpecialCharDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
