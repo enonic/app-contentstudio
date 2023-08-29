@@ -75,7 +75,7 @@ class PageInspectionPanel extends Page {
         return await this.getText(locator);
     }
 
-    waitForNotDipplayed() {
+    waitForNotDisplayed() {
         return this.waitForElementNotDisplayed(xpath.container, appConst.mediumTimeout);
     }
 }

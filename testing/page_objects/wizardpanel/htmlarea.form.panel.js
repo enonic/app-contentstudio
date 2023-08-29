@@ -116,9 +116,9 @@ class HtmlAreaForm extends OccurrencesFormView {
             await this.switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_macro"));
+            let screenshot = await this.saveScreenshotUniqueName('err_macro');
             await this.switchToParentFrame();
-            throw new Error("Error after double click on macro text  " + err);
+            throw new Error("Error after double click on macro text, screenshot:  " + screenshot + ' ' + err);
         }
     }
 
@@ -145,7 +145,8 @@ class HtmlAreaForm extends OccurrencesFormView {
             await this.clickOnElement(XPATH.ckeTextArea);
             return await this.waitUntilDisplayed(XPATH.ckeToolbox, appConst.mediumTimeout)
         } catch (err) {
-            throw new Error('CKE toolbar is not shown in ' + appConst.mediumTimeout + ' ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_htmlarea_toolbar');
+            throw new Error('CKE toolbar is not shown, screenshot ' + screenshot + ' ' + err);
         }
     }
 
@@ -247,8 +248,8 @@ class HtmlAreaForm extends OccurrencesFormView {
             await this.waitForElementDisplayed(lib.CKE.sourceButton, appConst.mediumTimeout);
             return await this.clickOnElement(lib.CKE.sourceButton);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_source_button"));
-            throw new Error("Error after clicking on Source button: " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_source_button');
+            throw new Error("Error after clicking on Source button, screenshot: " + screenshot + ' ' + err);
         }
     }
 

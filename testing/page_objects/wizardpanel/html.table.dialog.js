@@ -47,8 +47,8 @@ class HtmlTableDialog extends Page {
             let res = await this.findElements(this.okButton);
             return await this.waitForElementDisplayed(this.okButton, appConst.shortTimeout);
         } catch (err) {
-            this.saveScreenshot('err_open_table_dialog');
-            throw new Error('Table Dialog must be opened! ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_open_table_dialog');
+            throw new Error('Table Dialog must be opened! screenshot ' + screenshot + ' ' + err);
         }
     }
 

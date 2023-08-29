@@ -34,8 +34,8 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(selector);
             return await this.pause(400);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_component_click'));
-            throw new Error("Page Component View - Error when clicking on the component " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_component_click');
+            throw new Error("Page Component View - Error when clicking on the component, screenshot: " + screenshot + ' ' + err);
         }
     }
 
@@ -46,8 +46,8 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(component);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_component_view');
-            throw new Error('Error when clicking on the `Component`: ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_component_click');
+            throw new Error('Error when clicking on the `Component`, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -79,8 +79,8 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(menuButton);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_component_view'));
-            throw new Error('Page Component View, open menu - Error when clicking on `Menu button`: ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
+            throw new Error('Page Component View, open menu - Error when clicking on `Menu button`, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -91,8 +91,8 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(menuButton);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_component_view'));
-            throw new Error('Page Component View, open menu - Error when clicking on `Menu button`: ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
+            throw new Error('Page Component View, open menu - Error when clicking on `Menu button`, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -130,8 +130,7 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(selector);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_menu_item');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
             throw new Error("Error - Page Component View: Menu Item, screenshot " + screenshot + ' ' + err);
         }
     }
@@ -187,8 +186,7 @@ class BasePageComponentView extends Page {
             let locator = this.container + lib.SLICK_VIEW_PORT + xpath.pageComponentsItemViewer + lib.itemByDisplayName(itemDisplayName);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_component_view');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
             throw new Error(`Page Component View -  item is not displayed, screenshot: ${screenshot}  ` + err);
         }
     }

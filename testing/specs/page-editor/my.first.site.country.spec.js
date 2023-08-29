@@ -184,7 +184,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. 'Page Component View' modal dialog should not be displayed, because the content is not customized:
             await pageComponentView.waitForNotDisplayed();
-            // 3. Click on Customize menu item in Live Edit frame:
+            // 3. Click on 'Customize' menu item in Live Edit frame:
             await contentWizard.doUnlockLiveEditor();
             // 4 Switch to main frame:
             await contentWizard.switchToMainFrame();

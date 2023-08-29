@@ -53,8 +53,8 @@ class DoubleForm extends OccurrencesFormView {
         try {
             return await this.waitForRedBorderInInput(index, this.doubleInput);
         } catch (err) {
-            await this.saveScreenshot("err_red_border_double");
-            throw new Error(err);
+            let screenshot = await this.saveScreenshotUniqueName('err_red_border_double');
+            throw new Error("Double input, screenshot : " + screenshot + ' ' + err);
         }
     }
 
@@ -62,8 +62,8 @@ class DoubleForm extends OccurrencesFormView {
         try {
             return await this.waitForRedBorderNotDisplayedInInput(index, this.doubleInput);
         } catch (err) {
-            await this.saveScreenshot("err_red_border_double_displayed");
-            throw new Error(err);
+            let screenshot = await this.saveScreenshotUniqueName('err_red_border_double_displayed');
+            throw new Error("Double input, screenshot : " + screenshot + ' ' + err);
         }
     }
 }
