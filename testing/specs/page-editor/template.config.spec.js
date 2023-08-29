@@ -14,6 +14,7 @@ const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wiz
 const TextComponent = require('../../page_objects/components/text.component');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
+const ContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -82,6 +83,21 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await pageComponentView.waitForNotDisplayed();
         });
 
+    it(`WHEN 'Customize' menu item has been clicked in article wizard THEN 'Insert' tab should be visible in Components widget in Context Window`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contextWindow = new ContextWindow();
+            // 1. Open new wizard for Article content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
+            await contentWizard.typeDisplayName(ARTICLE_NAME);
+            // 2. Click on 'Customize' menu item:
+            await contentWizard.doUnlockLiveEditor();
+            await contextWindow.switchToParentFrame();
+            // 3. Verify that Insert tab is displayed in the Context Window:
+            await contextWindow.waitForTabBarItemDisplayed('Insert');
+            await contentWizard.waitForSaveButtonEnabled();
+        });
+
     it(`GIVEN 'Customize' menu item has been clicked in article wizard WHEN text component has been inserted in 'Page Component wizard' step THEN the text should appear in the LiveEdit frame`,
         async () => {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
@@ -123,7 +139,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 3. Remove the text component and save it
             await pageComponentsWizardStepForm.openMenu(TEST_TEXT);
             await pageComponentsWizardStepForm.selectMenuItem(['Remove']);
-            await studioUtils.saveScreenshot('cpmponent_step_form_txt_removed');
+            await studioUtils.saveScreenshot('component_step_form_txt_removed');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);
             // 4. Verify that the text component is not present in LiveEdit frame
@@ -135,6 +151,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
         async () => {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let contentWizard = new ContentWizard();
+            let contextWindow = new ContextWindow();
             // 1. Open the existing customized Article-content:
             await studioUtils.selectAndOpenContentInWizard(ARTICLE_NAME);
             // 2. Click on 'Reset' menu item in the wizard step form:
@@ -148,6 +165,10 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await pageComponentsWizardStepForm.waitForNotDisplayed();
             // 5. Verify that 'Page' item is not displayed in the WizardStepNavigator
             await contentWizard.waitForWizardStepNotDisplayed('Page');
+            // 6. Verify that 'Insert' tab is present in the 'Components widget' in Context window
+            await contextWindow.waitForTabBarItemDisplayed('Insert');
+            // 7. Save button should be disabled:
+            await contentWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
@@ -158,5 +179,4 @@ describe('template.config.spec: template config should be displayed in the Inspe
         }
         return console.log('specification starting: ' + this.title);
     });
-
 });
