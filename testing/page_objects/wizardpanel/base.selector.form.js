@@ -33,8 +33,7 @@ class BaseSelectorForm extends Page {
             await loaderComboBox.selectOption(optionDisplayName);
             return await loaderComboBox.pause(300);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_combobox");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_combobox');
             throw new Error("Error in loader combobox, screenshot:" + screenshot + " " + err)
         }
     }
@@ -69,8 +68,8 @@ class BaseSelectorForm extends Page {
         try {
             return await this.waitForElementDisplayed(lib.EMPTY_OPTIONS_DIV, appConst.longTimeout);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_empty_opt"));
-            throw new Error("Empty options text is not visible " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_empty_opt');
+            throw new Error("Empty options text is not visible, screenshot: " + screenshot + ' ' + err);
         }
     }
 

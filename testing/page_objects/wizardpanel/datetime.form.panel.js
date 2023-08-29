@@ -53,11 +53,14 @@ class DateTimeForm extends OccurrencesFormView {
         return this.isElementDisplayed(this.validationRecord);
     }
 
-    getValidationRecord() {
-        return this.getText(this.validationRecord).catch(err => {
-            this.saveScreenshot('err_date_time_validation_record');
-            throw new Error('getting Validation text: ' + err);
-        })
+    async getValidationRecord() {
+        try {
+            await this.waitForValidationRecording();
+            await this.getText(this.validationRecord);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_date_time_validation_record');
+            throw new Error('getting Validation text, screenshot: ' + screenshot + ' ' + err);
+        }
     }
 
     async isInvalidValue(index) {
@@ -71,7 +74,7 @@ class DateTimeForm extends OccurrencesFormView {
 
     async showPicker() {
         await this.clickOnElement(this.dateTimeInput);
-        return this.pause(300);
+        return await this.pause(300);
     }
 }
 

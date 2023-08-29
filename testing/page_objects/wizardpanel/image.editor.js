@@ -90,8 +90,8 @@ class ImageEditor extends Page {
             await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(700);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_flip_button');
-            throw new Error('Image Editor, button flip  ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_flip_button');
+            throw new Error('Image Editor, button flip, screenshot:  ' + screenshot + ' ' + err);
         }
     }
 
@@ -104,8 +104,8 @@ class ImageEditor extends Page {
             await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(700);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_rotate_button');
-            throw new Error('Image Editor, button rotate  ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_rotate_button');
+            throw new Error('Image Editor, button rotate, screenshot:  ' + screenshot + ' ' + err);
         }
     }
 
@@ -116,8 +116,8 @@ class ImageEditor extends Page {
             await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_reset_button');
-            throw new Error('Image Editor, button reset  ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_reset_button');
+            throw new Error('Image Editor, button reset, screenshot:  ' + screenshot + ' ' + err);
         }
     }
 
@@ -236,9 +236,9 @@ class ImageEditor extends Page {
         let yOffset = offset1 === undefined ? 0 : offset2;
         await this.waitForFocusCircleDisplayed();
         await this.pause(1000);
-        let el = await this.findElement(this.focusCircle );
+        let el = await this.findElement(this.focusCircle);
         //let yValue = await el.getAttribute('cy');
-       // let xValue = await el.getAttribute('cx');
+        // let xValue = await el.getAttribute('cx');
 
         let yValue = await el.getLocation('y');
         let xValue = await el.getLocation('x');

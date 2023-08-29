@@ -20,10 +20,9 @@ class ArticleForm extends Page {
         return lib.FORM_VIEW + XPATH.titleInput;
     }
 
-    type(articleData) {
-        return this.typeTextInInput(this.titleInput, articleData.title).then(() => {
-            return this.typeTextInInput(this.bodyTextArea, articleData.body);
-        });
+    async type(articleData) {
+        await this.typeTextInInput(this.titleInput, articleData.title);
+        await this.typeTextInInput(this.bodyTextArea, articleData.body);
     }
 
     async typeArticleTitle(title) {
