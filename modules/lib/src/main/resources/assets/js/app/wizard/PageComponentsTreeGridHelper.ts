@@ -56,7 +56,8 @@ export class PageComponentsTreeGridHelper {
     private static menuFormatter(row: number, cell: number, value: unknown, columnDef: unknown, node: TreeNode<ContentSummaryAndCompareStatus>) {
         const wrapper: SpanEl = new SpanEl();
 
-        const icon: DivEl = new DivEl('menu-icon icon-menu2');
+        // adding 'expand' as a trick to avoid select/deselect when clicking on menu icon
+        const icon: DivEl = new DivEl('menu-icon icon-menu2 expand');
         wrapper.appendChild(icon);
         return wrapper.toString();
     }
