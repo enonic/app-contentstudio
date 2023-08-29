@@ -18,9 +18,13 @@ import {Workflow} from '../content/Workflow';
 import {WorkflowState} from '../content/WorkflowState';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentPath} from '../content/ContentPath';
 import {PageHelper} from './PageHelper';
-import {Page} from '../page/Page';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import {Form} from '@enonic/lib-admin-ui/form/Form';
+import {FormItemParent} from '@enonic/lib-admin-ui/form/FormItem';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+
 
 export class ContentHelper {
 
@@ -74,5 +78,50 @@ export class ContentHelper {
             .setData(new PropertyTree())
             .setExtraData([])
             .setWorkflow(Workflow.create().setState(WorkflowState.IN_PROGRESS).build());
+    }
+
+    // update to return list of components that contain id, and reload only them
+    static doContentComponentsContainId(content: Content, form: Form, contentId: ContentId): Q.Promise<boolean> {
+        const page = content.getPage();
+
+        if (page) {
+            const data: PropertyTree = content.getContentData();
+
+            if (ContentHelper.doHtmlAreasContainId(contentId.toString(), form, data)) {
+                return Q(true);
+            }
+
+            return ContentHelper.containsChildContentId(content, contentId);
+        }
+
+        return Q(false);
+    }
+
+    static doHtmlAreasContainId(id: string, form: Form, data: PropertyTree): boolean {
+        let areas = this.getHtmlAreasInForm(form);
+
+        return areas.some((area) => {
+            let property = data.getProperty(area);
+            if (property && property.hasNonNullValue() && property.getType().equals(ValueTypes.STRING)) {
+                return property.getString().indexOf(id) >= 0;
+            }
+        });
+    }
+
+    private static getHtmlAreasInForm(formItemContainer: Form | FormItemParent): string[] {
+        let result: string[] = [];
+
+        formItemContainer.getFormItems().forEach((item: FormItemParent | Input) => {
+            if (ObjectHelper.iFrameSafeInstanceOf(item, Input)) {
+                const input = item as Input;
+                if (input.getInputType().getName() === 'HtmlArea') {
+                    result.push(input.getPath().toString());
+                }
+            } else {
+                result = result.concat(this.getHtmlAreasInForm(item as FormItemParent));
+            }
+        });
+
+        return result;
     }
 }

@@ -33,6 +33,7 @@ import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {PageItemType} from '../page/region/PageItemType';
 import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
+import {PageComponentsMenuIcon} from './PageComponentsMenuIcon';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ComponentsTreeItem> {
@@ -532,7 +533,7 @@ export class PageComponentsTreeGrid
 
     protected expandOnClick(elem: ElementHelper, data: Slick.OnClickEventArgs<ComponentsTreeItem>) {
         // trick to avoid select/deselect when clicking on menu icon
-        if (elem.hasClass('menu-icon')) {
+        if (PageComponentsMenuIcon.isMenuIcon(elem)) {
             this.setActive(true);
             return;
         }

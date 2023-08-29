@@ -81,6 +81,7 @@ import {PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
 import {PageControllerCustomizedEvent} from '../../page/event/PageControllerCustomizedEvent';
 import {ResetComponentEvent} from '../../../page-editor/event/outgoing/manipulation/ResetComponentEvent';
 import {ResetComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/ResetComponentViewEvent';
+import {TextEditModeChangedEvent} from '../../../page-editor/event/outgoing/navigation/TextEditModeChangedEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -348,6 +349,7 @@ export class LiveEditPageProxy
         }
 
         if (liveEditWindow) {
+            this.isPageLocked = false;
 
             if (this.liveEditWindow) {
                 this.stopListening(this.liveEditWindow);
@@ -681,6 +683,10 @@ export class LiveEditPageProxy
 
             PageEventsManager.get().notifyComponentResetRequested(path);
         }, contextWindow);
+
+        TextEditModeChangedEvent.on((event: TextEditModeChangedEvent): void => {
+            PageEventsManager.get().notifyTextComponentEditModeChanged(event.isEditMode());
+        }, contextWindow);
     }
 
     private listenToMainFrameEvents() {
@@ -718,9 +724,9 @@ export class LiveEditPageProxy
             }
         });
 
-        EditTextComponentViewEvent.on((event: EditTextComponentViewEvent) => {
+        PageEventsManager.get().onTextComponentEditRequested((path: ComponentPath) => {
             if (this.liveEditWindow) {
-                new EditTextComponentViewEvent(event.getPath()).fire(this.liveEditWindow);
+                new EditTextComponentViewEvent(path.toString()).fire(this.liveEditWindow);
             }
         });
     }

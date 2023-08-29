@@ -65,12 +65,9 @@ import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
 import {Property} from '@enonic/lib-admin-ui/data/Property';
-import {FieldSet} from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
-import {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
 import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
-import {FormItem, FormItemParent} from '@enonic/lib-admin-ui/form/FormItem';
+import {FormItemParent} from '@enonic/lib-admin-ui/form/FormItem';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
@@ -82,7 +79,6 @@ import {ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import {PropertyTreeComparator} from '@enonic/lib-admin-ui/data/PropertyTreeComparator';
 import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {Input} from '@enonic/lib-admin-ui/form/Input';
-import {FormItemContainer} from '@enonic/lib-admin-ui/form/FormItemContainer';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
@@ -145,7 +141,8 @@ import {PageControllerCustomizedEvent} from '../page/event/PageControllerCustomi
 import {PageHelper} from '../util/PageHelper';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {ContentContext} from './ContentContext';
-import {Region} from '../page/region/Region';
+import {GetDefaultPageTemplateRequest} from './page/GetDefaultPageTemplateRequest';
+import {PageTemplate} from '../content/PageTemplate';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -536,6 +533,7 @@ export class ContentWizardPanel
                         showFeedback(i18n('notify.content.created'));
                     }
                 }
+
                 this.defaultModels = loader.defaultModels;
                 this.site = loader.siteContent;
                 this.contentType = loader.contentType;
@@ -1242,20 +1240,6 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.reset();
     }
 
-    private isOutboundDependencyUpdated(content: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
-        return ContentHelper.isReferencedBy(content.getContentSummary(), this.persistedContent.getContentId());
-    }
-
-    private isUpdateOfPageModelRequired(content: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
-        // 3. outbound dependency content has changed
-        return this.isOutboundDependencyUpdated(content).then(outboundDependencyUpdated => {
-            const viewedPage = this.assembleViewedPage();
-            const pageChanged = !ObjectHelper.equals(this.getPersistedItem().getPage(), viewedPage);
-
-            return outboundDependencyUpdated && !pageChanged;
-        });
-    }
-
     private createSteps(): ContentWizardStep[] {
         if (this.contentType.getContentTypeName().isFragment()) {
             return this.createFragmentSteps();
@@ -1366,18 +1350,6 @@ export class ContentWizardPanel
             if (currentItem) {
                 this.wizardActions.setContent(currentItem).refreshState();
                 this.contextView.setItem(currentItem);
-            }
-
-            const content = this.getPersistedItem();
-            if (content instanceof Site) {
-                data.some(sortedItem => {
-                    if (sortedItem.getType().isTemplateFolder() && sortedItem.getPath().isDescendantOf(content.getPath())) {
-
-                        this.loadDefaultModelsAndUpdatePageModel().done();
-
-                        return true;
-                    }
-                });
             }
         };
 
@@ -1591,102 +1563,86 @@ export class ContentWizardPanel
     }
 
     private handleOtherContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
-        if (this.isParentSiteUpdated(updatedContent) || this.isPageTemplateModified(updatedContent)) {
-            const wasRenderable: boolean = this.isRenderable();
-            this.checkIfRenderable().then(() => {
-                if (wasRenderable !== this.isRenderable()) {
-                    this.resetLivePanel(this.getPersistedItem().clone());
-                    this.toggleLiveEdit();
-                }
-            });
+        if (updatedContent.getType().isPageTemplate()) {
+            this.handleTemplateUpdate(updatedContent);
             return;
         }
 
-        // fragment will be reloaded alone in the live panel
-        if (updatedContent.getType().isFragment()) {
-            const updatedFragmentId = updatedContent.getContentId();
-            const fragmentComponent =
-                PageHelper.findFragmentInRegionsByFragmentId(PageState.getState()?.getRegions()?.getRegions(), updatedFragmentId);
+        if (this.isParentSiteUpdated(updatedContent)) {
+            this.toggleLiveEditIfRenderableChanged().catch(DefaultErrorHandler.handle);
+            return;
+        }
 
-            if (fragmentComponent) {
-                this.livePanel?.reloadComponent(fragmentComponent.getPath());
+        this.reloadLiveIfComponentsContainId(updatedContent.getContentId());
+    }
+
+    private handleTemplateUpdate(template: ContentSummaryAndCompareStatus): void {
+        const isCurrentTemplateUpdated: boolean =
+            this.getPersistedItem().getPage()?.getTemplate()?.toString() === template.getContentId().toString();
+
+        if (isCurrentTemplateUpdated) {
+            this.toggleLiveEditIfRenderableChanged()
+                .then((isRenderableChanged: boolean) => {
+                    // if item didn't change renderable/non-renderable state after template update, then reload the editor if renderable
+                    if (!isRenderableChanged) {
+                        this.debouncedEditorReload(false);
+                    }
+                }).catch(DefaultErrorHandler.handle);
+
+            return;
+        }
+
+        const isPageInAutoRenderingMode: boolean = !this.getPersistedItem().getPage();
+
+        if (isPageInAutoRenderingMode && this.isSameRootWithPersisted(template)) {
+            // update default models if page is rendered automatically and updated template might be or become the one rendering
+            ContentWizardDataLoader.loadDefaultModels(this.site, this.getPersistedItem().getType()).then((defaultModels: DefaultModels) => {
+                const isAutoUpdated: boolean = this.defaultModels.getDefaultPageTemplate()?.getId() === template.getId() ||
+                                               defaultModels.getDefaultPageTemplate()?.getId() === template.getId();
+                this.defaultModels = defaultModels;
+
+                return isAutoUpdated ? this.toggleLiveEditIfRenderableChanged()
+                    .then((isRenderableChanged: boolean) => {
+                        // update if template that is auto
+                        if (!isRenderableChanged && this.renderable) {
+                            this.debouncedEditorReload(false);
+                        }
+                    }) : Q.resolve();
+            }).catch(DefaultErrorHandler.handle);
+        }
+    }
+
+    private toggleLiveEditIfRenderableChanged(): Q.Promise<boolean> {
+        const wasRenderable: boolean = this.isRenderable();
+
+        return this.checkIfRenderable().then(() => {
+            if (wasRenderable !== this.isRenderable()) {
+                this.resetLivePanel(this.getPersistedItem().clone());
+                this.toggleLiveEdit();
+                return true;
             }
 
-            return;
-        }
+            return false;
+        });
+    }
 
-        const contentId: ContentId = updatedContent.getContentId();
-        const containsIdPromise: Q.Promise<boolean> = this.createComponentsContainIdPromise(contentId);
-        const templateUpdatedPromise: Q.Promise<boolean> = this.createTemplateUpdatedPromise(updatedContent);
+    private reloadLiveIfComponentsContainId(contentId: ContentId): void {
+        const form = this.getContentType().getForm();
+        const containsIdPromise: Q.Promise<boolean> = ContentHelper.doContentComponentsContainId(this.getPersistedItem(), form, contentId);
 
-        this.wizardActions.refreshState();
-
-        Q.all([containsIdPromise, templateUpdatedPromise]).spread((containsId, templateUpdated) => {
-            if (containsId || templateUpdated) {
+        containsIdPromise.then((containsId) => {
+            if (containsId) {
                 this.debouncedEditorReload(false);
             }
         }).catch(DefaultErrorHandler.handle).done();
     }
 
+    private isSameRootWithPersisted(item: ContentSummaryAndCompareStatus): boolean {
+        return item.getPath().getRootElement() === this.getPersistedItem().getPath().getRootElement();
+    }
+
     private isParentSiteUpdated(updatedContent: ContentSummaryAndCompareStatus): boolean {
         return updatedContent.getType().isSite() && this.getPersistedItem().getPath().isDescendantOf(updatedContent.getPath());
-    }
-
-    private isPageTemplateModified(updatedContent: ContentSummaryAndCompareStatus): boolean {
-        return updatedContent.getType().isPageTemplate() &&
-               updatedContent.getPath().getRootElement() === this.getPersistedItem().getPath().getRootElement();
-    }
-
-    private loadDefaultModelsAndUpdatePageModel(reloadPage: boolean = true) {
-        const item = this.getPersistedItem();
-        const site = item.isSite() ? item as Site : this.site;
-
-        return new ContentWizardDataLoader().loadDefaultModels(site, this.contentType.getContentTypeName()).then(
-            defaultModels => {
-                this.defaultModels = defaultModels;
-
-                if (this.liveEditModel) {
-                    const livePanel = this.getLivePanel();
-                    // pageModel is updated so we need reload unless we're saving already
-                    const needsReload = !this.isSaving();
-                    if (livePanel) {
-                        livePanel.setModel(this.liveEditModel);
-                        if (reloadPage) {
-                            livePanel.clearSelectionAndInspect(true, true);
-                        }
-                        if (needsReload && reloadPage) {
-                            this.debouncedEditorReload(true);
-                        }
-                    }
-                    return needsReload;
-                }
-
-                return Q(false);
-            });
-    }
-
-    private createComponentsContainIdPromise(contentId: ContentId): Q.Promise<boolean> {
-        return this.doComponentsContainId(contentId).then((contains) => {
-            if (contains) {
-                return this.fetchPersistedContent().then((content: Content) => {
-                    this.updateWizard(content, true);
-                    return this.isEditorEnabled();
-                });
-            } else {
-                return Q(false);
-            }
-        });
-    }
-
-    private createTemplateUpdatedPromise(updatedContent: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
-        return this.isUpdateOfPageModelRequired(updatedContent).then(value => {
-            if (value) {
-                return this.loadDefaultModelsAndUpdatePageModel(false);
-            }
-
-            return Q(false);
-        });
-
     }
 
     private isParentSiteModified(contentId: ContentId): boolean {
@@ -1703,49 +1659,6 @@ export class ContentWizardPanel
         }
 
         return !this.persistedContent.getContentId().equals(contentId);
-    }
-
-    private doComponentsContainId(contentId: ContentId): Q.Promise<boolean> {
-        const page = this.getPersistedItem().getPage();
-
-        if (page) {
-            if (this.doHtmlAreasContainId(contentId.toString())) {
-                return Q(true);
-            }
-
-            return ContentHelper.containsChildContentId(this.getPersistedItem(), contentId);
-        }
-
-        return Q(false);
-    }
-
-    private doHtmlAreasContainId(id: string): boolean {
-        let areas = this.getHtmlAreasInForm(this.getContentType().getForm());
-        let data: PropertyTree = this.getPersistedItem().getContentData();
-
-        return areas.some((area) => {
-            let property = data.getProperty(area);
-            if (property && property.hasNonNullValue() && property.getType().equals(ValueTypes.STRING)) {
-                return property.getString().indexOf(id) >= 0;
-            }
-        });
-    }
-
-    private getHtmlAreasInForm(formItemContainer: Form | FormItemParent): string[] {
-        let result: string[] = [];
-
-        formItemContainer.getFormItems().forEach((item: FormItemParent | Input) => {
-            if (ObjectHelper.iFrameSafeInstanceOf(item, Input)) {
-                const input = item as Input;
-                if (input.getInputType().getName() === 'HtmlArea') {
-                    result.push(input.getPath().toString());
-                }
-            } else {
-                result = result.concat(this.getHtmlAreasInForm(item as FormItemParent));
-            }
-        });
-
-        return result;
     }
 
     private updateLiveEditModel(content: Content): void {

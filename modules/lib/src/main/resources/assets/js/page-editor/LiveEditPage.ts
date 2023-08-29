@@ -182,7 +182,7 @@ export class LiveEditPage {
 
             this.restoreSelection();
 
-            new LiveEditPageViewReadyEvent(this.pageView).fire();
+            new LiveEditPageViewReadyEvent().fire();
         }).catch(DefaultErrorHandler.handle);
     }
 

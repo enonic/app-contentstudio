@@ -289,7 +289,7 @@ export class PageComponentsView
                 const path: ComponentPath = this.tree.getNodePath(node);
 
                 if (path) {
-                    new EditTextComponentViewEvent(path.toString()).fire();
+                    PageEventsManager.get().notifyTextComponentEditRequested(path);
                 }
             }
         };

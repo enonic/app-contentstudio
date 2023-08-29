@@ -1,5 +1,4 @@
 import {ComponentViewDragCanceledEvent} from '../../page-editor/ComponentViewDragCanceledEvent';
-import {ComponentViewDragDroppedEvent} from '../../page-editor/ComponentViewDragDroppedEventEvent';
 import {PageLockedEvent} from '../../page-editor/event/outgoing/manipulation/PageLockedEvent';
 import {PageUnlockedEvent} from '../../page-editor/event/outgoing/manipulation/PageUnlockedEvent';
 import {LiveEditPageViewReadyEvent} from '../../page-editor/LiveEditPageViewReadyEvent';
@@ -9,7 +8,6 @@ import {EditContentEvent} from '../event/EditContentEvent';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {ComponentPath} from '../page/region/ComponentPath';
-import {Component} from '../page/region/Component';
 import {ComponentType} from '../page/region/ComponentType';
 import {PageTemplateKey} from '../page/PageTemplateKey';
 import {PageControllerSetHandler, PageResetHandler, PageTemplateSetHandler} from '../page/Page';
@@ -76,10 +74,6 @@ export class PageEventsManager {
 
     private pageControllerSetRequestedListeners: PageControllerSetHandler[] = [];
 
-    private componentSelectRequestedListeners: ((path: ComponentPath) => void)[] = [];
-
-    private componentInspectRequestedListeners: ((component: Component) => void)[] = [];
-
     private componentResetRequestedListeners: ((path: ComponentPath) => void)[] = [];
 
     private componentRemoveRequestedListeners: ((path: ComponentPath) => void)[] = [];
@@ -99,6 +93,10 @@ export class PageEventsManager {
     private setFragmentComponentRequestedListeners: ((path: ComponentPath, id: string) => void)[] = [];
 
     private textComponentUpdateRequestedListeners: ((path: ComponentPath, value: string) => void)[] = [];
+
+    private textComponentEditRequestedListeners: ((path: ComponentPath) => void)[] = [];
+
+    private textComponentEditModeListeners: ((value: boolean) => void)[] = [];
 
     private constructor() {
         //
@@ -350,30 +348,6 @@ export class PageEventsManager {
         });
     }
 
-    onComponentSelectRequested(listener: ((path: ComponentPath) => void)): void {
-        this.componentSelectRequestedListeners.push(listener);
-    }
-
-    unComponentSelectRequested(listener: ((path: ComponentPath) => void)): void {
-        this.componentSelectRequestedListeners = this.componentSelectRequestedListeners.filter((curr) => (curr !== listener));
-    }
-
-    notifyComponentSelectRequested(path: ComponentPath) {
-        this.componentSelectRequestedListeners.forEach((listener) => listener(path));
-    }
-
-    onComponentInspectRequested(listener: ((component: Component) => void)): void {
-        this.componentInspectRequestedListeners.push(listener);
-    }
-
-    unComponentInspectRequested(listener: ((component: Component) => void)): void {
-        this.componentInspectRequestedListeners = this.componentInspectRequestedListeners.filter((curr) => (curr !== listener));
-    }
-
-    notifyComponentInspectRequested(component: Component) {
-        this.componentInspectRequestedListeners.forEach((listener) => listener(component));
-    }
-
     onComponentResetRequested(listener: ((path: ComponentPath) => void)): void {
         this.componentResetRequestedListeners.push(listener);
     }
@@ -504,6 +478,30 @@ export class PageEventsManager {
 
     notifyTextComponentUpdateRequested(path: ComponentPath, value: string): void {
         this.textComponentUpdateRequestedListeners.forEach((listener) => listener(path, value));
+    }
+
+    onTextComponentEditRequested(listener: ((path: ComponentPath) => void)): void {
+        this.textComponentEditRequestedListeners.push(listener);
+    }
+
+    untTextComponentEditRequested(listener: ((path: ComponentPath) => void)): void {
+        this.textComponentEditRequestedListeners = this.textComponentEditRequestedListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyTextComponentEditRequested(path: ComponentPath): void {
+        this.textComponentEditRequestedListeners.forEach((listener) => listener(path));
+    }
+
+    onTextComponentEditModeChanged(listener: ((value: boolean) => void)): void {
+        this.textComponentEditModeListeners.push(listener);
+    }
+
+    untTextComponentEditModeChanged(listener: ((value: boolean) => void)): void {
+        this.textComponentEditModeListeners = this.textComponentEditModeListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyTextComponentEditModeChanged(value: boolean): void {
+        this.textComponentEditModeListeners.forEach((listener) => listener(value));
     }
 
     onCustomizePageRequested(listener: () => void) {
