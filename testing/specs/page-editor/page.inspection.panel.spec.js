@@ -84,7 +84,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
             // 6. Details Panel should be loaded
-            await pageInspectionPanel.waitForNotDipplayed();
+            await pageInspectionPanel.waitForNotDisplayed();
             await wizardDetailsPanel.waitForDetailsPanelLoaded();
             // 7. Controller selector should be loaded in Live Edit:
             await contentWizard.waitForControllerOptionFilterInputVisible();
