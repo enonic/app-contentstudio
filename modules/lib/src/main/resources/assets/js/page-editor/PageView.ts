@@ -248,10 +248,8 @@ export class PageView
             }
         });
 
-        LiveEditPageViewReadyEvent.on(event => {
-            if (this === event.getPageView()) {
-                this.appendContainerForTextToolbar();
-            }
+        LiveEditPageViewReadyEvent.on(() => {
+            this.appendContainerForTextToolbar();
         });
     }
 

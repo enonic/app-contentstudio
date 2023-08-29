@@ -27,10 +27,7 @@ import {SaveAsTemplateAction} from '../action/SaveAsTemplateAction';
 import {ShowLiveEditEvent} from '../ShowLiveEditEvent';
 import {ShowSplitEditEvent} from '../ShowSplitEditEvent';
 import {LiveEditModel} from '../../../page-editor/LiveEditModel';
-import {PageView} from '../../../page-editor/PageView';
-import {LiveEditPageViewReadyEvent} from '../../../page-editor/LiveEditPageViewReadyEvent';
 import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/LiveEditPageInitializationErrorEvent';
-import {ComponentViewDragDroppedEvent} from '../../../page-editor/ComponentViewDragDroppedEventEvent';
 import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEditEvent';
 import {HTMLAreaDialogHandler} from '../../inputtype/ui/text/dialog/HTMLAreaDialogHandler';
 import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
@@ -91,6 +88,7 @@ import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedCompone
 import {ToggleContextPanelEvent} from '../../view/context/ToggleContextPanelEvent';
 import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {PageHelper} from '../../util/PageHelper';
 
 export interface LiveFormPanelConfig {
 
@@ -123,8 +121,6 @@ export class LiveFormPanel
     private contentType: ContentType;
 
     private liveEditModel?: LiveEditModel;
-
-    private pageView: PageView;
 
     private pageLoading: boolean = false;
 
@@ -330,17 +326,32 @@ export class LiveFormPanel
         }
 
         // Update action with new content on save if it gets updated
-        summaryAndStatuses.some((summaryAndStatus: ContentSummaryAndCompareStatus) => {
+        summaryAndStatuses.forEach((summaryAndStatus: ContentSummaryAndCompareStatus) => {
             if (this.content.getContentId().equals(summaryAndStatus.getContentId())) {
-                SaveAsTemplateAction.get()?.setContentSummary(summaryAndStatuses[0].getContentSummary());
-
-                if (!this.isPageNotRenderable && this.placeholder && !this.placeholder.hasSelectedController()) {
-                    this.updatePlaceholder();
-                }
-
-                return true;
+                this.handleThisContentUpdated(summaryAndStatus);
+            } else if (summaryAndStatus.getType().isFragment()) {
+                this.handleFragmentUpdate(summaryAndStatus);
             }
         });
+    }
+
+    private handleThisContentUpdated(updated: ContentSummaryAndCompareStatus): void {
+        SaveAsTemplateAction.get()?.setContentSummary(updated.getContentSummary());
+
+        if (!this.isPageNotRenderable && this.placeholder && !this.placeholder.hasSelectedController()) {
+            this.updatePlaceholder();
+        }
+
+    }
+
+    private handleFragmentUpdate(fragment: ContentSummaryAndCompareStatus): void {
+        const updatedFragmentId = fragment.getContentId();
+        const fragmentComponent =
+            PageHelper.findFragmentInRegionsByFragmentId(PageState.getState()?.getRegions()?.getRegions(), updatedFragmentId);
+
+        if (fragmentComponent) {
+            this.reloadComponent(fragmentComponent.getPath());
+        }
     }
 
     private handleContentPermissionsUpdate(contentIds: ContentIds) {
@@ -376,14 +387,8 @@ export class LiveFormPanel
         });
     }
 
-    private createContextWindow(): ContextWindow { //
+    private createContextWindow(): ContextWindow {
         this.inspectionsPanel = this.createInspectionsPanel();
-
-        this.pageView?.getPageViewController().onTextEditModeChanged((value: boolean) => {
-            if (this.inspectionsPanel.getPanelShown() === this.textInspectionPanel) {
-                this.inspectionsPanel.setButtonContainerVisible(value);
-            }
-        });
 
         this.insertablesPanel = new InsertablesPanel({
             liveEditPage: this.liveEditPageProxy,
@@ -652,7 +657,7 @@ export class LiveFormPanel
         });
     }
 
-    reloadComponent(path: ComponentPath): void {
+    private reloadComponent(path: ComponentPath): void {
         const componentUrl: string = UriHelper.getComponentUri(this.content.getContentId().toString(),
             path,
             RenderingMode.EDIT);
@@ -666,18 +671,13 @@ export class LiveFormPanel
             this.inspectPage(false);
         });
 
-        eventsManager.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
-            this.pageView = event.getPageView();
-
+        eventsManager.onLiveEditPageViewReady(() => {
             // disable insert tab if there is no page for some reason (i.e. error occurred)
-            // or there is no controller or template set
+            // or there is no controller or template set or no automatic template
             const page = PageState.getState();
             const isPageRenderable = !!page && (page.hasController() || !!page.getTemplate() || page.isFragment());
-            this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView && isPageRenderable);
-
-            if (!this.pageView) {
-                this.setErrorRenderingFailed();
-            }
+            const hasDefaultTemplate = this.liveEditModel?.getDefaultModels().hasDefaultPageTemplate();
+            this.contextWindow.setItemVisible(this.insertablesPanel, isPageRenderable || hasDefaultTemplate);
         });
 
         eventsManager.onPageSaveAsTemplate(() => {
@@ -703,6 +703,7 @@ export class LiveFormPanel
         eventsManager.onLiveEditPageInitializationError((event: LiveEditPageInitializationErrorEvent) => {
             showError(event.getMessage(), false);
             this.contentWizardPanel.showForm();
+            this.contextWindow.setItemVisible(this.insertablesPanel, false);
         });
 
         eventsManager.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {
@@ -773,7 +774,7 @@ export class LiveFormPanel
         const customizedWithController = !this.content.getPage() && PageState.getState()?.hasController();
         const isFragmentContent = PageState.getState()?.isFragment();
 
-        if (!!this.liveEditModel?.getDefaultModels().getDefaultPageTemplate() || customizedWithController || isFragmentContent) {
+        if (this.liveEditModel?.getDefaultModels().hasDefaultPageTemplate() || customizedWithController || isFragmentContent) {
             this.contextWindow.clearSelection(showInsertables);
             return true;
         }
@@ -826,7 +827,6 @@ export class LiveFormPanel
         } else if (component instanceof TextComponent) {
             showInspectionPanel(this.textInspectionPanel);
             this.textInspectionPanel.setTextComponent(component);
-            this.inspectionsPanel.setButtonContainerVisible(this.pageView?.getPageViewController().isTextEditMode());
         } else if (component instanceof FragmentComponent) {
             showInspectionPanel(this.fragmentInspectionPanel);
             this.fragmentInspectionPanel.setFragmentComponent(component);

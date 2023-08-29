@@ -43,7 +43,7 @@ export class PageActionsHelper {
 
             if (page.getFragment() instanceof TextComponent) {
                 result.push(new Action(i18n('action.edit')).onExecuted(() => {
-                    new EditTextComponentViewEvent(page.getPath().toString()).fire();
+                    PageEventsManager.get().notifyTextComponentEditRequested(page.getPath());
                 }));
             }
 
@@ -109,7 +109,7 @@ export class PageActionsHelper {
 
             if (component instanceof TextComponent) {
                 actions.push(new Action(i18n('action.edit')).onExecuted(() => {
-                    new EditTextComponentViewEvent(component.getPath().toString()).fire();
+                    PageEventsManager.get().notifyTextComponentEditRequested(component.getPath());
                 }));
             }
         }

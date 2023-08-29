@@ -16,6 +16,7 @@ import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {DescriptorBasedComponentInspectionPanel} from './region/DescriptorBasedComponentInspectionPanel';
 import {Descriptor} from '../../../../page/Descriptor';
 import {PageState} from '../../PageState';
+import {PageEventsManager} from '../../../PageEventsManager';
 
 export interface InspectionsPanelConfig {
     contentInspectionPanel: ContentInspectionPanel;
@@ -37,6 +38,7 @@ export class InspectionsPanel
 
     private readonly noSelectionPanel: NoSelectionInspectionPanel;
     private readonly pageInspectionPanel: PageInspectionPanel;
+    private readonly textInspectionPanel: TextInspectionPanel;
 
     constructor(config: InspectionsPanelConfig) {
         super('inspections-panel');
@@ -52,7 +54,7 @@ export class InspectionsPanel
         const contentInspectionPanel = config.contentInspectionPanel;
         const regionInspectionPanel = config.regionInspectionPanel;
         const fragmentInspectionPanel = config.fragmentInspectionPanel;
-        const textInspectionPanel = config.textInspectionPanel;
+        this.textInspectionPanel = config.textInspectionPanel;
 
         this.deck.addPanel(imageInspectionPanel);
         this.deck.addPanel(partInspectionPanel);
@@ -61,7 +63,7 @@ export class InspectionsPanel
         this.deck.addPanel(regionInspectionPanel);
         this.deck.addPanel(this.pageInspectionPanel);
         this.deck.addPanel(fragmentInspectionPanel);
-        this.deck.addPanel(textInspectionPanel);
+        this.deck.addPanel(this.textInspectionPanel);
         this.deck.addPanel(this.noSelectionPanel);
 
         this.deck.showPanel(this.pageInspectionPanel);
@@ -73,6 +75,16 @@ export class InspectionsPanel
 
         partInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
         layoutInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
+
+        this.initListeners();
+    }
+
+    private initListeners(): void {
+        PageEventsManager.get().onTextComponentEditModeChanged((value: boolean) => {
+            if (this.getPanelShown() === this.textInspectionPanel) {
+                this.setButtonContainerVisible(value);
+            }
+        });
     }
 
     public showInspectionPanel(panel: Panel): void {

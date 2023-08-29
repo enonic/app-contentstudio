@@ -1,4 +1,5 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {TextEditModeChangedEvent} from './event/outgoing/navigation/TextEditModeChangedEvent';
 
 /**
  * Acts as a controller for PageView state
@@ -29,8 +30,13 @@ export class PageViewController {
     }
 
     setTextEditMode(value: boolean) {
+        const isToBeChanged = !!this.textEditMode !== !!value;
         this.textEditMode = value;
-        this.notifyTextEditModeChanged(value);
+
+        if (isToBeChanged) {
+            this.notifyTextEditModeChanged(value);
+            new TextEditModeChangedEvent(value).fire();
+        }
     }
 
     private notifyTextEditModeChanged(value: boolean) {

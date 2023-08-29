@@ -1,5 +1,4 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {PageComponentsItemViewer} from './PageComponentsItemViewer';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {GridColumn, GridColumnBuilder} from '@enonic/lib-admin-ui/ui/grid/GridColumn';
@@ -7,6 +6,7 @@ import {GridOptions, GridOptionsBuilder} from '@enonic/lib-admin-ui/ui/grid/Grid
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ComponentsTreeItem} from './ComponentsTreeItem';
+import {PageComponentsMenuIcon} from './PageComponentsMenuIcon';
 
 export class PageComponentsTreeGridHelper {
 
@@ -55,10 +55,7 @@ export class PageComponentsTreeGridHelper {
 
     private static menuFormatter(row: number, cell: number, value: unknown, columnDef: unknown, node: TreeNode<ContentSummaryAndCompareStatus>) {
         const wrapper: SpanEl = new SpanEl();
-
-        // adding 'expand' as a trick to avoid select/deselect when clicking on menu icon
-        const icon: DivEl = new DivEl('menu-icon icon-menu2 expand');
-        wrapper.appendChild(icon);
+        wrapper.appendChild(new PageComponentsMenuIcon());
         return wrapper.toString();
     }
 

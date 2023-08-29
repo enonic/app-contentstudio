@@ -198,12 +198,11 @@ export class PageTemplateWidgetItemView
             return DefaultModelsFactory.create({
                 siteId: site.getContentId(),
                 contentType: contentType,
-                applications: site.getApplicationKeys()
             } as DefaultModelsFactoryConfig);
         }
 
         if (contentType.isSite()) {
-            return Q<DefaultModels>(new DefaultModels(null, null));
+            return Q<DefaultModels>(new DefaultModels(null));
         }
 
         return Q<DefaultModels>(null);

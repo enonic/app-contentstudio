@@ -3,13 +3,10 @@ import {Descriptor} from '../../page/Descriptor';
 
 export class DefaultModels {
 
-    private defaultPageTemplate: PageTemplate;
+    private readonly defaultPageTemplate: PageTemplate;
 
-    private defaultPageTemplateDescriptor: Descriptor;
-
-    constructor(pageTemplate: PageTemplate, pageDescriptor: Descriptor) {
+    constructor(pageTemplate: PageTemplate) {
         this.defaultPageTemplate = pageTemplate;
-        this.defaultPageTemplateDescriptor = pageDescriptor;
     }
 
     hasDefaultPageTemplate(): boolean {
@@ -18,9 +15,5 @@ export class DefaultModels {
 
     getDefaultPageTemplate(): PageTemplate {
         return this.defaultPageTemplate ? this.defaultPageTemplate.clone() : null;
-    }
-
-    getDefaultPageTemplateDescriptor(): Descriptor {
-        return this.defaultPageTemplateDescriptor;
     }
 }

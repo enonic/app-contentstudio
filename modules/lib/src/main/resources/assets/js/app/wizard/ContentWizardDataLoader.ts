@@ -62,7 +62,7 @@ export class ContentWizardDataLoader {
         }).then((loadedSite: Site) => {
 
             this.siteContent = loadedSite;
-            return this.loadDefaultModels(this.siteContent, params.contentTypeName);
+            return ContentWizardDataLoader.loadDefaultModels(this.siteContent, params.contentTypeName);
 
         }).then((defaultModels: DefaultModels) => {
 
@@ -84,7 +84,7 @@ export class ContentWizardDataLoader {
         });
 
         const modelsPromise: Q.Promise<void> = Q.all([sitePromise, contentPromise]).then(() => {
-            return this.loadDefaultModels(this.siteContent, this.content.getType()).then((defaultModels) => {
+            return ContentWizardDataLoader.loadDefaultModels(this.siteContent, this.content.getType()).then((defaultModels) => {
                 this.defaultModels = defaultModels;
                 return Q(null);
             });
@@ -136,15 +136,14 @@ export class ContentWizardDataLoader {
         return contentId ? new GetNearestSiteRequest(contentId).sendAndParse() : Q<Site>(null);
     }
 
-    public loadDefaultModels(site: Site, contentType: ContentTypeName): Q.Promise<DefaultModels> {
+    public static loadDefaultModels(site: Site, contentType: ContentTypeName): Q.Promise<DefaultModels> {
         if (site) {
             return DefaultModelsFactory.create({
                 siteId: site.getContentId(),
                 contentType: contentType,
-                applications: site.getApplicationKeys()
             } as DefaultModelsFactoryConfig);
         } else if (contentType.isSite()) {
-            return Q<DefaultModels>(new DefaultModels(null, null));
+            return Q<DefaultModels>(new DefaultModels(null));
         } else {
             return Q<DefaultModels>(null);
         }
