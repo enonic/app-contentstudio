@@ -19,7 +19,7 @@ describe('page.template.insert.layout.spec: tests for inserting a layout in page
     }
     let SITE;
     let TEMPLATE;
-    const SUPPORT = 'Site';
+    const SUPPORT_SITE = 'Site';
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const LAYOUT_NAME = appConst.LAYOUT_NAME.COL_3;
     const TEST_TEXT = "test text";
@@ -34,9 +34,8 @@ describe('page.template.insert.layout.spec: tests for inserting a layout in page
     it(`Precondition: new template(supports site) should be added`,
         async () => {
             let templateName = contentBuilder.generateRandomName('template');
-            TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
+            TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT_SITE, CONTROLLER_NAME);
             await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE);
-            await studioUtils.saveScreenshot('article_template');
         });
 
     // verifies - Empty regions are not injected into layout in a Page Template #6592
@@ -46,7 +45,7 @@ describe('page.template.insert.layout.spec: tests for inserting a layout in page
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
             let textComponentCke = new TextComponentCke();
-            // 1. Open new wizard for Article content:
+            // 1. Open the existing page template:
             await studioUtils.selectAndOpenContentInWizard(TEMPLATE.displayName);
             // 2. Insert 3-column layout:
             await pageComponentsWizardStepForm.openMenu('main');
@@ -68,6 +67,33 @@ describe('page.template.insert.layout.spec: tests for inserting a layout in page
             // 6. Save the template
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
+        });
+
+    // Verify the issue - https://github.com/enonic/app-contentstudio/issues/6596
+    // Site is not updated after changes in its template #6596
+    it(`GIVEN main region has been reset in the page template WHEN go to the browser tab with the site THEN the layout should not be present in 'Live Editor' in the site as well`,
+        async () => {
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            let contentWizard = new ContentWizard();
+            let liveFormPanel = new LiveFormPanel();
+            // 1. Open the site with automatic template:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await studioUtils.doSwitchToContentBrowsePanel();
+            // 2. Open the page template:
+            await studioUtils.selectAndOpenContentInWizard(TEMPLATE.displayName);
+            // 3. Expand the menu for 'main' item then click on 'Reset' menu item:
+            await pageComponentsWizardStepForm.openMenu('main');
+            await pageComponentsWizardStepForm.selectMenuItem(['Reset']);
+            // 4. Click on Save in the template wizard:
+            await contentWizard.waitAndClickOnSave();
+            await studioUtils.saveScreenshot('template_main_region_reset');
+            await contentWizard.waitForNotificationMessage();
+            // 5. Switch to the site wizard:
+            await studioUtils.switchToContentTabWindow(SITE.displayName);
+            await studioUtils.saveScreenshot('main_region_reset_site');
+            // 6. Verify that layout-component should be removed in the site as well:
+            await contentWizard.switchToLiveEditFrame();
+            await liveFormPanel.waitForLayoutComponentNotDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
