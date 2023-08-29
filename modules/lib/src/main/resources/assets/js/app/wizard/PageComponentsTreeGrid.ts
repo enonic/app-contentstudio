@@ -32,6 +32,7 @@ import {PageState} from './page/PageState';
 import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {PageItemType} from '../page/region/PageItemType';
+import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ComponentsTreeItem> {
@@ -250,7 +251,9 @@ export class PageComponentsTreeGrid
         }
 
         const descriptorKey: string = component.getDescriptorKey().toString();
-        const type: LayoutComponentType | PartComponentType = component instanceof LayoutComponent ? LayoutComponentType.get() : PartComponentType.get();
+        const type: LayoutComponentType | PartComponentType = component instanceof LayoutComponent
+                                                              ? LayoutComponentType.get()
+                                                              : PartComponentType.get();
         return new GetComponentDescriptorRequest(descriptorKey, type).sendAndParse().catch((error: unknown) => {
             console.log(error);
             return null;
@@ -367,7 +370,7 @@ export class PageComponentsTreeGrid
 
     private hasLayout(node: TreeNode<ComponentsTreeItem>): boolean {
         return node?.getChildren().some((childNode: TreeNode<ComponentsTreeItem>) => {
-           return childNode.getData()?.getComponent().getType() instanceof LayoutComponentType || this.hasLayout(childNode);
+            return childNode.getData()?.getComponent().getType() instanceof LayoutComponentType || this.hasLayout(childNode);
         });
     }
 
@@ -518,13 +521,23 @@ export class PageComponentsTreeGrid
             } else if (node.getData().getType() === 'region') {
                 result = '/' + node.getData().getComponent().getDisplayName() + result;
             } else {
-                result = '/' + node.getParent().getChildren().indexOf(node) + result ;
+                result = '/' + node.getParent().getChildren().indexOf(node) + result;
             }
 
             node = node.getParent();
         }
 
         return ComponentPath.fromString(result);
+    }
+
+    protected expandOnClick(elem: ElementHelper, data: Slick.OnClickEventArgs<ComponentsTreeItem>) {
+        // trick to avoid select/deselect when clicking on menu icon
+        if (elem.hasClass('menu-icon')) {
+            this.setActive(true);
+            return;
+        }
+
+        super.expandOnClick(elem, data);
     }
 
 }
