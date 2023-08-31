@@ -161,6 +161,12 @@
         }
       }
     }
+
+    .wizard-steps-panel {
+      .wizard-step-form:last-of-type {
+        height: auto !important;
+      }
+    }
   }
 
   &:not(.rendered) {
@@ -363,6 +369,16 @@
           position: absolute;
           left: 5px;
           top: 5px;
+        }
+      }
+
+      &:not(.minimized) {
+        .wizard-step-navigator-and-toolbar {
+          &:not(.folded) {
+            &:not(.scroll-stick) {
+              width: auto !important;
+            }
+          }
         }
       }
     }
