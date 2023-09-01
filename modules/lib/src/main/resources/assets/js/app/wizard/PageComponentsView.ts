@@ -78,9 +78,9 @@ export class PageComponentsView
 
     private afterActionHandler: (action: Action) => void;
 
-    private modifyPermissions: boolean = false;
-
     private lastSelectedPath: ComponentPath;
+
+    private isToBeEnabled: boolean;
 
     constructor(liveEditPage: LiveEditPageProxy) {
         super('page-components-view');
@@ -186,9 +186,16 @@ export class PageComponentsView
         KeyBindings.get().unbindKeys(this.keyBinding);
     }
 
-    setModifyPermissions(modifyPermissions: boolean): boolean {
-        this.modifyPermissions = modifyPermissions;
-        return this.modifyPermissions;
+    setEnabled(enabled: boolean): void {
+        this.isToBeEnabled = enabled;
+
+        if (enabled) {
+            if (!this.liveEditPage.isLocked()) {
+                this.setLocked(false);
+            }
+        } else {
+            this.setLocked(true);
+        }
     }
 
     private initLiveEditEvents() {
@@ -200,6 +207,10 @@ export class PageComponentsView
 
         eventsManager.onLoaded(() => {
             this.removeClass('loading');
+
+            if (this.isToBeEnabled && !this.liveEditPage.isLocked()) {
+                this.setLocked(false);
+            }
         });
 
         eventsManager.onPageLocked(() => {
