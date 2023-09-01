@@ -14,9 +14,10 @@ export class ComponentsTreeItem
 
     private readonly id: number;
 
-    constructor(component: TreeComponent) {
+    // use id if updating existing node
+    constructor(component: TreeComponent, id?: number) {
         this.component = component;
-        this.id = ComponentsTreeItem.ID_PRODUCER.next();
+        this.id = id ?? ComponentsTreeItem.ID_PRODUCER.next();
     }
 
     getType(): PageItemType {

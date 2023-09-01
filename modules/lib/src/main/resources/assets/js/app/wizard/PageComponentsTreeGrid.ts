@@ -31,9 +31,10 @@ import {PageItem} from '../page/region/PageItem';
 import {PageState} from './page/PageState';
 import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {PageItemType} from '../page/region/PageItemType';
 import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {PageComponentsMenuIcon} from './PageComponentsMenuIcon';
+import {ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
+import {ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ComponentsTreeItem> {
@@ -55,6 +56,21 @@ export class PageComponentsTreeGrid
             isDropAllowed: this.isDropAllowed.bind(this),
         }));
 
+        this.initListeners();
+    }
+
+    private initListeners(): void {
+        PageState.getEvents().onComponentAdded((event: ComponentAddedEvent) => {
+            this.addComponent(event.getComponent()).catch(DefaultErrorHandler.handle);
+        });
+
+        PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
+            this.deleteItemByPath(event.getPath());
+        });
+
+        PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
+            this.updateItemByPath(event.getPath());
+        });
     }
 
     queryScrollable(): Element {
@@ -261,7 +277,7 @@ export class PageComponentsTreeGrid
         });
     }
 
-    addComponent(component: Component): Q.Promise<ComponentsTreeItem> {
+    private addComponent(component: Component): Q.Promise<ComponentsTreeItem> {
         const parentNode: TreeNode<ComponentsTreeItem> = this.getNodeByPath(component.getParent().getPath());
         if (!parentNode) {
             return;
@@ -277,42 +293,6 @@ export class PageComponentsTreeGrid
             this.insertDataToParentNode(item, parentNode, index);
 
             return item;
-        });
-
-    }
-
-    reloadItemByPath(path: ComponentPath): void {
-        this.refreshComponentNode(path);
-        this.scrollToItem(path);
-
-        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
-        const type: PageItemType = node.getData().getComponent().getType();
-
-        if (type instanceof LayoutComponentType) {
-            this.expandNode(node);
-            return;
-        }
-    }
-
-    refreshComponentNode(path: ComponentPath, clean?: boolean): Q.Promise<void> {
-        const oldNode: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
-
-        if (oldNode) {
-            return Q.resolve();
-        }
-
-        if (clean) {
-            oldNode.getChildren().forEach((childNode: TreeNode<ComponentsTreeItem>) => {
-                this.deleteNode(childNode);
-            });
-        }
-
-        return this.fetchComponentItem(null).then((treeComponent: TreeComponent) => {
-            this.updateNodeByData(new ComponentsTreeItem(treeComponent), oldNode.getDataId());
-
-            if (this.isItemSelected(path)) {
-                this.selectItemByPath(path);
-            }
         });
     }
 
@@ -475,7 +455,7 @@ export class PageComponentsTreeGrid
         return this.getGrid().getDataView().getRowById(nodeId);
     }
 
-    deleteItemByPath(path: ComponentPath): void {
+    private deleteItemByPath(path: ComponentPath): void {
         const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
 
         if (node) {
@@ -483,22 +463,38 @@ export class PageComponentsTreeGrid
         }
     }
 
-    updateItemByEvent(event: ComponentUpdatedEvent): void {
-        const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(event.getPath());
+    private updateItemByPath(path: ComponentPath): void {
+        const nodeToUpdate: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
 
-        if (node) {
-            const item: PageItem = PageState.getState().getComponentByPath(event.getPath());
-
-            if (item instanceof Region) {
-                //
-            } else if (item instanceof Component) {
-                this.fetchTreeItem(item).then((treeComponent: ComponentsTreeItem) => {
-                    node.setData(treeComponent);
-                    node.setExpandable(treeComponent.getComponent().hasChildren());
-                    this.invalidateNodes([node]);
-                }).catch(DefaultErrorHandler.handle);
-            }
+        if (!nodeToUpdate) {
+            return;
         }
+
+        const item: PageItem = PageState.getState().getComponentByPath(path);
+
+        if (item instanceof Component) {
+            this.fetchComponentItem(item).then((updatedComponent: TreeComponent) => {
+                return this.updateExistingNode(nodeToUpdate, updatedComponent);
+            }).catch(DefaultErrorHandler.handle);
+        }
+    }
+
+    private updateExistingNode(nodeToUpdate: TreeNode<ComponentsTreeItem>, updatedComponent: TreeComponent): Q.Promise<boolean> {
+        // preserving old id since it might be used as selected node id etc.
+        const treeComponent: ComponentsTreeItem = new ComponentsTreeItem(updatedComponent, +nodeToUpdate.getDataId());
+        nodeToUpdate.setData(treeComponent);
+        nodeToUpdate.setExpandable(treeComponent.getComponent().hasChildren());
+        this.invalidateNodes([nodeToUpdate]);
+
+        if (updatedComponent.getType() instanceof LayoutComponentType && this.isIdSelected(nodeToUpdate.getDataId())) {
+            return this.expandNode(nodeToUpdate);
+        }
+
+        return Q.resolve();
+    }
+
+    private isIdSelected(dataId: string): boolean {
+        return this.getSelectedItems().some((item: string) => item === dataId);
     }
 
     getPathByItem(item: ComponentsTreeItem): ComponentPath {
