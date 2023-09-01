@@ -2401,7 +2401,7 @@ export class ContentWizardPanel
 
         this.getEl().toggleClass('no-modify-permissions', !value);
         this.getLivePanel()?.setEnabled(value);
-        this.pageComponentsView?.setModifyPermissions(value);
+        this.pageComponentsView?.setEnabled(value);
     }
 
     isReadOnly(): boolean {
