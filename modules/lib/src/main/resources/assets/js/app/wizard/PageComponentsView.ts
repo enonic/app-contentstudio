@@ -37,13 +37,9 @@ import {PageNavigationMediator} from './PageNavigationMediator';
 import {PageNavigationEventType} from './PageNavigationEventType';
 import {PageNavigationEventData} from './PageNavigationEventData';
 import {PageState} from './page/PageState';
-import {ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
-import {ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
 import {PageItem} from '../page/region/PageItem';
-import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {TextComponentType} from '../page/region/TextComponentType';
-import {EditTextComponentViewEvent} from '../../page-editor/event/incoming/manipulation/EditTextComponentViewEvent';
 
 export class PageComponentsView
     extends DivEl
@@ -198,10 +194,6 @@ export class PageComponentsView
     private initLiveEditEvents() {
         const eventsManager = PageEventsManager.get();
 
-        eventsManager.onComponentLoaded((path: ComponentPath): void => {
-            this.tree.reloadItemByPath(path);
-        });
-
         eventsManager.onBeforeLoad(() => {
             this.addClass('loading');
         });
@@ -217,44 +209,6 @@ export class PageComponentsView
         eventsManager.onPageUnlocked(() => {
             this.setLocked(false);
         });
-
-        PageState.getEvents().onComponentAdded((event: ComponentAddedEvent) => {
-            this.addComponent(event.getComponent()).catch(DefaultErrorHandler.handle);
-        });
-
-        PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
-            this.tree.deleteItemByPath(event.getPath());
-        });
-
-        PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
-            this.tree.updateItemByEvent(event);
-        });
-    }
-
-    private addComponent(component: Component): Q.Promise<boolean> {
-        return this.tree.addComponent(component).then((item: ComponentsTreeItem) => {
-            return false; //this.tree.expandNodeByDataId(item.getId());
-        });
-    }
-
-    private handleComponentAdded(event: ComponentAddedEvent): void {
-        /*
-        if (event.getComponentView().isSelected()) {
-            this.tree.selectItemByPath(event.getPath());
-        }
-
-        if (this.tree.hasComponentChildren(event.getComponentView().getComponent())) {
-            const componentDataId = event.getComponentView().getItemId().toString();
-
-            if (event.isDragged()) {
-                this.tree.collapseNodeByDataId(componentDataId);
-            } else {
-                this.tree.expandNodeByDataId(componentDataId);
-            }
-        }
-        */
-
-        this.constrainToParent();
     }
 
     private createTree(): void {
@@ -666,10 +620,11 @@ export class PageComponentsView
 
     handle(event: PageNavigationEvent): void {
         if (event.getType() === PageNavigationEventType.SELECT) {
-            this.lastSelectedPath = event.getData().getPath();
+            const path: ComponentPath = event.getData().getPath();
+            this.lastSelectedPath = this.tree.isItemSelected(path) ? null : path;
 
-            this.tree.selectItemByPath(event.getData().getPath()).then(() => {
-                this.tree.scrollToItem(event.getData().getPath());
+            this.tree.selectItemByPath(path).then(() => {
+                this.tree.scrollToItem(path);
             }).catch(DefaultErrorHandler.handle);
 
             return;

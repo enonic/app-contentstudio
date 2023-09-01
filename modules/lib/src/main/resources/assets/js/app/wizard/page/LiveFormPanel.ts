@@ -537,18 +537,6 @@ export class LiveFormPanel
         return this;
     }
 
-    private assemblePageFromSelectedController(): Page {
-        if (this.placeholder?.hasSelectedController()) {
-            const descriptor: Descriptor = this.placeholder.getSelectedController();
-            return new PageBuilder()
-                .setController(descriptor.getKey())
-                .setConfig(new PropertyTree())
-                .build();
-        }
-
-        return null;
-    }
-
     setModel(liveEditModel: LiveEditModel) {
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
@@ -682,10 +670,6 @@ export class LiveFormPanel
 
         eventsManager.onPageSaveAsTemplate(() => {
             SaveAsTemplateAction.get().execute();
-        });
-
-        PageState.getEvents().onComponentRemoved(() => {
-            this.clearSelection();
         });
 
         eventsManager.onComponentDragDropped((path: ComponentPath) => {
