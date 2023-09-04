@@ -1,7 +1,6 @@
 /**
  * Created on 02.06.2023
  */
-const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 const BasePageComponentView = require('../../wizardpanel/base.page.components.view');
@@ -18,11 +17,10 @@ class PageComponentsWizardStepForm extends BasePageComponentView {
 
     async waitForLoaded() {
         try {
-             await this.waitForElementDisplayed(this.container, appConst.mediumTimeout);
-             await this.pause(500);
+            await this.waitForElementDisplayed(this.container, appConst.mediumTimeout);
+            await this.pause(500);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_wizard_step_component_view');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_wizard_step_component_view');
             throw new Error(`Page Component View -  is not displayed in the wizard step, screenshot: ${screenshot}  ` + err);
         }
     }
@@ -31,10 +29,23 @@ class PageComponentsWizardStepForm extends BasePageComponentView {
         try {
             return await this.waitForElementNotDisplayed(this.container, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_wizard_step_component_view');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_wizard_step_component_view');
             throw new Error(`Page Component View -  is displayed in the wizard step, screenshot: ${screenshot}  ` + err);
         }
+    }
+
+    async waitForNotLocked() {
+        await this.getBrowser().waitUntil(async () => {
+            let atr = await this.getAttribute(this.container, 'class');
+            return !atr.includes('locked');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Content Wizard -  PCV should not be locked! '});
+    }
+
+    async waitForLocked() {
+        await this.getBrowser().waitUntil(async () => {
+            let atr = await this.getAttribute(this.container, 'class');
+            return atr.includes('locked');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Content Wizard PCV should be locked! '});
     }
 }
 
