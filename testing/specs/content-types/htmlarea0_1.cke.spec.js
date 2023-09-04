@@ -158,7 +158,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
             let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
-            assert.equal(numberOfButtons, 21, "21 button should be present in toolbar in Full screen mode");
+            assert.equal(numberOfButtons, 22, "22 button should be present in toolbar in Full screen mode");
             await fullScreenDialog.waitForBoldButtonDisplayed();
             await fullScreenDialog.waitForItalicButtonDisplayed();
             await fullScreenDialog.waitForUnderlineButtonDisplayed();
@@ -168,6 +168,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await fullScreenDialog.waitForInsertMacroButtonDisplayed();
             await fullScreenDialog.waitForInsertImageButtonDisplayed();
             await fullScreenDialog.waitForInsertAnchorButtonDisplayed();
+            await fullScreenDialog.waitForFindAndReplaceButtonDisplayed();
         });
 
     it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'Source Code' button has been pressed THEN source dialog should appear with expected text`,

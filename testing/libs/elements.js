@@ -148,6 +148,7 @@ module.exports = Object.freeze({
         insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
         insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
         insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
+        findAndReplaceButton: "//a[contains(@class,'cke_button') and @title='Find and replace']",
         insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
         insertMacroButton: `//a[contains(@class,'cke_button') and @title='Insert macro']`,
         insertSpecialCharacter: "//a[contains(@class,'cke_button') and @title='Insert Special Character']",

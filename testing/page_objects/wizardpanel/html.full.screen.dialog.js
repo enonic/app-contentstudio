@@ -62,6 +62,10 @@ class HtmlFullScreenDialog extends Page {
         return xpath.container + lib.CKE.insertAnchorButton;
     }
 
+    get findAndReplaceButton() {
+        return xpath.container + lib.CKE.findAndReplaceButton;
+    }
+
     get insertLinkButton() {
         return xpath.container + lib.CKE.insertLinkButton
     }
@@ -155,6 +159,10 @@ class HtmlFullScreenDialog extends Page {
 
     waitForInsertAnchorButtonDisplayed() {
         return this.waitForElementDisplayed(this.insertAnchorButton, appConst.mediumTimeout);
+    }
+
+    waitForFindAndReplaceButtonDisplayed() {
+        return this.waitForElementDisplayed(this.findAndReplaceButton, appConst.mediumTimeout);
     }
 
     waitForInsertImageButtonDisplayed() {
