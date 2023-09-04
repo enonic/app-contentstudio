@@ -43,7 +43,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
         async () => {
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
-            let userName = builder.generateRandomName("owner");
+            let userName = builder.generateRandomName('owner');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
@@ -86,7 +86,6 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await summaryStep.clickOnCreateProjectButton();
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
-
             // 11. Open the project
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
@@ -294,7 +293,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            // 2.Double click on the project:
+            // 2. Do double click on the project item:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             // 3. wait for the project is opened:
             await projectWizard.waitForLoaded();

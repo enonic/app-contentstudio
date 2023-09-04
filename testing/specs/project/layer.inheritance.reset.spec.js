@@ -42,7 +42,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
         async () => {
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            // 1.Create new layer in 'Default' project:
+            // 1. Create new layer in the just created project:
             await settingsBrowsePanel.openProjectWizardDialog();
             let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PRIVATE, null,
                 null, LAYER_DISPLAY_NAME);
@@ -136,7 +136,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await contentWizard.waitForResetButtonNotDisplayed();
         });
 
-    //Verifies: https://github.com/enonic/app-contentstudio/issues/2604
+    // Verifies: https://github.com/enonic/app-contentstudio/issues/2604
     it("GIVEN controller has been selected in the inherited site WHEN 'Reset' button has been pressed THEN the site should be reverted to the inherited state",
         async () => {
             // 1. layer's context should be loaded automatically.
