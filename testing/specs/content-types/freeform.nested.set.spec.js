@@ -12,7 +12,7 @@ const appConst = require('../../libs/app_const');
 
 describe("freeform.nested.set.spec: updates a content with nested set and checks 'Save' button in the wizard-toolbar", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
@@ -26,34 +26,38 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await studioUtils.doAddSite(SITE);
         });
 
-    //Verify:  Nested Form Item Sets - incorrect behaviour of validation when 2 levels added #3773
-    //https://github.com/enonic/app-contentstudio/issues/3773
+    // Verify:  Nested Form Item Sets - incorrect behaviour of validation when 2 levels added #3773
+    // https://github.com/enonic/app-contentstudio/issues/3773
     it("GIVEN wizard for new content with 'nested set' is opened AND the second level is added WHEN options have been selected in the both required inputs THEN the content gets valid",
         async () => {
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform');
-            //1. Fill in the name input:
+            // 1. Fill in the name input:
             await contentWizard.typeDisplayName(CONTENT_2);
-            //2. just scroll the wizard page:
-            await contentWizard.scrollPanel(600);
-            //3. Add an occurrence block:
+            // 2. just scroll the wizard page:
+            await contentWizard.scrollPanel(500);
+            // 3. Add an occurrence block (the second level):
             await freeFormNestedSet.clickOnAddButton();
-            //4. Select the required option in the selector:  select 'Button' option:
-            await freeFormNestedSet.expandOptionsAndSelectElementType("Button", 0);
-            await studioUtils.saveScreenshot("nested_sets_invalid");
-            //5. Verify that the content is invalid, because the second added occurrence block is not filled.
+            // 4. Select the required option in the first 'element type' dropdown-selector:  select 'Button' option:
+            await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 0);
+            await studioUtils.saveScreenshot('nested_sets_remains_invalid_0');
+            await contentWizard.scrollPanel(-500);
+            await studioUtils.saveScreenshot('nested_sets_remains_invalid_1');
+            // 5. Verify that the content remains invalid, because the  'element type' dropdown in the second added occurrence block is not selected yet.
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, "The content should be invalid");
-            //6. Scroll the wizard page and select an option in the second occurrence block:
+            assert.isTrue(isInvalid, 'The content should be invalid');
+            // 6. Scroll the wizard page and select 'Button' option in the second occurrence block:
             await contentWizard.scrollPanel(900);
-            await freeFormNestedSet.expandOptionsAndSelectElementType("Button", 0);
-            //7. Verify that "Save" button gets enabled
+            await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 0);
+            await studioUtils.saveScreenshot('nested_sets_gets_valid_0');
+            // 7. Verify that "Save" button gets enabled
             await contentWizard.waitForSaveButtonEnabled();
-            await studioUtils.saveScreenshot("nested_sets_valid");
-            //8. Verify that the content is valid, because options are selected in the both required selector
+            await contentWizard.scrollPanel(-500);
+            await studioUtils.saveScreenshot('nested_sets_gets_valid_1');
+            // 8. Verify that the content gets valid, because options are selected in the both required selectors:
             isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, "The content should be valid")
+            assert.isFalse(isInvalid, 'The content should be valid')
         });
 
     it("GIVEN wizard for new content with 'nested set' is opened AND name has been saved WHEN element type and input type have been selected THEN 'Save' button gets enabled in the wizard-toolbar",
@@ -63,48 +67,48 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             CONTENT_1 = contentBuilder.generateRandomName('freeform');
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform');
             await contentWizard.typeDisplayName(CONTENT_1);
-            //save just the name:
+            // save just the name:
             await contentWizard.waitAndClickOnSave();
-            //Select Input in the selector and load new form:
+            // Select Input in the selector and load new form:
             await contentWizard.scrollPanel(600);
-            await freeFormNestedSet.expandOptionsAndSelectElementType("Input", 0);
+            await freeFormNestedSet.expandOptionsAndSelectElementType('Input', 0);
             // save the content again
             await contentWizard.waitAndClickOnSave();
             // Select the option in the dropdown
-            await freeFormNestedSet.selectInputType("image");
+            await freeFormNestedSet.selectInputType('image');
             await studioUtils.saveScreenshot('set_in_set_save_issue');
-            //"Save" button gets enabled, because radio button has been checked
+            // "Save" button gets enabled, because radio button has been checked
             await contentWizard.waitForSaveButtonEnabled();
         });
 
-    //Verifies https://github.com/enonic/lib-admin-ui/issues/1679
-    //No content validation after changing option in a single-select option-set
+    // Verifies https://github.com/enonic/lib-admin-ui/issues/1679
+    // No content validation after changing option in a single-select option-set
     it("GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN Image and Text options have been selected sequentially THEN Save button gets enabled in the wizard-toolbar",
         async () => {
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
-            //1. Open existing content with options set:
+            // 1. Open existing content with options set:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_1);
-            //2.Select text-option:
-            //#1556 Single occurrence of item-set should be expanded by default
-            await freeFormNestedSet.selectInputType("text");
+            // 2.Select text-option in the dropdown:
+            // #1556 Single occurrence of item-set should be expanded by default
+            await freeFormNestedSet.selectInputType('text');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1000);
-            //3. change the selected option to 'image':
+            // 3. change the selected option to 'image':
             await freeFormNestedSet.resetInputTypeOption();
-            await freeFormNestedSet.selectInputType("image");
-            //"Save" button gets enabled, because the option was updated:
+            await freeFormNestedSet.selectInputType('image');
+            // "Save" button gets enabled, because the option was updated:
             await contentWizard.waitForSaveButtonEnabled();
             await contentWizard.waitAndClickOnSave();
-            //4. Verify that the content gets valid now:
+            // 4. Verify that the content gets valid now:
             let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "Red icon should not be displayed, because required input is filled");
+            assert.isFalse(result, "Red icon should not be displayed, because required options are selected");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
