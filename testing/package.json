@@ -29,7 +29,7 @@
     "@wdio/local-runner": "^8.16.4",
     "@wdio/mocha-framework": "^8.16.3",
     "@wdio/reporter": "^8.16.3",
-    "@wdio/spec-reporter": "^8.15.7",
+    "@wdio/spec-reporter": "^8.16.3",
     "assert": "^2.0.0",
     "chai": "^4.3.8",
     "glob": "10.3.4",
