@@ -11,6 +11,7 @@ const contentBuilder = require("../../libs/content.builder");
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const appConst = require('../../libs/app_const');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 
 describe('site.with.several.templates: click on dropdown handle in Inspection Panel and change a template ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -99,6 +100,22 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             let expectedMessage = appConst.itemSavedNotificationMessage(SITE.displayName);
             assert.equal(notificationMessage, expectedMessage, "'Item is saved' - this message should appear");
             // 6. Verify -  'Save' button gets disabled in the wizard-toolbar
+            await contentWizard.waitForSaveButtonDisabled();
+        });
+
+    it(`GIVEN Inspection Panel is loaded WHEN 'main region' controller has been selected in Inspect Panel THEN PCV should be unlocked in wizard step`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            // 1. Open the site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // 2. Select the controller:
+            await pageInspectionPanel.selectPageTemplateOrController('main region');
+            await studioUtils.saveScreenshot('controller_switched_pcv_gets_enabled');
+            // 3. PCV should not be disabled (not locked):
+            await pageComponentsWizardStepForm.waitForNotLocked()
+            // 4. Verify -  'Save' button is disabled in the wizard-toolbar
             await contentWizard.waitForSaveButtonDisabled();
         });
 

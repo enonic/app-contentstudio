@@ -24,23 +24,25 @@ class LayoutInspectionPanel extends Page {
 
     async typeNameAndSelectLayout(displayName) {
         try {
-        let optionSelector = lib.slickRowByDisplayName(xpath.layoutDropdown, displayName);
-        await this.waitForElementDisplayed(this.layoutDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, appConst.longTimeout);
-        await this.typeTextInInput(this.layoutDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, displayName);
-        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-        await this.clickOnElement(optionSelector);
-        return await this.pause(1000);
+            let optionSelector = lib.slickRowByDisplayName(xpath.layoutDropdown, displayName);
+            await this.waitForElementDisplayed(this.layoutDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, appConst.longTimeout);
+            await this.typeTextInInput(this.layoutDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, displayName);
+            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
+            await this.clickOnElement(optionSelector);
+            return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_layout_inspect_panel');
-            throw new Error('Layout Inspect Panel, Error during selecting a layout in the dropdown , screenshot:' +screenshot+ ' ' + err);
+            throw new Error('Layout Inspect Panel, Error during selecting a layout in the dropdown , screenshot:' + screenshot + ' ' + err);
         }
     }
 
-    waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_load_inspect_panel');
-            throw new Error('Live Edit, Layout Inspection Panel is not loaded' + err);
-        });
+    async waitForOpened() {
+        try {
+            return await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_load_layout_inspect_panel');
+            throw new Error('Live Edit, Layout Inspection Panel is not loaded, screenshot' + screenshot + ' ' + err);
+        }
     }
 
     async clickOnLayoutDropdownHandle() {

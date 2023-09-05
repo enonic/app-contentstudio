@@ -34,34 +34,34 @@ class PageInspectionPanel extends Page {
         return await this.pause(3000);
     }
 
-    clickOnPageTemplateDropdownHandle() {
-        return this.clickOnElement(this.pageTemplateDropdownHandle).catch(err => {
-            this.saveScreenshot('err_click_on_dropdownhandle_inspection');
-            throw new Error('page template selector: ' + err);
-        }).then(() => {
-            return this.pause(700);
-        });
+    async clickOnPageControllerDropdownHandle() {
+        try {
+            await this.clickOnElement(this.pageTemplateDropdownHandle);
+            return await this.pause(700);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_page_inspection_dropdown');
+            throw new Error('page template selector: screenshot' + screenshot + ' ' + err);
+        }
     }
 
-    getPageTemplateDropdownOptions() {
-        return this.clickOnPageTemplateDropdownHandle().then(() => {
-            let selector = lib.SLICK_ROW + "//div[contains(@id,'PageTemplateAndSelectorViewer')]" + lib.P_SUB_NAME;
-            return this.getTextInElements(selector);
-        });
+    async getPageTemplateDropdownOptions() {
+        await this.clickOnPageControllerDropdownHandle();
+        let selector = lib.SLICK_ROW + "//div[contains(@id,'PageTemplateAndSelectorViewer')]" + lib.P_SUB_NAME;
+        return await this.getTextInElements(selector);
     }
 
-    //clicks on dropdown handle and select an option
+    // clicks on dropdown handle and select an option
     async selectPageTemplateOrController(displayName) {
         try {
             let optionSelector = lib.slickRowByDisplayName(xpath.pageTemplateSelector, displayName);
             await this.waitForElementDisplayed(this.pageTemplateDropdownHandle, appConst.longTimeout);
-            await this.clickOnPageTemplateDropdownHandle();
+            await this.clickOnPageControllerDropdownHandle();
             await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
             await this.clickOnElement(optionSelector);
             return await this.pause(700);
         } catch (err) {
-            this.saveScreenshot('err_select_option');
-            throw new Error('Page Inspection Panel' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_select_option');
+            throw new Error('Page Inspection Panel, controller dropdown, screenshot:' + screenshot + ' ' + err);
         }
     }
 
