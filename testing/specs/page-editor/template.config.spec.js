@@ -169,6 +169,10 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await contextWindow.waitForTabBarItemDisplayed('Insert');
             // 7. Save button should be disabled:
             await contentWizard.waitForSaveButtonDisabled();
+            // 6. Verify that 'Insert' tab is present in the Components widget in Context window
+            await contextWindow.waitForTabBarItemDisplayed('Insert');
+            // 7. Save button should be disabled:
+            await contentWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
