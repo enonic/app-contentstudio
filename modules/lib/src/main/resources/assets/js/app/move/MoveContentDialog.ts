@@ -58,6 +58,7 @@ export class MoveContentDialog
         this.initProgressManager();
         this.destinationSearchInput = new ContentMoveComboBox();
         this.moveAction = new Action(i18n('action.move'), '');
+        this.moveAction.setEnabled(false);
     }
 
     protected postInitElements() {
@@ -72,6 +73,11 @@ export class MoveContentDialog
 
         this.destinationSearchInput.onOptionSelected(() => {
             this.getButtonRow().focusDefaultAction();
+            this.moveAction.setEnabled(true);
+        });
+
+        this.destinationSearchInput.onOptionDeselected(() => {
+            this.moveAction.setEnabled(false);
         });
 
         this.moveAction.onExecuted(() => {
