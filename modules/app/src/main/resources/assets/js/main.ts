@@ -1,69 +1,72 @@
 /*global Q, JQuery */
 
-import * as $ from 'jquery';
-import * as Q from 'q';
-import {showError, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {i18nInit} from '@enonic/lib-admin-ui/util/MessagesInitializer';
-import {Router} from 'lib-contentstudio/app/Router';
-import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
-import {ContentPublishPromptEvent} from 'lib-contentstudio/app/browse/ContentPublishPromptEvent';
-import {ContentUnpublishPromptEvent} from 'lib-contentstudio/app/browse/ContentUnpublishPromptEvent';
-import {ShowNewContentDialogEvent} from 'lib-contentstudio/app/browse/ShowNewContentDialogEvent';
-import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
-import {ContentEventsProcessor} from 'lib-contentstudio/app/ContentEventsProcessor';
-import {IssueServerEventsHandler} from 'lib-contentstudio/app/issue/event/IssueServerEventsHandler';
-import {CreateIssuePromptEvent} from 'lib-contentstudio/app/browse/CreateIssuePromptEvent';
-import {IssueDialogsManager} from 'lib-contentstudio/app/issue/IssueDialogsManager';
-import {ShowIssuesDialogEvent} from 'lib-contentstudio/app/browse/ShowIssuesDialogEvent';
-import {ContentDuplicatePromptEvent} from 'lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
-import {GetContentTypeByNameRequest} from 'lib-contentstudio/app/resource/GetContentTypeByNameRequest';
-import {ShowDependenciesEvent} from 'lib-contentstudio/app/browse/ShowDependenciesEvent';
-import {GetContentByIdRequest} from 'lib-contentstudio/app/resource/GetContentByIdRequest';
-import {GetContentByPathRequest} from 'lib-contentstudio/app/resource/GetContentByPathRequest';
-import {ContentServerEventsHandler} from 'lib-contentstudio/app/event/ContentServerEventsHandler';
-import {EditContentEvent} from 'lib-contentstudio/app/event/EditContentEvent';
-import {Content} from 'lib-contentstudio/app/content/Content';
-import {ContentUpdatedEvent} from 'lib-contentstudio/app/event/ContentUpdatedEvent';
-import {RequestContentPublishPromptEvent} from 'lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
-import {ConnectionDetector} from '@enonic/lib-admin-ui/system/ConnectionDetector';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {Application} from '@enonic/lib-admin-ui/app/Application';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
-import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
-import {ProjectContext} from 'lib-contentstudio/app/project/ProjectContext';
-import {AggregatedServerEventsListener} from 'lib-contentstudio/app/event/AggregatedServerEventsListener';
-import {Project} from 'lib-contentstudio/app/settings/data/project/Project';
-import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event/SettingsServerEventsListener';
-import {UrlAction} from 'lib-contentstudio/app/UrlAction';
-import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {ProjectListWithMissingRequest} from 'lib-contentstudio/app/settings/resource/ProjectListWithMissingRequest';
-import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/ProjectHelper';
-import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
-import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
-import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {AppContext} from 'lib-contentstudio/app/AppContext';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
-import {ProjectSelectionDialog} from 'lib-contentstudio/app/dialog/ProjectSelectionDialog';
-import {OpenEditPermissionsDialogEvent} from 'lib-contentstudio/app/event/OpenEditPermissionsDialogEvent';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
+import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
+import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
+import {showError, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
+import {Store} from '@enonic/lib-admin-ui/store/Store';
+import {ConnectionDetector} from '@enonic/lib-admin-ui/system/ConnectionDetector';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {i18nInit} from '@enonic/lib-admin-ui/util/MessagesInitializer';
+import * as $ from 'jquery';
+import {AppContext} from 'lib-contentstudio/app/AppContext';
+import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
+import {ContentDuplicatePromptEvent} from 'lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
+import {ContentPublishPromptEvent} from 'lib-contentstudio/app/browse/ContentPublishPromptEvent';
+import {ContentUnpublishPromptEvent} from 'lib-contentstudio/app/browse/ContentUnpublishPromptEvent';
+import {CreateIssuePromptEvent} from 'lib-contentstudio/app/browse/CreateIssuePromptEvent';
+import {RequestContentPublishPromptEvent} from 'lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
+import {ShowDependenciesEvent} from 'lib-contentstudio/app/browse/ShowDependenciesEvent';
+import {ShowIssuesDialogEvent} from 'lib-contentstudio/app/browse/ShowIssuesDialogEvent';
+import {ShowNewContentDialogEvent} from 'lib-contentstudio/app/browse/ShowNewContentDialogEvent';
+import {Content} from 'lib-contentstudio/app/content/Content';
+import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
+import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from 'lib-contentstudio/app/content/ContentSummaryAndCompareStatus';
+import {ContentEventsListener} from 'lib-contentstudio/app/ContentEventsListener';
+import {ContentEventsProcessor} from 'lib-contentstudio/app/ContentEventsProcessor';
+import {NewContentEvent} from 'lib-contentstudio/app/create/NewContentEvent';
+import {ProjectSelectionDialog} from 'lib-contentstudio/app/dialog/ProjectSelectionDialog';
+import {AggregatedServerEventsListener} from 'lib-contentstudio/app/event/AggregatedServerEventsListener';
+import {ContentServerEventsHandler} from 'lib-contentstudio/app/event/ContentServerEventsHandler';
+import {ContentUpdatedEvent} from 'lib-contentstudio/app/event/ContentUpdatedEvent';
+import {EditContentEvent} from 'lib-contentstudio/app/event/EditContentEvent';
+import {OpenEditPermissionsDialogEvent} from 'lib-contentstudio/app/event/OpenEditPermissionsDialogEvent';
+import {IssueServerEventsHandler} from 'lib-contentstudio/app/issue/event/IssueServerEventsHandler';
+import {IssueDialogsManager} from 'lib-contentstudio/app/issue/IssueDialogsManager';
+import {MoveContentEvent} from 'lib-contentstudio/app/move/MoveContentEvent';
+import {OpenMoveDialogEvent} from 'lib-contentstudio/app/move/OpenMoveDialogEvent';
+import {ProjectContext} from 'lib-contentstudio/app/project/ProjectContext';
+import {GetContentByIdRequest} from 'lib-contentstudio/app/resource/GetContentByIdRequest';
+import {GetContentByPathRequest} from 'lib-contentstudio/app/resource/GetContentByPathRequest';
+import {GetContentTypeByNameRequest} from 'lib-contentstudio/app/resource/GetContentTypeByNameRequest';
+import {Router} from 'lib-contentstudio/app/Router';
+import {Project} from 'lib-contentstudio/app/settings/data/project/Project';
+import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/ProjectHelper';
 import {ProjectNotAvailableDialog} from 'lib-contentstudio/app/settings/dialog/project/create/ProjectNotAvailableDialog';
 import {ProjectDeletedEvent} from 'lib-contentstudio/app/settings/event/ProjectDeletedEvent';
-import {NewContentEvent} from 'lib-contentstudio/app/create/NewContentEvent';
-import {ContentEventsListener} from 'lib-contentstudio/app/ContentEventsListener';
+import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event/SettingsServerEventsListener';
+import {ProjectListWithMissingRequest} from 'lib-contentstudio/app/settings/resource/ProjectListWithMissingRequest';
+import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
+import {UrlAction} from 'lib-contentstudio/app/UrlAction';
+import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
+import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
+import * as Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -377,6 +380,18 @@ async function startApplication() {
             .open();
     });
 
+    const {MoveContentDialog} = await import('lib-contentstudio/app/move/MoveContentDialog');
+    let moveContentDialog = null;
+
+    MoveContentEvent.on((event) => {
+        if (!moveContentDialog) {
+            moveContentDialog = new MoveContentDialog();
+        }
+
+        const contents: ContentSummaryAndCompareStatus[] = event.getModels();
+        new OpenMoveDialogEvent(contents.map(content => content.getContentSummary()), event.getTreeGrid()).fire();
+    });
+
     const {ContentDeleteDialog} = await import('lib-contentstudio/app/remove/ContentDeleteDialog');
     let contentDeleteDialog = null;
 
@@ -586,13 +601,10 @@ async function startContentBrowser() {
 
     const {IssueListDialog} = await import('lib-contentstudio/app/issue/view/IssueListDialog');
     const {SortContentDialog} = await import('lib-contentstudio/app/browse/sort/dialog/SortContentDialog');
-    const {MoveContentDialog} = await import('lib-contentstudio/app/move/MoveContentDialog');
 
     IssueListDialog.get();
 
     new SortContentDialog();
-
-    new MoveContentDialog();
 
     new ContentEventsListener().start();
 }
