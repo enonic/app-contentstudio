@@ -19,7 +19,7 @@ import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {MoveContentRequest} from '../resource/MoveContentRequest';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
-import {OpenMoveDialogEvent} from './OpenMoveDialogEvent';
+import {ContentMovePromptEvent} from './ContentMovePromptEvent';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation
@@ -86,8 +86,6 @@ export class MoveContentDialog
             }).done();
 
         });
-
-        this.listenOpenMoveDialogEvent();
     }
 
     doRender(): Q.Promise<boolean> {
@@ -103,20 +101,17 @@ export class MoveContentDialog
         });
     }
 
-    private listenOpenMoveDialogEvent() {
-        OpenMoveDialogEvent.on((event) => {
+    handlePromptEvent(event: ContentMovePromptEvent) {
+        this.movedContentSummaries = event.getContentSummaries();
+        this.destinationSearchInput.clearCombobox();
+        this.treeGrid = event.getTreeGrid();
 
-            this.movedContentSummaries = event.getContentSummaries();
-            this.destinationSearchInput.clearCombobox();
-            this.treeGrid = event.getTreeGrid();
+        const contents = event.getContentSummaries();
 
-            const contents = event.getContentSummaries();
+        this.destinationSearchInput.setFilterContents(contents);
+        this.contentPathSubHeader.setHtml(contents.length === 1 ? contents[0].getPath().toString() : '');
 
-            this.destinationSearchInput.setFilterContents(contents);
-            this.contentPathSubHeader.setHtml(contents.length === 1 ? contents[0].getPath().toString() : '');
-
-            this.open();
-        });
+        this.open();
     }
 
     private initMoveConfirmationDialog() {
@@ -135,7 +130,7 @@ export class MoveContentDialog
         this.progressManager = new ProgressBarManager({
             processingLabel: `${i18n('field.progress.moving')}...`,
             processHandler: () => {
-                new OpenMoveDialogEvent([]).fire();
+                new ContentMovePromptEvent([]).fire();
             },
             createProcessingMessage: () => new SpanEl()
                 .setHtml(`${i18n('dialog.move.progressMessage')} `)

@@ -37,7 +37,6 @@ import {ShowNewContentDialogEvent} from 'lib-contentstudio/app/browse/ShowNewCon
 import {Content} from 'lib-contentstudio/app/content/Content';
 import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
 import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
-import {ContentSummaryAndCompareStatus} from 'lib-contentstudio/app/content/ContentSummaryAndCompareStatus';
 import {ContentEventsListener} from 'lib-contentstudio/app/ContentEventsListener';
 import {ContentEventsProcessor} from 'lib-contentstudio/app/ContentEventsProcessor';
 import {NewContentEvent} from 'lib-contentstudio/app/create/NewContentEvent';
@@ -49,8 +48,7 @@ import {EditContentEvent} from 'lib-contentstudio/app/event/EditContentEvent';
 import {OpenEditPermissionsDialogEvent} from 'lib-contentstudio/app/event/OpenEditPermissionsDialogEvent';
 import {IssueServerEventsHandler} from 'lib-contentstudio/app/issue/event/IssueServerEventsHandler';
 import {IssueDialogsManager} from 'lib-contentstudio/app/issue/IssueDialogsManager';
-import {MoveContentEvent} from 'lib-contentstudio/app/move/MoveContentEvent';
-import {OpenMoveDialogEvent} from 'lib-contentstudio/app/move/OpenMoveDialogEvent';
+import {ContentMovePromptEvent} from 'lib-contentstudio/app/move/ContentMovePromptEvent';
 import {ProjectContext} from 'lib-contentstudio/app/project/ProjectContext';
 import {GetContentByIdRequest} from 'lib-contentstudio/app/resource/GetContentByIdRequest';
 import {GetContentByPathRequest} from 'lib-contentstudio/app/resource/GetContentByPathRequest';
@@ -383,13 +381,12 @@ async function startApplication() {
     const {MoveContentDialog} = await import('lib-contentstudio/app/move/MoveContentDialog');
     let moveContentDialog = null;
 
-    MoveContentEvent.on((event) => {
+    ContentMovePromptEvent.on((event) => {
         if (!moveContentDialog) {
             moveContentDialog = new MoveContentDialog();
         }
 
-        const contents: ContentSummaryAndCompareStatus[] = event.getModels();
-        new OpenMoveDialogEvent(contents.map(content => content.getContentSummary()), event.getTreeGrid()).fire();
+        moveContentDialog.handlePromptEvent(event);
     });
 
     const {ContentDeleteDialog} = await import('lib-contentstudio/app/remove/ContentDeleteDialog');

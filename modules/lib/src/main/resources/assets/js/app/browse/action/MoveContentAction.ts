@@ -1,10 +1,10 @@
-import {MoveContentEvent} from '../../move/MoveContentEvent';
-import {ContentTreeGrid} from '../ContentTreeGrid';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentMovePromptEvent} from '../../move/ContentMovePromptEvent';
+import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 
 export class MoveContentAction
     extends ContentTreeGridAction {
@@ -15,8 +15,8 @@ export class MoveContentAction
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
-        new MoveContentEvent(contents, this.grid).fire();
+        const contents = this.grid.getSelectedDataList().map(content => content.getContentSummary());
+        new ContentMovePromptEvent(contents, this.grid).fire();
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

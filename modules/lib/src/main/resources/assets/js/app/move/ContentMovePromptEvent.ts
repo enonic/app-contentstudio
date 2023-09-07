@@ -1,12 +1,14 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ContentTreeGrid} from '../browse/ContentTreeGrid';
 import {ContentSummary} from '../content/ContentSummary';
 
-export class OpenMoveDialogEvent
+export class ContentMovePromptEvent
     extends Event {
-    private content: ContentSummary[];
-    private treeGrid: ContentTreeGrid;
+
+    private readonly content: ContentSummary[];
+
+    private readonly treeGrid: ContentTreeGrid | undefined;
 
     constructor(content: ContentSummary[], treeGrid?: ContentTreeGrid) {
         super();
@@ -18,15 +20,15 @@ export class OpenMoveDialogEvent
         return this.content;
     }
 
-    getTreeGrid(): ContentTreeGrid {
+    getTreeGrid(): ContentTreeGrid | undefined {
         return this.treeGrid;
     }
 
-    static on(handler: (event: OpenMoveDialogEvent) => void, contextWindow: Window = window) {
+    static on(handler: (event: ContentMovePromptEvent) => void, contextWindow: Window = window) {
         Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
-    static un(handler?: (event: OpenMoveDialogEvent) => void, contextWindow: Window = window) {
+    static un(handler?: (event: ContentMovePromptEvent) => void, contextWindow: Window = window) {
         Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }
