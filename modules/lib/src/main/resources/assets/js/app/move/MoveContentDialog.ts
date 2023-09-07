@@ -1,25 +1,25 @@
-import * as Q from 'q';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {OpenMoveDialogEvent} from './OpenMoveDialogEvent';
-import {ContentMoveComboBox} from './ContentMoveComboBox';
-import {MoveContentRequest} from '../resource/MoveContentRequest';
-import {ContentIds} from '../content/ContentIds';
-import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
-import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
+import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
 import {ContentTreeGrid} from '../browse/ContentTreeGrid';
-import {ContentSummary} from '../content/ContentSummary';
+import {ContentIds} from '../content/ContentIds';
 import {ContentPath} from '../content/ContentPath';
+import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ProgressBarManager} from '../dialog/ProgressBarManager';
+import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
+import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
+import {MoveContentRequest} from '../resource/MoveContentRequest';
+import {ContentMoveComboBox} from './ContentMoveComboBox';
+import {OpenMoveDialogEvent} from './OpenMoveDialogEvent';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation
@@ -189,7 +189,7 @@ export class MoveContentDialog
     }
 
     private getParentSite(content: ContentSummary): Q.Promise<ContentSummary> {
-        if (!this.treeGrid.hasItemWithDataIdInDefault(content.getId())) {
+        if (!this.treeGrid?.hasItemWithDataIdInDefault(content.getId())) {
             return new GetNearestSiteRequest(content.getContentId()).sendAndParse();
         }
 

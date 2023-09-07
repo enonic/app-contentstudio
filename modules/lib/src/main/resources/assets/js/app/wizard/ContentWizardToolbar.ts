@@ -1,7 +1,6 @@
 import {WebSocketConnection} from '@enonic/lib-admin-ui/connection/WebSocketConnection';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
@@ -18,9 +17,9 @@ import {UrlHelper} from '../util/UrlHelper';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {CollaborationEl} from './CollaborationEl';
+import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
-import {ContentActionCycleButton} from './ContentActionCycleButton';
 
 export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
     actions: ContentWizardActions;
@@ -171,6 +170,7 @@ export class ContentWizardToolbar
             actions.getLocalizeAction(),
             actions.getArchiveAction(),
             actions.getDuplicateAction(),
+            actions.getMoveAction(),
             actions.getPreviewAction(),
             actions.getUndoPendingDeleteAction()
         ]);

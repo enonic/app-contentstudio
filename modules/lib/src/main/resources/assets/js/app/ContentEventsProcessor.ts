@@ -1,16 +1,14 @@
-import {NewContentEvent} from './create/NewContentEvent';
-import {SortContentEvent} from './browse/sort/SortContentEvent';
 import {OpenSortDialogEvent} from './browse/OpenSortDialogEvent';
-import {MoveContentEvent} from './move/MoveContentEvent';
-import {OpenMoveDialogEvent} from './move/OpenMoveDialogEvent';
 import {ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
+import {SortContentEvent} from './browse/sort/SortContentEvent';
+import {ContentSummary} from './content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
+import {NewContentEvent} from './create/NewContentEvent';
 import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
 import {EditContentEvent} from './event/EditContentEvent';
-import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
-import {ContentSummary} from './content/ContentSummary';
 import {ContentUrlHelper} from './util/ContentUrlHelper';
-import {ContentEditParams} from './wizard/ContentEditParams';
 import {ContentCreateParams} from './wizard/ContentCreateParams';
+import {ContentEditParams} from './wizard/ContentEditParams';
 
 export class ContentEventsProcessor {
 
@@ -47,11 +45,6 @@ export class ContentEventsProcessor {
     static handleSort(event: SortContentEvent): void {
         const contents: ContentSummaryAndCompareStatus[] = event.getModels();
         new OpenSortDialogEvent(contents[0]).fire();
-    }
-
-    static handleMove(event: MoveContentEvent): void {
-        const contents: ContentSummaryAndCompareStatus[] = event.getModels();
-        new OpenMoveDialogEvent(contents.map(content => content.getContentSummary()), event.getTreeGrid()).fire();
     }
 
     static handleShowDependencies(event: ShowDependenciesEvent): void {

@@ -1,43 +1,43 @@
-import * as Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ContentWizardPanel} from '../ContentWizardPanel';
-import {DuplicateContentAction} from './DuplicateContentAction';
-import {ArchiveContentAction} from './ArchiveContentAction';
-import {PublishAction} from './PublishAction';
-import {PublishTreeAction} from './PublishTreeAction';
-import {CreateIssueAction} from './CreateIssueAction';
-import {UnpublishAction} from './UnpublishAction';
-import {PreviewAction} from './PreviewAction';
-import {ShowLiveEditAction} from './ShowLiveEditAction';
-import {ShowFormAction} from './ShowFormAction';
-import {UndoPendingDeleteAction} from './UndoPendingDeleteAction';
-import {ContentSaveAction} from './ContentSaveAction';
-import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPermissionsRequest';
-import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermissionsByIdRequest';
-import {PermissionHelper} from '../PermissionHelper';
-import {SaveAndCloseAction} from './SaveAndCloseAction';
-import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
-import {Content} from '../../content/Content';
-import {CompareStatusChecker} from '../../content/CompareStatus';
-import {AccessControlList} from '../../access/AccessControlList';
-import {Permission} from '../../access/Permission';
-import {MarkAsReadyAction} from './MarkAsReadyAction';
-import {RequestPublishAction} from './RequestPublishAction';
-import {OpenRequestAction} from './OpenRequestAction';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
-import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
-import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
-import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
-import {ActionsStateManager, ActionsMap, ActionsState} from '@enonic/lib-admin-ui/ui/ActionsStateManager';
 import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
+import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
+import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
+import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
-import {ResetContentAction} from './ResetContentAction';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ActionsMap, ActionsState, ActionsStateManager} from '@enonic/lib-admin-ui/ui/ActionsStateManager';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {AccessControlList} from '../../access/AccessControlList';
+import {Permission} from '../../access/Permission';
+import {CompareStatusChecker} from '../../content/CompareStatus';
+import {Content} from '../../content/Content';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
+import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermissionsByIdRequest';
+import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPermissionsRequest';
+import {ContentWizardPanel} from '../ContentWizardPanel';
+import {PermissionHelper} from '../PermissionHelper';
+import {ArchiveContentAction} from './ArchiveContentAction';
+import {ContentSaveAction} from './ContentSaveAction';
+import {CreateIssueAction} from './CreateIssueAction';
+import {DuplicateContentAction} from './DuplicateContentAction';
 import {LocalizeContentAction} from './LocalizeContentAction';
-import {PageState} from '../page/PageState';
+import {MarkAsReadyAction} from './MarkAsReadyAction';
+import {MoveContentAction} from './MoveContentAction';
+import {OpenRequestAction} from './OpenRequestAction';
+import {PreviewAction} from './PreviewAction';
+import {PublishAction} from './PublishAction';
+import {PublishTreeAction} from './PublishTreeAction';
+import {RequestPublishAction} from './RequestPublishAction';
+import {ResetContentAction} from './ResetContentAction';
+import {SaveAndCloseAction} from './SaveAndCloseAction';
+import {ShowFormAction} from './ShowFormAction';
+import {ShowLiveEditAction} from './ShowLiveEditAction';
+import {UndoPendingDeleteAction} from './UndoPendingDeleteAction';
+import {UnpublishAction} from './UnpublishAction';
 
 type ActionNames =
     'SAVE' |
@@ -98,6 +98,7 @@ export class ContentWizardActions
             new ResetContentAction(wizardPanel),
             new ArchiveContentAction(wizardPanel),
             new DuplicateContentAction(wizardPanel),
+            new MoveContentAction(wizardPanel),
             new PreviewAction(wizardPanel),
             new PublishAction(wizardPanel),
             new PublishTreeAction(wizardPanel),
@@ -124,25 +125,27 @@ export class ContentWizardActions
             RESET: actions[1],
             ARCHIVE: actions[2],
             DUPLICATE: actions[3],
-            PREVIEW: actions[4],
-            PUBLISH: actions[5],
-            PUBLISH_TREE: actions[6],
-            CREATE_ISSUE: actions[7],
-            UNPUBLISH: actions[8],
-            MARK_AS_READY: actions[9],
-            REQUEST_PUBLISH: actions[10],
-            OPEN_REQUEST: actions[11],
-            CLOSE: actions[12],
-            SHOW_LIVE_EDIT: actions[13],
-            SHOW_FORM: actions[14],
-            SAVE_AND_CLOSE: actions[15],
-            UNDO_PENDING_DELETE: actions[16],
-            LOCALIZE: actions[17]
+            MOVE: actions[4],
+            PREVIEW: actions[5],
+            PUBLISH: actions[6],
+            PUBLISH_TREE: actions[7],
+            CREATE_ISSUE: actions[8],
+            UNPUBLISH: actions[9],
+            MARK_AS_READY: actions[10],
+            REQUEST_PUBLISH: actions[11],
+            OPEN_REQUEST: actions[12],
+            CLOSE: actions[13],
+            SHOW_LIVE_EDIT: actions[14],
+            SHOW_FORM: actions[15],
+            SAVE_AND_CLOSE: actions[16],
+            UNDO_PENDING_DELETE: actions[17],
+            LOCALIZE: actions[18],
         };
 
         const stashableActionsMap: ActionsMap = {
             ARCHIVE: this.actionsMap.ARCHIVE,
             DUPLICATE: this.actionsMap.DUPLICATE,
+            MOVE: this.actionsMap.MOVE,
             PUBLISH: this.actionsMap.PUBLISH,
             PUBLISH_TREE: this.actionsMap.PUBLISH_TREE,
             UNPUBLISH: this.actionsMap.UNPUBLISH,
@@ -186,13 +189,20 @@ export class ContentWizardActions
 
         this.wizardPanel.onDataChanged(this.checkSaveActionStateHandler);
         this.wizardPanel.onPageStateChanged(this.checkSaveActionStateHandler);
+        this.wizardPanel.onContentNamed((c) => {
+            this.enableActions({MOVE: !this.deleteOnlyMode});
+        });
     }
 
-    private isUnnamedContent() {
-        return !this.wizardPanel.getWizardHeader().getName() && (!this.persistedContent || this.persistedContent.getName().isUnnamed());
+    private isPersistedUnnamed(): boolean {
+        return !this.persistedContent || this.persistedContent.getName().isUnnamed();
     }
 
-    private doCheckSaveActionStateHandler() {
+    private isUnnamedContent(): boolean {
+        return !this.wizardPanel.getWizardHeader().getName() && this.isPersistedUnnamed();
+    }
+
+    private doCheckSaveActionStateHandler(): void {
         let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges() &&
                                  (this.isUnnamedContent() || this.wizardPanel.isHeaderValidForSaving());
 
@@ -205,8 +215,8 @@ export class ContentWizardActions
         }
         this.enableActions({SAVE: isEnabled});
 
-        this.getSaveAction().setLabel(i18n(this.wizardPanel.hasUnsavedChanges() || isEnabled || !this.getSaveAction().isSavedStateEnabled()
-                                           ? 'action.save' : 'action.saved'));
+        const canSave = this.wizardPanel.hasUnsavedChanges() || isEnabled || !this.getSaveAction().isSavedStateEnabled();
+        this.getSaveAction().setLabel(i18n(canSave ? 'action.save' : 'action.saved'));
     }
 
     refreshSaveActionState() {
@@ -230,6 +240,7 @@ export class ContentWizardActions
         this.actionsMap.SAVE.setVisible(!isPendingDelete && !this.wizardPanel.getPersistedItem().isDataInherited());
         this.actionsMap.ARCHIVE.setVisible(!isPendingDelete);
         this.actionsMap.DUPLICATE.setVisible(!isPendingDelete);
+        this.actionsMap.MOVE.setVisible(!isPendingDelete);
         this.actionsMap.UNPUBLISH.setVisible(!isPendingDelete);
         this.actionsMap.PREVIEW.setVisible(this.isActionEnabled('PREVIEW') && !isPendingDelete);
 
@@ -239,7 +250,8 @@ export class ContentWizardActions
                 RESET: false,
                 LOCALIZE: false,
                 ARCHIVE: false,
-                DUPLICATE: false
+                DUPLICATE: false,
+                MOVE: false,
             });
         } else {
             if (this.wizardPanel.isNew()) {
@@ -260,7 +272,11 @@ export class ContentWizardActions
     enableActionsForNew() {
         this.persistedContent = null;
         this.stateManager.enableActions({});
-        this.enableActions({SAVE: this.wizardPanel.hasUnsavedChanges(), ARCHIVE: true});
+        this.enableActions({
+            SAVE: this.wizardPanel.hasUnsavedChanges(),
+            ARCHIVE: true,
+            MOVE: !this.isPersistedUnnamed(),
+        });
         this.actionsMap.RESET.setVisible(false);
         this.actionsMap.LOCALIZE.setVisible(false);
         (this.actionsMap.PREVIEW as PreviewAction).setWritePermissions(true);
@@ -289,6 +305,7 @@ export class ContentWizardActions
 
         this.enableActions({
             DUPLICATE: nonDeleteMode,
+            MOVE: nonDeleteMode && !this.isPersistedUnnamed(),
             PUBLISH: nonDeleteMode,
             CREATE_ISSUE: nonDeleteMode,
             UNPUBLISH: nonDeleteMode,
@@ -495,6 +512,10 @@ export class ContentWizardActions
 
     getDuplicateAction(): Action {
         return this.actionsMap.DUPLICATE;
+    }
+
+    getMoveAction(): Action {
+        return this.actionsMap.MOVE;
     }
 
     getCloseAction(): Action {

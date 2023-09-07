@@ -1,9 +1,8 @@
-import {NewContentEvent} from './create/NewContentEvent';
 import {SortContentEvent} from './browse/sort/SortContentEvent';
-import {MoveContentEvent} from './move/MoveContentEvent';
 import {ContentEventsProcessor} from './ContentEventsProcessor';
-import {EditContentEvent} from './event/EditContentEvent';
+import {NewContentEvent} from './create/NewContentEvent';
 import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
+import {EditContentEvent} from './event/EditContentEvent';
 
 export class ContentEventsListener {
 
@@ -32,12 +31,6 @@ export class ContentEventsListener {
         SortContentEvent.on((event) => {
             if (this.started) {
                 ContentEventsProcessor.handleSort(event);
-            }
-        });
-
-        MoveContentEvent.on((event) => {
-            if (this.started) {
-                ContentEventsProcessor.handleMove(event);
             }
         });
     }
