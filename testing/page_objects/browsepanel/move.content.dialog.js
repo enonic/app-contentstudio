@@ -58,11 +58,8 @@ class MoveContentDialog extends Page {
             await this.pause(300);
             await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
             await this.pause(500);
-            let screenshot = appConst.generateRandomName("move_dialog");
-            await this.saveScreenshot(screenshot);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_move_dialog");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_move_dialog_dropdown');
             throw new Error("Move Dialog - Error after clicking on Dropdown handle, screenshot: " + screenshot + "  " + err);
         }
     }
@@ -95,8 +92,7 @@ class MoveContentDialog extends Page {
             let loaderComboBox = new LoaderComboBox();
             return await loaderComboBox.typeTextAndSelectOption(displayName, XPATH.container);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_move_dialog");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_move_dialog');
             throw new Error("Move Dialog - Error during selecting an option, screenshot: " + screenshot + "  " + err);
         }
     }
@@ -109,13 +105,31 @@ class MoveContentDialog extends Page {
     async isDestinationDisabled(displayName) {
         let optionLocator = lib.slickRowByName(XPATH.container, displayName);
         let attr = await this.getAttribute(optionLocator, 'class')
-        return attr.includes("readonly");
+        return attr.includes('readonly');
     }
 
     async getOptionsName() {
         let locator = XPATH.container + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
+    }
+
+    async waitForMoveButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_move_dialog');
+            throw new Error("Move Dialog - Move button should be disabled, screenshot: " + screenshot + "  " + err);
+        }
+    }
+
+    async waitForMoveButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.moveButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_move_btn_dialog');
+            throw new Error("Move Dialog - Move button should be enabled, screenshot: " + screenshot + "  " + err);
+        }
     }
 }
 

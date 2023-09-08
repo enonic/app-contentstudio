@@ -37,6 +37,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await contentWizard.typeDisplayName(CONTENT_2);
             // 2. just scroll the wizard page:
             await contentWizard.scrollPanel(500);
+            await contentWizard.pause(1000);
             // 3. Add an occurrence block (the second level):
             await freeFormNestedSet.clickOnAddButton();
             // 4. Select the required option in the first 'element type' dropdown-selector:  select 'Button' option:
