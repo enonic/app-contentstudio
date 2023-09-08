@@ -315,8 +315,7 @@ class Page {
             await this.pause(400);
             return await this.getText(notificationXpath);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_notification');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_notification');
             throw new Error('Error when wait for the notification message, screenshot:  ' + screenshot + '  ' + err);
         }
     }
@@ -328,8 +327,7 @@ class Page {
             await this.pause(300);
             return await this.getTextInDisplayedElements(lib.NOTIFICATION_TEXT);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_notification");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_notification');
             throw new Error('Error when wait for notification message, screenshot: ' + screenshot + "  " + err);
         }
     }
@@ -339,8 +337,7 @@ class Page {
             let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-text') and contains(.,'${expectedMessage}')]`;
             await this.waitForElementDisplayed(selector, appConst.shortTimeout)
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_notification');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_notification');
             throw new Error('expected notification message was not shown, screenshot: ' + screenshot + "  " + err);
         }
     }
@@ -564,7 +561,7 @@ class Page {
         let id = await element.getAttribute("id");
         let script = 'document.getElementById(arguments[0]).scrollTop=arguments[1]';
         await this.getBrowser().execute(script, id, scrollTop);
-        return await this.pause(400);
+        return await this.pause(900);
     }
 
     async getCSSProperty(locator, property) {

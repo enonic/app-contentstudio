@@ -21,16 +21,20 @@ describe('Move Fragment specification', function () {
         webDriverHelper.setupBrowser();
     }
 
-    let SITE;
+    let SITE, FOLDER;
     let CONTROLLER_NAME = 'main region';
     let FRAGMENT_TEXT_DESCRIPTION = "text";
     let TEST_TEXT_FRAGMENT = 'text_component_1';
 
-    it(`Preconditions: new site should be created`,
+
+    it(`Preconditions: new site and folder should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
+            let folderName = contentBuilder.generateRandomName('folder');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
+            FOLDER = contentBuilder.buildFolder(folderName);
+            await studioUtils.doAddFolder(FOLDER);
         });
 
     // Verifies - Incorrect description in fragment item after a component has been saved as fragment. https://github.com/enonic/app-contentstudio/issues/1534
@@ -46,7 +50,6 @@ describe('Move Fragment specification', function () {
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await textComponent.typeTextInCkeEditor(TEST_TEXT_FRAGMENT);
-            // await contentWizard.switchToMainFrame();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);
             // 2. wait for (1500) the page is rendered and open the menu
@@ -61,6 +64,20 @@ describe('Move Fragment specification', function () {
             assert.equal(actualDescription, FRAGMENT_TEXT_DESCRIPTION, 'Expected description should be in the text-fragment');
         });
 
+    // Verify - Disable Move button when target is not selected #6763
+    it(`GIVEN fragment is selected AND Move button has been pressed WHEN target is not selected THEN 'Move' button should be disabled`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let moveContentDialog = new MoveContentDialog();
+            // 1. Select the fragment-content and click on Move button:
+            await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
+            await contentBrowsePanel.clickOnMoveButton();
+            // 2. Verify - modal dialog is loaded:
+            await moveContentDialog.waitForOpened();
+            // 3. Move button should be disabled, target is not selected:
+            await moveContentDialog.waitForMoveButtonDisabled();
+        });
+
     // Verifies: app-contentstudio#22 Confirmation dialog does not appear, when a fragment is filtered
     it(`GIVEN existing text-fragment is selected WHEN 'Move' button has been pressed and the action is confirmed THEN the fragment should be moved to the root directory`,
         async () => {
@@ -70,14 +87,19 @@ describe('Move Fragment specification', function () {
             // 1. Select the fragment-content and click on Move button:
             await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
             await contentBrowsePanel.clickOnMoveButton();
-            // 2. Verify -  modal dialog is loaded then click on 'Move' button:
+            // 2. Verify -  modal dialog is loaded
             await moveContentDialog.waitForOpened();
+            // 3. Select a target:
+            await moveContentDialog.typeTextAndClickOnOption(FOLDER.displayName);
+            await studioUtils.saveScreenshot('move_dlg_enabled');
+            // 4. Verify that Move button gets enabled:
+            await moveContentDialog.waitForMoveButtonEnabled();
             await moveContentDialog.clickOnMoveButton();
-            // 3. Verify - Confirmation dialog should be loaded!
+            // 5. Verify - Confirmation dialog should be loaded!
             await confirmationDialog.waitForDialogOpened();
-            // 4. Click on 'Yes' button:
+            // 6. Click on 'Yes' button:
             await confirmationDialog.clickOnYesButton();
-            // 5. Verify the notification message - "You are about to move content out of its site which might make it unreachable. Are you sure?"
+            // 7. Verify the notification message - "You are about to move content out of its site which might make it unreachable. Are you sure?"
             await studioUtils.saveScreenshot('fragment_is_moved');
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
             assert.equal(actualMessage, `Item \"text_component_1\" is moved.`, 'Expected notification message should appear');
