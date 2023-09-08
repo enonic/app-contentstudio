@@ -54,8 +54,6 @@ export class HtmlArea
     private disabledTools: string[];
     private allowHeadingsConfig: string;
 
-    private textAreaEl: TextArea;
-
     private enabled: boolean = true;
 
     constructor(config: ContentInputTypeViewContext) {
@@ -118,32 +116,32 @@ export class HtmlArea
             property.convertValueType(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
 
-        this.textAreaEl = new TextArea(this.getInput().getName() + '-' + index);
+        const textAreaEl = new TextArea(this.getInput().getName() + '-' + index);
 
         if (this.content) {
             StylesRequest.fetchStyles(this.content.getId());
         }
 
-        const editorId = this.textAreaEl.getId();
+        const editorId = textAreaEl.getId();
 
         const clazz = editorId.replace(/\./g, '_');
-        this.textAreaEl.addClass(clazz);
+        textAreaEl.addClass(clazz);
 
         const textAreaWrapper = new TextAreaWrapper('text-area-wrapper');
 
-        this.textAreaEl.onRendered(() => {
+        textAreaEl.onRendered(() => {
             this.authRequest.then(() => {
                 this.initEditor(editorId, property, textAreaWrapper).then(() => {
-                    this.editors.push({id: editorId, textAreaWrapper, textAreaEl: this.textAreaEl, property, hasStickyToolbar: false});
+                    this.editors.push({id: editorId, textAreaWrapper, textAreaEl, property, hasStickyToolbar: false});
                 });
             });
         });
 
-        this.textAreaEl.onValueChanged((event: ValueChangedEvent) => {
+        textAreaEl.onValueChanged((event: ValueChangedEvent) => {
             this.handleOccurrenceInputValueChanged(textAreaWrapper, event);
         });
 
-        textAreaWrapper.appendChildren(new DivEl('sticky-dock'), this.textAreaEl);
+        textAreaWrapper.appendChildren(new DivEl('sticky-dock'), textAreaEl);
 
         this.setFocusOnEditorAfterCreate(textAreaWrapper, editorId);
 
@@ -285,7 +283,7 @@ export class HtmlArea
         };
 
         const editorReadyHandler = () => {
-            this.setEditorContent(this.textAreaEl, property);
+            this.setEditorContent(textAreaWrapper.findChildById(id) as TextArea, property);
             const editor = this.editors.find((editor: HtmlAreaOccurrenceInfo) => editor.id === id);
 
             if (editor && !this.enabled) {
@@ -486,8 +484,9 @@ export class HtmlArea
 
     private handleEditorValueChanged(id: string, occurrence: Element) {
         const value: string = HtmlEditor.getData(id);
-        if (value !== this.textAreaEl.getValue()) {
-            this.textAreaEl.setValue(value, false, true);
+        const textAreaEl = occurrence.findChildById(id) as TextArea;
+        if (textAreaEl && value !== textAreaEl.getValue()) {
+            textAreaEl.setValue(value, false, true);
         }
     }
 
