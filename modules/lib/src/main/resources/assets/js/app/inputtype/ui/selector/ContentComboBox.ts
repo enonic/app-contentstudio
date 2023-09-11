@@ -1,41 +1,42 @@
-import * as Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
-import {OptionsFactory} from '@enonic/lib-admin-ui/ui/selector/OptionsFactory';
-import {OptionDataHelper} from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
-import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
-import {ComboBox, ComboBoxConfig} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
-import {ModeTogglerButton} from './ModeTogglerButton';
-import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from './ContentSummaryOptionDataLoader';
-import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
-import {ContentRowFormatter} from '../../../browse/ContentRowFormatter';
-import {ContentTreeSelectorItemViewer} from '../../../item/ContentTreeSelectorItemViewer';
-import {ContentSummaryOptionDataHelper} from '../../../util/ContentSummaryOptionDataHelper';
-import {EditContentEvent} from '../../../event/EditContentEvent';
-import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
-import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {GridColumn, GridColumnBuilder} from '@enonic/lib-admin-ui/ui/grid/GridColumn';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Grid} from '@enonic/lib-admin-ui/ui/grid/Grid';
+import {GridColumn, GridColumnBuilder} from '@enonic/lib-admin-ui/ui/grid/GridColumn';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {Grid} from '@enonic/lib-admin-ui/ui/grid/Grid';
-import {ContentSummary} from '../../../content/ContentSummary';
-import {ContentId} from '../../../content/ContentId';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {ComboBox, ComboBoxConfig} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
+import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {OptionDataHelper} from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
 import {OptionDataLoader} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
-import {Project} from '../../../settings/data/project/Project';
+import {OptionsFactory} from '@enonic/lib-admin-ui/ui/selector/OptionsFactory';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import * as Q from 'q';
+import {ContentRowFormatter} from '../../../browse/ContentRowFormatter';
+import {ContentId} from '../../../content/ContentId';
+import {ContentPath} from '../../../content/ContentPath';
+import {ContentSummary} from '../../../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
+import {EditContentEvent} from '../../../event/EditContentEvent';
 import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
+import {ContentTreeSelectorItemViewer} from '../../../item/ContentTreeSelectorItemViewer';
+import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
+import {Project} from '../../../settings/data/project/Project';
+import {ContentSummaryOptionDataHelper} from '../../../util/ContentSummaryOptionDataHelper';
+import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from './ContentSummaryOptionDataLoader';
+import {ModeTogglerButton} from './ModeTogglerButton';
 
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
@@ -363,9 +364,9 @@ export class ContentSelectedOptionView
 
     constructor(option: Option<ContentTreeSelectorItem>, project?: Project) {
         super(new RichSelectedOptionViewBuilder<ContentTreeSelectorItem>()
-                .setDraggable(true)
-                .setEditable(true)
-                .setOption(option) as RichSelectedOptionViewBuilder<ContentTreeSelectorItem>
+            .setDraggable(true)
+            .setEditable(true)
+            .setOption(option) as RichSelectedOptionViewBuilder<ContentTreeSelectorItem>
         );
 
         this.project = project;
@@ -377,11 +378,13 @@ export class ContentSelectedOptionView
     }
 
     resolveTitle(content: ContentTreeSelectorItem): string {
-        return content.getDisplayName().toString();
+        const isRoot = content.getPath().equals(ContentPath.getRoot());
+        return (isRoot ? '/ ' : '') + content.getDisplayName().toString();
     }
 
     resolveSubTitle(content: ContentTreeSelectorItem): string {
-        return content.getPath().toString();
+        const isRoot = content.getPath().equals(ContentPath.getRoot());
+        return !isRoot ? content.getPath().toString() : undefined;
     }
 
     protected onEditButtonClicked(e: MouseEvent) {
@@ -408,6 +411,8 @@ export class ContentSelectedOptionView
                 status.appendChild(statusTextEl);
                 this.appendChild(status);
             }
+
+            this.toggleClass('no-icon', item.getPath().equals(ContentPath.getRoot()));
 
             return rendered;
         });

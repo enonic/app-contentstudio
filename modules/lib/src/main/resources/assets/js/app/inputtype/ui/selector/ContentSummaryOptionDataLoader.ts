@@ -1,24 +1,24 @@
-import * as Q from 'q';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {OptionDataLoader, OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
-import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
-import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
-import {ContentTreeSelectorQueryRequest} from '../../../resource/ContentTreeSelectorQueryRequest';
-import {ContentSelectorQueryRequest} from '../../../resource/ContentSelectorQueryRequest';
-import {ContentSummaryFetcher} from '../../../resource/ContentSummaryFetcher';
-import {CompareContentRequest} from '../../../resource/CompareContentRequest';
-import {CompareContentResults} from '../../../resource/CompareContentResults';
-import {CompareContentResult} from '../../../resource/CompareContentResult';
-import {GetContentSummaryByIds} from '../../../resource/GetContentSummaryByIds';
-import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import {ContentSummary} from '../../../content/ContentSummary';
+import * as Q from 'q';
 import {ContentId} from '../../../content/ContentId';
+import {ContentSummary} from '../../../content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryJson} from '../../../content/ContentSummaryJson';
+import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
+import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
+import {CompareContentRequest} from '../../../resource/CompareContentRequest';
+import {CompareContentResult} from '../../../resource/CompareContentResult';
+import {CompareContentResults} from '../../../resource/CompareContentResults';
+import {ContentSelectorQueryRequest} from '../../../resource/ContentSelectorQueryRequest';
 import {ContentSelectorRequest} from '../../../resource/ContentSelectorRequest';
+import {ContentSummaryFetcher} from '../../../resource/ContentSummaryFetcher';
+import {ContentTreeSelectorQueryRequest} from '../../../resource/ContentTreeSelectorQueryRequest';
+import {GetContentSummaryByIds} from '../../../resource/GetContentSummaryByIds';
 import {ListByIdSelectorRequest} from '../../../resource/ListByIdSelectorRequest';
 import {Project} from '../../../settings/data/project/Project';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem>
     extends OptionDataLoader<DATA> {
@@ -30,6 +30,8 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     private readonly treeRequest: ContentTreeSelectorQueryRequest<DATA> | ListByIdSelectorRequest<DATA>;
 
     private readonly flatRequest: ContentSelectorQueryRequest<ContentSummaryJson, ContentSummary>;
+
+    private readonly fakeRoot: ContentSummary | undefined;
 
     private isTreeLoadMode: boolean;
 
@@ -47,6 +49,8 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         this.project = builder?.project;
         this.applicationKey = builder?.applicationKey;
         this.smartTreeMode = builder ? builder.smartTreeMode : true;
+
+        this.fakeRoot = builder?.fakeRoot;
 
         this.flatRequest = new ContentSelectorQueryRequest().setRequestProject(this.project);
         this.treeRequest = this.smartTreeMode ? new ContentTreeSelectorQueryRequest<DATA>().setRequestProject(this.project) :
@@ -157,13 +161,18 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
         this.treeRequest.setSearchString(this.treeFilterValue);
 
+        const hasFakeRoot = this.fakeRoot && parentNode.getDataId() == null && !this.treeFilterValue;
+
         return this.loadItems().then((result: DATA[]) => {
             result = result.filter(this.postFilterFn);
 
             this.notifyLoadedData([], postLoad, true);
 
-            return this.createOptionData(result, this.treeRequest.getMetadata().getHits(),
-                this.treeRequest.getMetadata().getTotalHits());
+            return this.createOptionData(
+                hasFakeRoot ? [new ContentTreeSelectorItem(this.fakeRoot, true, false) as DATA, ...result] : result,
+                this.treeRequest.getMetadata().getHits(),
+                this.treeRequest.getMetadata().getTotalHits(),
+            );
         });
     }
 
@@ -258,6 +267,8 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     smartTreeMode: boolean = true;
 
+    fakeRoot: ContentSummary;
+
     project: Project;
 
     applicationKey: ApplicationKey;
@@ -286,6 +297,11 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     setSmartTreeMode(smartTreeMode: boolean): ContentSummaryOptionDataLoaderBuilder {
         this.smartTreeMode = smartTreeMode;
+        return this;
+    }
+
+    setFakeRoot(fakeRoot: ContentSummary): ContentSummaryOptionDataLoaderBuilder {
+        this.fakeRoot = fakeRoot;
         return this;
     }
 

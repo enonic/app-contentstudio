@@ -120,7 +120,7 @@ export class MoveContentDialog
         this.open();
     }
 
-    private initMoveConfirmationDialog() {
+    private initMoveConfirmationDialog(): void {
         this.moveConfirmationDialog = new ConfirmationDialog()
             .setQuestion(i18n('dialog.confirm.move'))
             .setYesCallback(() => {
@@ -132,7 +132,7 @@ export class MoveContentDialog
             });
     }
 
-    private initProgressManager() {
+    private initProgressManager(): void {
         this.progressManager = new ProgressBarManager({
             processingLabel: `${i18n('field.progress.moving')}...`,
             processHandler: () => {
@@ -145,7 +145,7 @@ export class MoveContentDialog
         });
     }
 
-    private showConfirmationDialog() {
+    private showConfirmationDialog(): void {
         this.close();
         this.moveConfirmationDialog.open();
     }
@@ -205,7 +205,7 @@ export class MoveContentDialog
         return Q(null);
     }
 
-    private doMove() {
+    private doMove(): void {
         const parentContent: ContentTreeSelectorItem = this.getParentContentItem();
         const parentPath: ContentPath = parentContent ? parentContent.getPath() : ContentPath.getRoot();
         const contentIds: ContentIds =
@@ -230,19 +230,18 @@ export class MoveContentDialog
     }
 
     private getParentPath(): ContentPath {
-        const parentContent: ContentTreeSelectorItem = this.getParentContentItem();
-        return parentContent ? parentContent.getPath() : ContentPath.getRoot();
+        return this.getParentContentItem().getPath();
     }
 
     private isProgressBarEnabled(): boolean {
         return this.progressManager.isEnabled();
     }
 
-    private pollTask(taskId: TaskId) {
+    private pollTask(taskId: TaskId): void {
         this.progressManager.pollTask(taskId);
     }
 
-    open(reset: boolean = true) {
+    open(reset: boolean = true): void {
         if (reset && !this.progressManager.isEnabled()) {
             this.destinationSearchInput.clearCombobox();
             this.destinationSearchInput.getLoader().resetParams();
@@ -250,23 +249,23 @@ export class MoveContentDialog
         super.open();
     }
 
-    show() {
+    show(): void {
         super.show();
         this.destinationSearchInput.giveFocus();
     }
 
-    close() {
+    close(): void {
         this.unlockControls();
         super.close();
     }
 
-    protected lockControls() {
+    protected lockControls(): void {
         this.addClass('locked');
         this.moveAction.setEnabled(false);
         this.destinationSearchInput.getComboBox().setEnabled(false);
     }
 
-    protected unlockControls() {
+    protected unlockControls(): void {
         this.removeClass('locked');
         this.moveAction.setEnabled(true);
         this.destinationSearchInput.getComboBox().setEnabled(true);

@@ -14,7 +14,7 @@
     .content-path {
       font-family: @admin-font-family;
       color: lightgray;
-      margin-top: 5px;
+      line-height: 18px;
       .ellipsis();
     }
 
@@ -23,6 +23,12 @@
 
       .edit {
         display: none;
+      }
+
+      .loader-combobox {
+        &:not(.followed-by-options) {
+          margin-top: 18px;
+        }
       }
     }
 
