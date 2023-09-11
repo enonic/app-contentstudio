@@ -1,4 +1,15 @@
 .content-tree-selector-item-viewer {
+
+  &.fake-root {
+    .@{_COMMON_PREFIX}names-view {
+      margin-top: 3px;
+    }
+
+    .@{_COMMON_PREFIX}wrapper {
+      display: none;
+    }
+  }
+
   &.invalid .names-and-icon-view {
     .@{_COMMON_PREFIX}wrapper {
       .icon-state-invalid;

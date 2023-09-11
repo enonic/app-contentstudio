@@ -1,8 +1,8 @@
-import {ContentTreeSelectorItem} from './ContentTreeSelectorItem';
+import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {ContentPath} from '../content/ContentPath';
-import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
+import {ContentTreeSelectorItem} from './ContentTreeSelectorItem';
 
 export class ContentTreeSelectorItemViewer
     extends NamesAndIconViewer<ContentTreeSelectorItem> {
@@ -11,10 +11,16 @@ export class ContentTreeSelectorItemViewer
         super('content-tree-selector-item-viewer');
     }
 
+    doLayout(object: ContentTreeSelectorItem) {
+        super.doLayout(object);
+
+        this.toggleClass('fake-root', object?.getPath().isRoot());
+    }
+
     resolveDisplayName(object: ContentTreeSelectorItem): string {
         const contentName = object.getName();
         const displayName = object.getDisplayName();
-        const invalid = !object.isValid() || !displayName || contentName.isUnnamed();
+        const invalid = object.getPath().isRoot() ? false : !object.isValid() || !displayName || contentName.isUnnamed();
         const pendingDelete = object.getContentState().isPendingDelete();
         this.toggleClass('invalid', invalid);
         this.toggleClass('pending-delete', pendingDelete);
