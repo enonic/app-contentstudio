@@ -749,10 +749,11 @@ export class LiveFormPanel
         const path: ComponentPath = ComponentPath.fromString(componentView.getComponentPath()?.toString());
         const persistedComponent = this.getComponentFromPersistedContent(path);
 
-        // component's config gets populated with default values when saved, need to updated viewed component with same values
+        // component's config gets populated with default values when saved, need to update viewed component with same values
         if (persistedComponent?.getType().getShortName() === componentView.getType().getShortName()) {
             const enrichedConfig = (<DescriptorBasedComponent>persistedComponent).getConfig().copy();
             (<DescriptorBasedComponent>componentView.getComponent()).setConfig(enrichedConfig);
+            this.inspectComponent(componentView);
         }
     }
 
