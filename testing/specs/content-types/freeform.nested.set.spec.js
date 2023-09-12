@@ -36,7 +36,8 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             // 1. Fill in the name input:
             await contentWizard.typeDisplayName(CONTENT_2);
             // 2. just scroll the wizard page:
-            await contentWizard.scrollPanel(500);
+            await contentWizard.scrollPanel(300);
+            await studioUtils.saveScreenshot('freeform_scrolled');
             await contentWizard.pause(1000);
             // 3. Add an occurrence block (the second level):
             await freeFormNestedSet.clickOnAddButton();
@@ -49,7 +50,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isTrue(isInvalid, 'The content should be invalid');
             // 6. Scroll the wizard page and select 'Button' option in the second occurrence block:
-            await contentWizard.scrollPanel(900);
+            await contentWizard.scrollPanel(600);
             await freeFormNestedSet.expandOptionsAndSelectElementType('Button', 0);
             await studioUtils.saveScreenshot('nested_sets_gets_valid_0');
             // 7. Verify that "Save" button gets enabled

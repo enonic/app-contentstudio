@@ -78,9 +78,15 @@ class FreeFormView extends Page {
     }
 
     async clickOnAddButton() {
-        await this.waitForAddButtonDisplayed();
-        await this.clickOnElement(this.addButton);
-        return await this.pause(300);
+        try {
+            await this.waitForAddButtonDisplayed();
+            await this.pause(300);
+            await this.clickOnElement(this.addButton);
+            return await this.pause(300);
+        }catch(err){
+            let screenshot = await this.saveScreenshotUniqueName('err_add_btn_nested_set');
+            throw new Error("Nested Item set, Add block button, screenshot:" + screenshot+ ' ' + err);
+        }
     }
 
     //Expands the selector and clicks on the option, index is a number of occurrence block
