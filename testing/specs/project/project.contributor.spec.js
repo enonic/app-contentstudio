@@ -62,7 +62,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
                 null, PROJECT_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(project);
             await projectWizard.waitForNotificationMessage(PROJECT_DISPLAY_NAME);
-
             await studioUtils.saveScreenshot('project_contributor_created_1');
             // 3. Select the project and click on Edit button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);

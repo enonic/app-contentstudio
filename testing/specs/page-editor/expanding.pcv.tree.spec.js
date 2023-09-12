@@ -121,6 +121,31 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await pageComponentView.waitForItemDisplayed('right');
         });
 
+    // Verifies Layout component remains visible after deleting in Page Component View #6475
+    // https://github.com/enonic/app-contentstudio/issues/6475
+    it(`WHEN expanded layout item has been removed in PCV THEN the layout should not be present in PCV tree items`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            // 1. Open the existing site with text components:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // 2. Maximize the Live Edit:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await pageComponentView.expandItem(LAYOUT_3_COL);
+            // 3. Select the text in left region in layout component in Live Edit:
+            await pageComponentView.openMenu(LAYOUT_3_COL);
+            await pageComponentView.selectMenuItem(['Remove']);
+            await studioUtils.saveScreenshot('layout_removed')
+            // 6. Verify that the layout item is gets expanded in PCV:
+            await pageComponentView.getPageComponentsDisplayName();
+            let result = await pageComponentView.getPageComponentsDisplayName();
+            assert.isTrue(result.includes('main region'), 'main region item should be displayed in the modal dialog');
+            assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.isTrue(result.includes('text1'), 'text component should be displayed in the modal dialog');
+            assert.isTrue(result.includes('text2'), 'the second text component should be displayed in the modal dialog');
+            assert.equal(result.length, 4, "4 items should be displayed in PCV after deleting the layout item")
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
