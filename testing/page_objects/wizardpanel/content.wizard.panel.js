@@ -59,7 +59,7 @@ const XPATH = {
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler' and preceding-sibling::span[contains(.,'${name}')]]`,
-    publishMenuItemByName: function (name) {
+    publishMenuItemByName(name) {
         return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
 };
@@ -283,8 +283,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(locator);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_wizard_step');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_wizard_step');
             throw new Error("Error after clicking on the wizard step , screenshot: " + screenshot + ' ' + err);
         }
     }
@@ -324,7 +323,7 @@ class ContentWizardPanel extends Page {
     async getXdataTitles() {
         try {
             let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span";
-            return this.getTextInElements(selector);
+            return await this.getTextInElements(selector);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_x_data');
             throw new Error("Error when getting title from x-data, screenshot:" + screenshot + ' ' + err);
@@ -518,8 +517,8 @@ class ContentWizardPanel extends Page {
             await contentPublishDialog.waitForDialogOpened();
             return await contentPublishDialog.waitForSpinnerNotVisible(appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_when_click_on_publish_button');
-            throw new Error('Error when Publish button has been clicked ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_when_click_on_publish_button');
+            throw new Error('Error when Publish button has been clicked, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -542,6 +541,25 @@ class ContentWizardPanel extends Page {
         return await this.waitForAttributeHasValue(selector, 'class', 'disabled');
     }
 
+    async waitForReadOnlyMode() {
+        try {
+            let locator = XPATH.container;
+            return await this.waitForAttributeHasValue(locator, 'class', 'no-modify-permissions');
+        } catch (err) {
+            let screenshot = this.saveScreenshotUniqueName('err_readonly_mode');
+            throw new Error('Content wizard panel should be in Read only mode! screenshot:' + screenshot + ' ' + err);
+        }
+    }
+
+    async waitForEditMode() {
+        try {
+            return await this.waitForAttributeNotIncludesValue(XPATH.container, 'class', 'no-modify-permissions');
+        } catch (err) {
+            let screenshot = this.saveScreenshotUniqueName('err_edit_mode');
+            throw new Error('Content wizard panel is in Read only mode! screenshot:' + screenshot + ' ' + err);
+        }
+    }
+
     async waitForPublishMenuItemEnabled(menuItem) {
         let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
         return await this.waitForAttributeNotIncludesValue(selector, 'class', 'disabled');
@@ -553,8 +571,7 @@ class ContentWizardPanel extends Page {
             let result = await this.getAttribute(locator, 'class');
             return result.includes('invalid');
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_wizard_validation');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_wizard_validation');
             throw new Error('error, content validation screenshot: ' + screenshot + "  " + err);
         }
     }
@@ -569,12 +586,11 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    waitUntilInvalidIconDisappears() {
+    async waitUntilInvalidIconDisappears() {
         let locator = this.workflowIconAndValidation;
-        return this.getBrowser().waitUntil(() => {
-            return this.getAttribute(locator, 'class').then(result => {
-                return !result.includes('invalid');
-            })
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getAttribute(locator, 'class');
+            return !result.includes('invalid');
         }, {
             timeout: appConst.mediumTimeout,
             timeoutMsg: "Validation Error: Red icon is still displayed in the wizard after 3 seconds"
@@ -683,7 +699,7 @@ class ContentWizardPanel extends Page {
             return await this.pause(500);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_site'));
-            throw new Error(err);
+            throw new Error("Content Wizard, error during the typing data" + err);
         }
     }
 
@@ -839,8 +855,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(selector);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_mark_as_ready_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_mark_as_ready_btn');
             throw new Error('Error during clicking on Mark As Ready Button, screenshot:' + screenshot + " " + err);
         }
     }
@@ -937,8 +952,8 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_duplicate_button_disabled');
-            throw Error('Duplicate button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
+            let screenshot = await this.saveScreenshotUniqueName('err_duplicate_button_disabled');
+            throw Error('Duplicate button should be disabled, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
@@ -1045,7 +1060,7 @@ class ContentWizardPanel extends Page {
             }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_focused'));
-            throw new Error(err + "Display Name input was not focused  ");
+            throw new Error(err + "Display Name input was not focused");
         }
     }
 
