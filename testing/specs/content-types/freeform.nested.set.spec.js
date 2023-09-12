@@ -36,7 +36,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             // 1. Fill in the name input:
             await contentWizard.typeDisplayName(CONTENT_2);
             // 2. just scroll the wizard page:
-            await contentWizard.scrollPanel(300);
+            await contentWizard.scrollPanel(500);
             await studioUtils.saveScreenshot('freeform_scrolled');
             await contentWizard.pause(1000);
             // 3. Add an occurrence block (the second level):

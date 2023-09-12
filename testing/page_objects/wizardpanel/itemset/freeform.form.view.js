@@ -83,9 +83,9 @@ class FreeFormView extends Page {
             await this.pause(300);
             await this.clickOnElement(this.addButton);
             return await this.pause(300);
-        }catch(err){
+        } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_btn_nested_set');
-            throw new Error("Nested Item set, Add block button, screenshot:" + screenshot+ ' ' + err);
+            throw new Error("Nested Item set, Add block button, screenshot:" + screenshot + ' ' + err);
         }
     }
 
