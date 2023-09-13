@@ -251,6 +251,7 @@ export class MoveContentDialog
 
     show(): void {
         super.show();
+        this.moveAction.setEnabled(false);
         this.destinationSearchInput.giveFocus();
     }
 
