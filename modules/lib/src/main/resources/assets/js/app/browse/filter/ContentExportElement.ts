@@ -94,7 +94,7 @@ export class ContentExportElement extends DivEl {
     // copied from app-users
     protected exportSearch(type: EXPORT_TYPE): void {
         const uri: string = this.makeURI(type);
-        const reportName: string = `content-export-${DateTimeFormatter.createHtml(new Date()).replace(' ', 'T')}.csv`;
+        const reportName: string = `${ProjectContext.get().getProject().getName()}-${DateTimeFormatter.createHtml(new Date()).replace(' ', 'T')}.csv`;
 
         this.clickFakeElementForReportDownload(uri, reportName);
     }
