@@ -73,16 +73,18 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
     }
 
     protected parseResponse(response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>): ContentQueryResult<CONTENT, CONTENT_JSON> {
-        let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
-        let aggregations = BucketAggregation.fromJsonArray(responseResult.aggregations);
-        let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
-        let metadata = new ResultMetadata(response.getResult().metadata.hits, response.getResult().metadata.totalHits);
-        let contents: (ContentSummary | Content)[];
+        const responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
+        const aggregations = BucketAggregation.fromJsonArray(responseResult.aggregations);
+        const contentsAsJson: ContentSummaryJson[] = responseResult.contents;
+        const metadata = new ResultMetadata(response.getResult().metadata.hits, response.getResult().metadata.totalHits);
+        let contents: (ContentSummary | Content | ContentId)[];
 
-        if (this.expand === Expand.SUMMARY) {
+        if (this.expand === Expand.FULL) {
+            contents = this.fromJsonToContentArray(contentsAsJson as ContentJson[]);
+        } else if (this.expand === Expand.SUMMARY) {
             contents = this.fromJsonToContentSummaryArray(contentsAsJson);
         } else {
-            contents = this.fromJsonToContentArray(contentsAsJson as ContentJson[]);
+            contents = this.fromJsonToContentIdBaseItemArray(contentsAsJson);
         }
 
         this.updateStateAfterLoad(contents as CONTENT[], metadata);
