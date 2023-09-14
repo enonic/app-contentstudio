@@ -24,6 +24,10 @@ import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolv
 import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
 import {FilterableAggregationGroupView} from './FilterableAggregationGroupView';
 import {AggregationsQueryResult} from './AggregationsQueryResult';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ContentExportElement} from './ContentExportElement';
+import {ContentDependency} from './ContentDependency';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
@@ -35,10 +39,13 @@ export class ContentBrowseFilterPanel
     private searchEventListeners: ((query?: ContentQuery) => void)[] = [];
 
     private dependenciesSection: DependenciesSection;
+    private elementsContainer: Element;
+    private exportButtonContainer?: ContentExportElement;
 
     constructor() {
         super();
 
+        this.addClass('content-browse-filter-panel');
         this.aggregationsFetcher = new ContentAggregationsFetcher();
         this.initElementsAndListeners();
     }
@@ -61,6 +68,11 @@ export class ContentBrowseFilterPanel
 
     private initElementsAndListeners() {
         this.initAggregationGroupView();
+
+        if (this.isExportAllowed()) {
+            this.exportButtonContainer = new ContentExportElement().setVisible(false) as ContentExportElement;
+        }
+
         this.handleEvents();
     }
 
@@ -106,6 +118,15 @@ export class ContentBrowseFilterPanel
                 this.removeDependencyItem();
             }
         });
+
+        this.onRendered(() => {
+            super.appendChild(this.elementsContainer);
+
+            if (this.exportButtonContainer) {
+                this.addClass('has-export-button');
+                super.appendChild(this.exportButtonContainer);
+            }
+        });
     }
 
     protected getGroupViews(): AggregationGroupView[] {
@@ -131,6 +152,11 @@ export class ContentBrowseFilterPanel
         super.appendExtraSections();
         this.dependenciesSection = new DependenciesSection(this.removeDependencyItem.bind(this));
         this.appendChild(this.dependenciesSection);
+    }
+
+    private isExportAllowed(): boolean {
+        // add more checks here if needed
+        return true;
     }
 
     private removeDependencyItem() {
@@ -203,12 +229,26 @@ export class ContentBrowseFilterPanel
     }
 
     private getAndUpdateAggregations(): Q.Promise<AggregationsQueryResult> {
+        this.exportButtonContainer?.setEnabled(false);
+
         return this.getAggregations().then((aggregationsQueryResult: AggregationsQueryResult) => {
             this.updateHitsCounter(aggregationsQueryResult.getMetadata().getTotalHits());
+            this.updateExportState(aggregationsQueryResult);
+
             return this.processAggregations(aggregationsQueryResult.getAggregations()).then(() => {
                 return aggregationsQueryResult;
             });
+        }).finally(() => {
+            this.exportButtonContainer?.setEnabled(true);
         });
+    }
+
+    private updateExportState(aggregationsQueryResult: AggregationsQueryResult): void {
+        this.exportButtonContainer?.setTotal(aggregationsQueryResult.getMetadata().getTotalHits());
+        this.exportButtonContainer?.setSearchInputValues(this.getSearchInputValues());
+        this.exportButtonContainer?.setDependency(this.getDependency());
+        this.exportButtonContainer?.setConstraintIds(this.hasConstraint() ? this.getSelectionItems().slice() : null);
+        this.exportButtonContainer?.setVisible(aggregationsQueryResult.getMetadata().getTotalHits() > 0);
     }
 
     private processAggregations(aggregations: Aggregation[]): Q.Promise<void> {
@@ -256,7 +296,7 @@ export class ContentBrowseFilterPanel
         });
     }
 
-    getDependency(): { isInbound: boolean, dependencyId: ContentId } {
+    getDependency(): ContentDependency {
         if (this.dependenciesSection?.isInbound()) {
             return {isInbound: true, dependencyId: this.dependenciesSection.getDependencyId()};
         }
@@ -278,5 +318,15 @@ export class ContentBrowseFilterPanel
 
             this.aggregations.get(aggregation.getName()).setVisible(!isAggregationEmpty);
         });
+    }
+
+
+    // doing a trick to avoid changing lib-admin-ui, adding all children except export button to a wrapper
+    appendChild(child: Element, lazyRender?: boolean): Element {
+        if (!this.elementsContainer) {
+            this.elementsContainer = new DivEl('elements-container');
+        }
+
+        return this.elementsContainer.appendChild(child, lazyRender);
     }
 }

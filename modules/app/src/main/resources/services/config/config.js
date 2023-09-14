@@ -40,7 +40,8 @@ function handleGet() {
                 licenseUrl: portal.serviceUrl({service: 'license'}),
                 stylesUrl: portal.serviceUrl({service: 'styles'}),
                 collaborationUrl: portal.serviceUrl({service: 'collaboration'}),
-                appServiceUrl: portal.serviceUrl({service: 'applications'})
+                appServiceUrl: portal.serviceUrl({service: 'applications'}),
+                exportServiceUrl: portal.serviceUrl({service: 'export'}),
             },
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */

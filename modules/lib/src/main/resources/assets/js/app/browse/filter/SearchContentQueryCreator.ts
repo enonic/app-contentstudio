@@ -29,7 +29,6 @@ export class SearchContentQueryCreator {
 
     private dependency?: { isInbound: boolean, dependencyId: ContentId };
     private constraintItems?: string[];
-    private isAggregation: boolean;
 
     constructor(searchInputValues: SearchInputValues) {
         this.searchInputValues = searchInputValues;
@@ -46,14 +45,9 @@ export class SearchContentQueryCreator {
         return this;
     }
 
-    setIsAggregation(value: boolean): SearchContentQueryCreator {
-        this.isAggregation = value;
-        return this;
-    }
-
     create(contentAggregations?: string[]): ContentQuery {
         this.appendQueryParams();
-        this.setSize();
+        this.contentQuery.setSize(ContentQuery.POSTLOAD_SIZE);
 
         this.appendAggregationsAndFilter(contentAggregations);
         this.appendOutboundReferencesFilter();
@@ -93,11 +87,6 @@ export class SearchContentQueryCreator {
             this.appendLanguageFilter();
             this.appendLanguageAggregationQuery();
         }
-    }
-
-    private setSize(): SearchContentQueryCreator {
-        this.contentQuery.setSize(this.isAggregation ? 0 : ContentQuery.POSTLOAD_SIZE);
-        return this;
     }
 
     private appendQueryParams(): void {

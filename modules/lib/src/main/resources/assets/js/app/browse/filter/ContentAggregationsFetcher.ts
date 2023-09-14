@@ -55,7 +55,7 @@ export class ContentAggregationsFetcher {
         const result: Aggregation[] = [];
         const selectedAggregationPromises: Q.Promise<Aggregation>[] = [];
 
-        return this.sendQueryRequest(this.createContentQuery(this.searchInputValues)).then(
+        return this.sendQueryRequest(this.createContentQuery(this.searchInputValues).setSize(0)).then(
             (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
                 queryResult.getAggregations().forEach((aggregation: Aggregation) => {
                     const hasBucketsSelected: boolean = this.hasBucketsSelected(aggregation);
@@ -98,10 +98,10 @@ export class ContentAggregationsFetcher {
             });
     }
 
-    private sendQueryRequest(query: ContentQuery): Q.Promise<ContentQueryResult<ContentSummary, ContentSummaryJson>> {
+    private sendQueryRequest(query: ContentQuery, expand?: Expand): Q.Promise<ContentQueryResult<ContentSummary, ContentSummaryJson>> {
         return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(query)
             .setContentRootPath(this.rootPath || ContentResourceRequest.CONTENT_PATH)
-            .setExpand(Expand.SUMMARY)
+            .setExpand(expand ?? Expand.NONE)
             .sendAndParse();
     }
 
@@ -110,13 +110,12 @@ export class ContentAggregationsFetcher {
         searchValuesNoAggregation.setTextSearchFieldValue(this.searchInputValues.textSearchFieldValue);
         searchValuesNoAggregation.setAggregationSelections(this.copyAggregationsWithoutAggregation(aggregation));
 
-        return this.createContentQuery(searchValuesNoAggregation);
+        return this.createContentQuery(searchValuesNoAggregation).setSize(0);
     }
 
     createContentQuery(searchInputValues: SearchInputValues): ContentQuery {
         const searchContentQueryCreator: SearchContentQueryCreator = this.getContentQueryCreator(searchInputValues);
 
-        searchContentQueryCreator.setIsAggregation(true);
         searchContentQueryCreator.setDependency(this.dependency);
         searchContentQueryCreator.setConstraintItemsIds(this.constraintItems);
 
