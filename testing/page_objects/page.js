@@ -320,6 +320,15 @@ class Page {
         }
     }
 
+    async waitForNotificationActionsText() {
+        let locator = lib.NOTIFICATION_ACTIONS_DIV + "//a[@class='action']";
+        await this.getBrowser().waitUntil(async () => {
+            return await this.isElementDisplayed(locator);
+        }, {timeout: appConst.longTimeout, timeoutMsg: 'Error when wait for the notification message'});
+        await this.pause(200);
+        return await this.getText(locator);
+    }
+
     //returns array of messages
     async waitForNotificationMessages() {
         try {

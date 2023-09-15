@@ -3,6 +3,7 @@
  */
 module.exports = Object.freeze({
     NOTIFICATION_TEXT: "//div[@class='notification-text']",
+    NOTIFICATION_ACTIONS_DIV: "//div[@class='notification-actions']",
     REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
     BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
     FORM_VIEW: `//div[contains(@id,'FormView')]`,

@@ -23,7 +23,7 @@ describe('Move Fragment specification', function () {
 
     let SITE, FOLDER;
     let CONTROLLER_NAME = 'main region';
-    let FRAGMENT_TEXT_DESCRIPTION = "text";
+    let FRAGMENT_TEXT_DESCRIPTION = 'text';
     let TEST_TEXT_FRAGMENT = 'text_component_1';
 
 
@@ -102,7 +102,9 @@ describe('Move Fragment specification', function () {
             // 7. Verify the notification message - "You are about to move content out of its site which might make it unreachable. Are you sure?"
             await studioUtils.saveScreenshot('fragment_is_moved');
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(actualMessage, `Item \"text_component_1\" is moved.`, 'Expected notification message should appear');
+            assert.equal(actualMessage, `1 item(s) were moved to`, 'Expected notification message should appear');
+            let actionLinkText = await contentBrowsePanel.waitForNotificationActionsText();
+            assert.equal(actionLinkText, `/${FOLDER.displayName}`, "Expected text should be present in the actions link");
         });
 
     // Verifies -  https://github.com/enonic/app-contentstudio/issues/1472 - Site wizard does not load after deleting its child fragment:
