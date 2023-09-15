@@ -52,10 +52,6 @@ export class ContentBrowsePanel
     private contextPanelToggler: NonMobileContextPanelToggleButton;
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
-    constructor() {
-        super();
-    }
-
     protected initElements() {
         super.initElements();
 
@@ -103,6 +99,14 @@ export class ContentBrowsePanel
         });
 
         this.handleGlobalEvents();
+
+        this.treeGrid.onSelectionOrHighlightingChanged(() => {
+            const previewPanel = this.getBrowseItemPanel().getItemStatisticsPanel().getPreviewPanel();
+            const selectedItem = this.treeGrid.getLastSelectedOrHighlightedItem();
+            if (!!selectedItem && previewPanel.isPreviewUpdateNeeded(selectedItem)) {
+                previewPanel.showMask();
+            }
+        }, false);
     }
 
     protected getBrowseActions(): ContentTreeGridActions {
@@ -310,7 +314,6 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: renamed', data, oldPaths);
         }
 
-        this.handleCUD();
         this.treeGrid.renameContentNodes(data);
         this.refreshFilterWithDelay();
     }
