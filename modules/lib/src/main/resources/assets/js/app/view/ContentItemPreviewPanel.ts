@@ -1,4 +1,3 @@
-import * as $ from 'jquery';
 import * as Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
@@ -88,24 +87,23 @@ export class ContentItemPreviewPanel
         return item as ContentSummaryAndCompareStatus;
     }
 
-    protected doSetItem(item: ViewItem, force: boolean) {
+    protected doSetItem(item: ViewItem, force: boolean = false) {
         this.updatePreview(this.viewItemToContent(item), force);
         this.toolbar.setItem(item);
         this.item = item;
     }
 
-    private updatePreview(item: ContentSummaryAndCompareStatus, force: boolean) {
+    private updatePreview(item: ContentSummaryAndCompareStatus, force?: boolean) {
         if (this.isPreviewUpdateNeeded(item, force)) {
-            this.showMask();
             this.update(item);
         }
     }
 
-    protected isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force: boolean): boolean {
+    public isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force?: boolean): boolean {
         return !this.skipNextSetItemCall && this.isItemAllowsUpdate(item, force);
     }
 
-    private isItemAllowsUpdate(item: ContentSummaryAndCompareStatus, force: boolean): boolean {
+    private isItemAllowsUpdate(item: ContentSummaryAndCompareStatus, force?: boolean): boolean {
         return item && (!item.equals(this.item) || force);
     }
 
@@ -144,6 +142,9 @@ export class ContentItemPreviewPanel
         });
 
         this.frame.onLoaded((event: UIEvent) => {
+            if (this.previewType === PREVIEW_TYPE.EMPTY) {
+                return;
+            }
             const frameWindow = this.frame.getHTMLElement()['contentWindow'];
             this.hideMask();
 
@@ -416,14 +417,14 @@ export class ContentItemPreviewPanel
     }
 
     public showMask() {
+        super.showMask();
         if (this.isVisible()) {
-            this.mask.show();
             this.addClass('loading');
         }
     }
 
-    private hideMask() {
-        this.mask.hide();
+    public hideMask() {
+        super.hideMask();
         this.removeClass('loading');
     }
 

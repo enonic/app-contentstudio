@@ -20,6 +20,10 @@ export class ContentItemStatisticsPanel
         if (!ObjectHelper.equals(this.getItem(), item)) {
             super.setItem(item);
             this.previewPanel.setItem(item);
+        } else {
+            // A previously selected item has been selected again, before the newly selected one finished loading.
+            // Force-remove the spinner as the preview of the newly selected will never finish loading.
+            this.previewPanel.hideMask();
         }
     }
 
