@@ -2,7 +2,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
@@ -20,6 +20,10 @@ import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {MoveContentRequest} from '../resource/MoveContentRequest';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
 import {ContentMovePromptEvent} from './ContentMovePromptEvent';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {Message, MessageType} from '@enonic/lib-admin-ui/notify/Message';
+import {SearchAndExpandItemEvent} from '../browse/SearchAndExpandItemEvent';
+import {ContentAppHelper} from '../wizard/ContentAppHelper';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation
@@ -141,7 +145,8 @@ export class MoveContentDialog
             createProcessingMessage: () => new SpanEl()
                 .setHtml(`${i18n('dialog.move.progressMessage')} `)
                 .appendChild(new SpanEl('content-path').setHtml(this.getParentPath().toString())),
-            managingElement: this
+            managingElement: this,
+            successHandler: this.handleSuccess.bind(this),
         });
     }
 
@@ -206,14 +211,12 @@ export class MoveContentDialog
     }
 
     private doMove(): void {
-        const parentContent: ContentTreeSelectorItem = this.getParentContentItem();
-        const parentPath: ContentPath = parentContent ? parentContent.getPath() : ContentPath.getRoot();
         const contentIds: ContentIds =
             ContentIds.create().fromContentIds(this.movedContentSummaries.map(summary => summary.getContentId())).build();
 
         this.lockControls();
 
-        new MoveContentRequest(contentIds, parentPath)
+        new MoveContentRequest(contentIds, this.getMoveToPath())
             .sendAndParse()
             .then((taskId: TaskId) => {
                 this.pollTask(taskId);
@@ -223,6 +226,30 @@ export class MoveContentDialog
                 showError(reason.message);
             }
         });
+    }
+
+    private getMoveToPath(): ContentPath {
+        const parentContent: ContentTreeSelectorItem = this.getParentContentItem();
+        return parentContent ? parentContent.getPath() : ContentPath.getRoot();
+    }
+
+    private handleSuccess(message: string): void {
+        const totalMoved = this.movedContentSummaries.length;
+        const moveToPath = this.getMoveToPath();
+        const isMovedToRoot = moveToPath.isRoot();
+        const isInWizard = ContentAppHelper.isContentWizardUrl();
+        const movePath = isMovedToRoot ? ` ${i18n('field.root').toLowerCase()}` : (isInWizard ? ` ${moveToPath.toString()}` : '');
+        const text = i18n('notify.items.moved.to', totalMoved) + movePath;
+        const msg = Message.newSuccess(text);
+
+        // show link to the search and expand only if not moving the item to the root and if not in content wizard
+        if (!isMovedToRoot && !isInWizard) {
+            msg.addAction(moveToPath.toString(), () => {
+                new SearchAndExpandItemEvent(this.getParentContentItem().getContentId()).fire();
+            });
+        }
+
+        NotifyManager.get().notify(msg);
     }
 
     private getParentContentItem(): ContentTreeSelectorItem {

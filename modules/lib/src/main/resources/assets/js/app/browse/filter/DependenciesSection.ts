@@ -10,7 +10,6 @@ export class DependenciesSection
     private viewer: ContentSummaryViewer = new ContentSummaryViewer();
 
     private inbound: boolean = true;
-    private type: string;
 
     constructor(closeCallback: () => void) {
         super('', closeCallback);
@@ -24,10 +23,6 @@ export class DependenciesSection
         return new ContentId(this.getItemsIds()[0]);
     }
 
-    public getType(): string {
-        return this.type;
-    }
-
     public isInbound(): boolean {
         return this.isActive() && this.inbound;
     }
@@ -39,11 +34,6 @@ export class DependenciesSection
     public setInbound(inbound: boolean): DependenciesSection {
         this.inbound = inbound;
         this.setLabel(inbound ? i18n('panel.filter.dependencies.inbound') : i18n('panel.filter.dependencies.outbound'));
-        return this;
-    }
-
-    public setType(type: string): DependenciesSection {
-        this.type = type;
         return this;
     }
 

@@ -25,6 +25,7 @@ export interface ProgressBarManagerConfig {
     processHandler?: () => void;
     unlockControlsHandler?: () => void;
     createProcessingMessage?: () => Element;
+    successHandler?: (message?: string) => void;
 }
 
 interface ProgressInfoJson {
@@ -58,6 +59,8 @@ export class ProgressBarManager {
 
     private suppressNotifications: boolean = false;
 
+    private readonly successMessageHandler?: (message?: string) => void;
+
     constructor(config: ProgressBarManagerConfig) {
         this.managingElement = config.managingElement;
         this.processHandler = config.processHandler;
@@ -65,6 +68,7 @@ export class ProgressBarManager {
         this.unlockControlsHandler = config.unlockControlsHandler || (() => { /*empty*/
         });
         this.createProcessingMessage = config.createProcessingMessage;
+        this.successMessageHandler = config.successHandler;
 
         ManagedActionManager.instance().addPerformer(this.managingElement);
         this.managingElement.onRemoved(() => ManagedActionManager.instance().removePerformer(this.managingElement));
@@ -195,11 +199,17 @@ export class ProgressBarManager {
 
     private handleSucceeded(message: string) {
         this.setProgressValue(100);
-        if (!this.suppressNotifications) {
-            showSuccess(message);
-        }
+        this.handleSuccessMessage(message);
         this.notifyProgressComplete(TaskState.FINISHED);
         this.handleProcessingComplete();
+    }
+
+    private handleSuccessMessage(message): void {
+        if (this.successMessageHandler) {
+            this.successMessageHandler(message);
+        } else if (!this.suppressNotifications) {
+            showSuccess(message);
+        }
     }
 
     private handleFailed(message: string) {
