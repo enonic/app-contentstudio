@@ -28,6 +28,7 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentExportElement} from './ContentExportElement';
 import {ContentDependency} from './ContentDependency';
+import {TextSearchField} from '@enonic/lib-admin-ui/app/browse/filter/TextSearchField';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
@@ -167,7 +168,7 @@ export class ContentBrowseFilterPanel
     }
 
     public setDependencyItem(item: ContentSummary, inbound: boolean, type?: string): void {
-        this.dependenciesSection.setInbound(inbound).setType(type);
+        this.dependenciesSection.setInbound(inbound);
 
         if (type) {
             this.selectBucketByTypeOnLoad(type);
@@ -188,6 +189,17 @@ export class ContentBrowseFilterPanel
 
     private selectContentTypeBucket(key: string): void {
         (this.aggregations.get(ContentAggregation.CONTENT_TYPE).getAggregationViews()[0] as BucketAggregationView)?.selectBucketViewByKey(key);
+    }
+
+    searchItemById(id: ContentId): void {
+        this.elementsContainer.getChildren().some((child: Element) => {
+            if (child instanceof TextSearchField) {
+                child.setValue(id.toString());
+                return true;
+            }
+
+            return false;
+        });
     }
 
     doRefresh(): Q.Promise<void> {

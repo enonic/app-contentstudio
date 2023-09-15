@@ -38,6 +38,7 @@ import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
 import {MovedContentItem} from './MovedContentItem';
 import {ContentQuery} from '../content/ContentQuery';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
+import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -192,6 +193,24 @@ export class ContentBrowsePanel
 
             this.showFilterPanel();
             this.filterPanel.setDependencyItem(event.getContent(), event.isInbound(), event.getType());
+        });
+
+        SearchAndExpandItemEvent.on((event: SearchAndExpandItemEvent) => {
+           const contentId: ContentId = event.getContentId();
+
+            if (this.treeGrid.getToolbar().getSelectionPanelToggler().isActive()) {
+                this.treeGrid.getToolbar().getSelectionPanelToggler().setActive(false);
+            }
+
+            this.showFilterPanel();
+            const expandLoadedItemHandler = () => {
+                if (this.treeGrid.isFiltered()) {
+                    this.treeGrid.unLoaded(expandLoadedItemHandler);
+                    this.treeGrid.expandNodeByDataId(contentId.toString());
+                }
+            };
+            this.treeGrid.onLoaded(expandLoadedItemHandler);
+            this.filterPanel.searchItemById(contentId);
         });
 
         NewMediaUploadEvent.on((event) => {
