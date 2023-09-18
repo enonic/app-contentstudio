@@ -20,12 +20,17 @@
 
   &[data-portal-placeholder-error=true] {
     background-color: @admin-input-red;
+    position: relative;
 
     span.data-portal-placeholder-error {
-      padding: 5px 0 5px 10px;
-      color: @page-editor-error-red;
+      color: @admin-white;
       font-size: 14px;
       display: block;
+      position: absolute;
+      top: calc(50% - 7px);
+      width: 100%;
+      text-align: center;
+      z-index: 1;
     }
 
     .@{_CLS_PREFIX}item-placeholder {
@@ -34,6 +39,7 @@
       border-top: 1px solid @admin-medium-gray-border;
 
       &::before {
+        opacity: 0.75;
         color: @admin-bg-dark-gray;
       }
 

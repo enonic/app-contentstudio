@@ -254,6 +254,7 @@ export class LiveEditPage {
 
             if (itemView && !itemView.isSelected()) {
                 itemView.select(null, ItemViewContextMenuPosition.NONE, event.isSilent());
+                itemView.scrollComponentIntoView();
             }
         };
 
