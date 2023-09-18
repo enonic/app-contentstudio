@@ -73,7 +73,6 @@ describe('shortcut.page.editor.spec: tests for displaying Page Editor for shortc
             let contentWizard = new ContentWizard();
             // 1. Open the shortcut with the site in target selector  an existing folder:
             await studioUtils.selectAndOpenContentInWizard(SHORTCUT_NAME);
-            await studioUtils.saveScreenshot('preview_not_available_shortcut');
             // 2. Verify that 'Show Page Editor' toggler(monitor-button) should not be displayed:
             await contentWizard.waitForPageEditorTogglerNotDisplayed();
             await studioUtils.saveScreenshot('shortcut_target_site_with_controller_preview_disabled');

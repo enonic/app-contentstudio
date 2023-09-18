@@ -9,10 +9,11 @@ const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require("../../page_objects/browsepanel/content.browse.panel");
 const PdfForm = require('../../page_objects/wizardpanel/pdf.form.panel');
 const ContentFilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('pdf.content.spec tests for extraction data for pdf content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -25,20 +26,33 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
     it(`GIVEN new tag and extraction text are saved in media content(PDF) WHEN extraction text has been typed in Filter Panel THEN expected pdf content should be filtered in the grid`,
         async () => {
             let pdfForm = new PdfForm();
+            let contentWizard = new ContentWizard();
             let contentFilterPanel = new ContentFilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. Open the pdf-content
-            let contentWizard = await studioUtils.selectAndOpenContentInWizard(PDF_CONTENT_DISPLAY_NAME);
-            // 2. Save the text in abstraction text area and create a tag:
+            // 1. Open Filter Panel:
+            await contentBrowsePanel.clickOnSearchButton();
+            await contentFilterPanel.waitForOpened();
+            // 2. Open the pdf-content
+            await contentFilterPanel.typeSearchText(PDF_CONTENT_DISPLAY_NAME);
+            await contentBrowsePanel.waitForRowByNameVisible(PDF_CONTENT_DISPLAY_NAME);
+            await contentBrowsePanel.clickOnRowByName(PDF_CONTENT_DISPLAY_NAME);
+            await contentBrowsePanel.pause(4000);
+            await studioUtils.saveScreenshot('pdf_select_spinner_issue');
+            await contentBrowsePanel.clickOnEditButton();
+            await studioUtils.switchToContentTabWindow(PDF_CONTENT_DISPLAY_NAME);
+            await contentWizard.waitForOpened();
+
+            //let contentWizard = await studioUtils.selectAndOpenContentInWizard(PDF_CONTENT_DISPLAY_NAME);
+            // 3. Save the text in abstraction text area and create a tag:
             await pdfForm.typeTextInAbstractionTextArea(PDF_EXTRACTION_TEXT);
             await pdfForm.addTag(PDF_TAG_TEXT);
             await contentWizard.waitAndClickOnSave();
             await studioUtils.doCloseWizardAndSwitchToGrid();
-            // 3. Type the extraction text
+            // 4. Type the extraction text
             await contentFilterPanel.typeSearchText(PDF_EXTRACTION_TEXT);
             await contentFilterPanel.pause(3000);
             await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
-            // 4. Verify that the pdf content is filtered:
+            // 5. Verify that the pdf content is filtered:
             await studioUtils.saveScreenshot('pdf_abstraction_text');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 1, 'Single pdf file should be filtered in the grid');
@@ -54,6 +68,7 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             // 2. Type the tag's text
             await contentFilterPanel.typeSearchText(PDF_TAG_TEXT);
             await contentFilterPanel.pause(3000);
+            await studioUtils.saveScreenshot('pdf_tag_text_0');
             await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
             // 4. Verify that the pdf content is filtered:
             await studioUtils.saveScreenshot('pdf_tag_text');
@@ -82,7 +97,7 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

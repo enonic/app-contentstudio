@@ -259,6 +259,7 @@ module.exports = {
         let contentWizardPanel = new ContentWizardPanel();
         let browsePanel = new BrowsePanel();
         await this.findAndSelectItem(contentName);
+        await browsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
         await browsePanel.clickOnLocalizeButton();
         await this.doSwitchToNewWizard();
         await contentWizardPanel.waitForOpened();
@@ -424,20 +425,37 @@ module.exports = {
         return await this.getBrowser().pause(1000);
     },
     async findAndSelectItem(name) {
-        let browsePanel = new BrowsePanel();
-        await this.typeNameInFilterPanel(name);
-        await browsePanel.waitForRowByNameVisible(name);
-        await browsePanel.pause(400);
-        await browsePanel.clickOnRowByName(name);
-        return await browsePanel.pause(400);
+        try {
+            let browsePanel = new BrowsePanel();
+            await this.typeNameInFilterPanel(name);
+            await browsePanel.waitForRowByNameVisible(name);
+            await browsePanel.pause(400);
+            await browsePanel.clickOnRowByName(name);
+            await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
+            return await browsePanel.pause(400);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_select_item');
+            throw new Error("Select a item, error screenshot:" + screenshot + ' ' + err);
+        }
+    },
+    async saveScreenshotUniqueName(namePart) {
+        let screenshotName = appConst.generateRandomName(namePart);
+        await this.saveScreenshot(screenshotName);
+        return screenshotName;
     },
     async findAndSelectItemByDisplayName(displayName) {
-        let browsePanel = new BrowsePanel();
-        await this.typeNameInFilterPanel(displayName);
-        await browsePanel.waitForContentByDisplayNameVisible(displayName);
-        await browsePanel.pause(300);
-        await browsePanel.clickOnRowByDisplayName(displayName);
-        return await browsePanel.pause(400);
+        try {
+            let browsePanel = new BrowsePanel();
+            await this.typeNameInFilterPanel(displayName);
+            await browsePanel.waitForContentByDisplayNameVisible(displayName);
+            await browsePanel.pause(300);
+            await browsePanel.clickOnRowByDisplayName(displayName);
+            await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
+            return await browsePanel.pause(400);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_select_item');
+            throw new Error("Select a item, error screenshot:" + screenshot + ' ' + err);
+        }
     },
 
     // find the content, select it and click 'Delete' menu item in the modal dialog
@@ -746,7 +764,7 @@ module.exports = {
         });
     },
 
-    saveScreenshot (name, that) {
+    saveScreenshot(name, that) {
         let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
         if (!fs.existsSync(screenshotsDir)) {
             fs.mkdirSync(screenshotsDir, {recursive: true});
