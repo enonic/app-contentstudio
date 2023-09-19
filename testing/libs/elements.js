@@ -58,6 +58,7 @@ module.exports = Object.freeze({
         SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
         UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
         actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
+        button: (label, cssValue) => `//button[contains(@class,'${cssValue}') and child::span[contains(.,'${label}')]]`,
         dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
         dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
         togglerButton: (label) => `//button[contains(@id,'TogglerButton') and child::span[text()='${label}']]`,

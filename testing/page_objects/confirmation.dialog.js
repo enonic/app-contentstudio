@@ -58,8 +58,8 @@ class ConfirmationDialog extends Page {
 
     async waitForDialogClosed() {
         try {
-        await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
-        return await this.pause(400);
+            await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+            return await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_confirmation_dlg_closing');
             throw new Error("Confirmation dialog should be closed! screenshot:" + screenshot + ' ' + err);
@@ -71,7 +71,7 @@ class ConfirmationDialog extends Page {
     }
 
     getWarningMessage() {
-        return this.getText(this.warningMessage)
+        return this.getText(this.warningMessage);
     }
 
     clickOnNoButton() {

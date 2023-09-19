@@ -31,6 +31,10 @@ class BrowseFilterPanel extends Page {
         return XPATH.container + XPATH.clearFilterLink;
     }
 
+    get exportButton() {
+        return XPATH.container + lib.BUTTONS.button('Export', 'export-button');
+    }
+
     get showResultsButton() {
         return XPATH.container + XPATH.showResultsButton;
     }
@@ -44,11 +48,11 @@ class BrowseFilterPanel extends Page {
     }
 
     get ownerDropdownHandle() {
-        return XPATH.aggregationListBoxDropdown("Owner") + lib.DROP_DOWN_HANDLE;
+        return XPATH.aggregationListBoxDropdown('Owner') + lib.DROP_DOWN_HANDLE;
     }
 
     get lastModifiedByDropdownHandle() {
-        return XPATH.aggregationListBoxDropdown("Last Modified By") + lib.DROP_DOWN_HANDLE;
+        return XPATH.aggregationListBoxDropdown('Last Modified By') + lib.DROP_DOWN_HANDLE;
     }
 
     get closeDependenciesSectionButtonLocator() {
@@ -83,8 +87,32 @@ class BrowseFilterPanel extends Page {
             await this.typeTextInInput(this.searchTextInput, text);
             return await this.pause(500);
         } catch (err) {
-            throw new Error("Error when type text in Search Input " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_filter_input');
+            throw new Error("Error when type text in Search Input, screenshot: " + screenshot + ' ' + err);
         }
+    }
+
+    async waitForExportButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.exportButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
+            throw new Error("Error - Export button should be displayed, screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
+    async waitForExportButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.exportButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
+            throw new Error("Error - Export button should not be displayed, screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
+    async clickOnExportButton() {
+        await this.waitForExportButtonDisplayed();
+        await this.clickOnElement(this.exportButton);
     }
 
     waitForOpened() {
@@ -159,7 +187,8 @@ class BrowseFilterPanel extends Page {
 
     async clickOnClearLink() {
         await this.waitForClearLinkDisplayed();
-        return await this.clickOnElement(this.clearFilterLink)
+        await this.clickOnElement(this.clearFilterLink)
+        await this.pause(1000);
     }
 
     //clicks on a checkbox in Content Types aggregation block
@@ -290,8 +319,8 @@ class BrowseFilterPanel extends Page {
             await this.clickOnElement(okButton);
             await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot('err_filter_owner');
-            throw new Error("Error when selecting an option in 'Owner Selector' " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_filter_owner');
+            throw new Error("Error when selecting an option in 'Owner Selector', screenshot: " + screenshot + ' ' + err);
         }
     }
 }

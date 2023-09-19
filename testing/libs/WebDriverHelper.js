@@ -36,6 +36,7 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser(w, h) {
         let file = path.join(__dirname, '/../browser.properties');
         let properties = PropertiesReader(file);
         let browser_name = properties.get('browser.name');
+        let browser_version = properties.get('browser.version');
         let baseUrl = properties.get('base.url');
         let isHeadless = properties.get('is.headless');
         let width = ww === undefined ? properties.get('browser.width') : w;
@@ -44,11 +45,11 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser(w, h) {
         console.log('browser name ##################### ' + browser_name);
         console.log('browser width ##################### ' + width);
         let options = {
-            logLevel: "error",
-            automationProtocol: "webdriver",
+            logLevel: 'error',
+            automationProtocol: 'webdriver',
             capabilities: {
                 browserName: browser_name,
-                browserVersion: '116.0.5845.96',
+                browserVersion: browser_version,
                 'goog:chromeOptions': makeChromeOptions(isHeadless, width, height)
             }
         };
