@@ -38,7 +38,7 @@
     "@types/core-js": "^2.5.6",
     "@types/hasher": "0.0.33",
     "@types/jquery": "^3.5.19",
-    "@types/jqueryui": "^1.12.15",
+    "@types/jqueryui": "^1.12.18",
     "@types/q": "^1.5.6",
     "@typescript-eslint/eslint-plugin": "^6.7.2",
     "@typescript-eslint/parser": "^6.7.2",
