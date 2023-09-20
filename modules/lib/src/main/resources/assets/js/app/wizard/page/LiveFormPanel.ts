@@ -41,7 +41,7 @@ import {Content, ContentBuilder} from '../../content/Content';
 import {Site} from '../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Component} from '../../page/region/Component';
-import {Page, PageBuilder} from '../../page/Page';
+import {Page} from '../../page/Page';
 import {PartComponent} from '../../page/region/PartComponent';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
 import {ImageComponent} from '../../page/region/ImageComponent';
@@ -57,11 +57,10 @@ import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {BrEl} from '@enonic/lib-admin-ui/dom/BrEl';
 import {ContentId} from '../../content/ContentId';
 import {InspectEvent} from '../../event/InspectEvent';
-import {ContextSplitPanel} from '../../view/context/ContextSplitPanel';
+import {ContextPanelMode} from '../../view/context/ContextSplitPanel';
 import {ContextPanelStateEvent} from '../../view/context/ContextPanelStateEvent';
 import {LiveEditPagePlaceholder} from './LiveEditPagePlaceholder';
 import {Descriptor} from '../../page/Descriptor';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentType} from '../../inputtype/schema/ContentType';
 import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 import {GetComponentDescriptorsRequest} from '../../resource/GetComponentDescriptorsRequest';
@@ -89,6 +88,7 @@ import {ToggleContextPanelEvent} from '../../view/context/ToggleContextPanelEven
 import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {PageHelper} from '../../util/PageHelper';
+import {ContextPanelState} from '../../view/context/ContextPanelState';
 
 export interface LiveFormPanelConfig {
 
@@ -133,6 +133,14 @@ export class LiveFormPanel
     private modifyPermissions: boolean;
 
     private contextWindow: ContextWindow;
+
+    private isTextModeOn: boolean;
+
+    private contextPanelMode: ContextPanelMode;
+
+    private contextPanelState: ContextPanelState;
+
+    private componentToInspectOnContextPanelExpand: Component;
 
     private placeholder?: LiveEditPagePlaceholder;
     private insertablesPanel: InsertablesPanel;
@@ -694,6 +702,15 @@ export class LiveFormPanel
             const modalDialog: ModalDialog = HTMLAreaDialogHandler.createAndOpenDialog(event);
             eventsManager.notifyDialogCreated(modalDialog, event.getConfig());
         });
+
+        eventsManager.onTextComponentEditModeChanged((value: boolean) => {
+            console.log('onTextComponentEditModeChanged: ' + value);
+            this.isTextModeOn = value;
+
+            if (value && this.isContextPanelExpanded() && !this.isContextPanelDocked()) {
+                new ToggleContextPanelEvent().fire();
+            }
+        });
     }
 
     private saveMarkedContentAndReloadOnlyComponent(path: ComponentPath) {
@@ -775,7 +792,7 @@ export class LiveFormPanel
         }
     }
 
-    private inspectRegion(regionPath: ComponentPath, showPanel: boolean) {
+    private inspectRegion(regionPath: ComponentPath) {
         const region: Region = PageState.getState().getComponentByPath(regionPath) as Region;
 
         this.regionInspectionPanel.setRegion(region);
@@ -783,7 +800,7 @@ export class LiveFormPanel
             getInspectParameters({
                 panel: this.regionInspectionPanel,
                 showWidget: true,
-                showPanel
+                showPanel: true
             })
         );
     }
@@ -822,25 +839,17 @@ export class LiveFormPanel
     private inspectComponentOnDemand(component: Component): void {
         assertNotNull(component, 'component cannot be null');
 
-        // not showing/hiding inspection panel if component has no descriptor
-        const isPanelToHide: boolean = component instanceof DescriptorBasedComponent && !component.hasDescriptor() && this.isShown();
-        const waitForContextPanel = !isPanelToHide && ContextSplitPanel.isCollapsed();
+        // not showing/hiding inspection panel if component has no descriptor or if is in text edit mode
+        const isPanelToHide: boolean = this.isInspectComponentToHide(component);
+        const waitForContextPanel = !isPanelToHide && this.isContextPanelCollapsed();
 
-        if (isPanelToHide && ContextSplitPanel.isExpanded()) {
+        if (isPanelToHide && this.isContextPanelExpanded() && !this.isContextPanelDocked()) {
             new ToggleContextPanelEvent().fire();
         }
 
         if (waitForContextPanel) {
             // Wait until ContextPanel is expanded before activating the InspectPanel inside
-            const stateChangeHandler = (event: ContextPanelStateEvent) => {
-                if (ContextSplitPanel.isExpanded()) {
-                    setTimeout(() => {
-                        this.doInspectComponent(component, !isPanelToHide);
-                    }, 500);
-                }
-                ContextPanelStateEvent.un(stateChangeHandler);
-            };
-            ContextPanelStateEvent.on(stateChangeHandler);
+            this.componentToInspectOnContextPanelExpand = component;
         }
 
         new InspectEvent(true, !isPanelToHide).fire();
@@ -850,6 +859,14 @@ export class LiveFormPanel
         }
 
         this.doInspectComponent(component, !isPanelToHide);
+    }
+
+    private isInspectComponentToHide(component: Component): boolean {
+        if (this.isTextModeOn) {
+            return true;
+        }
+
+        return component instanceof DescriptorBasedComponent && !component.hasDescriptor() && this.isShown();
     }
 
     private openComponentInspect(component: Component): void {
@@ -869,6 +886,22 @@ export class LiveFormPanel
         this.insertablesPanel?.setModifyPermissions(enabled);
         this.liveEditPageProxy?.setModifyPermissions(enabled);
         this.placeholder?.setEnabled(enabled);
+    }
+
+    setContextPanelMode(mode: ContextPanelMode): void {
+        this.contextPanelMode = mode;
+    }
+
+    setContextPanelState(state: ContextPanelState): void {
+        this.contextPanelState = state;
+
+        if (this.componentToInspectOnContextPanelExpand) {
+            if (state === ContextPanelState.EXPANDED) {
+                this.doInspectComponent(this.componentToInspectOnContextPanelExpand, true);
+            }
+
+            this.componentToInspectOnContextPanelExpand = null;
+        }
     }
 
     unloadPage(): void {
@@ -930,6 +963,7 @@ export class LiveFormPanel
     }
 
     private inspectPageItemByPath(path: ComponentPath, force?: boolean): void {
+        console.log('Inspecting page item by path: ' + path.toString());
         this.lastInspectedItemPath = path;
         const currentPage: Page = PageState.getState();
         const item: PageItem = currentPage?.getComponentByPath(path);
@@ -941,9 +975,21 @@ export class LiveFormPanel
                 this.inspectComponentOnDemand(item);
             }
         } else if (item instanceof Region) {
-            this.inspectRegion(path, true);
+            this.inspectRegion(path);
         } else if (item instanceof Page || (!currentPage && path.isRoot())) {
             this.inspectPage(true);
         }
+    }
+
+    private isContextPanelExpanded(): boolean {
+        return this.contextPanelState === ContextPanelState.EXPANDED;
+    }
+
+    private isContextPanelCollapsed(): boolean {
+        return this.contextPanelState === ContextPanelState.COLLAPSED;
+    }
+
+    private isContextPanelDocked(): boolean {
+        return this.contextPanelMode === ContextPanelMode.DOCKED;
     }
 }
