@@ -8,8 +8,8 @@ export class InspectEvent
 
     private readonly showPanel: boolean;
 
-    constructor(showWidget: boolean, showPanel: boolean, name?: string) {
-        super(name);
+    constructor(showWidget: boolean, showPanel: boolean) {
+        super();
         this.showWidget = showWidget;
         this.showPanel = showPanel;
     }

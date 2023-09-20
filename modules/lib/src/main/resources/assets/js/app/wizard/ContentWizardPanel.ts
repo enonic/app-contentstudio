@@ -629,6 +629,7 @@ export class ContentWizardPanel
         if (this.livePanel) {
             this.splitPanel.onPanelResized(() => this.updateStickyToolbar());
             this.contextView.appendContextWindow(this.getLivePanel().getContextWindow());
+            this.livePanel.setContextPanelState(this.contextSplitPanel.getState());
 
             this.contextSplitPanel.onModeChanged((mode: ContextPanelMode) => {
                 if (!this.isMinimized()) {
@@ -636,9 +637,13 @@ export class ContentWizardPanel
                     this.splitPanel.setFirstPanelSize(SplitPanelSize.PERCENTS(formPanelSizePercents));
                     this.splitPanel.distribute(true);
                 }
+
+                this.livePanel.setContextPanelMode(mode);
             });
 
             this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
+                this.livePanel.setContextPanelState(state);
+
                 if (this.isMinimized()) {
                     return;
                 }
