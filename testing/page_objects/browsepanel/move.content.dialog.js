@@ -10,8 +10,6 @@ const XPATH = {
     container: `//div[contains(@id,'MoveContentDialog')]`,
     header: `//div[contains(@class,'modal-dialog-header')]/h2`,
     path: `//div[contains(@class,'modal-dialog-header')]/h6`,
-    moveButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Move')]]`,
-    cancelButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Cancel')]]`,
     contentMoveComboBox: "//div[contains(@id,'ContentMoveComboBox')]"
 };
 
@@ -30,11 +28,11 @@ class MoveContentDialog extends Page {
     }
 
     get moveButton() {
-        return XPATH.container + XPATH.moveButton;
+        return XPATH.container + lib.dialogButton('Move');
     }
 
     get cancelButton() {
-        return XPATH.container + XPATH.cancelButton;
+        return XPATH.container + lib.dialogButton('Cancel');
     }
 
     get cancelButtonTop() {
@@ -97,13 +95,37 @@ class MoveContentDialog extends Page {
         }
     }
 
+    async clickOnOptionInDropdown(displayName) {
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            return await loaderComboBox.selectOption(displayName);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_option');
+            throw new Error("Move Dialog - Error during clicking on the option, screenshot: " + screenshot + "  " + err);
+        }
+    }
+
+    async clickOnRemoveOptionIcon() {
+        let locator = XPATH.container + "//div[contains(@id,'ContentSelectedOptionView')]" + lib.REMOVE_ICON;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        await this.pause(200);
+    }
+
     async typeTextInOptionFilterInput(text) {
         await this.typeTextInInput(this.optionFilterInput, text);
         return await this.pause(1000);
     }
 
-    async isDestinationDisabled(displayName) {
-        let optionLocator = lib.slickRowByName(XPATH.container, displayName);
+    async isDestinationDisabled(name) {
+        let optionLocator = lib.slickRowByName(XPATH.container, name);
+        let attr = await this.getAttribute(optionLocator, 'class')
+        return attr.includes('readonly');
+    }
+
+    async isDestinationByDisplayNameDisabled(displayName) {
+        let optionLocator = lib.slickRowByDisplayName(XPATH.container, displayName);
+        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
         let attr = await this.getAttribute(optionLocator, 'class')
         return attr.includes('readonly');
     }

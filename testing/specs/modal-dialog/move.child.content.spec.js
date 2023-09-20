@@ -12,7 +12,7 @@ const contentBuilder = require('../../libs/content.builder');
 
 describe('move.child.content.spec: Move a child content to another location then delete the parent folder', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -29,40 +29,57 @@ describe('move.child.content.spec: Move a child content to another location then
             PARENT_FOLDER = contentBuilder.buildFolder(displayName1);
             CHILD_FOLDER = contentBuilder.buildFolder(displayName2);
             FOLDER = contentBuilder.buildFolder(displayName3);
-            //1. Add parent folder
+            // 1. Add parent folder
             await studioUtils.doAddFolder(PARENT_FOLDER);
-            //2. Add a child folder:
+            // 2. Add a child folder:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            //3. Add one more folder in the root directory
+            // 3. Add one more folder in the root directory
             await studioUtils.doAddFolder(CHILD_FOLDER);
-            //Unselect the parent folder and add one more folder in the root directory:
+            // Unselect the parent folder and add one more folder in the root directory:
             await contentBrowsePanel.clickOnRowByDisplayName(PARENT_FOLDER.displayName);
             await studioUtils.doAddFolder(FOLDER);
+        });
+
+    it(`GIVEN Move dialog is opened WHEN 'remove selected option' has been clicked THEN 'Move' button gets disabled`,
+        async () => {
+            let moveContentDialog = new MoveContentDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Select the child folder:
+            await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
+            // 2. Open 'Move' dialog:
+            await contentBrowsePanel.clickOnMoveButton();
+            await moveContentDialog.waitForOpened();
+            // 3. Select a folder in the combobox:
+            await moveContentDialog.typeTextAndClickOnOption(FOLDER.displayName);
+            // 4. Click on 'Remove' icon:
+            await moveContentDialog.clickOnRemoveOptionIcon();
+            // 5. Verify that Move button gets disabled:
+            await moveContentDialog.waitForMoveButtonDisabled();
         });
 
     it(`GIVEN child folder has been moved to another folder WHEN parent has been deleted THEN moved folder should not be deleted`,
         async () => {
             let moveContentDialog = new MoveContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the child folder:
+            // 1. Select the child folder:
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
-            //2. Open 'Move' dialog:
+            // 2. Open 'Move' dialog:
             await contentBrowsePanel.clickOnMoveButton();
             await moveContentDialog.waitForOpened();
-            //3. Move the child folder to another folder:
+            // 3. Move the child folder to another folder:
             await moveContentDialog.typeTextAndClickOnOption(FOLDER.displayName);
             await moveContentDialog.clickOnMoveButton();
             await moveContentDialog.waitForClosed();
-            //4. Delete the parent folder
+            // 4. Delete the parent folder
             await studioUtils.doDeleteContent(PARENT_FOLDER.displayName);
-            //5. Verify that moved folder is not deleted:
+            // 5. Verify that moved folder is not deleted:
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
