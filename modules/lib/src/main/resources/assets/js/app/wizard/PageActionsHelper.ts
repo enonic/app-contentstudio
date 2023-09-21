@@ -61,7 +61,7 @@ export class PageActionsHelper {
         return [inspectAction, pageResetAction, saveAsTemplateAction];
     }
 
-    static getComponentActions(component: Component): Action[] {
+    static getComponentActions(component: Component, isInvalid?: boolean): Action[] {
         const actions: Action[] = [];
 
         if (component.getParent()) {
@@ -92,11 +92,11 @@ export class PageActionsHelper {
 
         if (component instanceof FragmentComponent) {
             if (component.getFragment()) {
-                actions.push(new Action(i18n('action.component.detach.fragment')).onExecuted(() => {
+                actions.push(new Action(i18n('action.component.detach.fragment')).setEnabled(!isInvalid).onExecuted(() => {
                     PageEventsManager.get().notifyComponentDetachFragmentRequested(component.getPath());
                 }));
 
-                actions.push(new Action(i18n('action.edit')).onExecuted(() => {
+                actions.push(new Action(i18n('action.edit')).setEnabled(!isInvalid).onExecuted(() => {
                     ContentUrlHelper.openEditContentTab(component.getFragment());
                 }));
             }

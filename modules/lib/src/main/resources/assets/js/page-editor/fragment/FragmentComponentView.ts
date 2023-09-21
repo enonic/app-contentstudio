@@ -1,47 +1,35 @@
-import {ContentBasedComponentView, ContentBasedComponentViewBuilder} from '../ContentBasedComponentView';
+import {ContentBasedComponentView} from '../ContentBasedComponentView';
 import {FragmentItemType} from './FragmentItemType';
-import {FragmentComponentLoadedEvent} from '../FragmentComponentLoadedEvent';
-import {FragmentLoadErrorEvent} from '../FragmentLoadErrorEvent';
 import {FragmentPlaceholder} from './FragmentPlaceholder';
-import {ShowWarningLiveEditEvent} from '../ShowWarningLiveEditEvent';
 import {ItemType} from '../ItemType';
 import {LayoutItemType} from '../layout/LayoutItemType';
 import {TextItemType} from '../text/TextItemType';
 import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
-import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
-import {Content} from '../../app/content/Content';
-import {Component} from '../../app/page/region/Component';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentId} from '../../app/content/ContentId';
-import * as Q from 'q';
-import {LayoutComponent} from '../../app/page/region/LayoutComponent';
-import {PageHelper} from '../../app/util/PageHelper';
 import {DetachFragmentEvent} from '../event/outgoing/manipulation/DetachFragmentEvent';
-import {ContentContext} from '../../app/wizard/ContentContext';
-import {ContentSummary} from '../../app/content/ContentSummary';
-import {PageItem} from '../../app/page/region/PageItem';
-import {FragmentComponent} from '../../app/page/region/FragmentComponent';
 import {ItemViewAddedEvent} from '../ItemViewAddedEvent';
+import {ComponentViewBuilder} from '../ComponentView';
 
 export class FragmentComponentViewBuilder
-    extends ContentBasedComponentViewBuilder {
-
-    fragmentContentId: ContentId;
+    extends ComponentViewBuilder {
 
     constructor() {
         super();
         this.setType(FragmentItemType.get());
-        this.setContentTypeName(ContentTypeName.FRAGMENT);
     }
 }
 
 export class FragmentComponentView
     extends ContentBasedComponentView {
 
+    private static ERROR_ATTRIBUTE = 'data-portal-placeholder-error';
+
     private fragmentContainsLayout: boolean;
+
+    private detachAction: Action;
 
     constructor(builder: FragmentComponentViewBuilder) {
         super(builder.setInspectActionRequired(true));
@@ -59,6 +47,7 @@ export class FragmentComponentView
             if (event.getView() === this) {
                 this.getParentItemView().unItemViewAdded(thisItemAddedListener);
                 this.parseFragmentComponents(this);
+                this.handleErrors();
             }
         };
 
@@ -80,11 +69,13 @@ export class FragmentComponentView
     private addDetachAction() {
         const actions: Action[] = [];
 
-        actions.push(new Action(i18n('live.view.detach')).onExecuted(() => {
+        this.detachAction = new Action(i18n('live.view.detach')).onExecuted(() => {
             this.deselect();
 
             new DetachFragmentEvent(this.getPath()).fire();
-        }));
+        });
+
+        actions.push(this.detachAction);
 
         this.addContextMenuActions(actions);
     }
@@ -113,18 +104,25 @@ export class FragmentComponentView
 
     private removeComponentTypeAttrs(element: Element) {
         const htmlElement: HTMLElement = element.getHTMLElement();
-        const hasErrors: boolean = !!htmlElement.getAttribute('data-portal-placeholder-error');
+        const hasErrors: boolean = !!htmlElement.getAttribute(FragmentComponentView.ERROR_ATTRIBUTE);
 
         if (hasErrors) {
-            this.getEl().setAttribute('data-portal-placeholder-error', 'true');
+            this.getEl().setAttribute(FragmentComponentView.ERROR_ATTRIBUTE, 'true');
         }
 
         htmlElement.removeAttribute('data-' + ItemType.ATTRIBUTE_TYPE);
         htmlElement.removeAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
     }
 
+    private handleErrors(): void {
+        if (this.getEl().hasAttribute(FragmentComponentView.ERROR_ATTRIBUTE)) {
+            this.detachAction?.setEnabled(false);
+            this.editAction?.setEnabled(false);
+        }
+    }
+
     private convertTextComponentImageUrls(element: Element) {
-        const id = this.liveEditParams.getFragmentIdByPath(this.getPath().toString());
+        const id = this.getContentId();
         const contentId = id ? new ContentId(id) : null;
 
         if (contentId) {

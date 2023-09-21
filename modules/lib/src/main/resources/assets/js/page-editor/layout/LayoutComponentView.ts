@@ -57,10 +57,6 @@ export class LayoutComponentView
         return null;
     }
 
-    protected isDragging(): boolean {
-        return DragAndDrop.get().isDragging();
-    }
-
     getComponentViewByPath(path: ComponentPath): ItemView {
         let result: ItemView = null;
 
