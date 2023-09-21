@@ -55,7 +55,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             // 3. Verifies #6393: we keep 'Inspect panel' collapsed (or collapse it if it was expanded).
             // So need to open 'Inspect panel':
-            await contentWizardPanel.clickOnDetailsPanelToggleButton();
+            //await contentWizardPanel.clickOnDetailsPanelToggleButton();
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_2_COL);
             await pageComponentView.pause(500);
             let actualDescriptionLayout = await pageComponentView.getComponentDescription(LAYOUT_2_COL);
@@ -95,7 +95,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
-            await contentWizardPanel.clickOnDetailsPanelToggleButton();
+            // Inspect panel should be expanded in this case :
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
             // 3. Verify that the site is automatically saved after selecting a layout in the dropdown:
             await contentWizardPanel.waitForNotificationMessage();
