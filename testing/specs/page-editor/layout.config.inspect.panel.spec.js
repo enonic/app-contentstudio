@@ -46,7 +46,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             // 4. Verifies #6393: we keep 'Inspect panel' collapsed (or collapse it if it was expanded).
             // So need to open 'Inspect panel':
-            await contentWizard.clickOnDetailsPanelToggleButton();
+            //await contentWizard.clickOnDetailsPanelToggleButton();
             await layoutInspectionPanel.typeNameAndSelectLayout('Centered');
             // 5. Site should be saved automatically:
             await contentWizard.waitForNotificationMessage();
