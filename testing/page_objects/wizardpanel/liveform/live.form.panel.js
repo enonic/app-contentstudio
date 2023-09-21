@@ -11,6 +11,7 @@ const xpath = {
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
+    fragmentPlaceHolderDiv: `//div[contains(@id,'FragmentPlaceholder')]`,
     sectionTextComponentView: "//section[contains(@id,'TextComponentView')]",
     editableTextComponentView: "//*[contains(@id,'TextComponentView') and @contenteditable='true']",
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
@@ -193,14 +194,22 @@ class LiveFormPanel extends Page {
         return await this.getTextInElements(selector);
     }
 
+    async clickOnOptionInFragmentDropdown(option) {
+        let optionSelector = lib.slickRowByDisplayName(xpath.fragmentPlaceHolderDiv + lib.DIV.FRAGMENT_DROPDOWN_DIV, option);
+        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
+        await this.clickOnElement(optionSelector);
+        await this.waitForSpinnerNotVisible();
+        return await this.pause(2000);
+    }
+
     async selectFragmentByDisplayName(displayName) {
         try {
-            let parentForComboBox = `//div[contains(@id,'FragmentPlaceholder')]`;
             let contentWizard = new ContentWizard();
-            let loaderComboBox = new LoaderComboBox();
+            let locatorFilterInput = xpath.fragmentPlaceHolderDiv + lib.DIV.FRAGMENT_DROPDOWN_DIV + lib.DROPDOWN_OPTION_FILTER_INPUT
             await contentWizard.switchToLiveEditFrame();
-            await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
-            return await this.pause(1000);
+            await this.waitForElementDisplayed(locatorFilterInput, appConst.mediumTimeout);
+            await this.typeTextInInput(locatorFilterInput, displayName);
+            await this.clickOnOptionInFragmentDropdown(displayName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_fragment_selector');
             throw new Error('Error after selecting the fragment in Live Edit -screenshot ' + screenshot + ' ' + err);

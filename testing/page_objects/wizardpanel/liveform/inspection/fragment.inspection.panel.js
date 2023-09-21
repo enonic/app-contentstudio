@@ -1,13 +1,11 @@
 /**
  * Created on 19.02.2020.
  */
-
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'FragmentInspectionPanel')]`,
-    fragmentDropdown: `//div[contains(@id,'FragmentDropdown')]`,
     selectedOptionView: `//div[contains(@id,'SelectedOptionView')]`,
     editFragmentButton: "//button[child::span[contains(.,'Edit Fragment')]]"
 };
@@ -16,11 +14,11 @@ const xpath = {
 class FragmentInspectionPanel extends BaseComponentInspectionPanel {
 
     get fragmentDropdown() {
-        return xpath.container + xpath.fragmentDropdown;
+        return xpath.container + lib.DIV.FRAGMENT_DROPDOWN_DIV;
     }
 
     get fragmentDropdownHandle() {
-        return xpath.container + xpath.fragmentDropdown + lib.DROP_DOWN_HANDLE;
+        return xpath.container + lib.DIV.FRAGMENT_DROPDOWN_DIV + lib.DROP_DOWN_HANDLE;
     }
 
     get editFragmentButton() {
@@ -47,13 +45,13 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
             await this.clickOnElement(this.fragmentDropdownHandle);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_fragment_inspect"));
-            throw new Error(err);
+            let screenshot = await this.saveScreenshotUniqueName('err_fragment_inspect');
+            throw new Error("Frgament dropdown handle, screenshot:" + screenshot + ' ' + err);
         }
     }
 
     async getFragmentDropdownOptions() {
-        let locator = xpath.container + xpath.fragmentDropdown + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
+        let locator = this.fragmentDropdown + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
         await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
@@ -65,7 +63,7 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async clickOnOptionInFragmentDropdown(option) {
-        let optionSelector = lib.slickRowByDisplayName(xpath.fragmentDropdown, option);
+        let optionSelector = lib.slickRowByDisplayName(this.fragmentDropdown, option);
         await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
         await this.clickOnElement(optionSelector);
         await this.waitForSpinnerNotVisible();

@@ -138,8 +138,7 @@ class DependantsControls extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_show_excluded_should_be_hidden');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_should_be_hidden');
             throw new Error(`Dependants block, 'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + err);
         }
     }
@@ -148,8 +147,7 @@ class DependantsControls extends Page {
         try {
             return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
             throw new Error(`Dependants block, 'Show excluded button' should be visible! screenshot: ${screenshot} ` + +err)
         }
     }
@@ -160,8 +158,7 @@ class DependantsControls extends Page {
             await this.clickOnElement(this.showExcludedItemsButton);
             await this.pause(900);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
             throw new Error('Dependants block, Error during clicking on Show Excluded button, screenshot  ' + screenshot + ' ' + err);
         }
     }
@@ -172,8 +169,7 @@ class DependantsControls extends Page {
             await this.clickOnElement(this.hideExcludedItemsButton);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
             throw new Error('Dependants block, Error during clicking on Hide Excluded button, screenshot  ' + screenshot + ' ' + err);
         }
     }
@@ -182,8 +178,7 @@ class DependantsControls extends Page {
         try {
             return this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
             throw new Error(`Dependants block, 'Hide excluded items' button should be displayed! screenshot: ${screenshot} ` + +err)
         }
     }
@@ -210,7 +205,7 @@ class DependantsControls extends Page {
     }
 
     async clickOnCheckboxInDependentItem(displayName) {
-        let selector = xpath.dependentItemDiv(displayName) + lib.CHECKBOX_DIV;
+        let selector = xpath.dependentItemDiv(displayName) + lib.DIV.CHECKBOX_DIV;
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
         return await this.pause(400);
