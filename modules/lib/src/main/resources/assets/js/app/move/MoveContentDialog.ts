@@ -133,6 +133,7 @@ export class MoveContentDialog
             })
             .setNoCallback(() => {
                 this.open(false);
+                this.moveAction.setEnabled(true);
             });
     }
 
