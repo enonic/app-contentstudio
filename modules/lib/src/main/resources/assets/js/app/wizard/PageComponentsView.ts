@@ -630,6 +630,11 @@ export class PageComponentsView
     }
 
     handle(event: PageNavigationEvent): void {
+        if (!PageState.getState()) { // no tree, event was triggered when clicking on the template generated page
+            this.lastSelectedPath = null;
+            return;
+        }
+
         if (event.getType() === PageNavigationEventType.SELECT) {
             const path: ComponentPath = event.getData().getPath();
             this.lastSelectedPath = this.tree.isItemSelected(path) ? null : path;
