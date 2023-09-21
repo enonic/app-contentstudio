@@ -1,17 +1,15 @@
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {ContentBasedComponentView, ContentBasedComponentViewBuilder} from '../ContentBasedComponentView';
+import {ContentBasedComponentView} from '../ContentBasedComponentView';
 import {ImageItemType} from './ImageItemType';
 import {ImagePlaceholder} from './ImagePlaceholder';
-import {ImageComponent} from '../../app/page/region/ImageComponent';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {ComponentViewBuilder} from '../ComponentView';
 
 export class ImageComponentViewBuilder
-    extends ContentBasedComponentViewBuilder {
+    extends ComponentViewBuilder {
 
     constructor() {
         super();
         this.setType(ImageItemType.get());
-        this.setContentTypeName(ContentTypeName.IMAGE);
     }
 }
 

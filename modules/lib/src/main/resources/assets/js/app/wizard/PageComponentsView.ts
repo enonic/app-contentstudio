@@ -576,7 +576,7 @@ export class PageComponentsView
         }
 
         if (pageItem instanceof Component) {
-            return PageActionsHelper.getComponentActions(pageItem);
+            return PageActionsHelper.getComponentActions(pageItem, item.isInvalid());
         }
 
         if (pageItem instanceof Region) {

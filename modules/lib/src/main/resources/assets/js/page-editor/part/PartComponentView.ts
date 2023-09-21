@@ -33,8 +33,4 @@ export class PartComponentView
             builder.element.getEl().setAttribute('href', '#');
         }
     }
-
-    protected isDragging(): boolean {
-        return DragAndDrop.get().isDragging();
-    }
 }

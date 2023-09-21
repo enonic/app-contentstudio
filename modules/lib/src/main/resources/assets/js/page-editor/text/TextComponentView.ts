@@ -178,10 +178,6 @@ export class TextComponentView
         }
     }
 
-    protected isDragging(): boolean {
-        return DragAndDrop.get().isDragging();
-    }
-
     private fetchStylesAndInitEditor(): void {
         // convert image urls in text component for web
         StylesRequest.fetchStyles(this.getLiveEditParams().contentId).then(() => {

@@ -82,6 +82,8 @@ import {PageControllerCustomizedEvent} from '../../page/event/PageControllerCust
 import {ResetComponentEvent} from '../../../page-editor/event/outgoing/manipulation/ResetComponentEvent';
 import {ResetComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/ResetComponentViewEvent';
 import {TextEditModeChangedEvent} from '../../../page-editor/event/outgoing/navigation/TextEditModeChangedEvent';
+import {EditContentFromComponentViewEvent} from '../../../page-editor/event/outgoing/manipulation/EditContentFromComponentViewEvent';
+import {ContentUrlHelper} from '../../util/ContentUrlHelper';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -686,6 +688,10 @@ export class LiveEditPageProxy
 
         TextEditModeChangedEvent.on((event: TextEditModeChangedEvent): void => {
             PageEventsManager.get().notifyTextComponentEditModeChanged(event.isEditMode());
+        }, contextWindow);
+
+        EditContentFromComponentViewEvent.on((event: EditContentFromComponentViewEvent): void => {
+            ContentUrlHelper.openEditContentTab(new ContentId(event.getId()));
         }, contextWindow);
     }
 

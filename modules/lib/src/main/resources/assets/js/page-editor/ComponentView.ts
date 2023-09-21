@@ -28,6 +28,7 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {RemoveComponentRequest} from './event/outgoing/manipulation/RemoveComponentRequest';
 import {DuplicateComponentEvent} from './event/outgoing/manipulation/DuplicateComponentEvent';
 import {ResetComponentEvent} from './event/outgoing/manipulation/ResetComponentEvent';
+import {DragAndDrop} from './DragAndDrop';
 
 export class ComponentViewBuilder {
 
@@ -420,5 +421,9 @@ export class ComponentView
 
     private skipInitOnAdd(): void {
         this.initOnAdd = false;
+    }
+
+    protected isDragging(): boolean {
+        return DragAndDrop.get().isDragging();
     }
 }
