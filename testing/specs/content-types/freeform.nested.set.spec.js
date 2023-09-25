@@ -38,7 +38,6 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await studioUtils.saveScreenshot('freeform_not_scrolled');
             // 2. just scroll the wizard page:
             //await contentWizard.scrollPanel(500);
-            //await studioUtils.saveScreenshot('freeform_scrolled');
             await contentWizard.pause(1000);
             // 3. Add an occurrence block (the second level):
             await freeFormNestedSet.clickOnAddButton();

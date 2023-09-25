@@ -1,5 +1,9 @@
 const path = require('path');
-const { TimelineService } = require('wdio-timeline-reporter/timeline-service');
+const {TimelineService} = require('wdio-timeline-reporter/timeline-service');
+const PropertiesReader = require('properties-reader');
+const file = path.join(__dirname, '/../browser.properties');
+const properties = PropertiesReader(file);
+const browser_version = properties.get('browser.version');
 
 exports.config = {
 
@@ -11,7 +15,7 @@ exports.config = {
 
     capabilities: [{
         browserName: 'chrome',
-        browserVersion: '115.0.5790.170',
+        browserVersion: browser_version,
         'goog:chromeOptions': {
             "args": [
                 "--headless", "--disable-gpu", "--no-sandbox",

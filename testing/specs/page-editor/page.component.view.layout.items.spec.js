@@ -15,6 +15,9 @@ const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizar
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const LiveContextWindow = require('../../page_objects/wizardpanel/liveform/liveform.context.window');
+const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
+const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 
 describe('page.component.view.layout.items.spec - tests for page component view items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -64,8 +67,66 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('page_component_updated_2');
             // 10. Verify that 'right region' item is displayed in Page Component View
-            // TODO (uncomment it) workaround - expand the collapsed row with the layout component:
-            // await pageComponentView.waitForItemDisplayed('right');
+            // verifies bug -
+            await pageComponentView.waitForItemDisplayed('right');
+        });
+
+    it(`GIVEN existing site has been opened WHEN click on different items in PCV THEN required inspect panel should be loaded`,
+        async () => {
+            let contentWizard = new ContentWizardPanel();
+            let pageComponentView = new PageComponentView();
+            let layoutInspectionPanel = new LayoutInspectionPanel();
+            let liveContextWindow = new LiveContextWindow();
+            // 1. Open the existing site
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await pageComponentView.waitForLoaded();
+            // 2. Expand the layout item:
+            await pageComponentView.expandItem(LAYOUT_NAME)
+            // 3. Click on the 'left region' item in the Context Window:
+            await pageComponentView.clickOnComponentByDisplayName('left');
+            await studioUtils.saveScreenshot('context_win_region_tab');
+            // 4. Verify that 'Region' tab bar item is loaded:
+            await liveContextWindow.waitForTabBarItemDisplayed('Region');
+            // 5. Click on the 'layout-component' in PCV:
+            await pageComponentView.clickOnComponentByDisplayName(LAYOUT_NAME);
+            await studioUtils.saveScreenshot('context_win_layout_tab');
+            // 6. Verify that 'Layout' tab bar item is loaded in the Context Window:
+            await liveContextWindow.waitForTabBarItemDisplayed('Layout');
+            await layoutInspectionPanel.waitForOpened();
+            let actualSelectedOption = await layoutInspectionPanel.getSelectedOption();
+            assert.equal(actualSelectedOption, LAYOUT_NAME, "expected layout-display name should be present in the selected option view");
+        });
+
+    it(`GIVEN existing site has been opened WHEN click on the root item in PCV THEN expected inspect panel should be loaded`,
+        async () => {
+            let contentWizard = new ContentWizardPanel();
+            let pageComponentView = new PageComponentView();
+            let layoutInspectionPanel = new LayoutInspectionPanel();
+            let liveContextWindow = new LiveContextWindow();
+            let pageInspectionPanel = new PageInspectionPanel();
+            // 1. Open the existing site
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            await pageComponentView.waitForLoaded();
+            // 2. Expand the layout item:
+            await pageComponentView.expandItem(LAYOUT_NAME)
+            // 3. Click on the 'main region' root item in the PCV:
+            await pageComponentView.clickOnComponentByDisplayName('main region');
+            await studioUtils.saveScreenshot('context_win_main_region_tab');
+            await pageInspectionPanel.waitForOpened();
+            // 4. Verify that 'Page' tab bar item is loaded in the Context Window:
+            await liveContextWindow.waitForTabBarItemDisplayed('Page');
+            let actualController = await pageInspectionPanel.getSelectedPageController();
+            assert.equal(actualController, 'main region', "Expected controller should be present in the selected option view");
+            // 5. Click on the 'layout-component' in PCV:
+            await pageComponentView.clickOnComponentByDisplayName(LAYOUT_NAME);
+            await studioUtils.saveScreenshot('context_win_layout_tab');
+            // 6. Verify that 'Layout' tab bar item is loaded in the Context Window:
+            await liveContextWindow.waitForTabBarItemDisplayed('Layout');
+            await layoutInspectionPanel.waitForOpened();
+            let actualSelectedOption = await layoutInspectionPanel.getSelectedOption();
+            assert.equal(actualSelectedOption, LAYOUT_NAME, "expected layout-display name should be present in the selected option view");
         });
 
     // Verify issue - Page Components view and step remain visible after reverting versions #6468
