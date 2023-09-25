@@ -764,16 +764,17 @@ module.exports = {
         });
     },
 
-    saveScreenshot(name, that) {
-        let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
-        if (!fs.existsSync(screenshotsDir)) {
-            fs.mkdirSync(screenshotsDir, {recursive: true});
+    async saveScreenshot(name, that) {
+        try {
+            let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
+            if (!fs.existsSync(screenshotsDir)) {
+                fs.mkdirSync(screenshotsDir, {recursive: true});
+            }
+            await this.getBrowser().saveScreenshot(screenshotsDir + name + '.png');
+            console.log('screenshot is saved ' + name);
+        } catch (err) {
+            return console.log('screenshot was not saved ' + err);
         }
-        return this.getBrowser().saveScreenshot(screenshotsDir + name + '.png').then(() => {
-            return console.log('screenshot saved ' + name);
-        }).catch(err => {
-            return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);
-        })
     },
     async openDependencyWidgetInBrowsePanel() {
         let browsePanel = new BrowsePanel();

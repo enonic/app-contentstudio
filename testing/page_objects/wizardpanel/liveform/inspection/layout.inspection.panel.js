@@ -8,7 +8,7 @@ const appConst = require('../../../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'LayoutInspectionPanel')]`,
     layoutDropdown: `//div[contains(@id,'ComponentDescriptorsDropdown')]`,
-    selectedOptionView: `//div[contains(@id,'SelectedOptionView')]`,
+    selectedOptionViewDiv: `//div[contains(@id,'SelectedOptionView')]`,
 };
 
 //Context Window, Inspect tab for Layout Component
@@ -57,6 +57,12 @@ class LayoutInspectionPanel extends Page {
         await this.clickOnElement(optionSelector);
         await this.waitForSpinnerNotVisible();
         return await this.pause(2000);
+    }
+
+    async getSelectedOption() {
+        let locator = xpath.container + xpath.selectedOptionViewDiv + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 }
 
