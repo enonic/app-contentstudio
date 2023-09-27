@@ -1,5 +1,3 @@
-const appConst = require('./app_const');
-
 /**
  * Helper class that encapsulates webdriverio
  * and sets up mocha hooks for easier test writing.

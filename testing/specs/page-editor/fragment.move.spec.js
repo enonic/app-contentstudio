@@ -14,6 +14,7 @@ const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const TextComponent = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
 const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 
 describe('Move Fragment specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -24,8 +25,7 @@ describe('Move Fragment specification', function () {
     let SITE, FOLDER;
     let CONTROLLER_NAME = 'main region';
     let FRAGMENT_TEXT_DESCRIPTION = 'text';
-    let TEST_TEXT_FRAGMENT = 'text_component_1';
-
+    let TEST_TEXT_FRAGMENT = appConst.generateRandomName('text');
 
     it(`Preconditions: new site and folder should be created`,
         async () => {
@@ -108,11 +108,13 @@ describe('Move Fragment specification', function () {
         });
 
     // Verifies -  https://github.com/enonic/app-contentstudio/issues/1472 - Site wizard does not load after deleting its child fragment:
+    // Edit and Detach from fragment menu items should be disabled for removed fragments #6800
     it(`WHEN existing text-fragment is deleted AND its parent site has been opened THEN wizard page should be loaded`,
         async () => {
             let contentWizard = new ContentWizard();
             let deleteContentDialog = new DeleteContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Select the fragment-content and delete it:
             await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
             // Open 'Delete Content' modal dialog:
@@ -124,6 +126,19 @@ describe('Move Fragment specification', function () {
             // 2. Open fragment's parent site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.waitForOpened();
+            //  Verify - 'Edit' and 'Detach' from fragment menu items should be disabled for removed fragments #6800
+            await pageComponentsWizardStepForm.openMenu('Fragment');
+            await studioUtils.saveScreenshot('removed_fragment_context_menu');
+            await pageComponentsWizardStepForm.waitForContextMenuItemDisabled(appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT);
+            await pageComponentsWizardStepForm.waitForContextMenuItemDisabled(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
+            // Verify - These menu items should be enabled: Remove, Duplicate, Reset, Inspect, Insert, Select Parent
+            await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE);
+            await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.DUPLICATE);
+            await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET);
+            await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT);
+            await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
+            await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.SELECT_PARENT);
+
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -104,11 +104,6 @@ class BasePageComponentView extends Page {
         return attr.includes('selected');
     }
 
-    waitForMenuItemPresent(name) {
-        let selector = xpath.contextMenuItemByName(name);
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-    }
-
     waitForMenuItemNotDisplayed(menuItem) {
         let selector = xpath.contextMenuItemByName(menuItem);
         return this.waitForElementNotDisplayed(selector, appConst.shortTimeout);
@@ -132,6 +127,44 @@ class BasePageComponentView extends Page {
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
             throw new Error("Error - Page Component View: Menu Item, screenshot " + screenshot + ' ' + err);
+        }
+    }
+
+    // Wait for Context-menu-item is displayed:
+    async waitForMenuItemPresent(name) {
+        try {
+            let selector = xpath.contextMenuItemByName(name);
+            return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
+            throw new Error(`Page Component View - the context menu item is not displayed, screenshot: ${screenshot}  ` + err);
+        }
+    }
+
+    // Wait for Context-menu-item is disabled:
+    async waitForContextMenuItemDisabled(menuItem) {
+        try {
+            let locator = xpath.contextMenuItemByName(menuItem);
+            await this.getBrowser().waitUntil(async () => {
+                let atr = await this.getAttribute(locator, 'class');
+                return atr.includes('disabled');
+            }, {timeout: appConst.mediumTimeout, timeoutMsg: 'The context menu item is not disabled!'});
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_pcv_context_menu');
+            throw new Error(`Page Component View - the context menu item is not disabled, screenshot: ${screenshot}  ` + err);
+        }
+    }
+
+    async waitForContextMenuItemEnabled(menuItem) {
+        try {
+            let locator = xpath.contextMenuItemByName(menuItem);
+            await this.getBrowser().waitUntil(async () => {
+                let atr = await this.getAttribute(locator, 'class');
+                return !atr.includes('disabled');
+            }, {timeout: appConst.mediumTimeout, timeoutMsg: 'The context menu item is not enabled'});
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_pcv_context_menu');
+            throw new Error(`Page Component View - the context menu item is not enabled, screenshot: ${screenshot}  ` + err);
         }
     }
 
