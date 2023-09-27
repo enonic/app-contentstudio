@@ -59,12 +59,12 @@ class BaseBrowsePanel extends Page {
             await this.clickOnElement(this.selectionControllerCheckBox);
             return await this.pause(300);
         } catch (err) {
-            this.saveScreenshot('err_click_on_selection_controller');
-            throw new Error('error when click on selection_controller ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_click_on_selection_controller');
+            throw new Error('error when click on selection_controller, screenshot: ' + screenshot + ' ' + err);
         }
     }
 
-    //wait for the "Show Selection" circle appears in the toolbar
+    // wait for the "Show Selection" circle appears in the toolbar
     async waitForSelectionTogglerVisible() {
         try {
             await this.waitForElementDisplayed(this.selectionPanelToggler, appConst.mediumTimeout);
@@ -79,8 +79,8 @@ class BaseBrowsePanel extends Page {
         try {
             await this.waitForElementNotDisplayed(this.selectionPanelToggler, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot("err_selection_toggler_should_not_visible");
-            throw new Error("Selection toggler should not be visible")
+            let screenshot = await this.saveScreenshotUniqueName("err_selection_toggler_should_not_visible");
+            throw new Error("Selection toggler should not be visible, screenshot:" + screenshot + ' ' + err);
         }
     }
 
@@ -91,8 +91,8 @@ class BaseBrowsePanel extends Page {
             await this.clickOnElement(this.selectionPanelToggler);
             return await this.pause(400);
         } catch (err) {
-            this.saveScreenshot("err_clicking_on_selection_toggler");
-            throw new Error("Selection Toggler: " + err);
+            let screenshot = await this.saveScreenshotUniqueName("err_clicking_on_selection_toggler");
+            throw new Error("Selection Toggler:screenshot " + screenshot + '' + err);
         }
     }
 
