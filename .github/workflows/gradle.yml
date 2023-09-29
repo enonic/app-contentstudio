@@ -90,10 +90,7 @@ jobs:
                   restore-keys: |
                       ${{ runner.os }}-gradle-2-
             - run: |
-                  set -ex
-                  wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-                  sudo apt install ./google-chrome-stable_current_amd64.deb
-
+                  set -ex                
 
             - uses: actions/download-artifact@v3
               with:

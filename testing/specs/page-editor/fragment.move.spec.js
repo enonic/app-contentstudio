@@ -78,6 +78,32 @@ describe('Move Fragment specification', function () {
             await moveContentDialog.waitForMoveButtonDisabled();
         });
 
+    // Verifies: https://github.com/enonic/app-contentstudio/issues/6823
+    // Move content dialog - Move button is disabled after closing Confirmation dialog #6823
+    it(`GIVEN existing text-fragment is selected WHEN 'Move' button has been pressed and the action is confirmed THEN the fragment should be moved to the root directory`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let moveContentDialog = new MoveContentDialog();
+            let confirmationDialog = new ConfirmationDialog();
+            // 1. Select the fragment-content and click on Move button:
+            await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
+            await contentBrowsePanel.clickOnMoveButton();
+            // 2. Verify -  modal dialog is loaded
+            await moveContentDialog.waitForOpened();
+            // 3. Select a target:
+            await moveContentDialog.typeTextAndClickOnOption(FOLDER.displayName);
+            // 4. Verify that 'Move' button gets enabled:
+            await moveContentDialog.waitForMoveButtonEnabled();
+            await moveContentDialog.clickOnMoveButton();
+            // 5. Verify - Confirmation dialog should be loaded
+            await confirmationDialog.waitForDialogOpened();
+            // 6. Click on 'Yes' button:
+            await confirmationDialog.clickOnNoButton();
+            await studioUtils.saveScreenshot('fragment_confirmation_no');
+            // 7. Verify that Move-Content dialog remains visible and 'Move' button is enabled:
+            await moveContentDialog.waitForMoveButtonEnabled();
+        });
+
     // Verifies: app-contentstudio#22 Confirmation dialog does not appear, when a fragment is filtered
     it(`GIVEN existing text-fragment is selected WHEN 'Move' button has been pressed and the action is confirmed THEN the fragment should be moved to the root directory`,
         async () => {
@@ -138,7 +164,6 @@ describe('Move Fragment specification', function () {
             await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT);
             await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
             await pageComponentsWizardStepForm.waitForContextMenuItemEnabled(appConst.COMPONENT_VIEW_MENU_ITEMS.SELECT_PARENT);
-
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
