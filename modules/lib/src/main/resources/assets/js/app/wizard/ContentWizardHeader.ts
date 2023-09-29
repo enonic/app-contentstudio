@@ -7,13 +7,14 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {RenameContentDialog} from './dialog/RenameContentDialog';
 import {Content} from '../content/Content';
-import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {ContentPath} from '../content/ContentPath';
 import * as Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
+
+    private static LOCKED_CLASS: string = 'locked';
 
     private isNameUnique: boolean = true;
 
@@ -24,8 +25,6 @@ export class ContentWizardHeader
     private asyncNameChecksRunning: number = 0;
 
     private debouncedNameUniqueChecker: () => void;
-
-    private lockElem: ButtonEl;
 
     private loadSpinner: DivEl;
 
@@ -42,7 +41,6 @@ export class ContentWizardHeader
     protected initElements() {
         super.initElements();
 
-        this.lockElem = new ButtonEl();
         this.loadSpinner = new DivEl('icon-spinner');
         this.loadSpinner.hide();
     }
@@ -61,18 +59,20 @@ export class ContentWizardHeader
             }
         });
 
-        this.lockElem.onClicked(() => {
-            if (!this.renameDialog) {
-                this.renameDialog = new RenameContentDialog();
+        this.nameEl.onFocus(() => {
+            if (this.hasClass(ContentWizardHeader.LOCKED_CLASS)) {
+                if (!this.renameDialog) {
+                    this.renameDialog = new RenameContentDialog();
 
-                this.renameDialog.onRenamed((newName: string) => {
-                    this.setName(newName, true); // setting silently to avoid duplication check
-                    this.nameEl.show(); // using workaround to trigger AutosizeTextInput's resize
-                    this.notifyRenamed();
-                });
+                    this.renameDialog.onRenamed((newName: string) => {
+                        this.setName(newName, true); // setting silently to avoid duplication check
+                        this.nameEl.show(); // using workaround to trigger AutosizeTextInput's resize
+                        this.notifyRenamed();
+                    });
+                }
+
+                this.renameDialog.setInitialPath(this.persistedContent.getPath()).open();
             }
-
-            this.renameDialog.setInitialPath(this.persistedContent.getPath()).open();
         });
 
         this.debouncedNameUniqueChecker = AppHelper.debounce(() => {
@@ -131,9 +131,15 @@ export class ContentWizardHeader
         this.updateIsNameUnique(true);
     }
 
-    setOnline(value: boolean) {
-        this.toggleClass('locked', value);
-        this.toggleNameInput(!value);
+    setOnline(isOnline: boolean) {
+        this.toggleClass(ContentWizardHeader.LOCKED_CLASS, isOnline);
+        this.toggleNameGeneration(!isOnline);
+
+        if (isOnline) {
+            this.nameEl.getEl().setTabIndex(-1);
+        } else {
+            this.nameEl.getEl().removeAttribute('tabindex');
+        }
     }
 
     isValid(): boolean {
@@ -145,7 +151,7 @@ export class ContentWizardHeader
     }
 
     toggleNameInput(enable: boolean): void {
-        if (enable && this.hasClass('locked')) {
+        if (enable && this.hasClass(ContentWizardHeader.LOCKED_CLASS)) {
             return;
         }
 
@@ -175,10 +181,7 @@ export class ContentWizardHeader
             const nameErrorBlock: SpanEl = new SpanEl('path-error');
             nameErrorBlock.setHtml(i18n('path.not.available'));
             this.bottomRow.appendChild(nameErrorBlock);
-
-            this.lockElem.addClass('lock-name icon-pencil');
-            this.lockElem.setTitle(i18n('path.lock'));
-            this.bottomRow.appendChildren(this.lockElem, this.loadSpinner);
+            this.bottomRow.appendChild(this.loadSpinner);
 
             return rendered;
         });
@@ -258,9 +261,4 @@ export class ContentWizardHeader
         this.setPath(path);
     }
 
-    toggleEnabled(enable: boolean) {
-        super.toggleEnabled(enable);
-
-        this.lockElem?.setEnabled(enable);
-    }
 }

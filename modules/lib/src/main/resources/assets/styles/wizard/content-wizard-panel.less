@@ -91,29 +91,6 @@
         }
       }
     }
-
-    .lock-name {
-      display: none;
-    }
-
-    &.locked {
-      .lock-name {
-        display: inline;
-        cursor: pointer;
-        background: none;
-        border: none;
-        position: relative;
-        top: 3px;
-      }
-
-      .@{_COMMON_PREFIX}text-input:disabled {
-        color: @admin-black;
-
-        &:hover {
-          cursor: text;
-        }
-      }
-    }
   }
 
   .form-panel {
