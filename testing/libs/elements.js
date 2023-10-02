@@ -3,7 +3,6 @@
  */
 module.exports = Object.freeze({
     NOTIFICATION_TEXT: "//div[@class='notification-text']",
-    NOTIFICATION_ACTIONS_DIV: "//div[@class='notification-actions']",
     REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
     BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
     FORM_VIEW: `//div[contains(@id,'FormView')]`,
@@ -23,7 +22,6 @@ module.exports = Object.freeze({
     TEXT_AREA: "//textarea[contains(@id,'TextArea')]",
     WIDGET_SELECTOR_DROPDOWN: `//div[contains(@id,'WidgetSelectorDropdown')]`,
     DROP_DOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
-    DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
     GRID_CANVAS: `//div[contains(@class,'grid-canvas')]`,
     DIV_GRID: "//div[contains(@id,'Grid') and contains(@class,'grid no-header')]",
     SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
@@ -39,7 +37,6 @@ module.exports = Object.freeze({
     OCCURRENCE_VIEW: "//div[contains(@id,'InputOccurrenceView')]",
     ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton')]",
     EDIT_ICON: "//a[@class='edit']",
-    CHECKBOX_DIV: "//div[contains(@id,'Checkbox')]",
     COMBOBOX: {
         MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
     },
@@ -47,6 +44,12 @@ module.exports = Object.freeze({
         TEXT_INPUT: "//input[@type='text']",
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
+    },
+    DIV:{
+        FRAGMENT_DROPDOWN_DIV: `//div[contains(@id,'FragmentDropdown')]`,
+        CHECKBOX_DIV: "//div[contains(@id,'Checkbox')]",
+        DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
+        NOTIFICATION_ACTIONS_DIV: "//div[@class='notification-actions']",
     },
     BUTTONS: {
         BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",

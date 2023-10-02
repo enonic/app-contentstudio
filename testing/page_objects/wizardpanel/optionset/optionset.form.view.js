@@ -12,7 +12,7 @@ const xpath = {
 class OptionSetFormView extends Page {
 
     get dropDownHandleInSingleSelection() {
-        return xpath.singleSelectionView + lib.DROPDOWN_DIV + lib.DROP_DOWN_HANDLE;
+        return xpath.singleSelectionView + lib.DIV.DROPDOWN_DIV + lib.DROP_DOWN_HANDLE;
     }
 
     async selectOptionInSingleSelection(option) {

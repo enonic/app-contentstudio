@@ -27,7 +27,7 @@ class SingleSelectionOptionSet extends Page {
     }
 
     get dropDownHandle() {
-        return xpath.container + lib.DROPDOWN_DIV + lib.DROP_DOWN_HANDLE;
+        return xpath.container + lib.DIV.DROPDOWN_DIV + lib.DROP_DOWN_HANDLE;
     }
 
     get addItemSetButton() {
