@@ -39,6 +39,7 @@ import {MovedContentItem} from './MovedContentItem';
 import {ContentQuery} from '../content/ContentQuery';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
+import {ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -101,12 +102,20 @@ export class ContentBrowsePanel
         this.handleGlobalEvents();
 
         this.treeGrid.onSelectionOrHighlightingChanged(() => {
-            const previewPanel = this.getBrowseItemPanel().getItemStatisticsPanel().getPreviewPanel();
-            const selectedItem = this.treeGrid.getLastSelectedOrHighlightedItem();
+            const previewPanel: ContentItemPreviewPanel = this.getPreviewPanel();
+            const selectedItem: ContentSummaryAndCompareStatus = this.treeGrid.getLastSelectedOrHighlightedItem();
             if (!!selectedItem && previewPanel.isPreviewUpdateNeeded(selectedItem)) {
                 previewPanel.showMask();
             }
         }, false);
+
+        this.treeGrid.onDoubleClick(() => {
+            const previewPanel: ContentItemPreviewPanel = this.getPreviewPanel();
+
+            if (previewPanel.isMaskOn()) {
+                previewPanel.hideMask(); // dbl click, item is not selected, no need to show a load mask
+            }
+        });
     }
 
     protected getBrowseActions(): ContentTreeGridActions {
@@ -452,6 +461,10 @@ export class ContentBrowsePanel
 
     private doUpdateContextPanel(item: ContentSummaryAndCompareStatus) {
         this.contextView.setItem(item);
+    }
+
+    private getPreviewPanel(): ContentItemPreviewPanel {
+        return this.getBrowseItemPanel().getItemStatisticsPanel().getPreviewPanel();
     }
 
     getBrowseItemPanel(): ContentBrowseItemPanel {

@@ -50,6 +50,8 @@ export class ContentTreeGrid
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
+    private doubleClickListeners: (() => void)[] = [];
+
     constructor() {
         const builder: TreeGridBuilder<ContentSummaryAndCompareStatus> =
             new TreeGridBuilder<ContentSummaryAndCompareStatus>()
@@ -137,6 +139,8 @@ export class ContentTreeGrid
                 this.editItem(node);
             }
         }
+
+        this.notifyDoubleClick();
     }
 
     private isEditAllowed(event: JQuery.EventBase, data: Slick.OnDblClickEventArgs<ContentSummaryAndCompareStatus>): boolean {
@@ -798,6 +802,18 @@ export class ContentTreeGrid
         }
 
         this.getRoot().getNodeByDataIdFromDefault(id)?.getData().setRenderable(isRenderable);
+    }
+
+    onDoubleClick(listener: () => void) {
+        this.doubleClickListeners.push(listener);
+    }
+
+    unDoubleClick(listener: () => void) {
+        this.doubleClickListeners = this.doubleClickListeners.filter((current) => (current !== listener));
+    }
+
+    private notifyDoubleClick() {
+        this.doubleClickListeners.forEach((listener: () => void) => listener());
     }
 
 }

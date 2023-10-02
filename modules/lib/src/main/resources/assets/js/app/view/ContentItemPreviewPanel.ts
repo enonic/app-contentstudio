@@ -428,4 +428,8 @@ export class ContentItemPreviewPanel
         this.removeClass('loading');
     }
 
+    public isMaskOn(): boolean {
+        return this.mask.isVisible();
+    }
+
 }
