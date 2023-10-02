@@ -1241,7 +1241,7 @@ export class ContentWizardPanel
     }
 
     private createSteps(): ContentWizardStep[] {
-        if (this.contentType.getContentTypeName().isFragment()) {
+        if (this.livePanel && this.contentType.getContentTypeName().isFragment()) {
             return this.createFragmentSteps();
         }
 
@@ -2626,7 +2626,7 @@ export class ContentWizardPanel
     }
 
     private isPageComponentsViewRequired(): boolean {
-        return PageState.getState()?.hasController() || PageState.getState()?.isFragment();
+        return this.livePanel && (PageState.getState()?.hasController() || PageState.getState()?.isFragment());
     }
 
     private togglePageComponentsViewOnDemand() {
