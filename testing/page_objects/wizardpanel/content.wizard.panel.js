@@ -994,20 +994,36 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
-    async clickOnModifyPathButton() {
-        await this.waitForElementDisplayed(this.modifyPathButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.modifyPathButton);
+    async clickOnLockedInputModifyPath() {
+        await this.waitForPathInputLocked();
+        await this.clickOnElement(this.pathInput);
         let renamePublishedContentDialog = new RenamePublishedContentDialog();
         await renamePublishedContentDialog.waitForDialogLoaded();
         return renamePublishedContentDialog;
     }
 
-    waitForModifyPathButtonDisplayed() {
-        return this.waitForElementDisplayed(this.modifyPathButton, appConst.mediumTimeout);
+    async waitForPathInputNotLocked() {
+        try {
+            await this.getBrowser().waitUntil(async () => {
+                let text = await this.getAttribute(XPATH.wizardHeader, 'class');
+                return !text.includes('locked');
+            }, {timeout: appConst.mediumTimeout, timeoutMsg: "'path' input should not be locked"});
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_path_input_locked');
+            throw new Error("Path input should not be locked, screenshot:" + screenshot + ' ' + err);
+        }
     }
 
-    waitForModifyPathButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.modifyPathButton, appConst.mediumTimeout);
+    async waitForPathInputLocked() {
+        try{
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(XPATH.wizardHeader, 'class');
+            return text.includes('locked');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "'path' input should be locked"});
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_path_input_not_locked');
+            throw new Error("Path input should be locked, screenshot:" + screenshot + ' ' + err);
+        }
     }
 
     async openDetailsWidget() {

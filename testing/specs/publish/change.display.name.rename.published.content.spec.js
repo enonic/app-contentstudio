@@ -35,8 +35,8 @@ describe('change.display.name.rename.published.content.dialog.spec - tests for R
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             // 1. Update the display name:
             await contentWizard.typeDisplayName(NEW_NAME);
-            // 2. Click on 'Modify path icon' and open the modal dialog:
-            let renamePublishedContentDialog = await contentWizard.clickOnModifyPathButton();
+            // 2.  Click on the locked 'path input' and open the modal dialog:
+            let renamePublishedContentDialog = await contentWizard.clickOnLockedInputModifyPath();
             await renamePublishedContentDialog.typeInNewNameInput(NEW_NAME);
             // 3. Click on 'Rename' button and wait for the dialog is closed:
             await renamePublishedContentDialog.clickOnRenameButton();
