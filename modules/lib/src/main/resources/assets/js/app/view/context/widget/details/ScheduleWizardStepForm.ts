@@ -13,6 +13,9 @@ import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
 import {UpdateContentRequest} from '../../../../resource/UpdateContentRequest';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {InputView} from '@enonic/lib-admin-ui/form/InputView';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {DateTimeRangePicker} from '@enonic/lib-admin-ui/ui/time/DateTimeRangePicker';
+import {DateTimePicker} from '@enonic/lib-admin-ui/ui/time/DateTimePicker';
 
 export class ScheduleWizardStepForm
     extends PropertiesWizardStepForm {
@@ -58,12 +61,41 @@ export class ScheduleWizardStepForm
                 this.notifyFocused(event);
             });
 
+            this.formView.onRendered(() => {
+                const firstDateRangePicker = this.findFirstChildWithClass(this.formView, 'date-time-range-picker') as DateTimeRangePicker;
+
+                firstDateRangePicker?.whenRendered(() => {
+                    const firstDatePicker = this.findFirstChildWithClass(firstDateRangePicker, 'date-time-picker') as DateTimePicker;
+
+                    firstDatePicker?.getTextInput().onFocus((event: FocusEvent) => {
+
+                        if (!event.relatedTarget) {
+                            firstDatePicker.hidePopup();
+                        }
+                    });
+                });
+            });
+
             this.formView.onBlur((event: FocusEvent) => {
                 this.notifyBlurred(event);
             });
 
             this.appendChild(this.formView);
         });
+    }
+
+    private findFirstChildWithClass(parent: Element, className: string): Element {
+        for (const child of parent.getChildren()) {
+            if (child.hasClass(className)) {
+                return child;
+            } else {
+                let found = this.findFirstChildWithClass(child, className);
+                if (found) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     private createFormBuilder(): FormBuilder {
