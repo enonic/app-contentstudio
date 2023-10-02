@@ -169,11 +169,10 @@ describe('contentItem.preview.toolbar.spec: create an issue and check it in the 
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             // 3. Close the modal dialog:
             await issueDetailsDialog.clickOnCancelTopButton();
-            await studioUtils.saveScreenshot("issue_menu_button_updated");
+            await studioUtils.saveScreenshot('issue_menu_button_updated');
             // 4. issue name should be updated in tne preview panel:
             await contentItemPreviewPanel.waitForIssueNameInMenuButton(firstIssueTitle);
         });
-
 
     it(`WHEN published folder has been modified THEN 'Show changes' button should appear in the item preview toolbar`,
         async () => {

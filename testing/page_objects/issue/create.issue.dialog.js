@@ -74,10 +74,9 @@ class CreateIssueDialog extends Page {
         try {
             await this.waitForElementEnabled(this.createIssueButton, appConst.shortTimeout);
             await this.clickOnElement(this.createIssueButton);
-            await this.pause(500);
+            await this.pause(1000);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_create_issue_btn')
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_create_issue_btn');
             throw new Error('create issue dialog: ' + screenshot + ' ' + err);
         }
     }
