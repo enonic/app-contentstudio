@@ -13,7 +13,6 @@ const XPATH = {
     openInNewTabCheckboxDiv: "//div[contains(@id,'Checkbox') and child::label[contains(.,'Open in new tab')]]",
     showContentCheckboxLabel: "//div[contains(@id,'Checkbox')]//label[contains(.,'Show content from the entire')]",
     openInNewTabCheckboxLabel: "//div[contains(@id,'Checkbox')]//label[contains(.,'Open in new tab')]",
-
 };
 
 class InsertLinkDialogContentPanel extends Page {
@@ -91,7 +90,6 @@ class InsertLinkDialogContentPanel extends Page {
 
     async getOptionsMode() {
         let loaderComboBox = new LoaderComboBox();
-
         return await loaderComboBox.getMode(XPATH.container);
     }
 
@@ -118,20 +116,19 @@ class InsertLinkDialogContentPanel extends Page {
             let locator = XPATH.contentPanel + XPATH.showContentCheckboxLabel;
             return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_show_checkbox');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_show_checkbox');
             throw new Error('Show Content From Entire Project Checkbox should not be displayed! screenshot: ' + screenshot + ' ' + err);
         }
     }
 
     async clickOnShowContentFromEntireProjectCheckbox() {
-        let locator = XPATH.contentPanel + XPATH.showContentCheckboxCheckboxDiv + "//label";
+        let locator = XPATH.contentPanel + XPATH.showContentCheckboxCheckboxDiv + '//label';
         await this.waitForElementClickable(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
     }
 
     async clickOnOpenInNewTabCheckbox() {
-        let locator = XPATH.contentPanel + XPATH.openInNewTabCheckboxDiv + "//label";
+        let locator = XPATH.contentPanel + XPATH.openInNewTabCheckboxDiv + '//label';
         await this.waitForElementClickable(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
     }
@@ -140,8 +137,7 @@ class InsertLinkDialogContentPanel extends Page {
         try {
             return this.waitForElementDisplayed(this.addParametersButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_add_param_btn')
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_add_param_btn');
             throw new Error('Add parameters button should be displayed! screenshot: ' + screenshot + ' ' + err);
         }
     }
@@ -166,7 +162,7 @@ class InsertLinkDialogContentPanel extends Page {
 
     async selectTargetInContentSelector(targetDisplayName) {
         let loaderComboBox = new LoaderComboBox();
-        return await loaderComboBox.typeTextAndSelectOption(targetDisplayName, XPATH.contentCombobox);
+        return await loaderComboBox.typeTextAndSelectOption(targetDisplayName, lib.CONTENT_COMBOBOX);
     }
 
     getSelectedOptionDisplayName() {

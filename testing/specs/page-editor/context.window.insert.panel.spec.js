@@ -46,7 +46,6 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             assert.equal(apps.length, 2, '2 selected application should be displayed in the form');
         });
 
-
     it(`GIVEN wizard for new site is opened WHEN page controller has been selected THEN 'Page Component' wizard step form gets visible`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -125,7 +124,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             await wizardVersionsWidget.clickOnRevertButton();
             // 4. Verify  the notification message:
             let actualMessage = await contentWizard.waitForNotificationMessage();
-            assert.include(actualMessage, appConst.CONTENT_REVERTED_MESSAGE, 'Expected notification message should appear');
+            assert.include(actualMessage, appConst.NOTIFICATION_MESSAGES.CONTENT_REVERTED, 'Expected notification message should appear');
             // 5. Verify that widget is displayed :
             let isDisplayed = await wizardVersionsWidget.isWidgetLoaded();
             assert.isTrue(isDisplayed, "'Versions widget' remains visible in 'Details Panel' after reverting versions");

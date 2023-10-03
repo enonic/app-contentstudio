@@ -23,11 +23,11 @@ const xpath = {
 class ShortcutForm extends Page {
 
     get targetOptionsFilterInput() {
-        return xpath.stepForm + lib.FORM_VIEW + lib.CONTENT_SELECTOR + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return xpath.stepForm + lib.FORM_VIEW + lib.CONTENT_SELECTOR.DIV + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
     get addNewContentButton() {
-        return xpath.stepForm + lib.CONTENT_SELECTOR + lib.ADD_NEW_CONTENT_BUTTON;
+        return xpath.stepForm + lib.CONTENT_SELECTOR.DIV + lib.ADD_NEW_CONTENT_BUTTON;
     }
 
     get removeTargetIcon() {

@@ -88,7 +88,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             // 3. Click on Publish Now button :
             await contentPublishDialog.clickOnPublishNowButton();
             let message = await issueDetailsDialog.waitForNotificationMessage();
-            assert.equal(message, appConst.TWO_ITEMS_PUBLISHED, "'2 items are published' message should be displayed");
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_PUBLISHED, "'2 items are published' message should be displayed");
             let expectedMessage = appConst.issueClosedMessage(ISSUE_TITLE);
             await issueDetailsDialog.waitForExpectedNotificationMessage(expectedMessage);
         });
@@ -123,7 +123,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await confirmValueDialog.waitForDialogClosed();
             let message = await contentBrowsePanel.waitForNotificationMessage();
             // 5. Verify the notification message:
-            assert.equal(message, appConst.TWO_ITEMS_UNPUBLISHED, '2 items are unpublished - is expected message');
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_UNPUBLISHED, '2 items are unpublished - is expected message');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

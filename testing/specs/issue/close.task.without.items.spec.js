@@ -45,7 +45,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await studioUtils.saveScreenshot('empty_issue_closed');
             // 'The issue is Closed.' - this message should appear
-            await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.ISSUE_CLOSED_MESSAGE);
+            await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.NOTIFICATION_MESSAGES.ISSUE_CLOSED_MESSAGE);
         });
 
     it(`GIVEN 'closed' issue is clicked and Issue Details dialog is opened WHEN 'Reopen Issue' button has been pressed THEN the tsk gets 'Open'`,
@@ -61,7 +61,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await issueDetailsDialog.clickOnReopenIssueButton();
             await studioUtils.saveScreenshot('empty_issue_reopened');
             // 3. 'The issue is Open - this message should appear:
-            await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.ISSUE_OPENED_MESSAGE);
+            await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.NOTIFICATION_MESSAGES.ISSUE_OPENED_MESSAGE);
             let actualStatus = await issueDetailsDialog.getCurrentStatusInStatusSelector();
             assert.equal(actualStatus, 'Open', "'Open' status should be displayed in status selector button");
         });

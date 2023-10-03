@@ -10,7 +10,6 @@ module.exports = Object.freeze({
     DATE_TIME_PICKER_INPUT: "//div[contains(@id,'DateTimePicker')]//input[contains(@id,'TextInput')]",
     TIME_PICKER_INPUT: "//div[contains(@id,'TimePicker')]//input[contains(@id,'TextInput')]",
     DATE_PICKER_INPUT: "//div[contains(@id,'DatePicker') and contains(@class,'date-time-picker')]//input[contains(@id,'TextInput')]",
-    CONTENT_SELECTOR: "//div[contains(@id,'ContentSelector')]",
     CONTENT_COMBOBOX: "//div[contains(@id,'ContentComboBox')]",
     NEW_CONTENT_BUTTON: "//button[contains(@class,'new-content-button')]",
     SELECTED_LOCALE: `//div[contains(@id,'LocaleSelectedOptionView')]`,
@@ -37,6 +36,12 @@ module.exports = Object.freeze({
     OCCURRENCE_VIEW: "//div[contains(@id,'InputOccurrenceView')]",
     ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton')]",
     EDIT_ICON: "//a[@class='edit']",
+    CONTENT_SELECTOR: {
+       DIV: "//div[contains(@id,'ContentSelector')]",
+        selectedOptionByName: option => {
+            return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
+        }
+    },
     COMBOBOX: {
         MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
     },

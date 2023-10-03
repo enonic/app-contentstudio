@@ -49,8 +49,8 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             // 2. Expand the status menu and close the task:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await studioUtils.saveScreenshot('status_menu_closed_task');
-            await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.ISSUE_CLOSED_MESSAGE);
-            // 3. 'Reopen Issue' button should appear in the details dialog:
+            await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.NOTIFICATION_MESSAGES.ISSUE_CLOSED_MESSAGE);
+            // 3. 'Reopen Issue' button should appear in the Details dialog:
             await issueDetailsDialog.waitForReopenButtonLoaded();
         });
 
@@ -82,7 +82,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             await taskDetailsDialog.clickOnIssueStatusSelectorAndOpenIssue();
             await studioUtils.saveScreenshot('status_menu_task_reopened');
             //4. 'The task is opened' - this message should appear:
-            await taskDetailsDialog.waitForExpectedNotificationMessage(appConst.ISSUE_OPENED_MESSAGE);
+            await taskDetailsDialog.waitForExpectedNotificationMessage(appConst.NOTIFICATION_MESSAGES.ISSUE_OPENED_MESSAGE);
             //5. 'Open' text should appear in the status selector button:
             let actualStatus = await taskDetailsDialog.getCurrentStatusInStatusSelector();
             assert.equal(actualStatus, 'Open', "'Open' status should be displayed in the status selector button");

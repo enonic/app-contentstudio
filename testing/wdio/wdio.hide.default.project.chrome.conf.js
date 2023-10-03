@@ -24,6 +24,7 @@ exports.config = {
                 "--lang=en",
                 '--disable-extensions',
                 `window-size=${width},${height}`
+                `--window-size=${width},${height}`
             ]
         }
     }],
