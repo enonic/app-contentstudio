@@ -611,11 +611,12 @@ export class ContentTreeGrid
             this.getParentsOfItemsToAdd(itemsToAdd, isInFiltered);
 
         parentsOfChildrenToAdd.forEach((items: ContentSummaryAndCompareStatus[], parentNode: TreeNode<ContentSummaryAndCompareStatus>) => {
-            this.addItemsToParent(items, parentNode);
+            this.addItemsToParent(items, parentNode, isInFiltered);
         });
     }
 
-    private addItemsToParent(items: ContentSummaryAndCompareStatus[], parentNode: TreeNode<ContentSummaryAndCompareStatus>) {
+    private addItemsToParent(items: ContentSummaryAndCompareStatus[], parentNode: TreeNode<ContentSummaryAndCompareStatus>,
+                             isInFiltered: boolean): void {
         if (parentNode.isExpandable() && !parentNode.hasChildren()) {
             return;
         }
@@ -628,24 +629,23 @@ export class ContentTreeGrid
         const parentId: ContentId = parentNode.hasData() ? parentNode.getData().getContentId() : null;
 
         this.fetchChildrenIds(parentId).then((childrenIds: ContentId[]) => {
-                items.forEach((item: ContentSummaryAndCompareStatus) => {
-                    const contentId: ContentId = item.getContentId();
-                    let insertPosition: number = -1;
+            items.forEach((item: ContentSummaryAndCompareStatus) => {
+                const contentId: ContentId = item.getContentId();
+                const insertPosition: number = childrenIds.findIndex((childId: ContentId) => contentId.equals(childId));
 
-                    childrenIds.some((childId: ContentId, index: number) => {
-                        if (contentId.equals(childId)) {
-                            insertPosition = index;
-                            return true;
-                        }
-
-                        return false;
-                    });
-
-                    if (insertPosition > -1 && insertPosition <= parentNode.getChildren().length) {
+                if (insertPosition > -1 && insertPosition <= parentNode.getChildren().length) {
+                    if (isInFiltered || !this.isFiltered()) {
                         this.insertDataToParentNode(item, parentNode, insertPosition);
+                    } else {
+                        // if this grid is filtered, and we need to insert an item into the non-filtered root node, then
+                        // "insertDataToParentNode" will add an item immediately to the current (filtered) root, thus need to:
+                        const nodeToInsert = this.dataToTreeNode(item, parentNode);
+                        parentNode.insertChild(nodeToInsert, insertPosition);
+                        parentNode.setExpandable(true);
                     }
-                });
+                }
             });
+        });
     }
 
     private fetchChildrenIds(parentId: ContentId): Q.Promise<ContentId[]> {
@@ -690,7 +690,8 @@ export class ContentTreeGrid
     }
 
     private getParentNodeByPath(parentPath: ContentPath,
-                                nodes: TreeNode<ContentSummaryAndCompareStatus>[], isInFiltered: boolean): TreeNode<ContentSummaryAndCompareStatus> {
+                                nodes: TreeNode<ContentSummaryAndCompareStatus>[],
+                                isInFiltered: boolean): TreeNode<ContentSummaryAndCompareStatus> {
         if (parentPath.isRoot()) {
             return isInFiltered ? this.getRoot().getFilteredRoot() : this.getRoot().getDefaultRoot();
         }
@@ -750,10 +751,10 @@ export class ContentTreeGrid
         const nodesToDelete: TreeNode<ContentSummaryAndCompareStatus>[] = [];
 
         items.forEach((item: DeletedContentItem) => {
-            const nodeToDelete: TreeNode<ContentSummaryAndCompareStatus> = this.findNodeByItem(item, allNodes);
+            const nodesForItem: TreeNode<ContentSummaryAndCompareStatus>[] = this.findNodeByItem(item, allNodes);
 
-            if (nodeToDelete) {
-                nodesToDelete.push(nodeToDelete);
+            if (nodesForItem?.length > 0) {
+                nodesToDelete.push(...nodesForItem);
             }
 
             this.updateParentHasChildren(item, allNodes, isInFiltered);
@@ -764,7 +765,8 @@ export class ContentTreeGrid
         }
     }
 
-    private updateParentHasChildren(item: DeletedContentItem, allNodes: TreeNode<ContentSummaryAndCompareStatus>[], isInFiltered: boolean): void {
+    private updateParentHasChildren(item: DeletedContentItem, allNodes: TreeNode<ContentSummaryAndCompareStatus>[],
+                                    isInFiltered: boolean): void {
         const parentPath: ContentPath = item.path.getParentPath();
 
         if (parentPath && !parentPath.isRoot()) {
@@ -781,8 +783,8 @@ export class ContentTreeGrid
     }
 
     private findNodeByItem(item: DeletedContentItem,
-                           allNodes: TreeNode<ContentSummaryAndCompareStatus>[]): TreeNode<ContentSummaryAndCompareStatus> {
-        return allNodes.find((node: TreeNode<ContentSummaryAndCompareStatus>) => {
+                           allNodes: TreeNode<ContentSummaryAndCompareStatus>[]): TreeNode<ContentSummaryAndCompareStatus>[] {
+        return allNodes.filter((node: TreeNode<ContentSummaryAndCompareStatus>) => {
             return node.getData()?.getPath()?.equals(item.path) || node.getData()?.getContentId()?.equals(item.id);
         });
     }
