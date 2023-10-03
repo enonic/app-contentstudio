@@ -38,6 +38,8 @@ import {ComponentFragmentCreatedEvent} from '../../page/region/ComponentFragment
 import {ComponentMovedEvent} from '../../page/region/ComponentMovedEvent';
 import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnMoveEvent';
 import {PageTemplate} from '../../content/PageTemplate';
+import {LayoutComponent} from '../../page/region/LayoutComponent';
+import * as Q from 'q';
 
 export class PageState {
 
@@ -289,8 +291,12 @@ export class PageStateEventHandler {
                     const detachedComponent = content.getPage()?.getFragment();
 
                     if (detachedComponent) {
-                        const event = new ComponentDetachedEvent(detachedComponent, content.getDisplayName(), path.getPath() as number);
-                        parentItem.addComponentViaEvent(event);
+                        const resolvePromise = detachedComponent instanceof LayoutComponent ? PageHelper.fetchAndInjectLayoutRegions(detachedComponent) : Q.resolve();
+
+                        return resolvePromise.then(() => {
+                            const event = new ComponentDetachedEvent(detachedComponent, content.getDisplayName(), path.getPath() as number);
+                            parentItem.addComponentViaEvent(event);
+                        });
                     }
 
                 }).catch(DefaultErrorHandler.handle);
