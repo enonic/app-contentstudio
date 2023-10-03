@@ -56,30 +56,30 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
             let confirmValueDialog = new ConfirmValueDialog();
-            //1. Open an existing site (work in progress)
+            // 1. Open an existing site (work in progress)
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
-            //2. Click on Mark as ready button:
+            // 2. Click on Mark as ready button:
             await contentPublishDialog.clickOnMarkAsReadyButton();
-            //3. Publish the site:
+            // 3. Publish the site:
             await contentPublishDialog.clickOnPublishNowButton();
-            //4. Open Unpublish modal dialog:
+            // 4. Open Unpublish modal dialog:
             let unpublishDialog = await contentWizard.clickOnUnpublishButton();
             await unpublishDialog.clickOnUnpublishButton();
             await confirmValueDialog.waitForDialogOpened();
-            //5. Fill in the input for required number of items:
+            // 5. Fill in the input for required number of items:
             await confirmValueDialog.typeNumberOrName(1);
-            //6. Click on the Confirm button:
+            // 6. Click on the Confirm button:
             await confirmValueDialog.clickOnConfirmButton();
             await confirmValueDialog.waitForDialogClosed();
             await contentWizard.waitForNotificationMessage();
-            //7. Verify that the status is UNPUBLISHED  in the wizard
+            //7 . Verify that the status is UNPUBLISHED  in the wizard
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.UNPUBLISHED, 'The content should be Unpublished');
-            //8. Verify that PUBLISH button gets visible in 'Default Action'
+            // 8. Verify that PUBLISH button gets visible in 'Default Action'
             await contentWizard.waitForPublishButtonDisplayed();
-            //9. Verify that Save button is disabled:
+            // 9. Verify that Save button is disabled:
             await contentWizard.waitForSaveButtonDisabled();
         });
 
@@ -99,7 +99,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
             // 4. Verify that the status gets 'Published'
             await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.PUBLISHED);
-            assert.equal(actualMessage, appConst.TWO_ITEMS_PUBLISHED, "'2 items are published.' should appear");
+            assert.equal(actualMessage, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_PUBLISHED, "'2 items are published.' should appear");
         });
 
     it("GIVEN existing published site is opened WHEN a text component has been inserted THEN site's state should be 'Modified' and 'Work in progress' icon should be displayed in the grid",

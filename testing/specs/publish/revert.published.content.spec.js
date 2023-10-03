@@ -51,7 +51,7 @@ describe('Revert published content spec', function () {
             await wizardVersionsWidget.clickOnRevertButton();
             // 3. Verify the message:
             let actualMessage = await contentWizard.waitForNotificationMessage();
-            assert.include(actualMessage, appConst.CONTENT_REVERTED_MESSAGE, 'Expected notification message should appear');
+            assert.include(actualMessage, appConst.NOTIFICATION_MESSAGES.CONTENT_REVERTED, 'Expected notification message should appear');
             // 4. Verify that status gets Modified
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, "'Modified' status should be in Wizard");

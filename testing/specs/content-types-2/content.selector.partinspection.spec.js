@@ -1,0 +1,93 @@
+/**
+ * Created on 29.09.2023
+ */
+const chai = require('chai');
+const assert = chai.assert;
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const studioUtils = require('../../libs/studio.utils.js');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const contentBuilder = require("../../libs/content.builder");
+const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
+const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
+const CityListPartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/city.list.part.inspection.panel');
+const appConst = require('../../libs/app_const');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+
+describe('my.first.site.country.spec - Create a site with country content', function () {
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === 'undefined') {
+        webDriverHelper.setupBrowser();
+    }
+    let SITE;
+
+    it(`Precondition: new site with 'main region' controller should be added`,
+        async () => {
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.MY_FIRST_APP, appConst.TEST_APPS_NAME.APP_CONTENT_TYPES],
+                'main region');
+            await studioUtils.doAddSite(SITE);
+        });
+
+    it(`GIVEN existing site is opened WHEN an option has been selected in selector in the part config THEN the option should be saved after clicking on 'Apply' button`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let liveFormPanel = new LiveFormPanel();
+            let cityListPartInspectionPanel = new CityListPartInspectionPanel();
+            // 1. Open the site:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3.Click on the 'main' item and open Context Menu:
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Part']);
+            // 4. Select the part with a config
+            await liveFormPanel.selectPartByDisplayName('City list');
+            await contentWizard.switchToMainFrame();
+            await cityListPartInspectionPanel.waitForLoaded();
+            // 5. Select an option in the selector
+            await cityListPartInspectionPanel.selectContentInSelector(appConst.TEST_IMAGES.MAN);
+            // 6. Click on 'Apply' button:
+            await cityListPartInspectionPanel.clickOnApplyButton();
+            // 7. Verify that Notification message appears and 'Save' button is disabled:
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.waitForSaveButtonDisabled();
+            // 8. Verify the selected option:
+            let result = await cityListPartInspectionPanel.getSelectedContentDisplayName();
+            assert.equal(result, appConst.TEST_IMAGES.MAN, "The expected content should be displayed in the selector");
+        });
+
+    // Verifies Console errors when changing selected options in a part config #6857
+    // https://github.com/enonic/app-contentstudio/issues/6857
+    it(`WHEN the selected option has been changed in the part config THEN new option should be saved after clicking on 'Apply' button`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            let cityListPartInspectionPanel = new CityListPartInspectionPanel()
+            // 1. Open the site
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 2. Click on the part-item in the PCV
+            await pageComponentsWizardStepForm.clickOnComponent('City list');
+            await cityListPartInspectionPanel.waitForLoaded();
+            // 3. Remove the selected option in the selector in Part config:
+            await cityListPartInspectionPanel.removeSelectedContent(appConst.TEST_IMAGES.MAN);
+            await cityListPartInspectionPanel.selectContentInSelector(appConst.TEST_IMAGES.SPUMANS);
+            // 4. Click on 'Apply' button:
+            await cityListPartInspectionPanel.clickOnApplyButton();
+            // 5. Verify that Notification message appears and 'Save' button is disabled:
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.waitForSaveButtonDisabled();
+            // 6. Verify the new selected option:
+            let result = await cityListPartInspectionPanel.getSelectedContentDisplayName();
+            assert.equal(result, appConst.TEST_IMAGES.SPUMANS, "The expected content should be displayed in the selector");
+        });
+
+    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== 'undefined') {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
+});

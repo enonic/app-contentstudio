@@ -55,7 +55,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             // 4. Click on 'Create Task' button and create new task:
             await createIssueDialog.clickOnCreateIssueButton();
             let message = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(message, appConst.ISSUE_CREATED_MESSAGE);
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.ISSUE_CREATED_MESSAGE);
             await issueDetailsDialog.waitForDialogLoaded();
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();

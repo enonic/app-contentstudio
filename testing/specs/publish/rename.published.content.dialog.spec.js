@@ -92,7 +92,7 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             // 4. Verify that content's status gets 'Moved'
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MOVED);
             // 5. Verify that expected notification message:
-            assert.equal(message, appConst.CONTENT_RENAMED, "'Content has been renamed' - this message should be displayed");
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.CONTENT_RENAMED, "'Content has been renamed' - this message should be displayed");
         });
 
     it("GIVEN modified content has been opened WHEN the content has been unpublished THEN 'modify the path' icon should not be visible in the wizard-page",

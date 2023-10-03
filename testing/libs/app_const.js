@@ -2,7 +2,7 @@
  * Created  on 1.12.2017.
  */
 module.exports = Object.freeze({
-    generateRandomName: function (part) {
+    generateRandomName (part) {
         return part + Math.round(Math.random() * 1000000);
     },
     itemMarkedAsReadyMessage(name) {
@@ -12,17 +12,17 @@ module.exports = Object.freeze({
         return `Item \"${name}\" is archived`
     },
 
-    itemSavedNotificationMessage: function (name) {
+    itemSavedNotificationMessage (name) {
         return `Item \"${name}\" is saved.`
     },
     languageCopiedNotification: parent => `Language successfully copied from \"${parent}\"`,
     itemPublishedNotificationMessage: (name) => {
         return `Item \"${name}\" is published.`
     },
-    issueClosedNotificationMessage: function (name) {
+    issueClosedNotificationMessage (name) {
         return `Issue \"${name}\" is closed.`
     },
-    sortOrderTitle: function (by, order) {
+    sortOrderTitle (by, order) {
         return `Sorted by \"${by}\" in ${order} order`
     },
     permissionsAppliedNotificationMessage: (name) => {
@@ -35,10 +35,10 @@ module.exports = Object.freeze({
     publishRequestClosedMessage: function (name) {
         return `Publish request \"${name}\" is closed`;
     },
-    issueClosedMessage: function (name) {
+    issueClosedMessage (name) {
         return `Issue \"${name}\" is closed`;
     },
-    saveFailedAttempt: function (name) {
+    saveFailedAttempt (name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
     requiredValidationMessage: (occurrences) => {
@@ -50,17 +50,7 @@ module.exports = Object.freeze({
     projectCreatedMessage: name => `Project \"${name}\" is created.`,
     projectNameAlreadyExistsMessage: name => `Project with name [${name}] already exists`,
     projectDeletedMessage: name => `Project \"${name}\" is deleted.`,
-    NO_CHANGES_TO_REVERT_MESSAGE: "No changes to revert.",
-    THIS_PUBLISH_REQUEST_OPEN: 'The publish request is Open.',
-    REQUEST_CREATED_MESSAGE: 'A new Publish Request is successfully created.',
-    ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
-    ISSUE_CREATED_MESSAGE: "A new issue is successfully created.",
-    PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
-    ISSUE_OPENED_MESSAGE: 'The issue is Open.',
-    TWO_ITEMS_PUBLISHED: '2 items are published.',
-    TWO_ITEMS_UNPUBLISHED: '2 items are unpublished',
-    ITEM_IS_UNDELETED_MESSAGE: "Item is undeleted",
-    CONTENT_RENAMED: 'Content has been renamed',
+
     TEST_FOLDER_WITH_IMAGES: 'All Content types images',
     TEST_FOLDER_WITH_IMAGES_NAME: 'all-content-types-images',
     TEST_FOLDER_WITH_IMAGES_2: 'Images for simple page',
@@ -72,13 +62,26 @@ module.exports = Object.freeze({
     MY_FIRST_APP: 'My First App',
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
-    YOUR_COMMENT_ADDED: 'Your comment is added to the issue.',
-    LOCALIZED_MESSAGE_1: 'Language was copied from current project.',
-    LOCALIZED_MESSAGE_2: 'Inherited content is localized',
-    CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     TAB_TITLE_PART: "/ Content",
     CONTENT_STUDIO_TITLE: 'Content Studio',
+
+    NOTIFICATION_MESSAGES:{
+        YOUR_COMMENT_ADDED: 'Your comment is added to the issue.',
+        LOCALIZED_MESSAGE_1: 'Language was copied from current project.',
+        LOCALIZED_MESSAGE_2: 'Inherited content is localized',
+        NO_CHANGES_TO_REVERT_MESSAGE: "No changes to revert.",
+        ISSUE_CREATED_MESSAGE: "A new issue is successfully created.",
+        ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
+        REQUEST_CREATED_MESSAGE: 'A new Publish Request is successfully created.',
+        PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
+        ISSUE_OPENED_MESSAGE: 'The issue is Open.',
+        THIS_PUBLISH_REQUEST_OPEN: 'The publish request is Open.',
+        CONTENT_RENAMED: 'Content has been renamed',
+        TWO_ITEMS_PUBLISHED: '2 items are published.',
+        TWO_ITEMS_UNPUBLISHED: '2 items are unpublished',
+        CONTENT_REVERTED: 'The content was reverted to the version from',
+    },
     TEST_DATA: {
         TEST_FOLDER_IMAGES_1_DISPLAY_NAME: 'All Content types images',
         TEST_FOLDER_IMAGES_1_NAME: 'all-content-types-images',
@@ -227,6 +230,7 @@ module.exports = Object.freeze({
         CAPE: 'cape',
         BRO: 'bro',
         MAN2: 'man2',
+        MAN: 'man',
         SEVEROMOR: 'severomor',
         ELEPHANT: 'elephant',
         ENTERPRISE: 'enterprise',

@@ -87,9 +87,9 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             // 4. Verify the notification message:
             let message = await issueDetailsDialog.waitForNotificationMessage();
             await studioUtils.saveScreenshot('issue_comment_added');
-            assert.equal(message, appConst.YOUR_COMMENT_ADDED,
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.YOUR_COMMENT_ADDED,
                 'Expected notification message should be shown when the comment has been added');
-            await studioUtils.saveScreenshot("issue_comment_button_disabled");
+            await studioUtils.saveScreenshot('issue_comment_button_disabled');
             // 5. Verify that 'Comment' button gets disabled:
             await commentsTab.waitForCommentButtonDisabled();
             // 6.verify that 'No comments yet' message gets not visible in the Comments tab

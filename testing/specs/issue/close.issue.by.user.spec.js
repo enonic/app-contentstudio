@@ -56,7 +56,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             // 4. Click on 'Create Issue' button and create new issue:
             await createIssueDialog.clickOnCreateIssueButton();
             let message = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(message, appConst.ISSUE_CREATED_MESSAGE);
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.ISSUE_CREATED_MESSAGE);
             await issueDetailsDialog.waitForDialogLoaded();
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();

@@ -13,7 +13,7 @@ const appConst = require('../libs/app_const');
 
 describe('content.workflow.state.spec: creates a folder and changes and checks the workflow state of this content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let TEST_FOLDER;
@@ -40,12 +40,12 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
     it(`GIVEN new folder has been opened WHEN the folder has been marked as ready THEN 'Ready for publishing' state should be displayed in the wizard`,
         async () => {
             let wizard = new ContentWizard();
-            //1. Open the folder:
+            // 1. Open the folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            //2. Click on 'MARK AS READY' default action:
+            // 2. Click on 'MARK AS READY' default action:
             await wizard.clickOnMarkAsReadyButton();
             let message = await wizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot("marked_as_ready_workflow_state");
+            await studioUtils.saveScreenshot("marked_as_ready_workflow_state");
             assert.equal(message, appConst.markedAsReadyMessage(TEST_FOLDER.displayName),
                 "Message: 'Item is marked as ready' should appear");
             let state = await wizard.getContentWorkflowState();
@@ -66,33 +66,33 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
         async () => {
             let versionPanel = new WizardVersionsWidget();
             let wizard = new ContentWizard();
-            //1. Open the folder:
+            // 1. Open the folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            //2. Revert the previous version:
+            // 2. Revert the previous version:
             await wizard.openVersionsHistoryPanel();
             await versionPanel.clickAndExpandVersion(1);
             await versionPanel.clickOnRevertButton();
-            studioUtils.saveScreenshot("revert_workflow_state");
-            //State in wizard gets 'Work in Progress':
+            await studioUtils.saveScreenshot('revert_workflow_state');
+            // State in wizard gets 'Work in Progress':
             let state = await wizard.getContentWorkflowState();
             assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
                 "'Work in progress' -state should appear after reverting the previous version");
         });
-    //Verifies: Incorrect notification message after reverting a version that is identical to the current version #1656
+    // Verifies: Incorrect notification message after reverting a version that is identical to the current version #1656
     it(`GIVEN existing folder is opened WHEN identical to the current version has been reverted THEN 'No changes to revert.' message should appear`,
         async () => {
             let versionPanel = new WizardVersionsWidget();
             let wizard = new ContentWizard();
-            //1. Open the folder:
+            // 1. Open the folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            //2. Revert the identical version:
+            // 2. Revert the identical version:
             await wizard.openVersionsHistoryPanel();
             await versionPanel.clickAndExpandVersion(2);
             await versionPanel.clickOnRevertButton();
-            //3. Expected message should appear:
-            studioUtils.saveScreenshot("revert_identical_version");
+            // 3. Expected message should appear:
+            await studioUtils.saveScreenshot('revert_identical_version');
             let message = await wizard.waitForNotificationMessage();
-            assert.equal(message, appConst.NO_CHANGES_TO_REVERT_MESSAGE, "'No changes to revert.' this message should appear");
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.NO_CHANGES_TO_REVERT_MESSAGE, "'No changes to revert.' this message should appear");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
