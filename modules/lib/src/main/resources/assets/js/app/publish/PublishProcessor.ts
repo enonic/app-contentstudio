@@ -127,17 +127,26 @@ export class PublishProcessor {
             if (!event.manual) {
                 const selectionType = this.dependantList.getSelectionType();
                 switch (selectionType) {
-                case SelectionType.NONE:
-                    this.setExcludedIds(this.allDependantIds);
+                    case SelectionType.NONE: {
+                        if (this.loadExcluded) {
+                            this.setExcludedIds(this.allDependantIds);
+                        } else {
+                            this.addExcludedIds(this.allDependantIds);
+                        }
                     break;
+                    }
                 case SelectionType.ALL:
                     this.setExcludedIds([]);
                     break;
                 case SelectionType.PARTIAL: {
-                    const sortedExcludedIds = this.allDependantIds.filter(id => {
+                    const partlyExcludedIds = this.allDependantIds.filter(id => {
                         return this.dependantList.getExcludedIds().some(excludedId => excludedId.equals(id));
                     });
-                    this.setExcludedIds(sortedExcludedIds);
+                    if (this.loadExcluded) {
+                        this.setExcludedIds(partlyExcludedIds);
+                    } else {
+                        this.addExcludedIds(partlyExcludedIds);
+                    }
                     break;
                 }
                 }
@@ -187,9 +196,9 @@ export class PublishProcessor {
         if (isNoItemsToPublish) {
             this.handleNoPublishItemsToLoad(resetDependantItems, silent);
         } else if (needExcludeNonRequired && !isNothingToExclude) {
-            this.cleanLoadPublishDependencies({...params, ids});
+            void this.cleanLoadPublishDependencies({...params, ids});
         } else {
-            this.loadPublishDependencies({...params, ids});
+            void this.loadPublishDependencies({...params, ids});
         }
     }
 
@@ -284,7 +293,7 @@ export class PublishProcessor {
 
             this.processResolveDependenciesResult(result);
             this.handleExclusionResult();
-            this.handleMissingExcludedIds(resetExclusions ? [] : undefined);
+            this.handleExcessiveExcludedIds(resetExclusions ? [] : undefined);
 
             const hasExcluded = this.getExcludedIds().length > 0;
             const allDependantIds = hasExcluded ? await this.createResolveDependenciesRequest(ids).sendAndParse().then(
@@ -406,10 +415,26 @@ export class PublishProcessor {
     }
 
     private handleMissingExcludedIds(dependantsIds?: ContentId[]): void {
+        const itemsIds = this.itemList.getItemsIds();
         const missingExcludedIds = (dependantsIds ?? this.dependantList.getItemsIds())
-            .filter(id => !this.itemsIncludeId(this.dependantIds, id) && !this.itemsIncludeId(this.excludedIds, id));
+            .filter(id =>
+                !this.itemsIncludeId(this.dependantIds, id) &&
+                !this.itemsIncludeId(this.excludedIds, id) &&
+                !this.itemsIncludeId(itemsIds, id));
+
         if (missingExcludedIds.length > 0) {
             this.setExcludedIds([...this.excludedIds, ...missingExcludedIds]);
+        }
+    }
+
+    private handleExcessiveExcludedIds(requiredIds?: ContentId[]): void {
+        const excludedIds = this.excludedIds.filter(id => {
+            return !this.itemsIncludeId(requiredIds ?? this.requiredIds, id);
+        });
+
+        const isExcludedIdsChanged = excludedIds.length !== this.excludedIds.length;
+        if (isExcludedIdsChanged) {
+            this.setExcludedIds(excludedIds);
         }
     }
 
@@ -570,9 +595,12 @@ export class PublishProcessor {
         return this.excludedIds;
     }
 
+    addExcludedIds(ids: ContentId[]) {
+        this.excludedIds = this.dependantList.addExcludedIds(ids ?? []);
+    }
+
     setExcludedIds(ids: ContentId[]) {
-        this.excludedIds = ids ?? [];
-        this.dependantList.setExcludedIds(this.excludedIds);
+        this.excludedIds = this.dependantList.setExcludedIds(ids ?? []);
     }
 
     resetExcludedIds() {

@@ -67,6 +67,8 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
 
     protected selectionType: SelectionType;
 
+    protected excludedHidden: boolean;
+
     constructor(config: DialogDependantItemsListConfig<View> = {}) {
         super(`dialog-dependant-items-list ${config.className ?? ''}`);
 
@@ -77,6 +79,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
         this.selectionTypeChangeListeners = [];
         this.excludedIds = [];
         this.selectionType = SelectionType.ALL;
+        this.excludedHidden = false;
 
         this.setEmptyText(config.emptyText);
 
@@ -143,6 +146,10 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
         return super.getItemViews() as View[];
     }
 
+    setExcludedHidden(excludedHidden: boolean): void {
+        this.excludedHidden = excludedHidden;
+    }
+
     hasExcluded(): boolean {
         return this.excludedIds.length > 0;
     }
@@ -151,16 +158,24 @@ export class DialogDependantItemsList<View extends StatusCheckableItem = StatusC
         return this.excludedIds;
     }
 
-    setExcludedIds(ids: ContentId[]): void {
+    addExcludedIds(ids: ContentId[]): ContentId[] {
+        const added = calcIdsDiff(ids, this.excludedIds);
+        this.excludedIds = [...this.excludedIds, ...added];
+        this.notifyExclusionUpdated({manual: true, added, removed: []});
+        return this.excludedIds;
+    }
+
+    setExcludedIds(ids: ContentId[]): ContentId[] {
         const added = calcIdsDiff(ids, this.excludedIds);
         const removed = calcIdsDiff(this.excludedIds, ids);
         this.excludedIds = ids;
         this.notifyExclusionUpdated({manual: true, added, removed});
+        return this.excludedIds;
     }
 
     saveExclusions(): void {
         const newExcludedIds = this.getItemViews().filter(view => !view.isSelected()).map(view => view.getItem().getContentId());
-        const loadedOldExcludedIds = this.excludedIds.filter(
+        const loadedOldExcludedIds = this.excludedHidden ? [] : this.excludedIds.filter(
             id => this.getItemViews().some(view => view.getItem().getContentId().equals(id)));
         const added = calcIdsDiff(newExcludedIds, this.excludedIds);
         const removed = calcIdsDiff(loadedOldExcludedIds, newExcludedIds);

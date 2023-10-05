@@ -31,7 +31,10 @@ import * as Q from 'q';
 import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
 import {ContentId} from '../../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
+import {
+    DependantItemsWithProgressDialog,
+    DependantItemsWithProgressDialogConfig
+} from '../../dialog/DependantItemsWithProgressDialog';
 import {DialogStateBar} from '../../dialog/DialogStateBar';
 import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
@@ -243,8 +246,6 @@ export class IssueDetailsDialog
             edit: {
                 applyHandler: () => {
                     this.saveOnLoaded = true;
-                    this.publishProcessor.setLoadExcluded(false);
-                    this.excludedToggler.setActive(false);
                     this.getDependantList().saveExclusions();
                     this.markEditing(false);
                 },

@@ -22,7 +22,10 @@ import {PublishProcessor} from '../publish/PublishProcessor';
 import {PublishScheduleForm} from '../publish/PublishScheduleForm';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
+import {
+    DependantItemsWithProgressDialog,
+    DependantItemsWithProgressDialogConfig
+} from './DependantItemsWithProgressDialog';
 import {DialogStateBar} from './DialogStateBar';
 import {DialogStateEntry} from './DialogStateEntry';
 
@@ -101,8 +104,6 @@ export abstract class BasePublishDialog
             resolvedText: i18n('dialog.publish.error.resolved'),
             edit: {
                 applyHandler: () => {
-                    this.publishProcessor.setLoadExcluded(false);
-                    this.excludedToggler.setActive(false);
                     this.getDependantList().saveExclusions();
                     this.markEditing(false);
                 },

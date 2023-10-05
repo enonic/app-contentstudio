@@ -6,7 +6,10 @@ import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
 import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {
+    ModalDialogWithConfirmation,
+    ModalDialogWithConfirmationConfig
+} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
@@ -50,7 +53,6 @@ export abstract class DependantItemsDialog
 
     private dependantList: DialogDependantItemsList;
 
-
     protected dependantsControls: DivEl;
 
     protected allCheckBox: Checkbox;
@@ -58,7 +60,6 @@ export abstract class DependantItemsDialog
     protected excludedToggler: TogglerButton;
 
     protected excludedNote: SpanEl;
-
 
     protected resolvedIds: ContentId[];
 
@@ -68,6 +69,7 @@ export abstract class DependantItemsDialog
 
     protected constructor(config: DependantItemsDialogConfig) {
         super(config);
+        this.postInitListeners();
         this.dependantIds = [];
         this.resolvedIds = [];
     }
@@ -79,7 +81,6 @@ export abstract class DependantItemsDialog
         this.itemList = this.createItemList();
 
         this.initDependants();
-
     }
 
     protected initDependants(): void {
@@ -132,9 +133,17 @@ export abstract class DependantItemsDialog
         this.excludedToggler.onActiveChanged(active => {
             this.excludedToggler.setLabel(active ? i18n('dialog.publish.excluded.hide') : i18n('dialog.publish.excluded.show'));
             this.dependantsContainer.toggleClass(DependantsStatus.EXCLUDED_HIDDEN, !active);
+            this.dependantList.setExcludedHidden(!active);
         });
 
         this.dependantList.onSelectionTypeChanged(() => this.updateAllCheckbox());
+    }
+
+    protected postInitListeners(): void {
+        const hasControls = !!this.config.controls;
+        if (hasControls) {
+            this.excludedToggler.setActive(true);
+        }
     }
 
     protected lazyLoadDependants(): void {
@@ -205,9 +214,9 @@ export abstract class DependantItemsDialog
         this.allCheckBox.addClass('all-dependants-control');
 
         this.excludedToggler = new TogglerButton('excluded-items-toggler');
-        this.excludedToggler.setLabel(i18n('dialog.publish.excluded.show'));
+        this.excludedToggler.setLabel(i18n('dialog.publish.excluded.hide'));
         this.excludedToggler.setEnabled(true);
-        this.excludedToggler.setActive(false, true);
+        this.excludedToggler.setActive(true, true);
 
         this.excludedNote = new SpanEl('excluded-items-note');
         this.excludedNote.setHtml(i18n('dialog.dependencies.allExcluded'));
@@ -262,7 +271,7 @@ export abstract class DependantItemsDialog
             this.allCheckBox.setChecked(true);
             this.allCheckBox.setPartial(false);
             this.allCheckBox.setEnabled(true);
-            this.excludedToggler.setActive(false);
+            this.excludedToggler.setActive(true);
         }
 
         this.markDependantsHasExcluded(false);
