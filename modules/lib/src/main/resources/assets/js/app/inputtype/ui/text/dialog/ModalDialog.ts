@@ -87,13 +87,13 @@ export abstract class ModalDialog
         this.editor = this.config.editor;
     }
 
-    protected postInitElements() {
+    protected postInitElements(): void {
         super.postInitElements();
 
         this.mainForm = this.createForm(this.getMainFormItems());
     }
 
-    protected initListeners() {
+    protected initListeners(): void {
         super.initListeners();
 
         if (this.submitAction) {
