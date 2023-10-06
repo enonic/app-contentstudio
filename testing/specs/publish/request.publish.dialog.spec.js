@@ -101,11 +101,13 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             // 5. Click on 'Apply selection' button:
             await createRequestPublishDialog.clickOnApplySelectionButton();
             await studioUtils.saveScreenshot('request_publish_exclude_items');
-            // 6. Verify that 'Show excluded' button gets visible:
-            await createRequestPublishDialog.waitForShowExcludedItemsButtonDisplayed();
-            // 7. Dependent items should be hidden:
+            // 6. Verify that 'Hide excluded' button gets visible:
+            await createRequestPublishDialog.waitForHideExcludedItemsButtonDisplayed();
+            // 7. All Dependent items should be shown:
             let result = await createRequestPublishDialog.getDisplayNameInDependentItems();
-            assert.equal(result.length, 0, 'dependant items should be hidden');
+            assert.equal(result.length, 10, 'dependant items should be hidden');
+            let isSelected = await createRequestPublishDialog.isAllDependantsCheckboxSelected();
+            assert.isFalse(isSelected, "'All' checkbox should not be selected");
             // 8. Verify that 'Next' button is enabled:
             await createRequestPublishDialog.waitForNextButtonEnabled();
         });
@@ -125,11 +127,11 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             // 5. Click on 'Apply selection' button:
             await createRequestPublishDialog.clickOnApplySelectionButton();
             await studioUtils.saveScreenshot('request_publish_exclude_items');
-            // 6. Verify that 'Show excluded' button gets visible:
-            await createRequestPublishDialog.waitForShowExcludedItemsButtonDisplayed();
-            // 7. Dependent items should be hidden:
+            // 6. Verify that 'Hide excluded' button should be visible:
+            await createRequestPublishDialog.waitForHideExcludedItemsButtonDisplayed();
+            // 7. Dependent items should be shown:
             let result = await createRequestPublishDialog.getDisplayNameInDependentItems();
-            assert.equal(result.length, 0, 'dependant items should be hidden in the modal dialog');
+            assert.equal(result.length, 10, 'dependant items should be displayed in the modal dialog');
             // 8. Verify that 'Next' button is enabled:
             await createRequestPublishDialog.waitForNextButtonEnabled();
         });
