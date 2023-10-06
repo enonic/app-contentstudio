@@ -342,8 +342,7 @@ class ContentPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
             throw new Error(`'Show excluded items' button should be visible! screenshot: ${screenshot} ` + err)
         }
     }
@@ -585,7 +584,7 @@ class ContentPublishDialog extends Page {
     async clickOnApplySelectionButton() {
         await this.waitForApplySelectionButtonDisplayed();
         await this.clickOnElement(this.applySelectionButton);
-        return await this.pause(500);
+        return await this.pause(700);
     }
 
     async clickOnCancelSelectionButton() {
@@ -616,7 +615,6 @@ class ContentPublishDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getAttribute(locator, 'data-count');
     }
-
 }
 
 module.exports = ContentPublishDialog;

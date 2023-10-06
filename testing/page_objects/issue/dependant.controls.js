@@ -187,8 +187,7 @@ class DependantsControls extends Page {
         try {
             return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
             throw new Error(`Dependants block, 'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + +err)
         }
     }
@@ -199,9 +198,14 @@ class DependantsControls extends Page {
     }
 
     async isDependantCheckboxSelected(displayName) {
-        let checkBoxInputLocator = this.container + xpath.dependentItemDiv(displayName) + lib.CHECKBOX_INPUT;
-        await this.waitForElementDisplayed(this.container + xpath.dependentItemDiv(displayName), appConst.mediumTimeout);
-        return await this.isSelected(checkBoxInputLocator);
+        try {
+            let checkBoxInputLocator = this.container + xpath.dependentItemDiv(displayName) + lib.CHECKBOX_INPUT;
+            //await this.waitForElementDisplayed(checkBoxInputLocator, appConst.mediumTimeout);
+            return await this.isSelected(checkBoxInputLocator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_checkbox_selected');
+            throw new Error(`Dependants block, is checkbox selected, screenshot: ${screenshot} `  +err)
+        }
     }
 
     async clickOnCheckboxInDependentItem(displayName) {

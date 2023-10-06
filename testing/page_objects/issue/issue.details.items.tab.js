@@ -191,6 +191,16 @@ class IssueDetailsDialogItemsTab extends Page {
         return await this.dependantsControls.clickOnAllCheckbox();
     }
 
+
+    async waitForHideExcludedItemsButtonDisplayed() {
+        try {
+            return await this.dependantsControls.waitForHideExcludedItemsButtonDisplayed();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_items_btn');
+            throw new Error(`Hide excluded button should be displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
     async waitForAllDependantsCheckboxDisplayed() {
         return await this.dependantsControls.waitForAllDependantsCheckboxDisplayed();
     }

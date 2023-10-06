@@ -72,10 +72,10 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.clickOnApplySelectionButton();
             // 5. Verify that 'Exclude invalid items' button gets not visible:
             await contentPublishDialog.waitForExcludeInvalidItemsButtonNotDisplayed();
-            // 6. Verify that 'Publish Now' button is enabled in the dialog:
+            // 6. Verify that 'Publish Now' button is enabled in the dialog, because of the valid child item has been excluded:
             await contentPublishDialog.waitForPublishNowButtonEnabled();
-            // 7. Verify that Show excluded button is displayed:
-            await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
+            // 7. Verify that 'Hide excluded' button is displayed:
+            await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
             // 8. Verify that 'Content is ready for publishing' record is displayed:
             await contentPublishDialog.waitForReadyForPublishingTextDisplayed();
         });
@@ -84,7 +84,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            // 1. Select an existing site with not valid child and open Publish wizard:
+            // 1. Select an existing site with invalid child and open Publish wizard:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
@@ -92,14 +92,15 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.clickOnIncludeChildrenToogler();
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 2, 'Two dependent items should be displayed');
-            //3. Click on 'Exclude invalid' items button:
+            // 3. Click on 'Exclude invalid' items button:
             await contentPublishDialog.clickOnExcludeInvalidItemsButton();
             // 4. Verify that 'Exclude invalid items' button gets not visible:
             await contentPublishDialog.waitForExcludeInvalidItemsButtonNotDisplayed();
             depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-            assert.equal(depItems.length, 1, 'Number of dependent items should be reduced');
-            // 5. 'Show excluded' button gets visible:
-            await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
+            depItems[0].includes('_unnamed_') ? assert.ok(true,'One invalid unnamed item should be present in the block') : assert.fail('Invalid item is not displayed in the dependant block');
+            assert.equal(depItems.length, 2, '2 dependent items should be present in the block');
+            // 5. 'Hide excluded' button gets visible:
+            await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
         });
 
     it("Precondition 2: 'work in progress' folder should be added in the site",
@@ -133,16 +134,16 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             // 5. Verify that 'Exclude items in progress' buttons get not visible:
             await contentPublishDialog.waitForExcludeInvalidItemsButtonNotDisplayed();
             await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
-            // 6. 'Show excluded' button gets visible:
-            await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
+            // 6. 'Hide excluded' button should be visible:
+            await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
             // 7. The number of displayed dependant items should be reduced:
             depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-            assert.equal(depItems.length, 1, 'Number of displayed dependent items should be reduced');
+            assert.equal(depItems.length, 3, 'Number of displayed dependent items should be reduced');
             // 8. Publish Now button should be enabled now:
             await contentPublishDialog.waitForPublishNowButtonEnabled();
         });
 
-    it("WHEN 'Show excluded' button has been clicked THEN the number of dependant items should be increased",
+    it("WHEN 'Hide excluded' button has been clicked THEN the number of dependant items should be increased",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
@@ -156,21 +157,21 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.clickOnExcludeInvalidItemsButton();
             // 4. Exclude all 'work in progress' items:
             await contentPublishDialog.clickOnExcludeItemsInProgressButton();
-            // 5. 'Show Excluded' button should be visible:
-            await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
-            await contentPublishDialog.clickOnShowExcludedItemsButton();
-            // 6. The number of dependant items should be increased:
-            let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-            assert.equal(depItems.length, 3, 'Three dependent items should be displayed');
-            await studioUtils.saveScreenshot('hide_excluded_items');
-            // 7. Verify that 'Hide excluded items' button gets visible:
-            await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
-            // 8. Click on 'Hide Excluded items' button:
+            // 5. 'Hide Excluded' button should be visible:
             await contentPublishDialog.clickOnHideExcludedItemsButton();
-            // 9. Excluded items should be hidden now:
+            // 6. The number of dependant items should be reduced to 1:
+            let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
+            assert.equal(depItems.length, 1, 'Three dependent items should be displayed');
+            await studioUtils.saveScreenshot('hide_excluded_items');
+            // 7. Verify that 'Show excluded items' button gets visible:
+            await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
+            // 8. Click on 'Show Excluded items' button:
+            await contentPublishDialog.clickOnShowExcludedItemsButton();
+            // 9. Excluded items should be displayed now:
             depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-            assert.equal(depItems.length, 1, 'One dependent items should be displayed');
-            assert.isTrue(depItems[0].includes('_templates'), 'Expected item-name should be displayed in the dependant list');
+            assert.equal(depItems.length, 3, '3 dependent items should be displayed');
+            assert.isTrue(depItems[0].includes('_unnamed_'), 'Expected invalid item(unnamed) should be displayed in the dependant list');
+            assert.isTrue(depItems[2].includes('_templates'), 'Expected item-name should be displayed in the dependant list');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

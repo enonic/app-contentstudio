@@ -129,7 +129,7 @@ class CreateIssueDialog extends Page {
 
     async waitForDialogLoaded() {
         await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-        await this.pause(1000);
+        await this.pause(1200);
     }
 
     waitForDialogClosed() {
@@ -191,14 +191,22 @@ class CreateIssueDialog extends Page {
         }
     }
 
+    async waitForHideExcludedItemsButtonDisplayed() {
+        try {
+            return this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
+            throw new Error(`'Hide excluded items' button should be visible! screenshot: ${screenshot} ` + err)
+        }
+    }
+
     async clickOnShowExcludedItemsButton() {
         try {
             await this.waitForShowExcludedItemsButtonDisplayed();
             await this.clickOnElement(this.showExcludedItemsButton);
             await this.pause(400);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
             throw new Error('Create Issue dialog, Show Excluded button, screenshot  ' + screenshot + ' ' + err);
         }
     }
@@ -207,8 +215,7 @@ class CreateIssueDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_show_excluded_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
             throw new Error(`Create Issue, 'Show excluded button' should be visible! screenshot: ${screenshot} ` + +err)
         }
     }
@@ -217,8 +224,7 @@ class CreateIssueDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_show_excluded_should_be_hidden');
-            await this.saveScreenshot(screenshot);
+            let screenshot =  await this.saveScreenshotUniqueName('err_show_excluded_should_be_hidden');
             throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + err);
         }
     }
@@ -229,8 +235,7 @@ class CreateIssueDialog extends Page {
             await this.clickOnElement(this.hideExcludedItemsButton);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot =  await this.saveScreenshotUniqueName('err_hide_excluded_btn');
             throw new Error('Create issue dialog, Hide Excluded button, screenshot  ' + screenshot + ' ' + err);
         }
     }
@@ -239,8 +244,7 @@ class CreateIssueDialog extends Page {
         try {
             return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_hide_excluded_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
             throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + +err)
         }
     }
@@ -262,8 +266,13 @@ class CreateIssueDialog extends Page {
     }
 
     async waitForDependenciesListNotDisplayed() {
-        let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
-        return await this.waitForElementNotDisplayed(locator);
+        try {
+            let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+            return await this.waitForElementNotDisplayed(locator);
+        }catch(err){
+            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_list');
+            throw new Error(`Dependencies list should not be visible! screenshot: ${screenshot} ` + err);
+        }
     }
 }
 

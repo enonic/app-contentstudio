@@ -119,8 +119,12 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialogItemsTab.waitForNotificationMessage();
             // 5.'Publish...' button gets enabled, because invalid child is excluded'
             await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
-            // 6. Verify that 'Show excluded' button gets visible:
-            await issueDetailsDialogItemsTab.waitForShowExcludedItemsButtonDisplayed();
+            // 6. Verify that 'Hide excluded' button gets visible:
+            await issueDetailsDialogItemsTab.waitForHideExcludedItemsButtonDisplayed();
+            await studioUtils.saveScreenshot('issue_invalid_dependent_excluded');
+            let isSelected= await issueDetailsDialogItemsTab.isDependantCheckboxSelected('shortcut-imported');
+            assert.isFalse(isSelected, 'Checkbox for excluded invalid-item should not be selected');
+
         });
 
     // Verifies: Items that were removed in Issue Details items appear again in Publish Wizard dialog #783
@@ -143,11 +147,16 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             // 4. Click on 'Publish' button in the 'Issue Details' dialog, 'Publish Wizard' should be loaded:
             let contentPublishDialog = await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
             await studioUtils.saveScreenshot('publish_wizard_content_excluded_1');
-            // 5. Verify that removed dependant item is not present in the list in 'Content Publish' dialog:
+            // 5. Verify that excluded dependant item is  present in the list in 'Content Publish' dialog:
             let result = await contentPublishDialog.getDisplayNameInDependentItems();
             // returns a truthy value for at least one element in the array contains the name. Otherwise, false.
             let isPresent = result.some(el => el.includes(TEST_CONTENT_NAME));
-            assert.isFalse(isPresent, 'Removed content should not be present in Publishing Wizard');
+            assert.isTrue(isPresent, 'Removed content should not be present in Publishing Wizard');
+            // 6. The checkbox should be unselected
+            let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected(TEST_CONTENT_NAME);
+            assert.isFalse(isSelected, "CheckBox for exclude item should be unselected");
+            // 7. Hide excluded button should be visible:
+            await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

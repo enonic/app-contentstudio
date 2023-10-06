@@ -91,7 +91,8 @@ class CreateRequestPublishDialog extends Page {
     }
 
     async clickOnAllDependantsCheckbox() {
-        return this.dependantsControls.clickOnAllDependantsCheckbox();
+        await this.dependantsControls.clickOnAllDependantsCheckbox();
+        return await this.pause(1000);
     }
 
     async waitForDependantsBlockDisplayed() {
@@ -166,8 +167,9 @@ class CreateRequestPublishDialog extends Page {
         return await this.getBrowser().switchWindow(displayName);
     }
 
-    waitForDialogLoaded() {
-        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+    async waitForDialogLoaded() {
+        await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+        await this.pause(1000);
     }
 
     waitForNextButtonDisplayed() {
@@ -334,6 +336,15 @@ class CreateRequestPublishDialog extends Page {
         return await this.dependantsControls.waitForHideExcludedItemsButtonNotDisplayed();
     }
 
+    async waitForHideExcludedItemsButtonDisplayed() {
+        try {
+            return await this.dependantsControls.waitForHideExcludedItemsButtonDisplayed();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_items_btn');
+            throw new Error(`Hide excluded button should be displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
     async waitForShowExcludedItemsButtonDisplayed() {
         return await this.dependantsControls.waitForShowExcludedItemsButtonDisplayed();
     }
@@ -343,15 +354,18 @@ class CreateRequestPublishDialog extends Page {
     }
 
     async clickOnShowExcludedItemsButton() {
-        return await this.dependantsControls.clickOnShowExcludedItemsButton();
+        await this.dependantsControls.clickOnShowExcludedItemsButton();
+        return await this.pause(1000);
     }
 
     async clickOnHideExcludedItemsButton() {
-        return await this.dependantsControls.clickOnHideExcludedItemsButton();
+        await this.dependantsControls.clickOnHideExcludedItemsButton();
+        return await this.pause(1000);
     }
 
     async clickOnApplySelectionButton() {
-        return await this.dependantsControls.clickOnApplySelectionButton();
+        await this.dependantsControls.clickOnApplySelectionButton();
+        return await this.pause(500);
     }
 
     async getDisplayNameInDependentItems() {
@@ -375,7 +389,8 @@ class CreateRequestPublishDialog extends Page {
     }
 
     async clickOnCheckboxInDependentItem(displayName) {
-        return await this.dependantsControls.clickOnCheckboxInDependentItem(displayName);
+        await this.dependantsControls.clickOnCheckboxInDependentItem(displayName);
+        return await this.pause(300);
     }
 
     async isDependantCheckboxEnabled(displayName) {
