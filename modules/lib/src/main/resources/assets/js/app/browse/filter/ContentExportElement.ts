@@ -1,4 +1,4 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -18,9 +18,8 @@ enum EXPORT_TYPE {
     CSV = 'csv', JSON = 'json'
 }
 
-export class ContentExportElement extends DivEl {
+export class ContentExportElement extends SpanEl {
 
-    protected exportButton: Button;
     protected exportServicePath: string;
     protected exportConfirmationDialog: ConfirmationDialog;
 
@@ -30,9 +29,8 @@ export class ContentExportElement extends DivEl {
     protected dependency: ContentDependency;
 
     constructor() {
-        super('export-button-container');
+        super('export-element icon-download');
 
-        this.initElements();
         this.initListeners();
     }
 
@@ -57,20 +55,12 @@ export class ContentExportElement extends DivEl {
     }
 
     setEnabled(enabled: boolean): this {
-        this.exportButton.setEnabled(enabled);
+        this.toggleClass('disabled', !enabled);
         return this;
     }
 
-    protected initElements(): void {
-        this.exportButton = new Button(i18n('action.export')).addClass('export-button') as Button;
-    }
-
     protected initListeners(): void {
-        this.onRendered(() => {
-            this.appendChild(this.exportButton);
-        });
-
-        this.exportButton?.onClicked(() => {
+        this.onClicked(() => {
             this.handleExportClicked();
         });
     }

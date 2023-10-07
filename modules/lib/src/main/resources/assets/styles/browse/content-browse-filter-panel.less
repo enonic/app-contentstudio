@@ -1,36 +1,6 @@
-@export-button-container-height: 30px;
-
 .content-browse-filter-panel {
-  &.has-export-button {
-    padding: 0; // need to set padding on container to put scroll in correct place
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-
-    .elements-container {
-      padding: 8px 10px 0 10px;
-      height: calc(100% - @export-button-container-height);
-      overflow-y: auto;
-      position: relative; // to make hide-filter-panel-button scroll with container
-    }
-
-    .export-button-container {
-      text-align: center;
-      margin: 10px 0;
-
-      .export-button {
-        width: 100%;
-        max-width: 200px;
-        padding: 3px 0;
-      }
-    }
-  }
 
   .constraint-section {
-    button.btn-close {
-      position: static !important;
-    }
-
     &:not(.dependency) {
       display: flex;
 
@@ -38,27 +8,53 @@
         flex-grow: 1;
       }
     }
+
+    &.dependency {
+      display: grid;
+      row-gap: 10px;
+      grid-template-columns: 1fr 20px;
+      grid-template-areas:
+      "label label"
+      "viewer close";
+
+      label {
+        grid-area: label;
+      }
+
+      button.btn-close {
+        grid-area: close;
+        top: 0;
+        right: 0;
+      }
+
+      .dependency-item.viewer {
+        padding-top: 0;
+        grid-area: viewer;
+      }
+    }
   }
 
-  .constraint-section.dependency {
-    display: grid;
-    row-gap: 10px;
-    grid-template-columns: 1fr 20px;
-    grid-template-areas:
-    "label label"
-    "viewer close";
+  .hits-and-clear {
 
-    label {
-      grid-area: label;
-    }
+    .export-element {
+      cursor: pointer;
 
-    button.btn-close {
-      grid-area: close;
-    }
+      &:not(.disabled) {
+        color: @admin-button-blue1;
 
-    .dependency-item.viewer {
-      padding-top: 0;
-      grid-area: viewer;
+        &:hover {
+          color: @admin-button-blue2;
+        }
+      }
+
+      &.disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
+      &:before {
+        font-size: 20px;
+      }
     }
   }
 
