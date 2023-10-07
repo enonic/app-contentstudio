@@ -41,7 +41,7 @@ export class ContentBrowseFilterPanel
 
     private dependenciesSection: DependenciesSection;
     private elementsContainer: Element;
-    private exportButtonContainer?: ContentExportElement;
+    private exportElement?: ContentExportElement;
 
     constructor() {
         super();
@@ -71,7 +71,7 @@ export class ContentBrowseFilterPanel
         this.initAggregationGroupView();
 
         if (this.isExportAllowed()) {
-            this.exportButtonContainer = new ContentExportElement().setVisible(false) as ContentExportElement;
+            this.exportElement = new ContentExportElement().setEnabled(false).setTitle(i18n('action.export')) as ContentExportElement;
         }
 
         this.handleEvents();
@@ -122,12 +122,16 @@ export class ContentBrowseFilterPanel
 
         this.onRendered(() => {
             super.appendChild(this.elementsContainer);
-
-            if (this.exportButtonContainer) {
-                this.addClass('has-export-button');
-                super.appendChild(this.exportButtonContainer);
-            }
         });
+    }
+
+    protected createHitsCountContainer(): DivEl {
+        const hitsCounterAndClearButtonWrapper = super.createHitsCountContainer();
+        if (this.exportElement) {
+            hitsCounterAndClearButtonWrapper.appendChild(this.exportElement);
+        }
+
+        return hitsCounterAndClearButtonWrapper;
     }
 
     protected getGroupViews(): AggregationGroupView[] {
@@ -241,7 +245,7 @@ export class ContentBrowseFilterPanel
     }
 
     private getAndUpdateAggregations(): Q.Promise<AggregationsQueryResult> {
-        this.exportButtonContainer?.setEnabled(false);
+        this.exportElement?.setEnabled(false);
 
         return this.getAggregations().then((aggregationsQueryResult: AggregationsQueryResult) => {
             this.updateHitsCounter(aggregationsQueryResult.getMetadata().getTotalHits());
@@ -250,17 +254,18 @@ export class ContentBrowseFilterPanel
             return this.processAggregations(aggregationsQueryResult.getAggregations()).then(() => {
                 return aggregationsQueryResult;
             });
-        }).finally(() => {
-            this.exportButtonContainer?.setEnabled(true);
         });
     }
 
     private updateExportState(aggregationsQueryResult: AggregationsQueryResult): void {
-        this.exportButtonContainer?.setTotal(aggregationsQueryResult.getMetadata().getTotalHits());
-        this.exportButtonContainer?.setSearchInputValues(this.getSearchInputValues());
-        this.exportButtonContainer?.setDependency(this.getDependency());
-        this.exportButtonContainer?.setConstraintIds(this.hasConstraint() ? this.getSelectionItems().slice() : null);
-        this.exportButtonContainer?.setVisible(aggregationsQueryResult.getMetadata().getTotalHits() > 0);
+        if (!this.exportElement) {
+            return;
+        }
+        this.exportElement.setTotal(aggregationsQueryResult.getMetadata().getTotalHits());
+        this.exportElement.setSearchInputValues(this.getSearchInputValues());
+        this.exportElement.setDependency(this.getDependency());
+        this.exportElement.setConstraintIds(this.hasConstraint() ? this.getSelectionItems().slice() : null);
+        this.exportElement.setEnabled(aggregationsQueryResult.getMetadata().getTotalHits() > 0);
     }
 
     private processAggregations(aggregations: Aggregation[]): Q.Promise<void> {
