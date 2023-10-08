@@ -59,7 +59,7 @@ export class ContentWizardHeader
             }
         });
 
-        this.nameEl.onFocus(() => {
+        this.bottomRow.onClicked(() => {
             if (this.hasClass(ContentWizardHeader.LOCKED_CLASS)) {
                 if (!this.renameDialog) {
                     this.renameDialog = new RenameContentDialog();
@@ -131,23 +131,28 @@ export class ContentWizardHeader
         this.updateIsNameUnique(true);
     }
 
+    setPath(value: string) {
+        if (!this.persistedContent) {
+            return;
+        }
+        const isLockedPath = this.hasClass(ContentWizardHeader.LOCKED_CLASS);
+
+        const pathValue = isLockedPath ? this.persistedContent.getPath().toString() : value;
+        super.setPath(pathValue);
+
+        if (isLockedPath) {
+            this.pathEl.setTitle(i18n('path.lock'));
+        }
+    }
+
     setOnline(isOnline: boolean) {
         this.toggleClass(ContentWizardHeader.LOCKED_CLASS, isOnline);
         this.toggleNameGeneration(!isOnline);
-
-        if (isOnline) {
-            this.nameEl.getEl().setTabIndex(-1);
-        } else {
-            this.nameEl.getEl().removeAttribute('tabindex');
-        }
+        this.nameEl.setVisible(!isOnline);
     }
 
     isValid(): boolean {
         return super.isValid() && this.isNameUnique;
-    }
-
-    isValidForSaving(): boolean {
-        return !!this.getName() && this.isNameUnique;
     }
 
     toggleNameInput(enable: boolean): void {
@@ -156,6 +161,10 @@ export class ContentWizardHeader
         }
 
         super.toggleNameInput(enable);
+    }
+
+    isValidForSaving(): boolean {
+        return !!this.getName() && this.isNameUnique;
     }
 
     isDisplayNameInputDirty(): boolean {
