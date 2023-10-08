@@ -542,7 +542,6 @@ export class ContentWizardPanel
 
                 this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
-                this.wizardHeader.setPath(this.getWizardHeaderPath());
 
                 const existing: Content = this.getPersistedItem();
                 if (existing) {
@@ -2566,7 +2565,8 @@ export class ContentWizardPanel
         ContentContext.get().setContent(content);
 
         this.wizardHeader?.setOnline(!this.persistedContent.isNew());
-        this.wizardHeader.setDir(Locale.supportsRtl(this.persistedContent.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
+        this.wizardHeader?.setPath(this.getWizardHeaderPath());
+        this.wizardHeader?.setDir(Locale.supportsRtl(this.persistedContent.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
         this.contextView?.setItem(content).then(() => this.contextView.updateWidgetsVisibility());
     }
 
