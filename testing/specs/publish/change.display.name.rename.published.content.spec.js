@@ -32,16 +32,17 @@ describe('change.display.name.rename.published.content.dialog.spec - tests for R
     it("GIVEN display name is modified WHEN the content has been renamed THEN the display name should not be updated after the renaming",
         async () => {
             let contentWizard = new ContentWizard();
+            // 1. Open the published content in the wizard:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            // 1. Update the display name:
+            // 2. Update the display name:
             await contentWizard.typeDisplayName(NEW_NAME);
-            // 2.  Click on the locked 'path input' and open the modal dialog:
-            let renamePublishedContentDialog = await contentWizard.clickOnLockedInputModifyPath();
+            // 3.  Click on the 'path input' and open the modal dialog:
+            let renamePublishedContentDialog = await contentWizard.clickOnNameInputOpenModifyPathDialog();
             await renamePublishedContentDialog.typeInNewNameInput(NEW_NAME);
-            // 3. Click on 'Rename' button and wait for the dialog is closed:
+            // 4. Click on 'Rename' button and wait for the dialog is closed:
             await renamePublishedContentDialog.clickOnRenameButton();
             await contentWizard.pause(1200);
-            // 4. Verify the display name:
+            // 5. Verify the display name:
             let actualDisplayName = await contentWizard.getDisplayName();
             assert.equal(actualDisplayName, NEW_NAME, 'Display name should not be rolled back after renaming the content');
         });
