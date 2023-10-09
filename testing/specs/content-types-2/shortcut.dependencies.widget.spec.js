@@ -15,11 +15,11 @@ const ContentFilterPanel = require('../../page_objects/browsepanel/content.filte
 
 describe("tests for 'Show Outbound' button in shortcut wizard", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');
-    const FOLDER_NAME = appConst.generateRandomName("folder");
+    const FOLDER_NAME = appConst.generateRandomName('folder');
 
     it(`Preconditions: create a folder`,
         async () => {
@@ -33,30 +33,29 @@ describe("tests for 'Show Outbound' button in shortcut wizard", function () {
             let shortcutForm = new ShortcutForm();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
-            //1. Fill in  the name input, select a target and save the shortcut:
+            // 1. Fill in  the name input, select a target and save the shortcut:
             await contentWizard.typeDisplayName(SHORTCUT_NAME);
             await shortcutForm.filterOptionsAndSelectTarget(FOLDER_NAME);
             await contentWizard.waitAndClickOnSave();
-            //2. Open Dependencies widget:
+            // 2. Open Dependencies widget:
             await contentWizard.openDependenciesWidget();
-            //3. Verify that 'No incoming dependencies' is displayed:
+            // 3. Verify that 'No incoming dependencies' is displayed:
             await wizardDependenciesWidget.waitForNoIncomingDependenciesMessage();
-            //4. Click on 'Show Outbound' button:
+            // 4. Click on 'Show Outbound' button:
             await wizardDependenciesWidget.waitForOutboundButtonVisible();
             await wizardDependenciesWidget.clickOnShowOutboundButton();
-            //5. Switch to the new browser tab:
+            // 5. Switch to the new browser tab:
             await studioUtils.doSwitchToNextTab();
-
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentFilterPanel = new ContentFilterPanel();
-            //6. Verify: 'Dependencies Section' should be loaded, in the filter panel'
+            // 6. Verify: 'Dependencies Section' should be loaded, in the filter panel'
             await contentFilterPanel.waitForDependenciesSectionVisible();
-            //Close 'Dependencies Section'  should be displayed:
+            // Close 'Dependencies Section'  should be displayed:
             await contentFilterPanel.waitForCloseDependenciesSectionButtonDisplayed();
             await studioUtils.saveScreenshot('shortcut_dependency_filtered');
-            //7. Single content should be filtered in the browse panel:
+            // 7. Single content should be filtered in the browse panel:
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
-            //8. Verify the name of filtered content:
+            // 8. Verify the name of filtered content:
             assert.equal(result[0], FOLDER_NAME, 'expected display name of dependency');
             assert.equal(result.length, 1, 'One content should be present in the grid');
         });
@@ -64,7 +63,7 @@ describe("tests for 'Show Outbound' button in shortcut wizard", function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -6,6 +6,7 @@ const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowseFilterPanel')]",
+    hitsAndClearDiv: "//div[contains(@class,'hits-and-clear')]",
     clearFilterLink: "//a[contains(@id,'ClearFilterButton')]",
     searchInput: "//input[contains(@id,'TextSearchField')]",
     dependenciesSection: "//div[contains(@id,'DependenciesSection')]",
@@ -32,7 +33,7 @@ class BrowseFilterPanel extends Page {
     }
 
     get exportButton() {
-        return XPATH.container + lib.BUTTONS.button('Export', 'export-button');
+        return XPATH.container + XPATH.hitsAndClearDiv + "//span[contains(@id,'ContentExportElement')]";
     }
 
     get showResultsButton() {
@@ -110,8 +111,33 @@ class BrowseFilterPanel extends Page {
         }
     }
 
+    async waitForExportButtonDisabled() {
+        try {
+            await this.getBrowser().waitUntil(async () => {
+                let text = await this.getAttribute(this.exportButton, "class");
+                return text.includes('disabled');
+            }, {timeout: appConst.shortTimeout, timeoutMsg: "'Export' button should be disabled"});
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
+            throw new Error("Error - Export button should be disabled, screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
+    async waitForExportButtonEnabled() {
+        try {
+            await this.waitForExportButtonDisplayed();
+            await this.getBrowser().waitUntil(async () => {
+                let text = await this.getAttribute(this.exportButton, "class");
+                return !text.includes('disabled');
+            }, {timeout: appConst.shortTimeout, timeoutMsg: "'Export' button should be enabled"});
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
+            throw new Error("Error - Export button should be enabled, screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
     async clickOnExportButton() {
-        await this.waitForExportButtonDisplayed();
+        await this.waitForExportButtonEnabled();
         await this.clickOnElement(this.exportButton);
     }
 
@@ -158,8 +184,15 @@ class BrowseFilterPanel extends Page {
         }
     }
 
-    waitForCloseDependenciesSectionButtonDisplayed() {
-        return this.waitForElementDisplayed(this.closeDependenciesSectionButtonLocator, appConst.mediumTimeout);
+    async waitForCloseDependenciesSectionButtonDisplayed() {
+        try {
+            let el = await this.findElements(this.closeDependenciesSectionButtonLocator);
+            let label = await el[0].getComputedLabel();
+            return await this.waitForElementDisplayed(this.closeDependenciesSectionButtonLocator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_close_dependencies_section_btn');
+            throw new Error("Error Close dependencies section should be displayed, screenshot: " + screenshot + ' ' + err);
+        }
     }
 
     isPanelVisible() {
