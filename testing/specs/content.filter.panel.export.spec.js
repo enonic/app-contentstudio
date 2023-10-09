@@ -21,7 +21,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
     const CONFIRMATION_QUESTION_2 = '5 content items will be exported to a CSV file. Do you want to continue?';
     let CONFIRMATION_QUESTION_NON_FILTERED_GRID;
 
-    it(`GIVEN filter panel is opened WHEN non-existing name has been typed in the search input THEN 'Export' button gets not visible`,
+    it(`GIVEN filter panel is opened WHEN non-existing name has been typed in the search input THEN 'Export' button gets disabled`,
         async () => {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -33,8 +33,8 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             // 3. Fill in the search input with the random text (non-existing content)
             await filterPanel.typeSearchText(RANDOM_TEXT);
             await studioUtils.saveScreenshot('export_btn_hidden1');
-            // 4. Verify that Export button gets hidden:
-            await filterPanel.waitForExportButtonNotDisplayed();
+            // 4. Verify that Export button gets disabled:
+            await filterPanel.waitForExportButtonDisabled();
         });
 
     it(`GIVEN 'Executable' checkbox has been clicked in Filter Panel WHEN 'Export' button has been clicked THEN expected number of items should be displayed in Confirmation dialog`,
@@ -68,7 +68,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             await confirmationDialog.clickOnNoButton();
 
             // 1. Click on "Executable" checkbox in 'Filter Panel'
-            await filterPanel.clickOnCheckboxInContentTypesBlock("Executable");
+            await filterPanel.clickOnCheckboxInContentTypesBlock('Executable');
             // 2. 'Clear filter' button has been clicked
             await filterPanel.clickOnClearLink();
             await filterPanel.waitForClearLinkNotDisplayed();
