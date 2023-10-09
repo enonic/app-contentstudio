@@ -47,7 +47,7 @@ const XPATH = {
     wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
-    buttonModifyPath: "//button[contains(@class,'icon-pencil')]",
+    renameContentSpan: "//span[contains(@title,'Click to rename the content')]",
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
     goToGridButton: "//div[contains(@class,'font-icon-default icon-tree-2')]",
     helpTextsButton: "//div[contains(@class,'help-text-button')]",
@@ -68,6 +68,10 @@ class ContentWizardPanel extends Page {
 
     get displayNameInput() {
         return XPATH.container + XPATH.displayNameInput;
+    }
+
+    get modifyPathSpan() {
+        return XPATH.wizardHeader + XPATH.renameContentSpan;
     }
 
     get pathInput() {
@@ -148,10 +152,6 @@ class ContentWizardPanel extends Page {
 
     get wizardToolbarHelpButton() {
         return XPATH.wizardStepNavigatorAndToolbar + XPATH.helpTextsButton;
-    }
-
-    get modifyPathButton() {
-        return XPATH.wizardHeader + XPATH.buttonModifyPath;
     }
 
     get goToGridButton() {
@@ -349,8 +349,9 @@ class ContentWizardPanel extends Page {
             await this.doSwitchToContentBrowsePanel();
             return await this.pause(500);
         } catch (err) {
-            console.log('Save and close the wizard ' + err);
+            let screenshot = this.saveScreenshotUniqueName('err_close_wizard');
             await this.doSwitchToContentBrowsePanel();
+            throw new Error("Wizard was not closed!  screenshot:" + screenshot + ' ' + err);
         }
     }
 
@@ -994,36 +995,44 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
-    async clickOnLockedInputModifyPath() {
-        await this.waitForPathInputLocked();
-        await this.clickOnElement(this.pathInput);
+    async clickOnNameInputOpenModifyPathDialog() {
+        await this.waitForModifyPathSpanDisplayed();
+        await this.clickOnElement(this.modifyPathSpan);
         let renamePublishedContentDialog = new RenamePublishedContentDialog();
         await renamePublishedContentDialog.waitForDialogLoaded();
         return renamePublishedContentDialog;
     }
 
-    async waitForPathInputNotLocked() {
-        try {
-            await this.getBrowser().waitUntil(async () => {
-                let text = await this.getAttribute(XPATH.wizardHeader, 'class');
-                return !text.includes('locked');
-            }, {timeout: appConst.mediumTimeout, timeoutMsg: "'path' input should not be locked"});
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_path_input_locked');
-            throw new Error("Path input should not be locked, screenshot:" + screenshot + ' ' + err);
+    async moveMouseToModifyPathSpan() {
+        let result = await this.findElements(this.modifyPathSpan);
+        if (result.length > 0) {
+            await result[0].moveTo();
         }
     }
 
-    async waitForPathInputLocked() {
+    async waitForModifyPathTooltipDisplayed() {
         try{
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(XPATH.wizardHeader, 'class');
-            return text.includes('locked');
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "'path' input should be locked"});
+            let locator =  XPATH.wizardHeader+"//span[contains(@class,'path')]";
+            await this.getBrowser().waitUntil(async () => {
+                let text = await this.getAttribute(locator, 'class');
+                return text.includes('tooltip_ON');
+            }, {timeout: appConst.mediumTimeout, timeoutMsg: "'Click to rename the content' tooltip should be displayed"});
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_path_input_not_locked');
-            throw new Error("Path input should be locked, screenshot:" + screenshot + ' ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_path_input_tooltip');
+            throw new Error("Path input, tooltip should be displayed, screenshot:" + screenshot + ' ' + err);
         }
+    }
+    async waitForModifyPathSpanDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.modifyPathSpan, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_modify_path_span');
+            throw new Error("Modify path span should be displayed, screenshot:" + screenshot + ' ' + err);
+        }
+    }
+
+    async waitForModifyPathSpanNotDisplayed() {
+        return await this.waitForElementNotDisplayed(this.modifyPathSpan, appConst.mediumTimeout);
     }
 
     async openDetailsWidget() {
