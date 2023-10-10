@@ -59,7 +59,7 @@ export class ContentWizardHeader
             }
         });
 
-        this.bottomRow.onClicked(() => {
+        this.pathEl.onClicked(() => {
             if (this.hasClass(ContentWizardHeader.LOCKED_CLASS)) {
                 if (!this.renameDialog) {
                     this.renameDialog = new RenameContentDialog();
