@@ -219,6 +219,10 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
             }
         }
 
+        if (this.isMovedAndModified()) {
+            return `${CompareStatusFormatter.formatStatusText(CompareStatus.MOVED)}, ${CompareStatusFormatter.formatStatusText(CompareStatus.NEWER)}`;
+        }
+
         return CompareStatusFormatter.formatStatusText(this.getCompareStatus());
     }
 
@@ -238,7 +242,12 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
             return publishStatus;
         }
 
-        const statusClass: string = CompareStatusFormatter.formatStatusClass(this.getCompareStatus());
+        let statusClass: string = CompareStatusFormatter.formatStatusClass(this.getCompareStatus());
+
+        if (this.isMovedAndModified()) {
+            // Use the same class on "Moved, Modified" as on "Modified"
+            statusClass = CompareStatusFormatter.formatStatusClass(CompareStatus.NEWER);
+        }
 
         return statusClass.replace('_', '-').replace(' ', '_') || 'unknown';
     }
@@ -263,11 +272,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
             return false;
         }
 
-        if (this.renderable !== other.isRenderable()) {
-            return false;
-        }
-
-        return true;
+        return this.renderable === other.isRenderable();
     }
 
     setReadOnly(value: boolean) {
@@ -312,6 +317,10 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 
     isMoved(): boolean {
         return CompareStatusChecker.isMoved(this.getCompareStatus());
+    }
+
+    isMovedAndModified(): boolean {
+        return CompareStatusChecker.isMoved(this.getCompareStatus()) && this.contentSummary?.isInProgress();
     }
 
     canBeMarkedAsReady(): boolean {

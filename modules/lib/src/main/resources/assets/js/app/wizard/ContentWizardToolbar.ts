@@ -232,9 +232,7 @@ export class ContentWizardToolbar
 
     protected openShowPublishedVersionChangesDialog() {
         const promise = this.config.compareVersionsPreHook || (() => Q.resolve());
-        this.compareVersionsLink.getEl().setDisabled(true);
         promise().then(() => {
-            this.compareVersionsLink.getEl().setDisabled(false);
             super.openShowPublishedVersionChangesDialog();
         });
     }
