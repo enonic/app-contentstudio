@@ -855,6 +855,8 @@ export class ContentWizardPanel
                 if (this.isPageComponentsViewRequired()) {
                     this.pageComponentsView.reload();
                 }
+
+                this.updateToolbarActions();
             }).catch(DefaultErrorHandler.handle);
         }
 

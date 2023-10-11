@@ -10,6 +10,7 @@ import {Content} from '../content/Content';
 import {ContentPath} from '../content/ContentPath';
 import * as Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
@@ -111,9 +112,14 @@ export class ContentWizardHeader
     }
 
     private updateIsNameUnique(isUnique: boolean) {
+        const isUniqueChanged: boolean = !ObjectHelper.booleanEquals(this.isNameUnique, isUnique);
+
         this.isNameUnique = isUnique;
         this.toggleClass('path-exists', !isUnique);
-        this.notifyPropertyChanged('unique', '' + !isUnique, '' + isUnique);
+
+        if (isUniqueChanged) {
+            this.notifyPropertyChanged('unique', '' + !isUnique, '' + isUnique);
+        }
     }
 
     private isNameChanged(): boolean {
