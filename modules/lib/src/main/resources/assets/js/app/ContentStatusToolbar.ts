@@ -3,9 +3,9 @@ import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompare
 import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import * as Q from 'q';
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {CompareWithPublishedVersionDialog} from './dialog/CompareWithPublishedVersionDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 
 export interface ContentStatusToolbarConfig {
     className?: string;
@@ -14,9 +14,9 @@ export interface ContentStatusToolbarConfig {
 export class ContentStatusToolbar
     extends ItemPreviewToolbar<ContentSummaryAndCompareStatus> {
 
-    protected status: SpanEl;
+    private showChangesBtn: ButtonEl;
 
-    protected compareVersionsLink: AEl;
+    protected status: SpanEl;
 
     protected config: ContentStatusToolbarConfig;
 
@@ -31,16 +31,10 @@ export class ContentStatusToolbar
 
     protected initElements(): void {
         this.status = new SpanEl('status');
-        this.compareVersionsLink = this.createCompareVersionsLink();
-    }
 
-    private createCompareVersionsLink() {
-        const compareVersionsLink = new AEl('show-changes');
-        compareVersionsLink.setHtml(i18n('text.versions.showChanges'));
-        compareVersionsLink.onClicked(() => this.openShowPublishedVersionChangesDialog());
-        compareVersionsLink.hide();
-
-        return compareVersionsLink;
+        this.showChangesBtn = new ButtonEl();
+        this.showChangesBtn.setClass('show-changes').setTitle(i18n('text.versions.showChanges'));
+        this.showChangesBtn.onClicked(() => this.openShowPublishedVersionChangesDialog());
     }
 
     protected initListeners(): void {
@@ -71,7 +65,8 @@ export class ContentStatusToolbar
             this.status.setHtml(content.getStatusText());
         }
 
-        this.compareVersionsLink.setVisible(content.isModified());
+        const allowShowChanges = content.isModified() || content.isMoved();
+        this.showChangesBtn.setEnabled(allowShowChanges).setVisible(allowShowChanges);
     }
 
     clearItem(): void {
@@ -81,13 +76,14 @@ export class ContentStatusToolbar
 
     private clearStatus(): void {
         this.status.setHtml('');
+        this.showChangesBtn.setEnabled(false).hide();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then(rendered => {
-            const statusWrapper: DivEl = new DivEl('content-status-wrapper');
+            const statusWrapper = new DivEl('content-status-wrapper');
             this.addElement(statusWrapper);
-            statusWrapper.appendChildren(this.status, this.compareVersionsLink);
+            statusWrapper.appendChildren(this.status, this.showChangesBtn);
 
             return rendered;
         });

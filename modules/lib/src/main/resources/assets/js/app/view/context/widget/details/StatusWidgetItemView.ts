@@ -25,8 +25,9 @@ export class StatusWidgetItemView extends WidgetItemView {
         const timePublished = content =>
             content && content.getContentSummary() && content.getContentSummary().getPublishFirstTime() || 0;
         const statusChanged = publishStatus !== this.getPublishStatus() ||
-                              compareStatus !== this.getCompareStatus() ||
-                              (compareStatus === CompareStatus.NEW && timePublished(item) !== timePublished(this.content));
+                                compareStatus !== this.getCompareStatus() ||
+                                this.content.isMovedAndModified() !== item.isMovedAndModified() ||
+                                (compareStatus === CompareStatus.NEW && timePublished(item) !== timePublished(this.content));
         if (statusChanged) {
             this.content = item;
             return this.layout();

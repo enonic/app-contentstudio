@@ -1,0 +1,34 @@
+.content-status-toolbar {
+  .content-status-wrapper {
+    .content-status-mixin();
+
+    display: flex;
+    margin: 0 5px;
+    height: 100%;
+
+    .status {
+      margin-left: 5px;
+
+      &.online,
+      &.offline {
+        + .author {
+          display: none;
+        }
+      }
+    }
+
+    .show-changes {
+      .icon-compare;
+      .icon-medium;
+      margin-left: 5px;
+      padding-top: 3px;
+      border: none;
+      cursor: pointer;
+      background-color: transparent;
+
+      &:hover:before {
+        color: @admin-black;
+      }
+    }
+  }
+}

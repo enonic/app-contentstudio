@@ -84,7 +84,7 @@ export class ContentRowFormatter {
 
     private static doStatusFormat(data: ContentSummaryAndCompareStatus): string {
 
-        if (data && data.getContentSummary()) {
+        if (data?.getContentSummary()) {
 
             let status = new SpanEl();
 
