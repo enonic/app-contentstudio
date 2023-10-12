@@ -11,7 +11,7 @@ const xpath = {
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
-    showChangesButtonToolbar: "//a[contains(@class,'show-changes') and text()='Show changes']",
+    showChangesButtonToolbar: "//button[contains(@class,'show-changes') and @title='Show changes']",
     previewNotAvailableSpan: "//div[@class='no-preview-message']//span[text()='Preview not available']",
     issueMenuItemByName:
         name => `//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and contains(.,'${name}')]`,

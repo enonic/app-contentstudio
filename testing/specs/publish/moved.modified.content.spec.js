@@ -34,14 +34,14 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            // 1. Click on 'Modify path icon' and open the modal dialog:
-            let renamePublishedContentDialog = await contentWizard.clickOnModifyPathButton();
+            // 1. Click on the locked 'path input' and open the modal dialog:
+            let renamePublishedContentDialog = await contentWizard.clickOnNameInputOpenModifyPathDialog();
             await renamePublishedContentDialog.typeInNewNameInput(NEW_NAME);
             // 2. Modify the path and click on 'Rename' button:
             await renamePublishedContentDialog.clickOnRenameButton();
             await renamePublishedContentDialog.waitForDialogClosed();
-            // 3. Verify that 'modify path' icon remains visible in wizard page after updating the path:
-            await contentWizard.waitForModifyPathButtonDisplayed();
+            // 3. Verify that 'modify path' span remains visible in wizard page after updating the path:
+            await contentWizard.waitForModifyPathSpanDisplayed();
             await studioUtils.saveScreenshot('moved_folder');
             // 4. Verify that content's status gets 'Moved'
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MOVED);
