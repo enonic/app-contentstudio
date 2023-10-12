@@ -695,7 +695,6 @@ export class ContentWizardPanel
 
         this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
         this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
-        this.liveMask = new LoadMask(this.livePanel);
 
         return liveFormPanel;
     }
@@ -729,6 +728,7 @@ export class ContentWizardPanel
         return this.isLivePanelAllowed().then((isAllowed: boolean) => {
             if (isAllowed) {
                 this.livePanel = this.createLivePanel();
+                this.liveMask = new LoadMask(this.livePanel).addClass('live-load-mask') as LoadMask;
             }
 
             return super.doRenderOnDataLoaded(rendered).then(() => {
