@@ -188,7 +188,9 @@ describe('contentItem.preview.toolbar.spec: create an issue and check it in the 
             await studioUtils.saveScreenshot('show_changes_button_browse_panel');
             // 2. Verify that 'Show Changes' button gets visible in the preview toolbar:
             await contentItemPreviewPanel.waitForShowChangesButtonDisplayed();
-            // 3. Open 'Compare With Published Version' modal dialog
+            let status = await contentItemPreviewPanel.getContentStatus();
+            assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, 'content status should be Modified');
+            // 3.  Open 'Compare With Published Version' modal dialog
             await contentItemPreviewPanel.clickOnShowChangesToolbarButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();
         });
