@@ -382,6 +382,8 @@ module.exports = Object.freeze({
         NEW: 'NEW',
         PUBLISHED: 'PUBLISHED',
         MODIFIED: 'MODIFIED',
+        MOVED: 'MOVED',
+        MOVED_MODIFIED: 'MOVED, MODIFIED',
     },
     CONTENT_STATUS: {
         NEW: 'New',
@@ -390,6 +392,7 @@ module.exports = Object.freeze({
         MODIFIED: 'Modified',
         MARKED_FOR_DELETION: 'Marked for deletion',
         MOVED: 'Moved',
+        MOVED_MODIFIED: 'Moved, Modified',
         PUBLISHING_SCHEDULED: 'Publishing Scheduled'
     },
     PUBLISH_MENU: {

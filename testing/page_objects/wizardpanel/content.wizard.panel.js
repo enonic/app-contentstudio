@@ -52,7 +52,7 @@ const XPATH = {
     goToGridButton: "//div[contains(@class,'font-icon-default icon-tree-2')]",
     helpTextsButton: "//div[contains(@class,'help-text-button')]",
     pagePlaceholderInfoBlock1: "//div[contains(@id,'PagePlaceholderInfoBlock')]//div[contains(@class,'page-placeholder-info-line1')]",
-    showChangesButtonToolbar: "//a[contains(@class,'show-changes') and text()='Show changes']",
+    showChangesButtonToolbar: "//button[contains(@class,'show-changes') and @title='Show changes']",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:

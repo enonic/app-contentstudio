@@ -110,13 +110,14 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
     it("GIVEN modified content has been opened WHEN the content has been unpublished THEN 'path-input' should not be locked in the unpublished content",
         async () => {
             let contentWizard = new ContentWizard();
-            //1. open existing Modified folder:
+            // 1. open existing 'Moved' folder:
             await studioUtils.openContentAndSwitchToTabByDisplayName(NEW_NAME, TEST_FOLDER.displayName);
-            //2. Do unpublish the folder:
+            // 2. Do unpublish the folder:
             await studioUtils.doUnPublishInWizard();
             await studioUtils.saveScreenshot('unpublished_content_modify_path_icon');
             //3. Verify that span with 'Click to rename the content' is not displayed for the unpublished content:
             await contentWizard.waitForModifyPathSpanNotDisplayed();
+            await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.UNPUBLISHED);
         });
 
     it("GIVEN 'Rename published content' dialog is opened WHEN the path of existing content has been typed THEN 'Not available' message should appear in the dialog",
