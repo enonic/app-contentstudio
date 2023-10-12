@@ -15,8 +15,13 @@ class StatusWidgetItemView extends Page {
     }
 
     async waitForStatusDisplayed(status) {
-        let locator = xpath.container + `/span[text()='${status}']`
-        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        try {
+            let locator = xpath.container + `/span[text()='${status}']`
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName("err_content_status");
+            throw new Error('Error when waiting for the status ' + screenshot + ' ' + err);
+        }
     }
 }
 
