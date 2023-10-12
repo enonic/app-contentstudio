@@ -107,7 +107,7 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             assert.equal(message, appConst.NOTIFICATION_MESSAGES.CONTENT_RENAMED, "'Content has been renamed' - this message should be displayed");
         });
 
-    it("GIVEN modified content has been opened WHEN the content has been unpublished THEN 'path-input' should not be locked in the unpublished content",
+    it("GIVEN 'moved' content has been opened WHEN the content has been unpublished THEN 'modify the path' icon should not be visible in the wizard-page",
         async () => {
             let contentWizard = new ContentWizard();
             // 1. open existing 'Moved' folder:
