@@ -1,14 +1,15 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {BaseContentModelEvent} from './BaseContentModelEvent';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ContentId} from '../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {BaseContentModelEvent} from './BaseContentModelEvent';
 
 export interface ContentPublishPromptEventConfig {
     model: ContentSummaryAndCompareStatus[];
     includeChildItems?: boolean;
     exceptedContentIds?: ContentId[];
     excludedIds?: ContentId[];
+    keepDependencies?: boolean;
     message?: string;
 }
 
@@ -21,6 +22,8 @@ export class ContentPublishPromptEvent
 
     private excludedIds: ContentId[];
 
+    private keepDependencies: boolean;
+
     private message: string;
 
     constructor(config: ContentPublishPromptEventConfig) {
@@ -28,6 +31,7 @@ export class ContentPublishPromptEvent
         this.includeChildItems = config.includeChildItems != null ? config.includeChildItems : false;
         this.exceptedContentIds = config.exceptedContentIds;
         this.excludedIds = config.excludedIds;
+        this.keepDependencies = config.keepDependencies != null ? config.keepDependencies : false;
         this.message = config.message;
     }
 
@@ -41,6 +45,10 @@ export class ContentPublishPromptEvent
 
     getExcludedIds(): ContentId[] {
         return this.excludedIds;
+    }
+
+    isKeepDependencies(): boolean {
+        return this.keepDependencies;
     }
 
     getMessage(): string {

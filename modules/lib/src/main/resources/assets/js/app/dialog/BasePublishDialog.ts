@@ -22,10 +22,7 @@ import {PublishProcessor} from '../publish/PublishProcessor';
 import {PublishScheduleForm} from '../publish/PublishScheduleForm';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
-import {
-    DependantItemsWithProgressDialog,
-    DependantItemsWithProgressDialogConfig
-} from './DependantItemsWithProgressDialog';
+import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
 import {DialogStateBar} from './DialogStateBar';
 import {DialogStateEntry} from './DialogStateEntry';
 
@@ -167,8 +164,9 @@ export abstract class BasePublishDialog
         this.lockControls();
     }
 
-    setKeepDependencies(keepDependencies: boolean): void {
+    setKeepDependencies(keepDependencies: boolean): this {
         this.publishProcessor.setKeepDependencies(keepDependencies);
+        return this;
     }
 
     getButtonRow(): DropdownButtonRow {
@@ -191,6 +189,10 @@ export abstract class BasePublishDialog
         this.getDependantList().onSelectionChanged((original) => {
             this.stateBar.markEditing(!original);
             this.markEditing(!original);
+        });
+
+        this.getDependantList().onVisibleUpdated(() => {
+            this.refreshControls();
         });
 
         this.excludedToggler.onActiveChanged(loadExcluded => this.publishProcessor.updateLoadExcluded(loadExcluded));
@@ -323,6 +325,13 @@ export abstract class BasePublishDialog
 
     protected countTotal(): number {
         return this.publishProcessor.countTotal();
+    }
+
+    protected countDependantItems(withExcluded?: boolean): number {
+        const dependantIds = withExcluded ?
+                             this.publishProcessor.calcVisibleIds() :
+                             this.publishProcessor.getDependantIds();
+        return dependantIds.length;
     }
 
     protected getDependantIds(withExcluded?: boolean): ContentId[] {

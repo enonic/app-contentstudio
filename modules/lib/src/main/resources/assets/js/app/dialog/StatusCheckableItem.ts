@@ -4,10 +4,15 @@ import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
+enum StatusCheckableItemStatus {
+    HIDDEN = 'hidden',
+}
+
 export type StatusCheckableItemConfig = CheckableItemConfig<ContentSummaryAndCompareStatus> & {
     checkbox?: {
         nonSelectableTooltip?: string;
     }
+    hidden?: boolean | (() => boolean);
 };
 
 export class StatusCheckableItem
@@ -21,6 +26,20 @@ export class StatusCheckableItem
 
     constructor(config: StatusCheckableItemConfig) {
         super(config);
+
+        this.addClass('status-checkable-item');
+    }
+
+    refreshSelectable(): void {
+        super.refreshSelectable();
+
+        if (typeof this.config.hidden === 'function') {
+            const isHidden = this.config.hidden();
+            if (isHidden) {
+                this.checkbox?.setEnabled(false);
+            }
+            this.toggleClass(StatusCheckableItemStatus.HIDDEN, isHidden);
+        }
     }
 
     protected initElements() {
@@ -40,7 +59,7 @@ export class StatusCheckableItem
         });
     }
 
-    public setObject(object: ContentSummaryAndCompareStatus) {
+    setObject(object: ContentSummaryAndCompareStatus) {
         const viewer = this.getViewer();
         this.status.removeClass(viewer.getObject().getStatusClass());
 

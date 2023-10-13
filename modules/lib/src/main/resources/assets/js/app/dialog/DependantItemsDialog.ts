@@ -6,10 +6,7 @@ import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
 import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
-import {
-    ModalDialogWithConfirmation,
-    ModalDialogWithConfirmationConfig
-} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
@@ -105,12 +102,8 @@ export abstract class DependantItemsDialog
             this.initControlsListeners();
         }
 
-        this.dependantList.onExclusionUpdated((manual) => {
-            const hasExcluded = this.dependantList.hasExcluded();
-            this.markDependantsHasExcluded(hasExcluded);
-            if (hasControls) {
-                this.updateAllCheckbox();
-            }
+        this.dependantList.onExclusionUpdated(() => {
+            this.refreshControls();
         });
 
         this.dependantList.onItemsRemoved(() => this.onDependantsChanged());
@@ -368,6 +361,16 @@ export abstract class DependantItemsDialog
 
     protected getDependantIds(withExcluded?: boolean): ContentId[] {
         return withExcluded ? [...this.dependantIds, ...this.dependantList.getExcludedIds()] : this.dependantIds;
+    }
+
+    protected refreshControls(): void {
+        const hasExcluded = this.dependantList.hasExcluded();
+        this.markDependantsHasExcluded(hasExcluded);
+
+        const hasControls = !!this.config.controls;
+        if (hasControls) {
+            this.updateAllCheckbox();
+        }
     }
 
     protected lockControls() {

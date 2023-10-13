@@ -1205,6 +1205,9 @@ public class ContentResourceTest
         final ContentId requestedId = ContentId.from( "requested-contentId" );
         final ContentId dependantId = ContentId.from( "dependant-contentId" );
         final ContentId requiredId = ContentId.from( "required-contentId" );
+        final ContentId nextId = ContentId.from( "next-contentId" );
+        final Content next = Mockito.mock( Content.class );
+        Mockito.when( next.getId() ).thenReturn( nextId );
 
         final CompareContentResult requested = new CompareContentResult( CompareStatus.NEW, requestedId );
         final CompareContentResult dependant = new CompareContentResult( CompareStatus.NEW, dependantId );
@@ -1217,6 +1220,8 @@ public class ContentResourceTest
             .thenReturn( ContentIds.from( requiredId ) );
         Mockito.when( contentService.compare( Mockito.isA( CompareContentsParams.class ) ) ).thenReturn( results );
         Mockito.when( contentService.getPermissionsById( Mockito.isA( ContentId.class ) ) ).thenReturn( AccessControlList.empty() );
+        Mockito.when( contentService.getOutboundDependencies( Mockito.isA( ContentId.class ) ) ).thenReturn( ContentIds.from( nextId ) );
+        Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( next ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
             .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.from( dependantId ) ).totalHits( 1L ).build() );
 
