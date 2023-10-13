@@ -1,7 +1,7 @@
 = Variants
 :toc: right
 
-:imagesdir: images
+:imagesdir: variants/images
 
 NOTE: Widget for creating variants is provided by <<../#content_studio,Content Studio+>> application which requires Enonic license.
 
