@@ -10,8 +10,6 @@ export class ProjectIconUrlResolver
 
     private static DEFAULT_LAYER_ICON_CLASS: string = 'icon-layer';
 
-    private static PREFIX: string = UrlHelper.getCmsRestUri('project/icon/');
-
     private name: string;
 
     private size: number;
@@ -48,7 +46,10 @@ export class ProjectIconUrlResolver
     resolve(): string {
         this.validate();
 
-        let result = ProjectIconUrlResolver.PREFIX + this.name;
+        // fetching it dynamically since it can be changed in UriHelper.setAdminUri
+        const prefix: string = UrlHelper.getCmsRestUri('project/icon/');
+
+        let result: string = prefix + this.name;
 
         if (this.size != null) {
             result = super.appendParam('scaleSize', this.size.toString(), result);
