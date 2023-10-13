@@ -104,6 +104,10 @@ export abstract class IssueDialog
             this.form.selectContentItems(items.map(item => item.getContentSummary()), true);
         });
 
+        this.getDependantList().onVisibleUpdated(() => {
+            this.refreshControls();
+        });
+
         this.closeIcon.onClicked(() => this.opener ? this.opener.close() : true);
 
         this.debouncedAddItems = AppHelper.debounce(() => {

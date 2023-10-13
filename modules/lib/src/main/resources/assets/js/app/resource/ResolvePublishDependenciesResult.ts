@@ -1,5 +1,5 @@
-import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
 import {ContentId} from '../content/ContentId';
+import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
 
 export class ResolvePublishDependenciesResult {
 
@@ -11,6 +11,7 @@ export class ResolvePublishDependenciesResult {
     allPendingDelete: boolean;
     invalidContents: ContentId[];
     notReadyContents: ContentId[];
+    nextDependentContents: ContentId[];
 
     constructor(builder: Builder) {
         this.dependentContents = builder.dependentContents;
@@ -21,6 +22,7 @@ export class ResolvePublishDependenciesResult {
         this.allPendingDelete = builder.allPendingDelete;
         this.invalidContents = builder.invalidContents;
         this.notReadyContents = builder.notReadyContents;
+        this.nextDependentContents = builder.nextDependentContents;
     }
 
     getDependants(): ContentId[] {
@@ -55,6 +57,10 @@ export class ResolvePublishDependenciesResult {
         return this.notReadyContents;
     }
 
+    getNextDependants(): ContentId[] {
+        return this.nextDependentContents;
+    }
+
     static fromJson(json: ResolvePublishContentResultJson): ResolvePublishDependenciesResult {
 
         const dependants: ContentId[] = json.dependentContents
@@ -67,6 +73,7 @@ export class ResolvePublishDependenciesResult {
         const allPendingDelete: boolean = json.allPendingDelete;
         const invalidIds: ContentId[] = json.invalidContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const notReadyIds: ContentId[] = json.notReadyContents?.map(dependant => new ContentId(dependant.id)) ?? [];
+        const nextDependentContents: ContentId[] = json.nextDependentContents?.map(dependant => new ContentId(dependant.id)) ?? [];
 
         return ResolvePublishDependenciesResult.create().setDependentContents(dependants).setRequestedContents(
             requested)
@@ -76,6 +83,7 @@ export class ResolvePublishDependenciesResult {
             .setAllPendingDelete(allPendingDelete)
             .setInvalidContents(invalidIds)
             .setNotReadyContents(notReadyIds)
+            .setNextDependentContents(nextDependentContents)
             .build();
     }
 
@@ -93,6 +101,7 @@ export class Builder {
     allPendingDelete: boolean;
     invalidContents: ContentId[];
     notReadyContents: ContentId[];
+    nextDependentContents: ContentId[];
 
     setDependentContents(value: ContentId[]): Builder {
         this.dependentContents = value;
@@ -131,6 +140,11 @@ export class Builder {
 
     setNotReadyContents(value: ContentId[]): Builder {
         this.notReadyContents = value;
+        return this;
+    }
+
+    setNextDependentContents(value: ContentId[]): Builder {
+        this.nextDependentContents = value;
         return this;
     }
 

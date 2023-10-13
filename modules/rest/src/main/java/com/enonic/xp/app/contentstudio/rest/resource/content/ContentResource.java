@@ -345,8 +345,7 @@ public final class ContentResource
         {
             createMediaParams.byteSource( ByteSource.wrap( new LimitingInputStream<>( inputStream, uploadMaxFileSize,
                                                                                       () -> new IllegalStateException(
-                                                                                          "File size exceeds maximum allowed upload size" ) )
-                                                               .readAllBytes() ) );
+                                                                                          "File size exceeds maximum allowed upload size" ) ).readAllBytes() ) );
         }
 
         final String parent = params.getParent();
@@ -467,12 +466,12 @@ public final class ContentResource
 
     private Content localizeContent( final ContentId id, final Locale language )
     {
-        final UpdateContentParams updateContentParams =
-            new UpdateContentParams().contentId( id ).editor( edit -> {
-                if (language != null) {
-                    edit.language = language;
-                }
-            } );
+        final UpdateContentParams updateContentParams = new UpdateContentParams().contentId( id ).editor( edit -> {
+            if ( language != null )
+            {
+                edit.language = language;
+            }
+        } );
 
         return contentService.update( updateContentParams );
     }
@@ -675,15 +674,19 @@ public final class ContentResource
         final ContentIds excludeChildrenIds = ContentIds.from( params.getExcludeChildrenIds() );
 
         //Resolves the publish dependencies
-        final ResolvePublishDependenciesParams resolveParams =
-            ResolvePublishDependenciesParams.create().target( ContentConstants.BRANCH_MASTER ).contentIds(
-                requestedContentIds ).excludedContentIds( excludeContentIds ).excludeChildrenIds( excludeChildrenIds ).build();
+        final ResolvePublishDependenciesParams resolveParams = ResolvePublishDependenciesParams.create()
+            .target( ContentConstants.BRANCH_MASTER )
+            .contentIds( requestedContentIds )
+            .excludedContentIds( excludeContentIds )
+            .excludeChildrenIds( excludeChildrenIds )
+            .build();
         final CompareContentResults compareResults = contentService.resolvePublishDependencies( resolveParams );
 
         //Resolved the dependent ContentPublishItem
-        final List<ContentId> contentIds =
-            compareResults.contentIds().stream().filter( contentId -> !requestedContentIds.contains( contentId ) ).collect(
-                Collectors.toList() );
+        final List<ContentId> contentIds = compareResults.contentIds()
+            .stream()
+            .filter( contentId -> !requestedContentIds.contains( contentId ) )
+            .collect( Collectors.toList() );
         final ContentIds dependentContentIds = ContentIds.from( contentIds );
 
         final ContentIds fullPublishList = ContentIds.create().addAll( dependentContentIds ).addAll( requestedContentIds ).build();
@@ -694,9 +697,12 @@ public final class ContentResource
 
         final AuthenticationInfo authInfo = ContextAccessor.current().getAuthInfo();
 
-        final Predicate<ContentId> publishNotAllowedCondition =
-            id -> !this.contentService.getPermissionsById( id ).isAllowedFor( ContextAccessor.current().getAuthInfo().getPrincipals(),
-                                                                              Permission.PUBLISH );
+        final Predicate<ContentId> publishNotAllowedCondition = id -> !this.contentService.getPermissionsById( id )
+            .isAllowedFor( ContextAccessor.current().getAuthInfo().getPrincipals(), Permission.PUBLISH );
+
+        //Get all outbound dependencies for current requested and required
+        final ContentIds nextDependencies = this.getOutboundDependenciesIds( fullPublishList );
+
         //check if user has access to publish every content
         final ContentIds notPublishableContentIds = authInfo.hasRole( RoleKeys.ADMIN )
             ? ContentIds.empty()
@@ -726,12 +732,34 @@ public final class ContentResource
             problematicContentIds.getSize() > 0 ? sortContentIds( problematicContentIds, "_path" ) : problematicContentIds;
 
         //Returns the JSON result
-        return ResolvePublishContentResultJson.create().setRequestedContents( requestedContentIds ).setDependentContents(
-            this.problematicDependantsOnTop( sortedDependentContentIds, requestedContentIds,
-                                             sortedProblematicContentIds ) ).setRequiredContents(
-            requiredDependantIds ).setNotPublishableContents( notPublishableContentIds ).setAllPendingDelete(
-            isAllPendingDelete ).setContainsInvalid( !notValidContentIds.isEmpty() ).setInvalidContents(
-            notValidContentIds ).setContainsNotReady( !notReadyContentIds.isEmpty() ).setNotReadyContents( notReadyContentIds ).build();
+        return ResolvePublishContentResultJson.create()
+            .setRequestedContents( requestedContentIds )
+            .setDependentContents(
+                this.problematicDependantsOnTop( sortedDependentContentIds, requestedContentIds, sortedProblematicContentIds ) )
+            .setRequiredContents( requiredDependantIds )
+            .setNotPublishableContents( notPublishableContentIds )
+            .setAllPendingDelete( isAllPendingDelete )
+            .setContainsInvalid( !notValidContentIds.isEmpty() )
+            .setInvalidContents( notValidContentIds )
+            .setContainsNotReady( !notReadyContentIds.isEmpty() )
+            .setNotReadyContents( notReadyContentIds )
+            .setNextDependentContents( nextDependencies )
+            .build();
+    }
+
+    private ContentIds getOutboundDependenciesIds( final ContentIds contentIds )
+    {
+        final ContentIds allOutboundIds = ContentIds.from( contentIds.stream().map( id -> {
+                try
+                {
+                    return this.contentService.getOutboundDependencies( id );
+                }
+                catch ( ContentNotFoundException e )
+                {
+                    return ContentIds.empty();
+                }
+            } ).flatMap( ContentIds::stream ).filter( id -> !contentIds.contains( ContentId.from( id ) ) ).collect( Collectors.toList() ) );
+        return this.contentService.getByIds( new GetContentByIdsParams( allOutboundIds ) ).getIds();
     }
 
     private ContentIds sortContentIds( final ContentIds contentIds, final String field )
@@ -742,7 +770,7 @@ public final class ContentResource
         }
 
         return this.contentService.find(
-            ContentQuery.create().filterContentIds( contentIds ).queryExpr( QueryParser.parse( "order by " + field ) ).size( -1 ).build() )
+                ContentQuery.create().filterContentIds( contentIds ).queryExpr( QueryParser.parse( "order by " + field ) ).size( -1 ).build() )
             .getContentIds();
     }
 
@@ -1118,11 +1146,11 @@ public final class ContentResource
         final ContentPaths contentsPaths = ContentPaths.from( json.getContentPaths() );
 
         FindContentIdsByQueryResult result = ContentQueryWithChildren.create()
-                .contentService( this.contentService )
-                .contentsPaths( contentsPaths )
-                .size( GET_ALL_SIZE_FLAG )
-                .build()
-                .find();
+            .contentService( this.contentService )
+            .contentsPaths( contentsPaths )
+            .size( GET_ALL_SIZE_FLAG )
+            .build()
+            .find();
 
         final boolean isFilterNeeded = json.getFilterStatuses() != null && json.getFilterStatuses().size() > 0;
 
@@ -1142,17 +1170,26 @@ public final class ContentResource
     @Path("resolveForUnpublish")
     public List<ContentIdJson> resolveForUnpublish( final ContentIdsJson params )
     {
-        return ContextBuilder.from( ContextAccessor.current() ).attribute( "ignorePublishTimes", Boolean.TRUE ).branch(
-            ContentConstants.BRANCH_MASTER ).build().callWith( () -> {
+        return ContextBuilder.from( ContextAccessor.current() )
+            .attribute( "ignorePublishTimes", Boolean.TRUE )
+            .branch( ContentConstants.BRANCH_MASTER )
+            .build()
+            .callWith( () -> {
 
-            final Contents parents = contentService.getByIds( new GetContentByIdsParams( params.getContentIds() ) );
+                final Contents parents = contentService.getByIds( new GetContentByIdsParams( params.getContentIds() ) );
 
-            final FindContentIdsByQueryResult children =
-                ContentQueryWithChildren.create().contentService( this.contentService ).contentsPaths( parents.getPaths() ).size(
-                    GET_ALL_SIZE_FLAG ).build().find();
+                final FindContentIdsByQueryResult children = ContentQueryWithChildren.create()
+                    .contentService( this.contentService )
+                    .contentsPaths( parents.getPaths() )
+                    .size( GET_ALL_SIZE_FLAG )
+                    .build()
+                    .find();
 
-            return ContentIds.create().addAll( parents.getIds() ).addAll( children.getContentIds() ).build();
-        } ).stream().map( ContentIdJson::new ).collect( Collectors.toList() );
+                return ContentIds.create().addAll( parents.getIds() ).addAll( children.getContentIds() ).build();
+            } )
+            .stream()
+            .map( ContentIdJson::new )
+            .collect( Collectors.toList() );
     }
 
     @POST
@@ -1162,11 +1199,11 @@ public final class ContentResource
         final Contents parents = contentService.getByIds( new GetContentByIdsParams( params.getContentIds() ) );
 
         final FindContentIdsByQueryResult children = ContentQueryWithChildren.create()
-                .contentService( this.contentService )
-                .contentsPaths( parents.getPaths() )
-                .size( GET_ALL_SIZE_FLAG )
-                .build()
-                .find();
+            .contentService( this.contentService )
+            .contentsPaths( parents.getPaths() )
+            .size( GET_ALL_SIZE_FLAG )
+            .build()
+            .find();
 
         final List<ContentId> idsToRemove =
             Stream.concat( parents.getIds().stream(), children.getContentIds().stream().filter( id -> !parents.getIds().contains( id ) ) )
@@ -1190,8 +1227,7 @@ public final class ContentResource
 
         inboundDependencies.forEach( inboundDependencyId -> {
             final ContentIds outboundRefs = contentService.getOutboundDependencies( inboundDependencyId );
-            final Set<ContentId> referencedIds =
-                outboundRefs.stream().filter( idsToRemove::contains ).collect( Collectors.toSet() );
+            final Set<ContentId> referencedIds = outboundRefs.stream().filter( idsToRemove::contains ).collect( Collectors.toSet() );
 
             referencedIds.forEach( referencedId -> {
                 final Set<ContentId> inbounds = map.computeIfAbsent( referencedId, ( id ) -> new HashSet() );
@@ -1267,8 +1303,8 @@ public final class ContentResource
     @GET
     @Path("findVariants")
     public ContentListJson<ContentSummaryJson> findVariants( @QueryParam("id") final String id,
-                                                            @QueryParam("from") @DefaultValue(value = "0") final Integer fromParam,
-                                                            @QueryParam("size") @DefaultValue(value = "10") final Integer sizeParam )
+                                                             @QueryParam("from") @DefaultValue(value = "0") final Integer fromParam,
+                                                             @QueryParam("size") @DefaultValue(value = "10") final Integer sizeParam )
     {
         final QueryExpr queryExpr =
             QueryExpr.from( CompareExpr.eq( FieldExpr.from( "variantOf" ), ValueExpr.string( Objects.requireNonNull( id ) ) ),
@@ -1341,13 +1377,14 @@ public final class ContentResource
             ? ContentConstants.DEFAULT_CONTENT_REPO_ROOT_ORDER
             : contentQueryJson.getChildOrder() != null ? contentQueryJson.getChildOrder() : ContentConstants.DEFAULT_CHILD_ORDER;
 
-        final FindContentByParentResult findLayerContentsResult = contentService.findByParent(FindContentByParentParams.create()
-                .parentPath(parentPath != null
-                        ? parentPath
-                        : ContentPath.from("/"))
-                .childOrder(layerOrder)
-                .size(-1)
-                .build());
+        final FindContentByParentResult findLayerContentsResult = contentService.findByParent( FindContentByParentParams.create()
+                                                                                                   .parentPath( parentPath != null
+                                                                                                                    ? parentPath
+                                                                                                                    : ContentPath.from(
+                                                                                                                        "/" ) )
+                                                                                                   .childOrder( layerOrder )
+                                                                                                   .size( -1 )
+                                                                                                   .build() );
 
         final List<Content> layersContents = findLayerContentsResult.getContents()
             .stream()
@@ -1600,10 +1637,9 @@ public final class ContentResource
                 Response.Status.NOT_FOUND );
         }
 
-        final Content currentContent =
-            params.getContentKey().startsWith( "/" )
-                ? contentService.getByPath( ContentPath.from( params.getContentKey() ) )
-                : contentService.getById( ContentId.from( params.getContentKey() ) );
+        final Content currentContent = params.getContentKey().startsWith( "/" )
+            ? contentService.getByPath( ContentPath.from( params.getContentKey() ) )
+            : contentService.getById( ContentId.from( params.getContentKey() ) );
 
         if ( !currentContent.getChildOrder().equals( versionedContent.getChildOrder() ) )
         {
@@ -1770,11 +1806,11 @@ public final class ContentResource
     private long countChildren( final ContentPaths contentsPaths )
     {
         return ContentQueryWithChildren.create()
-                .contentService( this.contentService )
-                .contentsPaths( contentsPaths )
-                .build()
-                .find()
-                .getTotalHits();
+            .contentService( this.contentService )
+            .contentsPaths( contentsPaths )
+            .build()
+            .find()
+            .getTotalHits();
     }
 
     private boolean contentNameIsOccupied( final RenameContentParams renameParams )

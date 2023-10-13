@@ -12,6 +12,11 @@
       "id": "dependant-contentId"
     }
   ],
+    "nextDependentContents": [
+        {
+            "id": "next-contentId"
+        }
+    ],
   "notPublishableContents" : [
     {
       "id" : "dependant-contentId"

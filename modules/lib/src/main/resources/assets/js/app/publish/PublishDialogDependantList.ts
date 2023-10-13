@@ -14,7 +14,11 @@ export class PublishDialogDependantList
 
     private requiredIds: ContentIds;
 
+    private visibleIds: ContentIds;
+
     private listChangedListeners: (() => void)[] = [];
+
+    private visibleUpdatedListeners: (() => void)[] = [];
 
     constructor(observer: ObserverConfig) {
         super({
@@ -30,12 +34,39 @@ export class PublishDialogDependantList
                         checked: () => this.mustSelectItem(item),
                         enabled: () => this.isItemExcludable(item),
                     },
+                    hidden: () => this.isItemHidden(item),
                 });
             },
 
         });
 
         this.requiredIds = ContentIds.empty();
+        this.visibleIds = ContentIds.empty();
+    }
+
+    hasExcluded(): boolean {
+        return this.excludedIds.some(id => this.isIdExcludable(id));
+    }
+
+    setRequiredIds(value: ContentId[]) {
+        this.requiredIds = ContentIds.from(value);
+    }
+
+    updateVisibleIds(value: ContentId[]) {
+        this.visibleIds = ContentIds.from(value);
+        this.notifyVisibleUpdated();
+    }
+
+    onListChanged(listener: () => void) {
+        this.listChangedListeners.push(listener);
+    }
+
+    onVisibleUpdated(listener: () => void) {
+        this.visibleUpdatedListeners.push(listener);
+    }
+
+    refresh(): void {
+        //
     }
 
     protected initListeners(): void {
@@ -77,31 +108,30 @@ export class PublishDialogDependantList
         });
     }
 
+    protected isIdExcludable(id: ContentId): boolean {
+        return !this.requiredIds.contains(id) && this.visibleIds.contains(id);
+    }
+
     protected isItemExcludable(item: ContentSummaryAndCompareStatus): boolean {
+        const isHidden = this.isItemHidden(item);
+        if (isHidden) {
+            return true;
+        }
+
         const isPendingDelete = CompareStatusChecker.isPendingDelete(item.getCompareStatus());
         if (isPendingDelete) {
             return false;
         }
 
-        return !this.requiredIds.contains(item.getContentId());
+        return this.isIdExcludable(item.getContentId());
     }
 
-    hasExcluded(): boolean {
-        return this.excludedIds.filter(id => !this.requiredIds.contains(id)).length > 0;
+    protected mustSelectItem(item: ContentSummaryAndCompareStatus): boolean {
+        return !this.isItemHidden(item) && super.mustSelectItem(item);
     }
 
-    setRequiredIds(value: ContentId[]) {
-        this.requiredIds = ContentIds.from(value);
-    }
-
-    onListChanged(listener: () => void) {
-        this.listChangedListeners.push(listener);
-    }
-
-    unListChanged(listener: () => void) {
-        this.listChangedListeners = this.listChangedListeners.filter((curr) => {
-            return curr !== listener;
-        });
+    protected isItemHidden(item: ContentSummaryAndCompareStatus): boolean {
+        return !this.visibleIds.contains(item.getContentId());
     }
 
     private notifyListChanged() {
@@ -110,7 +140,9 @@ export class PublishDialogDependantList
         });
     }
 
-    refresh(): void {
-        //
+    protected notifyVisibleUpdated(): void {
+        this.visibleUpdatedListeners.forEach(listener => {
+            listener();
+        });
     }
 }
