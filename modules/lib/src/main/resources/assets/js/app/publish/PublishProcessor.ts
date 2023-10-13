@@ -50,6 +50,10 @@ export class PublishProcessor {
 
     private requiredIds: ContentId[] = [];
 
+    private nextIds: ContentId[] = [];
+
+    private childrenIds: ContentId[] = [];
+
     private allPendingDelete: boolean;
 
     private loadExcluded: boolean = false;
@@ -206,9 +210,12 @@ export class PublishProcessor {
         this.dependantIds = [];
         this.allDependantIds = [];
         this.dependantList.setRequiredIds([]);
+        this.dependantList.updateVisibleIds([]);
         this.inProgressIds = [];
         this.invalidIds = [];
         this.requiredIds = [];
+        this.nextIds = [];
+        this.childrenIds = [];
         this.notPublishableIds = [];
         this.allPendingDelete = false;
 
@@ -244,25 +251,31 @@ export class PublishProcessor {
                 this.findIncludedChildrenIds(),
             ]);
 
+            this.childrenIds = childrenIds;
+
             const potentialExcludedIds = maxResult.getDependants().filter(id => !this.itemsIncludeId(childrenIds, id));
 
             const minResult = await this.createResolveDependenciesRequest(ids, potentialExcludedIds).sendAndParse();
-
-            const excludedIds = potentialExcludedIds.filter(id => !this.itemsIncludeId(minResult.getRequired(), id));
 
             if (instanceId !== this.instanceId) {
                 return;
             }
 
-            this.setExcludedIds(excludedIds);
+            const excludedIds = maxResult.getDependants().filter(id => {
+                return !this.itemsIncludeId(this.childrenIds, id) &&
+                       !this.itemsIncludeId(minResult.getDependants(), id) &&
+                       !this.itemsIncludeId(this.itemList.getItemsIds(), id);
+            });
 
             this.processResolveDependenciesResult(minResult);
+            this.setExcludedIds(excludedIds);
             this.handleExclusionResult();
             this.handleMissingExcludedIds(minResult.getDependants());
 
             this.allDependantIds = maxResult.getDependants();
 
             const descendants = await this.loadDescendants();
+            this.handlePublishedDescendants(descendants);
 
             if (instanceId !== this.instanceId) {
                 return;
@@ -285,13 +298,31 @@ export class PublishProcessor {
         this.cleanLoad = false;
 
         try {
-            const result = await this.createResolveDependenciesRequest(ids, this.getExcludedIds()).sendAndParse();
+            const [result, childrenIds] = await Q.all([
+                this.createResolveDependenciesRequest(ids, this.getExcludedIds()).sendAndParse(),
+                resetDependantItems ? this.findIncludedChildrenIds() : Q.resolve(this.childrenIds),
+            ]);
+
+            this.childrenIds = childrenIds;
 
             if (instanceId !== this.instanceId) {
                 return;
             }
 
+            const originalAllDependantIds = this.getDependantIds(true);
+            const excludedIds = originalAllDependantIds.length > 0 ? originalAllDependantIds.filter(id => {
+                return !this.itemsIncludeId(this.itemList.getItemsIds(), id) &&
+                       !this.itemsIncludeId(result.getDependants(), id);
+            }) : result.getNextDependants();
+
             this.processResolveDependenciesResult(result);
+
+            if (resetExclusions) {
+                this.setExcludedIds(excludedIds);
+            } else {
+                this.addExcludedIds(excludedIds);
+            }
+
             this.handleExclusionResult();
             this.handleExcessiveExcludedIds(resetExclusions ? [] : undefined);
 
@@ -306,6 +337,7 @@ export class PublishProcessor {
             this.allDependantIds = [...allDependantIds];
 
             const descendants = await this.loadDescendants();
+            this.handlePublishedDescendants(descendants);
 
             if (instanceId !== this.instanceId) {
                 return;
@@ -366,6 +398,20 @@ export class PublishProcessor {
         });
     }
 
+    calcVisibleIds(): ContentId[] {
+        return [
+            ...this.dependantIds,
+            ...this.nextIds,
+            ...this.getDependantChildrenIds(),
+        ].filter((id, index, array) => {
+            return array.findIndex(value => value.equals(id)) === index;
+        });
+    }
+
+    private getDependantChildrenIds(): ContentId[] {
+        return this.allDependantIds.filter(id => this.itemsIncludeId(this.childrenIds, id));
+    }
+
     private findIncludedChildrenIds(): Q.Promise<ContentId[]> {
         const parentIds = this.itemList.getIncludeChildrenIds();
         return parentIds.length === 0 ? Q([]) : new FindIdsByParentsRequest(parentIds).sendAndParse();
@@ -386,12 +432,15 @@ export class PublishProcessor {
 
     private processResolveDependenciesResult(result: ResolvePublishDependenciesResult): void {
         this.dependantIds = result.getDependants().slice();
-        this.dependantList.setRequiredIds(result.getRequired());
         this.invalidIds = result.getInvalid();
         this.inProgressIds = result.getInProgress();
         this.requiredIds = result.getRequired();
+        this.nextIds = result.getNextDependants();
         this.notPublishableIds = result.getNotPublishable();
         this.allPendingDelete = result.isAllPendingDelete();
+
+        this.dependantList.setRequiredIds(result.getRequired());
+        this.dependantList.updateVisibleIds(this.calcVisibleIds());
     }
 
     private loadDescendants(): Q.Promise<ContentSummaryAndCompareStatus[]> {
@@ -436,6 +485,12 @@ export class PublishProcessor {
         if (isExcludedIdsChanged) {
             this.setExcludedIds(excludedIds);
         }
+    }
+
+    private handlePublishedDescendants(descendants: ContentSummaryAndCompareStatus[]): void {
+        const publishedIds = descendants.filter(item => item.isPublished() && item.isOnline()).map(item => item.getContentId());
+        this.childrenIds = this.childrenIds.filter(id => !this.itemsIncludeId(publishedIds, id));
+        this.dependantList.updateVisibleIds(this.calcVisibleIds());
     }
 
     private itemsIncludeId(sourceIds: ContentId[], targetId: ContentId): boolean {
@@ -501,6 +556,7 @@ export class PublishProcessor {
         this.itemList.setReadOnly(false);
 
         this.dependantList.setRequiredIds([]);
+        this.dependantList.updateVisibleIds([]);
         this.dependantList.setItems([]);
         this.dependantList.setReadOnly(false);
 
@@ -589,6 +645,12 @@ export class PublishProcessor {
     resetDependantIds(): void {
         this.dependantIds = [];
         this.allDependantIds = [];
+        this.nextIds = [];
+        this.childrenIds = [];
+    }
+
+    getNextIds(): ContentId[] {
+        return this.nextIds;
     }
 
     getExcludedIds(): ContentId[] {

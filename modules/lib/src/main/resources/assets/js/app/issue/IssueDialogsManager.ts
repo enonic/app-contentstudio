@@ -143,7 +143,6 @@ export class IssueDialogsManager {
         ContentPublishPromptEvent.on(() => {
             if (this.detailsDialog.isOpen()) {
                 this.detailsDialog.unClosed(this.detailsDialogCloseHandler);
-                this.publishDialog.setKeepDependencies(true);
                 this.publishDialog.onCloseButtonClicked(this.publishDialogBeforeClosedHandler);
                 this.publishDialog.onClosed(this.publishDialogCloseHandler);
                 this.issue = this.detailsDialog.getIssue();

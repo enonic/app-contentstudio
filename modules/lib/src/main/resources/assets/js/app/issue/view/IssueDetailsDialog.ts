@@ -31,10 +31,7 @@ import * as Q from 'q';
 import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
 import {ContentId} from '../../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {
-    DependantItemsWithProgressDialog,
-    DependantItemsWithProgressDialogConfig
-} from '../../dialog/DependantItemsWithProgressDialog';
+import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
 import {DialogStateBar} from '../../dialog/DialogStateBar';
 import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
@@ -409,6 +406,10 @@ export class IssueDetailsDialog
                 }
             }
             this.toggleClass('with-schedule-form', visible);
+        });
+
+        this.getDependantList().onVisibleUpdated(() => {
+            this.refreshControls();
         });
 
         this.initElementListeners();
@@ -898,16 +899,15 @@ export class IssueDetailsDialog
         }).map(content => content.getContentId());
 
         const excludedIds = this.publishProcessor.getExcludedIds();
-
-        const includeChildItems = false;
         const message = this.issue.getTitle();
 
         new ContentPublishPromptEvent({
             model: contents,
-            includeChildItems,
+            includeChildItems: false,
             exceptedContentIds,
             excludedIds,
-            message
+            keepDependencies: true,
+            message,
         }).fire();
 
         const publishDialog = ContentPublishDialog.get();

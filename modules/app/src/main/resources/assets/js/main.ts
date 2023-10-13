@@ -414,9 +414,10 @@ async function startApplication() {
 
         contentPublishDialog
             .setContentToPublish(event.getModels())
+            .setKeepDependencies(event.isKeepDependencies())
+            .setExcludedIds(event.getExcludedIds())
             .setIncludeChildItems(event.isIncludeChildItems(), event.getExceptedContentIds())
             .setMessage(event.getMessage())
-            .setExcludedIds(event.getExcludedIds())
             .open();
     });
 
