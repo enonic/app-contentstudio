@@ -610,7 +610,16 @@ different server processing, like <code>aspect-ratio</code> and <code>filter</co
 <div class="listingblock">
 <div class="title">/site/styles.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">Unresolved directive in rich-text-editor.adoc - include::code/styles.xml[]</code></pre>
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;styles css="styles/styles.css" xmlns="urn:enonic:xp:model:1.0"&gt;
+  &lt;image name="editor-image-cinema"&gt;
+    &lt;display-name&gt;Cinema&lt;/display-name&gt;
+    &lt;aspect-ratio&gt;21:9&lt;/aspect-ratio&gt;
+  &lt;/image&gt;
+  &lt;image name="editor-style-image-sepia"&gt;
+    &lt;display-name&gt;Old photo&lt;/display-name&gt;
+    &lt;filter&gt;sepia(25)&lt;/filter&gt;
+  &lt;/image&gt;
+&lt;/styles&gt;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -627,7 +636,33 @@ in <code>styles.xml</code>. So, in case of <code>css="styles/styles.css"</code> 
 <div class="listingblock">
 <div class="title">/site/styles.css</div>
 <div class="content">
-<pre class="highlight"><code class="language-css" data-lang="css">Unresolved directive in rich-text-editor.adoc - include::code/styles.css[]</code></pre>
+<pre class="highlight"><code class="language-css" data-lang="css">.editor-style-image-sepia {
+    width: 100px;
+    height: 100px;
+    animation: shake 0.5s;
+    /* When the animation is finished, start again */
+    animation-iteration-count: infinite;
+}
+
+.editor-style-image-sepia img {
+    animation: shake 0.5s;
+    /* When the animation is finished, start again */
+    animation-iteration-count: infinite;
+}
+
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}</code></pre>
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -650,7 +685,7 @@ Make sure that CSS class matches <code>image.name</code> from <code>styles.xml</
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-07 15:35:32 UTC
+Last updated 2023-10-13 09:52:14 UTC
 </div>
 </div>
 </body>
