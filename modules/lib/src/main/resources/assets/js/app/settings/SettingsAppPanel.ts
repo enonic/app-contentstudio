@@ -123,7 +123,7 @@ export class SettingsAppPanel
     }
 
     private handleItemUpdated(projectName: string) {
-        if (!this.browsePanel.hasItemsLoaded() || this.deletedIds.indexOf(projectName) > -1) {
+        if (!this.browsePanel.isRendered() || this.deletedIds.indexOf(projectName) > -1) {
             return;
         }
 
