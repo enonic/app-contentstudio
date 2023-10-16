@@ -432,7 +432,7 @@ module.exports = {
             await browsePanel.pause(400);
             await browsePanel.clickOnRowByName(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(400);
+            return await browsePanel.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
             throw new Error("Select a item, error screenshot:" + screenshot + ' ' + err);
@@ -514,6 +514,7 @@ module.exports = {
     async clickOnItemInNewContentDialog(contentType) {
         let newContentDialog = new NewContentDialog();
         let contentWizard = new ContentWizardPanel();
+        await newContentDialog.waitForOpened();
         await newContentDialog.typeSearchText(contentType);
         await newContentDialog.clickOnContentType(contentType);
         await this.doSwitchToNewWizard();

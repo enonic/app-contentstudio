@@ -59,7 +59,6 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialogItemsTab.waitForIncludeChildrenIsOn(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
         });
 
-
     it(`GIVEN existing folder with one invalid child item is selected WHEN 'Create Issue' menu item has been selected and issue created THEN '10' number should be in 'Items' on IssueDetailsDialog`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -122,13 +121,12 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             // 6. Verify that 'Hide excluded' button gets visible:
             await issueDetailsDialogItemsTab.waitForHideExcludedItemsButtonDisplayed();
             await studioUtils.saveScreenshot('issue_invalid_dependent_excluded');
-            let isSelected= await issueDetailsDialogItemsTab.isDependantCheckboxSelected('shortcut-imported');
+            let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected('shortcut-imported');
             assert.isFalse(isSelected, 'Checkbox for excluded invalid-item should not be selected');
 
         });
 
-    // Verifies: Items that were removed in Issue Details items appear again in Publish Wizard dialog #783
-    it(`GIVEN dependant item has been excluded WHEN 'Publish...' button has been clicked and Publish Wizard is loaded THEN excluded item should not be present in the wizard`,
+    it(`GIVEN dependant item has been excluded in Create Issue dialog WHEN 'Publish...' button has been clicked and Publish Wizard is loaded THEN items with unselected checkbox should not be present in Publish wizard`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -151,10 +149,10 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             let result = await contentPublishDialog.getDisplayNameInDependentItems();
             // returns a truthy value for at least one element in the array contains the name. Otherwise, false.
             let isPresent = result.some(el => el.includes(TEST_CONTENT_NAME));
-            assert.isTrue(isPresent, 'Removed content should not be present in Publishing Wizard');
+            assert.isTrue(isPresent, 'Unselected content should  be present in dependency block in Publishing Wizard');
             // 6. The checkbox should be unselected
             let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected(TEST_CONTENT_NAME);
-            assert.isFalse(isSelected, "CheckBox for exclude item should be unselected");
+            assert.isFalse(isSelected, 'CheckBox for the excluded item should be unselected');
             // 7. Hide excluded button should be visible:
             await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
         });

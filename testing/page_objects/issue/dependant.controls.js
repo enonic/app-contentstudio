@@ -81,10 +81,7 @@ class DependantsControls extends Page {
         }, {timeout: appConst.shortTimeout, timeoutMsg: "'All' checkbox should be enabled"});
     }
 
-    async clickOnAllCheckbox() {
-        await this.waitForAllDependantsCheckboxDisplayed();
-        await this.clickOnElement(this.allDependantsCheckbox + '//label');
-    }
+
 
     async getNumberInAllCheckbox() {
         let locator = this.allDependantsCheckbox + '//label';
@@ -112,7 +109,7 @@ class DependantsControls extends Page {
     async clickOnApplySelectionButton() {
         await this.waitForApplySelectionButtonDisplayed();
         await this.clickOnElement(this.applySelectionButton);
-        return await this.pause(500);
+        return await this.pause(1100);
     }
 
     async waitForCancelSelectionButtonDisplayed() {
@@ -125,7 +122,12 @@ class DependantsControls extends Page {
     }
 
     async waitForApplySelectionButtonNotDisplayed() {
-        return await this.waitForElementNotDisplayed(this.cancelSelectionButton, appConst.mediumTimeout);
+        try {
+            return await this.waitForElementNotDisplayed(this.cancelSelectionButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
+            throw new Error(`Apply selection button should not be displayed, screenshot: ${screenshot} ` + err);
+        }
     }
 
     async clickOnCancelSelectionButton() {
@@ -194,17 +196,17 @@ class DependantsControls extends Page {
 
     async getDisplayNameInDependentItems() {
         let locator = this.container + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
-        return await this.getTextInElements(locator);
+        return await this.getTextInDisplayedElements(locator);
     }
 
     async isDependantCheckboxSelected(displayName) {
         try {
             let checkBoxInputLocator = this.container + xpath.dependentItemDiv(displayName) + lib.CHECKBOX_INPUT;
-            //await this.waitForElementDisplayed(checkBoxInputLocator, appConst.mediumTimeout);
+            //await this.waitForElementDisplayed(this.container + xpath.dependentItemDiv(displayName), appConst.mediumTimeout);
             return await this.isSelected(checkBoxInputLocator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_checkbox_selected');
-            throw new Error(`Dependants block, is checkbox selected, screenshot: ${screenshot} `  +err)
+            throw new Error(`Dependants block, is checkbox selected, screenshot: ${screenshot} ` + err)
         }
     }
 
