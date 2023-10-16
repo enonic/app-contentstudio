@@ -188,7 +188,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentPublishDialog.waitForDialogOpened();
             // 3. Unselect  'All' checkbox
-            await contentPublishDialog.clickOnAllCheckbox();
+            await contentPublishDialog.clickOnAllDependantsCheckbox();
             // 4. Verify that 'Apply' button gets visible:
             await contentPublishDialog.waitForApplySelectionButtonDisplayed();
             // 5. Verify that 'Publish Now' button gets disabled:
@@ -205,11 +205,11 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentPublishDialog.waitForDialogOpened();
             // 3. Unselect  'All' checkbox
-            await contentPublishDialog.clickOnAllCheckbox();
+            await contentPublishDialog.clickOnAllDependantsCheckbox();
             // 4. Verify that 'Apply' button gets visible:
             await contentPublishDialog.waitForApplySelectionButtonDisplayed();
             // 5. Select 'All' checkbox again:
-            await contentPublishDialog.clickOnAllCheckbox();
+            await contentPublishDialog.clickOnAllDependantsCheckbox();
             // 6. Verify that 'Apply' button gets hidden and 'Publish Now' button gets enabled:
             await contentPublishDialog.waitForApplySelectionButtonNotDisplayed();
             await contentPublishDialog.waitForPublishNowButtonEnabled();

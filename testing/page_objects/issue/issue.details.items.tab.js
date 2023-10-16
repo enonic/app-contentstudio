@@ -77,9 +77,10 @@ class IssueDetailsDialogItemsTab extends Page {
             await this.clickOnElement(this.publishButton);
             let publishContentDialog = new ContentPublishDialog();
             await publishContentDialog.waitForDialogOpened();
+            await publishContentDialog.pause(1000);
             return publishContentDialog;
         } catch (err) {
-            this.saveScreenshot('err_click_on_publish_and_close');
+            await this.saveScreenshot('err_click_on_publish_and_close');
             throw new Error('Error when clicking on Publish and close ' + err);
         }
     }
@@ -188,9 +189,8 @@ class IssueDetailsDialogItemsTab extends Page {
 
     // Dependants controls:
     async clickOnAllCheckbox() {
-        return await this.dependantsControls.clickOnAllCheckbox();
+        return await this.dependantsControls.clickOnAllDependantsCheckbox()
     }
-
 
     async waitForHideExcludedItemsButtonDisplayed() {
         try {

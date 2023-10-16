@@ -10,15 +10,17 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolbar', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
     let FOLDER;
+    const CHILD_FOLDER_NAME = appConst.generateRandomName('childFolder');
 
     it('Preconditions: test folder should be created',
         async () => {
@@ -38,18 +40,18 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
         await contentBrowsePanel.waitForCreateIssueButtonDisplayed();
     });
 
-    it(`WHEN existing folder(New and Ready to publish) has been selected THEN 'Publish' button should appear in the browse-toolbar`,
+    it(`WHEN existing folder(New and Ready for publishing) has been selected THEN 'Publish' button should appear in the browse-toolbar`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Select the folder:
+            // 1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            //2. Click on 'Mark As Ready' then close the 'Publish wizard':
+            // 2. Click on 'Mark As Ready' then close the 'Publish wizard':
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnCancelTopButton();
             await contentPublishDialog.waitForDialogClosed();
-            // open Publish Menu and verify status of all menu items:
+            // 3. open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
             await studioUtils.saveScreenshot('publish_menu_Folder_ready');
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
@@ -57,8 +59,9 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.PUBLISH);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
-            //3.  do publish the folder:
+            // 4.  do publish the folder:
             await studioUtils.openDialogAndPublishSelectedContent();
+            // 5. Verify the status in the browse panel:
             let status = await contentBrowsePanel.getContentStatus(FOLDER.displayName);
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, 'The folder should be Published');
         });
@@ -66,11 +69,11 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
     it(`GIVEN existing 'published' folder WHEN publish menu has been expanded THEN 'Unpublish' and 'Create Task...' menu items should be enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the folder:
+            // 1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            //2. Open Publish Menu and verify status of all menu items:
+            // 2. Open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
-            await studioUtils.saveScreenshot("publish_menu_Folder_published");
+            await studioUtils.saveScreenshot('publish_menu_Folder_published');
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.UNPUBLISH);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
@@ -81,15 +84,15 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
     it(`WHEN existing folder has been unpublished THEN status of menu items should be updated`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the folder:
+            // 1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            //2. Click on Mark As Ready:
+            // 2. Click on 'UNPUBLISH' then close the 'Unpublish dialog':
             await contentBrowsePanel.clickOnUnpublishButton();
             let contentUnpublishDialog = new ContentUnpublishDialog();
             await contentUnpublishDialog.waitForDialogOpened();
             await contentUnpublishDialog.clickOnUnpublishButton();
             await contentUnpublishDialog.waitForDialogClosed();
-            // open Publish Menu and verify status of all menu items:
+            // 3. Open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
             await studioUtils.saveScreenshot('publish_menu_Folder_unpublished');
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
@@ -99,7 +102,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
         });
 
-    it(`WHEN site(Ready to publish) has been published (children were not included) THEN 'PUBLISH TREE...' button should appear in the browse-toolbar`,
+    it(`WHEN site(Ready for publishing) has been published (children were not included) THEN 'PUBLISH TREE...' button should appear in the browse-toolbar`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(SITE.displayName);
@@ -108,6 +111,33 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             await studioUtils.doPublish(SITE.displayName);
             //'PUBLISH TREE...' button should appear in browse-toolbar
             await contentBrowsePanel.waitForPublishTreeButtonVisible();
+        });
+
+    it(`GIVEN existing published site has been selected WHEN 'PUBLISH TREE...' button has been pressed THEN published dependent items should not be displayed in the dialog`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizard();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Select the published site:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            // 2. Add a child folder:
+            await contentBrowsePanel.clickOnNewButton();
+            await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.FOLDER);
+            await contentWizard.typeDisplayName(CHILD_FOLDER_NAME);
+            await contentWizard.clickOnMarkAsReadyButton();
+            await contentPublishDialog.waitForDialogOpened();
+            // 3. Publish the child folder:
+            await contentPublishDialog.clickOnPublishNowButton();
+            await contentPublishDialog.waitForDialogClosed();
+            // 4. Close the folder wizard:
+            await studioUtils.doCloseWindowTabAndSwitchToBrowsePanel();
+            // 5. Click on 'PUBLISH TREE...' button:
+            await contentBrowsePanel.clickOnPublishTreeButton();
+            // 6. Verify that published dependent items are not included(displayed) in the list:
+            await contentPublishDialog.waitForDialogOpened();
+            let actualItems = await contentPublishDialog.getDisplayNameInDependentItems();
+            assert.equal(actualItems.length, 1, 'The list should contain only one item');
+            assert.isTrue(actualItems[0].includes('_templates'), 'The list of items should contains only one item');
         });
 
     //test verifies https://github.com/enonic/app-contentstudio/issues/493
