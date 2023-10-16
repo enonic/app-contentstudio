@@ -5,6 +5,7 @@ const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
 const LoaderComboBox = require('../components/loader.combobox');
+const DependantsControls = require('./dependant.controls');
 
 const XPATH = {
     container: `//div[contains(@id,'CreateIssueDialog')]`,
@@ -21,6 +22,11 @@ const XPATH = {
 };
 
 class CreateIssueDialog extends Page {
+
+    constructor() {
+        super();
+        this.dependantsControls = new DependantsControls(XPATH.container);
+    }
 
     get cancelTopButton() {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
@@ -127,8 +133,13 @@ class CreateIssueDialog extends Page {
     }
 
     async waitForDialogLoaded() {
-        await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-        await this.pause(1200);
+        try {
+            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+            await this.pause(2000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_create_issue_loaded');
+            throw new Error('Create issue dialog: ' + screenshot + ' ' + err);
+        }
     }
 
     waitForDialogClosed() {
@@ -223,7 +234,7 @@ class CreateIssueDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot =  await this.saveScreenshotUniqueName('err_show_excluded_should_be_hidden');
+            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_should_be_hidden');
             throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + err);
         }
     }
@@ -234,7 +245,7 @@ class CreateIssueDialog extends Page {
             await this.clickOnElement(this.hideExcludedItemsButton);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot =  await this.saveScreenshotUniqueName('err_hide_excluded_btn');
+            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
             throw new Error('Create issue dialog, Hide Excluded button, screenshot  ' + screenshot + ' ' + err);
         }
     }
@@ -254,9 +265,7 @@ class CreateIssueDialog extends Page {
     }
 
     async isDependantCheckboxSelected(displayName) {
-        let checkBoxInputLocator = XPATH.container + XPATH.dependentItemToPublish(displayName) + lib.CHECKBOX_INPUT;
-        await this.waitForElementDisplayed(XPATH.container + XPATH.dependentItemToPublish(displayName), appConst.mediumTimeout);
-        return await this.isSelected(checkBoxInputLocator);
+        return await this.dependantsControls.isDependantCheckboxSelected(displayName);
     }
 
     async waitForDependenciesListDisplayed() {
@@ -268,10 +277,26 @@ class CreateIssueDialog extends Page {
         try {
             let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
             return await this.waitForElementNotDisplayed(locator);
-        }catch(err){
+        } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dependencies_list');
             throw new Error(`Dependencies list should not be visible! screenshot: ${screenshot} ` + err);
         }
+    }
+
+    async clickOnCheckboxInDependentItem(displayName) {
+        return await this.dependantsControls.clickOnCheckboxInDependentItem(displayName);
+    }
+
+    async isDependantCheckboxEnabled(displayName) {
+        return await this.dependantsControls.isDependantCheckboxEnabled(displayName);
+    }
+
+    async waitForAllDependantsCheckboxDisplayed() {
+        return await this.dependantsControls.waitForAllDependantsCheckboxDisplayed();
+    }
+
+    async waitForAllDependantsCheckboxNotDisplayed() {
+        return await this.dependantsControls.waitForAllDependantsCheckboxNotDisplayed();
     }
 }
 
