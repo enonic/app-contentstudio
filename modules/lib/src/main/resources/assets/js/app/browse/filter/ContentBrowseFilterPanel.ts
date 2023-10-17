@@ -196,14 +196,12 @@ export class ContentBrowseFilterPanel
     }
 
     searchItemById(id: ContentId): void {
-        this.elementsContainer.getChildren().some((child: Element) => {
-            if (child instanceof TextSearchField) {
-                child.setValue(id.toString());
-                return true;
-            }
+        this.getSearchField()?.setValue(id.toString());
+    }
 
-            return false;
-        });
+    private getSearchField(): TextSearchField {
+        const textSearchFieldParent = this.elementsContainer.getChildren().find((child: Element) => child.hasClass('search-container'));
+        return textSearchFieldParent?.getChildren().find((child: Element) => child instanceof TextSearchField) as TextSearchField;
     }
 
     doRefresh(): Q.Promise<void> {
