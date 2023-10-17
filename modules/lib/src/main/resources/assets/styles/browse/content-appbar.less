@@ -56,6 +56,12 @@
       }
     }
 
+    .project-selection-icon {
+      &:before {
+        color: @admin-font-gray1;
+      }
+    }
+
     &:hover {
       .names-and-icon-view {
         &::before {
@@ -74,6 +80,12 @@
           }
         }
       }
+
+      .project-selection-icon {
+        &:before {
+          color: darken(@admin-font-gray1, 10%);
+        }
+      }
     }
 
     &.no-project {
@@ -83,10 +95,14 @@
     }
 
     .project-selection-icon {
-      font-size: 22px;
-      margin-left: 8px;
+      transform: rotate(90deg);
+      margin-left: 5px;
       order: 1;
       display: none;
+
+      &:before {
+        font-size: 16px;
+      }
     }
 
     &.multi-projects {
