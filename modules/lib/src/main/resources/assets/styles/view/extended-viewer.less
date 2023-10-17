@@ -1,10 +1,15 @@
 .extended-viewer {
   .names-and-icon-view {
+    .display-name-postfix {
+      padding-left: 5px;
+      color: @admin-font-gray1;
+    }
+  }
 
-    .@{_COMMON_PREFIX}main-name {
+  &:hover {
+    names-and-icon-view {
       .display-name-postfix {
-        padding-left: 5px;
-        color: @admin-font-gray1;
+        color: darken(@admin-font-gray1, 10%);
       }
     }
   }

@@ -35,4 +35,5 @@
 <glyph unicode="&#xea36;" glyph-name="arrow-down" d="M512-32l480 480h-288v512h-384v-512h-288z" />
 <glyph unicode="&#xea45;" glyph-name="tab" d="M960 960h64v-512h-64v512zM0 448h64v-512h-64v512zM320 256h704v-128h-704v-160l-224 224 224 224v-160zM704 640h-704v128h704v160l224-224-224-224z" />
 <glyph unicode="&#xea4c;" glyph-name="sort-amount-asc" d="M320 192v768h-128v-768h-160l224-224 224 224h-160zM448 384h576v-128h-576v128zM448 576h448v-128h-448v128zM448 768h320v-128h-320v128zM448 960h192v-128h-192v128z" />
+<glyph unicode="&#xea7f;" glyph-name="embed1" d="M576 224l96-96 320 320-320 320-96-96 224-224zM448 672l-96 96-320-320 320-320 96 96-224 224z" />
 </font></defs></svg>

@@ -137,7 +137,7 @@ export class ContentAppBar
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            const iconEl: DivEl = new DivEl('project-selection-icon icon-compare');
+            const iconEl: DivEl = new DivEl('project-selection-icon icon-dropdown');
             AccessibilityHelper.tabIndex(iconEl);
             this.selectedProjectViewer.appendChild(iconEl);
             this.selectedProjectViewer.setTitle(i18n('text.selectContext'));

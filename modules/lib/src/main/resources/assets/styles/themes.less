@@ -59,6 +59,16 @@
             .display-name {
               color: @HEADER_FONT_COLOR;
             }
+
+            .display-name-postfix {
+              color: lighten(@HEADER_FONT_COLOR, 25%);
+            }
+          }
+
+          .project-selection-icon {
+            &:before {
+              color: lighten(@HEADER_FONT_COLOR, 25%);
+            }
           }
 
           &:hover {
@@ -69,6 +79,16 @@
               }
 
               .display-name {
+                color: @HEADER_FONT_COLOR_HOVER;
+              }
+
+              .display-name-postfix {
+                color: lighten(@HEADER_FONT_COLOR_HOVER, 20%);
+              }
+            }
+
+            .project-selection-icon {
+              &:before {
                 color: @HEADER_FONT_COLOR_HOVER;
               }
             }
