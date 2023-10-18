@@ -21,7 +21,6 @@ const router = Router();
 
 // Do not export this function it will break the static assets routing below.
 function get(req: Request): Response {
-    log.info('get request:%s', JSON.stringify(req, null, 4));
     const response: Response = {
         contentType: 'text/html',
         body: render(VIEW, {
