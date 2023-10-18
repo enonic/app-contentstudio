@@ -14,34 +14,34 @@ import {
 } from '/constants';
 
 
-interface Params {
-    appName: string
-    assetsUri: string
-    configServiceUrl: string
-    isBrowseMode?: boolean
-    launcherPath: string
-    jqueryUrl: string
-}
-
-
 const VIEW = resolve('./main.html');
 const TOOL_NAME = 'main';
 
 const router = Router();
 
-export function renderTemplate(path: string, params: Params) {
-    const toolUri = getToolUrl(app.name, 'main');
-    const isBrowseMode = path === toolUri;
-    const enableSecurityPolicy = app.config['contentSecurityPolicy.enabled'] !== 'false';
-
-    params.isBrowseMode = isBrowseMode;
-
+// Do not export this function it will break the static assets routing below.
+function get(req: Request): Response {
+    log.info('get request:%s', JSON.stringify(req, null, 4));
     const response: Response = {
         contentType: 'text/html',
-        body: render(VIEW, params),
+        body: render(VIEW, {
+            assetsUri: assetUrl({path: ''}),
+            appName: localize({
+                key: 'admin.tool.displayName',
+                bundles: ['i18n/phrases'],
+                locale: getLocales()
+            }),
+            configServiceUrl: serviceUrl({service: 'config'}),
+            isBrowseMode: req.path === getToolUrl(app.name, 'main'),
+            jqueryUrl: getAdminUrl({
+                manifestPath: FILEPATH_MANIFEST_NODE_MODULES,
+                path: 'jquery/jquery.min.js',
+            }, TOOL_NAME),
+            launcherPath: getLauncherPath(),
+        })
     };
 
-    if (enableSecurityPolicy) {
+    if (app.config['contentSecurityPolicy.enabled'] !== 'false') {
         let securityPolicy = app.config['contentSecurityPolicy.header'];
 
         if (!securityPolicy) {
@@ -55,31 +55,9 @@ export function renderTemplate(path: string, params: Params) {
     return response;
 }
 
-export const getParams = (): Params => ({
-    assetsUri: assetUrl({path: ''}),
-    appName: localize({
-        key: 'admin.tool.displayName',
-        bundles: ['i18n/phrases'],
-        locale: getLocales()
-    }),
-    configServiceUrl: serviceUrl({service: 'config'}),
-    jqueryUrl: getAdminUrl({
-        manifestPath: FILEPATH_MANIFEST_NODE_MODULES,
-        path: 'jquery/jquery.min.js',
-    }, TOOL_NAME),
-    launcherPath: getLauncherPath(),
-});
 
-// DO not export this function it will break the static assets routing below.
-function get(req: Request): Response {
-    return renderTemplate(req.path, getParams());
-}
+router.all(`/${GETTER_ROOT}/{path:.+}`, (r: Request) => immutableGetter(r));
 
-router.get('/?', (r: Request) => get(r));
-
-router.all(`/${GETTER_ROOT}/{path:.+}`, (r: Request) => {
-    // log.info('static request:%s', JSON.stringify(r, null, 4));
-    return immutableGetter(r);
-});
+router.get('.*', (r: Request) => get(r));
 
 export const all = (r: Request) => router.dispatch(r);

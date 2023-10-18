@@ -12,6 +12,8 @@ const path = require('path');
 
 const isProd = process.env.NODE_ENV === 'production';
 
+const GETTER_ROOT = '_static';
+
 module.exports = {
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
@@ -102,11 +104,11 @@ module.exports = {
                 {from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[file]'},
                 {
                     from: path.join(__dirname, 'node_modules/jquery/dist/*.js'),
-                    to: `${path.join(__dirname, 'build/resources/main/static')}/jquery/[name].[contenthash][ext]`
+                    to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/jquery/[name].[contenthash][ext]`
                 },
                 {
                     from: path.join(__dirname, 'node_modules/jquery-ui-dist/*.(css|js)'),
-                    to: `${path.join(__dirname, 'build/resources/main/static')}/jquery-ui-dist/[name].[contenthash][ext]`
+                    to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/jquery-ui-dist/[name].[contenthash][ext]`
                 }
             ]
         }),
@@ -115,13 +117,13 @@ module.exports = {
             failOnError: true
         }),
         new WebpackAssetsManifest({
-            output: path.join(__dirname, 'build/resources/main/static/manifest.json'),
+            output: path.join(__dirname, 'build/resources/main', GETTER_ROOT, 'manifest.json'),
             transform: (manifest) => {
                 const newManifest = {};
                 for (const [key, value] of Object.entries(manifest)) {
-                    if (key.startsWith('../static/')) {
-                        const newKey = key.replace('../static/', '');
-                        const newValue = value.replace('../static/', '');
+                    if (key.startsWith(`../${GETTER_ROOT}/`)) {
+                        const newKey = key.replace(`../${GETTER_ROOT}/`, '');
+                        const newValue = value.replace(`../${GETTER_ROOT}/`, '');
                         newManifest[newKey] = newValue;
                     }
                 }
