@@ -1,7 +1,9 @@
-const i18n = require('/lib/xp/i18n');
-const admin = require('/lib/xp/admin');
+import type {Request, Response} from '/types/';
 
-const processRequest = function (req) {
+import {getLocales} from '/lib/xp/admin';
+import {getPhrases as _getPhrases} from '/lib/xp/i18n';
+
+export function get(req: Request): Response {
     const customBundles = req.params && req.params.bundles ? req.params.bundles.split(',') : [];
     return {
         status: 200,
@@ -10,11 +12,10 @@ const processRequest = function (req) {
     }
 };
 
-exports.get = processRequest;
-exports.post = processRequest;
+export const post = get;
 
 const getPhrases = function(customBundles) {
-    const locales = admin.getLocales();
+    const locales = getLocales();
     const phrases = {};
     let bundles = ['i18n/common', 'i18n/phrases', 'i18n/dialogs'];
     if (customBundles.length) {
@@ -22,7 +23,7 @@ const getPhrases = function(customBundles) {
     }
 
     bundles.forEach(function (bundle) {
-        const bundlePhrases = i18n.getPhrases(locales, [bundle]);
+        const bundlePhrases = _getPhrases(locales, [bundle]);
         for (const key in bundlePhrases) {
             if (bundlePhrases.hasOwnProperty(key)) {
                 // This should be ok with the hasOwnProperty check above

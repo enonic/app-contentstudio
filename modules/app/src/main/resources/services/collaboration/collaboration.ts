@@ -1,5 +1,6 @@
-/* global __ */
-const collaborationLib = require('/lib/collaboration');
+import type {Request, Response} from '/types/';
+
+import {heartbeat, join, leave} from '/lib/collaboration';
 
 function createJoinOrLeaveParams(event) {
     return {
@@ -9,7 +10,7 @@ function createJoinOrLeaveParams(event) {
     }
 }
 
-exports.get = function (req) {
+export function get(req: Request): Response {
     if (!req.webSocket) {
         return {
             status: 404
@@ -26,7 +27,13 @@ exports.get = function (req) {
     };
 };
 
-exports.webSocketEvent = function (event) {
+export function webSocketEvent(event: {
+    data: unknown
+    session: {
+        user: string
+    },
+    type: 'open'|'message'|'close'
+}) {
     if (!event) {
         return;
     }
@@ -39,16 +46,16 @@ exports.webSocketEvent = function (event) {
 
     switch (event.type) {
     case 'open': {
-        collaborationLib.join(createJoinOrLeaveParams(event));
+        join(createJoinOrLeaveParams(event));
         break;
     }
     case 'message': {
-        collaborationLib.heartbeat(createJoinOrLeaveParams(event));
+        heartbeat(createJoinOrLeaveParams(event));
         break;
     }
     case 'close': {
         if (event && event.data) {
-            collaborationLib.leave(createJoinOrLeaveParams(event));
+            leave(createJoinOrLeaveParams(event));
         }
         break;
     }

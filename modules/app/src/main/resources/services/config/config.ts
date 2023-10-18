@@ -1,11 +1,12 @@
-/*global app, resolve*/
+import type {Response} from '/types/';
 
-const admin = require('/lib/xp/admin');
-const portal = require('/lib/xp/portal');
-const contextLib = require('/lib/xp/context');
+import {getBaseUri, getLocale, getToolUrl} from '/lib/xp/admin';
+import {assetUrl, serviceUrl} from '/lib/xp/portal';
+import {get as getContext} from  '/lib/xp/context';
 
-function handleGet() {
-    const context = contextLib.get();
+
+export function get(): Response {
+    const context = getContext();
     const branch = context.branch;
     const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
     const excludeDependencies = app.config['publishingWizard.excludeDependencies'] === 'true' || false;
@@ -20,11 +21,11 @@ function handleGet() {
             allowContentUpdate,
             excludeDependencies,
             allowPathTransliteration,
-            adminUrl: admin.getBaseUri(),
-            assetsUri: portal.assetUrl({
+            adminUrl: getBaseUri(),
+            assetsUri: assetUrl({
                 path: ''
             }),
-            toolUri: admin.getToolUrl(
+            toolUri: getToolUrl(
                 app.name,
                 'main'
             ),
@@ -33,15 +34,15 @@ function handleGet() {
             branch,
             hideDefaultProject,
             enableCollaboration,
-            locale: admin.getLocale(),
+            locale: getLocale(),
             services: {
-                contentUrl: portal.serviceUrl({service: 'content'}),
-                i18nUrl: portal.serviceUrl({service: 'i18n'}),
-                licenseUrl: portal.serviceUrl({service: 'license'}),
-                stylesUrl: portal.serviceUrl({service: 'styles'}),
-                collaborationUrl: portal.serviceUrl({service: 'collaboration'}),
-                appServiceUrl: portal.serviceUrl({service: 'applications'}),
-                exportServiceUrl: portal.serviceUrl({service: 'export'}),
+                contentUrl: serviceUrl({service: 'content'}),
+                i18nUrl: serviceUrl({service: 'i18n'}),
+                licenseUrl: serviceUrl({service: 'license'}),
+                stylesUrl: serviceUrl({service: 'styles'}),
+                collaborationUrl: serviceUrl({service: 'collaboration'}),
+                appServiceUrl: serviceUrl({service: 'applications'}),
+                exportServiceUrl: serviceUrl({service: 'export'}),
             },
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */
@@ -51,5 +52,3 @@ function handleGet() {
         }
     };
 }
-
-exports.get = handleGet;

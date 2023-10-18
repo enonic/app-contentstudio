@@ -4,6 +4,7 @@ const CircularDependencyPlugin = require('circular-dependency-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ProvidePlugin = require('webpack/lib/ProvidePlugin');
 const fs = require('fs');
+const WebpackAssetsManifest = require('webpack-assets-manifest');
 
 const swcConfig = JSON.parse(fs.readFileSync('./.swcrc'));
 
@@ -98,13 +99,35 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                {from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[file]'}
+                {from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[file]'},
+                {
+                    from: path.join(__dirname, 'node_modules/jquery/dist/*.js'),
+                    to: `${path.join(__dirname, 'build/resources/main/static')}/jquery/[name].[contenthash][ext]`
+                },
+                {
+                    from: path.join(__dirname, 'node_modules/jquery-ui-dist/*.(css|js)'),
+                    to: `${path.join(__dirname, 'build/resources/main/static')}/jquery-ui-dist/[name].[contenthash][ext]`
+                }
             ]
         }),
         new CircularDependencyPlugin({
             exclude: /a\.js|node_modules/,
             failOnError: true
         }),
+        new WebpackAssetsManifest({
+            output: path.join(__dirname, 'build/resources/main/static/manifest.json'),
+            transform: (manifest) => {
+                const newManifest = {};
+                for (const [key, value] of Object.entries(manifest)) {
+                    if (key.startsWith('../static/')) {
+                        const newKey = key.replace('../static/', '');
+                        const newValue = value.replace('../static/', '');
+                        newManifest[newKey] = newValue;
+                    }
+                }
+                return newManifest;
+            }
+        })
     ],
     mode: isProd ? 'production' : 'development',
     devtool: isProd ? false : 'source-map',

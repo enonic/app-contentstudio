@@ -1,9 +1,19 @@
-const projectLib = require('/lib/xp/project');
-const issueFetcher = __.newBean('com.enonic.xp.app.contentstudio.widget.issues.IssueFetcher');
-const contextLib = require('/lib/xp/context');
+import type {PrincipalKey} from '@enonic-types/core';
+import type {Project} from '/lib/xp/project';
 
-const getIssuesInRepo = (repositoryId, count, principalKey) => {
-    return contextLib.run(
+import {list} from '/lib/xp/project';
+import {run} from '/lib/xp/context';
+
+
+const issueFetcher = __.newBean<{
+    list(count: number, principalKey: string): {
+        getIssues(): unknown[]
+    };
+}>('com.enonic.xp.app.contentstudio.widget.issues.IssueFetcher');
+
+
+export const getIssuesInRepo = (repositoryId: string, count?: number, principalKey?: PrincipalKey) => {
+    return run(
         {
             repository: repositoryId,
             branch: 'draft'
@@ -12,8 +22,8 @@ const getIssuesInRepo = (repositoryId, count, principalKey) => {
     );
 }
 
-const getProjects = () => {
-    const projects = projectLib.list();
+export const getProjects = <Config extends Record<string, unknown> = Record<string, unknown>>(): Project<Config>[] => {
+    const projects = list() as Project<Config>[];
     const hideDefaultProject = app.config['settings.hideDefaultProject'] === 'true' || false;
 
     if (hideDefaultProject) {
@@ -23,16 +33,16 @@ const getProjects = () => {
     return projects;
 }
 
-const parseDateTime = (value) => {
+export const parseDateTime = (value: string): Date | undefined => {
     if (!value) {
-        return '';
+        return undefined;
     }
 
     return makeDateFromUTCString(value);
 }
 
 // Copied from DateHelper.ts
-const makeDateFromUTCString = (value) => {
+const makeDateFromUTCString = (value: string) => {
     const parsedYear = Number(value.substring(0, 4));
     const parsedMonth = Number(value.substring(5, 7));
     const parsedDayOfMonth = Number(value.substring(8, 10));
@@ -43,7 +53,7 @@ const makeDateFromUTCString = (value) => {
     return new Date(Date.UTC(parsedYear, parsedMonth - 1, parsedDayOfMonth, parsedHours, parsedMinutes, parsedSeconds));
 }
 
-const formatDateTime = (date) => {
+export const formatDateTime = (date: Date): string => {
     if (!date) {
         return '';
     }
@@ -62,7 +72,7 @@ const formatDateTime = (date) => {
 }
 
 // Copied from DateTimeFormatter.ts
-const zeroPad = (n, width) => {
+const zeroPad = (n: number, width: number) => {
     let nWidth = n.toString().length;
     if (nWidth >= width) {
         return '' + n;
@@ -75,8 +85,3 @@ const zeroPad = (n, width) => {
 
     return s + n;
 }
-
-exports.getProjects = getProjects;
-exports.parseDateTime = parseDateTime;
-exports.formatDateTime = formatDateTime;
-exports.getIssuesInRepo = getIssuesInRepo;

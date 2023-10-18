@@ -1,8 +1,9 @@
-const contentFetcher = require('/lib/export/content-fetcher');
-const allowedExportTypes = ['csv'];
-const contextLib = require('/lib/xp/context');
+import {fetch} from '/lib/export/content-fetcher';
+import {} from '/lib/xp/context';
 
-const generateExport = function (searchParams) {
+const allowedExportTypes = ['csv'];
+
+export const generateExport = function (searchParams) {
     const exportFileType = searchParams.type;
 
     if (!allowedExportTypes.some(allowedType => allowedType === exportFileType)) {
@@ -17,7 +18,7 @@ const generateExport = function (searchParams) {
         return null;
     }
 
-    const contentItems = contentFetcher.fetch(searchParams);
+    const contentItems = fetch(searchParams);
 
     return fileGenerator.generate(contentItems);
 }
@@ -27,5 +28,3 @@ const getFileGenerator = function (type) {
         return require('/lib/export/CSVGenerator');
     }
 }
-
-exports.generateExport = generateExport;

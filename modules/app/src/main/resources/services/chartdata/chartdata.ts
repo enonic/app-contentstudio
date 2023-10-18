@@ -1,6 +1,8 @@
-const contextLib = require('/lib/xp/context');
-const contentLib = require('/lib/xp/content');
-const helper = require('/helpers/dashboard-helper');
+import type {Response} from '/types/';
+
+import {query} from '/lib/xp/content';
+import {run} from '/lib/xp/context';
+import {getProjects} from '/helpers/dashboard-helper';
 
 const daysAgo = 30;
 
@@ -29,8 +31,8 @@ const getFormattedDateXDaysAgo = (days) => {
 
 const dateFilterValue = getFormattedDateXDaysAgo(daysAgo);
 
-const handleGet = () => {
-    const projects = helper.getProjects();
+export const get = (): Response => {
+    const projects = getProjects();
     const activityMap = getStatsFromAllRepos(projects);
 
     return {
@@ -72,7 +74,7 @@ const generateActivityMap = () => {
 }
 
 const getRepoActivityStats = (repositoryId) => {
-    return contextLib.run(
+    return run(
         {
             repository: repositoryId,
             branch: 'draft'
@@ -84,7 +86,7 @@ const getRepoActivityStats = (repositoryId) => {
 }
 
 const fetchByDayStats = () => {
-    const result = contentLib.query({
+    const result = query({
         start: 0,
         count: 0,
         query: {
@@ -120,5 +122,3 @@ const fetchByDayStats = () => {
 
     return result.aggregations.by_day.buckets;
 }
-
-exports.get = handleGet;

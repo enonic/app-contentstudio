@@ -1,37 +1,48 @@
-const mustache = require('/lib/mustache');
-const contextLib = require('/lib/xp/context');
-const contentLib = require('/lib/xp/content');
-const portalLib = require('/lib/xp/portal');
-const nodeLib = require('/lib/xp/node');
-const adminLib = require('/lib/xp/admin');
-const i18nLib = require('/lib/xp/i18n');
-const helper = require('/helpers/dashboard-helper');
+import type {LocalizeParams} from '/lib/xp/i18n';
+import type {MultiRepoConnectParams} from '/lib/xp/node';
+import type {Project} from '/lib/xp/project';
+import type {Response} from '/types/';
 
-function localise(locale, key) {
-    return i18nLib.localize({
+// @ts-expect-error No types for /lib/mustache yet.
+import {render} from '/lib/mustache';
+
+import {getLocales, getToolUrl} from '/lib/xp/admin';
+import {query} from '/lib/xp/content';
+import {run} from '/lib/xp/context';
+import {localize} from '/lib/xp/i18n';
+import {multiRepoConnect} from '/lib/xp/node';
+import {assetUrl} from '/lib/xp/portal';
+import {getIssuesInRepo, getProjects} from '/helpers/dashboard-helper';
+
+
+function localise(
+    locale: LocalizeParams['locale'],
+    key: LocalizeParams['key']
+): string {
+    return localize({
         bundles: ['i18n/phrases'],
         key,
         locale
     });
 }
 
-function handleGet() {
+export function get(): Response {
     const view = resolve('./stats.html');
-    const projects = helper.getProjects();
+    const projects = getProjects();
     const contentItemsCount = '' + countItemsInRepos(projects);
     const languagesCount = '' + countLanguagesInRepos(projects);
     const openIssuesCount = '' + countIssuesInRepos(projects);
-    const locales = adminLib.getLocales();
+    const locales = getLocales();
 
     const params = {
         projectsCount: projects.length,
         contentItemsCount,
         languagesCount,
         openIssuesCount,
-        stylesUrl: portalLib.assetUrl({
+        stylesUrl: assetUrl({
             path: 'styles/widgets/stats.css'
         }),
-        toolUrl: adminLib.getToolUrl(app.name, 'main'),
+        toolUrl: getToolUrl(app.name, 'main'),
         contentItemsText: localise(locales, 'widget.dashboard.stats.contentItems'),
         openIssuesText: localise(locales, 'widget.dashboard.stats.openIssues'),
         projectsText: localise(locales, 'widget.dashboard.stats.projects'),
@@ -40,21 +51,21 @@ function handleGet() {
 
     return {
         contentType: 'text/html',
-        body: mustache.render(view, params)
+        body: render(view, params)
     };
 }
 
-const countIssuesInRepos = function (projects) {
+const countIssuesInRepos = function (projects: Project[]) {
     let totalIssueCount = 0;
     projects.forEach((project) => {
-        const issues = helper.getIssuesInRepo(`com.enonic.cms.${project.id}`).getIssues();
+        const issues = getIssuesInRepo(`com.enonic.cms.${project.id}`).getIssues();
         totalIssueCount += issues.length;
     });
 
     return totalIssueCount;
 }
 
-const countItemsInRepos = function (projects) {
+const countItemsInRepos = function (projects: Project[]) {
     let total = 0;
 
     projects.forEach(function (project) {
@@ -64,7 +75,7 @@ const countItemsInRepos = function (projects) {
     return total;
 }
 
-const getRepoSources = function (projects) {
+const getRepoSources = function (projects: Project[]): MultiRepoConnectParams['sources'] {
     return projects.map(function (project) {
         return {
             repoId: 'com.enonic.cms.' + project.id,
@@ -74,14 +85,14 @@ const getRepoSources = function (projects) {
     });
 }
 
-const countLanguagesInRepos = function (projects) {
+const countLanguagesInRepos = function (projects: Project[]) {
     const repoSources = getRepoSources(projects);
 
     if (repoSources.length === 0) {
         return 0;
     }
 
-    const repoConnection = nodeLib.multiRepoConnect({ sources: repoSources });
+    const repoConnection = multiRepoConnect({ sources: repoSources });
 
     const result = repoConnection.query({
         start: 0,
@@ -99,8 +110,8 @@ const countLanguagesInRepos = function (projects) {
     return result.aggregations.languageBuckets.buckets.length;
 }
 
-const countItemsInRepo = function (repositoryId) {
-        return contextLib.run(
+const countItemsInRepo = function (repositoryId: string) {
+        return run(
             {
                 repository: repositoryId,
                 branch: 'draft'
@@ -112,9 +123,8 @@ const countItemsInRepo = function (repositoryId) {
 }
 
 const doCountItemsInRepo = function () {
-    return contentLib.query({
+    return query({
         start: 0,
         count: 0
     }).total;
 }
-exports.get = handleGet;

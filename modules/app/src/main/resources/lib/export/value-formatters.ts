@@ -1,18 +1,18 @@
-const valueLib = require('/lib/xp/value');
+import {localDateTime} from '/lib/xp/value';
 
-const processDateValue = (value) => {
+const processDateValue = (value: string): string => {
     if (value) {
         // reducing precision to milliseconds to allow date to be parsed, otherwise InvalidDate is returned
         const newValue = removeDatePrecision(value);
         const dateValue = new Date(Date.parse(newValue));
 
-        return valueLib.localDateTime(dateValue).toString();
+        return localDateTime(dateValue).toString();
     }
 
     return '';
 }
 
-const removeDatePrecision = (value) => {
+const removeDatePrecision = (value: string): string => {
     if (value.indexOf('.') > 0) {
         return `${value.substring(0, value.indexOf('.') + 3)}Z`;
     }
@@ -21,7 +21,7 @@ const removeDatePrecision = (value) => {
 }
 
 // escaping lines with commas
-const processNonDateValue = (value) => {
+export default function processNonDateValue(value: string): string {
     if (value && value.indexOf(',') > -1) {
         if (value.indexOf('"') > -1) {
             return `"${value.replaceAll('"', '""')}"`;
@@ -33,10 +33,4 @@ const processNonDateValue = (value) => {
     return value || '';
 }
 
-const valueFormatters = {
-    date: processDateValue,
-    default: processNonDateValue,
-};
-
-exports.default = valueFormatters.default;
-exports.date = valueFormatters.date;
+export const date = processDateValue;

@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "declaration": false,
+
+        // Type 'IterableIterator<(string | ((value: string) => string))[]>'
+        // can only be iterated through when using the '--downlevelIteration' flag
+        // or with a '--target' of 'es2015' or higher.ts(2802)
+        "downlevelIteration": true,
+
+        "lib": [
+            "es2015",
+            // "ES2015.Collection", // Map
+            "ES2021.String" // String.replaceAll
+        ],
+        "module": "commonjs",
+        "paths": {
+            "/lib/xp/*": ["../../../node_modules/@enonic-types/lib-*"],
+            "/*": [ "./*"]
+        },
+        "rootDir": ".",
+        "sourceMap": false,
+        "target": "es5",
+        "types": [
+            "@enonic-types/global",
+        ],
+    },
+    "exclude": [
+        "./**/*.d.ts",
+        "assets",
+    ],
+    "include": [
+        "./**/*.ts"
+    ],
+}
