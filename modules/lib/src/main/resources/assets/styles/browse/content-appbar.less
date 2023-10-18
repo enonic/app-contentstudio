@@ -41,6 +41,20 @@
       display: flex;
       align-items: center;
 
+      .@{_COMMON_PREFIX}wrapper {
+        height: 28px;
+        width: 28px;
+        margin-right: 10px;
+
+        .font-icon-default {
+          .flag {
+            max-width: 100%;
+            max-height: 100%;
+            box-sizing: border-box;
+          }
+        }
+      }
+
       .@{_COMMON_PREFIX}names-view {
 
         .@{_COMMON_PREFIX}main-name {
@@ -96,7 +110,7 @@
 
     .project-selection-icon {
       transform: rotate(90deg);
-      margin-left: 5px;
+      margin: 3px 0 0 5px;
       order: 1;
       display: none;
 
