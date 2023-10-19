@@ -21,6 +21,9 @@ module.exports = {
         'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less',
         'lib/ckeditor': ['./lib/ckepath.js', './lib/ckeditor/ckeditor.js']
     },
+    externals: {
+        jquery: 'jQuery',
+    },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
         filename: './[name].js'
@@ -92,11 +95,11 @@ module.exports = {
         }
     },
     plugins: [
-        new ProvidePlugin({
-            $: 'jquery',
-            jQuery: 'jquery',
-            'window.jQuery': 'jquery'
-        }),
+        // new ProvidePlugin({
+        //     $: 'jquery',
+        //     jQuery: 'jquery',
+        //     'window.jQuery': 'jquery'
+        // }),
         new MiniCssExtractPlugin({
             filename: '[name].css',
             chunkFilename: './styles/[id].css'
