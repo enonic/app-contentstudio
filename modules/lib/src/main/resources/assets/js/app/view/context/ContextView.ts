@@ -10,7 +10,6 @@ import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {VersionHistoryView} from './widget/version/VersionHistoryView';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
 import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
-import {PropertiesWidgetItemView} from './widget/details/PropertiesWidgetItemView';
 import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
 import {PageTemplateWidgetItemView} from './widget/details/PageTemplateWidgetItemView';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
@@ -445,8 +444,8 @@ export class ContextView
         ];
     }
 
-    private fetchCustomWidgetViews(): Q.Promise<Widget[]> {
-        let getWidgetsByInterfaceRequest = new GetWidgetsByInterfaceRequest(this.getWidgetsInterfaceNames());
+    protected fetchCustomWidgetViews(): Q.Promise<Widget[]> {
+        const getWidgetsByInterfaceRequest = new GetWidgetsByInterfaceRequest(this.getWidgetsInterfaceNames());
 
         return getWidgetsByInterfaceRequest.sendAndParse();
     }
