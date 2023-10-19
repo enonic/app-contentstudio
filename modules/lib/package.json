@@ -25,7 +25,6 @@
     "flag-icons": "^6.11.1",
     "hasher": "^1.2.0",
     "jquery-simulate": "^1.0.2",
-    "jquery-ui": "^1.13.2",
     "jsondiffpatch": "^0.5.0",
     "lodash": "^4.17.21",
     "q": "^1.5.1"
@@ -55,6 +54,10 @@
     "terser-webpack-plugin": "^5.3.8",
     "typescript": "^5.2.2",
     "webpack-cli": "^5.1.4"
+  },
+  "peerDependencies": {
+    "jquery": "^3.7.1",
+    "jquery-ui-dist": "^1.13.2"
   },
   "engines": {
     "node": ">= 18.17.1",
