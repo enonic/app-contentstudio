@@ -36,6 +36,10 @@ function get(req: Request): Response {
                 manifestPath: FILEPATH_MANIFEST_NODE_MODULES,
                 path: 'jquery/jquery.min.js',
             }, TOOL_NAME),
+            jqueryUiUrl: getAdminUrl({
+                manifestPath: FILEPATH_MANIFEST_NODE_MODULES,
+                path: 'jquery-ui-dist/jquery-ui.min.js',
+            }, TOOL_NAME),
             launcherPath: getLauncherPath(),
         })
     };
