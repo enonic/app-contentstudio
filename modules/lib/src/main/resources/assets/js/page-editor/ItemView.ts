@@ -472,10 +472,7 @@ export abstract class ItemView
     }
 
     scrollComponentIntoView(): void {
-        let distance = this.calcDistanceToViewport();
-        if (distance !== 0) {
-            $('html,body').animate({scrollTop: (distance > 0 ? '+=' : '-=') + Math.abs(distance)}, 200);
-        }
+        this.getEl().getHTMLElement().scrollIntoView({behavior: 'smooth'});
     }
 
     /**
@@ -965,31 +962,6 @@ export abstract class ItemView
 
     protected getContextMenuTitle(): ItemViewContextMenuTitle {
         return this.contextMenuTitle;
-    }
-
-    private calcDistanceToViewport(): number {
-        let dimensions = this.getEl().getDimensions();
-        let menuHeight = this.contextMenu && this.contextMenu.isVisible() ? this.contextMenu.getEl().getHeight() : dimensions.height;
-        let scrollTop: number = this.getDocumentScrollTop();
-        let padding = 10;
-
-        let top = (dimensions.top - padding) - scrollTop;
-        let bottom = (dimensions.top + menuHeight + padding) - (scrollTop + window.innerHeight);
-        let tallerThanWindow = menuHeight > window.innerHeight;
-
-        return top <= 0 ? top : (bottom > 0 && !tallerThanWindow) ? bottom : 0;
-    }
-
-    // http://stackoverflow.com/a/872537
-    private getDocumentScrollTop() {
-        if (typeof pageYOffset !== 'undefined') {
-            //most browsers except IE before #9
-            return pageYOffset;
-        } else {
-            //IE 'quirks' and doctype
-            let doc = (document.documentElement.clientHeight) ? document.documentElement : document.body;
-            return doc.scrollTop;
-        }
     }
 
     addComponentView(componentView: ItemView, index?: number, newlyCreated: boolean = false) {
