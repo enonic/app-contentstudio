@@ -2,7 +2,9 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
-import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {Message} from '@enonic/lib-admin-ui/notify/Message';
+import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
@@ -10,6 +12,7 @@ import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalD
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
 import {ContentTreeGrid} from '../browse/ContentTreeGrid';
+import {SearchAndExpandItemEvent} from '../browse/SearchAndExpandItemEvent';
 import {ContentIds} from '../content/ContentIds';
 import {ContentPath} from '../content/ContentPath';
 import {ContentSummary} from '../content/ContentSummary';
@@ -18,12 +21,9 @@ import {ProgressBarManager} from '../dialog/ProgressBarManager';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {MoveContentRequest} from '../resource/MoveContentRequest';
+import {ContentAppHelper} from '../wizard/ContentAppHelper';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
 import {ContentMovePromptEvent} from './ContentMovePromptEvent';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {Message, MessageType} from '@enonic/lib-admin-ui/notify/Message';
-import {SearchAndExpandItemEvent} from '../browse/SearchAndExpandItemEvent';
-import {ContentAppHelper} from '../wizard/ContentAppHelper';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation
@@ -112,11 +112,11 @@ export class MoveContentDialog
     }
 
     handlePromptEvent(event: ContentMovePromptEvent) {
-        this.movedContentSummaries = event.getContentSummaries();
+        const contents = event.getContentSummaries();
+
+        this.movedContentSummaries = contents;
         this.destinationSearchInput.clearCombobox();
         this.treeGrid = event.getTreeGrid();
-
-        const contents = event.getContentSummaries();
 
         this.destinationSearchInput.setFilterContents(contents);
         this.contentPathSubHeader.setHtml(contents.length === 1 ? contents[0].getPath().toString() : '');
