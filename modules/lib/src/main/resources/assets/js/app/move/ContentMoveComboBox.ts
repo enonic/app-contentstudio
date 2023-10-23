@@ -60,11 +60,17 @@ export class ContentMoveComboBox
             .build();
     }
 
-    setFilterContents(contents: ContentSummary[]) {
+    setFilterContents(contents: ContentSummary[]): void {
         const contentsPaths = contents.map((content) => content.getPath());
-        const allInRoot = contentsPaths.every((path) => path.isInContentRoot() && !path.hasParentContent());
-        this.readonlyChecker.setFilterContentIds(allInRoot ? [new ContentId(ContentMoveComboBox.ROOT_ID)] : []);
+
+        const isSameParent = contentsPaths.length < 2 || contentsPaths.every((path, index, paths) => {
+            const nextPath = paths[index + 1];
+            return nextPath == null || nextPath.getParentPath().equals(path.getParentPath());
+        });
+        const parentPaths = isSameParent ? [contentsPaths[0].getParentPath()] : [];
+
         this.readonlyChecker.setFilterContentPaths(contentsPaths);
+        this.readonlyChecker.setFilterExactPaths(parentPaths);
     }
 
     clearCombobox() {
@@ -80,9 +86,9 @@ export class ContentMoveComboBox
 
 class MoveReadOnlyChecker {
 
-    private filterContentIds: ContentId[] = [];
-
     private filterContentPaths: ContentPath[] = [];
+
+    private filterExactPaths: ContentPath[] = [];
 
     private filterContentTypes: ContentTypeName[] = [ContentTypeName.IMAGE, ContentTypeName.MEDIA, ContentTypeName.PAGE_TEMPLATE,
         ContentTypeName.FRAGMENT, ContentTypeName.MEDIA_DATA, ContentTypeName.MEDIA_AUDIO, ContentTypeName.MEDIA_ARCHIVE,
@@ -90,11 +96,7 @@ class MoveReadOnlyChecker {
         ContentTypeName.MEDIA_SPREADSHEET, ContentTypeName.MEDIA_UNKNOWN, ContentTypeName.MEDIA_DOCUMENT, ContentTypeName.MEDIA_VECTOR];
 
     isReadOnly(item: ContentSummary): boolean {
-        return this.matchesIds(item) || this.matchesPaths(item) || this.matchesType(item);
-    }
-
-    private matchesIds(item: ContentSummary): boolean {
-        return this.filterContentIds.some((id: ContentId) => item.getContentId().equals(id));
+        return this.matchesPaths(item) || this.matchesExactPaths(item) || this.matchesType(item);
     }
 
     private matchesPaths(item: ContentSummary): boolean {
@@ -102,6 +104,12 @@ class MoveReadOnlyChecker {
             if (item.getPath().equals(path) || item.getPath().isDescendantOf(path)) {
                 return true;
             }
+        });
+    }
+
+    private matchesExactPaths(item: ContentSummary): boolean {
+        return this.filterExactPaths.some((path: ContentPath) => {
+            return item.getPath().equals(path);
         });
     }
 
@@ -113,11 +121,11 @@ class MoveReadOnlyChecker {
         });
     }
 
-    setFilterContentIds(contentIds: ContentId[]) {
-        this.filterContentIds = contentIds;
-    }
-
     setFilterContentPaths(contentPaths: ContentPath[]) {
         this.filterContentPaths = contentPaths;
+    }
+
+    setFilterExactPaths(contentPaths: ContentPath[]) {
+        this.filterExactPaths = contentPaths;
     }
 }
