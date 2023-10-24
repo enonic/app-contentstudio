@@ -47,11 +47,11 @@ Another example, is that you can move a content to a different location in the t
 
 == Localising inherited content
 
-In the Content grid localised content will be greyed out, providing visual difference from a local content manually created directly in this layer.
+In the Content Navigator localised content will be greyed out, providing visual difference from a local content manually created directly in this layer.
 
 image::layer-localisation.png[Layer localisation, 457]
 
-To localise (translate) an inherited content item, select it in the content tree and click *Localise* button in the Content grid toolbar
+To localise (translate) an inherited content item, select it in the content tree and click *Localise* button in the Content Navigator toolbar
 
 image::layer-localisation-1.png[Content localisation, 457]
 

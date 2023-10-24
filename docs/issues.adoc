@@ -37,14 +37,14 @@ To create a new task, click "Create Task..." button in the Content Studio toolba
 
 image::create-task-1.png[Create Task, 372]
 
-If some content items are selected in the Content grid, you can expand the toolbar menu and select either "Create Task..." or "Request Publishing...".
+If some content items are selected in the Content Navigator, you can expand the toolbar menu and select either "Create Task..." or "Request Publishing...".
 In this case selected items will be automatically added to a new issue you are about to create.
 
 image::create-task-2.png[Create Task, 372]
 
 You can assign multiple users to work on an issue, using the *Assignees* selector, but you can't assign yourself.
 
-To add specific content to an issue, click on the `Add items` button. The *Items* selector will appear. 
+To add specific content to an issue, click on the `Add items` button. The *Items* selector will appear.
 
 image::dialog-issue-1.png[New task, 708]
 
@@ -86,6 +86,6 @@ image::dialog-issue-edit-2.png[Issue content, 700]
 
 ==== Assignees
 
-On the third tab, assignees can be added and removed from this issue. The number next to the tab title shows the total number of assignees. 
+On the third tab, assignees can be added and removed from this issue. The number next to the tab title shows the total number of assignees.
 
 image::dialog-issue-edit-3.png[Issue assignees, 700]
