@@ -16,6 +16,10 @@
       "label": "stable",
       "checkout": "5.0",
       "latest": true
-    }      
+    },
+    {
+      "label": "next",
+      "checkout": "5.1"
+    }
   ]
 }
