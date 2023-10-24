@@ -23,6 +23,6 @@ image::variants-dialog.png[New variant dialog, 400px]
 After a new variant is created, it will be placed under the original item in the Navigator grid and displayed in the "Variants" widget under
 the original item. Each variant has a context menu with "*Edit*" and "*Duplicate*" options.
 
-image::variants-grid.png[Variants in Content Grid, 400px]
+image::variants-grid.png[Variants in Content Navigator, 400px]
 image::variants-widget.png[Variants widget, 400px]
 

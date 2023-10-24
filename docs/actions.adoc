@@ -96,25 +96,30 @@ In the dialog, you can choose whether child items of selected content(s) should 
 
 image::dialog-duplicate.png[]
 
-=== Duplicating from the wizard
-
-When the `Duplicate` button is clicked from inside the Content Wizard, only the current item will be selected in the dialog.
+NOTE: When the `Duplicate` button is clicked from inside the Content Wizard, only the current item will be selected in the dialog.
 
 
 == Move
 
 The `Move` action will launch the *Move item(s) with children* dialog for the selected content.
 
-There are two ways to open this dialog in Content Studio:
+There are several ways to move content inside Content Studio:
 
-* By clicking the `Move` button in the toolbar;
-* By clicking `Move` in the context menu, which is accessible by right-clicking an item.
+* By selecting one or several content items in the Content Navigator and clicking the `Move` button in the toolbar;
+* By selecting `Move` in the context menu, which is accessible by right-clicking an item in the Content Navigator;
+* By clicking the "Move" button in the toolbar of the Content Wizard (only the current item will be moved then).
 
-This feature moves selected items with all children and current permissions to another place in the tree grid. Type to search, or use the dropdown arrow, to find the new parent content where the selected items will be moved to. If the `Move` button in the dialog is clicked without choosing a parent content then the items will be moved to the *root* of the content tree.
+This action moves the selected item(s) with all children and current permissions to a different location in the content hierarchy. Type inside the modal dialog's input to search for a new parent content, or use the dropdown arrow to find a new parent content where the selected item(s) will be moved under.
 
-Content cannot be moved to a location where another content already exists with the same path name.
+TIP: There's a special item at the top of the dropdown's list called "Project root". Select it if you want to move the selected item(s) to the root of the content project.
 
-image::dialog-move.png[]
+image::dialog-move.png[Move dialog, 50%]
+
+NOTE: Current parent of the selected item and the item itself will be disabled inside the Mode dialog's dropdown.
+
+Once the items are moved a notification will pop up at the bottom of the page. If the items were moved from the Content Navigator, this notification will contain the new parent's path which can be clicked to locate and expand the new parent item in the Content Navigator to help the user quickly find the moved item(s) in their new location.
+
+image::notification-move.png[Move notification, 75%]
 
 == Sort
 
@@ -162,9 +167,9 @@ There are three ways to open the *Publishing Wizard* dialog in Content Studio:
 
 * Via keyboard shortcut — `⌘ + alt + p` (`ctrl + alt + p` for Windows)
 * By using the `Publish` button in the toolbar
-* By right-clicking an item in the Content grid and selecting `Publish` from the context menu
+* By right-clicking an item in the Content Navigator and selecting `Publish` from the context menu
 
-image::dialog-publish-button.png[]
+image::dialog-publish-button.png[Publish button, 50%]
 
 The Publish button in the toolbar has a dropdown menu with various actions for currently selected item(s).
 
@@ -220,16 +225,18 @@ Optional dependencies & child items can be excluded from the publishing batch us
 
 TIP: If you want to add back dependent items excluded by mistake, click *Show excluded* link above the list and all excluded items will reappear in the list. Select the items you want to put back, and click "Apply".
 
-image::dialog-publish-excluded.png[Excluded dependencies, 470px]
+image::dialog-publish-excluded.png[Excluded dependencies, 75%]
 
-TIP: It's possible to overrule the default behaviour of including all the dependencies by using the Content Studio's <<config#exclude_optional_dependencies, config file>>.
-In this case only mandatory dependencies will be included, while optional can be added from the "Show excluded" mode.
+TIP: It's possible to overrule the default behaviour of automatic inclusion of all the dependencies by using the Content Studio's <<config#exclude_optional_dependencies, config file>>.
+In this special mode only the mandatory dependencies will be auto-included, the optional ones will be auto-excluded and can be included manually.
+
+image::dialog-publish-auto-excluded.png[Auto-excluded dependencies, 75%]
 
 === Validation
 
 Content Studio has a built-in validation which ensures that items to be published are valid, ready for publishing and are allowed to be published by current user.
 
-image::dialog-publish-invalid.png[Invalid publication, 470px]
+image::dialog-publish-invalid.png[Invalid publication, 75%]
 
 If the list of items to be published contains invalid items or items that are still in the "In progress" workflow state or items that current user is not allowed to publish, the warning section will be shown on top of the dialog, displaying all failed validation checks. The "Publish" button will then be disabled and "problematic" items will be shown on top of the list.
 
@@ -239,7 +246,7 @@ NOTE: Some items might be required for publication and cannot be excluded (like 
 
 If all the checks have successfully passed, the "Publish" button will be enabled and the warning section will say that everything is ready for publishing.
 
-image::dialog-publish-valid.png[Valid publication, 470px]
+image::dialog-publish-valid.png[Valid publication, 75%]
 
 TIP: Use "Mark as ready" link up in the status bar to mark all in-progress items as ready for publishing.
 
