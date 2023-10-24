@@ -39,7 +39,7 @@
     "@types/hasher": "0.0.34",
     "@types/jquery": "^3.5.25",
     "@types/jqueryui": "^1.12.19",
-    "@types/q": "^1.5.6",
+    "@types/q": "^1.5.7",
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "^6.9.0",
     "@typescript-eslint/utils": "^6.9.0",
