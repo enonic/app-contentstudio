@@ -1,7 +1,65 @@
 = Release Notes
+
 :toc: right
 
 TIP: Release Notes for Content Studio 4.x can be found https://developer.enonic.com/docs/content-studio/4.x/release[here]
+
+== Content Studio 5 Update 1
+
+IMPORTANT: Content Studio 5.1 requires XP 7.13.0 or higher.
+
+=== Improved move operation
+
+* Move Content dialog: New "Project root" node on top of the content tree to make it more obvious how to move content to the root. Previously one had to click "Move" button with no target content selected.
+* Move Content dialog: "Move" button is disabled until new parent node is selected.
+* It's now possible to move content from inside the Content Editor
+* Notification about successful move includes the new parent's path which can be clicked to locate and expand the new parent inside the Content Navigator.
+
+:imagesdir: actions/images
+
+image::dialog-move.png[Move dialog, 75%]
+
+image::notification-move.png[Move notification, 75%]
+
+=== Improved auto-exclusion of optional dependencies
+
+The new mode for auto-exclusion of optional dependencies in the Publishing Wizard, originally introduced in Content Studio 5.0, has been improved to not hide the auto-excluded dependencies but  keep them visible (while still excluded) in the list.
+
+image::dialog-publish-auto-excluded.png[Auto-excluded dependencies, 75%]
+
+TIP: This mode can be turned on in Content Studio's <<config#exclude_optional_dependencies,config file>>
+
+=== Export of search results
+
+Search results produced by Content Navigator's <<navigator#search_panel,Search Panel>> can now be exported into a CSV file using the download icon next to the Search Panel's free-text search field. The file will contain the following fields: *Id*, *Path*, *Creator*, *Modifier*, *Created*, *Modified*, *Owner*, *Content Type*, *Display Name*, *Language*, *Published From*, *Published Until*, *First Published*.
+
+:imagesdir: release/images
+
+image::cs51-search-export.png[Search export, 25%]
+
+=== New Find/Replace dialog in Rich Text Editor
+
+The old <<editor/rich-text-editor#findreplace,Find/Replace dialog>> in the Rich Text Editor that used to cover the text it was searching inside has been replaced with the new inline dialog that allows editor to use the search/replace functions without blocking the source text.
+
+:imagesdir: editor/images
+
+image::rich-text-editor-find-replace.png[470, Insert Link dialog]
+
+=== Locked path for published content
+
+Previously, editor had to click the "lock" icon next to the locked path input inside the Content Editor, in order to rename a published content. That icon is now removed and the path itself has to be clicked to open the Rename content dialog.
+
+=== Other improvements
+
+* Improved responsiveness in the Content Navigator
+
+* Improved synchronisation between the Content Form's <<editor/content-form#page_components_tree,Page Components tree>> and components inside the <<editor/page-editor#,Page Editor>>
+
+* When a published item has been first moved, then modified its status will be shown as `Moved, Modified` (previously just `Moved`)
+
+* "Show changes" link for comparison of publishing modifications is replaced with an icon
+
+* New icon for switching the project context
 
 == Content Studio 5
 
@@ -18,7 +76,7 @@ upgrading to Content Studio 5), enable it via Content Studio's <<config#enable_d
 === Page Components View
 
 Page Components View, which used to be a floating modal window inside Page Editor, is now made a part
-of the <<editor/content-form#page_components_tree,Content Wizard form>>. It will be automatically undocked whenever the Content Form is collapsed.
+of the <<editor/content-form#page_components_tree,Content Editor form>>. It will be automatically undocked whenever the Content Form is collapsed.
 
 :imagesdir: editor/images
 

@@ -9,7 +9,7 @@ NOTE: Press F2 to reveal all available shortcuts for a view.
 == Browse View
 
 |===
-|Content grid ^|Mac OS X ^|Windows / Linux
+|Content Navigator ^|Mac OS X ^|Windows / Linux
 
 |New content
 2+^|`Alt + N`
@@ -164,6 +164,10 @@ NOTE: Press F2 to reveal all available shortcuts for a view.
 |Find
 ^|`⌘ + F`
 ^|`Ctrl + F`
+
+|Replace
+^|`⌘ + R`
+^|`Ctrl + R`
 
 |Focus to toolbar
 2+^|`Alt + F10`

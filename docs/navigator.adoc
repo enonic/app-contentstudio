@@ -2,7 +2,7 @@
 :toc: right
 :imagesdir: navigator/images
 
-The navigator is the default page of *Content Studio*. 
+The navigator is the default page of *Content Studio*.
 It consists of an action toolbar on top, followed by up to four panels that can be open at once depending on the size of your screen. From the left: Search panel, Content tree grid, Preview panel and finally <<widgets#,the Widget panel>> providing additional info or functionality related to the selected item.
 
 image::navigator.png[Content Navigator, 1951]
@@ -65,7 +65,7 @@ Right-click on a content item will expand its context menu.
 
 == Search Panel
 
-The search panel can be toggled with the `magnifying glass` icon at the far left of the menu bar. When opened, it has a text search field and categories to filter Content Grid by the following content properties:
+The search panel can be toggled with the `magnifying glass` icon at the far left of the menu bar. When opened, it has a text search field and categories to filter Content Navigator by the following content properties:
 
  * Free-text search (by content Id, display name and path)
  * <<content-types#,Content Types>>
@@ -75,7 +75,9 @@ The search panel can be toggled with the `magnifying glass` icon at the far left
  * Owner
  * Language
 
-image::navigator-search.png[Search and filtering, 1094w]
+image::navigator-search.png[Search and filtering, 75%]
+
+TIP: Search results can at any time (except for when there are no hits) be exported to a CSV file using the download icon underneath the free-text search field. The file will contain basic meta fields (id, display-name, path etc.), not custom input fields from the content type schema.
 
 Search results are instantly updated in the tree grid as search parameters are changed. Children of matching content items will also be displayed in the tree grid but won’t be visible unless the parent node is expanded.
 
@@ -83,13 +85,13 @@ The number of hits will appear below the search field, along with a `Clear` butt
 
 Each content type that has at least one matching content will appear in the <<content-types#,Content Types>> filter list with the number of matches in parenthesis `()`. Checking the box next to a content type will hide the results that do not match that type. Multiple content types can be selected. By default, only the 5 most popular content types will be shown, followed by "Show more" link to expand the entire list.
 
-image::navigator-search-expanded.png[Full content type list, 1080w]
+image::navigator-search-expanded.png[Full content type list, 75%]
 
 The *Last Modified* list works in a similar manner. It is used to limit results to content that has been modified in the last month, week, day or hour. This list may not appear if other search parameters have limited results to content that was modified more than a month ago.
 
 Filter aggregations for *Last modified by* and *Owner* are dropdowns with the list of users who last modified content or are content owners. To simplify search for the current user, there's *Me* checkbox in both aggregations which serves as an alias for the current user. Selected users will be displayed as checkboxes above the dropdown.
 
-image::navigator-search-modifier-expanded.png[Listing all modifiers, 1089w]
+image::navigator-search-modifier-expanded.png[Listing all modifiers, 75%]
 
 TIP: Search results remain in the tree grid when the search panel is collapsed. Don’t forget to clear the search when you are done with your search.
 

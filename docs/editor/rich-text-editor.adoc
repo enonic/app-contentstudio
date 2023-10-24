@@ -35,6 +35,14 @@ TIP: Right-click the list to change styling of its bullets or numbers.
 
 The next buttons will decrease and increase indent for the selected text. These buttons will also increase or decrease the level of a list item.
 
+=== Find/Replace
+
+This dialog can be used to find (and replace) words and phrases inside the Rich Editor. The dialog has toggle buttons for making search case-sensitive (`Aa`) and forcing search for full words (`W`). Use up/down arrows to find next/previous entry and use `Replace`/`Replace all` buttons to replace the found entries with provided replacement string.
+
+TIP: This dialog can also be opened using the `Ctrl`/`Cmd`+`F` keyboard shortcut.
+
+image::rich-text-editor-find-replace.png[Insert Link dialog, 75%]
+
 === Special character
 
 This button opens a menu with special characters. Selecting one will insert it at the cursor’s location.
@@ -59,9 +67,9 @@ This button opens the Insert Macro dialog, which contains a selector for choosin
 
 This button opens the Insert Link dialog. You can select existing text in the HTML Area before opening the dialog or write it directly inside the dialog. You can link to a content item, external URL, relative URL on the same site, trigger media download or create a mailto link. A double click on a link inside the Editor will open the modal dialog for editing properties of the link.
 
-image::rich-text-editor-link-dialog-1.png[470, Insert Link dialog]
-image::rich-text-editor-link-dialog-2.png[470, Insert Link dialog]
-image::rich-text-editor-link-dialog-3.png[470, Insert Link dialog]
+image::rich-text-editor-link-dialog-1.png[Insert Link dialog, 75%]
+image::rich-text-editor-link-dialog-2.png[Insert Link dialog, 75%]
+image::rich-text-editor-link-dialog-3.png[Insert Link dialog, 75%]
 
 === Unlink
 
@@ -94,4 +102,4 @@ Custom Image Styles can be defined in your application as https://developer.enon
 
 Custom styles from all the applications added to the site (plus the "_Original_" style) will be combined into one list inside the dropdown of the Image modal dialog.
 
-image::rich-text-editor-image-style.png[]
+image::rich-text-editor-image-style.png[Insert Image dialog, 75%]
