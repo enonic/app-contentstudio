@@ -177,6 +177,29 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "the child folder should be with 'Published' status");
         });
 
+    // Verify https://github.com/enonic/app-contentstudio/issues/6997
+    //  Dependencies section is displayed in the Publishing Wizard when all dependencies are published
+    it("GIVEN published shortcut has been modified WHEN 'Mark as ready' button has been pressed THEN 'Hide/Show Excluded' button should not be visible",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let shortcutForm = new ShortcutForm();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Open the existing shortcut:
+            await studioUtils.selectAndOpenContentInWizard(SHORTCUT_NAME_2);
+            // 2. Modify the shortcut - add a parameter:
+            await shortcutForm.clickOnAddParametersButton();
+            await shortcutForm.typeParameterName('par1');
+            await shortcutForm.typeParameterValue('value1');
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            // 3. Click on 'Mark as ready' button, open Publish Wizard:
+            await contentWizard.clickOnMarkAsReadyButton();
+            await contentPublishDialog.waitForDialogOpened();
+            await studioUtils.saveScreenshot('shortcut_publish_wizard_issue_6997');
+            // 4. Verify that Show/Hide excluded buttons are not displayed:
+            await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
+            await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
+        });
 
     it("Post condition - test project should be deleted",
         async () => {
