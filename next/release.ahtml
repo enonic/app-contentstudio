@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Content Studio 5 Update 1</title>
+<title>Release Notes</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,12 +436,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
+<h1>Release Notes</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#content_studio_5_update_1">Content Studio 5 Update 1</a>
 <ul class="sectlevel2">
-<li><a href="#improvements_of_content_move_operation">Improvements of content move operation</a></li>
+<li><a href="#improved_move_operation">Improved move operation</a></li>
 <li><a href="#improved_auto_exclusion_of_optional_dependencies">Improved auto-exclusion of optional dependencies</a></li>
 <li><a href="#export_of_search_results">Export of search results</a></li>
 <li><a href="#new_findreplace_dialog_in_rich_text_editor">New Find/Replace dialog in Rich Text Editor</a></li>
@@ -462,10 +463,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div id="content">
-<div class="paragraph">
-<p><code>= Release Notes</code>
-:toc: right</p>
-</div>
+<div id="preamble">
+<div class="sectionbody">
 <div class="admonitionblock tip">
 <table>
 <tr>
@@ -478,6 +477,8 @@ Release Notes for Content Studio 4.x can be found <a href="https://developer.eno
 </tr>
 </table>
 </div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="content_studio_5_update_1"><a class="link" href="#content_studio_5_update_1">Content Studio 5 Update 1</a></h2>
 <div class="sectionbody">
@@ -488,13 +489,13 @@ Release Notes for Content Studio 4.x can be found <a href="https://developer.eno
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-Content Studio 5.0 requires XP 7.13.0 or higher.
+Content Studio 5.1 requires XP 7.13.0 or higher.
 </td>
 </tr>
 </table>
 </div>
 <div class="sect2">
-<h3 id="improvements_of_content_move_operation"><a class="link" href="#improvements_of_content_move_operation">Improvements of content move operation</a></h3>
+<h3 id="improved_move_operation"><a class="link" href="#improved_move_operation">Improved move operation</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -548,18 +549,18 @@ This mode can be turned on in Content Studio&#8217;s <a href="config.ahtml#exclu
 <div class="sect2">
 <h3 id="export_of_search_results"><a class="link" href="#export_of_search_results">Export of search results</a></h3>
 <div class="paragraph">
-<p>Search results produced by Content Navigator&#8217;s <a href="content_navigator.ahtml#search_panel">Search Panel</a> can now be exported into a CSV file using the download icon next to the Search Panel&#8217;s free-text search field. The file will contain the following fields: <strong>Id</strong>, <strong>Path</strong>, <strong>Creator</strong>, <strong>Modifier</strong>, <strong>Created</strong>, <strong>Modified</strong>, <strong>Owner</strong>, <strong>Content Type</strong>, <strong>Display Name</strong>, <strong>Language</strong>, <strong>Published From</strong>, <strong>Published Until</strong>, <strong>First Published</strong>.</p>
+<p>Search results produced by Content Navigator&#8217;s <a href="navigator.ahtml#search_panel">Search Panel</a> can now be exported into a CSV file using the download icon next to the Search Panel&#8217;s free-text search field. The file will contain the following fields: <strong>Id</strong>, <strong>Path</strong>, <strong>Creator</strong>, <strong>Modifier</strong>, <strong>Created</strong>, <strong>Modified</strong>, <strong>Owner</strong>, <strong>Content Type</strong>, <strong>Display Name</strong>, <strong>Language</strong>, <strong>Published From</strong>, <strong>Published Until</strong>, <strong>First Published</strong>.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="release/images/cs51-search-export.png" alt="Search export" width="75%">
+<img src="release/images/cs51-search-export.png" alt="Search export" width="25%">
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="new_findreplace_dialog_in_rich_text_editor"><a class="link" href="#new_findreplace_dialog_in_rich_text_editor">New Find/Replace dialog in Rich Text Editor</a></h3>
 <div class="paragraph">
-<p>The old <a href="editor/rich-text-editor.ahtml#findreplace_dialog">Find/Replace dialog</a> in the Rich Text Editor that used to cover the text it was searching inside has been replaced with the new inline dialog that allows editor to use the search/replace functions without blocking the source text.</p>
+<p>The old <a href="editor/rich-text-editor.ahtml#findreplace">Find/Replace dialog</a> in the Rich Text Editor that used to cover the text it was searching inside has been replaced with the new inline dialog that allows editor to use the search/replace functions without blocking the source text.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -570,7 +571,7 @@ This mode can be turned on in Content Studio&#8217;s <a href="config.ahtml#exclu
 <div class="sect2">
 <h3 id="locked_path_for_published_content"><a class="link" href="#locked_path_for_published_content">Locked path for published content</a></h3>
 <div class="paragraph">
-<p>Previously, editor had to click the "lock" icon next to locked path input inside the Content Editor, in order to rename a published content. That icon is now removed and the path itself has to be clicked to open the Rename content dialog.</p>
+<p>Previously, editor had to click the "lock" icon next to the locked path input inside the Content Editor, in order to rename a published content. That icon is now removed and the path itself has to be clicked to open the Rename content dialog.</p>
 </div>
 </div>
 <div class="sect2">
@@ -586,10 +587,13 @@ This mode can be turned on in Content Studio&#8217;s <a href="config.ahtml#exclu
 <li>
 <p>When a published item has been first moved, then modified its status will be shown as <code>Moved, Modified</code> (previously just <code>Moved</code>)</p>
 </li>
+<li>
+<p>"Show changes" link for comparison of publishing modifications is replaced with an icon</p>
+</li>
+<li>
+<p>New icon for switching the project context</p>
+</li>
 </ul>
-</div>
-<div class="paragraph">
-<p>editor/content-form#page_components_tree</p>
 </div>
 </div>
 </div>
@@ -674,7 +678,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-25 08:00:24 UTC
+Last updated 2023-10-25 08:14:48 UTC
 </div>
 </div>
 </body>
