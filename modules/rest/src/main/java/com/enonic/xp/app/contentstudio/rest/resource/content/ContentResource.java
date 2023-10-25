@@ -749,17 +749,25 @@ public final class ContentResource
 
     private ContentIds getOutboundDependenciesIds( final ContentIds contentIds )
     {
+        final Predicate<Content> contentPublishableCondition = content -> content.getPublishInfo() == null ||
+            ( content.getPublishInfo().getFrom() == null && content.getPublishInfo().getTo() == null );
+
         final ContentIds allOutboundIds = ContentIds.from( contentIds.stream().map( id -> {
-                try
-                {
-                    return this.contentService.getOutboundDependencies( id );
-                }
-                catch ( ContentNotFoundException e )
-                {
-                    return ContentIds.empty();
-                }
-            } ).flatMap( ContentIds::stream ).filter( id -> !contentIds.contains( ContentId.from( id ) ) ).collect( Collectors.toList() ) );
-        return this.contentService.getByIds( new GetContentByIdsParams( allOutboundIds ) ).getIds();
+            try
+            {
+                return this.contentService.getOutboundDependencies( id );
+            }
+            catch ( ContentNotFoundException e )
+            {
+                return ContentIds.empty();
+            }
+        } ).flatMap( ContentIds::stream ).filter( id -> !contentIds.contains( ContentId.from( id ) ) ).collect( Collectors.toList() ) );
+
+        return ContentIds.from( this.contentService.getByIds( new GetContentByIdsParams( allOutboundIds ) )
+                                    .stream()
+                                    .filter( contentPublishableCondition )
+                                    .map( Content::getId )
+                                    .collect( Collectors.toList() ) );
     }
 
     private ContentIds sortContentIds( final ContentIds contentIds, final String field )
