@@ -141,8 +141,9 @@ class BrowseFilterPanel extends Page {
         await this.clickOnElement(this.exportButton);
     }
 
-    waitForOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+    async waitForOpened() {
+        await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+        await this.pause(300);
     }
 
     waitForShowResultsButtonDisplayed() {
