@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'jacoco'
 apply plugin: 'maven-publish'
 apply plugin: 'com.enonic.defaults'
 apply plugin: 'com.enonic.xp.app'
@@ -56,6 +57,12 @@ afterEvaluate {
     copyDevResources.dependsOn ':lib-contentstudio:devJar'
 }
 
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
 
 tasks.register( 'lint', NpmTask ) {
     dependsOn npmInstall
@@ -64,6 +71,7 @@ tasks.register( 'lint', NpmTask ) {
     outputs.upToDateWhen { false }
 }
 
+check.dependsOn jacocoTestReport
 check.dependsOn lint
 
 tasks.register( 'webpack', NpmTask ) {
@@ -96,3 +104,4 @@ jar {
     dependsOn += webpack
 }
 
+jar.dependsOn jacocoTestReport
