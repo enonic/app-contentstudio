@@ -545,6 +545,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>A page template is special content that enable other content to be rendered as pages. Page template must support one or more content types. When a request endpoint matches a content path, the content’s supporting template will be used to render it. The Page Editor is used to build page templates by placing the desired components into regions on the page in the desired locations.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Page Templates cannot be used for Shortcuts. A shortcut will redirect to the target content even if there is a matching page template.
+</td>
+</tr>
+</table>
+</div>
 <div class="sect3">
 <h4 id="page_components"><a class="link" href="#page_components">Page components</a></h4>
 <div class="paragraph">
@@ -784,7 +796,7 @@ with some static text.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-26 13:50:20 UTC
+Last updated 2023-10-26 13:52:14 UTC
 </div>
 </div>
 </body>

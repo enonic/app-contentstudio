@@ -536,7 +536,7 @@ inherits content changes from its parent project <strong>A</strong>, until it&#8
 <h2 id="localising_inherited_content"><a class="link" href="#localising_inherited_content">Localising inherited content</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In the Content grid localised content will be greyed out, providing visual difference from a local content manually created directly in this layer.</p>
+<p>In the Content Navigator localised content will be greyed out, providing visual difference from a local content manually created directly in this layer.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -544,7 +544,7 @@ inherits content changes from its parent project <strong>A</strong>, until it&#8
 </div>
 </div>
 <div class="paragraph">
-<p>To localise (translate) an inherited content item, select it in the content tree and click <strong>Localise</strong> button in the Content grid toolbar</p>
+<p>To localise (translate) an inherited content item, select it in the content tree and click <strong>Localise</strong> button in the Content Navigator toolbar</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -726,7 +726,7 @@ Read about the high-level concept of Content Layers <a href="https://developer.e
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-26 13:50:20 UTC
+Last updated 2023-10-26 13:52:14 UTC
 </div>
 </div>
 </body>

@@ -477,7 +477,7 @@ Press F2 to reveal all available shortcuts for a view.
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Content grid</th>
+<th class="tableblock halign-left valign-top">Content Navigator</th>
 <th class="tableblock halign-center valign-top">Mac OS X</th>
 <th class="tableblock halign-center valign-top">Windows / Linux</th>
 </tr>
@@ -701,6 +701,11 @@ Press F2 to reveal all available shortcuts for a view.
 <td class="tableblock halign-center valign-top"><p class="tableblock"><code>Ctrl + F</code></p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Replace</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>⌘ + R</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>Ctrl + R</code></p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Focus to toolbar</p></td>
 <td class="tableblock halign-center valign-top" colspan="2"><p class="tableblock"><code>Alt + F10</code></p></td>
 </tr>
@@ -719,7 +724,7 @@ Press F2 to reveal all available shortcuts for a view.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-26 13:50:20 UTC
+Last updated 2023-10-26 13:52:14 UTC
 </div>
 </div>
 </body>

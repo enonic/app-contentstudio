@@ -525,7 +525,7 @@ only Publish Requests or only task. By default, if you have any active issues as
 </div>
 </div>
 <div class="paragraph">
-<p>If some content items are selected in the Content grid, you can expand the toolbar menu and select either "Create Task&#8230;&#8203;" or "Request Publishing&#8230;&#8203;".
+<p>If some content items are selected in the Content Navigator, you can expand the toolbar menu and select either "Create Task&#8230;&#8203;" or "Request Publishing&#8230;&#8203;".
 In this case selected items will be automatically added to a new issue you are about to create.</p>
 </div>
 <div class="imageblock">
@@ -625,7 +625,7 @@ For a <em>Publish Request</em> you can publish items or schedule publish directl
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-26 13:50:20 UTC
+Last updated 2023-10-26 13:52:14 UTC
 </div>
 </div>
 </body>

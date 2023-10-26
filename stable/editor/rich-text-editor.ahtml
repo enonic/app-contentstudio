@@ -447,6 +447,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#alignment">Alignment</a></li>
 <li><a href="#lists">Lists</a></li>
 <li><a href="#indent">Indent</a></li>
+<li><a href="#findreplace">Find/Replace</a></li>
 <li><a href="#special_character">Special character</a></li>
 <li><a href="#anchor">Anchor</a></li>
 <li><a href="#insertedit_image">Insert/Edit image</a></li>
@@ -528,6 +529,29 @@ Right-click the list to change styling of its bullets or numbers.
 </div>
 </div>
 <div class="sect2">
+<h3 id="findreplace"><a class="link" href="#findreplace">Find/Replace</a></h3>
+<div class="paragraph">
+<p>This dialog can be used to find (and replace) words and phrases inside the Rich Editor. The dialog has toggle buttons for making search case-sensitive (<code>Aa</code>) and forcing search for full words (<code>W</code>). Use up/down arrows to find next/previous entry and use <code>Replace</code>/<code>Replace all</code> buttons to replace the found entries with provided replacement string.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+This dialog can also be opened using the <code>Ctrl</code>/<code>Cmd</code>+<code>F</code> keyboard shortcut.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/rich-text-editor-find-replace.png" alt="Insert Link dialog" width="75%">
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="special_character"><a class="link" href="#special_character">Special character</a></h3>
 <div class="paragraph">
 <p>This button opens a menu with special characters. Selecting one will insert it at the cursor’s location.</p>
@@ -562,17 +586,17 @@ A caption and alt text can be entered at the bottom of the modal dialog. A doubl
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/rich-text-editor-link-dialog-1.png" alt="470" width="Insert Link dialog">
+<img src="images/rich-text-editor-link-dialog-1.png" alt="Insert Link dialog" width="75%">
 </div>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/rich-text-editor-link-dialog-2.png" alt="470" width="Insert Link dialog">
+<img src="images/rich-text-editor-link-dialog-2.png" alt="Insert Link dialog" width="75%">
 </div>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/rich-text-editor-link-dialog-3.png" alt="470" width="Insert Link dialog">
+<img src="images/rich-text-editor-link-dialog-3.png" alt="Insert Link dialog" width="75%">
 </div>
 </div>
 </div>
@@ -624,7 +648,7 @@ that the image won&#8217;t undergo any processing on the server and will be rend
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/rich-text-editor-image-style.png" alt="rich text editor image style">
+<img src="images/rich-text-editor-image-style.png" alt="Insert Image dialog" width="75%">
 </div>
 </div>
 </div>
@@ -632,7 +656,7 @@ that the image won&#8217;t undergo any processing on the server and will be rend
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-26 13:50:20 UTC
+Last updated 2023-10-26 13:52:14 UTC
 </div>
 </div>
 </body>

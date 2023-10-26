@@ -583,7 +583,7 @@ dialog with selected content and all descendants</p>
 <h2 id="search_panel"><a class="link" href="#search_panel">Search Panel</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The search panel can be toggled with the <code>magnifying glass</code> icon at the far left of the menu bar. When opened, it has a text search field and categories to filter Content Grid by the following content properties:</p>
+<p>The search panel can be toggled with the <code>magnifying glass</code> icon at the far left of the menu bar. When opened, it has a text search field and categories to filter Content Navigator by the following content properties:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -612,8 +612,20 @@ dialog with selected content and all descendants</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="navigator/images/navigator-search.png" alt="Search and filtering" width="1094w">
+<img src="navigator/images/navigator-search.png" alt="Search and filtering" width="75%">
 </div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Search results can at any time (except for when there are no hits) be exported to a CSV file using the download icon underneath the free-text search field. The file will contain basic meta fields (id, display-name, path etc.), not custom input fields from the content type schema.
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>Search results are instantly updated in the tree grid as search parameters are changed. Children of matching content items will also be displayed in the tree grid but won’t be visible unless the parent node is expanded.</p>
@@ -626,7 +638,7 @@ dialog with selected content and all descendants</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="navigator/images/navigator-search-expanded.png" alt="Full content type list" width="1080w">
+<img src="navigator/images/navigator-search-expanded.png" alt="Full content type list" width="75%">
 </div>
 </div>
 <div class="paragraph">
@@ -637,7 +649,7 @@ dialog with selected content and all descendants</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="navigator/images/navigator-search-modifier-expanded.png" alt="Listing all modifiers" width="1089w">
+<img src="navigator/images/navigator-search-modifier-expanded.png" alt="Listing all modifiers" width="75%">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -696,7 +708,7 @@ Only the <strong>Draft</strong> version of content is visible in the preview pan
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-26 13:50:20 UTC
+Last updated 2023-10-26 13:52:14 UTC
 </div>
 </div>
 </body>

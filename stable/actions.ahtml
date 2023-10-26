@@ -448,11 +448,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#edit">Edit</a></li>
 <li><a href="#archive">Archive</a></li>
-<li><a href="#duplicate">Duplicate</a>
-<ul class="sectlevel2">
-<li><a href="#duplicating_from_the_wizard">Duplicating from the wizard</a></li>
-</ul>
-</li>
+<li><a href="#duplicate">Duplicate</a></li>
 <li><a href="#move">Move</a></li>
 <li><a href="#sort">Sort</a></li>
 <li><a href="#preview">Preview</a></li>
@@ -712,11 +708,17 @@ Online content will instantly go offline after archiving or deleting.
 <img src="actions/images/dialog-duplicate.png" alt="dialog duplicate">
 </div>
 </div>
-<div class="sect2">
-<h3 id="duplicating_from_the_wizard"><a class="link" href="#duplicating_from_the_wizard">Duplicating from the wizard</a></h3>
-<div class="paragraph">
-<p>When the <code>Duplicate</code> button is clicked from inside the Content Wizard, only the current item will be selected in the dialog.</p>
-</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+When the <code>Duplicate</code> button is clicked from inside the Content Wizard, only the current item will be selected in the dialog.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -727,27 +729,59 @@ Online content will instantly go offline after archiving or deleting.
 <p>The <code>Move</code> action will launch the <strong>Move item(s) with children</strong> dialog for the selected content.</p>
 </div>
 <div class="paragraph">
-<p>There are two ways to open this dialog in Content Studio:</p>
+<p>There are several ways to move content inside Content Studio:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>By clicking the <code>Move</code> button in the toolbar;</p>
+<p>By selecting one or several content items in the Content Navigator and clicking the <code>Move</code> button in the toolbar;</p>
 </li>
 <li>
-<p>By clicking <code>Move</code> in the context menu, which is accessible by right-clicking an item.</p>
+<p>By selecting <code>Move</code> in the context menu, which is accessible by right-clicking an item in the Content Navigator;</p>
+</li>
+<li>
+<p>By clicking the "Move" button in the toolbar of the Content Wizard (only the current item will be moved then).</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>This feature moves selected items with all children and current permissions to another place in the tree grid. Type to search, or use the dropdown arrow, to find the new parent content where the selected items will be moved to. If the <code>Move</code> button in the dialog is clicked without choosing a parent content then the items will be moved to the <strong>root</strong> of the content tree.</p>
+<p>This action moves the selected item(s) with all children and current permissions to a different location in the content hierarchy. Type inside the modal dialog&#8217;s input to search for a new parent content, or use the dropdown arrow to find a new parent content where the selected item(s) will be moved under.</p>
 </div>
-<div class="paragraph">
-<p>Content cannot be moved to a location where another content already exists with the same path name.</p>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+There&#8217;s a special item at the top of the dropdown&#8217;s list called "Project root". Select it if you want to move the selected item(s) to the root of the content project.
+</td>
+</tr>
+</table>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-move.png" alt="dialog move">
+<img src="actions/images/dialog-move.png" alt="Move dialog" width="50%">
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Current parent of the selected item and the item itself will be disabled inside the Mode dialog&#8217;s dropdown.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Once the items are moved a notification will pop up at the bottom of the page. If the items were moved from the Content Navigator, this notification will contain the new parent&#8217;s path which can be clicked to locate and expand the new parent item in the Content Navigator to help the user quickly find the moved item(s) in their new location.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="actions/images/notification-move.png" alt="Move notification" width="75%">
 </div>
 </div>
 </div>
@@ -843,13 +877,13 @@ Online content will instantly go offline after archiving or deleting.
 <p>By using the <code>Publish</code> button in the toolbar</p>
 </li>
 <li>
-<p>By right-clicking an item in the Content grid and selecting <code>Publish</code> from the context menu</p>
+<p>By right-clicking an item in the Content Navigator and selecting <code>Publish</code> from the context menu</p>
 </li>
 </ul>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-publish-button.png" alt="dialog publish button">
+<img src="actions/images/dialog-publish-button.png" alt="Publish button" width="50%">
 </div>
 </div>
 <div class="paragraph">
@@ -974,7 +1008,7 @@ If you want to add back dependent items excluded by mistake, click <strong>Show 
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-publish-excluded.png" alt="Excluded dependencies" width="470px">
+<img src="actions/images/dialog-publish-excluded.png" alt="Excluded dependencies" width="75%">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -984,11 +1018,16 @@ If you want to add back dependent items excluded by mistake, click <strong>Show 
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-It&#8217;s possible to overrule the default behaviour of including all the dependencies by using the Content Studio&#8217;s <a href="config.ahtml#exclude_optional_dependencies">config file</a>.
-In this case only mandatory dependencies will be included, while optional can be added from the "Show excluded" mode.
+It&#8217;s possible to overrule the default behaviour of automatic inclusion of all the dependencies by using the Content Studio&#8217;s <a href="config.ahtml#exclude_optional_dependencies">config file</a>.
+In this special mode only the mandatory dependencies will be auto-included, the optional ones will be auto-excluded and can be included manually.
 </td>
 </tr>
 </table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="actions/images/dialog-publish-auto-excluded.png" alt="Auto-excluded dependencies" width="75%">
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -998,7 +1037,7 @@ In this case only mandatory dependencies will be included, while optional can be
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-publish-invalid.png" alt="Invalid publication" width="470px">
+<img src="actions/images/dialog-publish-invalid.png" alt="Invalid publication" width="75%">
 </div>
 </div>
 <div class="paragraph">
@@ -1024,7 +1063,7 @@ Some items might be required for publication and cannot be excluded (like parent
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="actions/images/dialog-publish-valid.png" alt="Valid publication" width="470px">
+<img src="actions/images/dialog-publish-valid.png" alt="Valid publication" width="75%">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -1155,7 +1194,7 @@ In-depth reference on the publish requests can be found <a href="workflow.ahtml#
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-26 13:50:20 UTC
+Last updated 2023-10-26 13:52:14 UTC
 </div>
 </div>
 </body>
