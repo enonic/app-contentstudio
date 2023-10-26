@@ -73,7 +73,6 @@ describe("project.not.available.dialog.spec - clicking on 'Start Wizard' button"
     it("GIVEN 'Start Wizard' button in 'not available project' modal dialog has been pressed WHEN the project wizard has been closed THEN 'Start Wizard' action button gets visible",
         async () => {
             let languageStep = new ProjectWizardDialogLanguageStep();
-            let applicationsStep = new ProjectWizardDialogApplicationsStep();
             let projectNotAvailableDialog = new ProjectNotAvailableDialog();
             // 1. Project Not Available Dialog should be loaded
             await projectNotAvailableDialog.waitForDialogLoaded();

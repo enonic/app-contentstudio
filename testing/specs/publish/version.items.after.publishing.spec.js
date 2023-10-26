@@ -26,7 +26,6 @@ describe('version.items.after.publishing.spec tests for version items', function
     it('Preconditions- published folder should be added',
         async () => {
             let contentWizard = new ContentWizard();
-            let publishContentDialog = new PublishContentDialog();
             // 1. Open new wizard for folder
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             // 2. Fill in the name input

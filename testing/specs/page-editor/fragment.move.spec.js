@@ -133,6 +133,20 @@ describe('Move Fragment specification', function () {
             assert.equal(actionLinkText, `/${FOLDER.displayName}`, "Expected text should be present in the actions link");
         });
 
+    // Verifies - Exception thrown after opening a moved fragment #6822
+    // https://github.com/enonic/app-contentstudio/issues/6822
+    it(`WHEN existing moved text-fragment is opened THEN the fragment should be loaded in the wizard`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            // 1. Select and open the moved fragment:
+            await studioUtils.selectContentAndOpenWizard(TEST_TEXT_FRAGMENT);
+            // 2. Verify - wizard is loaded:
+            await contentWizard.waitForOpened();
+            // 3. Verify - expected name should be displayed in the fragment wizard
+            let actualDisplayName = await contentWizard.getDisplayName();
+            assert.equal(actualDisplayName, TEST_TEXT_FRAGMENT, 'Expected fragment should be loaded in the wizard');
+        });
+
     // Verifies -  https://github.com/enonic/app-contentstudio/issues/1472 - Site wizard does not load after deleting its child fragment:
     // Edit and Detach from fragment menu items should be disabled for removed fragments #6800
     it(`WHEN existing text-fragment is deleted AND its parent site has been opened THEN wizard page should be loaded`,

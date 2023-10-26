@@ -14,10 +14,10 @@ const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialo
 describe('archive.content.dialog.spec:  tests for archiving content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
 
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const DIALOG_TITLE = "Confirm archive";
+    const DIALOG_TITLE = 'Confirm archive';
 
     let FOLDER1;
     let FOLDER2;
@@ -35,16 +35,16 @@ describe('archive.content.dialog.spec:  tests for archiving content', function (
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            //1. Select a folder
+            // 1. Select a folder
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
-            //2.Click on 'Archive...' menu item in grid context menu:
+            // 2.Click on 'Archive...' menu item in grid context menu:
             await contentBrowsePanel.rightClickOnItemByDisplayName(FOLDER1.displayName);
             await studioUtils.saveScreenshot("archive-context-menu");
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.ARCHIVE);
             await contentBrowsePanel.clickOnMenuItem(appConst.GRID_CONTEXT_MENU.ARCHIVE);
             await contentBrowsePanel.pause(400);
             await studioUtils.saveScreenshot("single_folder_archive");
-            //3. Verify that the modal dialog is loaded:
+            // 3. Verify that the modal dialog is loaded:
             await deleteContentDialog.waitForDialogOpened();
         });
 
@@ -53,33 +53,33 @@ describe('archive.content.dialog.spec:  tests for archiving content', function (
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
             let confirmValueDialog = new ConfirmValueDialog();
-            //1. Select 2 folders
+            // 1. Select 2 folders
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
             await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
-            //2. Click on 'Archive...' button in the toolbar:
+            // 2. Click on 'Archive...' button in the toolbar:
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
-            await studioUtils.saveScreenshot("2_folders_to_archive");
-            //3. Click on Archive button in the modal dialog:
+            await studioUtils.saveScreenshot('2_folders_to_archive');
+            // 3. Click on Archive button in the modal dialog:
             await deleteContentDialog.clickOnArchiveButton();
-            //4. 'Confirm Value' dialog should be loaded:
+            // 4. 'Confirm Value' dialog should be loaded:
             await confirmValueDialog.waitForDialogOpened();
-            //5. Verify the title in the dialog
+            // 5. Verify the title in the dialog
             let titleActual = await confirmValueDialog.getDialogTitle();
             assert.equal(titleActual, DIALOG_TITLE, "Expected title should be displayed in the dialog");
-            //6. Fill in the number input:
+            // 6. Fill in the number input:
             await confirmValueDialog.typeNumberOrName(2);
-            //7. Verify that Confirm button gets enabled:
+            // 7. Verify that Confirm button gets enabled:
             await confirmValueDialog.clickOnConfirmButton();
-            //8. Verify the notification message:
+            // 8. Verify the notification message:
             let message = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(message, "2 items are archived", "Expected notification message should appear");
+            assert.equal(message, '2 items are archived', "Expected notification message should appear");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

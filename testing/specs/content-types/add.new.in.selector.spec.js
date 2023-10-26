@@ -51,7 +51,6 @@ describe('add.new.in.selector.spec ui-tests for adding a new content directly fr
     it(`GIVEN existing shortcut is opened THEN the selected target has been removed THEN 'Add new' button gets visible again`,
         async () => {
             let shortcutForm = new ShortcutForm();
-            let contentWizard = new ContentWizard();
             // 1. Open the existing shortcut:
             await studioUtils.selectAndOpenContentInWizard(SHORTCUT_NAME);
             // 2. Remove the selected option in target selector:
