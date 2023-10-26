@@ -14,12 +14,8 @@
     },
     {
       "label": "stable",
-      "checkout": "5.0",
+      "checkout": "5.1",
       "latest": true
-    },
-    {
-      "label": "next",
-      "checkout": "5.1"
     }
   ]
 }
