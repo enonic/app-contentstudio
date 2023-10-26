@@ -31,19 +31,19 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             let deleteContentDialog = new DeleteContentDialog();
             let confirmValueDialog = new ConfirmValueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select existing site and open 'Delete Content Dialog':
+            // 1. Select existing site and open 'Delete Content Dialog':
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
-            //2. Click on 'Delete' menu item:
+            // 2. Click on 'Delete' menu item:
             await deleteContentDialog.clickOnDeleteMenuItem();
-            //3. Verify that Confirm Value dialog appears:
+            // 3. Verify that Confirm Value dialog appears:
             await confirmValueDialog.waitForDialogOpened();
-            //4. Verify that Message "Enter 2 in the field and click Confirm:" is displayed in the dialog
+            // 4. Verify that Message "Enter 2 in the field and click Confirm:" is displayed in the dialog
             let actualNumber = await confirmValueDialog.getSuggestedNumberToDelete();
-            assert.equal(actualNumber, 2, "Expected suggested number should be displayed");
-            //5. Verify that 'Confirm' button is disabled
+            assert.equal(actualNumber, '2', 'Expected suggested number should be displayed');
+            // 5. Verify that 'Confirm' button is disabled
             await confirmValueDialog.waitForConfirmButtonDisabled();
         });
 
@@ -52,21 +52,21 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             let deleteContentDialog = new DeleteContentDialog();
             let confirmValueDialog = new ConfirmValueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select existing site and open 'Delete Content Dialog':
+            // 1. Select existing site and open 'Delete Content Dialog':
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
-            //2. Click on 'Delete' menu item:
+            // 2. Click on 'Delete' menu item:
             await deleteContentDialog.clickOnDeleteMenuItem();
             await confirmValueDialog.waitForDialogOpened();
-            //3. Type not correct number to delete:
+            // 3. Type not correct number to delete:
             await confirmValueDialog.typeNumberOrName(7);
             await confirmValueDialog.pause(1000);
             await studioUtils.saveScreenshot('number_to_delete_incorrect');
-            //5. Verify that 'Confirm' button is disabled
+            // 5. Verify that 'Confirm' button is disabled
             await confirmValueDialog.waitForConfirmButtonDisabled();
-            //6. Close the dialog:
+            // 6. Close the dialog:
             await confirmValueDialog.clickOnCancelButton();
             await confirmValueDialog.waitForDialogClosed();
             await deleteContentDialog.waitForDialogClosed();
@@ -87,16 +87,16 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
         async () => {
             let contentDuplicateDialog = new ContentDuplicateDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select existing site:
+            // 1. Select existing site:
             await studioUtils.findAndSelectItem(SITE.displayName);
-            //2. open Duplicate dialog and click on 'Duplicate' button:
+            // 2. open Duplicate dialog and click on 'Duplicate' button:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             await contentDuplicateDialog.clickOnDuplicateButton();
             await contentDuplicateDialog.waitForDialogClosed();
-            //3. Verify that the site has been copied with its children:
-            await studioUtils.findAndSelectItem(SITE.displayName + "-copy");
-            studioUtils.saveScreenshot("site_and_children_duplicated");
-            await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName + "-copy");
+            // 3. Verify that the site has been copied with its children:
+            await studioUtils.findAndSelectItem(SITE.displayName + '-copy');
+            await studioUtils.saveScreenshot('site_and_children_duplicated');
+            await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName + '-copy');
             await contentBrowsePanel.waitForContentDisplayed('_templates');
             await contentBrowsePanel.waitForContentDisplayed(CHILD_FOLDER.displayName);
         });
@@ -105,16 +105,16 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
-            //1. Select the site and open Duplicate dialog:
+            // 1. Select the site and open Duplicate dialog:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
-            //2. Click on the toggler and exclude child items:
+            // 2. Click on the toggler and exclude child items:
             await contentDuplicateDialog.clickOnIncludeChildToggler();
             await contentDuplicateDialog.clickOnDuplicateButton();
             await contentDuplicateDialog.waitForDialogClosed();
-            //3. Verify that site does not have expander icon:
-            await studioUtils.findAndSelectItem(SITE.displayName + "-copy-2");
-            studioUtils.saveScreenshot("site_duplicated_no_child");
+            // 3. Verify that site does not have expander icon:
+            await studioUtils.findAndSelectItem(SITE.displayName + '-copy-2');
+            await studioUtils.saveScreenshot("site_duplicated_no_child");
             let isDisplayed = await contentBrowsePanel.isExpanderIconPresent(SITE.displayName + "-copy-2");
             assert.isFalse(isDisplayed, 'Site should be displayed without a expander, because the site has no children');
         });
@@ -124,34 +124,32 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             let deleteContentDialog = new DeleteContentDialog();
             let confirmValueDialog = new ConfirmValueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select existing site and open Delete Content Dialog:
+            // 1. Select the existing site and open Delete Content Dialog:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
-            //2. Click on 'Delete' menu item:
+            // 2. Click on 'Delete' menu item:
             await deleteContentDialog.clickOnDeleteMenuItem();
             await confirmValueDialog.waitForDialogOpened();
-            //3. Insert the required number of content:
+            // 3. Insert the required number of content:
             await confirmValueDialog.typeNumberOrName(3);
-            //4. Verify that 'Confirm' button gets disabled
+            // 4. Verify that 'Confirm' button gets disabled
             await confirmValueDialog.waitForConfirmButtonEnabled();
-            //5. Click on 'Confirm' button and verify the message:
+            // 5. Click on 'Confirm' button and verify the message:
             await confirmValueDialog.clickOnConfirmButton();
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(actualMessage, "3 items are deleted.", "Expected notification message should be displayed");
+            assert.equal(actualMessage, '3 items are deleted.', "Expected notification message should be displayed");
         });
 
-    it("WHEN the original site was deleted THEN duplicated site should not be deleted",
+    it("WHEN the original site has been deleted THEN the copy of the site should not be deleted",
         async () => {
-            let deleteContentDialog = new DeleteContentDialog();
-            let confirmValueDialog = new ConfirmValueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the copy of deleted site and expand this site:
+            // 1. Select the copy of deleted site and expand this site:
             await studioUtils.findAndSelectItem(SITE.displayName + "-copy");
-            //2. Verify that the copy of the site and its children are present:
-            await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName + "-copy");
-            await studioUtils.saveScreenshot("site_copy_expanded");
+            // 2. Verify that the copy of the site and its children are present:
+            await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName + '-copy');
+            await studioUtils.saveScreenshot('site_copy_expanded');
             await contentBrowsePanel.waitForContentDisplayed('_templates');
             await contentBrowsePanel.waitForContentDisplayed(CHILD_FOLDER.displayName);
         });

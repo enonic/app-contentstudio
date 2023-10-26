@@ -160,7 +160,6 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         async () => {
             let contentWizard = new ContentWizard();
             let propertiesWidgetItemView = new PropertiesWidget();
-            let propertiesWidget = new PropertiesWidget();
             // 1. Do log in with the user-author and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // 2. Open folder-wizard and save new folder:

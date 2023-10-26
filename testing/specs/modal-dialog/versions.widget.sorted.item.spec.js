@@ -42,22 +42,22 @@ describe('tests for Sorted versions item', function () {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
             let sortContentDialog = new SortContentDialog();
-            //1. Select the existing folder with children and open Sort-dialog:
+            // 1. Select the existing folder with children and open Sort-dialog:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             await contentBrowsePanel.clickOnSortButton();
             await sortContentDialog.waitForDialogVisible();
-            //2. Expand the sort menu in the modal dialog:
+            // 2. Expand the sort menu in the modal dialog:
             await sortContentDialog.clickOnMenuButton();
-            //3. 'Display name-ascending' menu item has been clicked:
-            await sortContentDialog.doSort("Display name", appConst.SORT_ORDER.ASCENDING);
+            // 3. 'Display name-ascending' menu item has been clicked:
+            await sortContentDialog.doSort('Display name', appConst.SORT_ORDER.ASCENDING);
             await sortContentDialog.clickOnSaveButton();
             await sortContentDialog.waitForDialogClosed();
-            await studioUtils.saveScreenshot("folder_sorted_1");
-            //4. open Versions Panel
+            await studioUtils.saveScreenshot('folder_sorted_1');
+            // 4. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            //5. Expand the first 'sorted' item:
+            // 5. Expand the first 'sorted' item:
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
-            //6.'Active version' button is present in the expanded version item:
+            // 6.'Active version' button is present in the expanded version item:
             await browseVersionsWidget.waitForActiveVersionButtonDisplayed();
         });
 
@@ -66,16 +66,16 @@ describe('tests for Sorted versions item', function () {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
-            //1. Select the existing sorted folder:
+            // 1. Select the existing sorted folder:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            //2. open Versions Panel:
+            // 2. open Versions Panel:
             await contentBrowseDetailsPanel.openVersionHistory();
-            //3. Click on 'Compare with current version' in Sorted-item:
+            // 3. Click on 'Compare with current version' in Sorted-item:
             await browseVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 0);
-            //4.Verify that the modal dialog is loaded:
+            // 4.Verify that the modal dialog is loaded:
             await compareContentVersionsDialog.waitForDialogOpened();
-            await studioUtils.saveScreenshot("compare_versions_dlg_sorted_1");
-            //5. Verify that 'childOrder' property is displayed in the modal dialog:
+            await studioUtils.saveScreenshot('compare_versions_dlg_sorted_1');
+            // 5. Verify that 'childOrder' property is displayed in the modal dialog:
             let result = await compareContentVersionsDialog.getChildOrderProperty();
             assert.isTrue(result.includes("\"displayname ASC\""),
                 "Expected current order should be displayed in the dialog -  'displayname ASC'");
@@ -86,17 +86,17 @@ describe('tests for Sorted versions item', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            //1. Select the sorted folder :
+            // 1. Select the sorted folder :
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             await contentBrowsePanel.waitForSortIconDisplayed(PARENT_FOLDER.displayName);
-            //3. open Versions Panel:
+            // 3. open Versions Panel:
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
-            //4. Revert the first 'Edited' version item:
+            // 4. Revert the first 'Edited' version item:
             await browseVersionsWidget.clickOnRevertButton();
             await browseVersionsWidget.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("not_sorted_version_reverted");
-            //5. Verify that sort-icon gets not visible after reverting the version:
+            await studioUtils.saveScreenshot('not_sorted_version_reverted');
+            // 5. Verify that sort-icon gets not visible after reverting the version:
             await contentBrowsePanel.waitForSortIconNotDisplayed(PARENT_FOLDER.displayName);
         });
 
@@ -105,23 +105,23 @@ describe('tests for Sorted versions item', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            //1. Select the existing not sorted folder, sorted version is not active:
+            // 1. Select the existing not sorted folder, sorted version is not active:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            //2. open Versions Panel
+            // 2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            //3. Expand and revert the second 'Sorted' version item - displayname ASC:
+            // 3. Expand and revert the second 'Sorted' version item - displayname ASC:
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
             await browseVersionsWidget.clickOnRevertButton();
             await browseVersionsWidget.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("sorted_version_reverted");
-            //4. Verify that sort-icon is visible again:
+            await studioUtils.saveScreenshot('sorted_version_reverted');
+            // 4. Verify that sort-icon is visible again:
             await contentBrowsePanel.waitForSortIconDisplayed(PARENT_FOLDER.displayName);
-            //5. Verify that 3 sorted items are displayed:
+            // 5. Verify that 3 sorted items are displayed:
             let numberOfSortedItems = await browseVersionsWidget.countSortedItems();
             assert.equal(numberOfSortedItems, 3, "Three sorted items should be present in the versions widget");
-            //6. Verify that user-name should not be displayed in Sorted version item
+            // 6. Verify that user-name should not be displayed in Sorted version item
             let byUser = await browseVersionsWidget.getUserNameInItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
-            assert.equal(byUser, "", "user-name should not be displayed in Sorted version item");
+            assert.equal(byUser, '', "user-name should not be displayed in Sorted version item");
         });
 
     it(`GIVEN existing folder is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN expected options with 'sorted' icon should be present in the list`,
@@ -138,13 +138,13 @@ describe('tests for Sorted versions item', function () {
             await compareContentVersionsDialog.waitForDialogOpened();
             //4. Click on the left dropdown handle:
             await compareContentVersionsDialog.clickOnLeftDropdownHandle();
-            await studioUtils.saveScreenshot("compare_versions_left_dropdown_options");
+            await studioUtils.saveScreenshot('compare_versions_left_dropdown_options');
             //5. Verify that options with the 'sorted' icon should be present in the left dropdown list:
             let result = await compareContentVersionsDialog.getSortedOptionsInLeftDropdownList();
             assert.equal(result.length, 3, "3 sorted items should be present in the options selector after the line-divider");
             //6. Verify that options with the 'sorted' icon should be present in the right dropdown list:
             await compareContentVersionsDialog.clickOnRightDropdownHandle();
-            await studioUtils.saveScreenshot("compare_versions_right_dropdown_options");
+            await studioUtils.saveScreenshot('compare_versions_right_dropdown_options');
             result = await compareContentVersionsDialog.getSortedOptionsInRightDropdownList();
             assert.equal(result.length, 3, "3 sorted items should be present in the options selector after the line-divider");
         });
@@ -152,29 +152,28 @@ describe('tests for Sorted versions item', function () {
     it("GIVEN existing folder with 'Sorted' version items is opened WHEN the folder has been published THEN 'Sorted' items remain visible in Versions Widget",
         async () => {
             let contentWizard = new ContentWizard();
-            let publishContentDialog = new PublishContentDialog();
             let wizardDetailsPanel = new WizardDetailsPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            //1. Open the existing folder with sorted version items:
+            // 1. Open the existing folder with sorted version items:
             await studioUtils.selectAndOpenContentInWizard(PARENT_FOLDER.displayName);
             await wizardDetailsPanel.openVersionHistory();
-            //2. Click on Mark as ready button then publish the folder:
+            // 2. Click on Mark as ready button then publish the folder:
             await contentWizard.clickOnMarkAsReadyButton();
             await studioUtils.doPublish();
-            //3. Verify that Published version item gets visible now:
+            // 3. Verify that Published version item gets visible now:
             await wizardVersionsWidget.waitForPublishedItemDisplayed();
-            await studioUtils.saveScreenshot("sorted_versions_after_publishing");
+            await studioUtils.saveScreenshot('sorted_versions_after_publishing');
             let publishedItems = await wizardVersionsWidget.countPublishedItems();
             assert.equal(publishedItems, 1, "One Published items should be displayed");
-            //4. Verify that Sorted version items remain visible:
+            // 4. Verify that Sorted version items remain visible:
             let sortedItems = await wizardVersionsWidget.countSortedItems();
-            assert.equal(sortedItems, 3, "3 Sorted items remain visible");
+            assert.equal(sortedItems, 3, '3 Sorted items remain visible');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -70,7 +70,6 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let notificationDialog = new NotificationDialog();
             let layoutConfigInspectPanel = new LayoutConfigInspectPanel();
             let layoutInspectionPanel = new LayoutInspectionPanel();
             // 1. Open the existing site:

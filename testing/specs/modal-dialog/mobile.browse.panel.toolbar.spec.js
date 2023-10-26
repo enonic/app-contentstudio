@@ -17,8 +17,6 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
         webDriverHelper.setupBrowser(MOBILE_WIDTH, MOBILE_HEIGHT);
     }
 
-    let FOLDER;
-
     it("WHEN Mobile Browse panel is loaded THEN 'New' button should be enabled, 'Edit...','Archive..' buttons should be disabled",
         async () => {
             await studioUtils.getBrowser().setWindowSize(MOBILE_WIDTH, MOBILE_HEIGHT);
