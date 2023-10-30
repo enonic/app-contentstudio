@@ -465,7 +465,6 @@ export class LiveFormPanel
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             WindowDOM.get().onBeforeUnload((event) => {
-                console.log('onbeforeunload ' + this.liveEditModel?.getContent().getDisplayName());
                 // the reload is triggered by the main frame,
                 // so let the live edit know it to skip the popup
                 this.liveEditPageProxy?.skipNextReloadConfirmation(true);
@@ -704,7 +703,6 @@ export class LiveFormPanel
         });
 
         eventsManager.onTextComponentEditModeChanged((value: boolean) => {
-            console.log('onTextComponentEditModeChanged: ' + value);
             this.isTextModeOn = value;
 
             if (value && this.isContextPanelExpanded() && !this.isContextPanelDocked()) {
@@ -963,7 +961,6 @@ export class LiveFormPanel
     }
 
     private inspectPageItemByPath(path: ComponentPath, force?: boolean): void {
-        console.log('Inspecting page item by path: ' + path.toString());
         this.lastInspectedItemPath = path;
         const currentPage: Page = PageState.getState();
         const item: PageItem = currentPage?.getComponentByPath(path);
