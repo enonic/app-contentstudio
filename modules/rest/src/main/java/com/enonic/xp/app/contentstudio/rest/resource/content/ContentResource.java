@@ -673,9 +673,8 @@ public final class ContentResource
         final ContentIds excludeContentIds = ContentIds.from( params.getExcludedIds() );
         final ContentIds excludeChildrenIds = ContentIds.from( params.getExcludeChildrenIds() );
 
-        //Resolves the publish dependencies
+        //Resolves publish dependencies
         final ResolvePublishDependenciesParams resolveParams = ResolvePublishDependenciesParams.create()
-            .target( ContentConstants.BRANCH_MASTER )
             .contentIds( requestedContentIds )
             .excludedContentIds( excludeContentIds )
             .excludeChildrenIds( excludeChildrenIds )
@@ -693,7 +692,7 @@ public final class ContentResource
 
         //Resolve required ids
         final ContentIds requiredIds = this.contentService.resolveRequiredDependencies(
-            ResolveRequiredDependenciesParams.create().contentIds( fullPublishList ).target( ContentConstants.BRANCH_MASTER ).build() );
+            ResolveRequiredDependenciesParams.create().contentIds( fullPublishList ).build() );
 
         final AuthenticationInfo authInfo = ContextAccessor.current().getAuthInfo();
 
@@ -749,9 +748,6 @@ public final class ContentResource
 
     private ContentIds getOutboundDependenciesIds( final ContentIds contentIds )
     {
-        final Predicate<Content> contentPublishableCondition = content -> content.getPublishInfo() == null ||
-            ( content.getPublishInfo().getFrom() == null && content.getPublishInfo().getTo() == null );
-
         final ContentIds allOutboundIds = ContentIds.from( contentIds.stream().map( id -> {
             try
             {
@@ -763,9 +759,12 @@ public final class ContentResource
             }
         } ).flatMap( ContentIds::stream ).filter( id -> !contentIds.contains( ContentId.from( id ) ) ).collect( Collectors.toList() ) );
 
-        return ContentIds.from( this.contentService.getByIds( new GetContentByIdsParams( allOutboundIds ) )
+        final CompareContentResults compareResults = this.contentService.resolvePublishDependencies(
+            ResolvePublishDependenciesParams.create().contentIds( allOutboundIds ).build() );
+        final ContentIds notEqualOutboundIds = getNotEqual( allOutboundIds, compareResults );
+
+        return ContentIds.from( this.contentService.getByIds( new GetContentByIdsParams( notEqualOutboundIds ) )
                                     .stream()
-                                    .filter( contentPublishableCondition )
                                     .map( Content::getId )
                                     .collect( Collectors.toList() ) );
     }
@@ -791,13 +790,24 @@ public final class ContentResource
                                                        !requestedContentIds.contains( e ) ) ).collect( Collectors.toList() ) );
     }
 
-    private ContentIds getNotPendingDeletion( final ContentIds contentIds, final CompareContentResults compareResults )
+    private ContentIds filterOutStatus( final ContentIds contentIds, final CompareContentResults compareResults,
+                                        final CompareStatus status )
     {
         return ContentIds.from( compareResults.stream()
-                                    .filter( result -> result.getCompareStatus() != CompareStatus.PENDING_DELETE )
-                                    .filter( result -> contentIds.contains( result.getContentId() ) )
+                                    .filter( result -> result.getCompareStatus() != status )
                                     .map( CompareContentResult::getContentId )
+                                    .filter( contentIds::contains )
                                     .collect( Collectors.toList() ) );
+    }
+
+    private ContentIds getNotPendingDeletion( final ContentIds contentIds, final CompareContentResults compareResults )
+    {
+        return this.filterOutStatus( contentIds, compareResults, CompareStatus.PENDING_DELETE );
+    }
+
+    private ContentIds getNotEqual( final ContentIds contentIds, final CompareContentResults compareResults )
+    {
+        return this.filterOutStatus( contentIds, compareResults, CompareStatus.EQUAL );
     }
 
     @POST
