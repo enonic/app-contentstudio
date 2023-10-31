@@ -17,6 +17,7 @@ function required(params, name) {
 function CollaboratorsModifier(params) {
     this.collaboratorKey = `${params.sessionId}=${params.userKey}`;
     this.contentId = params.contentId;
+    this.project = params.project;
     this.collaborators = [];
 
     this.removeExpired = function (timeAt) {
@@ -57,6 +58,7 @@ function CollaboratorsModifier(params) {
             distributed: true,
             data: {
                 contentId: contentId,
+                project: this.project,
                 collaborators: userKeys
             }
         });
@@ -108,11 +110,12 @@ function CollaboratorsModifier(params) {
 
 function doJoinOrLeave(params, isJoin) {
     required(params, 'contentId');
+    required(params, 'project');
     required(params, 'sessionId');
     required(params, 'userKey');
 
     return SHARED_MAP.modify({
-        key: params.contentId,
+        key: params.contentId + ':' + params.project,
         func: function (collaborators) {
             return new CollaboratorsModifier(params).modify(collaborators, isJoin);
         },

@@ -4,6 +4,7 @@ const collaborationLib = require('/lib/collaboration');
 function createJoinOrLeaveParams(event) {
     return {
         contentId: event.data.contentId,
+        project: event.data.project,
         sessionId: event.session.id,
         userKey: event.session.user.key
     }
@@ -20,7 +21,8 @@ exports.get = function (req) {
         webSocket: {
             data: {
                 branch: req.branch,
-                contentId: req.params.contentId
+                contentId: req.params.contentId,
+                project: req.params.project,
             }
         }
     };
