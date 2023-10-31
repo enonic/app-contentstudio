@@ -12,6 +12,7 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 import * as Q from 'q';
 import {ContentId} from '../content/ContentId';
+import {ProjectContext} from '../project/ProjectContext';
 
 export class CollaborationEl
     extends DivEl {
@@ -101,7 +102,7 @@ export class CollaborationEl
     }
 
     private handeCollaborationEvent(event: CollaborationServerEvent): void {
-        if (event.getContentId().equals(this.contentId)) {
+        if (event.getContentId().equals(this.contentId) && event.getProject() === ProjectContext.get().getProject().getName()) {
             this.handleContentCollaborationEvent(event);
         }
     }

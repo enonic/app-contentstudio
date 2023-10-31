@@ -208,7 +208,7 @@ export class ContentWizardToolbar
             UriHelper.joinPath(WebSocketConnection.getWebSocketUriPrefix(), CONFIG.getString('services.collaborationUrl'));
 
         WebSocketConnection.create()
-            .setUrl(`${wsUrl}?contentId=${this.getItem().getId()}`)
+            .setUrl(`${wsUrl}?contentId=${this.getItem().getId()}&project=${ProjectContext.get().getProject().getName()}`)
             .setKeepAliveTimeSeconds(60)
             .build()
             .connect();
