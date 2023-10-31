@@ -8,4 +8,5 @@ export interface CollaborationEventJson
 export interface CollaborationEventDataJson {
     collaborators: string[];
     contentId: string;
+    project: string;
 }

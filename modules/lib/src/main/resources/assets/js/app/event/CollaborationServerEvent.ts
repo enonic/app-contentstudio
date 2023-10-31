@@ -13,11 +13,14 @@ export class CollaborationServerEvent
 
     private readonly collaborators: PrincipalKey[];
 
+    private readonly project: string;
+
     constructor(builder: CollaborationServerEventBuilder) {
         super();
 
         this.contentId = builder.contentId;
         this.collaborators = builder.collaborators;
+        this.project = builder.project;
     }
 
     getContentId(): ContentId {
@@ -26,6 +29,10 @@ export class CollaborationServerEvent
 
     getCollaborators(): PrincipalKey[] {
         return this.collaborators.slice();
+    }
+
+    getProject(): string {
+        return this.project;
     }
 
     public static fromJson(json: CollaborationEventJson): CollaborationServerEvent {
@@ -43,10 +50,12 @@ export class CollaborationServerEvent
 
 export class CollaborationServerEventBuilder {
     contentId: ContentId;
+    project: string;
     collaborators: PrincipalKey[];
 
     fromJson(json: CollaborationEventJson): CollaborationServerEventBuilder {
         this.contentId = new ContentId(json.data.contentId);
+        this.project = json.data.project;
         this.collaborators = json.data.collaborators.map(PrincipalKey.fromString);
 
         return this;
