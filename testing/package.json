@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@wdio/cli": "^8.20.5",
-    "@wdio/local-runner": "^8.20.0",
+    "@wdio/local-runner": "^8.20.5",
     "@wdio/mocha-framework": "^8.20.3",
     "assert": "^2.1.0",
     "chai": "^4.3.10",
