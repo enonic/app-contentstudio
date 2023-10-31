@@ -712,12 +712,12 @@ export class LiveFormPanel
     }
 
     private saveMarkedContentAndReloadOnlyComponent(path: ComponentPath) {
-        const canMarkContentAsReady = this.canMarkContentAsReady(path);
+        const canMarkContentAsReady = this.canMarkContentAsReady();
         this.contentWizardPanel.setMarkedAsReady(canMarkContentAsReady);
         this.saveAndReloadOnlyComponent(path);
     }
 
-    private canMarkContentAsReady(componentPath: ComponentPath): boolean {
+    private canMarkContentAsReady(): boolean {
         if (!this.content.isReady()) {
             return false;
         }
@@ -734,17 +734,7 @@ export class LiveFormPanel
         }
 
         const viewedPage = PageState.getState();
-        const serverPage = persistedContent.getPage().clone();
-
-        const component = viewedPage.getComponentByPath(componentPath);
-        const originalComponent = serverPage.getComponentByPath(componentPath);
-
-        if (component && component instanceof Component) {
-            component.remove();
-        }
-        if (originalComponent && originalComponent instanceof Component) {
-            originalComponent.remove();
-        }
+        const serverPage = persistedContent.getPage()?.clone();
 
         return viewedPage.equals(serverPage);
     }
