@@ -30,6 +30,10 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
     const SHORTCUT_NAME_2 = studioUtils.generateRandomName('shortcut');
     const EXPECTED_NUMBER_ALL = 'All (2)';
 
+    const SHORTCUT_NAME_3 = contentBuilder.generateRandomName('shortcut');
+    let TEST_FOLDER;
+    const FOLDER_DISPLAY_NAME_2 = appConst.generateRandomName('folder');
+
     it("Precondition: click on 'Start Wizard' button then create a project",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -199,6 +203,72 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             // 4. Verify that Show/Hide excluded buttons are not displayed:
             await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
             await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
+        });
+
+    it("Precondition 2 : modified folder should be added",
+        async () => {
+            let folderName = appConst.generateRandomName('folder');
+            TEST_FOLDER = contentBuilder.buildFolder(folderName);
+            await studioUtils.doAddReadyFolder(TEST_FOLDER);
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            // 1. Publish the folder:
+            await studioUtils.openDialogAndPublishSelectedContent();
+
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizard();
+            // 2. Update the folder(gets modified):
+            await contentBrowsePanel.clickOnEditButton();
+            await studioUtils.switchToContentTabWindow(TEST_FOLDER.displayName);
+            await contentWizard.waitForOpened();
+            await contentWizard.typeDisplayName(FOLDER_DISPLAY_NAME_2);
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+        });
+
+    // Verify - Modified dependencies are not displayed in the Publishing Wizard #7005
+    // https://github.com/enonic/app-contentstudio/issues/7005
+    it(`GIVEN existing 'modified' folder has been selected in the shortcut form WHEN 'Publish wizard' has been opened THEN modified dependency should be displayed in the Publish Wizard`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let shortcutForm = new ShortcutForm();
+            let contentPublishDialog = new ContentPublishDialog();
+            await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
+            // 1. Fill in the name input:
+            await contentWizard.typeDisplayName(SHORTCUT_NAME_3);
+            // 2. select the target:
+            await shortcutForm.filterOptionsAndSelectTarget(FOLDER_DISPLAY_NAME_2);
+            // 3. Click on 'Mark as ready' button and open Publish Wizard
+            await contentWizard.clickOnMarkAsReadyButton();
+            await contentPublishDialog.waitForDialogOpened();
+            // 4. Verify that 'Hide excluded' button is displayed
+            await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
+            // 5. Verify that 'Modified' content is displayed in the dependencies list
+            let actualItems = await contentPublishDialog.getDisplayNameInDependentItems();
+            assert.equal(actualItems.length, 1, "One item should be present in the list");
+            assert.isTrue(actualItems[0].includes(TEST_FOLDER.displayName),
+                "Expected folder-name(path) should be present in the dependencies list");
+        });
+
+    it(`GIVEN existing 'published' folder is selected in the shortcut form WHEN 'Publish wizard' has been opened THEN 'published' dependency should not be displayed in the Publish Wizard`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contentPublishDialog = new ContentPublishDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            // 1. Publish the folder:
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnPublishNowButton();
+            // 2. Open the shortcut:
+            await studioUtils.selectAndOpenContentInWizard(SHORTCUT_NAME_3);
+            // 3. Click on 'Publish' button and open Publish Wizard
+            await contentWizard.clickOnPublishButton();
+            await contentPublishDialog.waitForDialogOpened();
+            // 4. Verify that 'Hide excluded' button is not displayed
+            await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
+            await contentPublishDialog.waitForDependantsBlockNotDisplayed();
+            // 5. Verify Publish button is enabled:
+            await contentPublishDialog.waitForPublishNowButtonEnabled();
         });
 
     it("Post condition - test project should be deleted",
