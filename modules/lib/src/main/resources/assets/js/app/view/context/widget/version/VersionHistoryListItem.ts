@@ -1,3 +1,5 @@
+import * as $ from 'jquery';
+
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
@@ -6,7 +8,6 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
-import * as $ from 'jquery';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';

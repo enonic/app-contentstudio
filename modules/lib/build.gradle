@@ -65,6 +65,12 @@ tasks.register( 'devJar', Jar ) {
     dependsOn copyPackage
 }
 
+processResources {
+    exclude '**/*.less'
+    exclude '**/*.ts'
+    exclude '**/tsconfig.json'
+}
+
 jar {
     exclude 'admin/**'
     exclude 'assets/js/**'
@@ -73,7 +79,6 @@ jar {
     exclude 'assets/lib/ckeditor/build-config.js'
     exclude 'assets/lib/ckeditor/ckeditor.js'
     exclude 'assets/icons/**'
-    exclude 'assets/styles/**/*.less'
     exclude 'com/**'
     exclude 'i18n/**/common*'
     exclude 'lib/**'

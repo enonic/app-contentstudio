@@ -1,4 +1,5 @@
 import * as $ from 'jquery';
+
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';

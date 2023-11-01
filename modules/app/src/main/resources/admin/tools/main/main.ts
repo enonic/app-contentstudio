@@ -9,8 +9,8 @@ import {assetUrl, serviceUrl} from '/lib/xp/portal';
 import {localize} from '/lib/xp/i18n';
 import {immutableGetter, getAdminUrl} from '/lib/app-contentstudio/urlHelper';
 import {
-	FILEPATH_MANIFEST_NODE_MODULES,
-	GETTER_ROOT,
+    FILEPATH_MANIFEST_NODE_MODULES,
+    VIRTUAL_GETTER_ROOT,
 } from '/constants';
 
 
@@ -32,14 +32,17 @@ function get(req: Request): Response {
             }),
             configServiceUrl: serviceUrl({service: 'config'}),
             isBrowseMode: req.path === getToolUrl(app.name, 'main'),
-            jqueryUrl: getAdminUrl({
-                manifestPath: FILEPATH_MANIFEST_NODE_MODULES,
-                path: 'jquery/jquery.min.js',
-            }, TOOL_NAME),
-            jqueryUiUrl: getAdminUrl({
-                manifestPath: FILEPATH_MANIFEST_NODE_MODULES,
-                path: 'jquery-ui-dist/jquery-ui.min.js',
-            }, TOOL_NAME),
+            dompurifyUrl: getAdminUrl({ path: 'dompurify/purify.min.js' }, TOOL_NAME),
+            signalsUrl: getAdminUrl({ path: 'signals/signals.min.js' }, TOOL_NAME),
+            hasherUrl: getAdminUrl({ path: 'hasher/hasher.min.js' }, TOOL_NAME),
+            jqueryUrl: getAdminUrl({ path: 'jquery/jquery.min.js' }, TOOL_NAME),
+            jquerySimulateUrl: getAdminUrl({ path: 'jquery-simulate/jquery.simulate.js' }, TOOL_NAME),
+            jqueryUiUrl: getAdminUrl({ path: 'jquery-ui-dist/jquery-ui.min.js' }, TOOL_NAME),
+            lodashUrl: getAdminUrl({ path: 'lodash/lodash.min.js' }, TOOL_NAME),
+            mousetrapUrl: getAdminUrl({ path: 'mousetrap/mousetrap.min.js' }, TOOL_NAME),
+            mousetrapBindUrl: getAdminUrl({ path: 'mousetrap/plugins/global-bind/mousetrap-global-bind.min.js' }, TOOL_NAME),
+            qUrl: getAdminUrl({ path: 'q/q.js' }, TOOL_NAME),
+            legacySlickgridUrl: getAdminUrl({ path: 'slickgrid/index.js' }, TOOL_NAME),
             launcherPath: getLauncherPath(),
         })
     };
@@ -59,7 +62,7 @@ function get(req: Request): Response {
 }
 
 
-router.all(`/${GETTER_ROOT}/{path:.+}`, (r: Request) => immutableGetter(r));
+router.all(`/${VIRTUAL_GETTER_ROOT}/{path:.+}`, (r: Request) => immutableGetter(r));
 
 router.get('.*', (r: Request) => get(r));
 

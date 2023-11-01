@@ -1,7 +1,10 @@
 import * as $ from 'jquery';
-import 'jquery-ui/ui/widgets/sortable';
-import 'jquery-ui/ui/widgets/draggable';
-import 'jquery-ui/ui/widgets/droppable';
+// import 'jquery-ui-dist';
+// import 'jquery-ui/ui/widgets/mouse'; // draggable needs this?
+import 'jquery-ui/ui/widgets/sortable'; // Uses $.extend
+import 'jquery-ui/ui/widgets/draggable'; // Uses $.extend
+import 'jquery-ui/ui/widgets/droppable'; // Uses $.extend
+
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';

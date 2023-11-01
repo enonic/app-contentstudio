@@ -1,3 +1,6 @@
+import * as $ from 'jquery';
+import 'jquery-simulate/jquery.simulate.js'; // Uses $.extend
+
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {Class} from '@enonic/lib-admin-ui/Class';
@@ -22,8 +25,6 @@ import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import * as $ from 'jquery';
-import 'jquery-simulate/jquery.simulate.js';
 import * as Q from 'q';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';

@@ -1,6 +1,8 @@
 import * as $ from 'jquery';
-import 'jquery-simulate/jquery.simulate.js';
-import 'jquery-ui/ui/widgets/draggable';
+import 'jquery-simulate/jquery.simulate.js'; // Uses $.extend
+// import 'jquery-ui-dist';
+import 'jquery-ui/ui/widgets/draggable'; // Uses $.extend
+
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ContentWizardPanel} from '../../../ContentWizardPanel';

@@ -1,16 +1,47 @@
-/*global JQuery */
 import * as $ from 'jquery';
-import 'jquery-ui/ui/widgets/draggable';
-import 'jquery-ui/ui/widgets/droppable';
-import 'jquery-simulate/jquery.simulate.js';
+
+// import 'jquery-ui'; // Does this help? No :( Uncaught TypeError: Cannot set properties of undefined (setting 'plugin')
+// import 'jquery-ui/ui/plugin'; // Avoid: Uncaught TypeError: Cannot read properties of undefined (reading 'add')
+// import 'jquery-ui/ui/widget'; // Avoid Uncaught TypeError: t.widget is not a function
+// import 'jquery-ui/ui/widgets/mouse'; // draggable needs this
+import 'jquery-ui/ui/widgets/draggable'; // Uses $.extend
+import 'jquery-ui/ui/widgets/droppable'; // Uses $.extend
+
+import 'jquery-simulate/jquery.simulate.js'; // Uses $.extend
+
+import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+
+// import '@enonic/lib-admin-ui/form/inputtype/support/NoInputTypeFoundView';
+// import '@enonic/lib-admin-ui/form/inputtype/checkbox/Checkbox';
+// import '@enonic/lib-admin-ui/form/inputtype/combobox/ComboBox';
+// import '@enonic/lib-admin-ui/form/inputtype/time/Date';
+// import '@enonic/lib-admin-ui/form/inputtype/time/DateTime';
+// import '@enonic/lib-admin-ui/form/inputtype/time/DateTimeRange';
+// import '@enonic/lib-admin-ui/form/inputtype/time/Time';
+// import '@enonic/lib-admin-ui/form/inputtype/number/Double';
+// import '@enonic/lib-admin-ui/form/inputtype/number/Long';
+// import '@enonic/lib-admin-ui/form/inputtype/geo/GeoPoint';
+// import '@enonic/lib-admin-ui/form/inputtype/principal/PrincipalSelector';
+// import '@enonic/lib-admin-ui/form/inputtype/radiobutton/RadioButton';
+// import '@enonic/lib-admin-ui/form/inputtype/text/TextArea';
+// import '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
+
+// const hasJQuery = Store.instance().has('$');
+// if (!hasJQuery) {
+//     Store.instance().set('$', $);
+// }
+
+// StyleHelper.setCurrentPrefix(StyleHelper.ADMIN_PREFIX);
+
 import {LiveEditPage} from 'lib-contentstudio/page-editor/LiveEditPage';
 import {ItemViewPlaceholder} from 'lib-contentstudio/page-editor/ItemViewPlaceholder';
+
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {KEY_BINDINGS_KEY} from '@enonic/lib-admin-ui/ui/KeyBindings';
+import {KEY_BINDINGS_KEY} from '@enonic/lib-admin-ui/ui/constants';
 
 Store.instance().set('$', $);
+
 /*
  Prefix must match @_CLS_PREFIX in assets\page-editor\styles\main.less
  */

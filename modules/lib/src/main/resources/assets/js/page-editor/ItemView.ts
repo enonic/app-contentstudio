@@ -1,4 +1,5 @@
 import * as $ from 'jquery';
+
 import {Element, ElementBuilder, ElementFromElementBuilder, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';

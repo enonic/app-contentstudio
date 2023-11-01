@@ -1,5 +1,6 @@
 import * as $ from 'jquery';
-import 'jquery-simulate/jquery.simulate.js';
+import 'jquery-simulate/jquery.simulate.js'; // Uses $.extend
+
 import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';

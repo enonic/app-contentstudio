@@ -9,13 +9,17 @@
   },
   "scripts": {
     "build": "concurrently -c auto -g --timings npm:build:main:*",
-    "build:main:assets": "webpack --color --stats-error-details",
+    "build:not:yet:assets": "tsup -d build/resources/main/assets",
     "build:main:server": "tsup -d build/resources/main",
+    "build:main:assets": "webpack --color --stats-error-details",
+    "build:nope:pageEditor": "tsup --entry.page-editor/js/editor src/main/resources/assets/js/page-editor.ts",
+    "build:bad:idea:vendors": "tsup src/main/resources/assets/js/vendors.ts",
     "check:types": "tsc --pretty --skipLibCheck --noEmit",
     "lint": "eslint **/*.ts --quiet --cache",
     "fix": "eslint --fix **/*.ts --cache"
   },
   "dependencies": {
+    "@enonic/legacy-slickgrid": "^0.0.1",
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "chart.js": "^4.4.0",
     "enonic-admin-artifacts": "^1.8.5",
@@ -39,6 +43,7 @@
     "@enonic-types/lib-portal": "^7.13.3",
     "@enonic-types/lib-project": "^7.13.3",
     "@enonic-types/lib-value": "^7.13.3",
+    "@enonic/esbuild-plugin-copy-with-hash": "^0.1.0",
     "@enonic/eslint-config": "^1.2.0",
     "@types/ckeditor": "^4.9.10",
     "@types/core-js": "^2.5.6",
@@ -54,14 +59,18 @@
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
     "cssnano": "^6.0.1",
+    "esbuild-plugin-external-global": "^1.0.1",
+    "esbuild-plugin-manual-chunks": "^0.0.1",
     "eslint": "^8.51.0",
     "glob": "^10.3.10",
+    "jquery-ui": "^1.13.2",
     "less-loader": "^11.1.3",
     "mini-css-extract-plugin": "^2.7.5",
     "npm-run-all": "^4.1.5",
     "postcss-loader": "^7.3.3",
     "postcss-normalize": "^10.0.1",
     "postcss-sort-media-queries": "^5.2.0",
+    "q-i": "^2.0.1",
     "source-map-loader": "^4.0.1",
     "swc-loader": "^0.2.3",
     "terser-webpack-plugin": "^5.3.8",
@@ -69,7 +78,8 @@
     "typescript": "^5.2.2",
     "webpack": "^5.89.0",
     "webpack-assets-manifest": "^5.1.0",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "webpack-stats-plugin": "^1.1.3"
   },
   "browserslist": [
     "extends browserslist-config-enonic"

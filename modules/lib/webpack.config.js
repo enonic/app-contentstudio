@@ -21,9 +21,51 @@ module.exports = {
         'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less',
         'lib/ckeditor': ['./lib/ckepath.js', './lib/ckeditor/ckeditor.js']
     },
-    externals: {
-        jquery: 'jQuery',
-    },
+    // CAUTION: Since the ckeditor is loaded in the iframe, everything needs to be bundled.
+    // externals: [
+    //     function ({
+    //         context,
+    //         request,
+    //         dependencyType,
+    //         contextInfo: {
+    //             issuer,
+    //             // issuerLayer,
+    //             // compiler
+    //         }
+    //     }, callback) {
+    //         if (request.startsWith('.')) {
+    //             return callback(); // Continue without externalizing the import
+    //         }
+    //         if (issuer.endsWith('.js')||issuer.endsWith('.ts')) {
+    //             if (request.startsWith('@enonic/lib-admin-ui')) {
+    //                 return callback(); // Continue without externalizing the import
+    //                 // return callback(null, 'libAdminUi'); // The external is a global variable called `libAdminUi`.
+    //                 // return callback(null, request, dependencyType); // Externalize to a dependencyType module using the request path
+    //             }
+    //             // console.log({
+    //             //     context,
+    //             //     request,
+    //             //     dependencyType,
+    //             //     issuer
+    //             // });
+    //         }
+    //         if (
+    //             issuer.endsWith('.css')
+    //             || issuer.endsWith('.less')
+    //         ) {
+    //             // Continue without externalizing the import
+    //             return callback();
+    //         }
+    //         console.error('ckeditor: Not externalizing unhandeled import', {
+    //             context,
+    //             request,
+    //             dependencyType,
+    //             issuer
+    //         });
+    //         // Continue without externalizing the import
+    //         return callback();
+    //     }
+    // ],
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
         filename: './[name].js'
@@ -80,26 +122,30 @@ module.exports = {
                 }
             })
         ],
-        splitChunks: {
-            chunks: 'all',
-            cacheGroups: {
-                default: false,
-                defaultVendors: {
-                    test: /[\\/]node_modules[\\/]/,
-                    reuseExistingChunk: true,
-                    minChunks: 2,
-                    priority: -10,
-                    filename: 'js/vendors.main~editor.js'
-                }
-            }
-        }
+        // This doesn't seem to produce any file???
+        // splitChunks: {
+        //     chunks: 'all',
+        //     cacheGroups: {
+        //         default: false,
+        //         defaultVendors: {
+        //             test: /[\\/]node_modules[\\/]/,
+        //             reuseExistingChunk: true,
+        //             minChunks: 2,
+        //             priority: -10,
+        //             filename: 'js/vendors.main~editor.js'
+        //         }
+        //     }
+        // }
     },
     plugins: [
-        // new ProvidePlugin({
-        //     $: 'jquery',
-        //     jQuery: 'jquery',
-        //     'window.jQuery': 'jquery'
-        // }),
+        // https://webpack.js.org/plugins/provide-plugin/
+        // Automatically load modules instead of having to import or require them everywhere.
+        new ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+            'window.$': 'jquery',
+            'window.jQuery': 'jquery',
+        }),
         new MiniCssExtractPlugin({
             filename: '[name].css',
             chunkFilename: './styles/[id].css'

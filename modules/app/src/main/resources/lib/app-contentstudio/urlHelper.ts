@@ -6,66 +6,70 @@ import {getToolUrl} from '/lib/xp/admin';
 import {
     // FILEPATH_MANIFEST_CJS,
     FILEPATH_MANIFEST_NODE_MODULES,
-    GETTER_ROOT
+    ACTUAL_GETTER_ROOT,
+    VIRTUAL_GETTER_ROOT,
 } from '/constants';
 import ioResource from './ioResource';
 import {IS_DEV_MODE} from './runMode';
 
 
 interface UrlPostfixParams {
-	manifestPath?: string
-	path: string,
+    manifestPath?: string
+    path: string,
 }
 
 type UrlParams = UrlPostfixParams & {urlPrefix: string};
 
 
 const manifests = {
-	// [FILEPATH_MANIFEST_CJS]: ioResource(FILEPATH_MANIFEST_CJS),
-	// [FILEPATH_MANIFEST_ESM]: ioResource(FILEPATH_MANIFEST_ESM),
-	[FILEPATH_MANIFEST_NODE_MODULES]: ioResource(FILEPATH_MANIFEST_NODE_MODULES),
+    // [FILEPATH_MANIFEST_CJS]: ioResource(FILEPATH_MANIFEST_CJS),
+    // [FILEPATH_MANIFEST_ESM]: ioResource(FILEPATH_MANIFEST_ESM),
+    [FILEPATH_MANIFEST_NODE_MODULES]: ioResource(FILEPATH_MANIFEST_NODE_MODULES),
 };
 
 const getImmutableUrl = ({
-	manifestPath = FILEPATH_MANIFEST_NODE_MODULES,
-	path,
-	urlPrefix
+    manifestPath = FILEPATH_MANIFEST_NODE_MODULES,
+    path,
+    urlPrefix
 }: UrlParams) => {
-	if (IS_DEV_MODE) {
-		manifests[manifestPath] = ioResource(manifestPath);
-	}
+    if (IS_DEV_MODE) {
+        manifests[manifestPath] = ioResource(manifestPath);
+    }
 
-	return `${urlPrefix}/${GETTER_ROOT}/${manifests[manifestPath][path]}`;
+    return `${urlPrefix}/${VIRTUAL_GETTER_ROOT}/${manifests[manifestPath][path]}`;
 };
 
 export const getAdminUrl = ({
-	manifestPath = FILEPATH_MANIFEST_NODE_MODULES,
-	path,
+    manifestPath = FILEPATH_MANIFEST_NODE_MODULES,
+    path,
 }: UrlPostfixParams, tool: string) => {
     // log.info('getAdminUrl manifestPath:%s path:%s', manifestPath, path);
-	const urlPrefix = getToolUrl(app.name, tool);
+    const urlPrefix = getToolUrl(app.name, tool);
 
-	return getImmutableUrl({
-		manifestPath,
-		path,
-		urlPrefix
-	});
+    return getImmutableUrl({
+        manifestPath,
+        path,
+        urlPrefix
+    });
 };
 
 export const immutableGetter = buildGetter({
-	etag: false, // default is true in production and false in development
-	getCleanPath: (request: Request) => {
-		log.debug('request:%s', JSON.stringify(request, null, 4));
-		log.debug('contextPath:%s', request.contextPath);
-		log.debug('rawPath:%s', request.rawPath);
+    etag: false, // default is true in production and false in development
+    getCleanPath: (request: Request) => {
+        log.debug('request:%s', JSON.stringify(request, null, 4));
+        log.debug('contextPath:%s', request.contextPath);
+        log.debug('rawPath:%s', request.rawPath);
 
-		const prefix = request.contextPath;
-		let cleanPath = prefix ? request.rawPath.substring(prefix.length) : request.rawPath;
-		cleanPath = cleanPath.replace(`${GETTER_ROOT}/`, '');
+        const prefix = request.contextPath;
+        let cleanPath = prefix ? request.rawPath.substring(prefix.length) : request.rawPath;
+        log.debug('cleanPath:%s', cleanPath);
+        cleanPath = cleanPath
+            .replace(`/${VIRTUAL_GETTER_ROOT}/`, '')
+            // .replace(/-[0-9a-fA-F]+(\.[^.]+)$/, '$1') // Remove ${HASH_DELIMITER}[contenthash] from filename
 
-		log.debug('cleanPath:%s', cleanPath);
+        log.debug('cleanPath:%s', cleanPath);
 
-		return cleanPath;
-	},
-	root: GETTER_ROOT
+        return cleanPath;
+    },
+    root: ACTUAL_GETTER_ROOT
 }) as (_request: Request) => Response;

@@ -1,4 +1,29 @@
-/*global Q, JQuery */
+import * as $ from 'jquery';
+
+import {Store} from '@enonic/lib-admin-ui/store/Store';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+
+import '@enonic/lib-admin-ui/form/inputtype/support/NoInputTypeFoundView';
+import '@enonic/lib-admin-ui/form/inputtype/checkbox/Checkbox';
+import '@enonic/lib-admin-ui/form/inputtype/combobox/ComboBox';
+import '@enonic/lib-admin-ui/form/inputtype/time/Date';
+import '@enonic/lib-admin-ui/form/inputtype/time/DateTime';
+import '@enonic/lib-admin-ui/form/inputtype/time/DateTimeRange';
+import '@enonic/lib-admin-ui/form/inputtype/time/Time';
+import '@enonic/lib-admin-ui/form/inputtype/number/Double';
+import '@enonic/lib-admin-ui/form/inputtype/number/Long';
+import '@enonic/lib-admin-ui/form/inputtype/geo/GeoPoint';
+import '@enonic/lib-admin-ui/form/inputtype/principal/PrincipalSelector';
+import '@enonic/lib-admin-ui/form/inputtype/radiobutton/RadioButton';
+import '@enonic/lib-admin-ui/form/inputtype/text/TextArea';
+import '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
+
+const hasJQuery = Store.instance().has('$');
+if (!hasJQuery) {
+    Store.instance().set('$', $);
+}
+
+StyleHelper.setCurrentPrefix(StyleHelper.ADMIN_PREFIX);
 
 import {Application} from '@enonic/lib-admin-ui/app/Application';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
@@ -17,13 +42,14 @@ import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthe
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {ConnectionDetector} from '@enonic/lib-admin-ui/system/ConnectionDetector';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {i18nInit} from '@enonic/lib-admin-ui/util/MessagesInitializer';
-import * as $ from 'jquery';
+
+
+
 import {AppContext} from 'lib-contentstudio/app/AppContext';
 import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
 import {ContentDuplicatePromptEvent} from 'lib-contentstudio/app/browse/ContentDuplicatePromptEvent';

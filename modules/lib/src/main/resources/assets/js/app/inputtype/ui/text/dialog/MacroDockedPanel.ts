@@ -1,4 +1,5 @@
 import * as $ from 'jquery';
+
 import * as Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';

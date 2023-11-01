@@ -5,6 +5,9 @@ const TerserPlugin = require('terser-webpack-plugin');
 const ProvidePlugin = require('webpack/lib/ProvidePlugin');
 const fs = require('fs');
 const WebpackAssetsManifest = require('webpack-assets-manifest');
+// const StatsWriterPlugin = require('webpack-stats-plugin').StatsWriterPlugin;
+const settings = require('./webpack/settings');
+const pageEditor = require('./webpack/pageEditor');
 
 const swcConfig = JSON.parse(fs.readFileSync('./.swcrc'));
 
@@ -13,128 +16,314 @@ const path = require('path');
 const isProd = process.env.NODE_ENV === 'production';
 
 const GETTER_ROOT = '_static';
+const HASH_DELIMITER = '-';
 
-module.exports = {
-    context: path.join(__dirname, '/src/main/resources/assets'),
-    entry: {
-        'js/main': './js/main.ts',
-        'js/settings': './js/settings.ts',
-        'page-editor/js/editor': './js/page-editor.ts',
-        'page-editor/styles/main': './page-editor/styles/main.less',
-        'styles/widgets/stats': './styles/widgets/stats.less'
-    },
-    externals: {
-        jquery: 'jQuery',
-    },
-    output: {
-        path: path.join(__dirname, '/build/resources/main/assets'),
-        filename: './[name].js',
-        assetModuleFilename: './[file]'
-    },
-    resolve: {
-        extensions: ['.ts', '.js', '.less', '.css'],
-        conditionNames: ['import', 'node', 'default']
-    },
-    module: {
-        rules: [
+module.exports = [
+    {
+        context: path.join(__dirname, '/src/main/resources/assets'),
+        entry: {
+            'js/main': './js/main.ts',
+            'page-editor/styles/main': './page-editor/styles/main.less',
+            'styles/widgets/stats': './styles/widgets/stats.less'
+        },
+        externals: [
             {
-                test: /\.js$/,
-                enforce: 'pre',
-                use: ['source-map-loader'],
-                exclude: [
-                    path.resolve(__dirname, 'node_modules/fine-uploader/'),
-                ],
+                dompurify: 'DOMPurify',
+                hasher: 'hasher',
+                jquery: 'jQuery',
+                lodash: '_',
+                mousetrap: 'Mousetrap',
+                'mousetrap/plugins/global-bind/mousetrap-global-bind': 'Mousetrap',
+                q: 'Q',
+                signals: 'signals'
             },
-            {
-                test: /\.ts$/,
-                use: [
-                    {
-                        loader: 'swc-loader',
-                        options: {
-                            ...swcConfig,
-                            sourceMaps: isProd ? false : 'inline',
-                            inlineSourcesContent: !isProd,
-                        },
-                    },
-                ],
-            },
-            {
-                test: /\.less$/,
-                use: [
-                    {loader: MiniCssExtractPlugin.loader, options: {publicPath: '../'}},
-                    {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: 1}},
-                    {loader: 'postcss-loader', options: {sourceMap: !isProd}},
-                    {loader: 'less-loader', options: {sourceMap: !isProd}},
-                ]
-            }
-        ]
-    },
-    optimization: {
-        minimizer: [
-            new TerserPlugin({
-                terserOptions: {
-                    keep_classnames: true,
-                    keep_fnames: true
+            function ({
+                context,
+                request,
+                dependencyType,
+                contextInfo: {
+                    issuer,
+                    // issuerLayer,
+                    // compiler
                 }
-            })
+            }, callback) {
+                if (request.startsWith('.')) {
+                    // Continue without externalizing the import
+                    return callback();
+                }
+                if (issuer.endsWith('.js')||issuer.endsWith('.ts')) {
+                    if (
+                        request.startsWith('@enonic/lib-admin-ui')
+                        || request.startsWith('lib-contentstudio')
+                        || request.startsWith('fine-uploader')
+                        || request === 'jsondiffpatch'
+                    ) {
+                        // Continue without externalizing the import
+                        return callback();
+                    }
+                    // if (request === 'dompurify') {
+                    //     // The external is a global variable called `DOMPurify`.
+                    //     return callback(null, 'DOMPurify');
+                    // }
+                    if (request.startsWith('@enonic/legacy-slickgrid')) {
+                        // The external is a global variable called `Slick`.
+                        return callback(null, 'Slick');
+                    }
+                    // if (request === 'hasher') {
+                    //     // The external is a global variable called `hasher`.
+                    //     return callback(null, 'hasher');
+                    // }
+                    if (
+                        // request === 'jquery'
+                        // ||
+                        request.startsWith('jquery-simulate')
+                        || request.startsWith('jquery-ui')
+                    ) {
+                        // The external is a global variable called `jQuery`.
+                        return callback(null, 'jQuery');
+                    }
+                    // if (request === 'lodash') {
+                    //     // The external is a global variable called _`.
+                    //     return callback(null, '_');
+                    // }
+                    // if (request === 'mousetrap') {
+                    //     // The external is a global variable called `Mousetrap`.
+                    //     return callback(null, 'Mousetrap');
+                    // }
+                    // if (request === 'mousetrap/plugins/global-bind/mousetrap-global-bind') {
+                    //     // The external is a global variable called `Mousetrap`.
+                    //     return callback(null, 'Mousetrap');
+                    // }
+                    // if (request === 'q') {
+                    //     // The external is a global variable called `Q`.
+                    //     return callback(null, 'Q');
+                    // }
+                    // if (request === 'signals') {
+                    //     // The external is a global variable called `signals`.
+                    //     return callback(null, 'signals');
+                    // }
+                }
+                if (
+                    issuer.endsWith('.less')
+                ) {
+                    // Continue without externalizing the import
+                    return callback();
+                }
+                console.error('Main: Not externalizing unhandeled import', {
+                    context,
+                    request,
+                    dependencyType,
+                    issuer
+                });
+                // Continue without externalizing the import
+                return callback();
+            }
         ],
-        splitChunks: {
-            chunks: 'all',
-            cacheGroups: {
-                default: false,
-                defaultVendors: {
-                    test: /[\\/]node_modules[\\/]/,
-                    reuseExistingChunk: true,
-                    minChunks: 3,
-                    priority: -10,
-                    filename: 'js/vendors.main~editor.js'
-                }
-            }
-        }
-    },
-    plugins: [
-        // new ProvidePlugin({
-        //     $: 'jquery',
-        //     jQuery: 'jquery',
-        //     'window.jQuery': 'jquery'
-        // }),
-        new MiniCssExtractPlugin({
-            filename: '[name].css',
-            chunkFilename: './styles/[id].css'
-        }),
-        new CopyWebpackPlugin({
-            patterns: [
-                {from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[file]'},
+        output: {
+            path: path.join(__dirname, '/build/resources/main/assets'),
+            filename: './[name].js',
+            assetModuleFilename: './[file]'
+        },
+        resolve: {
+            extensions: [
+                '.ts', '.js',
+                '.less', '.css'
+            ],
+            conditionNames: ['import', 'node', 'default']
+        },
+        module: {
+            rules: [
                 {
-                    from: path.join(__dirname, 'node_modules/jquery/dist/*.js'),
-                    to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/jquery/[name].[contenthash][ext]`
+                    test: /\.js$/,
+                    enforce: 'pre',
+                    use: ['source-map-loader'],
+                    exclude: [
+                        path.resolve(__dirname, 'node_modules/fine-uploader/'),
+                    ],
                 },
                 {
-                    from: path.join(__dirname, 'node_modules/jquery-ui-dist/*.(css|js)'),
-                    to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/jquery-ui-dist/[name].[contenthash][ext]`
+                    test: /\.ts$/,
+                    use: [
+                        {
+                            loader: 'swc-loader',
+                            options: {
+                                ...swcConfig,
+                                sourceMaps: isProd ? false : 'inline',
+                                inlineSourcesContent: !isProd,
+                            },
+                        },
+                    ],
+                },
+                {
+                    test: /\.less$/,
+                    use: [
+                        {loader: MiniCssExtractPlugin.loader, options: {publicPath: '../'}},
+                        {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: 1}},
+                        {loader: 'postcss-loader', options: {sourceMap: !isProd}},
+                        {loader: 'less-loader', options: {sourceMap: !isProd}},
+                    ]
                 }
             ]
-        }),
-        new CircularDependencyPlugin({
-            exclude: /a\.js|node_modules/,
-            failOnError: true
-        }),
-        new WebpackAssetsManifest({
-            output: path.join(__dirname, 'build/resources/main', GETTER_ROOT, 'manifest.json'),
-            transform: (manifest) => {
-                const newManifest = {};
-                for (const [key, value] of Object.entries(manifest)) {
-                    if (key.startsWith(`../${GETTER_ROOT}/`)) {
-                        const newKey = key.replace(`../${GETTER_ROOT}/`, '');
-                        const newValue = value.replace(`../${GETTER_ROOT}/`, '');
-                        newManifest[newKey] = newValue;
+        },
+        optimization: {
+            minimize: false,
+            // minimizer: [
+            //     new TerserPlugin({
+            //         terserOptions: {
+            //             keep_classnames: true,
+            //             keep_fnames: true
+            //         }
+            //     })
+            // ],
+            // splitChunks: {
+            //     chunks: 'all',
+            //     cacheGroups: {
+            //         default: false,
+            //         defaultVendors: {
+            //             test: /[\\/]node_modules[\\/]/,
+            //             //test: /[\\/]node_modules[\\/](?!(@enonic[\\/].+|dompurify|lib-contentstudio.+|mousetrap|q))$/,
+            //             reuseExistingChunk: true,
+            //             minChunks: 1,
+            //             priority: -10,
+            //             filename: 'js/main.vendors.js'
+            //         }
+            //     }
+            // }
+        },
+        plugins: [
+            new ProvidePlugin({
+                $: 'jquery',
+                jQuery: 'jquery',
+                'window.$': 'jquery',
+                'window.jQuery': 'jquery'
+            }),
+            new MiniCssExtractPlugin({
+                filename: '[name].css',
+                chunkFilename: './styles/[id].css'
+            }),
+            new CopyWebpackPlugin({
+                patterns: [
+                    {from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[file]'},
+                    // {
+                    //     from: path.join(__dirname, 'node_modules/@enonic/legacy-slickgrid/lib/*.js'),
+                    //     to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/jquery/[name]${HASH_DELIMITER}[contenthash][ext]`
+                    //     // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/jquery/[name][ext]`
+                    // },
+                    {
+                        // from: path.join(__dirname, 'node_modules/@enonic/legacy-slickgrid/*.js'),
+                        from: path.join(__dirname, 'node_modules/@enonic/legacy-slickgrid/index.js'),
+                        to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/slickgrid/[name]${HASH_DELIMITER}[contenthash][ext]`
+                        // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/slickgrid/[name][ext]`
+                    },
+                    {
+                        from: path.join(__dirname, 'node_modules/dompurify/dist/*.js'),
+                        to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/dompurify/[name]${HASH_DELIMITER}[contenthash][ext]`
+                        // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/dompurify/[name][ext]`
+                    },
+                    {
+                        from: path.join(__dirname, 'node_modules/hasher/dist/js/*.js'),
+                        to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/hasher/[name]${HASH_DELIMITER}[contenthash][ext]`
+                        // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/hasher/[name][ext]`
+                    },
+                    {
+                        from: path.join(__dirname, 'node_modules/jquery/dist/*.js'),
+                        to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/jquery/[name]${HASH_DELIMITER}[contenthash][ext]`
+                        // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/jquery/[name][ext]`
+                    },
+                    {
+                        from: path.join(__dirname, 'node_modules/jquery-simulate/jquery.simulate.js'),
+                        to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/jquery-simulate/[name]${HASH_DELIMITER}[contenthash][ext]`
+                        // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/jquery-simulate/[name][ext]`
+                    },
+                    {
+                        from: path.join(__dirname, 'node_modules/jquery-ui-dist/*.(css|js)'),
+                        to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/jquery-ui-dist/[name]${HASH_DELIMITER}[contenthash][ext]`
+                        // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/jquery-ui-dist/[name][ext]`
+                    },
+                    {
+                        from: path.join(__dirname, 'node_modules/lodash/lodash.min.js'),
+                        to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/lodash/[name]${HASH_DELIMITER}[contenthash][ext]`
+                        // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/lodash/[name][ext]`
+                    },
+                    {
+                        from: path.join(__dirname, 'node_modules/mousetrap/mousetrap*.js'),
+                        to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/mousetrap/[name]${HASH_DELIMITER}[contenthash][ext]`
+                        // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/mousetrap/[name][ext]`
+                    },
+                    {
+                        from: path.join(__dirname, 'node_modules/mousetrap/plugins/global-bind/mousetrap*.js'),
+                        to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/mousetrap/plugins/global-bind/[name]${HASH_DELIMITER}[contenthash][ext]`
+                        // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/mousetrap/plugins/global-bind/[name][ext]`
+                    },
+                    {
+                        from: path.join(__dirname, 'node_modules/q/*.js'),
+                        to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/q/[name]${HASH_DELIMITER}[contenthash][ext]`
+                        // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/q/[name][ext]`
+                    },
+                    {
+                        from: path.join(__dirname, 'node_modules/signals/dist/*.js'),
+                        to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/signals/[name]${HASH_DELIMITER}[contenthash][ext]`
+                        // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/signals/[name][ext]`
                     }
+                ]
+            }),
+            new CircularDependencyPlugin({
+                exclude: /a\.js|node_modules/,
+                failOnError: true
+            }),
+            new WebpackAssetsManifest({
+                output: path.join(__dirname, 'build/resources/main', GETTER_ROOT, 'manifest.json'),
+                transform: (manifest) => {
+                    const newManifest = {};
+                    for (const [key, value] of Object.entries(manifest)) {
+                        if (key.startsWith(`../${GETTER_ROOT}/`)) {
+                            const newKey = key.replace(`../${GETTER_ROOT}/`, '');
+                            const newValue = value.replace(`../${GETTER_ROOT}/`, '');
+                            newManifest[newKey] = newValue;
+                        }
+                    }
+                    return newManifest;
                 }
-                return newManifest;
-            }
-        })
-    ],
-    mode: isProd ? 'production' : 'development',
-    devtool: isProd ? false : 'source-map',
-    performance: {hints: false}
-};
+            }),
+            // new StatsWriterPlugin({
+            //     //filename: COMPONENT_STATS_FILENAME,
+            //     stats: {
+            //         all: true,
+            //         // assets: true, // Also important, to figure out whether asset filename contains contenthash
+            //         // entrypoints: true, // <-- THE IMPORTANT ONE, FOR DEPENDENCY TRACKING!
+            //         // errors: true,
+            //         // warnings: true,
+
+            //         // // Everything else switched off:
+            //         // builtAt: false,
+            //         // cached: false,
+            //         // cachedAssets: false,
+            //         // children: false,
+            //         // chunks: false,
+            //         // chunkGroups: false,
+            //         // chunkModules: false,
+            //         // chunkOrigins: false,
+            //         // depth: false,
+            //         // env: false,
+            //         // errorDetails: false,
+            //         // hash: false,
+            //         // modules: true,
+            //         // moduleTrace: false,
+            //         // performance: false,
+            //         // providedExports: false,
+            //         // publicPath: false,
+            //         reasons: false,
+            //         source: false,
+            //         // timings: false,
+            //         // usedExports: false,
+            //         // version: false,
+            //     }
+            // })
+        ],
+        mode: isProd ? 'production' : 'development',
+        devtool: isProd ? false : 'source-map',
+        performance: {hints: false}
+    },
+    settings.settingsConfig(__dirname, isProd, swcConfig),
+    pageEditor.pageEditorConfig(__dirname, isProd, swcConfig)
+];

@@ -1,3 +1,4 @@
+// NOTE: jQuery is no longer imported by lib-admin-ui, but expected to exist in the global scope.
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementEvent} from '@enonic/lib-admin-ui/dom/ElementEvent';

@@ -1,4 +1,5 @@
 import * as $ from 'jquery';
+
 import {WidgetItemView} from '../../WidgetItemView';
 import {LiveEditPageProxy} from '../../../../wizard/page/LiveEditPageProxy';
 import {EmulatorGrid} from './EmulatorGrid';

@@ -1,3 +1,5 @@
+import * as $ from 'jquery';
+
 import {i18nInit} from '@enonic/lib-admin-ui/util/MessagesInitializer';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
@@ -38,7 +40,6 @@ import {RemoveComponentViewEvent} from './event/incoming/manipulation/RemoveComp
 import {ComponentView} from './ComponentView';
 import * as Q from 'q';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
-import * as $ from 'jquery';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {ItemViewSelectedEventConfig} from './event/outgoing/navigation/SelectComponentEvent';
