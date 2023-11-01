@@ -99,8 +99,14 @@ module.exports = Object.freeze({
     itemByDisplayName: displayName => {
         return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
+    itemStrictByDisplayName: displayName => {
+        return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and text()='${displayName}']]`
+    },
     itemByName: name => {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
+    },
+    itemStrictByName: name => {
+        return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and text()='${name}']]`
     },
     checkboxByName: name => {
         return `${this.itemByName(name)}` +

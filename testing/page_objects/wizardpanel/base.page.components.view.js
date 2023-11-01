@@ -6,6 +6,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const xpath = {
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
+    draggablePageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'draggable')]",
     pageComponentsTreeGrid: `//div[contains(@id,'PageComponentsTreeGrid')]`,
     fragmentsName: "//div[contains(@id,'PageComponentsItemViewer') and descendant::div[contains(@class,'icon-fragment')]]" +
                    lib.H6_DISPLAY_NAME,
@@ -26,6 +27,24 @@ const xpath = {
 };
 
 class BasePageComponentView extends Page {
+
+    async waitForItemSelected(displayName) {
+        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::div[contains(@class,'slick-cell')]`;
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getAttribute(locator, 'class');
+            return result.includes('selected');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "PCV item should be selected"});
+
+    }
+
+    async waitForItemNotSelected(displayName) {
+        let locator = this.container + lib.itemStrictByDisplayName(displayName) + `//ancestor::div[contains(@class,'slick-cell')]`;
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getAttribute(locator, 'class');
+            return !result.includes('selected');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "PCV item should not be selected"});
+
+    }
 
     async clickOnComponentByDisplayName(displayName) {
         try {
@@ -213,6 +232,12 @@ class BasePageComponentView extends Page {
         let locator = this.container + lib.SLICK_VIEW_PORT + xpath.pageComponentsItemViewer + lib.H6_DISPLAY_NAME;
         return await this.getTextInDisplayedElements(locator);
     }
+
+    async getDraggablePageComponentsDisplayName() {
+        let locator = this.container + lib.SLICK_VIEW_PORT + xpath.draggablePageComponentsItemViewer + lib.H6_DISPLAY_NAME;
+        return await this.getTextInDisplayedElements(locator);
+    }
+
 
     async waitForItemDisplayed(itemDisplayName) {
         try {
