@@ -429,10 +429,10 @@ module.exports = {
             let browsePanel = new BrowsePanel();
             await this.typeNameInFilterPanel(name);
             await browsePanel.waitForRowByNameVisible(name);
-            await browsePanel.pause(400);
+            await browsePanel.pause(200);
             await browsePanel.clickOnRowByName(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(500);
+            return await browsePanel.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
             throw new Error("Select a item, error screenshot:" + screenshot + ' ' + err);
@@ -448,10 +448,10 @@ module.exports = {
             let browsePanel = new BrowsePanel();
             await this.typeNameInFilterPanel(displayName);
             await browsePanel.waitForContentByDisplayNameVisible(displayName);
-            await browsePanel.pause(300);
+            await browsePanel.pause(200);
             await browsePanel.clickOnRowByDisplayName(displayName);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(400);
+            return await browsePanel.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
             throw new Error("Select a item, error screenshot:" + screenshot + ' ' + err);
@@ -568,22 +568,13 @@ module.exports = {
             throw new Error('Error when opening Filter Panel! ' + err);
         }
     },
-    async clickOnClearSelection() {
-        try {
-            let filterPanel = new FilterPanel();
-            return await filterPanel.clickOnClearLink();
-        } catch (err) {
-            throw new Error('Error when clicking on Clear in Filter Panel! ' + err);
-        }
-    },
 
     async openProjectSelectionDialogAndSelectContext(context) {
         try {
             let browsePanel = new BrowsePanel();
             return await browsePanel.selectContext(context);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_select_context');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_select_context');
             throw new Error('Error during selecting a context, screenshot: ' + screenshot + "  " + err);
         }
     },
@@ -602,9 +593,8 @@ module.exports = {
             await this.clickOnContentStudioLink(userName, password);
             return await this.doSwitchToContentBrowsePanel();
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_navigate_cs');
-            this.saveScreenshot(screenshot);
-            throw new Error('error when navigate to Content Studio app. Screenshot:  ' + screenshot + '  ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_navigate_cs');
+            throw new Error('Error navigate to Content Studio,  screenshot:  ' + screenshot + '  ' + err);
         }
     },
     async navigateToContentStudioAppMobile(userName, password) {
@@ -620,9 +610,8 @@ module.exports = {
             await this.getBrowser().switchWindow("Content Studio - Enonic XP Admin");
             return await browsePanel.pause(1500);
         } catch (err) {
-            console.log('tried to navigate to Content Studio app, but: ' + err);
-            this.saveScreenshot(appConst.generateRandomName('err_navigate_to_studio'));
-            throw new Error('error when navigate to Content Studio app ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
+            throw new Error('error when navigate to Content Studio, screenshot: ' + screenshot + ' ' + err);
         }
     },
     async clickOnContentStudioLink(userName, password) {
@@ -642,8 +631,7 @@ module.exports = {
             await this.getBrowser().switchWindow('Content Studio - Enonic XP Admin');
             await this.closeProjectSelectionDialog();
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_navigate_to_studio')
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
             throw new Error('Error when navigate to Content Studio app. Screenshot: ' + screenshot + "  " + err);
         }
     },
@@ -754,7 +742,7 @@ module.exports = {
             return this.doSwitchToHome();
         });
     },
-    switchAndCheckTitle: function (handle, reqTitle) {
+    switchAndCheckTitle(handle, reqTitle) {
         return this.getBrowser().switchToWindow(handle).then(() => {
             return this.getBrowser().getTitle().then(title => {
                 return title.includes(reqTitle);
@@ -784,15 +772,6 @@ module.exports = {
         await browsePanel.openDetailsPanel();
         await browseDetailsPanel.openDependencies();
         return await browseDependenciesWidget.waitForWidgetLoaded();
-    },
-    async openLayersWidgetInBrowsePanel() {
-        let browsePanel = new BrowsePanel();
-        let browseDetailsPanel = new BrowseDetailsPanel();
-        let browseLayersWidget = new BrowseLayersWidget();
-        await browsePanel.openDetailsPanel();
-        await browseDetailsPanel.openLayers();
-        await browseLayersWidget.waitForWidgetLoaded();
-        return browseLayersWidget;
     },
     isStringEmpty(str) {
         return (!str || 0 === str.length);
@@ -961,7 +940,6 @@ module.exports = {
         let launcherPanel = new LauncherPanel();
         let selector = "//button[contains(@class,'launcher-button')]";
         try {
-            // await this.waitUntilDisplayed(selector, 2000);
             await this.getBrowser().pause(100);
             await this.clickOnElement(selector);
             //let el = await this.getDisplayedElements(selector);
