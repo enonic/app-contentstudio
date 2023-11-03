@@ -30,7 +30,7 @@ export class FilterableBucketAggregationView
         this.bucketListBox = new BucketListBox();
         this.listBoxDropdown = new SelectableListBoxDropdown<Bucket>(this.bucketListBox, {
             filter: this.filterBuckets,
-            multiple: true
+            maxSelected: 0
         });
     }
 
