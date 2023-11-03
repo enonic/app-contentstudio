@@ -19,7 +19,7 @@
     "fix": "eslint --fix **/*.ts --cache"
   },
   "dependencies": {
-    "@enonic/legacy-slickgrid": "^0.0.1",
+    "@enonic/legacy-slickgrid": "v0.0.2",
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "dompurify": "^3.0.6",
     "enonic-admin-artifacts": "^1.8.5",

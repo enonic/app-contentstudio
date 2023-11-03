@@ -18,6 +18,9 @@ export default defineConfig((options: Options) => {
     if (options?.entry?.['page-editor/js/editor'] === 'src/main/resources/assets/js/page-editor.ts') {
         return import('./tsup/pageEditor').then(m => m.default());
     }
+    if (options?.entry?.['js/swcHelpers'] === 'src/main/resources/assets/js/swcHelpers.ts') {
+        return import('./tsup/swcHelpers').then(m => m.default());
+    }
     if (options?.entry?.[0] === 'src/main/resources/assets/js/vendors.ts') {
         return import('./tsup/vendors').then(m => m.default());
     }

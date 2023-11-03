@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script type="module">
+        import {_create_for_of_iterator_helper_loose} from '{{assetsUri}}/js/swcHelpers.mjs';
+        globalThis._create_for_of_iterator_helper_loose = _create_for_of_iterator_helper_loose;
+    </script>
     <script type="text/javascript" src="{{dompurifyUrl}}"></script>
     <script type="text/javascript" src="{{signalsUrl}}"></script>
     <script type="text/javascript" src="{{hasherUrl}}"></script>

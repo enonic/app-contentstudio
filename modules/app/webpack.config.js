@@ -5,7 +5,6 @@ const TerserPlugin = require('terser-webpack-plugin');
 const ProvidePlugin = require('webpack/lib/ProvidePlugin');
 const fs = require('fs');
 const WebpackAssetsManifest = require('webpack-assets-manifest');
-// const StatsWriterPlugin = require('webpack-stats-plugin').StatsWriterPlugin;
 const settings = require('./webpack/settings');
 const pageEditor = require('./webpack/pageEditor');
 
@@ -48,8 +47,7 @@ module.exports = [
                 }
             }, callback) {
                 if (request.startsWith('.')) {
-                    // Continue without externalizing the import
-                    return callback();
+                    return callback(); // Continue without externalizing the import
                 }
                 if (issuer.endsWith('.js')||issuer.endsWith('.ts')) {
                     if (
@@ -61,47 +59,17 @@ module.exports = [
                         // Continue without externalizing the import
                         return callback();
                     }
-                    // if (request === 'dompurify') {
-                    //     // The external is a global variable called `DOMPurify`.
-                    //     return callback(null, 'DOMPurify');
-                    // }
                     if (request.startsWith('@enonic/legacy-slickgrid')) {
                         // The external is a global variable called `Slick`.
                         return callback(null, 'Slick');
                     }
-                    // if (request === 'hasher') {
-                    //     // The external is a global variable called `hasher`.
-                    //     return callback(null, 'hasher');
-                    // }
                     if (
-                        // request === 'jquery'
-                        // ||
                         request.startsWith('jquery-simulate')
                         || request.startsWith('jquery-ui')
                     ) {
                         // The external is a global variable called `jQuery`.
                         return callback(null, 'jQuery');
                     }
-                    // if (request === 'lodash') {
-                    //     // The external is a global variable called _`.
-                    //     return callback(null, '_');
-                    // }
-                    // if (request === 'mousetrap') {
-                    //     // The external is a global variable called `Mousetrap`.
-                    //     return callback(null, 'Mousetrap');
-                    // }
-                    // if (request === 'mousetrap/plugins/global-bind/mousetrap-global-bind') {
-                    //     // The external is a global variable called `Mousetrap`.
-                    //     return callback(null, 'Mousetrap');
-                    // }
-                    // if (request === 'q') {
-                    //     // The external is a global variable called `Q`.
-                    //     return callback(null, 'Q');
-                    // }
-                    // if (request === 'signals') {
-                    //     // The external is a global variable called `signals`.
-                    //     return callback(null, 'signals');
-                    // }
                 }
                 if (
                     issuer.endsWith('.less')
@@ -115,8 +83,7 @@ module.exports = [
                     dependencyType,
                     issuer
                 });
-                // Continue without externalizing the import
-                return callback();
+                return callback(); // Continue without externalizing the import
             }
         ],
         output: {
@@ -285,40 +252,6 @@ module.exports = [
                     return newManifest;
                 }
             }),
-            // new StatsWriterPlugin({
-            //     //filename: COMPONENT_STATS_FILENAME,
-            //     stats: {
-            //         all: true,
-            //         // assets: true, // Also important, to figure out whether asset filename contains contenthash
-            //         // entrypoints: true, // <-- THE IMPORTANT ONE, FOR DEPENDENCY TRACKING!
-            //         // errors: true,
-            //         // warnings: true,
-
-            //         // // Everything else switched off:
-            //         // builtAt: false,
-            //         // cached: false,
-            //         // cachedAssets: false,
-            //         // children: false,
-            //         // chunks: false,
-            //         // chunkGroups: false,
-            //         // chunkModules: false,
-            //         // chunkOrigins: false,
-            //         // depth: false,
-            //         // env: false,
-            //         // errorDetails: false,
-            //         // hash: false,
-            //         // modules: true,
-            //         // moduleTrace: false,
-            //         // performance: false,
-            //         // providedExports: false,
-            //         // publicPath: false,
-            //         reasons: false,
-            //         source: false,
-            //         // timings: false,
-            //         // usedExports: false,
-            //         // version: false,
-            //     }
-            // })
         ],
         mode: isProd ? 'production' : 'development',
         devtool: isProd ? false : 'source-map',
