@@ -49,7 +49,7 @@ public final class ContentPrincipalsResolver
                 final Optional<? extends Principal> principalValue = securityService.getPrincipal( key );
                 if ( !principalValue.isPresent() )
                 {
-                    LOG.warn( "Principal could not be resolved: " + key.toString() );
+                    LOG.debug( "Principal could not be resolved: " + key.toString() );
                 }
                 else
                 {
@@ -64,7 +64,7 @@ public final class ContentPrincipalsResolver
         final Optional<? extends Principal> principalValue = securityService.getPrincipal( key );
         if ( !principalValue.isPresent() )
         {
-            LOG.warn( "Principal could not be resolved: " + key.toString() );
+            LOG.debug( "Principal could not be resolved: " + key.toString() );
             return null;
         }
         else
