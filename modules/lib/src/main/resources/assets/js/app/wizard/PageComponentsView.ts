@@ -1,60 +1,60 @@
-import * as Q from 'q';
+import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {LiveEditPageProxy} from './page/LiveEditPageProxy';
-import {PageComponentsTreeGrid} from './PageComponentsTreeGrid';
-import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
-import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
-import {Highlighter} from '../../page-editor/Highlighter';
-import {ClickPosition} from '../../page-editor/ClickPosition';
-import {PageViewController} from '../../page-editor/PageViewController';
-import {DataChangedEvent, DataChangedType} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
-import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
-import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {ComponentsTreeItem} from './ComponentsTreeItem';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {ComponentPath} from '../page/region/ComponentPath';
-import {TreeComponent} from './TreeComponent';
-import {Page} from '../page/Page';
-import {PageEventsManager} from './PageEventsManager';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {PageActionsHelper} from './PageActionsHelper';
-import {Component} from '../page/region/Component';
-import {Region} from '../page/region/Region';
-import {PageNavigationHandler} from './PageNavigationHandler';
-import {PageNavigationEvent} from './PageNavigationEvent';
-import {PageNavigationMediator} from './PageNavigationMediator';
-import {PageNavigationEventType} from './PageNavigationEventType';
-import {PageNavigationEventData} from './PageNavigationEventData';
-import {PageState} from './page/PageState';
-import {PageItem} from '../page/region/PageItem';
+import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
+import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
+import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {DataChangedEvent, DataChangedType} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {ClickPosition} from '../../page-editor/ClickPosition';
+import {Highlighter} from '../../page-editor/Highlighter';
+import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
+import {PageViewController} from '../../page-editor/PageViewController';
+import {Page} from '../page/Page';
+import {Component} from '../page/region/Component';
+import {ComponentPath} from '../page/region/ComponentPath';
+import {PageItem} from '../page/region/PageItem';
+import {Region} from '../page/region/Region';
 import {TextComponentType} from '../page/region/TextComponentType';
+import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
+import {ComponentsTreeItem} from './ComponentsTreeItem';
+import {LiveEditPageProxy} from './page/LiveEditPageProxy';
+import {PageState} from './page/PageState';
+import {PageActionsHelper} from './PageActionsHelper';
+import {PageComponentsTreeGrid} from './PageComponentsTreeGrid';
+import {PageEventsManager} from './PageEventsManager';
+import {PageNavigationEvent} from './PageNavigationEvent';
+import {PageNavigationEventData} from './PageNavigationEventData';
+import {PageNavigationEventType} from './PageNavigationEventType';
+import {PageNavigationHandler} from './PageNavigationHandler';
+import {PageNavigationMediator} from './PageNavigationMediator';
+import {TreeComponent} from './TreeComponent';
 
+enum Modifiers {
+    LOCKED = 'locked',
+    COLLAPSED = 'collapsed',
+    ANIMATING = 'animating',
+}
 export class PageComponentsView
     extends DivEl
     implements PageNavigationHandler {
 
-    private static LOCKED_CLASS: string = 'locked';
-    private static COLLAPSED_CLASS: string = 'collapsed';
-    private static COLLAPSE_BUTTON_ICON_CLASS: string = 'icon-newtab';
     private static PCV_COLLAPSED_KEY: string = 'contentstudio:pcv:collapsed';
 
     private liveEditPage: LiveEditPageProxy;
     private contextMenu: ItemViewContextMenu;
     private contextMenuItemPath: ComponentPath;
-
-    private responsiveItem: ResponsiveItem;
 
     private tree: PageComponentsTreeGrid;
     private header: Element;
@@ -70,8 +70,6 @@ export class PageComponentsView
     private mouseDown: boolean = false;
     public static debug: boolean = false;
 
-    private currentUserHasCreateRights: Boolean;
-
     private keyBinding: KeyBinding[];
 
     private beforeActionHandler: (action: Action) => void;
@@ -82,12 +80,12 @@ export class PageComponentsView
 
     private isToBeEnabled: boolean;
 
+    private animationTimeout: number;
+
     constructor(liveEditPage: LiveEditPageProxy) {
         super('page-components-view');
 
         this.liveEditPage = liveEditPage;
-
-        this.currentUserHasCreateRights = null;
 
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
@@ -103,9 +101,7 @@ export class PageComponentsView
     }
 
     private initElements(): void {
-        this.toggleButton =
-            new Button().addClass(`minimize-button ${PageComponentsView.COLLAPSE_BUTTON_ICON_CLASS}`).setTitle(
-                i18n('field.hideComponent')) as Button;
+        this.toggleButton = new Button().addClass('minimize-button icon-newtab').setTitle(i18n('field.hideComponent')) as Button;
 
         this.toggleButton.onClicked((event: MouseEvent) => {
             event.stopPropagation();
@@ -116,7 +112,7 @@ export class PageComponentsView
         this.header = new DivEl('header');
         this.header.setHtml(i18n('field.components'));
 
-        this.responsiveItem = ResponsiveManager.onAvailableSizeChanged(Body.get(), (item: ResponsiveItem) => {
+        ResponsiveManager.onAvailableSizeChanged(Body.get(), (item: ResponsiveItem) => {
             if (!this.isVisible()) {
                 return;
             }
@@ -140,7 +136,7 @@ export class PageComponentsView
 
         this.onShown(() => {
             if (this.liveEditPage?.isLocked()) {
-                this.addClass(PageComponentsView.LOCKED_CLASS);
+                this.addClass(Modifiers.LOCKED);
             }
         });
 
@@ -493,7 +489,7 @@ export class PageComponentsView
     }
 
     setLocked(lock: boolean): void {
-        this.toggleClass(PageComponentsView.LOCKED_CLASS, lock);
+        this.toggleClass(Modifiers.LOCKED, lock);
     }
 
     private isMenuIconClicked(cellNumber: number): boolean {
@@ -611,22 +607,39 @@ export class PageComponentsView
     }
 
     private isCollapsed(): boolean {
-        return this.hasClass(PageComponentsView.COLLAPSED_CLASS);
+        return this.hasClass(Modifiers.COLLAPSED);
     }
 
     private collapse(): void {
         localStorage.setItem(PageComponentsView.PCV_COLLAPSED_KEY, 'true');
-        this.toggleClass(PageComponentsView.COLLAPSED_CLASS, true);
+        clearTimeout(this.animationTimeout);
+
+        this.addClass(Modifiers.COLLAPSED);
+        this.addClass(Modifiers.ANIMATING);
+
         this.toggleButton.setTitle(i18n('field.showComponent'), false);
+
         this.hideContextMenu();
+
+        this.animationTimeout = setTimeout(() => {
+            this.removeClass(Modifiers.ANIMATING);
+        }, 300);
     }
 
     private expand(): void {
         localStorage.removeItem(PageComponentsView.PCV_COLLAPSED_KEY);
-        this.toggleClass(PageComponentsView.COLLAPSED_CLASS, false);
+        clearTimeout(this.animationTimeout);
+
+        this.removeClass(Modifiers.COLLAPSED);
+        this.addClass(Modifiers.ANIMATING);
+
         this.toggleButton.setTitle(i18n('field.hideComponent'), false);
-        this.constrainToParent(); // not letting PCV to overflow the page
-        this.tree.getGrid().resizeCanvas();
+
+        this.animationTimeout = setTimeout(() => {
+            this.removeClass(Modifiers.ANIMATING);
+            this.constrainToParent(); // not letting PCV to overflow the page
+            this.tree.getGrid().resizeCanvas();
+        }, 300);
     }
 
     handle(event: PageNavigationEvent): void {
