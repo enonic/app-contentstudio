@@ -203,14 +203,34 @@
       }
     }
 
+    &.animating {
+      pointer-events: none;
+      overflow: hidden;
+      transition: 250ms ease-in-out;
+
+      .page-components-tree-grid {
+        display: none;
+      }
+
+      &.collapsed {
+        .header-wrapper {
+          justify-content: right;
+        }
+      }
+
+      &:not(.collapsed) {
+        height: @button-size + 36px;
+      }
+    }
+
     &.collapsed {
-      width: @button-size;
-      border-radius: 6px;
-      padding: 0;
       position: fixed;
-      top: auto !important;
-      bottom: 12px !important;
+      width: @button-size;
+      height: @button-size;
+      top: calc(100vh - @button-size - 12px) !important;
       left: 8px !important;
+      padding: 0;
+      border-radius: 6px;
       box-shadow: none;
       background: transparent;
 
