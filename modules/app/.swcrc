@@ -1,5 +1,6 @@
 {
     "jsc": {
+        "externalHelpers": false,
         "parser": {
             "syntax": "typescript",
             "tsx": false,

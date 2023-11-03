@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "emitDecoratorMetadata": true, // Needed when .swcrc has "transform": { "decoratorMetadata": true }
+        "experimentalDecorators": true, // Needed when .swcrc has "transform": { "legacyDecorator": true }
         "module": "commonjs",
         "target": "es5",
         "lib": [
