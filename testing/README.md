@@ -1,4 +1,4 @@
-Users JavaScript UI Testing
+JavaScript UI Testing
 ===
 
 ### Building
@@ -21,6 +21,7 @@ There are 2 modes for running tests.
 4. make sure that only one `Default` project is in you local XP (delete all other projects)
 5. copy all test-applications (`app-contentstudio/testing/test-applications/`) from  into your local `deploy` folder, these applications will import test data
 6. Open a `*.spec` file in `Idea` and press 'Run' button in `Idea` toolbar
+7. Specify the path to `Mocha package` in Idea-Run modal dialog: `app-contentstudio-plus\testing\node_modules\mocha`
 
  After these steps special `Browser for testing` will be installed and started on your local environment
  While the tests are running, you should not perform any actions in you local Content Studio, as this may affect the test results
