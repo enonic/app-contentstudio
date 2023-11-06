@@ -12,7 +12,7 @@ module.exports = {
             },
             externals: [
                 {
-                    dompurify: 'DOMpurify',
+                    dompurify: 'DOMPurify',
                     jquery: 'jQuery',
                     mousetrap: 'Mousetrap',
                     'mousetrap/plugins/global-bind/mousetrap-global-bind': 'Mousetrap',
