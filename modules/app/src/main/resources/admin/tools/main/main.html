@@ -14,8 +14,16 @@
     <script type="text/javascript" src="{{lodashUrl}}"></script>
     <script type="text/javascript" src="{{mousetrapUrl}}"></script>
     <script type="text/javascript" src="{{mousetrapBindUrl}}"></script>
-    <script type="text/javascript" src="{{qUrl}}"></script>
     <script type="text/javascript" src="{{legacySlickgridUrl}}"></script>
+
+    {{#isBrowseMode}}
+        <!-- Requires jQuery. Currently provides a version of Q without defer! -->
+        <script type="text/javascript" src="{{launcherPath}}" data-config-theme="light"></script>
+    {{/isBrowseMode}}
+
+    <!-- Q with defer -->
+    <script type="text/javascript" src="{{qUrl}}"></script>
+
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
     <meta name="viewport" content="width=device-width, user-scalable=no">
@@ -49,15 +57,10 @@
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/contentlib.css">
 </head>
 <body>
+    <!-- App javascript -->
+    <script type="text/javascript" src="{{assetsUri}}/lib/ckeditor.js" data-asset-url="{{assetsUri}}"></script>
 
-<!-- App javascript -->
-<script type="text/javascript" src="{{assetsUri}}/lib/ckeditor.js" data-asset-url="{{assetsUri}}"></script>
-<script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-service-url="{{configServiceUrl}}"></script>
-
-{{#isBrowseMode}}
-<!-- Append the launcher -->
-<script type="text/javascript" src="{{launcherPath}}" data-config-theme="light" async></script>
-{{/isBrowseMode}}
-
+    <!-- Requires Q with defer -->
+    <script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-service-url="{{configServiceUrl}}"></script>
 </body>
 </html>
