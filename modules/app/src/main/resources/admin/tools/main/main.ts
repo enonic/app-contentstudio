@@ -7,11 +7,13 @@ import Router from '/lib/router';
 import {getLauncherPath, getLocales, getToolUrl} from '/lib/xp/admin';
 import {assetUrl, serviceUrl} from '/lib/xp/portal';
 import {localize} from '/lib/xp/i18n';
-import {immutableGetter, getAdminUrl} from '/lib/app-contentstudio/urlHelper';
+import {IS_DEV_MODE} from '/lib/app-contentstudio/runMode';
 import {
-    FILEPATH_MANIFEST_NODE_MODULES,
-    VIRTUAL_GETTER_ROOT,
-} from '/constants';
+    immutableGetter,
+    // getAdminUrl,
+    getAdminNodeModuleUrl
+} from '/lib/app-contentstudio/urlHelper';
+import {VIRTUAL_GETTER_ROOT} from '/constants';
 
 
 const VIEW = resolve('./main.html');
@@ -32,18 +34,42 @@ function get(req: Request): Response {
             }),
             configServiceUrl: serviceUrl({service: 'config'}),
             isBrowseMode: req.path === getToolUrl(app.name, 'main'),
-            dompurifyUrl: getAdminUrl({ path: 'dompurify/purify.min.js' }, TOOL_NAME),
-            signalsUrl: getAdminUrl({ path: 'signals/signals.min.js' }, TOOL_NAME),
-            hasherUrl: getAdminUrl({ path: 'hasher/hasher.min.js' }, TOOL_NAME),
-            jqueryUrl: getAdminUrl({ path: 'jquery/jquery.min.js' }, TOOL_NAME),
-            jquerySimulateUrl: getAdminUrl({ path: 'jquery-simulate/jquery.simulate.js' }, TOOL_NAME),
-            jqueryUiUrl: getAdminUrl({ path: 'jquery-ui-dist/jquery-ui.min.js' }, TOOL_NAME),
-            lodashUrl: getAdminUrl({ path: 'lodash/lodash.min.js' }, TOOL_NAME),
-            mousetrapUrl: getAdminUrl({ path: 'mousetrap/mousetrap.min.js' }, TOOL_NAME),
-            mousetrapBindUrl: getAdminUrl({ path: 'mousetrap/plugins/global-bind/mousetrap-global-bind.min.js' }, TOOL_NAME),
-            qUrl: getAdminUrl({ path: 'q/q.js' }, TOOL_NAME),
-            legacySlickgridUrl: getAdminUrl({ path: 'slickgrid/index.js' }, TOOL_NAME),
+
+            dompurifyUrl: getAdminNodeModuleUrl('dompurify/purify.min.js', TOOL_NAME),
+
+            signalsUrl: getAdminNodeModuleUrl(`signals/signals${IS_DEV_MODE ? '' : '.min'}.js`, TOOL_NAME),
+            // signalsUrl: getAdminUrl({path: 'signals/signals.mjs'}, TOOL_NAME),
+
+            hasherUrl: getAdminNodeModuleUrl('hasher/hasher.min.js', TOOL_NAME),
+            // hasherUrl: getAdminUrl({path:`hasher/hasher${IS_DEV_MODE ? '' : '.min'}.mjs`}, TOOL_NAME),
+
+            jqueryUrl: getAdminNodeModuleUrl('jquery/jquery.min.js', TOOL_NAME),
+            jquerySimulateUrl: getAdminNodeModuleUrl('jquery-simulate/jquery.simulate.js', TOOL_NAME),
+            jqueryUiUrl: getAdminNodeModuleUrl('jquery-ui-dist/jquery-ui.min.js', TOOL_NAME),
+            lodashUrl: getAdminNodeModuleUrl('lodash/lodash.min.js', TOOL_NAME),
+            mousetrapUrl: getAdminNodeModuleUrl('mousetrap/mousetrap.min.js', TOOL_NAME),
+            mousetrapBindUrl: getAdminNodeModuleUrl('mousetrap/plugins/global-bind/mousetrap-global-bind.min.js', TOOL_NAME),
+            qUrl: getAdminNodeModuleUrl('q/q.js', TOOL_NAME),
+            legacySlickgridUrl: getAdminNodeModuleUrl('slickgrid/index.js', TOOL_NAME),
+
             launcherPath: getLauncherPath(),
+            // importMap: JSON.stringify({
+            //     imports: {
+            //         dompurify: getAdminNodeModuleUrl('dompurify/purify.min.js', TOOL_NAME),
+            //         // hasher: getAdminNodeModuleUrl(`hasher/hasher${IS_DEV_MODE ? '' : '.min'}.js`, TOOL_NAME),
+            //         hasher: getAdminUrl({path:`hasher/hasher${IS_DEV_MODE ? '' : '.min'}.mjs`}, TOOL_NAME),
+            //         jquery: getAdminNodeModuleUrl(`jquery/jquery${IS_DEV_MODE ? '' : '.min'}.js`, TOOL_NAME),
+            //         'jquery-simulate': getAdminNodeModuleUrl('jquery-simulate/jquery.simulate.js', TOOL_NAME),
+            //         'jquery-ui': getAdminNodeModuleUrl(`jquery-ui-dist/jquery-ui${IS_DEV_MODE ? '' : '.min'}.js`, TOOL_NAME),
+            //         lodash: getAdminNodeModuleUrl(`lodash/lodash${IS_DEV_MODE ? '' : '.min'}.js`, TOOL_NAME),
+            //         mousetrap: getAdminNodeModuleUrl('mousetrap/mousetrap.min.js', TOOL_NAME),
+            //         'mousetrap/plugins/global-bind': getAdminNodeModuleUrl('mousetrap/plugins/global-bind/mousetrap-global-bind.min.js', TOOL_NAME),
+            //         q: getAdminNodeModuleUrl('q/q.js', TOOL_NAME),
+            //         signals: getAdminUrl({path: 'signals/signals.mjs'}, TOOL_NAME),
+            //         // signals: getAdminNodeModuleUrl(`signals/signals${IS_DEV_MODE ? '' : '.min'}.js`, TOOL_NAME),
+            //         '@enonic/legacy-slickgrid': getAdminNodeModuleUrl('slickgrid/index.js', TOOL_NAME),
+            //     }
+            // }),
         })
     };
 

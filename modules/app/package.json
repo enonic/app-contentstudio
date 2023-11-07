@@ -13,6 +13,7 @@
     "build:main:server": "tsup -d build/resources/main",
     "build:main:assets": "webpack --color --stats-error-details",
     "build:nope:pageEditor": "tsup --entry.page-editor/js/editor src/main/resources/assets/js/page-editor.ts",
+    "build:not:yet:static": "tsup -d build/resources/main/_static",
     "build:main:swcHelpers": "tsup --entry.js/swcHelpers src/main/resources/assets/js/swcHelpers.ts",
     "build:bad:idea:vendors": "tsup src/main/resources/assets/js/vendors.ts",
     "check:types": "tsc --pretty --skipLibCheck --noEmit",
@@ -20,7 +21,7 @@
     "fix": "eslint --fix **/*.ts --cache"
   },
   "dependencies": {
-    "@enonic/legacy-slickgrid": "v0.0.2",
+    "@enonic/legacy-slickgrid": "^0.0.2",
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "@swc/helpers": "^0.5.3",
     "chart.js": "^4.4.0",
@@ -47,6 +48,7 @@
     "@enonic-types/lib-value": "^7.13.3",
     "@enonic/esbuild-plugin-copy-with-hash": "^0.1.0",
     "@enonic/eslint-config": "^1.2.0",
+    "@enonic/tsup-plugin-manifest": "^0.0.1",
     "@types/ckeditor": "^4.9.10",
     "@types/core-js": "^2.5.6",
     "@types/jquery": "^3.5.22",
@@ -62,6 +64,7 @@
     "css-loader": "^6.8.1",
     "cssnano": "^6.0.1",
     "esbuild-plugin-external-global": "^1.0.1",
+    "esbuild-plugin-globals": "^0.2.0",
     "esbuild-plugin-manual-chunks": "^0.0.1",
     "eslint": "^8.51.0",
     "glob": "^10.3.10",

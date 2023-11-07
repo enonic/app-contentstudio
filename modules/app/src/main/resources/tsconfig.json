@@ -28,6 +28,7 @@
     "exclude": [
         "./**/*.d.ts",
         "assets",
+        "_static"
     ],
     "include": [
         "./**/*.ts"

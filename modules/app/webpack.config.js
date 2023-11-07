@@ -208,7 +208,7 @@ module.exports = [
                         // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/jquery-ui-dist/[name][ext]`
                     },
                     {
-                        from: path.join(__dirname, 'node_modules/lodash/lodash.min.js'),
+                        from: path.join(__dirname, 'node_modules/lodash/lodash*.js'),
                         to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/lodash/[name]${HASH_DELIMITER}[contenthash][ext]`
                         // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/lodash/[name][ext]`
                     },

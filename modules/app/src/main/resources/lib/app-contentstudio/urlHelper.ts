@@ -4,7 +4,7 @@ import type {Request, Response} from '/types/';
 import {buildGetter} from '/lib/enonic/static';
 import {getToolUrl} from '/lib/xp/admin';
 import {
-    // FILEPATH_MANIFEST_CJS,
+    // FILEPATH_MANIFEST_ESM,
     FILEPATH_MANIFEST_NODE_MODULES,
     ACTUAL_GETTER_ROOT,
     VIRTUAL_GETTER_ROOT,
@@ -40,6 +40,7 @@ const getImmutableUrl = ({
 };
 
 export const getAdminUrl = ({
+    // manifestPath = FILEPATH_MANIFEST_ESM,
     manifestPath = FILEPATH_MANIFEST_NODE_MODULES,
     path,
 }: UrlPostfixParams, tool: string) => {
@@ -52,6 +53,11 @@ export const getAdminUrl = ({
         urlPrefix
     });
 };
+
+export const getAdminNodeModuleUrl = (path: string, tool: string) => getAdminUrl({
+    manifestPath: FILEPATH_MANIFEST_NODE_MODULES,
+    path,
+}, tool);
 
 export const immutableGetter = buildGetter({
     etag: false, // default is true in production and false in development

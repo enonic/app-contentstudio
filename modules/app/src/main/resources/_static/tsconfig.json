@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "emitDecoratorMetadata": true, // Needed when .swcrc has "transform": { "decoratorMetadata": true }
+        "experimentalDecorators": true, // Needed when .swcrc has "transform": { "legacyDecorator": true }
+        "esModuleInterop": true,
+        "module": "commonjs",
+        "target": "es5",
+        "sourceMap": true,
+        "types": [
+            "ckeditor",
+            "jquery",
+            "jqueryui",
+            "q"
+        ],
+        "lib": [
+            "es2015",
+            "es2015.promise",
+            "dom"
+        ]
+    },
+    "exclude": [
+        "./**/*.d.ts"
+    ],
+    "include": [
+        "./**/*.ts"
+    ]
+}

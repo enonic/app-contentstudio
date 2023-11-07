@@ -1,10 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!--script type="importmap">{{!-- {importMap} --}}</script-->
     <script type="module">
         import {_create_for_of_iterator_helper_loose} from '{{assetsUri}}/js/swcHelpers.mjs';
+        // import * as DOMPurify from 'dompurify';
+        // import signals from 'signals'; // Before hasher
+        // import hasher from 'hasher'; // After signals
+        // import 'jquery';
+        // import 'jquery-simulate';
+        // import 'jquery-ui';
+        // import '@enonic/legacy-slickgrid'; // Hopefully loads Slick into localscope?
+        // import 'mousetrap'; // Hopefully loads Mousetrap into localscope?
+        // import 'mousetrap/plugins/global-bind'; // Hopefully applied to localscope Mousetrap?
+        // import * as _ from 'lodash';
+        // import 'q'; // Hopefully loads Q into localscope?
+        // console.log('signals', signals);
+        // console.log('hasher', hasher);
+        // console.log('$', $);
+        // console.log('jQuery', jQuery);
+        // console.log('Mousetrap', Mousetrap);
+        // console.log('Slick', Slick);
+        // console.log('Q', Q);
+        // console.log('_', _);
         globalThis._create_for_of_iterator_helper_loose = _create_for_of_iterator_helper_loose;
+        // globalThis.$ = jQuery;
+        // globalThis.jQuery = jQuery;
+        // globalThis.DOMPurify = DOMPurify;
+        // globalThis.Mousetrap = Mousetrap;
+        // globalThis.hasher = hasher;
+        // globalThis.Slick = Slick;
+        // globalThis._ = _;
+        // globalThis.Q = Q;
     </script>
+
     <script type="text/javascript" src="{{dompurifyUrl}}"></script>
     <script type="text/javascript" src="{{signalsUrl}}"></script>
     <script type="text/javascript" src="{{hasherUrl}}"></script>
@@ -15,13 +44,6 @@
     <script type="text/javascript" src="{{mousetrapUrl}}"></script>
     <script type="text/javascript" src="{{mousetrapBindUrl}}"></script>
     <script type="text/javascript" src="{{legacySlickgridUrl}}"></script>
-
-    {{#isBrowseMode}}
-        <!-- Requires jQuery. Currently provides a version of Q without defer! -->
-        <script type="text/javascript" src="{{launcherPath}}" data-config-theme="light"></script>
-    {{/isBrowseMode}}
-
-    <!-- Q with defer -->
     <script type="text/javascript" src="{{qUrl}}"></script>
 
     <meta charset="UTF-8">
@@ -57,10 +79,17 @@
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/contentlib.css">
 </head>
 <body>
-    <!-- App javascript -->
+    <!-- Requires $ and jQuery -->
     <script type="text/javascript" src="{{assetsUri}}/lib/ckeditor.js" data-asset-url="{{assetsUri}}"></script>
 
-    <!-- Requires Q with defer -->
+    <!-- Requires DOMPurify, hasher, _, $, jQuery, Mousetrap, Q, Slick -->
     <script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-service-url="{{configServiceUrl}}"></script>
+    <!--<script type="module" src="{{assetsUri}}/js/main.mjs" data-config-service-url="{{configServiceUrl}}"></script> -->
+
+    {{#isBrowseMode}}
+        <!-- Requires jQuery and Q -->
+        <script type="text/javascript" src="{{launcherPath}}" data-config-theme="light"></script>
+    {{/isBrowseMode}}
+
 </body>
 </html>
