@@ -21,7 +21,7 @@
     "fix": "eslint --fix **/*.ts --cache"
   },
   "dependencies": {
-    "@enonic/legacy-slickgrid": "^0.0.2",
+    "@enonic/legacy-slickgrid": "^0.0.4",
     "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "@swc/helpers": "^0.5.3",
     "chart.js": "^4.4.0",
