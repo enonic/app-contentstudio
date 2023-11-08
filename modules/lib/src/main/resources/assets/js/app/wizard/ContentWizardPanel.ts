@@ -138,6 +138,8 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
+import {PageTemplate} from '../content/PageTemplate';
+import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1180,7 +1182,9 @@ export class ContentWizardPanel
 
         // to be changed: make default models static and remove that call by directly using DefaultModels in PageState
         PageEventsManager.get().onCustomizePageRequested(() => {
-            PageEventsManager.get().notifySetCustomizedPageRequested(this.defaultModels.getDefaultPageTemplate());
+            this.getTemplateForCustomize().then((template: PageTemplate) => {
+                PageEventsManager.get().notifySetCustomizedPageRequested(template);
+            }).catch(DefaultErrorHandler.handle);
         });
 
         PageState.getEvents().onPageUpdated((event: PageUpdatedEvent) => {
@@ -2704,5 +2708,15 @@ export class ContentWizardPanel
         this.pageComponentsWizardStep = new PageComponentsWizardStep(this.getInitialPageWizardStepName(), this.pageComponentsWizardStepForm);
 
         return this.pageComponentsWizardStep;
+    }
+
+    private getTemplateForCustomize(): Q.Promise<PageTemplate> {
+        const currentTemplateKey = PageState.getState()?.getTemplate();
+
+        if (currentTemplateKey && !currentTemplateKey.equals(this.defaultModels.getDefaultPageTemplate()?.getKey())) {
+            return new GetPageTemplateByKeyRequest(currentTemplateKey).sendAndParse();
+        }
+
+        return Q.resolve(this.defaultModels.getDefaultPageTemplate());
     }
 }
