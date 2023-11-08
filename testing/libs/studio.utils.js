@@ -591,7 +591,7 @@ module.exports = {
     async navigateToContentStudioApp(userName, password) {
         try {
             await this.clickOnContentStudioLink(userName, password);
-            return await this.doSwitchToContentBrowsePanel();
+            await this.doSwitchToContentBrowsePanelAndSelectDefaultContext();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_cs');
             throw new Error('Error navigate to Content Studio,  screenshot:  ' + screenshot + '  ' + err);
@@ -658,6 +658,24 @@ module.exports = {
             let browsePanel = new BrowsePanel();
             await this.getBrowser().switchWindow('Content Studio - Enonic XP Admin');
             console.log('switched to content browse panel...');
+            await browsePanel.waitForGridLoaded(appConst.longTimeout);
+            return browsePanel;
+        } catch (err) {
+            throw new Error('Error when switching to Content Studio App ' + err);
+        }
+    },
+    async doSwitchToContentBrowsePanelAndSelectDefaultContext() {
+        try {
+            let projectSelectionDialog = new ProjectSelectionDialog();
+            let browsePanel = new BrowsePanel();
+            await this.getBrowser().switchWindow('Content Studio - Enonic XP Admin');
+            console.log('switched to content browse panel...');
+            let isLoaded = await projectSelectionDialog.isDialogLoaded();
+            if (isLoaded) {
+                await projectSelectionDialog.selectContext('Default');
+                await projectSelectionDialog.waitForDialogClosed();
+                return await this.getBrowser().pause(200);
+            }
             await browsePanel.waitForGridLoaded(appConst.longTimeout);
             return browsePanel;
         } catch (err) {
