@@ -43,7 +43,6 @@ describe('page.template.controller.support.spec tests for page template wizard',
             await studioUtils.saveScreenshot('page_template_support_selected');
             // 5. Verify that 'Save' button gets enabled after selecting in support dropdown
             await contentWizard.waitForSaveButtonEnabled();
-
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });

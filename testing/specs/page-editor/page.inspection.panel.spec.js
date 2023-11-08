@@ -82,6 +82,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             await studioUtils.saveScreenshot('controller_automatic');
             // 5. Verify that the content is automatically saved:
             await contentWizard.waitForNotificationMessage();
+            // Verify - 'Save' button remains enabled after switching templates #6484
             await contentWizard.waitForSaveButtonDisabled();
             // 6. Details Panel should be loaded
             await pageInspectionPanel.waitForNotDisplayed();
