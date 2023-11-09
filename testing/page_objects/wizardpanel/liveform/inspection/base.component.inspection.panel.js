@@ -3,14 +3,24 @@
  */
 const Page = require('../../../page');
 const lib = require('../../../../libs/elements');
+const appConst = require('../../../../libs/app_const');
 
 //Context Window, Base Inspect tab for all components
 class BaseComponentInspectionPanel extends Page {
 
+    get applyButton() {
+        return "//div[contains(@id,'InspectionsPanel')]" + lib.actionButton('Apply');
+    }
+
     async clickOnApplyButton() {
-        let selector = "//div[contains(@id,'ContextWindow')]" + lib.actionButton('Apply');
-        await this.clickOnElement(selector);
-        return this.pause(2000);
+        await this.waitForApplyButtonDisplayed();
+        await this.clickOnElement(this.applyButton);
+        return await this.pause(2000);
+    }
+
+    waitForApplyButtonDisplayed() {
+        return this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
     }
 }
+
 module.exports = BaseComponentInspectionPanel;

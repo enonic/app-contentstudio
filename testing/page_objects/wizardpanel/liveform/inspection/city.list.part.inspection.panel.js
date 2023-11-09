@@ -20,16 +20,6 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
         return xpath.container + lib.CONTENT_SELECTOR.DIV + lib.DROP_DOWN_HANDLE;
     }
 
-    get applyButton() {
-        return "//div[contains(@id,'InspectionsPanel')]" + lib.actionButton('Apply');
-    }
-
-    async clickOnApplyButton() {
-        await this.waitForApplyButtonDisplayed();
-        await this.clickOnElement(this.applyButton);
-        return await this.pause(2000);
-    }
-
     async selectContentInSelector(displayName) {
         try {
             let loaderComboBox = new LoaderComboBox();
@@ -40,9 +30,6 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
         }
     }
 
-    waitForApplyButtonDisplayed() {
-        return this.waitForElementEnabled(this.applyButton, appConst.mediumTimeout);
-    }
     async removeSelectedContent(displayName) {
         let locator = xpath.container + lib.CONTENT_SELECTOR.selectedOptionByName(displayName) + lib.REMOVE_ICON;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
