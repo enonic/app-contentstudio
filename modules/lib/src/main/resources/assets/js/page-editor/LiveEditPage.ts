@@ -569,7 +569,7 @@ export class LiveEditPage {
         const selected: ItemView = this.pageView.getComponentViewByPath(selectedItemViewPath);
 
         if (selected) {
-            selected.selectWithoutMenu(true);
+            selected.selectWithoutMenu();
             selected.scrollComponentIntoView();
 
             const textEditorCursorPos: HtmlEditorCursorPosition = this.getSelectedTextCursorPosInStorage();

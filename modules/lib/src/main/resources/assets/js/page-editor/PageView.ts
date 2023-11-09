@@ -221,7 +221,7 @@ export class PageView
                     (itemView as TextComponentView).setEditMode(true);
                     this.closeTextEditModeButton.toggleClass('active', true);
                 }
-                new SelectComponentEvent({itemView, position: null, newlyCreated: event.isNewlyCreated(), rightClicked: true}).fire();
+                new SelectComponentEvent({itemView, position: null, rightClicked: true}).fire();
                 itemView.giveFocus();
             } else {
                 if (this.isTextEditMode()) {
@@ -332,7 +332,6 @@ export class PageView
 
     select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
         if (config) {
-            config.newlyCreated = false;
             config.rightClicked = false;
         }
 
@@ -784,8 +783,6 @@ export class PageView
                         .setElement(childElement));
 
                 this.registerRegionView(regionView);
-
-
             } else {
                 this.doParseItemViews(childElement);
             }

@@ -30,7 +30,6 @@ import {PageViewController} from './PageViewController';
 import {ItemViewFactory} from './ItemViewFactory';
 import {RegionItemType} from './RegionItemType';
 import {PageItemType} from './PageItemType';
-import {Component} from '../app/page/region/Component';
 import {PageView} from './PageView';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
@@ -39,9 +38,6 @@ import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {LiveEditParams} from './LiveEditParams';
 import {AddComponentEvent} from './event/outgoing/manipulation/AddComponentEvent';
-import {Region} from '../app/page/region/Region';
-import {Content} from '../app/content/Content';
-import {ContentSummary} from '../app/content/ContentSummary';
 
 export interface ElementDimensions {
     top: number;
@@ -49,8 +45,6 @@ export interface ElementDimensions {
     width: number;
     height: number;
 }
-
-export type BaseComponent = Component | Region | Content | ContentSummary;
 
 export class ItemViewBuilder {
 
@@ -360,7 +354,7 @@ export abstract class ItemView
                 }
 
                 // restored selection: true to nake context panel not open
-                new SelectComponentEvent({itemView: this, position: clickPosition, restoredSelection: true}).fire();
+                new SelectComponentEvent({itemView: this, position: clickPosition}).fire();
             } else {
                 if (this.contextMenu?.isVisible()) {
                     this.hideContextMenu();
@@ -811,9 +805,9 @@ export abstract class ItemView
         }
     }
 
-    selectWithoutMenu(restoredSelection?: boolean) {
+    selectWithoutMenu() {
         this.selectItem();
-        new SelectComponentEvent({itemView: this, position: null, restoredSelection}).fire();
+        new SelectComponentEvent({itemView: this, position: null}).fire();
     }
 
     private selectItem() {

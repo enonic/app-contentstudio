@@ -28,7 +28,7 @@ export class CreateItemViewConfig<PARENT extends ItemView> {
     /**
      * Optional. The ItemViewIdProducer of parentRegionView will be used if not set.
      */
-    setItemViewIdProducer(value: ItemViewIdProducer): CreateItemViewConfig<PARENT> {
+    setItemViewIdProducer(value: ItemViewIdProducer): this {
         this.itemViewIdProducer = value;
         return this;
     }
@@ -56,9 +56,6 @@ export class CreateItemViewConfig<PARENT extends ItemView> {
         return this;
     }
 
-    /**
-     * Optional. If not set then ItemView should be added as last child.
-     */
     setPositionIndex(value: number): this {
         this.positionIndex = value;
         return this;

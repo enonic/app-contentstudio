@@ -27,9 +27,9 @@ export class LayoutComponentView
 
     private regionViews: RegionView[];
 
-    private itemViewAddedListener: (event: ItemViewAddedEvent) => void;
+    private readonly itemViewAddedListener: (event: ItemViewAddedEvent) => void;
 
-    private itemViewRemovedListener: (event: ItemViewRemovedEvent) => void;
+    private readonly itemViewRemovedListener: (event: ItemViewRemovedEvent) => void;
 
     public static debug: boolean = false;
 
@@ -45,16 +45,6 @@ export class LayoutComponentView
         this.itemViewRemovedListener = (event: ItemViewRemovedEvent) => this.notifyItemViewRemoved(event.getView());
 
         this.parseRegions();
-    }
-
-    getRegionViewByName(name: string): RegionView {
-
-        for (const regionView of this.regionViews) {
-            if (regionView.getRegionName() === name) {
-                return regionView;
-            }
-        }
-        return null;
     }
 
     getComponentViewByPath(path: ComponentPath): ItemView {
