@@ -9,7 +9,6 @@ import {LiveEditPageDialogCreatedEvent, LiveEditPageDialogCreatedEventHandler} f
 import {Highlighter} from '../Highlighter';
 import {ItemView} from '../ItemView';
 import {PageViewController} from '../PageViewController';
-import {DragAndDrop} from '../DragAndDrop';
 import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
 import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
 import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
@@ -29,13 +28,26 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {UpdateTextComponentEvent} from '../event/outgoing/manipulation/UpdateTextComponentEvent';
 import {ContentContext} from '../../app/wizard/ContentContext';
+import {CreateTextComponentViewConfig} from '../CreateTextComponentViewConfig';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Content} from '../../app/content/Content';
+import {TextComponent} from '../../app/page/region/TextComponent';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder {
+
+    text: string;
+
     constructor() {
         super();
         this.setType(TextItemType.get());
     }
+
+    setText(value: string): this {
+        this.text = value;
+        return this;
+    }
+
 }
 
 export class TextComponentView
@@ -50,6 +62,8 @@ export class TextComponentView
     private focusOnInit: boolean;
 
     private editorReadyListeners: (() => void)[] = [];
+
+    private initialValue: string;
 
     public static debug: boolean = false;
 
@@ -71,6 +85,8 @@ export class TextComponentView
 
     constructor(builder: TextComponentViewBuilder) {
         super(builder);
+
+        this.initialValue = ObjectHelper.isDefined(builder.text) ? builder.text : this.getTextFromPersistedContent();
 
         this.addTextContextMenuActions();
         this.addClassEx('text-view');
@@ -390,7 +406,6 @@ export class TextComponentView
     }
 
     private doInitEditor(): void {
-        const componentText: string = this.getEl().getInnerHtml();
         this.setContentEditable(true);
         this.isInitializingEditor = true;
         const createDialogHandler: (event: CreateHtmlAreaDialogEvent) => void = event => {
@@ -407,7 +422,7 @@ export class TextComponentView
             .setMouseLeaveHandler(this.onMouseLeftHandler.bind(this))
             .setKeydownHandler(this.onKeydownHandler.bind(this))
             .setNodeChangeHandler(this.processEditorValue.bind(this))
-            .setEditorReadyHandler(this.handleEditorCreated.bind(this, componentText))
+            .setEditorReadyHandler(this.handleEditorCreated.bind(this))
             .setFixedToolbarContainer(PageViewController.get().getEditorToolbarContainerId())
             .setContent(ContentContext.get().getContent()?.getContentSummary())
             .setEditableSourceCode(this.editableSourceCode)
@@ -424,9 +439,9 @@ export class TextComponentView
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private handleEditorCreated(componentText: string): void {
-        const data: string = componentText ?
-                             HTMLAreaHelper.convertRenderSrcToPreviewSrc(componentText, this.getLiveEditParams().contentId) :
+    private handleEditorCreated(): void {
+        const data: string = this.initialValue ?
+                             HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.initialValue, this.getLiveEditParams().contentId) :
                              TextComponentView.DEFAULT_TEXT;
         this.htmlAreaEditor.setData(data);
 
@@ -472,12 +487,16 @@ export class TextComponentView
             return;
         }
 
-        const text: string = this.isEditorEmpty() ? TextComponentView.DEFAULT_TEXT :
-                             HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData());
+        const text: string = this.getText();
 
         this.refreshEmptyState();
 
         new UpdateTextComponentEvent(this.getPath(), text).fire();
+    }
+
+    private getText(): string {
+        return this.isEditorEmpty() ? TextComponentView.DEFAULT_TEXT :
+               HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData());
     }
 
     isEmpty(): boolean {
@@ -498,6 +517,7 @@ export class TextComponentView
         const editor = this.htmlAreaEditor;
         if (editor) {
             try {
+                this.initialValue = this.getText(); // in case of moving saving current value since the editor will be recreated
                 editor.destroy(false);
             } catch (e) {
                 // error might be thrown when invoked after editor's iframe unloaded
@@ -611,4 +631,18 @@ export class TextComponentView
         }
     }
 
+    makeDuplicateConfig(): CreateTextComponentViewConfig {
+        return super.makeDuplicateConfig(new CreateTextComponentViewConfig().setText(this.getText())) as CreateTextComponentViewConfig;
+    }
+
+    private getTextFromPersistedContent(): string {
+        const savedComponent = (ContentContext.get().getContent().getContentSummary() as Content).getPage()?.getComponentByPath(
+            this.getPath());
+
+        if (savedComponent instanceof TextComponent) {
+            return savedComponent.getText();
+        }
+
+        return '';
+    }
 }

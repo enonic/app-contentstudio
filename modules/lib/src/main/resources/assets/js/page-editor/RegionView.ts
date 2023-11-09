@@ -1,6 +1,5 @@
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ItemView, ItemViewBuilder} from './ItemView';
 import {RegionItemType} from './RegionItemType';
@@ -17,8 +16,6 @@ import {ComponentView} from './ComponentView';
 import {PageView} from './PageView';
 import {LayoutComponentView} from './layout/LayoutComponentView';
 import {DragAndDrop} from './DragAndDrop';
-import {Region} from '../app/page/region/Region';
-import {Component} from '../app/page/region/Component';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {ComponentAddedEvent} from '../app/page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../app/page/region/ComponentRemovedEvent';
@@ -69,9 +66,7 @@ export class RegionView
 
     private componentViews: ComponentView[];
 
-    private componentIndex: number;
-
-    private name: string;
+    private readonly name: string;
 
     private itemViewAddedListeners: ((event: ItemViewAddedEvent) => void)[];
 
@@ -89,7 +84,7 @@ export class RegionView
 
     private mouseOverListener: (e: MouseEvent) => void;
 
-    private resetAction: Action;
+    private readonly resetAction: Action;
 
     private textMode: boolean = false;
 
@@ -111,7 +106,6 @@ export class RegionView
         this.addClassEx('region-view');
 
         this.componentViews = [];
-        this.componentIndex = 0;
         this.itemViewAddedListeners = [];
         this.itemViewRemovedListeners = [];
         this.resetAction = new Action(i18n('live.view.reset')).onExecuted(() => {
@@ -254,15 +248,10 @@ export class RegionView
 
     select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
         if (config) {
-            config.newlyCreated = false;
             config.rightClicked = false;
         }
 
         super.select(config, menuPosition);
-    }
-
-    selectWithoutMenu(restoredSelection?: boolean) {
-        super.selectWithoutMenu(restoredSelection);
     }
 
     toString() {
@@ -273,7 +262,12 @@ export class RegionView
         return super.toString() + extra;
     }
 
-    registerComponentView(componentView: ComponentView, index: number, newlyCreated: boolean = false) {
+    registerComponentView(componentView: ComponentView, index?: number) {
+        this.registerComponentViewInParent(componentView, index);
+        this.registerComponentViewListeners(componentView);
+    }
+
+    registerComponentViewInParent(componentView: ComponentView, index?: number): void {
         if (RegionView.debug) {
             console.log('RegionView[' + this.toString() + '].registerComponentView: ' + componentView.toString() + ' at ' + index);
         }
@@ -283,12 +277,12 @@ export class RegionView
         } else {
             this.componentViews.push(componentView);
         }
+    }
 
+    private registerComponentViewListeners(componentView: ComponentView): void {
         componentView.setParentItemView(this);
         componentView.onItemViewAdded(this.itemViewAddedListener);
         componentView.onItemViewRemoved(this.itemViewRemovedListener);
-
-        this.notifyItemViewAdded(componentView, newlyCreated);
     }
 
     unregisterComponentView(componentView: ComponentView) {
@@ -323,7 +317,8 @@ export class RegionView
         }
 
         this.insertChild(componentView, index);
-        this.registerComponentView(componentView, index, newlyCreated || dragged);
+        this.registerComponentView(componentView, index);
+        this.notifyItemViewAdded(componentView, newlyCreated || dragged);
         this.refreshEmptyState();
     }
 
@@ -419,7 +414,7 @@ export class RegionView
         });
     }
 
-    private notifyItemViewAdded(itemView: ItemView, newlyCreated: boolean = false) {
+    notifyItemViewAdded(itemView: ItemView, newlyCreated: boolean = false) {
         const event = new ItemViewAddedEvent(itemView, newlyCreated);
         this.itemViewAddedListeners.forEach((listener) => {
             listener(event);
@@ -447,19 +442,12 @@ export class RegionView
         });
     }
 
-    static isRegionViewFromHTMLElement(htmlElement: HTMLElement): boolean {
-
-        const name = htmlElement.getAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
-        return !StringHelper.isBlank(name);
-    }
-
     private parseComponentViews() {
         this.componentViews.forEach((componentView) => {
             this.unregisterComponentView(componentView);
         });
 
         this.componentViews = [];
-        this.componentIndex = 0;
 
         this.doParseComponentViews();
     }
@@ -485,9 +473,10 @@ export class RegionView
                             .setParentView(this)
                             .setElement(childElement)
                             .setLiveEditParams(this.liveEditParams)
+                            .setPositionIndex(this.getComponentViews().length)
                             .setParentElement(parentElement ? parentElement : this));
 
-                    this.registerComponentView(componentView, this.componentIndex++);
+                    this.registerComponentViewListeners(componentView);
 
             } else {
                 this.doParseComponentViews(childElement);

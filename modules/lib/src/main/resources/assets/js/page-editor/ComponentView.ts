@@ -18,7 +18,6 @@ import {ItemViewFactory} from './ItemViewFactory';
 import {PageItemType} from './PageItemType';
 import {RegionView} from './RegionView';
 import {PageView} from './PageView';
-import {ComponentResetEventHandler} from '../app/page/region/Component';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -44,7 +43,7 @@ export class ComponentViewBuilder {
 
     element: Element;
 
-    positionIndex: number;
+    positionIndex: number = -1;
 
     contextMenuActions: Action[];
 
@@ -147,6 +146,11 @@ export class ComponentView
             .setLiveEditParams(builder.liveEditParams)
             .setContextMenuTitle(new ComponentViewContextMenuTitle(builder.type?.getShortName(), builder.type))
         );
+
+        // that will immediately set connection between component and parent region
+        if (this.getParentItemView() && builder.positionIndex >= 0) {
+            this.getParentItemView().registerComponentViewInParent(this, builder.positionIndex);
+        }
 
         this.empty = StringHelper.isEmpty(builder.element?.getHtml());
         this.initListeners();
@@ -275,27 +279,25 @@ export class ComponentView
     }
 
     clone(): ComponentView {
-        const isFragmentContent: boolean = this.getLiveEditParams().isFragment;
-        const index: number = isFragmentContent ? 0 : this.getParentItemView().getComponentViewIndex(this);
         const config = new CreateItemViewConfig<RegionView>()
             .setParentView(this.getParentItemView())
             .setParentElement(this.getParentElement())
-            .setPositionIndex(index)
             .setLiveEditParams(this.getLiveEditParams());
 
         return this.createView(this.getType(), config) as ComponentView;
     }
 
+    protected makeDuplicateConfig(config?: CreateItemViewConfig<RegionView>): CreateItemViewConfig<RegionView> {
+        return (config || new CreateItemViewConfig<RegionView>())
+            .setParentView(this.getParentItemView())
+            .setParentElement(this.getParentElement())
+            .setLiveEditParams(this.getLiveEditParams());
+    }
+
     duplicate(): ComponentView {
         const parentView = this.getParentItemView();
         const index = parentView.getComponentViewIndex(this);
-
-        const duplicateView = this.createView(this.getType(),
-            new CreateItemViewConfig<RegionView>()
-                .setParentView(this.getParentItemView())
-                .setParentElement(this.getParentElement())
-                .setLiveEditParams(this.getLiveEditParams())
-                .setPositionIndex(index + 1)) as ComponentView;
+        const duplicateView = this.createView(this.getType(), this.makeDuplicateConfig()) as ComponentView;
 
         duplicateView.skipInitOnAdd();
         parentView.addComponentView(duplicateView, index + 1);
@@ -321,10 +323,10 @@ export class ComponentView
             pageView.registerFragmentComponentView(replacement);
         } else {
             let index = this.getParentItemView().getComponentViewIndex(this);
-
             let parentRegionView = this.getParentItemView();
             parentRegionView.unregisterComponentView(this);
             parentRegionView.registerComponentView(replacement, index);
+            parentRegionView.notifyItemViewAdded(replacement);
         }
     }
 
