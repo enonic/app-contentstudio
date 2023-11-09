@@ -51,6 +51,8 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private readonly componentType: ComponentType;
 
+    private timeoutId: number;
+
     protected constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
         super(config);
 
@@ -166,6 +168,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     protected abstract getFormName(): string;
 
     private setSelectorValue(descriptor: Descriptor) {
+        clearTimeout(this.timeoutId);
         this.selector.setDescriptor(descriptor);
         this.setupComponentForm(descriptor);
         this.notifyDescriptorLoaded(descriptor);
@@ -221,7 +224,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.appendChild(this.formView);
         this.component.setDisableEventForwarding(true);
 
-        setTimeout(() =>
+        this.timeoutId = setTimeout(() =>
             this.formView.layout(false)
                 .catch((reason) => DefaultErrorHandler.handle(reason))
                 .finally(() => {
