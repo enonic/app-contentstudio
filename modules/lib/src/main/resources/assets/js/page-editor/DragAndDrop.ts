@@ -298,8 +298,7 @@ export class DragAndDrop {
                     new CreateItemViewConfig<RegionView>()
                         .setParentView(regionView)
                         .setLiveEditParams(this.pageView.getLiveEditParams())
-                        .setParentElement(regionView)
-                        .setPositionIndex(componentIndex)) as ComponentView;
+                        .setParentElement(regionView)) as ComponentView;
 
                 new AddComponentEvent(new ComponentPath(componentIndex, regionView.getPath()), componentType.toComponentType()).fire();
             } else {

@@ -8,10 +8,7 @@ import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 export interface ItemViewSelectedEventConfig {
     itemView: ItemView;
     position: ClickPosition;
-    newlyCreated?: boolean;
     rightClicked?: boolean;
-    restoredSelection?: boolean;
-    avoidInspectComponentRefresh?: boolean;
 }
 
 export class SelectComponentEvent
@@ -21,19 +18,10 @@ export class SelectComponentEvent
 
     private readonly position: ClickPosition;
 
-    private readonly newlyCreated: boolean;
-
-    private readonly restoredSelection: boolean;
-
-    private readonly avoidInspectComponentRefresh: boolean;
-
     constructor(config: ItemViewSelectedEventConfig) {
         super(config.rightClicked);
         this.pageItemView = config.itemView;
         this.position = config.position;
-        this.newlyCreated = config.newlyCreated === undefined ? false : config.newlyCreated;
-        this.restoredSelection = config.restoredSelection === undefined ? false : config.restoredSelection;
-        this.avoidInspectComponentRefresh = config.avoidInspectComponentRefresh === undefined ? false : config.avoidInspectComponentRefresh;
     }
 
     getItemView(): ItemView {
@@ -50,18 +38,6 @@ export class SelectComponentEvent
 
     getPosition(): ClickPosition {
         return this.position;
-    }
-
-    shouldAvoidInspectComponentRefresh(): boolean {
-        return this.avoidInspectComponentRefresh;
-    }
-
-    isNewlyCreated(): boolean {
-        return this.newlyCreated;
-    }
-
-    isRestoredSelection(): boolean {
-        return this.restoredSelection;
     }
 
     static on(handler: (event: SelectComponentEvent) => void, contextWindow: Window = window) {
