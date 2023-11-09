@@ -157,6 +157,9 @@ module.exports = Object.freeze({
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
     SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Settings']",
     MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
+    IMAGE_CONTENT_COMBOBOX:{
+        DIV: "//div[contains(@id,'ImageContentComboBox')]",
+    },
     PUBLISH_DIALOG: {
         EXCLUDE_BTN: "//button[child::span[contains(.,'Exclude')]]",
     },

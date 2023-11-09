@@ -32,10 +32,8 @@ describe('content.image.selector: Image content specification', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
             // 2. Type a not existing name:
             await imageSelectorForm.doFilterOptions('zzzzzz');
-            // 3. Wait for the message:
-            let isDisplayed = await imageSelectorForm.waitForEmptyOptionsMessage();
-            await studioUtils.saveScreenshot('img_empty_options1');
-            assert.isTrue(isDisplayed, "No matching items - this message should appear");
+            // 3. Verify that the message: "No matching items - this message should appear"
+            await imageSelectorForm.waitForEmptyOptionsMessage();
         });
 
     it(`GIVEN wizard for image-selector is opened and actual name is typed in filter input WHEN 'zzzzzz' string has been typed in the filter input THEN 'No matching items' should appears`,

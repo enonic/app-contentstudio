@@ -9,7 +9,6 @@ const XPATH = {
     container: "//div[contains(@id,'ImageSelector')]",
     wizardStep: "//li[contains(@id,'TabBarItem')]/a[text()='Image selector']",
     uploaderButton: "//a[@class='dropzone']",
-    imageContentComboBox: "//div[contains(@id,'ImageContentComboBox')]",
     flatOptionView: "//div[contains(@id,'ImageSelectorViewer')]",
     selectedOption: "//div[contains(@id,'ImageSelectorSelectedOptionView')]",
     selectedOptions: "//div[contains(@id,'ImageSelectorSelectedOptionsView')]",
@@ -26,12 +25,12 @@ const XPATH = {
 
 class ImageSelectorForm extends BaseSelectorForm {
 
-    get imageComboBoxDrppdownHandle() {
-        return XPATH.imageContentComboBox + lib.DROP_DOWN_HANDLE;
+    get imageComboBoxDropdownHandle() {
+        return lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.DROP_DOWN_HANDLE;
     }
 
     get modeTogglerButton() {
-        return XPATH.imageContentComboBox + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
+        return lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
     }
 
     get optionsFilterInput() {
@@ -65,10 +64,10 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async clickOnDropdownHandle() {
         try {
-            await this.clickOnElement(this.imageComboBoxDrppdownHandle);
+            await this.clickOnElement(this.imageComboBoxDropdownHandle);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_img_sel_dropdown_handle');
+            await this.saveScreenshot('err_img_sel_dropdown_handle');
             throw  new Error('image combobox dropdown handle not found ' + err);
         }
     }
@@ -78,7 +77,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.pause(1500);
     }
 
-    //Expands a folder in Tree Mode:
+    // Expands a folder in Tree Mode:
     async expandFolderInOptions(folderName) {
         let locator = lib.expanderIconByName(folderName);
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -87,13 +86,13 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async getTreeModeOptionDisplayNames() {
-        let options = XPATH.imageContentComboBox + lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
+        let options = lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(options, appConst.mediumTimeout);
         return await this.getTextInElements(options);
     }
 
     async getTreeModeOptionStatus() {
-        let options = XPATH.imageContentComboBox + lib.SLICK_VIEW_PORT + "//div[contains(@class,'r1')]";
+        let options = lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.SLICK_VIEW_PORT + "//div[contains(@class,'r1')]";
         await this.waitForElementDisplayed(options, appConst.mediumTimeout);
         return await this.getTextInElements(options);
     }
@@ -144,23 +143,23 @@ class ImageSelectorForm extends BaseSelectorForm {
     async clickOnDropDownHandleAndSelectImages(numberImages) {
         await this.clickOnDropdownHandle();
         await this.pause(700);
-        let selector = XPATH.imageContentComboBox + lib.SLICK_ROW + "//div[contains(@class,'checkboxsel')]";
+        let selector = lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.SLICK_ROW + "//div[contains(@class,'checkboxsel')]";
         let elems = await this.findElements(selector);
         let viewportElement = await this.findElements(
-            XPATH.imageContentComboBox + "//div[contains(@id,'OptionsTreeGrid')]" + "//div[contains(@class, 'slick-viewport')]");
+            lib.IMAGE_CONTENT_COMBOBOX.DIV + "//div[contains(@id,'OptionsTreeGrid')]" + "//div[contains(@class, 'slick-viewport')]");
         //Scrolls and clicks on options in the dropdown:
         await this.clickOnOptions(elems.slice(0, numberImages), viewportElement[0]);
         await this.clickOnApplyButton();
         return await this.pause(1000);
     }
 
-    //Scrolls viewport in dropdown:
+    // Scrolls viewport in the dropdown:
     doScroll(viewportElement, step) {
         return this.getBrowser().execute("arguments[0].scrollTop=arguments[1]", viewportElement, step);
     }
 
     async clickOnApplyButton() {
-        let selector = XPATH.imageContentComboBox + "//span[text()='Apply']";
+        let selector = lib.IMAGE_CONTENT_COMBOBOX.DIV + "//span[text()='Apply']";
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         return await this.clickOnElement(selector);
     }
@@ -177,11 +176,13 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.pause(600);
     }
 
-    waitForEmptyOptionsMessage() {
-        return this.waitForElementDisplayed(XPATH.container + lib.EMPTY_OPTIONS_DIV, appConst.longTimeout).catch(err => {
-            this.saveScreenshot("err_empty_options");
-            return false;
-        });
+    async waitForEmptyOptionsMessage() {
+        try {
+            return await this.waitForElementDisplayed(XPATH.container + lib.EMPTY_OPTIONS_DIV, appConst.longTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_empty_opt');
+            throw new Error("Image Selector - Empty options text should appear visible, screenshot: " + screenshot + ' ' + err);
+        }
     }
 
     waitForUploaderButtonEnabled() {
@@ -197,7 +198,7 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async clickOnExpanderIconInOptions(name) {
-        let expanderIcon = XPATH.imageContentComboBox + XPATH.expanderIconByName(name);
+        let expanderIcon = lib.IMAGE_CONTENT_COMBOBOX.DIV + XPATH.expanderIconByName(name);
         await this.clickOnElement(expanderIcon);
         return await this.pause(700);
     }

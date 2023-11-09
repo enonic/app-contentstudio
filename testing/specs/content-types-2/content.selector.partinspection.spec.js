@@ -12,6 +12,7 @@ const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form
 const CityListPartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/city.list.part.inspection.panel');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const CityCreationPartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/city.creation.part.inspection.panel');
 
 describe('my.first.site.country.spec - Create a site with country content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -80,6 +81,34 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 6. Verify the new selected option:
             let result = await cityListPartInspectionPanel.getSelectedContentDisplayName();
             assert.equal(result, appConst.TEST_IMAGES.SPUMANS, "The expected content should be displayed in the selector");
+        });
+
+    // Verifies -  Broken flat list mode in Image Selector #7039
+    // https://github.com/enonic/app-contentstudio/issues/7039
+    it(`GIVEN existing site is opened WHEN Inspect panel with image selector has been opened THEN expected options should be displayed in flat mode in the expanded combobox`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let liveFormPanel = new LiveFormPanel();
+            let cityCreationPartInspectionPanel = new CityCreationPartInspectionPanel();
+            // 1. Open the site:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3.Click on the 'main' item and open Context Menu:
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem(['Insert', 'Part']);
+            // 4. Select the part with image-selector in config
+            await liveFormPanel.selectPartByDisplayName('City Creation');
+            await contentWizard.switchToMainFrame();
+            // 5. Verify that Inspect Panel is loaded
+            await cityCreationPartInspectionPanel.waitForLoaded();
+            // 6. Click on mode-toggler and switch to flat mode:
+            await cityCreationPartInspectionPanel.clickOnImageSelectorModeTogglerButton();
+            // 7. Verify that expected options are displayed in tree mode:
+            let items = await cityCreationPartInspectionPanel.getTreeModeOptionsImagesDisplayName();
+            assert.isTrue(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Expected item should be present in options");
+            assert.isTrue(items.includes(appConst.TEST_FOLDER_WITH_IMAGES_2), "Expected item should be present in options");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
