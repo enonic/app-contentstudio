@@ -57,6 +57,8 @@ Start ui-tests on your local environment:
 ```gradlew w_testPublishIssuesLocal``` run ui-tests for creating issues, requests and Publish wizard
 ```gradlew w_testPageEditorLocal```    run ui-tests for Page Editor
 ```gradlew w_testProjectsLocal```      run ui-tests for Projects
+```w_testHiddenDefProject```           run ui-tests with `settings.hideDefaultProject=true publishingWizard.excludeDependencies=true` properties
+
 
 
 Start ui-tests on GitHub environment,  go to `app-contentstudio`:

@@ -65,22 +65,29 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
     it(`GIVEN existing site with a template is opened(shader should be applied) WHEN Customize menu item has been clicked THEN shader gets not displayed`,
         async () => {
             let contentWizard = new ContentWizard();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.pause(1000);
             // 3. Verify that LiveEdit is locked:
             let isLocked = await contentWizard.isLiveEditLocked();
             assert.isTrue(isLocked, 'Page editor should be locked');
+            // PCV should be hidden in locked LiveEdit:
+            await pageComponentsWizardStepForm.waitForNotDisplayed();
             await contentWizard.switchToParentFrame();
-            // 4. Unlock the LiveEdit
+            // 4. Unlock the LiveEdit(Click on Customize menu item)
             await contentWizard.doUnlockLiveEditor();
             // 5. Verify that LiveEdit is unlocked:
             await contentWizard.switchToParentFrame();
             isLocked = await contentWizard.isLiveEditLocked();
             assert.isFalse(isLocked, 'Page editor should not be locked');
+            // switch from LiveEdit to parent frame:
+            await contentWizard.switchToParentFrame();
+            // 6. Verify that PCV gets visible now:
+            await pageComponentsWizardStepForm.waitForLoaded();
         });
 
-    it(`GIVEN site is opened AND Inspection Panel is opened WHEN the second template has been selected in the Inspect Panel THEN site should be saved automatically AND 'Saved' button should appear`,
+    it(`GIVEN site is opened AND Inspection Panel is opened WHEN another template has been selected in the Inspect Panel THEN site should be saved automatically AND 'Saved' button should appear`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
@@ -101,6 +108,40 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             assert.equal(notificationMessage, expectedMessage, "'Item is saved' - this message should appear");
             // 6. Verify -  'Save' button gets disabled in the wizard-toolbar
             await contentWizard.waitForSaveButtonDisabled();
+        });
+
+    // Verifies issue  Content customise picks incorrect template #7038
+    //  https://github.com/enonic/app-contentstudio/issues/7038
+    it(`GIVEN site is opened WHEN the current template has been switched in the Inspect Panel THEN items in PCV should be updated`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let confirmationDialog = new ConfirmationDialog();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            // 1. Open the site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // 2. Click on Customize menu item::
+            await contentWizard.doUnlockLiveEditor();
+            await contentWizard.switchToParentFrame();
+            // 3. Check the items in PCV:
+            let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
+            assert.isTrue(result.includes('main region'), 'main region item should be displayed in the modal dialog');
+            assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
+            // 4. Select another template:
+            await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE2.displayName);
+            // 5. Confirmation dialog appears:
+            await confirmationDialog.waitForDialogOpened();
+            // 6. Confirm it:
+            await confirmationDialog.clickOnYesButton();
+            // 7. Verify that notification message appears:
+            await contentWizard.waitForNotificationMessage();
+            // 8. Live Edit gets locked again, click on 'Customize' menu item:
+            await contentWizard.doUnlockLiveEditor();
+            await contentWizard.switchToParentFrame();
+            // 9. Verify that items in PCV are updated after switching a template:
+            result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
+            assert.isTrue(result.includes('default'), 'default item should be displayed in the modal dialog');
+            assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
         });
 
     it(`GIVEN Inspection Panel is loaded WHEN 'main region' controller has been selected in Inspect Panel THEN PCV should be unlocked in wizard step`,
