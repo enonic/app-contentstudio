@@ -1,3 +1,4 @@
+const AfterBuildPlugin = require('@fiverr/afterbuild-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
@@ -16,6 +17,9 @@ const isProd = process.env.NODE_ENV === 'production';
 
 const GETTER_ROOT = '_static';
 const HASH_DELIMITER = '-';
+
+const DIR_DST = '/build/resources/main';
+const DIR_DST_ASSETS = '/build/resources/main/assets';
 
 module.exports = [
     {
@@ -87,7 +91,7 @@ module.exports = [
             }
         ],
         output: {
-            path: path.join(__dirname, '/build/resources/main/assets'),
+            path: path.join(__dirname, DIR_DST_ASSETS),
             filename: './[name].js',
             assetModuleFilename: './[file]'
         },
@@ -157,6 +161,7 @@ module.exports = [
             //     }
             // }
         },
+        // parallelism: 1,
         plugins: [
             new ProvidePlugin({
                 $: 'jquery',
@@ -178,7 +183,7 @@ module.exports = [
                     // },
                     {
                         // from: path.join(__dirname, 'node_modules/@enonic/legacy-slickgrid/*.js'),
-                        from: path.join(__dirname, 'node_modules/@enonic/legacy-slickgrid/index.js'),
+                        from: path.join(__dirname, 'node_modules/@enonic/legacy-slickgrid/index.js*'),
                         to: `${path.join(__dirname, 'build/resources/main', GETTER_ROOT)}/slickgrid/[name]${HASH_DELIMITER}[contenthash][ext]`
                         // to: `${path.join(__dirname, 'build/resources/main', 'assets')}/slickgrid/[name][ext]`
                     },
@@ -251,6 +256,33 @@ module.exports = [
                     }
                     return newManifest;
                 }
+            }),
+            new AfterBuildPlugin(function () {
+                const manifestPath = path.join(__dirname, DIR_DST, GETTER_ROOT, 'manifest.json');
+                const json = fs.readFileSync(manifestPath, 'utf8');
+                const manifest = JSON.parse(json);
+                // const newManifest = {};
+                for (const [key, value] of Object.entries(manifest)) {
+                    if (key.endsWith('.map')) {
+                        const jsKey = key.replace('.map', '');
+                        // const newValue = manifest[jsKey].replace('.js', '.js.map');
+                        const jsPath = path.join(__dirname, DIR_DST, GETTER_ROOT, manifest[jsKey]);
+                        // console.log('jsPath', jsPath);
+                        const js = fs.readFileSync(jsPath, 'utf8');
+                        fs.rmSync(jsPath);
+                        const replacement = `//# sourceMappingURL=${value.replace(/.*\//g, '')}`;
+                        // console.log('replacement', replacement);
+                        fs.writeFileSync(jsPath, js.replace(/\/\/# sourceMappingURL=.*/s, replacement));
+                        // const oldPath = path.join(__dirname, DIR_DST, GETTER_ROOT, value);
+                        // const newPath = path.join(__dirname, DIR_DST, GETTER_ROOT, newValue);
+                        // fs.renameSync(oldPath, newPath);
+                        // newManifest[key] = newValue;
+                    // } else {
+                    }
+                    // newManifest[key] = value;
+                }
+                // fs.rmSync(manifestPath);
+                // fs.writeFileSync(manifestPath, JSON.stringify(newManifest, null, 2));
             }),
         ],
         mode: isProd ? 'production' : 'development',

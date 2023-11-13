@@ -49,6 +49,7 @@
     "@enonic/esbuild-plugin-copy-with-hash": "^0.1.0",
     "@enonic/eslint-config": "^1.2.0",
     "@enonic/tsup-plugin-manifest": "^0.0.1",
+    "@fiverr/afterbuild-webpack-plugin": "^1.0.0",
     "@types/ckeditor": "^4.9.10",
     "@types/core-js": "^2.5.6",
     "@types/jquery": "^3.5.22",
