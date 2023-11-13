@@ -1,12 +1,10 @@
 const path = require('path');
-//const {TimelineService} = require('wdio-timeline-reporter/timeline-service');
 const PropertiesReader = require('properties-reader');
 const file = path.join(__dirname, '/../browser.properties');
 const properties = PropertiesReader(file);
 const browser_version = properties.get('browser.version');
 const width = properties.get('browser.width');
 const height = properties.get('browser.height');
-const allure = require('allure-commandline')
 
 exports.config = {
 
@@ -45,8 +43,6 @@ exports.config = {
     // Default request retries count
     connectionRetryCount: 3,
 
-    //services: [[TimelineService]],
-
     framework: 'mocha',
     mochaOpts: {
         ui: 'bdd',
@@ -55,12 +51,9 @@ exports.config = {
     // Set directory to store all logs into
     outputDir: "./build/reports/logs/",
 
-    reporters: ['concise', ['allure', {
-        outputDir: './build/reports/timeline',
-        disableWebdriverStepsReporting: true,
-        disableWebdriverScreenshotsReporting: true,
-    }]],
-
+    reporters: ['concise',
+        ['allure', {outputDir: './build/reports/allure', disableWebdriverStepsReporting: true, disableWebdriverScreenshotsReporting: true,}],
+    ],
 
     // Hook that gets executed before the suite starts
     beforeSuite: function (suite) {

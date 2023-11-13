@@ -100,16 +100,25 @@ task stopServer {
     }
 }
 
+task cleanup(type: Delete) {
+    delete './build/reports/allure'
+}
+
+task generateReportAndStopServer( type: NpmTask ) {
+    args = ['run-script', 'allure-report']
+    finalizedBy cleanup
+    finalizedBy stopServer
+}
 
 /////////////////////////////Firefox geckodriver:
 task testWizardsGridFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_wizards_grid:firefox']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task testPageEditorFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_page_editor:firefox']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task testWizardsGridFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
@@ -122,12 +131,12 @@ task testPageEditorFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 
 task testInputTypesFirefox_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_input_types_2:firefox']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task testInputTypesFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_input_types:firefox']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task testInputTypesFirefox_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
@@ -140,16 +149,16 @@ task testInputTypesFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 
 task testContentStudioProjectsFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_project:firefox']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 task testPublishIssuesFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_publish_issues:firefox']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task testModalDialogFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_modal_dialog:firefox']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task testPublishIssuesFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
@@ -163,7 +172,7 @@ task testModalDialogFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 ///////////////// CHROME WDIO , startServer, copyApps
 task w_testInputTypes( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_input_types:wdio_chrome']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task w_testInputTypesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
@@ -172,7 +181,7 @@ task w_testInputTypesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 
 task w_testInputTypes_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_input_types_2:wdio_chrome']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task w_testInputTypes_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
@@ -181,7 +190,7 @@ task w_testInputTypes_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
 
 task w_testModalDialog( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_modal_dialog:wdio_chrome']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task w_testModalDialogLocal( type: NpmTask, dependsOn: [npmInstall] ) {
@@ -190,7 +199,7 @@ task w_testModalDialogLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 
 task w_testWizardsGrid( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_wizards_grid:wdio_chrome']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task w_testWizardsGridLocal( type: NpmTask, dependsOn: [npmInstall] ) {
@@ -199,7 +208,7 @@ task w_testWizardsGridLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 
 task w_testPublishIssues( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_publish_issues:wdio_chrome']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 task w_testPublishIssuesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_publish_issues:wdio_chrome']
@@ -207,12 +216,12 @@ task w_testPublishIssuesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 
 task w_testProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_project:wdio_chrome']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task w_testProjects_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_project_2:wdio_chrome']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task w_testProjectsLocal( type: NpmTask, dependsOn: [npmInstall] ) {
@@ -221,7 +230,7 @@ task w_testProjectsLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 
 task w_testPageEditor( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_page_editor:wdio_chrome']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }
 
 task w_testPageEditorLocal( type: NpmTask, dependsOn: [npmInstall] ) {
@@ -230,5 +239,5 @@ task w_testPageEditorLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 
 task w_testHiddenDefProject( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, copyCustomConfig] ) {
     args = ['run-script', 'test_hide_default_project:wdio_chrome']
-    finalizedBy stopServer
+    finalizedBy generateReportAndStopServer
 }

@@ -13,7 +13,7 @@ There are 2 modes for running tests.
 
 `Standalone` mode is convenient for running one suite(file) with tests
 1. Start your local XP
-2. Go to `/app-contentstudio/testing/` folder and install required libs  
+2. Go to `/app-contentstudio/testing/` folder and install required libs
     ``` npm install ```
 3. make sure that your local configuration files do not differ from the files located in the folder `/app-contentstudio/testing/test-applications/common-config/`
 4. copy all test-applications (`app-contentstudio/testing/test-applications/`) from  into your local `deploy` folder, these applications will import test data
@@ -35,8 +35,8 @@ Start ui-tests on your local environment:
     ``` specs: [
         path.join(__dirname, '../specs/content-types/*.spec.js')
     ],```
-   
-5. go to `app-contentstudio` and run the command: 
+
+5. go to `app-contentstudio` and run the command:
     ```gradlew w_testInputTypesLocal```  run ui-tests for Input Types
 
 6. If you want to see how tests are executed in the browser, then remove ``headless`` option in `wdio.input_types.chrome.conf.js`
@@ -80,4 +80,4 @@ selenium-test:
                 suite: [ w_testProjects, w_testProjects_2, w_testPageEditor, w_testInputTypes, w_testInputTypes_2, w_testWizardsGrid, w_testPublishIssues, w_testModalDialog, w_testHiddenDefProject ]
 ```
 
-Test reports and screenshot you can find in the folder: ```app-contentstudio\testing\build\reports\``` 
+Test reports and screenshot you can find in the folder: ```app-contentstudio\testing\build\reports\```
