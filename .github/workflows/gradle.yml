@@ -12,7 +12,7 @@ jobs:
         runs-on: ubuntu-latest
 
         outputs:
-            publish: ${{ steps.publish_vars.outputs.release != 'true' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/3.') || startsWith(github.ref, 'refs/heads/4.')) }}
+            publish: ${{ steps.publish_vars.outputs.release != 'true' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/4.') || startsWith(github.ref, 'refs/heads/5.')) }}
             repo: ${{ steps.publish_vars.outputs.repo }}
 
         steps:
@@ -90,7 +90,7 @@ jobs:
                   restore-keys: |
                       ${{ runner.os }}-gradle-2-
             - run: |
-                  set -ex                
+                  set -ex
 
             - uses: actions/download-artifact@v3
               with:
