@@ -24,7 +24,7 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
         async () => {
             let pageTemplateWidget = new PageTemplateWidget();
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.HAND);
-            await studioUtils.saveScreenshot('template_widget_image');
+            await studioUtils.saveScreenshot("template_widget_image");
             await pageTemplateWidget.waitForNoTemplateMessageDisplayed();
         });
 
