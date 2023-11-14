@@ -116,6 +116,7 @@ class LoaderComboBox extends Page {
             throw new Error('Content selector - options were not found:' + err);
         }
         await result[index].click();
+        await this.pause(300);
     }
 
     async clickOnCheckboxByNameInDropdown(contentName) {

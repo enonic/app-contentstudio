@@ -81,8 +81,13 @@ class BaseSelectorForm extends Page {
     }
 
     async clickOnApplyButton() {
-        let loaderComboBox = new LoaderComboBox();
-        await loaderComboBox.clickOnApplyButton();
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            await loaderComboBox.clickOnApplyButton();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
+            throw new Error("Loader combobobox, Apply button, screenshot: " + screenshot + ' ' + err);
+        }
     }
 }
 
