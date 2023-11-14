@@ -1,0 +1,37 @@
+.content-list-box {
+  .item-view-wrapper {
+    .content-tree-selector-item-viewer {
+      .names-and-icon-view {
+        .@{_COMMON_PREFIX}wrapper {
+          height: 26px;
+          width: 26px;
+          margin-right: 10px;
+        }
+
+        .@{_COMMON_PREFIX}names-view {
+          .@{_COMMON_PREFIX}main-name {
+            font-size: 13px;
+          }
+
+          .@{_COMMON_PREFIX}sub-name {
+            font-size: 11px;
+          }
+        }
+      }
+    }
+
+    &.selected {
+      .names-and-icon-view {
+        .@{_COMMON_PREFIX}names-view {
+          .@{_COMMON_PREFIX}main-name {
+            color: @admin-white;
+          }
+
+          .@{_COMMON_PREFIX}sub-name {
+            color: @admin-white;
+          }
+        }
+      }
+    }
+  }
+}

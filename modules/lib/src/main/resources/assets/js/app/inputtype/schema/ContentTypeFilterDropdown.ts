@@ -26,7 +26,8 @@ export class ContentTypeFilterDropdown
     private readonly getSelectedItemsHandler: () => string[];
 
     constructor(options: ContentTypeFilterDropdownOptions) {
-        super(new ContentTypeList(), new ContentTypeSelectedOptionsView(), {
+        super(new ContentTypeList(), {
+            selectedOptionsView: new ContentTypeSelectedOptionsView(),
             maxSelected: options.maxSelected,
             filter: options.loader.filterFn.bind(options.loader),
         });
