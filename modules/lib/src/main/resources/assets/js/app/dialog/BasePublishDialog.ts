@@ -7,7 +7,6 @@ import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthe
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
@@ -46,6 +45,8 @@ export abstract class BasePublishDialog
     private inProgressErrorEntry: DialogStateEntry;
 
     private noPermissionsErrorEntry: DialogStateEntry;
+
+    private isLoading: boolean = false;
 
     protected constructor(config: Omit<DependantItemsWithProgressDialogConfig, 'controls'>) {
         super({
@@ -176,13 +177,14 @@ export abstract class BasePublishDialog
     protected initListeners() {
         super.initListeners();
 
-        // TODO: This delay was added to make UI transitions smooth. Consider removing it later
-        const debouncedFinishedHandler = AppHelper.debounce(() => this.handleLoadFinished(), 500);
-
         this.publishProcessor.onLoadingStarted((checking) => this.handleLoadStarted(checking));
-        this.publishProcessor.onLoadingFinished(debouncedFinishedHandler);
+        this.publishProcessor.onLoadingFinished(() => this.handleLoadFinished());
         this.publishProcessor.onLoadingFailed(() => this.handleLoadFailed());
-        this.publishProcessor.onItemsChanged(debouncedFinishedHandler);
+        this.publishProcessor.onItemsChanged(() => {
+            if (!this.isLoading) {
+                this.handleLoadFinished();
+            }
+        });
 
         this.handleIssueGlobalEvents();
 
@@ -199,6 +201,7 @@ export abstract class BasePublishDialog
     }
 
     private handleLoadStarted(checking: boolean): void {
+        this.isLoading = true;
         this.lockControls();
         if (checking) {
             this.setSubTitle(i18n('dialog.publish.resolving'));
@@ -208,6 +211,7 @@ export abstract class BasePublishDialog
     }
 
     private handleLoadFinished(): void {
+        this.isLoading = false;
         this.updateChildItemsToggler();
 
         // updateCount
@@ -226,6 +230,7 @@ export abstract class BasePublishDialog
     }
 
     private handleLoadFailed() {
+        this.isLoading = false;
         this.stateBar.markErrored();
         this.scheduleFormToggle.setEnabled(false);
     }
