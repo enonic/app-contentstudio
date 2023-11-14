@@ -65,7 +65,7 @@ export abstract class DependantItemsDialog
     protected config: DependantItemsDialogConfig;
 
     protected constructor(config: DependantItemsDialogConfig) {
-        super(config);
+        super({...config, class: `dependant-items-dialog ${config.class ?? ''}`.trim()});
         this.postInitListeners();
         this.dependantIds = [];
         this.resolvedIds = [];
@@ -152,7 +152,6 @@ export abstract class DependantItemsDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.addClass('dependant-items-dialog');
             this.getBody().addClass('mask-wrapper');
             this.itemList.addClass('item-list');
             this.appendChildToHeader(this.subTitle);
