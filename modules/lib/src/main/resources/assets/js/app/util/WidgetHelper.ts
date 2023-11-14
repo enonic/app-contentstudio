@@ -31,6 +31,7 @@ export class WidgetHelper {
         const result: HTMLElement[] = [];
 
         scriptTags.forEach((scriptTag: HTMLElement) => {
+            scriptTag.remove(); // removing tag from widget html and moving it to head
             result.push(this.injectNodeToHead(scriptTag, tagName));
         });
 
