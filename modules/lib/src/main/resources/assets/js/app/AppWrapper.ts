@@ -20,15 +20,22 @@ import {Router} from './Router';
 import {UrlAction} from './UrlAction';
 import {ContentAppBar} from './bar/ContentAppBar';
 import {WidgetsSidebar} from './widget/WidgetsSidebar';
+import {WidgetInjectionResult} from './util/WidgetInjectionResult';
+
+interface MenuWidgetInjectionResult extends WidgetInjectionResult {
+    isEnabled: boolean;
+}
 
 export class AppWrapper
     extends DivEl {
+
+    private static INTERNAL_WIDGET_PREFIX: string = 'com.enonic.app.contentstudio';
 
     private sidebar: WidgetsSidebar;
 
     private widgets: Widget[] = [];
 
-    private widgetElements: Map<string, Element> = new Map<string, Element>();
+    private widgetElements: Map<string, MenuWidgetInjectionResult> = new Map<string, MenuWidgetInjectionResult>();
 
     private toggleSidebarButton: Button;
 
@@ -116,14 +123,18 @@ export class AppWrapper
     }
 
     selectWidget(widget: Widget) {
-        Array.from(this.widgetElements.values()).forEach((el: Element) => el.hide());
+        const widgetToSelectKey: string = widget.getWidgetDescriptorKey().toString();
+        this.widgetElements.forEach((value: MenuWidgetInjectionResult, key: string) => {
+            if (key !== widgetToSelectKey) {
+                this.setWidgetActive(key, value, false);
+            }
+        });
         AppContext.get().setWidget(widget);
         this.updateUrl(widget);
         this.updateTabName(widget);
-        const key: string = widget.getWidgetDescriptorKey().toString();
 
-        if (this.widgetElements.has(key)) {
-            this.widgetElements.get(key).show();
+        if (this.widgetElements.has(widgetToSelectKey)) {
+            this.setWidgetActive(widgetToSelectKey, this.widgetElements.get(widgetToSelectKey), true);
         } else {
             this.fetchAndAppendWidget(widget);
         }
@@ -170,7 +181,12 @@ export class AppWrapper
     private fetchAndAppendWidget(widget: Widget): void {
         if (this.isDefaultWidget(widget)) { // default studio app
             const widgetEl: Element = this.createStudioWidgetEl();
-            this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), widgetEl);
+            this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), {
+                widgetContainer: widgetEl,
+                scriptElements: [],
+                linkElements: [],
+                isEnabled: true,
+            });
             this.widgetsBlock.appendChild(widgetEl);
             return;
         }
@@ -178,8 +194,9 @@ export class AppWrapper
         fetch(UriHelper.getAdminUri(widget.getUrl(), '/'))
             .then(response => response.text())
             .then((html: string) => {
-                const widgetElem: Element = WidgetHelper.injectWidgetHtml(html, this.widgetsBlock).widgetContainer;
-                this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), widgetElem);
+                const injectedWidgetElem: MenuWidgetInjectionResult = WidgetHelper.injectWidgetHtml(html, this.widgetsBlock) as MenuWidgetInjectionResult;
+                injectedWidgetElem.isEnabled = true;
+                this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), injectedWidgetElem);
             })
             .catch(err => {
                 throw new Error('Failed to fetch widget: ' + err);
@@ -309,6 +326,22 @@ export class AppWrapper
         this.widgetAddedListeners.forEach((handler: (widget: Widget) => void) => {
             handler(item);
         });
+    }
+
+    private setWidgetActive(key: string, widgetData: MenuWidgetInjectionResult, active: boolean): void {
+        widgetData.widgetContainer.setVisible(active);
+
+        if (!this.isInternalWidget(key) && widgetData.isEnabled !== active) {
+            widgetData.linkElements.forEach((linkElement: HTMLLinkElement) => {
+                linkElement.disabled = !active;
+            });
+
+            widgetData.isEnabled = active;
+        }
+    }
+
+    private isInternalWidget(key: string): boolean {
+        return key.startsWith(AppWrapper.INTERNAL_WIDGET_PREFIX);
     }
 }
 
