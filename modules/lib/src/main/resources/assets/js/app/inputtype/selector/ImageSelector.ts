@@ -55,7 +55,7 @@ export class ImageSelector
         return super.getSelectedOptionsView() as ImageSelectorSelectedOptionsView;
     }
 
-    private createSelectedOptionsView(): ImageSelectorSelectedOptionsView {
+    protected createSelectedOptionsView(): ImageSelectorSelectedOptionsView {
         let selectedOptionsView = new ImageSelectorSelectedOptionsView();
 
         selectedOptionsView.onEditSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {

@@ -36,11 +36,15 @@ import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSumma
 import {CompareStatus} from '../../content/CompareStatus';
 import {MovedContentItem} from '../../browse/MovedContentItem';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
+import {ContentSelectorDropdown} from './ContentSelectorDropdown';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
 
     protected contentComboBox: ContentComboBox<ContentTreeSelectorItem>;
+
+    protected contentSelectorDropdown: ContentSelectorDropdown;
 
     protected comboBoxWrapper: DivEl;
 
@@ -318,8 +322,34 @@ export class ContentSelector
 
         return super.layout(input, propertyArray).then(() => {
             this.addContentComboBox(input, propertyArray);
+                this.contentSelectorDropdown = this.createSelectorDropdown(input, propertyArray);
+            this.appendChild(this.contentSelectorDropdown);
             return this.addExtraElementsOnLayout(input, propertyArray).then(() => this.doLayout(propertyArray));
         });
+    }
+
+    protected createSelectorDropdown(input: Input, propertyArray: PropertyArray): ContentSelectorDropdown {
+        const contentSelectorDropdown = new ContentSelectorDropdown({
+            loader: this.createOptionDataLoader(),
+            className: this.getDropdownClassName(),
+            maxSelected: input.getOccurrences().getMaximum(),
+            selectedOptionsView: new ContentSelectedOptionsView(),
+            getSelectedItems: this.getSelectedItemsIds.bind(this),
+        });
+
+        return contentSelectorDropdown;
+    }
+
+    protected getDropdownClassName(): string {
+        return '';
+    }
+
+    protected getSelectedItemsIds(): string[] {
+        return this.getValueFromPropertyArray(this.getPropertyArray()).split(';');
+    }
+
+    protected createSelectedOptionsView(): BaseSelectedOptionsView<ContentTreeSelectorItem> {
+        return new ContentSelectedOptionsView();
     }
 
     private addContentComboBox(input: Input, propertyArray: PropertyArray): void {
@@ -436,10 +466,6 @@ export class ContentSelector
             .setValue(comboboxValue);
     }
 
-    protected doCreateContentComboBox(input: Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
-        return this.createContentComboBoxBuilder(input, propertyArray).build();
-    }
-
     protected initEvents(contentComboBox: ContentComboBox<ContentTreeSelectorItem>) {
         contentComboBox.onOptionSelected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
             this.fireFocusSwitchEvent(event);
@@ -474,7 +500,7 @@ export class ContentSelector
     }
 
     protected createContentComboBox(input: Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
-        const contentComboBox: ContentComboBox<ContentTreeSelectorItem> = this.doCreateContentComboBox(input, propertyArray);
+        const contentComboBox: ContentComboBox<ContentTreeSelectorItem> = this.createContentComboBoxBuilder(input, propertyArray).build();
 
         this.initEvents(contentComboBox);
 
@@ -612,8 +638,10 @@ export class ContentSelector
     protected updateSelectedOptionStyle() {
         if (this.getPropertyArray().getSize() > 1) {
             this.addClass('multiple-occurrence').removeClass('single-occurrence');
+            this.contentSelectorDropdown.addClass('multiple-occurrence').removeClass('single-occurrence');
         } else {
             this.addClass('single-occurrence').removeClass('multiple-occurrence');
+            this.contentSelectorDropdown.addClass('single-occurrence').removeClass('multiple-occurrence');
         }
     }
 
