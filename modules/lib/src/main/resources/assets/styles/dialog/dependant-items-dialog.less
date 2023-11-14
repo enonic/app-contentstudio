@@ -23,6 +23,13 @@
     }
   }
 
+  &.locked {
+    .excluded-items-toggler {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+  }
+
   .dialog-state-bar.editing {
     position: sticky;
     top: 0;
