@@ -759,14 +759,15 @@ public final class ContentResource
             }
         } ).flatMap( ContentIds::stream ).filter( id -> !contentIds.contains( ContentId.from( id ) ) ).collect( Collectors.toList() ) );
 
-        final CompareContentResults compareResults = this.contentService.resolvePublishDependencies(
-            ResolvePublishDependenciesParams.create().contentIds( allOutboundIds ).build() );
-        final ContentIds notEqualOutboundIds = getNotEqual( allOutboundIds, compareResults );
+        final ContentIds existingOutboundIds = ContentIds.from( this.contentService.getByIds( new GetContentByIdsParams( allOutboundIds ) )
+                                                                    .stream()
+                                                                    .map( Content::getId )
+                                                                    .collect( Collectors.toList() ) );
 
-        return ContentIds.from( this.contentService.getByIds( new GetContentByIdsParams( notEqualOutboundIds ) )
-                                    .stream()
-                                    .map( Content::getId )
-                                    .collect( Collectors.toList() ) );
+        final CompareContentResults compareResults = contentService.resolvePublishDependencies(
+            ResolvePublishDependenciesParams.create().contentIds( existingOutboundIds ).build() );
+
+        return getNotEqual( existingOutboundIds, compareResults );
     }
 
     private ContentIds sortContentIds( final ContentIds contentIds, final String field )
