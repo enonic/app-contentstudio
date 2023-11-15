@@ -323,15 +323,27 @@ export class ContentSelectedOptionsView
 
     private project?: Project;
 
+    private contextContent: ContentSummary;
+
     createSelectedOption(option: Option<ContentTreeSelectorItem>): SelectedOption<ContentTreeSelectorItem> {
         const optionView = !!option.getDisplayValue() ?
                          new ContentSelectedOptionView(option, this.project) :
                          new MissingContentSelectedOptionView(option);
+
+        const selectedContentId = option.getDisplayValue().getId();
+        const refersToItself: boolean = this.contextContent && this.contextContent.getId() === selectedContentId;
+        optionView.toggleClass('non-editable', !!refersToItself);
+
         return new SelectedOption<ContentTreeSelectorItem>(optionView, this.count());
     }
 
     setProject(value: Project): this {
         this.project = value;
+        return this;
+    }
+
+    setContextContent(value: ContentSummary): this {
+        this.contextContent = value;
         return this;
     }
 }

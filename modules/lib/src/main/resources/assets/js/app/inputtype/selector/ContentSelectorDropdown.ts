@@ -23,7 +23,8 @@ export interface ContentSelectorDropdownOptions {
     className?: string;
 }
 
-export class ContentSelectorDropdown extends ListBoxInput<ContentTreeSelectorItem> {
+export class ContentSelectorDropdown
+    extends ListBoxInput<ContentTreeSelectorItem> {
 
     private helper: ContentSummaryOptionDataHelper;
 
@@ -34,7 +35,7 @@ export class ContentSelectorDropdown extends ListBoxInput<ContentTreeSelectorIte
     private readonly getSelectedItemsHandler: () => string[];
 
     constructor(options: ContentSelectorDropdownOptions) {
-        super(new ContentListBox(), {
+        super(new ContentListBox({loader: options.loader}), {
             selectedOptionsView: options.selectedOptionsView,
             maxSelected: options.maxSelected,
             checkboxPosition: 'right',
@@ -61,20 +62,23 @@ export class ContentSelectorDropdown extends ListBoxInput<ContentTreeSelectorIte
         super.initListeners();
 
         this.listBox.whenShown(() => {
-            this.search();
+            this.search(this.optionFilterInput.getValue());
+        });
+
+        this.listBox.onItemsAdded((items: ContentTreeSelectorItem[]) => {
+            this.selectLoadedListItems(items);
         });
 
         this.optionFilterInput.onValueChanged((event: ValueChangedEvent) => {
-            this.search();
+            this.search(event.getNewValue());
         });
     }
 
-    private search(): void {
+    private search(value?: string): void {
         this.loadMask.show();
 
-        this.loader.search(this.optionFilterInput.getValue()).then((items: ContentTreeSelectorItem[]) => {
+        this.loader.search(value).then((items: ContentTreeSelectorItem[]) => {
             this.listBox.setItems(items);
-            this.selectLoadedListItems(items);
         }).catch(DefaultErrorHandler.handle).finally(() => this.loadMask.hide());
     }
 
@@ -91,7 +95,7 @@ export class ContentSelectorDropdown extends ListBoxInput<ContentTreeSelectorIte
     }
 
     private createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): ContentTreeSelectorItem {
-        if (content instanceof  ContentSummaryAndCompareStatus) {
+        if (content instanceof ContentSummaryAndCompareStatus) {
             return new ContentAndStatusTreeSelectorItem(content);
         }
 
