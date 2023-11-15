@@ -1188,11 +1188,13 @@ public class ContentResourceTest
         final ContentId childId2 = ContentId.from( "childId2" );
         final ContentIds childrenIds = ContentIds.from( childId1, childId2 );
 
-        Mockito.when( contentService.findIdsByParent( Mockito.isA( FindContentByParentParams.class ) ) ).thenReturn(
-            FindContentIdsByParentResult.create().contentIds( childrenIds ).build() );
+        Mockito.when( contentService.findIdsByParent( Mockito.isA( FindContentByParentParams.class ) ) )
+            .thenReturn( FindContentIdsByParentResult.create().contentIds( childrenIds ).build() );
 
-        String jsonString = request().path( "content/findIdsByParents" ).entity( readFromFile( "find_ids_by_parents_params.json" ),
-                                                                                 MediaType.APPLICATION_JSON_TYPE ).post().getAsString();
+        String jsonString = request().path( "content/findIdsByParents" )
+            .entity( readFromFile( "find_ids_by_parents_params.json" ), MediaType.APPLICATION_JSON_TYPE )
+            .post()
+            .getAsString();
 
         assertJson( "find_ids_by_parents.json", jsonString );
 
@@ -1205,23 +1207,27 @@ public class ContentResourceTest
         final ContentId requestedId = ContentId.from( "requested-contentId" );
         final ContentId dependantId = ContentId.from( "dependant-contentId" );
         final ContentId requiredId = ContentId.from( "required-contentId" );
+        final ContentId nextMissingId = ContentId.from( "next-missing-contentId" );
         final ContentId nextId = ContentId.from( "next-contentId" );
-        final Content next = Mockito.mock( Content.class );
-        Mockito.when( next.getId() ).thenReturn( nextId );
+        final Content nextContent = Mockito.mock( Content.class );
+        Mockito.when( nextContent.getId() ).thenReturn( nextId );
+        final ContentIds outboundIds = ContentIds.from( nextId, nextMissingId );
 
         final CompareContentResult requested = new CompareContentResult( CompareStatus.NEW, requestedId );
         final CompareContentResult dependant = new CompareContentResult( CompareStatus.NEW, dependantId );
+        final CompareContentResult next = new CompareContentResult( CompareStatus.NEW, nextId );
         final CompareContentResults results = CompareContentResults.create().add( requested ).add( dependant ).build();
 
         Mockito.when( contentService.resolvePublishDependencies( Mockito.isA( ResolvePublishDependenciesParams.class ) ) )
-            .thenReturn( results );
+            .thenReturn( results )
+            .thenReturn( CompareContentResults.create().add( next ).build() );
 
         Mockito.when( contentService.resolveRequiredDependencies( Mockito.isA( ResolveRequiredDependenciesParams.class ) ) )
             .thenReturn( ContentIds.from( requiredId ) );
         Mockito.when( contentService.compare( Mockito.isA( CompareContentsParams.class ) ) ).thenReturn( results );
         Mockito.when( contentService.getPermissionsById( Mockito.isA( ContentId.class ) ) ).thenReturn( AccessControlList.empty() );
-        Mockito.when( contentService.getOutboundDependencies( Mockito.isA( ContentId.class ) ) ).thenReturn( ContentIds.from( nextId ) );
-        Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( next ) );
+        Mockito.when( contentService.getOutboundDependencies( Mockito.isA( ContentId.class ) ) ).thenReturn( outboundIds );
+        Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( nextContent ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
             .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.from( dependantId ) ).totalHits( 1L ).build() );
 
@@ -2645,7 +2651,7 @@ public class ContentResourceTest
         final ContentResource instance = getResourceInstance();
         final List<String> ids = new ArrayList<>();
         ids.add( contentId );
-        final LocalizeContentsJson params = new LocalizeContentsJson(ids, "en" );
+        final LocalizeContentsJson params = new LocalizeContentsJson( ids, "en" );
 
         ArgumentCaptor<UpdateContentParams> argumentCaptor = ArgumentCaptor.forClass( UpdateContentParams.class );
         Content content = createContent( contentId, "content-name", "myapplication:content-type" );
