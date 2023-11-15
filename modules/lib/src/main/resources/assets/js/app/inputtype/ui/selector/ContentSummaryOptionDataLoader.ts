@@ -52,7 +52,8 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
         this.fakeRoot = builder?.fakeRoot;
 
-        this.flatRequest = new ContentSelectorQueryRequest().setRequestProject(this.project);
+        this.flatRequest =
+            new ContentSelectorQueryRequest().setAppendLoadResults(builder.appendLoadResults).setRequestProject(this.project);
         this.treeRequest = this.smartTreeMode ? new ContentTreeSelectorQueryRequest<DATA>().setRequestProject(this.project) :
                            new ListByIdSelectorRequest<DATA>().setRequestProject(this.project);
 
@@ -277,6 +278,8 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     applicationKey: ApplicationKey;
 
+    appendLoadResults: boolean = true;
+
     postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean = () => true;
 
     setContentTypeNames(contentTypeNames: string[]): ContentSummaryOptionDataLoaderBuilder {
@@ -321,6 +324,11 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     setPostFilterFn(postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean): ContentSummaryOptionDataLoaderBuilder {
         this.postFilterFn = postFilterFn;
+        return this;
+    }
+
+    setAppendLoadResults(appendLoadResults: boolean): ContentSummaryOptionDataLoaderBuilder {
+        this.appendLoadResults = appendLoadResults;
         return this;
     }
 

@@ -323,8 +323,15 @@ export class ContentSelectedOptionsView
 
     private project?: Project;
 
+    private contextContent: ContentSummary;
+
     createSelectedOption(option: Option<ContentTreeSelectorItem>): SelectedOption<ContentTreeSelectorItem> {
-        const optionView =  new ContentSelectedOptionView(option, this.project);
+        const optionView = new ContentSelectedOptionView(option, this.project);
+
+        const selectedContentId = option.getDisplayValue().getId();
+        const refersToItself: boolean = this.contextContent && this.contextContent.getId() === selectedContentId;
+        optionView.toggleClass('non-editable', !!refersToItself);
+
         return new SelectedOption<ContentTreeSelectorItem>(optionView, this.count());
     }
 
@@ -332,6 +339,15 @@ export class ContentSelectedOptionsView
         this.project = value;
         return this;
     }
+
+    setContextContent(value: ContentSummary): this {
+        this.contextContent = value;
+        return this;
+    }
+}
+
+export class MissingContentSelectedOptionView
+    extends BaseSelectedOptionView<ContentTreeSelectorItem> {
 
     protected getEmptyDisplayValue(id: string): ContentTreeSelectorItem {
         const content = new ContentSummary(new ContentSummaryBuilder().setId(id).setContentId(new ContentId(id)));

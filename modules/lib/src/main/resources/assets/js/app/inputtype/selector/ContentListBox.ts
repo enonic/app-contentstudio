@@ -1,15 +1,27 @@
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentTreeSelectorItemViewer} from '../../item/ContentTreeSelectorItemViewer';
+import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeSelectorItem';
+import {ContentAndStatusSelectorViewer} from './ContentAndStatusSelectorViewer';
+
+export interface ContentListBoxOptions {
+    loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
+}
 
 export class ContentListBox extends LazyListBox<ContentTreeSelectorItem> {
 
-    constructor() {
+    private readonly loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
+
+    constructor(options: ContentListBoxOptions) {
         super('content-list-box');
+
+        this.loader = options.loader;
     }
 
-    protected createItemView(item: ContentTreeSelectorItem, readOnly: boolean): ContentTreeSelectorItemViewer {
-        const viewer = new ContentTreeSelectorItemViewer();
+    protected createItemView(item: ContentAndStatusTreeSelectorItem, readOnly: boolean): ContentAndStatusSelectorViewer {
+        const viewer = new ContentAndStatusSelectorViewer();
 
         viewer.setObject(item);
 
@@ -21,6 +33,8 @@ export class ContentListBox extends LazyListBox<ContentTreeSelectorItem> {
     }
 
     protected handleLazyLoad(): void {
-        console.log('handleLazyLoad');
+        this.loader.load(true).then((items: ContentTreeSelectorItem[]) => {
+            this.addItems(items);
+        }).catch(DefaultErrorHandler.handle);
     }
 }
