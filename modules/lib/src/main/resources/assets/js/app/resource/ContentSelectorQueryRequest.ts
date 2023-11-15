@@ -18,6 +18,8 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
 
     private metadata: ResultMetadata;
 
+    private appendLoadResults: boolean = true;
+
     constructor() {
         super();
 
@@ -33,6 +35,11 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
                 totalHits: 0,
             }
         };
+    }
+
+    setAppendLoadResults(value: boolean): this {
+        this.appendLoadResults = value;
+        return this;
     }
 
     send(): Q.Promise<JsonResponse<ContentQueryResultJson<CONTENT_JSON>>> {
@@ -82,7 +89,7 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         this.from += responseResult.metadata.hits;
         this.loaded = this.from >= responseResult.metadata.totalHits;
 
-        this.results = this.results.concat(contents as CONTENT[]);
+        this.results = this.appendLoadResults ? this.results.concat(contents as CONTENT[]) : contents as CONTENT[];
 
         return this.results;
     }

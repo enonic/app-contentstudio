@@ -38,6 +38,8 @@ import {MovedContentItem} from '../../browse/MovedContentItem';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ContentSelectorDropdown} from './ContentSelectorDropdown';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {ModeTogglerButton} from '../ui/selector/ModeTogglerButton';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
@@ -54,6 +56,8 @@ export class ContentSelector
 
     protected hideToggleIcon: boolean;
 
+    protected modeToggler: ModeTogglerButton;
+
     protected contentDeletedListener: (paths: ContentServerChangeItem[], pending?: boolean) => void;
 
     protected static contentIdBatch: ContentId[] = [];
@@ -66,6 +70,8 @@ export class ContentSelector
 
     constructor(config: ContentInputTypeViewContext) {
         super(config, 'content-selector');
+
+        this.modeToggler = new ModeTogglerButton();
         this.initEventsListeners();
     }
 
@@ -327,12 +333,47 @@ export class ContentSelector
     }
 
     protected createSelectorDropdown(input: Input, propertyArray: PropertyArray): ContentSelectorDropdown {
+        const selectedOptionsView = new ContentSelectedOptionsView().setContextContent(this.context.content);
+
         const contentSelectorDropdown = new ContentSelectorDropdown({
-            loader: this.createOptionDataLoader(),
+            loader: this.createOptionDataLoaderBuilder().setAppendLoadResults(false).build(),
             className: this.getDropdownClassName(),
             maxSelected: input.getOccurrences().getMaximum(),
-            selectedOptionsView: new ContentSelectedOptionsView(),
+            selectedOptionsView: selectedOptionsView,
             getSelectedItems: this.getSelectedItemsIds.bind(this),
+        });
+
+        selectedOptionsView.onOptionMoved(this.handleMoved.bind(this));
+
+        contentSelectorDropdown.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>) => {
+            selectionChange.selected?.forEach((item: ContentTreeSelectorItem) => {
+                this.updateNewContentButton();
+
+                const contentId: ContentId = item.getContentId();
+
+                if (contentId) {
+                    this.setContentIdProperty(contentId);
+
+                    this.getSelectedOptionsView().refreshSortable();
+                    this.updateSelectedOptionStyle();
+                    this.handleValueChanged(false);
+                    this.contentComboBox.getComboBox().setIgnoreNextFocus(true);
+                }
+            });
+
+            selectionChange.deselected?.forEach((item: ContentTreeSelectorItem) => {
+                const property = this.getPropertyArray().getProperties().find((property) => {
+                    const propertyValue = property.hasNonNullValue() ? property.getString() : '';
+                    return propertyValue === item.getId();
+                });
+
+                if (property) {
+                    this.handleDeselected(property.getIndex());
+                    this.updateSelectedOptionStyle();
+                    this.updateNewContentButton();
+                    this.handleValueChanged(false);
+                }
+            });
         });
 
         return contentSelectorDropdown;
