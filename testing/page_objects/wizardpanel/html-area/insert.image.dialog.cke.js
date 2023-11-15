@@ -196,6 +196,14 @@ class InsertImageDialog extends Page {
         return await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
     }
 
+    async filterAndSelectImageByPath(imageName) {
+        let comboBox = new ComboBox();
+        await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.mediumTimeout);
+        await this.typeTextInInput(this.imageOptionsFilterInput, imageName);
+        await comboBox.selectOptionByName(imageName, XPATH.container);
+        return await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
+    }
+
     waitForStyleSelectorVisible() {
         return this.waitForElementDisplayed(this.styleSelector, appConst.mediumTimeout);
     }

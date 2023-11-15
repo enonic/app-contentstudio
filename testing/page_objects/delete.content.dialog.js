@@ -218,7 +218,7 @@ class DeleteContentDialog extends Page {
         try {
             await this.waitForIgnoreInboundReferencesButtonDisplayed();
             await this.clickOnElement(this.ignoreInboundReferencesButton);
-            return await this.pause(500);
+            return await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_ignore_inbound_ref');
             throw new Error("Delete Content dialog, screenshot:" + screenshot + ' ' + err);

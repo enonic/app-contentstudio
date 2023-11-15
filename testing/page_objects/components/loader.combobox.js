@@ -51,7 +51,11 @@ class LoaderComboBox extends Page {
         return await this.pause(500);
     }
 
-    async selectOptionByName(optionName) {
+    async selectOptionByName(optionName, xpath) {
+        let optionLocator = lib.slickRowByDisplayName(XPATH.container, optionName);
+        if (xpath === undefined) {
+            xpath = '';
+        }
         let optionSelector = lib.slickRowByName(XPATH.container, optionName);
         await this.getBrowser().waitUntil(async () => {
             return await this.isElementDisplayed(optionSelector);
