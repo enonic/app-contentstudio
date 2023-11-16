@@ -31,7 +31,7 @@ export class ImageSelectorSelectedOptionsView
     readonly stickyToolbarCls: string = 'image-selector-toolbar-sticky';
 
     constructor() {
-        super();
+        super('image-selector-selected-options-view');
 
         this.setOccurrencesSortable(true);
 
@@ -326,7 +326,7 @@ export class ImageSelectorSelectedOptionsView
 
     private handleOptionViewImageLoaded(optionView: ImageSelectorSelectedOptionView) {
         let loadedListener = () => {
-            optionView.updateProportions();
+           // optionView.updateProportions();
             this.refreshSortable();
         };
 

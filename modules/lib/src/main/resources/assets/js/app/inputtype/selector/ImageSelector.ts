@@ -28,6 +28,8 @@ import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentPath} from '../../content/ContentPath';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ContentSummary} from '../../content/ContentSummary';
+import {ImageContentListBox} from './ImageContentListBox';
+import {ImageSelectorDropdown} from './ImageSelectorDropdown';
 
 export class ImageSelector
     extends MediaSelector {
@@ -77,6 +79,7 @@ export class ImageSelector
                     this.handleDeselected(option.getIndex());
                 } else {
                     this.contentComboBox.deselect(item);
+                    this.contentSelectorDropdown.deselect(item);
                 }
 
             });
@@ -87,6 +90,10 @@ export class ImageSelector
     }
 
     protected createOptionDataLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
+        return ImageOptionDataLoader.build(this.createOptionDataLoaderBuilder());
+    }
+
+    createLoader(): ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
         return ImageOptionDataLoader.build(this.createOptionDataLoaderBuilder());
     }
 
@@ -232,6 +239,18 @@ export class ImageSelector
         }
 
         return new MediaTreeSelectorItem(content);
+    }
+
+    protected createContentListBox(loader: ContentSummaryOptionDataLoader<MediaTreeSelectorItem>): ImageContentListBox {
+        return new ImageContentListBox({loader: loader});
+    }
+
+    protected doCreateSelectorDropdown(dropdownOptions): ImageSelectorDropdown {
+        return new ImageSelectorDropdown(dropdownOptions);
+    }
+
+    protected getDropdownClassName(): string {
+        return 'image-selector-dropdown';
     }
 }
 

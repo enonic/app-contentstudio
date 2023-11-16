@@ -1,3 +1,4 @@
+import * as Q from 'q';
 import {ListBoxInput} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxInput';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
@@ -14,8 +15,10 @@ import {ContentSummary} from '../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeSelectorItem';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 
 export interface ContentSelectorDropdownOptions {
+    listBox: ContentListBox<ContentTreeSelectorItem>;
     maxSelected: number;
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
     selectedOptionsView: BaseSelectedOptionsView<ContentTreeSelectorItem>;
@@ -26,16 +29,16 @@ export interface ContentSelectorDropdownOptions {
 export class ContentSelectorDropdown
     extends ListBoxInput<ContentTreeSelectorItem> {
 
-    private helper: ContentSummaryOptionDataHelper;
+    protected helper: ContentSummaryOptionDataHelper;
 
-    private readonly loadMask: LoadMask;
+    protected readonly loadMask: LoadMask;
 
-    private readonly loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
+    protected readonly loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
 
-    private readonly getSelectedItemsHandler: () => string[];
+    protected readonly getSelectedItemsHandler: () => string[];
 
     constructor(options: ContentSelectorDropdownOptions) {
-        super(new ContentListBox({loader: options.loader}), {
+        super(options.listBox, {
             selectedOptionsView: options.selectedOptionsView,
             maxSelected: options.maxSelected,
             checkboxPosition: 'right',
@@ -47,6 +50,7 @@ export class ContentSelectorDropdown
         this.helper = new ContentSummaryOptionDataHelper();
         this.getSelectedItemsHandler = options.getSelectedItems;
         this.selectedOptionsView.setOccurrencesSortable(true);
+        this.postInitListeners();
     }
 
     createOption(item: ContentTreeSelectorItem): Option<ContentTreeSelectorItem> {
@@ -74,15 +78,23 @@ export class ContentSelectorDropdown
         });
     }
 
-    private search(value?: string): void {
-        this.loadMask.show();
-
-        this.loader.search(value).then((items: ContentTreeSelectorItem[]) => {
-            this.listBox.setItems(items);
-        }).catch(DefaultErrorHandler.handle).finally(() => this.loadMask.hide());
+    protected postInitListeners(): void {
+        this.loader.onLoadedData((event: LoadedDataEvent<ContentTreeSelectorItem>) => {
+            if (event.isPostLoad()) {
+                this.listBox.addItems(event.getData());
+            } else {
+                this.listBox.setItems(event.getData());
+            }
+            return Q.resolve(null);
+        });
     }
 
-    private preSelectItems(): void {
+    protected search(value?: string): void {
+        this.loadMask.show();
+        this.loader.search(value).catch(DefaultErrorHandler.handle).finally(() => this.loadMask.hide());
+    }
+
+    protected preSelectItems(): void {
         const ids = this.getSelectedItemsHandler().filter(id => !StringHelper.isBlank(id)).map(id => new ContentId(id));
 
         if (ids.length > 0) {
@@ -94,7 +106,7 @@ export class ContentSelectorDropdown
         }
     }
 
-    private createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): ContentTreeSelectorItem {
+    protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): ContentTreeSelectorItem {
         if (content instanceof ContentSummaryAndCompareStatus) {
             return new ContentAndStatusTreeSelectorItem(content);
         }
@@ -102,7 +114,7 @@ export class ContentSelectorDropdown
         return new ContentTreeSelectorItem(content);
     }
 
-    private selectLoadedListItems(items: ContentTreeSelectorItem[]): void {
+    protected selectLoadedListItems(items: ContentTreeSelectorItem[]): void {
         const selectedItems: string[] = this.getSelectedItemsHandler();
 
         items.forEach((item: ContentTreeSelectorItem) => {
