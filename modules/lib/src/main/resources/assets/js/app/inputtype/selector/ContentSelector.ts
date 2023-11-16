@@ -40,6 +40,7 @@ import {ContentSelectorDropdown} from './ContentSelectorDropdown';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ModeTogglerButton} from '../ui/selector/ModeTogglerButton';
+import {ContentListBox} from './ContentListBox';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
@@ -335,15 +336,19 @@ export class ContentSelector
     }
 
     protected createSelectorDropdown(input: Input, propertyArray: PropertyArray): ContentSelectorDropdown {
-        const selectedOptionsView = new ContentSelectedOptionsView().setContextContent(this.context.content);
-
-        const contentSelectorDropdown = new ContentSelectorDropdown({
-            loader: this.createOptionDataLoaderBuilder().setAppendLoadResults(false).build(),
+        const selectedOptionsView = this.createSelectedOptionsView().setContextContent(this.context.content);
+        const loader = this.createLoader();
+        const listBox = this.createContentListBox(loader);
+        const dropdownOptions = {
+            listBox: listBox,
+            loader: loader,
             className: this.getDropdownClassName(),
             maxSelected: input.getOccurrences().getMaximum(),
             selectedOptionsView: selectedOptionsView,
             getSelectedItems: this.getSelectedItemsIds.bind(this),
-        });
+        };
+
+        const contentSelectorDropdown = this.doCreateSelectorDropdown(dropdownOptions);
 
         selectedOptionsView.onOptionMoved(this.handleMoved.bind(this));
 
@@ -381,6 +386,10 @@ export class ContentSelector
         return contentSelectorDropdown;
     }
 
+    protected doCreateSelectorDropdown(dropdownOptions): ContentSelectorDropdown {
+        return new ContentSelectorDropdown(dropdownOptions);
+    }
+
     protected getDropdownClassName(): string {
         return '';
     }
@@ -389,8 +398,12 @@ export class ContentSelector
         return this.getValueFromPropertyArray(this.getPropertyArray()).split(';');
     }
 
-    protected createSelectedOptionsView(): BaseSelectedOptionsView<ContentTreeSelectorItem> {
+    protected createSelectedOptionsView(): ContentSelectedOptionsView {
         return new ContentSelectedOptionsView();
+    }
+
+    protected createContentListBox(loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>): ContentListBox<ContentTreeSelectorItem> {
+        return new ContentListBox({loader: loader});
     }
 
     private addContentComboBox(input: Input, propertyArray: PropertyArray): void {
@@ -483,6 +496,10 @@ export class ContentSelector
             .setContent(this.context.content)
             .setProject(this.context.project)
             .setApplicationKey(this.context.applicationKey);
+    }
+
+    protected createLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
+        return this.createOptionDataLoaderBuilder().setAppendLoadResults(false).build();
     }
 
     protected doCreateContentComboBoxBuilder(): ContentComboBoxBuilder<ContentTreeSelectorItem> {

@@ -77,10 +77,6 @@
         margin-top: -22px;
       }
 
-      &.editing {
-        .image-selector-active-cell();
-      }
-
       .squared-content > .label {
         display: block;
         position: absolute;
@@ -111,6 +107,14 @@
           max-height: 100%;
           max-width: 100%;
           margin: auto;
+
+          &.visibility-hidden {
+            visibility: hidden;
+          }
+
+          &.visibility-visible {
+            visibility: visible;
+          }
         }
 
         > .checkbox {
