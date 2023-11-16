@@ -651,10 +651,7 @@ export class PageComponentsView
         if (event.getType() === PageNavigationEventType.SELECT) {
             const path: ComponentPath = event.getData().getPath();
             this.lastSelectedPath = this.tree.isItemSelected(path) ? null : path;
-
-            this.tree.selectItemByPath(path).then(() => {
-                this.tree.scrollToItem(path);
-            }).catch(DefaultErrorHandler.handle);
+            this.tree.selectItemByPath(path).catch(DefaultErrorHandler.handle);
 
             return;
         }
