@@ -82,7 +82,7 @@ export class ContentRowFormatter {
         return '';
     }
 
-    private static doStatusFormat(data: ContentSummaryAndCompareStatus): string {
+    static doStatusFormat(data: ContentSummaryAndCompareStatus): string {
 
         if (data?.getContentSummary()) {
 

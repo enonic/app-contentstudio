@@ -1,0 +1,136 @@
+.contents-list {
+  @entry-height: 45px;
+  @entry-padding: 2px 0;
+  box-sizing: border-box;
+
+  grid-area: list;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .contents-list-element {
+    display: grid;
+    grid-template-columns: 40px calc(100% - 40px);
+    grid-template-rows: auto;
+    grid-template-areas:
+    "selection data"
+    "list list";
+
+    .selection-checkbox {
+      height: @entry-height;
+      grid-area: selection;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      label {
+        padding: 0;
+      }
+
+      label::before {
+        position: static;
+        margin: 0;
+      }
+    }
+
+    .wrapper {
+      height: @entry-height;
+      padding: @entry-padding;
+      display: flex;
+      cursor: pointer;
+
+      grid-area: data;
+
+      * {
+        cursor: pointer;
+      }
+
+      .toggle {
+        min-width: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        &::before {
+          font-size: 24px;
+          transform: rotate(90deg);
+        }
+
+        &.expanded {
+          &::before {
+            font-size: 24px;
+            transform: rotate(135deg);
+          }
+        }
+      }
+
+      .content-tree-view {
+        display: grid;
+        grid-template-columns: minmax(100px, 1fr) 25px 90px 150px;
+        flex-grow: 1;
+
+        .content-status-mixin();
+
+        .order-column, .status-column, .modified-column {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+        }
+      }
+    }
+
+    &.selected {
+      > .wrapper {
+        background-color: @admin-blue;
+
+        .xp-admin-common-names-view * {
+          color: @admin-white;
+        }
+      }
+
+      > .selection-checkbox {
+        background-color: @admin-blue;
+      }
+    }
+  }
+
+  &.main {
+    height: 100%;
+    overflow: auto;
+  }
+
+  &._360-540,
+  &._540-720 {
+    .contents-list-element {
+      .wrapper {
+        .content-tree-view {
+          display: grid;
+          grid-template-columns: minmax(100px, 1fr) 25px 90px;
+
+          .modified-column {
+            display: none;
+          }
+        }
+      }
+    }
+
+  }
+
+  &._0-240,
+  &._240-360 {
+    .contents-list-element {
+      .wrapper {
+        .content-tree-view {
+          display: grid;
+          grid-template-columns: minmax(100px, 1fr) 25px;
+
+          .status-column, .modified-column {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}

@@ -37,9 +37,12 @@ import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
 import {MovedContentItem} from './MovedContentItem';
 import {ContentQuery} from '../content/ContentQuery';
+import {ContentsList} from './ContentsList';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
+import {ContentListPanel} from './ContentListPanel';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -52,6 +55,7 @@ export class ContentBrowsePanel
     private browseActionsAndPreviewUpdateRequired: boolean = false;
     private contextPanelToggler: NonMobileContextPanelToggleButton;
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
+    private contentsListPanel: ContentListPanel;
 
     protected initElements() {
         super.initElements();
@@ -93,6 +97,7 @@ export class ContentBrowsePanel
 
         this.onShown(() => {
             this.treeGrid.resizeCanvas();
+            this.treeGrid.hide();
         });
 
         this.filterPanel.onSearchEvent((query?: ContentQuery) => {
@@ -136,6 +141,10 @@ export class ContentBrowsePanel
 
     protected createTreeGrid(): ContentTreeGrid {
         return new ContentTreeGrid();
+    }
+
+    protected createMainDataPanel(): Panel {
+        return new ContentListPanel();
     }
 
     protected createBrowseItemPanel(): ContentBrowseItemPanel {
