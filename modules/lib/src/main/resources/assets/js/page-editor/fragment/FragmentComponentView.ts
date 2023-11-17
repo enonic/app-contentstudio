@@ -37,22 +37,11 @@ export class FragmentComponentView
         this.fragmentContainsLayout = false;
         this.setPlaceholder(new FragmentPlaceholder(this));
         this.disableLinks();
+
+        this.parseFragmentComponents(this);
+        this.handleErrors();
     }
 
-    protected initListeners() {
-        super.initListeners();
-
-        // parsing fragment after it was registered in a parent region, so it has a path
-        const thisItemAddedListener = (event: ItemViewAddedEvent) => {
-            if (event.getView() === this) {
-                this.getParentItemView().unItemViewAdded(thisItemAddedListener);
-                this.parseFragmentComponents(this);
-                this.handleErrors();
-            }
-        };
-
-        this.getParentItemView().onItemViewAdded(thisItemAddedListener);
-    }
 
     containsLayout(): boolean {
         return this.fragmentContainsLayout;
