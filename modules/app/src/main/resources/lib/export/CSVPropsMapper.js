@@ -3,7 +3,7 @@ const propsMap = new Map();
 
 // key is a property name in a content data
 // value is an array of two elements: Header title and a value formatter
-propsMap.set('_id', ['Id', valueFormatters.default]);
+propsMap.set('displayName', ['Display Name', valueFormatters.default]);
 propsMap.set('_path', ['Path', valueFormatters.default]);
 propsMap.set('creator', ['Creator', valueFormatters.default]);
 propsMap.set('modifier', ['Modifier', valueFormatters.default]);
@@ -11,11 +11,11 @@ propsMap.set('createdTime', ['Created', valueFormatters.date]);
 propsMap.set('modifiedTime', ['Modified', valueFormatters.date]);
 propsMap.set('owner', ['Owner', valueFormatters.default]);
 propsMap.set('type', ['Content Type', valueFormatters.default]);
-propsMap.set('displayName', ['Display Name', valueFormatters.default]);
 propsMap.set('language', ['Language', valueFormatters.default]);
 propsMap.set('publish.from', ['Published From', valueFormatters.date]);
 propsMap.set('publish.to', ['Published Until', valueFormatters.date]);
 propsMap.set('publish.first', ['First Published', valueFormatters.date]);
+propsMap.set('_id', ['Id', valueFormatters.default]);
 
 const getHeaders = () => {
     const headers = [];
