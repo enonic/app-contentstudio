@@ -37,7 +37,7 @@ module.exports = Object.freeze({
     ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton')]",
     EDIT_ICON: "//a[@class='edit']",
     CONTENT_SELECTOR: {
-       DIV: "//div[contains(@id,'ContentSelector')]",
+        DIV: "//div[contains(@id,'ContentSelector')]",
         selectedOptionByName: option => {
             return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
         }
@@ -178,6 +178,7 @@ module.exports = Object.freeze({
         sourceButton: `//a[contains(@class,'cke_button__sourcedialog') and @title='Source']`,
         fullScreen: `//a[contains(@class,'cke_button__fullscreen')  and @title='Fullscreen']`,
         tableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
+        finAndReplaceButton: `//a[contains(@class,'cke_button') and contains(@title,'Find and replace')]`,
         strikethroughButton: `//a[contains(@class,'cke_button') and contains(@title,'Strikethrough')]`,
         increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
         decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
