@@ -12,14 +12,14 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentEventsProcessor} from '../ContentEventsProcessor';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
+import {ItemEventListener} from '../dialog/DialogMainItemsList';
 import {DialogTogglableItemList} from '../dialog/DialogTogglableItemList';
 import {TogglableStatusSelectionItem} from '../dialog/TogglableStatusSelectionItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentDuplicateParams} from '../resource/ContentDuplicateParams';
 import {DuplicateContentRequest} from '../resource/DuplicateContentRequest';
 import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
-import {ItemEventListener} from '../dialog/DialogMainItemsList';
-import {EditContentEvent} from '../event/EditContentEvent';
 
 export class ContentDuplicateDialog
     extends DependantItemsWithProgressDialog
@@ -100,7 +100,7 @@ export class ContentDuplicateDialog
         this.lockControls();
 
         this.loadDescendantIds().then(() => {
-            return this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
+            return this.cleanLoadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(descendants);
             }).finally(() => {
                 this.hideLoadMask();

@@ -137,8 +137,17 @@ export abstract class IssueDialog
         throw new Error('must be implemented in inheritors');
     }
 
-    public setItems(items: ContentSummaryAndCompareStatus[]) {
-        this.setListItems(items);
+    setItems(items: ContentSummaryAndCompareStatus[], silent?: boolean): void {
+        const canBeSilent = !!silent && !this.isIgnoreItemsChanged();
+
+        if (canBeSilent) {
+            this.setIgnoreItemsChanged(true);
+        }
+        this.setListItems(items, silent);
+
+        if (canBeSilent) {
+            this.setIgnoreItemsChanged(false);
+        }
     }
 
     public setExcludeChildrenIds(ids: ContentId[]) {
@@ -155,10 +164,6 @@ export abstract class IssueDialog
 
     public countTotal(): number {
         return this.publishProcessor.countTotal();
-    }
-
-    protected countDependantItems(withExcluded?: boolean): number {
-        return this.publishProcessor.getDependantIds(withExcluded).length;
     }
 
     open(opener?: ModalDialog) {
@@ -235,7 +240,7 @@ export abstract class IssueDialog
     }
 
     protected getDependantIds(withExcluded?: boolean): ContentId[] {
-        return this.publishProcessor.getDependantIds(withExcluded);
+        return this.publishProcessor.getVisibleDependantIds(withExcluded);
     }
 
     protected createItemList(): PublishDialogItemList {

@@ -1216,22 +1216,21 @@ public class ContentResourceTest
         final CompareContentResult requested = new CompareContentResult( CompareStatus.NEW, requestedId );
         final CompareContentResult dependant = new CompareContentResult( CompareStatus.NEW, dependantId );
         final CompareContentResult next = new CompareContentResult( CompareStatus.NEW, nextId );
-        final CompareContentResults results = CompareContentResults.create().add( requested ).add( dependant ).build();
 
         Mockito.when( contentService.resolvePublishDependencies( Mockito.isA( ResolvePublishDependenciesParams.class ) ) )
-            .thenReturn( results )
-            .thenReturn( CompareContentResults.create().add( next ).build() );
-
+            .thenReturn( CompareContentResults.create().add( requested ).add( dependant ).build() );
         Mockito.when( contentService.resolveRequiredDependencies( Mockito.isA( ResolveRequiredDependenciesParams.class ) ) )
             .thenReturn( ContentIds.from( requiredId ) );
-        Mockito.when( contentService.compare( Mockito.isA( CompareContentsParams.class ) ) ).thenReturn( results );
+        Mockito.when( contentService.compare( Mockito.isA( CompareContentsParams.class ) ) )
+            .thenReturn( CompareContentResults.create().add( next ).build() );
         Mockito.when( contentService.getPermissionsById( Mockito.isA( ContentId.class ) ) ).thenReturn( AccessControlList.empty() );
         Mockito.when( contentService.getOutboundDependencies( Mockito.isA( ContentId.class ) ) ).thenReturn( outboundIds );
         Mockito.when( contentService.getByIds( Mockito.isA( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( nextContent ) );
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
+            .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.from( nextId ) ).totalHits( 1L ).build() )
             .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.from( dependantId ) ).totalHits( 1L ).build() );
 
-        Mockito.doReturn( ContentValidityResult.create().notValidContentIds( ContentIds.from( dependantId, requiredId ) ).build() )
+        Mockito.doReturn( ContentValidityResult.create().notValidContentIds( ContentIds.from( dependantId ) ).build() )
             .when( this.contentService )
             .getContentValidity( Mockito.isA( ContentValidityParams.class ) );
 
