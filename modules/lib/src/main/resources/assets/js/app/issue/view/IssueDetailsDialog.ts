@@ -529,7 +529,7 @@ export class IssueDetailsDialog
         this.publishAction.setEnabled(canPublish && scheduleValid);
         this.scheduleAction.setEnabled(canPublish && scheduleValid);
         if (this.isPublishRequest()) {
-            this.scheduleFormToggle.getEl().setDisabled(this.publishProcessor.isAllPendingDelete() || !canPublish);
+            this.scheduleFormToggle.getEl().setDisabled(!this.publishProcessor.isSomePublishable() || !canPublish);
         }
         this.errorTooltip.setActive(this.publishProcessor.containsInvalidItems());
 
@@ -632,7 +632,7 @@ export class IssueDetailsDialog
     }
 
     protected getDependantIds(withExcluded?: boolean): ContentId[] {
-        return this.publishProcessor.getDependantIds(withExcluded);
+        return this.publishProcessor.getVisibleDependantIds(withExcluded);
     }
 
     private loadCurrentUser(): Q.Promise<Principal> {
@@ -969,10 +969,6 @@ export class IssueDetailsDialog
 
     protected countTotal(): number {
         return this.publishProcessor.countTotal();
-    }
-
-    protected countDependantItems(withExcluded?: boolean): number {
-        return this.publishProcessor.getDependantIds(withExcluded).length;
     }
 
     private populateSchedule(updateIssueRequest: UpdateIssueRequest): UpdateIssueRequest {

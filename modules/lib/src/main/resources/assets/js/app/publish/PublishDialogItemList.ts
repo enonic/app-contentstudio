@@ -45,7 +45,11 @@ export class PublishDialogItemList
 
         const updatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]) => {
             const itemsToReplace = updatedItems.filter(updatedItem => {
-                return this.getItems().some(item => item.getContentId().equals(updatedItem.getContentId()));
+                return this.getItems().some(item => {
+                    const isSameId = item.getContentId().equals(updatedItem.getContentId());
+                    return isSameId && item.getContentSummary().getModifiedTime().valueOf() <
+                           updatedItem.getContentSummary().getModifiedTime().valueOf();
+                });
             });
 
             if (itemsToReplace.length > 0) {

@@ -277,7 +277,7 @@ export abstract class BasePublishDialog
         this.updateTabbable();
 
         const canPublish: boolean = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
-        this.scheduleFormToggle.getEl().setDisabled(this.publishProcessor.isAllPendingDelete() || !canPublish);
+        this.scheduleFormToggle.getEl().setDisabled(!this.publishProcessor.isSomePublishable() || !canPublish);
     }
 
     protected isScheduleFormValid(): boolean {
@@ -318,29 +318,33 @@ export abstract class BasePublishDialog
     }
 
     setContentToPublish(contents: ContentSummaryAndCompareStatus[]): this {
-        if (this.isProgressBarEnabled()) {
-            return this;
+        if (!this.isProgressBarEnabled()) {
+            this.setItems(contents, true);
         }
-        this.setIgnoreItemsChanged(true);
-        this.setListItems(contents);
-        this.setIgnoreItemsChanged(false);
 
         return this;
+    }
+
+    setItems(items: ContentSummaryAndCompareStatus[], silent?: boolean): void {
+        const canBeSilent = !!silent && !this.isIgnoreItemsChanged();
+
+        if (canBeSilent) {
+            this.setIgnoreItemsChanged(true);
+        }
+
+        this.setListItems(items, silent);
+
+        if (canBeSilent) {
+            this.setIgnoreItemsChanged(false);
+        }
     }
 
     protected countTotal(): number {
         return this.publishProcessor.countTotal();
     }
 
-    protected countDependantItems(withExcluded?: boolean): number {
-        const dependantIds = withExcluded ?
-                             this.publishProcessor.calcVisibleIds() :
-                             this.publishProcessor.getDependantIds();
-        return dependantIds.length;
-    }
-
     protected getDependantIds(withExcluded?: boolean): ContentId[] {
-        return this.publishProcessor.getDependantIds(withExcluded);
+        return this.publishProcessor.getVisibleDependantIds(withExcluded);
     }
 
     protected setIgnoreItemsChanged(value: boolean) {
@@ -373,15 +377,15 @@ export abstract class BasePublishDialog
     }
 
     protected areItemsAndDependantsValid(): boolean {
-        return !this.publishProcessor.containsInvalidItems();
+        return !this.publishProcessor?.containsInvalidItems();
     }
 
     protected isAllPublishable(): boolean {
-        return this.publishProcessor && this.publishProcessor.isAllPublishable();
+        return !!this.publishProcessor?.isAllPublishable();
     }
 
-    protected isAllPendingDelete(): boolean {
-        return this.publishProcessor && this.publishProcessor.isAllPendingDelete();
+    protected isSomePublishable(): boolean {
+        return !!this.publishProcessor?.isSomePublishable();
     }
 
     open(): void {

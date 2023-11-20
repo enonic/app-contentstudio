@@ -122,11 +122,9 @@ export class ContentUnpublishDialog
         this.lockControls();
 
         return this.loadDescendantIds().then(() => {
-            return this.loadDescendants(0, 20).then((items: ContentSummaryAndCompareStatus[]) => {
+            return this.cleanLoadDescendants().then((items: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(items);
-
                 // do not set requested contents as they are never going to change
-
                 this.unlockControls();
             }).catch(DefaultErrorHandler.handle)
                 .finally(() => {

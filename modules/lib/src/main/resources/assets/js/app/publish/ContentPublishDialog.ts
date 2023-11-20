@@ -226,7 +226,7 @@ export class ContentPublishDialog
 
         this.publishAction.setEnabled(canPublish);
         this.scheduleAction.setEnabled(canPublish && isScheduleValid);
-        this.publishSubTitle.setVisible(!this.isAllPendingDelete());
+        this.publishSubTitle.setVisible(this.isSomePublishable());
 
         super.updateControls(itemsToPublish);
     }

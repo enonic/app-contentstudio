@@ -1,5 +1,4 @@
 {
-  "allPendingDelete": false,
   "containsInvalid": true,
   "containsNotReady": false,
   "dependentContents": [
@@ -35,5 +34,6 @@
     {
       "id": "required-contentId"
     }
-  ]
+  ],
+    "somePublishable": true
 }

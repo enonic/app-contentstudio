@@ -54,7 +54,7 @@ export class PublishProcessor {
 
     private childrenIds: ContentId[] = [];
 
-    private allPendingDelete: boolean;
+    private somePublishable: boolean;
 
     private loadExcluded: boolean = false;
 
@@ -217,7 +217,7 @@ export class PublishProcessor {
         this.nextIds = [];
         this.childrenIds = [];
         this.notPublishableIds = [];
-        this.allPendingDelete = false;
+        this.somePublishable = true;
 
         this.processResolveDescendantsResult([], resetDependantItems);
 
@@ -399,13 +399,14 @@ export class PublishProcessor {
     }
 
     calcVisibleIds(): ContentId[] {
-        return [
+        const allVisibleIds = [
             ...this.dependantIds,
             ...this.nextIds,
             ...this.getDependantChildrenIds(),
-        ].filter((id, index, array) => {
-            return array.findIndex(value => value.equals(id)) === index;
-        });
+        ].map(id => id.toString());
+
+        // Filter in the whole content to keep sorting order
+        return this.allDependantIds.filter(id => allVisibleIds.indexOf(id.toString()) >= 0);
     }
 
     private getDependantChildrenIds(): ContentId[] {
@@ -437,14 +438,14 @@ export class PublishProcessor {
         this.requiredIds = result.getRequired();
         this.nextIds = result.getNextDependants();
         this.notPublishableIds = result.getNotPublishable();
-        this.allPendingDelete = result.isAllPendingDelete();
+        this.somePublishable = result.isSomePublishable();
 
         this.dependantList.setRequiredIds(result.getRequired());
         this.dependantList.updateVisibleIds(this.calcVisibleIds());
     }
 
     private loadDescendants(): Q.Promise<ContentSummaryAndCompareStatus[]> {
-        const dependantsIds = this.getDependantIds(this.loadExcluded);
+        const dependantsIds = this.getVisibleDependantIds(this.loadExcluded);
         const noDependantItems = dependantsIds.length === 0;
 
         if (noDependantItems) {
@@ -583,8 +584,8 @@ export class PublishProcessor {
         return this.notPublishableIds;
     }
 
-    isAllPendingDelete(): boolean {
-        return this.allPendingDelete;
+    isSomePublishable(): boolean {
+        return this.somePublishable;
     }
 
     containsInvalidItems(): boolean {
@@ -640,6 +641,10 @@ export class PublishProcessor {
 
     getDependantIds(all?: boolean): ContentId[] {
         return all ? this.allDependantIds : this.dependantIds;
+    }
+
+    getVisibleDependantIds(all?: boolean): ContentId[] {
+        return all ? this.calcVisibleIds() : this.dependantIds;
     }
 
     resetDependantIds(): void {

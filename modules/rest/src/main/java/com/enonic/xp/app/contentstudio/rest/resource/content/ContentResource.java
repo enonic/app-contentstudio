@@ -708,7 +708,7 @@ public final class ContentResource
             : ContentIds.from( fullPublishList.stream().filter( publishNotAllowedCondition ).collect( Collectors.toList() ) );
 
         //check that not all contents are pending delete
-        final Boolean isAllPendingDelete = getNotPendingDeletion( fullPublishList, compareResults ).getSize() == 0;
+        final Boolean isSomePublishable = fullPublishList.getSize() > 0;
 
         //filter required dependant ids
         final ContentIds requiredDependantIds = ContentIds.from(
@@ -718,17 +718,15 @@ public final class ContentResource
         final ContentValidityResult contentValidity =
             this.contentService.getContentValidity( ContentValidityParams.create().contentIds( fullPublishList ).build() );
 
-        final ContentIds problematicContentIds = getNotPendingDeletion( contentValidity.getAllProblematicContentIds(), compareResults );
-        final ContentIds notValidContentIds = getNotPendingDeletion( contentValidity.getNotValidContentIds(), compareResults );
-        final ContentIds notReadyContentIds = getNotPendingDeletion( contentValidity.getNotReadyContentIds(), compareResults );
+        final ContentIds problematicContentIds = contentValidity.getAllProblematicContentIds();
+        final ContentIds notValidContentIds = contentValidity.getNotValidContentIds();
+        final ContentIds notReadyContentIds = contentValidity.getNotReadyContentIds();
 
         //sort all dependant content ids
-        final ContentIds sortedDependentContentIds =
-            dependentContentIds.getSize() > 0 ? sortContentIds( dependentContentIds, "_path" ) : dependentContentIds;
+        final ContentIds sortedDependentContentIds = sortContentIds( dependentContentIds, "_path" );
 
         // Sort all content ids with problems
-        final ContentIds sortedProblematicContentIds =
-            problematicContentIds.getSize() > 0 ? sortContentIds( problematicContentIds, "_path" ) : problematicContentIds;
+        final ContentIds sortedProblematicContentIds = sortContentIds( problematicContentIds, "_path" );
 
         //Returns the JSON result
         return ResolvePublishContentResultJson.create()
@@ -736,8 +734,7 @@ public final class ContentResource
             .setDependentContents(
                 this.problematicDependantsOnTop( sortedDependentContentIds, requestedContentIds, sortedProblematicContentIds ) )
             .setRequiredContents( requiredDependantIds )
-            .setNotPublishableContents( notPublishableContentIds )
-            .setAllPendingDelete( isAllPendingDelete )
+            .setNotPublishableContents( notPublishableContentIds ).setSomePublishable( isSomePublishable )
             .setContainsInvalid( !notValidContentIds.isEmpty() )
             .setInvalidContents( notValidContentIds )
             .setContainsNotReady( !notReadyContentIds.isEmpty() )
@@ -759,20 +756,20 @@ public final class ContentResource
             }
         } ).flatMap( ContentIds::stream ).filter( id -> !contentIds.contains( ContentId.from( id ) ) ).collect( Collectors.toList() ) );
 
-        final ContentIds existingOutboundIds = ContentIds.from( this.contentService.getByIds( new GetContentByIdsParams( allOutboundIds ) )
-                                                                    .stream()
-                                                                    .map( Content::getId )
-                                                                    .collect( Collectors.toList() ) );
+        final ContentIds existingOutboundIds = sortContentIds( allOutboundIds, "_path" );
 
-        final CompareContentResults compareResults = contentService.resolvePublishDependencies(
-            ResolvePublishDependenciesParams.create().contentIds( existingOutboundIds ).build() );
+        final CompareContentResults compareResults =
+            contentService.compare( CompareContentsParams.create().contentIds( existingOutboundIds ).build() );
 
-        return getNotEqual( existingOutboundIds, compareResults );
+        return ContentIds.from( compareResults.stream()
+                                    .filter( result -> result.getCompareStatus() != CompareStatus.EQUAL )
+                                    .map( CompareContentResult::getContentId )
+                                    .collect( Collectors.toList() ) );
     }
 
     private ContentIds sortContentIds( final ContentIds contentIds, final String field )
     {
-        if ( nullToEmpty( field ).isBlank() )
+        if ( contentIds.isEmpty() || nullToEmpty( field ).isBlank() )
         {
             return contentIds;
         }
@@ -789,26 +786,6 @@ public final class ContentResource
                                                dependentContentIdList.stream()
                                                    .filter( ( e ) -> !problematicContentIds.contains( e ) &&
                                                        !requestedContentIds.contains( e ) ) ).collect( Collectors.toList() ) );
-    }
-
-    private ContentIds filterOutStatus( final ContentIds contentIds, final CompareContentResults compareResults,
-                                        final CompareStatus status )
-    {
-        return ContentIds.from( compareResults.stream()
-                                    .filter( result -> result.getCompareStatus() != status )
-                                    .map( CompareContentResult::getContentId )
-                                    .filter( contentIds::contains )
-                                    .collect( Collectors.toList() ) );
-    }
-
-    private ContentIds getNotPendingDeletion( final ContentIds contentIds, final CompareContentResults compareResults )
-    {
-        return this.filterOutStatus( contentIds, compareResults, CompareStatus.PENDING_DELETE );
-    }
-
-    private ContentIds getNotEqual( final ContentIds contentIds, final CompareContentResults compareResults )
-    {
-        return this.filterOutStatus( contentIds, compareResults, CompareStatus.EQUAL );
     }
 
     @POST
