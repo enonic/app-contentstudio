@@ -166,14 +166,14 @@ class HtmlAreaForm extends OccurrencesFormView {
         return await this.pause(300);
     }
 
-    //do double-lick in the html-area
+    // do double-lick in the html-area
     async doubleClickOnHtmlArea() {
         await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
         await this.doDoubleClick(XPATH.ckeTextArea);
         return await this.pause(1000);
     }
 
-    //clicks on Format's dropdown handle and expands options
+    // clicks on Format's dropdown handle and expands options
     async showToolbarAndClickOnFormatDropDownHandle() {
         await this.clickOnElement(XPATH.ckeTextArea);
         await this.waitForElementDisplayed(XPATH.formatDropDownHandle, appConst.mediumTimeout);
@@ -186,7 +186,7 @@ class HtmlAreaForm extends OccurrencesFormView {
         return await this.getTextInElements(selector);
     }
 
-//switches to cke-frame, click on 'Paragraph Format' option and then switches to the parent frame again
+    //switches to cke-frame, click on 'Paragraph Format' option and then switches to the parent frame again
     async selectFormatOption(optionName) {
         let selector = XPATH.formatOptionByName(optionName);
         await this.switchToFrame("//iframe[@class='cke_panel_frame']");
@@ -212,10 +212,24 @@ class HtmlAreaForm extends OccurrencesFormView {
         return await this.pause(400);
     }
 
+    async showToolbarAndClickOnFindAndReplaceButton() {
+        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
+        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.waitForElementDisplayed(lib.CKE.findAndReplaceButton, appConst.mediumTimeout);
+        await this.clickOnElement(lib.CKE.findAndReplaceButton);
+        return await this.pause(400);
+    }
+
     async isTableMenuItemVisible() {
         let table = "//table";
         await this.switchToFrame("//iframe[@class='cke_panel_frame']");
         return await this.waitForElementDisplayed(table, appConst.shortTimeout);
+    }
+
+    async isReplaceGroupVisible() {
+        let locator = "//div[@title='Find and replace']";
+        await this.switchToFrame("//iframe[@class='cke_panel_frame']");
+        return await this.waitForElementDisplayed(locator, appConst.shortTimeout);
     }
 
     async showToolbarAndClickOnInsertSpecialCharactersButton() {
@@ -321,18 +335,22 @@ class HtmlAreaForm extends OccurrencesFormView {
         })
     }
 
-    isIncreaseIndentDisplayed() {
-        return this.waitForElementDisplayed(lib.CKE.increaseIndentButton).catch(err => {
-            console.log('Increase Indent  button is not visible! ' + err);
-            return false;
-        })
+    async waitForIncreaseIndentDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(lib.CKE.increaseIndentButton);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_increase_indent_btn');
+            throw new Error("HtmlArea toolbar - increase indent button, screenshot: " + screenshot + ' ' + err);
+        }
     }
 
-    isDecreaseIndentDisplayed() {
-        return this.waitForElementDisplayed(lib.CKE.decreaseIndentButton, appConst.mediumTimeout).catch(err => {
-            console.log('Increase Indent  button is not visible! ' + err);
-            return false;
-        })
+    async waitForDecreaseIndentDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(lib.CKE.decreaseIndentButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_decrease_indent_btn');
+            throw new Error("HtmlArea toolbar - decrease indent button, screenshot: " + screenshot + ' ' + err);
+        }
     }
 
     isBlockQuoteButtonDisplayed() {
