@@ -32,6 +32,7 @@ import {CreateTextComponentViewConfig} from '../CreateTextComponentViewConfig';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Content} from '../../app/content/Content';
 import {TextComponent} from '../../app/page/region/TextComponent';
+import {PageUnlockedEvent} from '../event/outgoing/manipulation/PageUnlockedEvent';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder {
@@ -48,6 +49,10 @@ export class TextComponentViewBuilder
         return this;
     }
 
+}
+
+enum VIEW_MODE {
+    RENDER, EDIT
 }
 
 export class TextComponentView
@@ -83,11 +88,13 @@ export class TextComponentView
     private editableSourceCode: boolean;
     private winBlurred: boolean;
 
+    private renderMode: VIEW_MODE = VIEW_MODE.EDIT;
+
     constructor(builder: TextComponentViewBuilder) {
         super(builder);
 
-        this.initialValue = ObjectHelper.isDefined(builder.text) ? builder.text : this.getTextFromPersistedContent();
 
+        this.setInitialValueAndRenderMode(builder.text);
         this.addTextContextMenuActions();
         this.addClassEx('text-view');
         this.setContentEditable(true); // https://ckeditor.com/docs/ckeditor4/latest/guide/dev_inline.html#enabling-inline-editing
@@ -120,6 +127,27 @@ export class TextComponentView
 
         this.bindWindowFocusEvents();
         LiveEditPageDialogCreatedEvent.on(handleDialogCreated.bind(this));
+    }
+
+    private setInitialValueAndRenderMode(initialText?: string): void {
+        if (ObjectHelper.isDefined(initialText)) {
+            this.renderMode = VIEW_MODE.EDIT;
+            this.initialValue = initialText;
+        } else {
+            const content = ContentContext.get().getContent().getContentSummary() as Content;
+            const isPageTemplateMode = !content.getPage() || content.getPage().hasTemplate();
+
+            if (isPageTemplateMode) {
+                // using html from live edit load if page is rendered using a template and no page object is present
+                this.renderMode = VIEW_MODE.RENDER;
+                this.initialValue = this.getEl().getInnerHtml();
+                // listening for customize event and updating editor value with actual data value
+                PageUnlockedEvent.on(this.handleUnlockOnCustomize.bind(this));
+            } else {
+                this.renderMode = VIEW_MODE.EDIT;
+                this.initialValue = this.liveEditParams.getTextComponentData(this.getPath().toString());
+            }
+        }
     }
 
     private checkIsSourceCodeEditable(): void {
@@ -635,14 +663,15 @@ export class TextComponentView
         return super.makeDuplicateConfig(new CreateTextComponentViewConfig().setText(this.getText())) as CreateTextComponentViewConfig;
     }
 
-    private getTextFromPersistedContent(): string {
-        const savedComponent = (ContentContext.get().getContent().getContentSummary() as Content).getPage()?.getComponentByPath(
-            this.getPath());
+    private handleUnlockOnCustomize(): void {
+        this.renderMode = VIEW_MODE.EDIT;
+        const text = this.liveEditParams.getTextComponentData(this.getPath().toString());
 
-        if (savedComponent instanceof TextComponent) {
-            return savedComponent.getText();
+        if (this.htmlAreaEditor) {
+            const processedText = HTMLAreaHelper.convertRenderSrcToPreviewSrc(text, this.getLiveEditParams().contentId);
+            this.htmlAreaEditor.setData(processedText);
+        } else {
+            this.initialValue = text; // will be used on editor created
         }
-
-        return '';
     }
 }

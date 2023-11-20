@@ -30,4 +30,6 @@ export interface LiveEditParams {
     modifyPermissions?: boolean;
 
     getFragmentIdByPath: (path: string) => string | undefined;
+
+    getTextComponentData: (path: string) => string | undefined;
 }

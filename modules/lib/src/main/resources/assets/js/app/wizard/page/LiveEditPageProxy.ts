@@ -84,6 +84,7 @@ import {ResetComponentViewEvent} from '../../../page-editor/event/incoming/manip
 import {TextEditModeChangedEvent} from '../../../page-editor/event/outgoing/navigation/TextEditModeChangedEvent';
 import {EditContentFromComponentViewEvent} from '../../../page-editor/event/outgoing/manipulation/EditContentFromComponentViewEvent';
 import {ContentUrlHelper} from '../../util/ContentUrlHelper';
+import {TextComponent} from '../../page/region/TextComponent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -404,13 +405,25 @@ export class LiveEditPageProxy
         const contentType = this.liveEditModel.getContent().getType()?.toString();
         const sitePath: string = this.liveEditModel.getSiteModel().getSite().getPath().toString();
         const modifyPermissions: boolean = this.modifyPermissions;
-        // the only thing that should work from live frame is to ask for fragment id by path to keep live frame clean
+        // two things that should work from live frame is to ask for fragment id by path to keep live frame clean
         const getFragmentIdByPath = (path: string): string | undefined => {
             const componentPath = ComponentPath.fromString(path);
             const component = PageState.getComponentByPath(componentPath);
 
             if (component instanceof FragmentComponent) {
                 return component.getFragment()?.toString();
+            }
+
+            return undefined;
+        };
+
+        // and to get text component data by path
+        const getTextComponentData = (path: string): string | undefined => {
+            const componentPath = ComponentPath.fromString(path);
+            const component = PageState.getComponentByPath(componentPath);
+
+            if (component instanceof TextComponent) {
+                return component.getText();
             }
 
             return undefined;
@@ -432,6 +445,7 @@ export class LiveEditPageProxy
             sitePath,
             modifyPermissions,
             getFragmentIdByPath,
+            getTextComponentData,
         };
     }
 
