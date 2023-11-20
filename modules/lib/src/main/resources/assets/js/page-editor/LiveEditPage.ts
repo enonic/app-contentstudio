@@ -485,6 +485,7 @@ export class LiveEditPage {
                     .setItemViewFactory(itemViewFactory)
                     .setLiveEditParams(this.pageView.getLiveEditParams())
                     .setParentView(componentView.getParentItemView())
+                    .setPositionIndex(componentView.getPath().getPath() as number)
                     .setElement(newElement);
 
                 const newComponentView: ComponentView = itemViewFactory.createView(
