@@ -1,6 +1,6 @@
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {CompareStatus} from '../content/CompareStatus';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
@@ -13,7 +13,7 @@ export class GetDescendantsOfContentsRequest
 
     private filterStatuses?: CompareStatus[] = [];
 
-    public static LOAD_SIZE: number = 20;
+    public static LOAD_SIZE: number = 36;
 
     constructor(contentPath?: ContentPath) {
         super();

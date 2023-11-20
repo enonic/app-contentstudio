@@ -205,7 +205,7 @@ export class ContentDeleteDialog
         this.loadDescendantIds().then(() => {
             this.resolveItemsWithInboundRefs();
 
-            return this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
+            return this.cleanLoadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(descendants);
                 return Q(null);
             }).finally(() => {
@@ -219,7 +219,6 @@ export class ContentDeleteDialog
                 const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
                 if (hasInboundDeps) {
                     this.lockMenu();
-
                 }
             });
         }).catch((reason: unknown) => {

@@ -140,13 +140,11 @@ export abstract class DependantItemsDialog
     }
 
     protected lazyLoadDependants(): void {
-        const size: number = this.getDependantList().getItemCount();
+        const size = this.getDependantList().getItemCount();
         this.showLoadMask();
 
-        this.loadDescendants(size, GetDescendantsOfContentsRequest.LOAD_SIZE).then((newItems: ContentSummaryAndCompareStatus[]) => {
-            if (newItems.length > 0) {
-                this.addDependantItems(newItems);
-            }
+        this.loadDescendants(size).then((newItems: ContentSummaryAndCompareStatus[]) => {
+            this.addDependantItems(newItems);
         }).catch(DefaultErrorHandler.handle).finally(() => this.hideLoadMask());
     }
 
@@ -345,9 +343,17 @@ export abstract class DependantItemsDialog
             contents.map(content => content.getContentSummary().getPath())).sendAndParse();
     }
 
-    protected loadDescendants(from: number, size: number): Q.Promise<ContentSummaryAndCompareStatus[]> {
-        const ids = this.getDependantIds(this.isExcludedShown()).slice(from, from + size);
+    private loadDescendants(from: number, size = GetDescendantsOfContentsRequest.LOAD_SIZE): Q.Promise<ContentSummaryAndCompareStatus[]> {
+        const ids = this.getDependantIdsToLoad(from, from + size);
         return new ContentSummaryAndCompareStatusFetcher().fetchByIds(ids);
+    }
+
+    protected getDependantIdsToLoad(from: number, to: number): ContentId[] {
+        return this.getDependantIds(this.isExcludedShown()).slice(from, to);
+    }
+
+    protected cleanLoadDescendants(size?: number): Q.Promise<ContentSummaryAndCompareStatus[]> {
+        return this.loadDescendants(0, size);
     }
 
     protected countTotal(): number {

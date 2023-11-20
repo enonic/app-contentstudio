@@ -8,7 +8,7 @@ export class ResolvePublishDependenciesResult {
     requiredContents: ContentId[];
     containsInvalid: boolean;
     notPublishableContents: ContentId[];
-    allPendingDelete: boolean;
+    somePublishable: boolean;
     invalidContents: ContentId[];
     notReadyContents: ContentId[];
     nextDependentContents: ContentId[];
@@ -19,7 +19,7 @@ export class ResolvePublishDependenciesResult {
         this.requiredContents = builder.requiredContents;
         this.containsInvalid = builder.containsInvalid;
         this.notPublishableContents = builder.notPublishableContents;
-        this.allPendingDelete = builder.allPendingDelete;
+        this.somePublishable = builder.somePublishable;
         this.invalidContents = builder.invalidContents;
         this.notReadyContents = builder.notReadyContents;
         this.nextDependentContents = builder.nextDependentContents;
@@ -45,8 +45,8 @@ export class ResolvePublishDependenciesResult {
         return this.notPublishableContents;
     }
 
-    isAllPendingDelete(): boolean {
-        return this.allPendingDelete;
+    isSomePublishable(): boolean {
+        return this.somePublishable;
     }
 
     getInvalid(): ContentId[] {
@@ -70,7 +70,7 @@ export class ResolvePublishDependenciesResult {
         const required: ContentId[] = json.requiredContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const containsInvalid: boolean = json.containsInvalid;
         const notPublishableIds: ContentId[] = json.notPublishableContents?.map(dependant => new ContentId(dependant.id)) ?? [];
-        const allPendingDelete: boolean = json.allPendingDelete;
+        const somePublishable: boolean = json.somePublishable;
         const invalidIds: ContentId[] = json.invalidContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const notReadyIds: ContentId[] = json.notReadyContents?.map(dependant => new ContentId(dependant.id)) ?? [];
         const nextDependentContents: ContentId[] = json.nextDependentContents?.map(dependant => new ContentId(dependant.id)) ?? [];
@@ -80,7 +80,7 @@ export class ResolvePublishDependenciesResult {
             .setRequiredContents(required)
             .setContainsInvalid(containsInvalid)
             .setNotPublishableContents(notPublishableIds)
-            .setAllPendingDelete(allPendingDelete)
+            .setSomePublishable(somePublishable)
             .setInvalidContents(invalidIds)
             .setNotReadyContents(notReadyIds)
             .setNextDependentContents(nextDependentContents)
@@ -98,7 +98,7 @@ export class Builder {
     requiredContents: ContentId[];
     containsInvalid: boolean;
     notPublishableContents: ContentId[];
-    allPendingDelete: boolean;
+    somePublishable: boolean;
     invalidContents: ContentId[];
     notReadyContents: ContentId[];
     nextDependentContents: ContentId[];
@@ -128,8 +128,8 @@ export class Builder {
         return this;
     }
 
-    setAllPendingDelete(value: boolean): Builder {
-        this.allPendingDelete = value;
+    setSomePublishable(value: boolean): Builder {
+        this.somePublishable = value;
         return this;
     }
 

@@ -20,7 +20,7 @@ public class ResolvePublishContentResultJson
 
     private final List<ContentIdJson> notPublishableContents;
 
-    private final Boolean allPendingDelete;
+    private final Boolean somePublishable;
 
     private final Boolean containsNotReady;
 
@@ -35,7 +35,7 @@ public class ResolvePublishContentResultJson
         requiredContents = builder.requiredContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
         containsInvalid = builder.containsInvalid;
         notPublishableContents = builder.notPublishableContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
-        allPendingDelete = builder.allPendingDelete;
+        somePublishable = builder.somePublishable;
         containsNotReady = builder.containsNotReady;
         invalidContents = builder.invalidContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
         notReadyContents = builder.notReadyContents.stream().map( ContentIdJson::new ).collect( Collectors.toList() );
@@ -75,9 +75,9 @@ public class ResolvePublishContentResultJson
         return notPublishableContents;
     }
 
-    public Boolean isAllPendingDelete()
+    public Boolean isSomePublishable()
     {
-        return allPendingDelete;
+        return somePublishable;
     }
 
     public Boolean getContainsNotReady()
@@ -113,7 +113,7 @@ public class ResolvePublishContentResultJson
 
         private ContentIds notPublishableContents;
 
-        private Boolean allPendingDelete;
+        private Boolean somePublishable;
 
         private Boolean containsNotReady;
 
@@ -157,9 +157,9 @@ public class ResolvePublishContentResultJson
             return this;
         }
 
-        public Builder setAllPendingDelete( final Boolean allPendingDelete )
+        public Builder setSomePublishable( final Boolean somePublishable )
         {
-            this.allPendingDelete = allPendingDelete;
+            this.somePublishable = somePublishable;
             return this;
         }
 

@@ -107,8 +107,8 @@ export class CreateIssueDialog
         });
     }
 
-    public setItems(items: ContentSummaryAndCompareStatus[]): CreateIssueDialog {
-        super.setItems(items);
+    public setItems(items: ContentSummaryAndCompareStatus[], silent?: boolean): CreateIssueDialog {
+        super.setItems(items, silent);
         this.createAction.updateLabel(this.countTotal());
 
         return this;

@@ -188,7 +188,7 @@ export class IssueDialogsManager {
     openCreateDialog(summaries?: ContentSummaryAndCompareStatus[]) {
         this.createDialog.unlockPublishItems();
         if (summaries) {
-            this.createDialog.setItems(summaries);
+            this.createDialog.setItems(summaries, true);
         } else {
             this.createDialog.reset();
         }
