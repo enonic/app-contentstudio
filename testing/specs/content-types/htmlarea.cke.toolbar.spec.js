@@ -31,6 +31,19 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await studioUtils.doAddSite(SITE);
         });
 
+    it(`GIVEN wizard for 'htmlArea' is opened WHEN 'Find and replace' button has been clicked THEN search form should be loaded`,
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            // new wizard is opened:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await htmlAreaForm.pause(1000);
+            // 'Find and replace' button has been pressed:
+            await htmlAreaForm.showToolbarAndClickOnFindAndReplaceButton();
+            await studioUtils.saveScreenshot('find_and_replace_cke');
+            // search form should be loaded
+            await htmlAreaForm.isReplaceGroupVisible();
+        });
+
     it(`GIVEN 'htmlArea' content is opened WHEN 'insert image' icon has been clicked THEN 'Insert Image Dialog' should appear`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
@@ -49,10 +62,10 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.showToolbarAndClickOnInsertAnchorButton();
             await studioUtils.saveScreenshot('cke_insert_anchor_dialog1');
-            //'Insert Anchor' Dialog should appear:
+            // 'Insert Anchor' Dialog should appear:
             await insertAnchorDialog.waitForDialogLoaded();
             await insertAnchorDialog.pause(1000);
-            //verifies XP-4949 HTML Area - Modal dialogs must handle close on Esc
+            // verifies XP-4949 HTML Area - Modal dialogs must handle close on Esc
             await insertAnchorDialog.pressEscKey();
             await insertAnchorDialog.waitForDialogClosed();
         });
@@ -71,16 +84,15 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertMacroDialog = new InsertMacroDialog();
-            //wizard with htmlarea is opened:
+            // wizard with htmlarea is opened:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            //Insert Macro dialog has been opened:
+            // Insert Macro dialog has been opened:
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
             await insertMacroDialog.waitForDialogLoaded();
             await insertMacroDialog.clickOnCancelButton();
             // 'Insert Macro' dialog should be closed, after clicking on 'Cancel' button:
             await insertMacroDialog.waitForDialogClosed();
         });
-
 
     it(`WHEN 'htmlArea' content is opened THEN Increase Indent, Bulleted List, Align Right,Table buttons should be present on the toolbar`,
         async () => {
@@ -106,11 +118,12 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             assert.isTrue(result, 'Center button should be present');
             result = await htmlAreaForm.isTableButtonDisplayed();
             assert.isTrue(result, 'Table button should be present');
-            result = await htmlAreaForm.isDecreaseIndentDisplayed();
-            assert.isTrue(result, 'Decrease Indent button should be present');
+            // 'Decrease Indent button should be present'
+            await htmlAreaForm.waitForDecreaseIndentDisplayed();
+            await htmlAreaForm.waitForIncreaseIndentDisplayed();
         });
 
-    it(`GIVEN wizard for 'htmlArea 0:1' is opened AND 'Insert Link' button has been pressed WHEN 'url-link' has been inserted, THEN correct data should be in CKE`,
+    it(`GIVEN wizard for 'htmlArea' is opened AND 'Insert Link' button has been pressed WHEN 'url-link' has been inserted, THEN correct data should be in CKE`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
@@ -134,7 +147,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             assert.equal(result[0], EXPECTED_URL, 'correct data should be in CKE');
         });
 
-    it("GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'format-dropdown' handle has been clicked THEN expected options should appear",
+    it("GIVEN wizard for 'htmlArea' is opened WHEN 'format-dropdown' handle has been clicked THEN expected options should appear",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
@@ -149,13 +162,13 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             assert.equal(result[4], "Heading 4", 'Heading 4 option should be visible');
         });
 
-    it(`GIVEN wizard for 'htmlArea 0:1' is opened and text is typed WHEN 'Heading 1' option has been selected THEN expected text should be in area`,
+    it(`GIVEN wizard for 'htmlArea' is opened and text is entered WHEN 'Heading 1' option has been selected THEN expected text should be in area`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
-            await htmlAreaForm.typeTextInHtmlArea("test");
+            await htmlAreaForm.typeTextInHtmlArea('test');
             // 2. Click on the dropdown handle:
             await htmlAreaForm.showToolbarAndClickOnFormatDropDownHandle();
             // 3. Select Heading 1 :
