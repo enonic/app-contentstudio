@@ -21,7 +21,6 @@ import {ComponentPath} from '../page/region/ComponentPath';
 export interface PageComponentsHelperFunctions {
     getPathByItem: (item: ComponentsTreeItem) => ComponentPath;
     getItemByPath: (path: ComponentPath) => ComponentsTreeItem;
-    isDropAllowed: (draggedItem: ComponentsTreeItem) => boolean;
 }
 
 export class PageComponentsGridDragHandler
@@ -148,17 +147,9 @@ export class PageComponentsGridDragHandler
 
         if (parentTreeItem) {
             if (parentTreeItem.getType() === 'region') {
-                if (draggedItem.getType() instanceof FragmentComponentType) {
-                    const grandParentPath: ComponentPath = this.helperFunctions.getPathByItem(parentTreeItem)?.getParentPath();
-                    const grandParent: ComponentsTreeItem = grandParentPath ? this.helperFunctions.getItemByPath(grandParentPath) : null;
-
-                    if (grandParent?.getType() instanceof LayoutComponentType) {
-                        if (this.helperFunctions.isDropAllowed(draggedItem)) {
-                            // Fragment with layout over Layout region
-                            DragHelper.get().setDropAllowed(false);
-                            return;
-                        }
-                    }
+                if (this.isLayoutOverLayout(parentTreeItem, draggedItem)) {
+                    DragHelper.get().setDropAllowed(false);
+                    return;
                 }
 
                 DragHelper.get().setDropAllowed(true);
@@ -171,6 +162,31 @@ export class PageComponentsGridDragHandler
             }
         }
         DragHelper.get().setDropAllowed(false);
+    }
+
+    private isLayoutOverLayout(parentTreeItem: ComponentsTreeItem, draggedItem: ComponentsTreeItem): boolean {
+        const draggedItemType = draggedItem.getType();
+        const isFragment = draggedItemType instanceof FragmentComponentType;
+        const isLayout = !isFragment && draggedItemType instanceof LayoutComponentType;
+
+        if (isFragment || isLayout) {
+            if (this.hasLayoutParent(parentTreeItem) && (isLayout || this.isFragmentWithLayout(draggedItem))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private hasLayoutParent(item: ComponentsTreeItem): boolean {
+        const parentPath: ComponentPath = this.helperFunctions.getPathByItem(item)?.getParentPath();
+        const parent: ComponentsTreeItem = parentPath ? this.helperFunctions.getItemByPath(parentPath) : null;
+        return parent?.getType() instanceof LayoutComponentType;
+    }
+
+    private isFragmentWithLayout(item: ComponentsTreeItem): boolean {
+        return item.getType() instanceof FragmentComponentType &&
+               item.getComponent().getDescription() === LayoutComponentType.get().getShortName();
     }
 
     private updateDraggableItemPosition(draggableItem: Element, parentLevel: number) {
