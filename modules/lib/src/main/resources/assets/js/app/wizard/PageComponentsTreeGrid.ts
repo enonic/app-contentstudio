@@ -53,7 +53,6 @@ export class PageComponentsTreeGrid
         (new PageComponentsGridDragHandler(this, {
             getPathByItem: this.getPathByItem.bind(this),
             getItemByPath: this.getItemByPath.bind(this),
-            isDropAllowed: this.isDropAllowed.bind(this),
         }));
 
         this.initListeners();
@@ -337,22 +336,6 @@ export class PageComponentsTreeGrid
 
     private getItemByPath(path: ComponentPath): ComponentsTreeItem {
         return this.getNodeByPath(path)?.getData();
-    }
-
-    private isDropAllowed(draggedItem: ComponentsTreeItem): boolean {
-        if (draggedItem.getType() instanceof FragmentComponentType) {
-            const path: ComponentPath = this.getPathByItem(draggedItem);
-            const node: TreeNode<ComponentsTreeItem> = this.getNodeByPath(path);
-            return !this.hasLayout(node);
-        }
-
-        return true;
-    }
-
-    private hasLayout(node: TreeNode<ComponentsTreeItem>): boolean {
-        return node?.getChildren().some((childNode: TreeNode<ComponentsTreeItem>) => {
-            return childNode.getData()?.getComponent().getType() instanceof LayoutComponentType || this.hasLayout(childNode);
-        });
     }
 
     private isElementInViewport(element: HTMLElement): boolean {
