@@ -15,8 +15,7 @@ const xpath = {
     sectionTextComponentView: "//section[contains(@id,'TextComponentView')]",
     editableTextComponentView: "//*[contains(@id,'TextComponentView') and @contenteditable='true']",
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
-    imageInTextComponentByDisplayName:
-        displayName => `//figure[contains(@data-widget,'image')]//img[contains(@src,'${displayName}')]`,
+    imageInComponent: "//figure/img",
     editableTextComponentByText: text => `//section[contains(@id,'TextComponentView') and @contenteditable='true']//p[contains(.,'${text}')]`,
     textComponentByText: text => `//section[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
     captionByText: text => `//section[contains(@id,'TextComponentView') and @contenteditable='true']//figcaption[contains(.,'${text}')]`
@@ -87,9 +86,15 @@ class LiveFormPanel extends Page {
         }
     }
 
+    async verifyImageElementsInFragmentComponent( index){
+        let locator = xpath.fragmentComponentView + xpath.imageInComponent;
+        let elements =  await this.findElements(locator);
+        return elements[index].getAttribute('src');
+    }
+
     async waitForTextComponentEmpty(index) {
         let locator = xpath.sectionTextComponentView;
-        //let elements = await this.findElements(locator);
+        // let elements = await this.findElements(locator);
         await this.getBrowser().waitUntil(async () => {
             let elements = await this.findElements(locator);
             let text = await elements[index].getAttribute("class");
