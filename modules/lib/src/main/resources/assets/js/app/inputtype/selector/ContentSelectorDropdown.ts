@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {ListBoxInput} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxInput';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ContentSummaryOptionDataHelper} from '../../util/ContentSummaryOptionDataHelper';
@@ -16,6 +15,7 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeSelectorItem';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 
 export interface ContentSelectorDropdownOptions {
     listBox: ContentListBox<ContentTreeSelectorItem>;
@@ -27,7 +27,7 @@ export interface ContentSelectorDropdownOptions {
 }
 
 export class ContentSelectorDropdown
-    extends ListBoxInput<ContentTreeSelectorItem> {
+    extends FilterableListBoxWrapperWithSelectedView<ContentTreeSelectorItem> {
 
     protected helper: ContentSummaryOptionDataHelper;
 
@@ -53,7 +53,7 @@ export class ContentSelectorDropdown
         this.postInitListeners();
     }
 
-    createOption(item: ContentTreeSelectorItem): Option<ContentTreeSelectorItem> {
+    createSelectedOption(item: ContentTreeSelectorItem): Option<ContentTreeSelectorItem> {
         return Option.create<ContentTreeSelectorItem>()
             .setValue(this.helper.getDataId(item))
             .setDisplayValue(item)
@@ -100,7 +100,7 @@ export class ContentSelectorDropdown
         if (ids.length > 0) {
             new ContentSummaryAndCompareStatusFetcher().fetchByIds(ids).then((contents) => {
                 const items = contents.map((content) => this.createSelectorItem(content));
-                const options = items.map((item) => this.createOption(item));
+                const options = items.map((item) => this.createSelectedOption(item));
                 this.selectedOptionsView.addOptions(options, true, -1);
             }).catch(DefaultErrorHandler.handle);
         }
