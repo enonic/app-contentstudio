@@ -3,12 +3,12 @@ import {ContentTypeList} from './ContentTypeList';
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {ListBoxInput} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxInput';
 import {ContentTypeSelectedOptionsView} from './ContentTypeComboBox';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 
 export interface ContentTypeFilterDropdownOptions {
     maxSelected?: number;
@@ -17,7 +17,7 @@ export interface ContentTypeFilterDropdownOptions {
 }
 
 export class ContentTypeFilterDropdown
-    extends ListBoxInput<ContentTypeSummary> {
+    extends FilterableListBoxWrapperWithSelectedView<ContentTypeSummary> {
 
     private readonly loader: BaseLoader<ContentTypeSummary>;
 
@@ -81,7 +81,7 @@ export class ContentTypeFilterDropdown
 
     private preselectItemById(id: string): void {
         new GetContentTypeByNameRequest(new ContentTypeName(id)).sendAndParse().then((contentType) => {
-            this.selectedOptionsView.addOption(this.createOption(contentType), true, -1);
+            this.selectedOptionsView.addOption(this.createSelectedOption(contentType), true, -1);
         }).catch(DefaultErrorHandler.handle);
     }
 
@@ -93,7 +93,7 @@ export class ContentTypeFilterDropdown
         });
     }
 
-    createOption(item: ContentTypeSummary): Option<ContentTypeSummary> {
+    createSelectedOption(item: ContentTypeSummary): Option<ContentTypeSummary> {
         return Option.create<ContentTypeSummary>()
             .setValue(item.getId())
             .setDisplayValue(item)
