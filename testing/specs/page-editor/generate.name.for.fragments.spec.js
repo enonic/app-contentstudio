@@ -72,7 +72,6 @@ describe('Generate name for fragments specification', function () {
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
             assert.equal(result.length, 1, 'One item should be displayed in the Page Component wizard step');
             assert.isTrue(result.includes('Text'), 'City list part should be present in the dialog');
-
         });
 
     it(`WHEN a fragment-text with an image has been selected AND Show Inbound button has been pressed THEN the parent site should be filtered in the grid`,
@@ -220,7 +219,6 @@ describe('Generate name for fragments specification', function () {
             // 7. Verify that Save button is disabled:
             await contentWizard.waitForSaveButtonDisabled();
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
