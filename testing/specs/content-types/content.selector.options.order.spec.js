@@ -153,6 +153,32 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             assert.isTrue(selectedOptions.length === 0, 'There are no selected options in the selector');
         });
 
+    it(`GIVEN content selector (1-2), dropdown has been expanded WHEN 2 options hav been selected AND 'Apply' button has been pressed THEN 'Add new' button gets not visible`,
+        async () => {
+            let contentSelectorForm = new ContentSelectorForm();
+            let contentWizard = new ContentWizard();
+            // 1. Open wizard for new content-selector:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_1_2);
+            await contentWizard.typeDisplayName(appConst.generateRandomName('cs'));
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            // 2. Expand the dropdown:
+            await contentSelectorForm.clickOnDropdownHandle();
+            // 3. Click on 2 checkboxes in options list:
+            await contentSelectorForm.clickOnCheckboxInDropdown(0);
+            await studioUtils.saveScreenshot('dropdown_apply_btn_opt_1');
+            await contentSelectorForm.clickOnCheckboxInDropdown(1);
+            await studioUtils.saveScreenshot('dropdown_apply_btn__opt_2');
+            // 4. Verify that 'Apply' button gets visible then click on it:
+            await contentSelectorForm.clickOnApplyButton();
+            // 5. Verify the selected option:
+            let selectedOptions = await contentSelectorForm.getSelectedOptions();
+            assert.isTrue(selectedOptions.length === 2, '2 selected options should be displayed');
+            // 6. Verify that Add new button is not displayed now:
+            await contentSelectorForm.waitForAddNewContentButtonNotDisplayed();
+            await contentWizard.waitAndClickOnSave();
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
