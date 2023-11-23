@@ -43,8 +43,13 @@ class ContentDuplicateDialog extends Page {
     }
 
     async clickOnIncludeChildToggler() {
-        await this.clickOnElement(this.includeChildToggler);
-        return await this.pause(1000);
+        try {
+            await this.clickOnElement(this.includeChildToggler);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_duplicate_dlg_child_toggler');
+            throw new Error("Content Duplicate dialog, error, screenshot:" + screenshot + ' ' + err);
+        }
     }
 
     async clickOnDuplicateButton() {
