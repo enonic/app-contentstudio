@@ -110,6 +110,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             // 2. Click on the toggler and exclude child items:
             await contentDuplicateDialog.clickOnIncludeChildToggler();
+            await studioUtils.saveScreenshot('issue_duplicate_dlg');
             await contentDuplicateDialog.clickOnDuplicateButton();
             await contentDuplicateDialog.waitForDialogClosed();
             // 3. Verify that site does not have expander icon:

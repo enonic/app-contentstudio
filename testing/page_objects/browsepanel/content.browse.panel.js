@@ -376,7 +376,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await contentDuplicateDialog.waitForSpinnerNotVisible(appConst.mediumTimeout);
             return contentDuplicateDialog;
         } catch (err) {
-            throw new Error('error when clicking on the Duplicate button ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_duplicate_btn_toolbar');
+            throw new Error("Error afetr clicking on the 'Duplicate' button, screenshot:" + screenshot + ' ' + err);
         }
     }
 
