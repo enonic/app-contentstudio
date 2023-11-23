@@ -37,9 +37,7 @@ import {CompareStatus} from '../../content/CompareStatus';
 import {MovedContentItem} from '../../browse/MovedContentItem';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ContentSelectorDropdown} from './ContentSelectorDropdown';
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {ModeTogglerButton} from '../ui/selector/ModeTogglerButton';
 import {ContentListBox} from './ContentListBox';
 
 export class ContentSelector
@@ -57,8 +55,6 @@ export class ContentSelector
 
     protected hideToggleIcon: boolean;
 
-    protected modeToggler: ModeTogglerButton;
-
     protected contentDeletedListener: (paths: ContentServerChangeItem[], pending?: boolean) => void;
 
     protected static contentIdBatch: ContentId[] = [];
@@ -72,7 +68,6 @@ export class ContentSelector
     constructor(config: ContentInputTypeViewContext) {
         super(config, 'content-selector');
 
-        this.modeToggler = new ModeTogglerButton();
         this.initEventsListeners();
     }
 
