@@ -126,7 +126,10 @@ export class CustomSelector
     }
 
     reset() {
-        this.comboBox.resetBaseValues();
+        // value is not set yet if not rendered, resetting will overwrite original value with empty value
+        if (this.comboBox.isRendered()) {
+            this.comboBox.resetBaseValues();
+        }
     }
 
     private getRequestPath(): string {
