@@ -61,6 +61,7 @@ export class PageComponentsView
     private draggable: boolean;
     private dockedParent: Element;
     private toggleButton: Button;
+    private isUndocked: boolean;
 
     private mouseDownListener: (event: MouseEvent) => void;
     private mouseUpListener: (event?: MouseEvent) => void;
@@ -153,11 +154,13 @@ export class PageComponentsView
     }
 
     dock(): void {
+        this.isUndocked = false;
         this.setDraggable(false);
         this.dockedParent?.appendChild(this);
     }
 
     undock(): void {
+        this.isUndocked = true;
         this.dockedParent = this.getParentElement();
         this.setDraggable(true);
         Body.get().appendChild(this);
@@ -651,7 +654,11 @@ export class PageComponentsView
         if (event.getType() === PageNavigationEventType.SELECT) {
             const path: ComponentPath = event.getData().getPath();
             this.lastSelectedPath = this.tree.isItemSelected(path) ? null : path;
-            this.tree.selectItemByPath(path).catch(DefaultErrorHandler.handle);
+            this.tree.selectItemByPath(path).then(() => {
+                if (this.isUndocked && !this.isCollapsed()) {
+                    this.tree.scrollToItem(path);
+                }
+            }).catch(DefaultErrorHandler.handle);
 
             return;
         }
