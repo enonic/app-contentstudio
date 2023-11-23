@@ -108,7 +108,7 @@ export class Project
             name: this.name,
             displayName: this.displayName,
             description: this.description,
-            parent: this.parent,
+            parents: this.parents,
             language: this.language,
             icon: this.icon ? this.icon.toJson() : null,
             permissions: this.permissions ? this.permissions.toJson() : null,

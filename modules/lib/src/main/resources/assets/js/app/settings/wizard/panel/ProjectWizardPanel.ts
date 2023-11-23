@@ -30,8 +30,6 @@ import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
 import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {ProjectApplicationsWizardStepForm} from './form/ProjectApplicationsWizardStepForm';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {ProjectSteps} from '../../dialog/project/create/ProjectSteps';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 
@@ -353,7 +351,7 @@ export class ProjectWizardPanel
             return this.updateLanguageAndPermissionsIfNeeded(project).then();
         });
     }
-
+/*
     private produceCreateItemRequest(): ProjectCreateRequest {
         return <ProjectCreateRequest>new ProjectCreateRequest()
             .setParents(this.projectWizardStepForm.getParentProjectsNames())
@@ -362,7 +360,7 @@ export class ProjectWizardPanel
             .setName(this.projectWizardStepForm.getProjectName())
             .setDisplayName(this.getDisplayName());
     }
-
+*/
     private getDisplayName(): string {
         return this.wizardHeader.getDisplayName().trim();
     }
