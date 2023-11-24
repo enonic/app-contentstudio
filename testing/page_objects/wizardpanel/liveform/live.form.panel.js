@@ -86,9 +86,23 @@ class LiveFormPanel extends Page {
         }
     }
 
-    async verifyImageElementsInFragmentComponent( index){
+    async verifyImageElementsInFragmentComponent(index) {
         let locator = xpath.fragmentComponentView + xpath.imageInComponent;
-        let elements =  await this.findElements(locator);
+        let elements = await this.findElements(locator);
+        if (elements.length === 0) {
+            await this.saveScreenshotUniqueName('err_image_element');
+            throw new Error("Live Edit - 'img' element was not found!");
+        }
+        return elements[index].getAttribute('src');
+    }
+
+    async verifyImageElementsInTextComponent(index) {
+        let locator = xpath.sectionTextComponentView + xpath.imageInComponent;
+        let elements = await this.findElements(locator);
+        if (elements.length === 0) {
+            await this.saveScreenshotUniqueName('err_image_element');
+            throw new Error("Live Edit - 'img' element was not found!");
+        }
         return elements[index].getAttribute('src');
     }
 
