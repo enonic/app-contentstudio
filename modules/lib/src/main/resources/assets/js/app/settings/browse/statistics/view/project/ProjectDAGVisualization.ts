@@ -12,13 +12,13 @@ interface DATA {
     displayName: string
     iconHTML: string,
     language: string
-    parentIds: Array<string>
+    parentIds: string[]
     group?: string
 }
 
-type D3SVG = d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
+type D3SVG = d3.Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
 
-type D3SVGG = d3.Selection<SVGGElement, unknown | string, HTMLElement | SVGGElement, any>;
+type D3SVGG = d3.Selection<SVGGElement, string, HTMLElement | SVGGElement, unknown>;
 
 export class ProjectDAGVisualization extends DivEl{
     private static TEXTS_LEFT = 45;
@@ -27,10 +27,10 @@ export class ProjectDAGVisualization extends DivEl{
     private static RECT_HEIGHT = 50;
     private static RECT_LEFT = 60;
     private static RECT_BG_COLOR = '#ffffff';
-    private static PATH_COLOR = '#343434'
+    private static PATH_COLOR = '#343434';
 
     private allProjects: Project[];
-    private data: Array<DATA>;
+    private data: DATA[];
     private svgContainerId: string = 'svg-container';
 
     constructor(projectId?: string) {
