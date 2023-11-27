@@ -356,7 +356,7 @@ export class LiveEditPage {
             const itemToMove: ItemView = this.getItemViewByPath(from);
             const regionViewTo: ItemView = this.getItemViewByPath(to.getParentPath());
 
-            if (itemToMove && itemToMove instanceof ComponentView && regionViewTo && regionViewTo instanceof RegionView) {
+            if (itemToMove instanceof ComponentView && regionViewTo instanceof RegionView) {
                 itemToMove.moveToRegion(regionViewTo, to.getPath() as number);
             }
         };
@@ -493,6 +493,7 @@ export class LiveEditPage {
                     createViewConfig) as ComponentView;
 
                 componentView.replaceWith(newComponentView);
+                newComponentView.getParentItemView().registerComponentViewListeners(newComponentView);
 
                 const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
                 event.fire();

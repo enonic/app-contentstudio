@@ -31,7 +31,6 @@ import {ContentContext} from '../../app/wizard/ContentContext';
 import {CreateTextComponentViewConfig} from '../CreateTextComponentViewConfig';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Content} from '../../app/content/Content';
-import {TextComponent} from '../../app/page/region/TextComponent';
 import {PageUnlockedEvent} from '../event/outgoing/manipulation/PageUnlockedEvent';
 
 export class TextComponentViewBuilder

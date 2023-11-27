@@ -60,7 +60,7 @@ export class PageComponentsTreeGrid
 
     private initListeners(): void {
         PageState.getEvents().onComponentAdded((event: ComponentAddedEvent) => {
-            this.addComponent(event.getComponent()).catch(DefaultErrorHandler.handle);
+            this.addComponent(event.getComponent())?.catch(DefaultErrorHandler.handle);
         });
 
         PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
