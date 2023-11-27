@@ -22,12 +22,12 @@ type D3SVGG = d3.Selection<SVGGElement, unknown | string, HTMLElement | SVGGElem
 
 export class ProjectDAGVisualization extends DivEl{
     private static TEXTS_LEFT = 45;
-
     private static NODE_MAX_WIDTH = 200;
     private static MAX_TEXT_WIDTH = ProjectDAGVisualization.NODE_MAX_WIDTH - ProjectDAGVisualization.TEXTS_LEFT;
-
     private static RECT_HEIGHT = 50;
     private static RECT_LEFT = 60;
+    private static RECT_BG_COLOR = '#ffffff';
+    private static PATH_COLOR = '#343434'
 
     private allProjects: Project[];
     private data: Array<DATA>;
@@ -61,6 +61,8 @@ export class ProjectDAGVisualization extends DivEl{
     }
 
     private execute(svgSelection: D3SVG) {
+        d3.select(`#${this.svgContainerId}`).attr('style', 'visibility: hidden;');
+
         const dag = d3dag.dagStratify()(this.data);
         this.setLayout(dag);
         const edges = this.plotEdges(svgSelection, dag.links());
@@ -70,14 +72,20 @@ export class ProjectDAGVisualization extends DivEl{
         const projectIds = this.plotProjectIds(nodes);
         this.plotTitles(nodes);
         this.plotFlags(nodes);
-        this.adjustDisplayNames(displayNames);
-        this.adjustIds(projectIds);
-        this.adjustRects(rects);
-        this.adjustEdges(edges);
-        this.adjustSvgPlacement(svgSelection, dag);
+
+        setTimeout(() => {
+            this.adjustDisplayNames(displayNames);
+            this.adjustIds(projectIds);
+            this.adjustRects(rects);
+            this.adjustEdges(edges);
+            this.adjustSvgPlacement(svgSelection, dag);
+
+            d3.select(`#${this.svgContainerId}`).attr('style', 'width: 100%; visibility: visible');
+        }, 100);
+        
     }
 
-    private setData(projectId: string = ''): Q.Promise<void> {
+    private setData(): Q.Promise<void> {
         const getIconHTML = (project: Project) => {
             const language: string = project.getLanguage();
 
@@ -145,37 +153,37 @@ export class ProjectDAGVisualization extends DivEl{
     }
 
     private adjustSvgPlacement(svgSelection: D3SVGG, dag: d3dag.Dag<DATA, undefined>) {
-        const minXNode = dag.descendants().map((node) => node.x).sort((a,b) => a-b)[0];
+        const minXNode = dag.descendants().map((node) => node.x).sort((a,b) => a-b)?.[0] || 0;
         const minXEdge = dag.links()
             .map((link) => link.points.sort((a,b) => a.x - b.x)[0].x)
-            .sort((a: number,b: number) => a-b)[0];
-        const minYNode = dag.descendants().map((node) => node.y).sort((a,b) => a-b)[0];
+            .sort((a: number,b: number) => a-b)?.[0] || 0;
+        const minYNode = dag.descendants().map((node) => node.y).sort((a,b) => a-b)?.[0] || 0;
         const minYEdge = dag.links()
             .map((link) => link.points.sort((a,b) => a.x - b.x)[0].x)
-            .sort((a: number,b: number) => a-b)[0];
+            .sort((a: number,b: number) => a-b)?.[0] || 0;
 
-        const maxXNode = dag.descendants().map((node) => node.x).sort((a,b) => b-a)[0];
+        const maxXNode = dag.descendants().map((node) => node.x).sort((a,b) => b-a)?.[0] || 0;
         const maxXEdge = dag.links()
             .map((link) => link.points.sort((a,b) => b.x - a.x)[0].x)
-            .sort((a: number,b: number) => b-a)[0];
-        const maxYNode = dag.descendants().map((node) => node.y).sort((a,b) => b-a)[0];
+            .sort((a: number,b: number) => b-a)?.[0] || 0;
+        const maxYNode = dag.descendants().map((node) => node.y).sort((a,b) => b-a)?.[0] || 0;
         const maxYEdge = dag.links()
             .map((link) => link.points.sort((a,b) => b.x - a.x)[0].x)
-            .sort((a: number,b: number) => b-a)[0];
+            .sort((a: number,b: number) => b-a)?.[0] || 0;
 
         const minX = Math.max(0, Math.min(minXNode, minXEdge) - ProjectDAGVisualization.NODE_MAX_WIDTH);
-        const maxX = Math.max(0, Math.max(maxXNode, maxXEdge) + 1.5 * ProjectDAGVisualization.NODE_MAX_WIDTH);
+        const maxX = Math.max(0, Math.max(maxXNode, maxXEdge) + 2 * ProjectDAGVisualization.NODE_MAX_WIDTH);
         const minY = Math.max(0, Math.min(minYNode, minYEdge) - ProjectDAGVisualization.RECT_HEIGHT);
-        const maxY = Math.max(0, Math.min(maxYNode, maxYEdge) + 1.5 * ProjectDAGVisualization.RECT_HEIGHT);
+        const maxY = Math.max(0, Math.min(maxYNode, maxYEdge) + 3 * ProjectDAGVisualization.RECT_HEIGHT);
 
-        d3.select(`#${this.svgContainerId}`).attr('style', 'width: 100%;');
         svgSelection.attr('viewBox', [minX, minY, maxX, maxY].join(' '));
     }
 
     private plotEdges(svg: D3SVGG, data: d3dag.DagLink<DATA, undefined>[]): D3SVGG {
-        const strokeWidthFn = ({source, target}) => {
-            return target.data.parentIds.length > 0
-                && target.data.parentIds[0] === source.data.id ? 3 : 1;
+        const strokeFn = ({source, target}) => {
+            return target.data.parentIds.length > 0 && target.data.parentIds[0] === source.data.id 
+            ? ProjectDAGVisualization.PATH_COLOR
+            : ProjectDAGVisualization.PATH_COLOR + '50';
         };
 
         return svg.append('g')
@@ -185,8 +193,7 @@ export class ProjectDAGVisualization extends DivEl{
             .append('path')
             .attr('id', ({source, target}) => encodeURIComponent(`path-${source.data.id}--${target.data.id}`))
             .attr('fill', 'none')
-            .attr('stroke', '#53585F')
-            .attr('stroke-width', strokeWidthFn);
+            .attr('stroke', strokeFn);
     }
 
     private plotNodes(svg: D3SVGG, data: d3dag.DagNode<DATA, undefined>[]): D3SVGG {
@@ -206,7 +213,7 @@ export class ProjectDAGVisualization extends DivEl{
         return svg.append('rect')
             .attr('id', (d) => encodeURIComponent(`rect-${d.data.id}`))
             .attr('height', ProjectDAGVisualization.RECT_HEIGHT)
-            .attr('fill', 'white')
+            .attr('fill', ProjectDAGVisualization.RECT_BG_COLOR)
             .attr('rx', '5')
             .attr('style', 'filter: drop-shadow(0px 1px 2px #e6e6e6)');
     }
@@ -305,11 +312,10 @@ export class ProjectDAGVisualization extends DivEl{
         const adjustmentFn = (d) => {
             const sourceX = Math.floor(+document.getElementById(`rect-${d.source.data.id}`).getAttribute('width')) / 2;
             const targetX = Math.floor(+document.getElementById(`rect-${d.target.data.id}`).getAttribute('width')) / 2;
-            const offsetY = ProjectDAGVisualization.RECT_HEIGHT / 2;
 
             const points = d.points.map(({x,y}, i) => {
                 if (i === 0) {
-                return {x: x + sourceX, y};
+                return {x: x + sourceX, y: y + ProjectDAGVisualization.RECT_HEIGHT};
                 }
 
                 if(i === d.points.length - 1) {
@@ -325,7 +331,7 @@ export class ProjectDAGVisualization extends DivEl{
                 //.curve(d3.curveLinear)
                 //.curve(d3.curveStepBefore)
                 .x((d) => d.x)
-                .y((d) => d.y + offsetY)(points);
+                .y((d) => d.y)(points);
         };
 
         svg.attr('d', adjustmentFn);
