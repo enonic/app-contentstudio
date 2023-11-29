@@ -16,7 +16,6 @@ import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeS
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {ModeTogglerButton} from '../ui/selector/ModeTogglerButton';
 
 export interface ContentSelectorDropdownOptions {
     listBox: ContentListBox<ContentTreeSelectorItem>;
@@ -38,8 +37,6 @@ export class ContentSelectorDropdown
 
     protected readonly getSelectedItemsHandler: () => string[];
 
-    protected modeButton: ModeTogglerButton;
-
     constructor(options: ContentSelectorDropdownOptions) {
         super(options.listBox, {
             selectedOptionsView: options.selectedOptionsView,
@@ -53,8 +50,6 @@ export class ContentSelectorDropdown
         this.helper = new ContentSummaryOptionDataHelper();
         this.getSelectedItemsHandler = options.getSelectedItems;
         this.selectedOptionsView.setOccurrencesSortable(true);
-        this.modeButton = new ModeTogglerButton();
-        this.modeButton.setActive(true);
         this.postInitListeners();
     }
 
@@ -75,7 +70,7 @@ export class ContentSelectorDropdown
         });
 
         this.listBox.onItemsAdded((items: ContentTreeSelectorItem[]) => {
-            this.selectLoadedListItems(items);
+            this.selectLoadedFlatListItems(items);
         });
 
         this.optionFilterInput.onValueChanged((event: ValueChangedEvent) => {
@@ -119,7 +114,7 @@ export class ContentSelectorDropdown
         return new ContentTreeSelectorItem(content);
     }
 
-    protected selectLoadedListItems(items: ContentTreeSelectorItem[]): void {
+    protected selectLoadedFlatListItems(items: ContentTreeSelectorItem[]): void {
         const selectedItems: string[] = this.getSelectedItemsHandler();
 
         items.forEach((item: ContentTreeSelectorItem) => {
@@ -133,8 +128,6 @@ export class ContentSelectorDropdown
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.modeButton.insertBeforeEl(this.optionFilterInput);
-
             this.preSelectItems();
 
             return rendered;

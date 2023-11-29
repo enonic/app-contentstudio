@@ -1,0 +1,40 @@
+.content-tree-list {
+  .content-tree-list-element {
+    .toggle-and-item-wrapper {
+      .names-and-icon-viewer  {
+        display: grid;
+        grid-template-columns: 1fr 90px;
+        flex-grow: 1;
+
+        .content-status-mixin();
+
+        .status {
+          text-align: center;
+        }
+      }
+
+      .custom-option-viewer(26px, 13px, 11px);
+    }
+
+    .selected {
+      > .toggle-and-item-wrapper {
+        background-color: @admin-blue;
+
+        .xp-admin-common-names-view * {
+          color: @admin-white;
+        }
+
+        .status {
+          span {
+            color: @admin-white;
+          }
+        }
+      }
+
+      > .selection-checkbox {
+        background-color: @admin-blue;
+      }
+    }
+  }
+
+}
