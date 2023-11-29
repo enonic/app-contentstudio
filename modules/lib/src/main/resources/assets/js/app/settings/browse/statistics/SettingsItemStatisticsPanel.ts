@@ -6,6 +6,8 @@ import {StatisticsViewFactory} from './StatisticsViewFactory';
 import {ProjectDAGVisualization} from './view/project/ProjectDAGVisualization';
 import {SettingsItemsTreeGridHighlightEvent} from '../../../event/SettingsItemsTreeGridHighlightEvent';
 import {SettingsItemsTreeGrid} from '../../grid/SettingsItemsTreeGrid';
+import {ProjectViewItem} from '../../view/ProjectViewItem';
+import {FolderViewItem} from '../../view/FolderViewItem';
 
 export class SettingsItemStatisticsPanel
     extends ItemStatisticsPanel {
@@ -17,20 +19,20 @@ export class SettingsItemStatisticsPanel
         super('settings-item-statistics-panel');
 
         SettingsItemsTreeGridHighlightEvent.on((event: SettingsItemsTreeGridHighlightEvent) => {
-            const highligtedItem = event.getHighlightedItem();
+            const highligtedItem: SettingsViewItem = event.getHighlightedItem();
 
             if (this.projectDAGVisualization) {
                 this.removeChild(this.projectDAGVisualization);
                 this.projectDAGVisualization = null;
             }
 
-            if (highligtedItem.id === SettingsItemsTreeGrid.PROJECTS_FOLDER_ID) {
+            if (highligtedItem.getId() === SettingsItemsTreeGrid.PROJECTS_FOLDER_ID) {
                 setTimeout(() => {
                     this.projectDAGVisualization = new ProjectDAGVisualization(SettingsItemsTreeGrid.PROJECTS_FOLDER_ID);
                     this.appendChild(this.projectDAGVisualization);
                 }, 100);
             }
-        }); 
+        });
     }
 
     setItem(item: SettingsViewItem) {

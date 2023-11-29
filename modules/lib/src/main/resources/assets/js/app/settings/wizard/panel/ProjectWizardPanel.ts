@@ -351,16 +351,7 @@ export class ProjectWizardPanel
             return this.updateLanguageAndPermissionsIfNeeded(project).then();
         });
     }
-/*
-    private produceCreateItemRequest(): ProjectCreateRequest {
-        return <ProjectCreateRequest>new ProjectCreateRequest()
-            .setParents(this.projectWizardStepForm.getParentProjectsNames())
-            .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
-            .setDescription(this.projectWizardStepForm.getDescription())
-            .setName(this.projectWizardStepForm.getProjectName())
-            .setDisplayName(this.getDisplayName());
-    }
-*/
+
     private getDisplayName(): string {
         return this.wizardHeader.getDisplayName().trim();
     }
