@@ -7,7 +7,7 @@ export class ParentProjectFormItem
     extends ProjectFormItem {
 
     constructor() {
-        super(<ProjectFormItemBuilder>new ProjectFormItemBuilder(new ProjectsSelector())
+        super(new ProjectFormItemBuilder(new ProjectsSelector())
             .setHelpText(i18n('settings.projects.parent.helptext'))
             .setLabel(i18n('settings.field.project.parent'))
             .setValidator(Validators.required) as ProjectFormItemBuilder);
@@ -16,7 +16,7 @@ export class ParentProjectFormItem
     }
 
     getProjectsSelector(): ProjectsSelector {
-        return <ProjectsSelector>this.getInput();
+        return this.getInput() as ProjectsSelector;
     }
 
 }
