@@ -39,6 +39,7 @@ import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ContentSelectorDropdown} from './ContentSelectorDropdown';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentListBox} from './ContentListBox';
+import {ContentSelectorTreeDropdown} from './ContentSelectorTreeDropdown';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
@@ -380,7 +381,7 @@ export class ContentSelector
     }
 
     protected doCreateSelectorDropdown(dropdownOptions): ContentSelectorDropdown {
-        return new ContentSelectorDropdown(dropdownOptions);
+        return new ContentSelectorTreeDropdown(dropdownOptions);
     }
 
     protected getDropdownClassName(): string {
