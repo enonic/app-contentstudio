@@ -33,7 +33,6 @@ class ContentDuplicateDialog extends Page {
         return this.isElementDisplayed(this.includeChildToggler);
     }
 
-
     isDuplicateButtonDisplayed() {
         return this.isElementDisplayed(this.duplicateButton);
     }
@@ -73,10 +72,11 @@ class ContentDuplicateDialog extends Page {
 
     async waitForDialogOpened() {
         try {
-            return await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+            await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_duplicate_dlg');
-            throw new Error("'Content Duplicate' dialog is not loaded, screenshot:  " + screenshot + ' ' + err);
+            throw new Error("'Content Duplicate' dialog was not loaded, screenshot:  " + screenshot + ' ' + err);
         }
     }
 
