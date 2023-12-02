@@ -111,7 +111,7 @@ export class HtmlArea
         return ValueTypes.STRING;
     }
 
-    createInputOccurrenceElement(index: number, property: Property): Element {
+    createInputOccurrenceElement(index: number, property: Property): TextAreaWrapper {
         if (!ValueTypes.STRING.equals(property.getType())) {
             property.convertValueType(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
@@ -588,6 +588,11 @@ export class HtmlArea
         return LangDirection.AUTO;
     }
 
+    updateInputOccurrenceElement(occurrence: TextAreaWrapper, property: Property, unchangedOnly?: boolean) {
+        const textAreaEl = occurrence.getChildren().find((child) => child instanceof TextArea);
+        super.updateInputOccurrenceElement(textAreaEl, property, unchangedOnly);
+    }
+
 }
 
 export interface HtmlAreaOccurrenceInfo {
@@ -600,8 +605,6 @@ export interface HtmlAreaOccurrenceInfo {
 
 class TextAreaWrapper
     extends DivEl {
-
-
 }
 
 InputTypeManager.register(new Class('HtmlArea', HtmlArea));
