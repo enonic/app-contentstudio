@@ -214,8 +214,7 @@ export class ComponentView
 
     private initKeyBoardBindings() {
         const removeHandler = () => {
-            this.deselect();
-            this.remove();
+            new RemoveComponentRequest(this.getPath()).fire();
             return true;
         };
         this.keyBinding = [
