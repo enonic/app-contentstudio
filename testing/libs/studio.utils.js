@@ -138,7 +138,7 @@ module.exports = {
             await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
         }
         await insertLinkDialogContentPanel.selectTargetInContentSelector(contentDisplayName);
-        this.saveScreenshot('content_link_dialog');
+        await this.saveScreenshot('content_link_dialog');
         await insertLinkDialog.clickOnInsertButton();
         return await insertLinkDialog.pause(700);
     },
@@ -656,7 +656,7 @@ module.exports = {
     async doSwitchToContentBrowsePanel() {
         try {
             let browsePanel = new BrowsePanel();
-            await this.getBrowser().switchWindow('Content Studio - Enonic XP Admin');
+            await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.CONTENT_STUDIO);
             console.log('switched to content browse panel...');
             await browsePanel.waitForGridLoaded(appConst.longTimeout);
             return browsePanel;
@@ -668,7 +668,7 @@ module.exports = {
         try {
             let projectSelectionDialog = new ProjectSelectionDialog();
             let browsePanel = new BrowsePanel();
-            await this.getBrowser().switchWindow('Content Studio - Enonic XP Admin');
+            await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.CONTENT_STUDIO);
             console.log('switched to content browse panel...');
             let isLoaded = await projectSelectionDialog.isDialogLoaded();
             if (isLoaded) {
@@ -685,7 +685,7 @@ module.exports = {
     async doSwitchToHome() {
         console.log('testUtils:switching to Home page...');
         let homePage = new HomePage();
-        await this.getBrowser().switchWindow('Enonic XP Home');
+        await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.XP_HOME);
         return await homePage.waitForLoaded(appConst.mediumTimeout);
 
     },
@@ -729,7 +729,11 @@ module.exports = {
         let contentWizardPanel = new ContentWizardPanel();
         let tabs = await this.getBrowser().getWindowHandles();
         await this.getBrowser().switchToWindow(tabs[tabs.length - 1]);
-        return contentWizardPanel.waitForOpened();
+        return await contentWizardPanel.waitForOpened();
+    },
+    async doSwitchToTabByIndex(index) {
+        let tabs = await this.getBrowser().getWindowHandles();
+        await this.getBrowser().switchToWindow(tabs[index]);
     },
     async doSwitchToNextTab() {
         let tabs = await this.getBrowser().getWindowHandles();
@@ -739,7 +743,17 @@ module.exports = {
         let tabs = await this.getBrowser().getWindowHandles();
         return await this.getBrowser().switchToWindow(tabs[tabs.length - 2]);
     },
-    doCloseAllWindowTabsAndSwitchToHome: function () {
+    async doCloseWindowTabByTitle(title) {
+        let arrayId = await this.getBrowser().getWindowHandles();
+        for (const item of arrayId) {
+            let result = await this.switchAndCheckTitle(item, title);
+            if (result) {
+                await this.getBrowser().closeWindow();
+            }
+        }
+        await this.doSwitchToHome();
+    },
+    doCloseAllWindowTabsAndSwitchToHome() {
         return this.getBrowser().getWindowHandles().then(tabIds => {
             let result = Promise.resolve();
             tabIds.forEach(tabId => {
@@ -770,7 +784,6 @@ module.exports = {
             })
         });
     },
-
     async saveScreenshot(name, that) {
         try {
             let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');

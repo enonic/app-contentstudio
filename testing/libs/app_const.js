@@ -2,7 +2,7 @@
  * Created  on 1.12.2017.
  */
 module.exports = Object.freeze({
-    generateRandomName (part) {
+    generateRandomName(part) {
         return part + Math.round(Math.random() * 1000000);
     },
     itemMarkedAsReadyMessage(name) {
@@ -12,7 +12,7 @@ module.exports = Object.freeze({
         return `Item \"${name}\" is archived`
     },
 
-    itemSavedNotificationMessage (name) {
+    itemSavedNotificationMessage(name) {
         return `Item \"${name}\" is saved.`
     },
     languageCopiedNotification: parent => `Language successfully copied from \"${parent}\"`,
@@ -65,8 +65,11 @@ module.exports = Object.freeze({
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     TAB_TITLE_PART: "/ Content",
     CONTENT_STUDIO_TITLE: 'Content Studio',
-
-    NOTIFICATION_MESSAGES:{
+    BROWSER_TITLES: {
+        CONTENT_STUDIO: 'Content Studio - Enonic XP Admin',
+        XP_HOME: 'Enonic XP Home',
+    },
+    NOTIFICATION_MESSAGES: {
         YOUR_COMMENT_ADDED: 'Your comment is added to the issue.',
         LOCALIZED_MESSAGE_1: 'Language was copied from current project.',
         LOCALIZED_MESSAGE_2: 'Inherited content is localized',
@@ -282,7 +285,10 @@ module.exports = Object.freeze({
         FOLDER: `Folder`,
         SITE: 'Site',
         PAGE_TEMPLATE: `Page Template`,
+        HTML_AREA_0_0: `htmlarea0_0`,
+        HTML_AREA_0_2: 'htmlarea0_2',
         HTML_AREA_0_1: `htmlarea0_1`,
+        HTML_AREA_1_1: `htmlarea1_1`,
         HTML_AREA_2_4: 'htmlarea2_4',
         IMG_SELECTOR_0_0: 'imageselector0_0',
         IMG_SELECTOR_0_1: 'imageselector0_1',
