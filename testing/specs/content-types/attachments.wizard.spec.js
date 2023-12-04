@@ -9,8 +9,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const AttachmentsForm = require('../../page_objects/wizardpanel/attachments.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-
 
 describe('attachments.wizard.spec: tests for attachments content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -23,20 +21,6 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
 
     it(`Preconditions: new site should be created`,
         async () => {
-
-            // let aa = await browser.isMultiremote;
-            // let sss = await browserA.$$("//button[descendant::span[text()='Create Issue...']]");
-            // let sss1 = await browserB.$$("//button[descendant::span[text()='Create Issue...']]");
-
-            // let aa = webDriverHelper.browser.capabilities;
-            //const client = await webDriverHelper.browser.newSession(options);
-            //await webDriverHelper.browser.navigateTo('http://localhost:8080/admin/tool')
-            // const clientNew = Object.create(browser);
-
-            let aas = await browser.getInstance('browserA');
-            let contentBrowsePanel1 = new ContentBrowsePanel();
-            contentBrowsePanel1.setBrowser(aas);
-            await contentBrowsePanel1.clickOnNewButton();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
