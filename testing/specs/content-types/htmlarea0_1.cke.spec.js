@@ -55,7 +55,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open a new wizard for a content without controller or template
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             // 2. Click on 'Show Page Editor' button:
             await contentWizard.clickOnPageEditorToggler();
             // 3. Verify that 'Live Form' panel gets visible:
@@ -66,7 +66,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             await contentWizard.waitAndClickOnSave();
             let ids = await htmlAreaForm.getIdOfHtmlAreas();
@@ -84,7 +84,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             await contentWizard.waitAndClickOnSave();
             let isNotValid = await contentWizard.isContentInvalid();
@@ -121,7 +121,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');
             htmlAreaContent = contentBuilder.buildHtmlArea(displayName, 'htmlarea0_1', [TEXT_TO_TYPE]);
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.pause(1000);
             await contentWizard.typeData(htmlAreaContent);
             await contentWizard.waitAndClickOnSave();
