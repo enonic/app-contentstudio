@@ -1773,24 +1773,6 @@ export class ContentWizardPanel
         return extraData;
     }
 
-    private syncPersistedItemWithContentData(propertyTree: PropertyTree) {
-        const persistedContent: Content = this.getPersistedItem();
-        const persistedContentData: PropertyTree = persistedContent.getContentData();
-
-        const treeCopy: PropertyTree = propertyTree.copy();
-
-        persistedContentData.getRoot().syncEmptyArrays(treeCopy.getRoot());
-
-        const diff = persistedContentData.diff(treeCopy);
-        diff.added.forEach((property: Property) => {
-            persistedContentData.setPropertyByPath(property.getPath(), property.getValue());
-        });
-
-        if (diff.added && diff.added.length > 0) {
-            this.wizardActions.refreshSaveActionState();
-        }
-    }
-
     private isSplitEditModeActive(): boolean {
         return ResponsiveRanges._960_1200.isFitOrBigger(this.getEl().getWidth()) &&
                this.isEditorEnabled() && this.shouldOpenEditorByDefault();
@@ -1882,7 +1864,7 @@ export class ContentWizardPanel
                         if (this.params.localized) {
                             this.onRendered(() => NotifyManager.get().showFeedback(i18n('notify.content.localized')));
                         }
-                        this.syncPersistedItemWithContentData(content.getContentData());
+
                         this.xDataWizardStepForms.resetState();
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
@@ -2295,8 +2277,9 @@ export class ContentWizardPanel
     hasContentChanged(): boolean {
         const contentBuilder: ContentBuilder = this.getPersistedItem().newBuilderWithoutProperties();
         const viewedContent = this.assembleViewedContent(contentBuilder).build();
+        const isNew = ObjectHelper.dateEquals(this.getPersistedItem().getCreatedTime(), this.getPersistedItem().getModifiedTime());
 
-        return !viewedContent.equals(this.getPersistedItem());
+        return !viewedContent.equals(this.getPersistedItem(), isNew);
     }
 
     assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false,
@@ -2452,8 +2435,6 @@ export class ContentWizardPanel
 
         this.contentWizardStepForm.update(content.getContentData(), unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
-
-            this.syncPersistedItemWithContentData(content.getContentData());
         });
     }
 
