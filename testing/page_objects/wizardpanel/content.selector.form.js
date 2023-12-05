@@ -43,6 +43,7 @@ class ContentSelector extends BaseSelectorForm {
     async clickOnCheckboxInDropdown(index) {
         let loaderComboBox = new LoaderComboBox();
         await loaderComboBox.clickOnCheckboxInDropdown(index, XPATH.container);
+        await this.pause(500);
     }
 
     selectedOptionByDisplayName(displayName) {
