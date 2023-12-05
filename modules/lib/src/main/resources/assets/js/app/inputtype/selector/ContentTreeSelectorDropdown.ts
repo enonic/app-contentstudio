@@ -1,17 +1,18 @@
 import {ContentSelectorDropdown} from './ContentSelectorDropdown';
 import {ContentsTreeList} from '../../browse/ContentsTreeList';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {ModeTogglerButton} from '../ui/selector/ModeTogglerButton';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import * as Q from 'q';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
 
-export class ContentSelectorTreeDropdown extends ContentSelectorDropdown {
+export class ContentTreeSelectorDropdown
+    extends ContentSelectorDropdown {
 
     protected treeList: ContentsTreeList;
 
-    protected treeSelectionWrapper: SelectableListBoxWrapper<ContentTreeSelectorItem>;
+    protected treeSelectionWrapper: ContentTreeSelectionWrapper;
 
     protected isTreeMode: boolean = false;
 
@@ -23,7 +24,7 @@ export class ContentSelectorTreeDropdown extends ContentSelectorDropdown {
         this.modeButton = new ModeTogglerButton();
         this.modeButton.setActive(false);
         this.treeList = new ContentsTreeList();
-        this.treeSelectionWrapper = new SelectableListBoxWrapper<ContentTreeSelectorItem>(this.treeList, {
+        this.treeSelectionWrapper = new ContentTreeSelectionWrapper(this.treeList, {
             maxSelected: this.options.maxSelected,
             checkboxPosition: this.options.checkboxPosition,
             className: 'content-tree-selector',
@@ -77,7 +78,23 @@ export class ContentSelectorTreeDropdown extends ContentSelectorDropdown {
         });
 
         this.treeSelectionWrapper.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>) => {
-            console.log('selectionChange', selectionChange);
+            selectionChange.selected?.forEach((item: ContentTreeSelectorItem) => {
+                this.handleUserToggleAction(item);
+            });
+
+            selectionChange.deselected?.forEach((item: ContentTreeSelectorItem) => {
+                this.handleUserToggleAction(item);
+            });
+        });
+
+        this.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>) => {
+            selectionChange.selected?.forEach((item: ContentTreeSelectorItem) => {
+                this.treeSelectionWrapper.select(item, true);
+            });
+
+            selectionChange.deselected?.forEach((item: ContentTreeSelectorItem) => {
+                this.treeSelectionWrapper.deselect(item, true);
+            });
         });
     }
 
@@ -91,10 +108,29 @@ export class ContentSelectorTreeDropdown extends ContentSelectorDropdown {
         }
     }
 
+    protected resetSelection(): void {
+        this.selectionDelta.forEach((value: boolean, id: string) => {
+            this.treeSelectionWrapper.toggleItemWrapperSelected(id, !value);
+        });
+
+        super.resetSelection();
+    }
+
     protected handleModeChanged(): void {
         this.treeSelectionWrapper.setVisible(this.isTreeMode);
         this.treeList.setVisible(this.isTreeMode);
         this.listBox.setVisible(!this.isTreeMode);
+    }
+
+    protected applySelection() {
+        super.applySelection();
+
+        this.treeSelectionWrapper.setVisible(false);
+        this.treeList.setVisible(false);
+    }
+
+    protected getItemById(id: string): ContentTreeSelectorItem {
+        return this.isTreeMode ? this.treeList.getItem(id) : super.getItemById(id);
     }
 
     protected selectLoadedTreeListItems(items: ContentTreeSelectorItem[]): void {
