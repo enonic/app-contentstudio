@@ -140,6 +140,7 @@ import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {PageTemplate} from '../content/PageTemplate';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
+import {InspectEvent} from '../event/InspectEvent';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1209,6 +1210,18 @@ export class ContentWizardPanel
 
         PageState.getEvents().onPageReset(() => {
             this.removePCV();
+        });
+
+        InspectEvent.on((event: InspectEvent) => {
+            const minimizeWizard = event.isShowPanel() &&
+                                   !this.isMinimized() &&
+                                   this.isRenderable() &&
+                                   this.getLivePanel().isShown() &&
+                                   !this.contextSplitPanel.isMobileMode() &&
+                                   ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
+            if (minimizeWizard) {
+                this.toggleMinimize();
+            }
         });
     }
 
