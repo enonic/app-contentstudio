@@ -15,7 +15,7 @@ export interface AttachmentUploaderElConfig
 
     contentId: string;
 
-    attachmentRemoveCallback: () => void;
+    attachmentRemoveCallback: (value: string) => void;
 
     project?: Project;
 }
@@ -27,7 +27,7 @@ export class AttachmentUploaderEl
 
     private readonly contentId: string;
 
-    private readonly removeCallback: () => void;
+    private readonly removeCallback: (value: string) => void;
 
     private attachedItems: AttachmentItem[];
 

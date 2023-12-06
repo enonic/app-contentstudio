@@ -38,8 +38,8 @@ export class AttachmentItem
         });
     }
 
-    onRemoveClicked(callback: () => void) {
-        this.removeEl.onClicked(() => callback());
+    onRemoveClicked(callback: (value: string) => void) {
+        this.removeEl.onClicked(() => callback(this.value));
     }
 
     getValue(): string {
