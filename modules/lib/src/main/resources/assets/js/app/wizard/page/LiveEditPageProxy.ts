@@ -38,7 +38,7 @@ import {PageNavigationHandler} from '../PageNavigationHandler';
 import {PageNavigationEvent} from '../PageNavigationEvent';
 import {PageNavigationMediator} from '../PageNavigationMediator';
 import {PageNavigationEventType} from '../PageNavigationEventType';
-import {PageNavigationEventData} from '../PageNavigationEventData';
+import {PageNavigationEventData, PageNavigationEventSource} from '../PageNavigationEventData';
 import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
 import {LiveEditParams} from '../../../page-editor/LiveEditParams';
 import {CreateFragmentEvent} from '../../../page-editor/event/outgoing/manipulation/CreateFragmentEvent';
@@ -556,9 +556,10 @@ export class LiveEditPageProxy
         SelectComponentEvent.on((event: SelectComponentEvent) => {
             const pathAsString: string = event.getComponentPathAsString();
             const path: ComponentPath = ComponentPath.fromString(pathAsString);
+            const eventData = new PageNavigationEventData(path, PageNavigationEventSource.EDITOR);
 
             PageNavigationMediator.get().notify(
-                new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)), this);
+                new PageNavigationEvent(PageNavigationEventType.SELECT, eventData), this);
         }, contextWindow);
 
         DeselectComponentEvent.on(() => {

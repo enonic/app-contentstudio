@@ -141,6 +141,7 @@ import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {PageTemplate} from '../content/PageTemplate';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {InspectEvent} from '../event/InspectEvent';
+import {PageNavigationEventSource} from './PageNavigationEventData';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1214,6 +1215,7 @@ export class ContentWizardPanel
 
         InspectEvent.on((event: InspectEvent) => {
             const minimizeWizard = event.isShowPanel() &&
+                                   event.getSource() === PageNavigationEventSource.EDITOR &&
                                    !this.isMinimized() &&
                                    this.isRenderable() &&
                                    this.getLivePanel().isShown() &&

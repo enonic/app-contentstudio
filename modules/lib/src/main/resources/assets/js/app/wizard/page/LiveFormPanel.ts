@@ -82,7 +82,7 @@ import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
 import {ComponentDetachedEvent} from '../../page/region/ComponentDetachedEvent';
 import {ComponentFragmentCreatedEvent} from '../../page/region/ComponentFragmentCreatedEvent';
 import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEvent';
-import {PageNavigationEventData} from '../PageNavigationEventData';
+import {PageNavigationEventData, PageNavigationEventSource} from '../PageNavigationEventData';
 import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
 import {ToggleContextPanelEvent} from '../../view/context/ToggleContextPanelEvent';
 import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
@@ -101,6 +101,13 @@ export interface LiveFormPanelConfig {
     content: Content;
 
     liveEditPage: LiveEditPageProxy;
+}
+
+export interface InspectPageParams {
+    showPanel: boolean,
+    showWidget: boolean,
+    keepPanelSelection?: boolean,
+    source?: PageNavigationEventSource,
 }
 
 enum ErrorType {
@@ -663,7 +670,7 @@ export class LiveFormPanel
         const eventsManager = PageEventsManager.get();
 
         eventsManager.onPageLocked(() => {
-            this.inspectPage(false);
+            this.inspectPage({showPanel: false, showWidget: true});
         });
 
         eventsManager.onLiveEditPageViewReady(() => {
@@ -680,7 +687,7 @@ export class LiveFormPanel
         });
 
         eventsManager.onComponentDragDropped((path: ComponentPath) => {
-            this.inspectPageItemByPath(path);
+            this.inspectPageItemByPath(new PageNavigationEventData(path));
         });
 
         eventsManager.onShowWarning((event: ShowWarningLiveEditEvent) => {
@@ -745,16 +752,17 @@ export class LiveFormPanel
         return builder;
     }
 
-    private inspectPage(showPanel: boolean, showWidget: boolean = true, keepPanelSelection?: boolean) {
+    private inspectPage(params: InspectPageParams) {
         const unlocked = !this.liveEditPageProxy?.isLocked();
-        const canShowWidget = unlocked && showWidget;
-        const canShowPanel = unlocked && showPanel;
+        const canShowWidget = unlocked && params.showWidget;
+        const canShowPanel = unlocked && params.showPanel;
         this.contextWindow?.showInspectionPanel(
             getInspectParameters({
                 panel: this.pageInspectionPanel,
                 showWidget: canShowWidget,
                 showPanel: canShowPanel,
-                keepPanelSelection
+                source: params.source,
+                keepPanelSelection: params.keepPanelSelection
             })
         );
     }
@@ -773,14 +781,14 @@ export class LiveFormPanel
 
     clearSelectionAndInspect(showPanel: boolean, showWidget: boolean) {
         const cleared = this.clearSelection(false);
-        if (cleared) {
-            this.inspectPage(showPanel, showWidget, true);
-        } else {
-            this.inspectPage(false, true, true);
-        }
+        const params = cleared ?
+            {showPanel: showPanel, showWidget: showWidget, keepPanelSelection: true} :
+            {showPanel: false, showWidget: true, keepPanelSelection: true};
+
+        this.inspectPage(params);
     }
 
-    private inspectRegion(regionPath: ComponentPath) {
+    private inspectRegion(regionPath: ComponentPath, source?: PageNavigationEventSource): void {
         const region: Region = PageState.getState().getComponentByPath(regionPath) as Region;
 
         this.regionInspectionPanel.setRegion(region);
@@ -788,7 +796,8 @@ export class LiveFormPanel
             getInspectParameters({
                 panel: this.regionInspectionPanel,
                 showWidget: true,
-                showPanel: true
+                showPanel: true,
+                source: source,
             })
         );
     }
@@ -824,7 +833,7 @@ export class LiveFormPanel
         }
     }
 
-    private inspectComponentOnDemand(component: Component): void {
+    private inspectComponentOnDemand(component: Component, source?: PageNavigationEventSource): void {
         assertNotNull(component, 'component cannot be null');
 
         // not showing/hiding inspection panel if component has no descriptor or if is in text edit mode
@@ -840,7 +849,7 @@ export class LiveFormPanel
             this.componentToInspectOnContextPanelExpand = component;
         }
 
-        new InspectEvent(true, !isPanelToHide).fire();
+        InspectEvent.create().setShowWidget(true).setShowPanel(!isPanelToHide).setSource(source).build().fire();
 
         if (waitForContextPanel) {
             return;
@@ -857,10 +866,10 @@ export class LiveFormPanel
         return component instanceof DescriptorBasedComponent && !component.hasDescriptor() && this.isShown();
     }
 
-    private openComponentInspect(component: Component): void {
+    private openComponentInspect(component: Component, source?: PageNavigationEventSource): void {
         assertNotNull(component, 'component cannot be null');
 
-        new InspectEvent(true, true).fire();
+        InspectEvent.create().setShowWidget(true).setShowPanel(true).setSource(source).build().fire();
 
         this.doInspectComponent(component, true);
     }
@@ -940,31 +949,32 @@ export class LiveFormPanel
         }
 
         if (event.getType() === PageNavigationEventType.SELECT) {
-            this.inspectPageItemByPath(event.getData().getPath());
+            this.inspectPageItemByPath(event.getData());
             return;
         }
 
         if (event.getType() === PageNavigationEventType.INSPECT) {
-            this.inspectPageItemByPath(event.getData().getPath(), true);
+            this.inspectPageItemByPath(event.getData(), true);
             return;
         }
     }
 
-    private inspectPageItemByPath(path: ComponentPath, force?: boolean): void {
+    private inspectPageItemByPath(data: PageNavigationEventData, force?: boolean): void {
+        const path: ComponentPath = data.getPath();
         this.lastInspectedItemPath = path;
         const currentPage: Page = PageState.getState();
         const item: PageItem = currentPage?.getComponentByPath(path);
 
         if (item instanceof Component) {
             if (force) { // force inspecting component
-                this.openComponentInspect(item);
+                this.openComponentInspect(item, data.getSource());
             } else { // inspect component only if inspection panel is open, close if no descriptor
-                this.inspectComponentOnDemand(item);
+                this.inspectComponentOnDemand(item, data.getSource());
             }
         } else if (item instanceof Region) {
-            this.inspectRegion(path);
+            this.inspectRegion(path, data.getSource());
         } else if (item instanceof Page || (!currentPage && path.isRoot())) {
-            this.inspectPage(true);
+            this.inspectPage({showPanel: true, showWidget: true, source: data.getSource()});
         }
     }
 
