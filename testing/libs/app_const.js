@@ -336,6 +336,8 @@ module.exports = Object.freeze({
         CONTENT_SELECTOR_1_2: 'content-selector1_2',
         EXPANDED_SINGLE_SELECTION_OPTION_SET: 'optionset-single-selection',
         OPTION_SET: 'optionset',
+        OPTION_SET_1: 'optionset1',
+        OPTION_SET_UNLIM: 'opt-set-unlim',
         OPTION_SET_0_2: 'optionset0_2',
         ITEM_SET_0_0: 'item-set0_0',
         SET_IN_SET: 'set-in-set',

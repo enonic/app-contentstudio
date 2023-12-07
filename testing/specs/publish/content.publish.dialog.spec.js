@@ -115,7 +115,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
             assert.isTrue(isSelected, "'All' checkbox should be selected");
             let items = await contentPublishDialog.getNumberItemsToPublish();
-            assert.equal(items, '13', "13 items to publish should be in the dialog");
+            assert.equal(items, '14', "14 items to publish should be in the dialog");
         });
 
 

@@ -19,7 +19,7 @@ describe('move.content.spec: Tests for destination options in move dialog', func
         async () => {
             let moveContentDialog = new MoveContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. Select a folder with children:
+            // 1. Select a folder with child items:
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             // 2. Open Move dialog:
             await contentBrowsePanel.clickOnMoveButton();
@@ -73,7 +73,7 @@ describe('move.content.spec: Tests for destination options in move dialog', func
         async () => {
             let moveContentDialog = new MoveContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. Select a folder with children:
+            // 1. Select a folder with child items:
             await studioUtils.findContentAndClickCheckBox(appConst.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickOnExpanderIcon(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.CAPE);
@@ -94,7 +94,7 @@ describe('move.content.spec: Tests for destination options in move dialog', func
         async () => {
             let moveContentDialog = new MoveContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select a folder with children:
+            //1. Select a folder with child items:
             await studioUtils.findContentAndClickCheckBox(appConst.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickOnExpanderIcon(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.CAPE);
@@ -113,7 +113,7 @@ describe('move.content.spec: Tests for destination options in move dialog', func
         async () => {
             let moveContentDialog = new MoveContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. Select a folder with children:
+            // 1. Select a folder with child items:
             await studioUtils.findContentAndClickCheckBox(appConst.TEST_FOLDER_WITH_IMAGES);
             // 2. Open 'Move' dialog:
             await contentBrowsePanel.clickOnMoveButton();

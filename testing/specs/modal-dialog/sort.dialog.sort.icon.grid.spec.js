@@ -10,31 +10,31 @@ const SortContentDialog = require('../../page_objects/browsepanel/sort.content.d
 const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
 
-describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks the sort-icon in the grid`', function () {
+describe('sort.dialog.sorticon.spec, sorts a folder(with child items) and checks the sort-icon in the grid`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    //verifies https://github.com/enonic/app-contentstudio/issues/608
-    //Sort icon menu is not updated after a sorting-type has been changed in modal dialog
+    // verifies https://github.com/enonic/app-contentstudio/issues/608
+    // Sort icon menu is not updated after a sorting-type has been changed in modal dialog
     it(`GIVEN existing folder is selected AND 'Sort Content' dialog is opened WHEN 'Manually sorted' menu item has been selected THEN expected icon should appear in the grid`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();
             await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
-            //1. Select the folder with children an open sort-dialog:
+            // 1. Select the folder with child items and open sort-dialog:
             await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickOnSortButton();
             await sortContentDialog.waitForDialogVisible();
             await sortContentDialog.clickOnMenuButton();
-            //2. 'Manually sorted' menu item has been clicked:
+            // 2. 'Manually sorted' menu item has been clicked:
             await sortContentDialog.selectSortMenuItem(appConst.sortMenuItem.MANUALLY_SORTED);
             await studioUtils.saveScreenshot('sort_menu_item_clicked');
-            //3. Save the sorting and close the dialog:
+            // 3. Save the sorting and close the dialog:
             await sortContentDialog.clickOnSaveButton();
             await studioUtils.saveScreenshot('manually_sorted');
-            //4. The folder is selected, get sorting-type in grid:
+            // 4. The folder is selected, get sorting-type in grid:
             let sortingType = await contentBrowsePanel.getSortingIcon(appConst.TEST_FOLDER_WITH_IMAGES);
             assert.equal(sortingType, appConst.sortMenuItem.MANUALLY_SORTED,
                 "expected icon for Manually sorted folder should appear in grid");
@@ -46,18 +46,18 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();
             await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
-            //1. Select the folder with children an open sort-dialog:
+            // 1. Select the folder with child items and open sort-dialog:
             await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickOnSortButton();
             await sortContentDialog.waitForDialogVisible();
             await sortContentDialog.pause(2000);
             await sortContentDialog.swapItems("cape", "renault");
-            //2. 'Manually sorted' menu item has been clicked:
+            // 2. 'Manually sorted' menu item has been clicked:
             await studioUtils.saveScreenshot('sort_dialog_items_swapped');
-            //3. Save the sorting and close the dialog:
+            // 3. Save the sorting and close the dialog:
             await sortContentDialog.clickOnSaveButton();
             await studioUtils.saveScreenshot('manually_sorted');
-            //4. The folder is selected, get sorting-type in grid:
+            // 4. The folder is selected, get sorting-type in grid:
             let sortingType = await contentBrowsePanel.getSortingIcon(appConst.TEST_FOLDER_WITH_IMAGES);
             assert.equal(sortingType, appConst.sortMenuItem.MANUALLY_SORTED, "expected icon for Manually sorted folder should appear");
         });
@@ -67,17 +67,17 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();
             await contentBrowsePanel.pause(1000);
-            //1. Select the folder with children an open sort-dialog:
+            // 1. Select the folder with child items and open sort-dialog:
             await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickOnSortButton();
             await sortContentDialog.waitForDialogVisible();
-            //2. Expand the menu:
+            // 2. Expand the menu:
             await sortContentDialog.clickOnMenuButton();
-            //3. 'Published date' sorted menu item has been clicked
+            // 3. 'Published date' sorted menu item has been clicked
             await sortContentDialog.selectSortMenuItem(appConst.sortMenuItem.PUBLISHED_DATE, 'ascending');
             await sortContentDialog.clickOnSaveButton();
             await contentBrowsePanel.pause(1000);
-            //4. reopen sort dialog:
+            // 4. reopen sort dialog:
             await contentBrowsePanel.clickOnSortButton();
             let sortingType = await sortContentDialog.getSelectedOrder();
             let expected = appConst.sortOrderTitle(appConst.sortMenuItem.PUBLISHED_DATE, 'ascending');
@@ -87,7 +87,7 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

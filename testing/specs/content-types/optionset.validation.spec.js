@@ -13,7 +13,7 @@ const appConst = require('../../libs/app_const');
 
 describe("optionset.validation.spec: tests for validation of option set", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
@@ -35,7 +35,7 @@ describe("optionset.validation.spec: tests for validation of option set", functi
             let optionSetUnlimitedOptions = new MultiSelectionOptionSet();
             let contentWizard = new ContentWizard();
             //1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET_1);
             await contentWizard.typeDisplayName(DISPLAY_NAME);
             //2. Click  and unselect the default option :
             await optionSetUnlimitedOptions.clickOnOption("Option 2");
@@ -49,17 +49,17 @@ describe("optionset.validation.spec: tests for validation of option set", functi
         async () => {
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'opt-set-unlim');
+            // 1. Open the new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET_UNLIM);
             await contentWizard.typeDisplayName(OPTION_SET_UNLIM);
-            //2. save only the display name:
+            // 2. save only the display name:
             await contentWizard.waitAndClickOnSave();
-            //3. switch to the browse panel:
+            // 3. switch to the browse panel:
             await studioUtils.doSwitchToContentBrowsePanel();
-            //4. Select the option set content:
+            // 4. Select the option set content:
             await studioUtils.findAndSelectItem(OPTION_SET_UNLIM);
             await studioUtils.saveScreenshot('item_set_unlimited2');
-            //5. Verify that the content is valid:
+            // 5. Verify that the content is valid:
             let isInvalid = await contentBrowsePanel.isRedIconDisplayed(OPTION_SET_UNLIM);
             assert.isFalse(isInvalid, "Option Set content should be valid in Grid");
         });
@@ -80,7 +80,7 @@ describe("optionset.validation.spec: tests for validation of option set", functi
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

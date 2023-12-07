@@ -51,10 +51,10 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
             // 7. Verify that expected number of items is displayed in the Items tab-link:
             let result = await issueDetailsDialog.getNumberOfItems();
-            assert.equal(result, '24', "24 items should be displayed in the 'Items' link");
+            assert.equal(result, '25', "25 items should be displayed in the 'Items' link");
             // 8. Publish button should be enabled, because all items are valid
             await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
-            // 10. Verify that both togglers are 'switched on' in the Items tab
+            // 9. Verify that both togglers are 'switched on' in the Items tab
             await issueDetailsDialogItemsTab.waitForIncludeChildrenIsOn(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
             await issueDetailsDialogItemsTab.waitForIncludeChildrenIsOn(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
         });
@@ -64,7 +64,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             let issueDetailsDialog = new IssueDetailsDialog();
             let createIssueDialog = new CreateIssueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. Select the existing folder with children:
+            // 1. Select the existing folder with child items:
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_2_NAME);
             await contentBrowsePanel.waitForPublishButtonVisible();
             // 2. open 'Create Issue' dialog
