@@ -64,8 +64,7 @@ class ContentSelector extends BaseSelectorForm {
         try {
             await this.waitForElementDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_add_new_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
             throw new Error('Add new button is not displayed, screenshot:' + screenshot + ' ' + err);
         }
     }
@@ -74,8 +73,7 @@ class ContentSelector extends BaseSelectorForm {
         try {
             await this.waitForElementNotDisplayed(this.addNewContentButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_add_new_btn');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
             throw new Error('Add new button should not be displayed, screenshot:' + screenshot + ' ' + err);
         }
     }

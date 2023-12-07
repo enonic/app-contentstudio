@@ -10,7 +10,7 @@ const appConst = require('../libs/app_const');
 
 describe('update.path.spec: tests for updating a content path', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let PATH_1 = contentBuilder.generateRandomName('folder');
@@ -19,7 +19,7 @@ describe('update.path.spec: tests for updating a content path', function () {
     let FOLDER;
     it(`Precondition: test folder should be added`,
         async () => {
-            let displayName = "1234567";
+            let displayName = appConst.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddFolder(FOLDER);
         });
@@ -65,7 +65,7 @@ describe('update.path.spec: tests for updating a content path', function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
