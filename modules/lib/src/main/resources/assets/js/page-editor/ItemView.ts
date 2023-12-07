@@ -38,6 +38,7 @@ import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {LiveEditParams} from './LiveEditParams';
 import {AddComponentEvent} from './event/outgoing/manipulation/AddComponentEvent';
+import {DragAndDrop} from './DragAndDrop';
 
 export interface ElementDimensions {
     top: number;
@@ -606,7 +607,7 @@ export abstract class ItemView
     handleClick(event: MouseEvent) {
         event.stopPropagation();
 
-        if (event instanceof PointerEvent && event.pointerType === 'touch') {
+        if (event instanceof PointerEvent && event.pointerType === 'touch' || DragAndDrop.get().isNewlyDropped()) {
             return;
         }
 
