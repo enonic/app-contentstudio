@@ -1,5 +1,6 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {PageNavigationEventSource} from '../wizard/PageNavigationEventData';
 
 export class InspectEvent
     extends Event {
@@ -8,10 +9,14 @@ export class InspectEvent
 
     private readonly showPanel: boolean;
 
-    constructor(showWidget: boolean, showPanel: boolean) {
+    private readonly source: PageNavigationEventSource;
+
+    constructor(builder: InspectEventBuilder) {
         super();
-        this.showWidget = showWidget;
-        this.showPanel = showPanel;
+
+        this.showWidget = builder.showWidget;
+        this.showPanel = builder.showPanel;
+        this.source = builder.source;
     }
 
     isShowWidget(): boolean {
@@ -22,6 +27,10 @@ export class InspectEvent
         return this.showPanel;
     }
 
+    getSource(): PageNavigationEventSource {
+        return this.source;
+    }
+
     static on(handler: (event: InspectEvent) => void) {
         Event.bind(ClassHelper.getFullName(this), handler);
     }
@@ -30,4 +39,36 @@ export class InspectEvent
         Event.unbind(ClassHelper.getFullName(this), handler);
     }
 
+    static create(): InspectEventBuilder {
+        return new InspectEventBuilder();
+    }
+
+}
+
+export class InspectEventBuilder {
+
+    showWidget: boolean;
+
+    showPanel: boolean;
+
+    source: PageNavigationEventSource;
+
+    setShowWidget(value: boolean): InspectEventBuilder {
+        this.showWidget = value;
+        return this;
+    }
+
+    setShowPanel(value: boolean): InspectEventBuilder {
+        this.showPanel = value;
+        return this;
+    }
+
+    setSource(value: PageNavigationEventSource): InspectEventBuilder {
+        this.source = value;
+        return this;
+    }
+
+    build(): InspectEvent {
+        return new InspectEvent(this);
+    }
 }
