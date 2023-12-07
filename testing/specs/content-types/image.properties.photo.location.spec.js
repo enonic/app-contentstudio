@@ -16,15 +16,15 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 
 describe("image.properties.photo.spec: tests for focus button", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const ALTITUDE = 3000;
     const DIRECTION = 'direction';
     const GEO_POINT = '37.785146,-122.39758';
     const GEO_POINT_NOT_VALID = '1234567';
-    const ARTIST_TEXT = appConst.generateRandomName("art");
-    const TAGS_TEXT = appConst.generateRandomName("tag");
+    const ARTIST_TEXT = appConst.generateRandomName('art');
+    const TAGS_TEXT = appConst.generateRandomName('tag');
 
     it("GIVEN image content is opened WHEN search tags have been added THEN the image should be searchable with the tags",
         async () => {
@@ -49,9 +49,9 @@ describe("image.properties.photo.spec: tests for focus button", function () {
             await contentFilterPanel.pause(2000);
             await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
             //5. Verify that the expected image is filtered:
-            await studioUtils.saveScreenshot("image_tagged1");
+            await studioUtils.saveScreenshot('image_tagged1');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
-            await studioUtils.saveScreenshot("image_tagged2");
+            await studioUtils.saveScreenshot('image_tagged2');
             assert.equal(result.length, 1, "Single image file should be filtered in the grid");
             assert.equal(result[0], appConst.TEST_IMAGES.POP_02, "Expected image content should be filtered");
         });
@@ -168,7 +168,7 @@ describe("image.properties.photo.spec: tests for focus button", function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -13,7 +13,7 @@ const appConst = require('../../libs/app_const');
 
 describe("image.editor.focus.spec: tests for focus button", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -47,20 +47,20 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
-            //1. Open an existing image:
+            // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
             //2. Verify that red circle is not displayed
             await imageEditor.waitForFocusCircleNotDisplayed();
-            //3. Click on 'Focus' button and switch to 'edit' mode
+            // 3. Click on 'Focus' button and switch to 'edit' mode
             await imageEditor.clickOnFocusButton();
-            //4. Drag the red circle in edit mode:
+            // 4. Drag the red circle in edit mode:
             await imageEditor.doDragFocus(10, 10);
-            //5. Verify that 'Reset Autofocus' button gets visible in the edit mode:
+            // 5. Verify that 'Reset Autofocus' button gets visible in the edit mode:
             await imageEditor.waitForResetAutofocusButtonDisplayed();
-            //6. Click on 'Apply' button and close the edit mode:
+            // 6. Click on 'Apply' button and close the edit mode:
             await imageEditor.clickOnApplyButton();
-            //7. Verify that red circle is displayed in the Image Editor:
+            // 7. Verify that red circle is displayed in the Image Editor:
             await imageEditor.waitForFocusCircleDisplayed();
             await contentWizard.waitAndClickOnSave();
         });
@@ -69,11 +69,11 @@ describe("image.editor.focus.spec: tests for focus button", function () {
         async () => {
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();
-            //1. Open the focused image:
+            // 1. Open the focused image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            await studioUtils.saveScreenshot("image_focused");
-            //2. Verify that 'Reset filters' button is displayed
+            await studioUtils.saveScreenshot('image_focused');
+            // 2. Verify that 'Reset filters' button is displayed
             await imageEditor.waitForResetFiltersDisplayed();
             await imageEditor.waitForFocusCircleDisplayed();
         });
@@ -83,18 +83,18 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
-            //1. Open the focused image:
+            // 1. Open the focused image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Click on 'Focus' button and switch to 'edit' mode
+            // 2. Click on 'Focus' button and switch to 'edit' mode
             await imageEditor.clickOnFocusButton();
-            //3. Click on 'Reset Autofocus' button
+            // 3. Click on 'Reset Autofocus' button
             await imageEditor.clickOnResetAutofocusButton();
             await imageEditor.clickOnApplyButton();
-            await studioUtils.saveScreenshot("focused_image_to_initial");
-            //4. Verify that 'Reset filters' button is not displayed
+            await studioUtils.saveScreenshot('focused_image_to_initial');
+            // 4. Verify that 'Reset filters' button is not displayed
             await imageEditor.waitForResetFiltersNotDisplayed();
-            //5. Verify that focus circle is not displayed in Image Editor
+            // 5. Verify that focus circle is not displayed in Image Editor
             await imageEditor.waitForFocusCircleNotDisplayed();
 
             await contentWizard.waitAndClickOnSave();
@@ -106,15 +106,15 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            //1. Open the image:
+            // 1. Open the image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Open Versions Panel
+            // 2. Open Versions Panel
             await contentWizard.openVersionsHistoryPanel();
-            //3. Revert the focused version:
+            // 3. Revert the focused version:
             await wizardVersionsWidget.clickAndExpandVersion(1);
             await wizardVersionsWidget.clickOnRevertButton();
-            //4. Verify that 'Reset filters' button gets visible:
+            // 4. Verify that 'Reset filters' button gets visible:
             await imageEditor.waitForResetFiltersDisplayed();
             await imageEditor.waitForFocusCircleDisplayed();
         });
@@ -122,7 +122,7 @@ describe("image.editor.focus.spec: tests for focus button", function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

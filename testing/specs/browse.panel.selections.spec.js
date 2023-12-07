@@ -12,7 +12,7 @@ const appConst = require('../libs/app_const');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 
-describe('Browse panel selections spec', function () {
+describe('browse.panel.selections.spec - tests for selection items in Browse Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

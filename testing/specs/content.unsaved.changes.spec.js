@@ -14,7 +14,7 @@ const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 
 describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + tests for deleting multiselect content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let folder1;
@@ -32,7 +32,7 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
     //verifies :
     // 1) xp-apps#398 Buttons remain enabled in the grid toolbar after deleting 2 content.
     // 2) https://github.com/enonic/lib-admin-ui/issues/1273  Browse toolbar is not updated after deleting filtered content
-    it(`GIVEN two folders(New) in the root directory WHEN both folders has been selected and deleted THEN 'Archive...' button gets disabled`,
+    it(`GIVEN two folders(New) in the root directory WHEN both folders have been selected and deleted THEN 'Archive...' button gets disabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.typeNameInFilterPanel(folder1.displayName);
