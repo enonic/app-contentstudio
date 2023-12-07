@@ -13,6 +13,7 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
 import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
 import {PageState} from '../PageState';
+import {PageNavigationEventSource} from '../../PageNavigationEventData';
 
 export interface ContextWindowConfig {
 
@@ -29,6 +30,7 @@ export interface InspectParameters {
     showPanel: boolean;
     keepPanelSelection?: boolean;
     silent?: boolean;
+    source?: PageNavigationEventSource;
 }
 
 const DefaultInspectParameters = {
@@ -98,7 +100,11 @@ export class ContextWindow
         this.toggleClass('no-inspection', !canSelectPanel);
         if (canSelectPanel) {
             if (!params.silent) {
-                new InspectEvent(params.showWidget, params.showPanel).fire();
+                InspectEvent.create()
+                    .setShowWidget(params.showWidget)
+                    .setShowPanel(params.showPanel)
+                    .setSource(params.source)
+                    .build().fire();
             }
 
             this.inspectionsPanel.showInspectionPanel(params.panel);
