@@ -21,7 +21,6 @@ import {RegionItemType} from './RegionItemType';
 import {ItemView} from './ItemView';
 import {PageView} from './PageView';
 import {LayoutItemType} from './layout/LayoutItemType';
-import {Component} from '../app/page/region/Component';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {assertState} from '@enonic/lib-admin-ui/util/Assert';
 import {AddComponentEvent} from './event/outgoing/manipulation/AddComponentEvent';
@@ -54,6 +53,8 @@ export class DragAndDrop {
     private dragging: boolean = false;
 
     private wasDropped: boolean = false;
+
+    private newlyDropped: boolean = false;
 
     private wasDestroyed: boolean = false;
 
@@ -326,6 +327,16 @@ export class DragAndDrop {
         }
         this.newItemItemType = null;
         this.draggedComponentView = null;
+        this.newlyDropped = true;
+
+        // in FF after item was dragged a redundant click event is fired
+        setTimeout(() => {
+            this.newlyDropped = false;
+        }, 100);
+    }
+
+    isNewlyDropped(): boolean {
+        return this.newlyDropped;
     }
 
     /*
