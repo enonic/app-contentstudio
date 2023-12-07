@@ -374,6 +374,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let contentDuplicateDialog = new ContentDuplicateDialog();
             await contentDuplicateDialog.waitForDialogOpened();
             await contentDuplicateDialog.waitForSpinnerNotVisible(appConst.mediumTimeout);
+            await contentDuplicateDialog.pause(700);
             return contentDuplicateDialog;
         } catch (err) {
             throw new Error('error when clicking on the Duplicate button ' + err);

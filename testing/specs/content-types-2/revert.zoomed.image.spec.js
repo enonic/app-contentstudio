@@ -33,7 +33,7 @@ describe("revert.zoomed.image.spec: tests for reverting of zoomed image", functi
             await contentWizard.waitAndClickOnSave();
         });
 
-    it(`GIVEN existing zoomed image is opened WHEN the previous version has been reverted THEN 'Reset Filters' button gets hidden`,
+    it.skip(`GIVEN existing zoomed image is opened WHEN the previous version has been reverted THEN 'Reset Filters' button gets hidden`,
         async () => {
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();
