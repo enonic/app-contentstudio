@@ -16,11 +16,11 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
     }
     const DEPENDANTS_HEADER = 'Other items that will be duplicated';
 
-    it(`GIVEN folder(12 children) is selected WHEN 'Duplicate...' button has been clicked THEN 'Content Duplicate Dialog' should be loaded and expected elements should be present`,
+    it(`GIVEN folder(13 child items) is selected WHEN 'Duplicate...' button has been clicked THEN 'Content Duplicate Dialog' should be loaded and expected elements should be present`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
-            // 1. Select the folder(12 children)
+            // 1. Select the folder(13 child items)
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
             // 2. Open Duplicate dialog:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
@@ -35,13 +35,13 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
 
             // 3. Verify the Number in 'Duplicate' button
             let totalNumber = await contentDuplicateDialog.getNumberItemsInDuplicateButton();
-            assert.equal(totalNumber, '13', "Expected number in the Duplicate button should be displayed");
+            assert.equal(totalNumber, '14', "Expected number in the Duplicate button should be displayed");
             // 4. Verify the main item to duplicate"
             let names = await contentDuplicateDialog.getDisplayNamesToDuplicate();
             assert.equal(names[0], appConst.TEST_FOLDER_WITH_IMAGES, `expected parent's display name should be present`);
             // 5. Verify the list of dependant items"
             let dependants = await contentDuplicateDialog.getDependentsName();
-            assert.equal(dependants.length, 12, '12 dependants item should be displayed');
+            assert.equal(dependants.length, 13, '13 dependants item should be displayed');
             // Checkbox 'All' should not be displayed in Duplicate modal dialog:
             await contentDuplicateDialog.waitForAllCheckboxNotDisplayed();
         });
@@ -65,7 +65,7 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             await contentDuplicateDialog.waitForDependantsHeaderDisplayed();
             // 4. Verify the dependants items:
             let dependants = await contentDuplicateDialog.getDependentsName();
-            assert.equal(dependants.length, 23, '23 dependants item should be displayed');
+            assert.equal(dependants.length, 24, '24 dependants item should be displayed');
         });
 
     it(`GIVEN 'Content Duplicate' dialog is opened WHEN 'exclude child' has been clicked THEN 'Show Dependent Items' should not be displayed `,

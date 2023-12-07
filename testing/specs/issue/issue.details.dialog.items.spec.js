@@ -18,7 +18,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
         webDriverHelper.setupBrowser();
     }
     const TASK_TITLE = appConst.generateRandomName('task');
-    const EXPECTED_LABEL_CHECKBOX = 'All (12)';
+    const EXPECTED_LABEL_CHECKBOX = 'All (13)';
 
     it(`GIVEN existing folder with images is selected WHEN 'Create Task' menu item has been selected and issue created THEN '1' should be in 'Items' tab link`,
         async () => {
@@ -80,7 +80,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             let isSelected = await issueDetailsDialogItemsTab.isAllDependantsCheckboxSelected();
             assert.isTrue(isSelected, "'All' checkbox should be selected");
             let result = await issueDetailsDialog.getNumberInItemsTab();
-            assert.equal(result, '13', 'Number of items should be updated to 13');
+            assert.equal(result, '14', 'Number of items should be updated to 14');
             let numberInHideDepItemsLink = await issueDetailsDialogItemsTab.getNumberInAllCheckbox();
             assert.equal(numberInHideDepItemsLink, EXPECTED_LABEL_CHECKBOX, "Expected number should be present in the 'All'-checkbox")
         });
@@ -99,9 +99,9 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             // `All` link should be displayed
             await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
             let label = await issueDetailsDialogItemsTab.getNumberInAllCheckbox();
-            assert.equal(label, EXPECTED_LABEL_CHECKBOX, '12 should be displayed in the checkbox');
+            assert.equal(label, EXPECTED_LABEL_CHECKBOX, '13 should be displayed in the checkbox');
             let result = await issueDetailsDialog.getNumberInItemsTab();
-            assert.equal(result, '13', 'Expected number of items should be displayed');
+            assert.equal(result, '14', 'Expected number of items should be displayed');
         });
 
     it(`GIVEN task details is opened WHEN 'All' checkbox has been unselected THEN 'Apply' selection button should appear`,

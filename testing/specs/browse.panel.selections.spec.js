@@ -39,7 +39,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await confirmValueDialog.waitForDialogClosed();
         });
 
-    it("GIVEN folder with children is checked WHEN 'Arrow Right'/Arrow Left key has been pressed THEN the folder gets expanded/collapsed",
+    it("GIVEN folder with child items is checked WHEN 'Arrow Right'/Arrow Left key has been pressed THEN the folder gets expanded/collapsed",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.pause(1000);
