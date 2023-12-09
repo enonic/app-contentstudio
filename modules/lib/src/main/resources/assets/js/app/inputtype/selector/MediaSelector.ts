@@ -34,7 +34,7 @@ export class MediaSelector
         return this.createUploader().then((mediaUploader: MediaUploaderEl) => {
             this.comboBoxWrapper.appendChild(this.uploader = mediaUploader);
 
-            if (!this.contentComboBox.getComboBox().isVisible()) {
+            if (!this.contentSelectorDropdown.isVisible()) {
                 this.uploader.hide();
             }
         });
@@ -103,7 +103,7 @@ export class MediaSelector
                     .setDisplayValue(this.createSelectorItem(item))
                     .build();
 
-            this.contentComboBox.selectOption(option);
+            //this.contentSelectorDropdown.selectOption(option);
             const selectedOption = this.getSelectedOptionsView().getById(createdContent.getContentId().toString());
 
             this.selectedOptionHandler(selectedOption);
@@ -132,15 +132,13 @@ export class MediaSelector
             uploader.setDefaultDropzoneVisible(false);
         });
 
-        const comboBox: ComboBox<ContentTreeSelectorItem> = this.contentComboBox.getComboBox();
-
-        comboBox.onHidden(() => {
+        this.contentSelectorDropdown.onHidden(() => {
             // hidden on max occurrences reached
             if (uploader) {
                 uploader.hide();
             }
         });
-        comboBox.onShown(() => {
+        this.contentSelectorDropdown.onShown(() => {
             // shown on occurrences between min and max
             if (uploader) {
                 uploader.show();

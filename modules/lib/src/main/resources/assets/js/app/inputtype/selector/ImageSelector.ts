@@ -45,10 +45,6 @@ export class ImageSelector
         this.onRemoved(() => ResponsiveManager.unAvailableSizeChanged(this));
     }
 
-    public getContentComboBox(): ImageContentComboBox {
-        return this.contentComboBox as ImageContentComboBox;
-    }
-
     protected getContentPath(raw: MediaTreeSelectorItem): ContentPath {
         return raw.getContentSummary()?.getPath();
     }
@@ -76,7 +72,6 @@ export class ImageSelector
                     selectedOptionsView.removeOption(option.getOption());
                     this.handleDeselected(option.getIndex());
                 } else {
-                    this.contentComboBox.deselect(item);
                     this.contentSelectorDropdown.deselect(item);
                 }
 
