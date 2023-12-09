@@ -17,7 +17,8 @@ import {Class} from '@enonic/lib-admin-ui/Class';
 import {ContentId} from '../../content/ContentId';
 import {ContentTypeFilterDropdown} from './ContentTypeFilterDropdown';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/form/inputtype/ValueChangedEvent';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentTypeFilter
     extends BaseInputTypeManagingAdd {
@@ -27,6 +28,8 @@ export class ContentTypeFilter
     private typesListDropdown: ContentTypeFilterDropdown;
 
     private isContextDependent: boolean;
+
+    private initiallySelectedItems: string[];
 
     constructor(context: ContentInputTypeViewContext) {
         super(context, 'content-type-filter');
@@ -48,20 +51,19 @@ export class ContentTypeFilter
     }
 
     private createLoader(): BaseLoader<ContentTypeSummary> {
-        let loader: BaseLoader<ContentTypeSummary>;
+        return this.doCreateLoader().setComparator(new ContentTypeComparator());
+    }
 
+    private doCreateLoader(): BaseLoader<ContentTypeSummary> {
         if (this.context.formContext.getContentTypeName()?.isPageTemplate()) {
             const contentId: ContentId = this.context.site?.getContentId();
-            loader = new PageTemplateContentTypeLoader(contentId, this.context.project);
-        } else {
-            const contentId: ContentId = this.isContextDependent ? this.context.content?.getContentId() : null;
-            loader = new ContentTypeSummaryLoader(contentId, this.context.project);
+            return new PageTemplateContentTypeLoader(contentId, this.context.project);
         }
 
-        loader.setComparator(new ContentTypeComparator());
-
-        return loader;
+        const contentId: ContentId = this.isContextDependent ? this.context.content?.getContentId() : null;
+        return new ContentTypeSummaryLoader(contentId, this.context.project);
     }
+
 
     private onContentTypeSelected(contentType: ContentTypeSummary): void {
         this.ignorePropertyChange(true);
@@ -96,6 +98,7 @@ export class ContentTypeFilter
         }
 
         return super.layout(input, propertyArray).then(() => {
+            this.initiallySelectedItems = this.getSelectedItemsIds();
             this.typesListDropdown = this.createListDropdown();
             this.appendChild(this.typesListDropdown);
         }).finally(() => {
@@ -124,25 +127,42 @@ export class ContentTypeFilter
     }
 
     private getSelectedItemsIds(): string[] {
-        return this.getValueFromPropertyArray(this.getPropertyArray()).split(';');
+        return this.getValueFromPropertyArray(this.getPropertyArray()).split(';').filter((id) => !StringHelper.isBlank(id));
     }
 
     update(propertyArray: PropertyArray, unchangedOnly: boolean): Q.Promise<void> {
-        let superPromise = super.update(propertyArray, unchangedOnly);
+        const isDirty = this.isDirty();
 
-        if (!unchangedOnly || this.getPropertyArray().equals(propertyArray)) {
-            return superPromise.then(() => {
-                return this.typesListDropdown.updateSelectedItems();
-            });
-        } else if (!this.getPropertyArray().equals(propertyArray)) {
-            this.notifyValueChanged(new ValueChangedEvent(null, -1)); // triggering Save button
-        }
+        return super.update(propertyArray, unchangedOnly).then(() => {
+            this.initiallySelectedItems = this.getSelectedItemsIds();
 
-        return superPromise;
+            if (!unchangedOnly || !isDirty) {
+                this.typesListDropdown.updateSelectedItems();
+            } else if (isDirty) {
+               this.updateDirty();
+            }
+        });
+    }
+
+    private isDirty(): boolean {
+        return !ObjectHelper.stringArrayEquals(this.initiallySelectedItems, this.getSelectedItemsIds());
+    }
+
+    private updateDirty(): void {
+        this.ignorePropertyChange(true);
+
+        this.getPropertyArray().removeAll(true);
+
+        this.typesListDropdown.getSelectedOptions().filter((option) => {
+            const value = new Value(option.getOption().getDisplayValue().getContentTypeName().toString(), ValueTypes.STRING);
+            this.getPropertyArray().add(value);
+        });
+
+        this.ignorePropertyChange(false);
     }
 
     reset() {
-        //
+        this.typesListDropdown.updateSelectedItems();
     }
 
     setEnabled(enable: boolean): void {

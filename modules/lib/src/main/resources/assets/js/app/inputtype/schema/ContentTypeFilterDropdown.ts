@@ -9,6 +9,7 @@ import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRe
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 
 export interface ContentTypeFilterDropdownOptions {
     maxSelected?: number;
@@ -101,6 +102,12 @@ export class ContentTypeFilterDropdown
     }
 
     updateSelectedItems(): void {
+        // unselecting all items
+        this.selectedOptionsView.getSelectedOptions().forEach((selectedOption: SelectedOption<ContentTypeSummary>) => {
+            this.selectedOptionsView.removeOption(selectedOption.getOption(), true);
+        });
 
+        // selecting items from property array
+        this.preSelectItems();
     }
 }

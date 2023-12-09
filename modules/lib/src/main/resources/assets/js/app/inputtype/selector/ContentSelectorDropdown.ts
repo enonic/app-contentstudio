@@ -16,6 +16,8 @@ import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeS
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 
 export interface ContentSelectorDropdownOptions {
     listBox: ContentListBox<ContentTreeSelectorItem>;
@@ -132,5 +134,15 @@ export class ContentSelectorDropdown
 
             return rendered;
         });
+    }
+
+    updateSelectedItems(): void {
+        // unselecting all items
+        this.selectedOptionsView.getSelectedOptions().forEach((selectedOption) => {
+            this.selectedOptionsView.removeOption(selectedOption.getOption(), true);
+        });
+
+        // selecting items from property array
+        this.preSelectItems();
     }
 }

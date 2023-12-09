@@ -47,10 +47,6 @@ export class ImageSelector
         this.onRemoved(() => ResponsiveManager.unAvailableSizeChanged(this));
     }
 
-    public getContentComboBox(): ImageContentComboBox {
-        return this.contentComboBox as ImageContentComboBox;
-    }
-
     protected getContentPath(raw: MediaTreeSelectorItem): ContentPath {
         return raw.getContentSummary().getPath();
     }
@@ -78,7 +74,6 @@ export class ImageSelector
                     selectedOptionsView.removeOption(option.getOption());
                     this.handleDeselected(option.getIndex());
                 } else {
-                    this.contentComboBox.deselect(item);
                     this.contentSelectorDropdown.deselect(item);
                 }
 
@@ -115,7 +110,7 @@ export class ImageSelector
 
         const onPreloadedData = (data: MediaTreeSelectorItem[]) => {
             data.forEach((item: MediaTreeSelectorItem) => {
-                this.contentComboBox.select(item);
+               // this.contentComboBox.select(item);
             });
             this.isPendingPreload = false;
             if (data.length > 0) {
@@ -153,15 +148,6 @@ export class ImageSelector
             this.handleMoved(moved, fromIndex);
             this.handleValueChanged(false);
         });
-    }
-
-    protected createContentComboBox(input: Input, propertyArray: PropertyArray): ImageContentComboBox {
-
-        const contentComboBox: ImageContentComboBox = super.createContentComboBox(input, propertyArray) as ImageContentComboBox;
-
-        this.isPendingPreload = !StringHelper.isBlank(this.getValueFromPropertyArray(propertyArray));
-
-        return contentComboBox;
     }
 
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
