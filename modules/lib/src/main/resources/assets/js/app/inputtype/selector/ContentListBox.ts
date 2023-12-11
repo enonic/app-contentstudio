@@ -35,4 +35,9 @@ export class ContentListBox<T extends ContentTreeSelectorItem> extends LazyListB
     protected handleLazyLoad(): void {
         this.loader.load(true).catch(DefaultErrorHandler.handle);
     }
+
+    protected updateItemView(itemView: Element, item: T) {
+        const viewer = itemView as ContentAndStatusSelectorViewer;
+        viewer.setObject(item);
+    }
 }

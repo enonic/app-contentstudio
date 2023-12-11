@@ -104,7 +104,7 @@ export class ContentSelector
                     selectedOption = this.getSelectedOptionsView().getById(status.getContentId().toString());
                 }
                 if (selectedOption) {
-                    this.getContentComboBox().updateOption(selectedOption.getOption(), status);
+                    this.contentSelectorDropdown.updateItem(this.createSelectorItem(status));
                 }
             });
         };
@@ -118,7 +118,7 @@ export class ContentSelector
                 const selectedOption: SelectedOption<ContentTreeSelectorItem> = this.findSelectedOptionByContentPath(movedItem.oldPath);
 
                 if (selectedOption) {
-                    this.getContentComboBox().updateOption(selectedOption.getOption(), movedItem.item);
+                    this.contentSelectorDropdown.updateItem(this.createSelectorItem(movedItem.item));
                 }
             });
         };
@@ -334,7 +334,7 @@ export class ContentSelector
         this.newContentButton.setTitle(i18n('action.addNew'));
         this.newContentButton.onContentAdded((content: ContentSummary) =>  {
             const item = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(content, CompareStatus.NEW);
-        //    this.createSelectorDropdown.select(this.createSelectorItem(item));
+            this.contentSelectorDropdown.select(this.createSelectorItem(item));
         });
 
         this.comboBoxWrapper.appendChild(this.newContentButton);

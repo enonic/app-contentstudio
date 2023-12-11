@@ -98,12 +98,7 @@ export class MediaSelector
             const createdContent = event.getUploadItem().getModel();
             const item = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(createdContent, CompareStatus.NEW);
 
-            const option = Option.create<ContentTreeSelectorItem>()
-                    .setValue(createdContent.getContentId().toString())
-                    .setDisplayValue(this.createSelectorItem(item))
-                    .build();
-
-            //this.contentSelectorDropdown.selectOption(option);
+            this.contentSelectorDropdown.select(this.createSelectorItem(item));
             const selectedOption = this.getSelectedOptionsView().getById(createdContent.getContentId().toString());
 
             this.selectedOptionHandler(selectedOption);
