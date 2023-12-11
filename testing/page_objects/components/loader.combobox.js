@@ -25,7 +25,7 @@ class LoaderComboBox extends Page {
 
     // tree mode if 'active' is present in @class attribute
     async getMode(xpath) {
-        let attr = await this.getAttribute(xpath+ this.modeTogglerButton, 'class');
+        let attr = await this.getAttribute(xpath + this.modeTogglerButton, 'class');
         return attr.includes('active') ? 'tree' : 'flat';
     }
 
@@ -36,9 +36,14 @@ class LoaderComboBox extends Page {
     }
 
     async clickOnApplyButton() {
-        await this.waitForApplyButtonDisplayed();
-        await this.clickOnElement(this.applyButton);
-        await this.pause(1000);
+        try {
+            await this.waitForApplyButtonDisplayed();
+            await this.clickOnElement(this.applyButton);
+            await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
+            throw new Error("Combobox, 'Apply' button, screenshot: " + screenshot + ' ' + err);
+        }
     }
 
     async selectOption(optionDisplayName) {
@@ -84,8 +89,8 @@ class LoaderComboBox extends Page {
             await this.clickOnElement(optionLocator);
             return await this.pause(800);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_combobox'));
-            throw new Error(err);
+            let screenshot = await this.saveScreenshotUniqueName('err_combobox');
+            throw new Error("Combobox, error during selecting the option,  screenshot: " + screenshot + ' ' + err);
         }
     }
 
