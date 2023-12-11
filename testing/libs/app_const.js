@@ -35,10 +35,13 @@ module.exports = Object.freeze({
     publishRequestClosedMessage: function (name) {
         return `Publish request \"${name}\" is closed`;
     },
-    issueClosedMessage (name) {
+    issueClosedMessage(name) {
         return `Issue \"${name}\" is closed`;
     },
-    saveFailedAttempt (name) {
+    contentSettingsUpdated(displayName) {
+        return `Settings for \"${displayName}\" are updated`
+    },
+    saveFailedAttempt(name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
     requiredValidationMessage: (occurrences) => {

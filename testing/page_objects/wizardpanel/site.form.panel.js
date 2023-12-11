@@ -46,9 +46,26 @@ class SiteForm extends Page {
         }
     }
 
-    typeDescription(description) {
-        return this.typeTextInInput(this.descriptionInput, description);
+    async typeDescription(description) {
+        try {
+            await this.waitForElementDisplayed(this.descriptionInput, appConst.mediumTimeout);
+            return await this.typeTextInInput(this.descriptionInput, description);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_site_description');
+            throw new Error("Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
+        }
     }
+
+    async getTextInDescriptionTextArea() {
+        try {
+            await this.waitForElementDisplayed(this.descriptionInput, appConst.mediumTimeout);
+            return await this.getTextInInput(this.descriptionInput);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_site_description');
+            throw new Error("Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
+        }
+    }
+
 
     addApplications(appDisplayNames) {
         let result = Promise.resolve();
@@ -60,6 +77,7 @@ class SiteForm extends Page {
         return result;
     }
 
+    // Click on the dropdown handler in app-selector
     async clickOnDropdownHandle() {
         await this.waitForElementDisplayed(this.dropdownHandle, appConst.mediumTimeout);
         await this.clickOnElement(this.dropdownHandle);
@@ -82,9 +100,8 @@ class SiteForm extends Page {
             await loaderComboBox.typeTextAndSelectOption(displayName, "//div[contains(@id,'SiteConfiguratorComboBox')]");
             await this.pause(700);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_app_option');
-            await this.saveScreenshot(screenshot);
-            throw new Error('application selector, screenshot :' + screenshot + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_app_option');
+            throw new Error('Site wizard, application selector, screenshot :' + screenshot + "  " + err);
         }
     }
 
@@ -93,9 +110,15 @@ class SiteForm extends Page {
         return this.getTextInElements(selector);
     }
 
-    removeApplication(displayName) {
-        let locator = XPATH.selectedAppByDisplayName(displayName) + lib.REMOVE_ICON;
-        return this.clickOnElement(locator);
+    async removeApplication(displayName) {
+        try {
+            let locator = XPATH.selectedAppByDisplayName(displayName) + lib.REMOVE_ICON;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.clickOnElement(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_app_remove_icon');
+            throw new Error('Site wizard, application remove icon, screenshot :' + screenshot + "  " + err);
+        }
     }
 
 
