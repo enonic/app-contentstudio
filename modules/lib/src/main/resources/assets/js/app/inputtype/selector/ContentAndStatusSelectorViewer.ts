@@ -6,17 +6,19 @@ import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
 export class ContentAndStatusSelectorViewer extends ContentTreeSelectorItemViewer {
 
+    private statusColumn: DivEl;
+
     doLayout(object: ContentAndStatusTreeSelectorItem) {
         super.doLayout(object);
 
-        this.appendChild(this.createStatusColumn(object));
+        if (!this.statusColumn) {
+            this.statusColumn = this.createStatusColumn(object);
+            this.appendChild(this.statusColumn);
+        }
     }
 
     private createStatusColumn(item: ContentAndStatusTreeSelectorItem): DivEl {
-        const content = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(item.getContent(),
-            item.getCompareStatus(),
-            item.getPublishStatus());
-
+        const content = this.makeContentFromItem(item);
         const statusElement = new DivEl('status');
         const statusTextEl = new SpanEl();
         statusTextEl.addClass(content.getStatusClass());
@@ -24,5 +26,12 @@ export class ContentAndStatusSelectorViewer extends ContentTreeSelectorItemViewe
         statusElement.appendChild(statusTextEl);
 
         return statusElement;
+    }
+
+
+    private makeContentFromItem(item: ContentAndStatusTreeSelectorItem): ContentSummaryAndCompareStatus {
+        return ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(item.getContent(),
+            item.getCompareStatus(),
+            item.getPublishStatus());
     }
 }

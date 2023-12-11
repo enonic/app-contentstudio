@@ -221,7 +221,7 @@ export class ContentSelector
             const selectedOption: SelectedOption<ContentTreeSelectorItem> = this.findSelectedOptionByContentPath(movedItem.oldPath);
 
             if (selectedOption) {
-                this.getContentComboBox().updateOption(selectedOption.getOption(), movedItem.item);
+                this.contentSelectorDropdown.updateItem(this.createSelectorItem(movedItem.item));
             }
         });
     }
@@ -231,11 +231,18 @@ export class ContentSelector
             return;
         }
 
-        const optionsUpdated: SelectedOption<ContentTreeSelectorItem>[] = this.updateSelectedOptions(updatedContents, oldPaths);
+        statuses.forEach((status: ContentSummaryAndCompareStatus, index: number) => {
+            let selectedOption: SelectedOption<ContentTreeSelectorItem>;
 
-        if (optionsUpdated.length > 0) {
-            this.handleOptionUpdated(optionsUpdated);
-        }
+            if (oldPaths) {
+                selectedOption = this.findSelectedOptionByContentPath(oldPaths[index]);
+            } else {
+                selectedOption = this.getSelectedOptionsView().getById(status.getContentId().toString());
+            }
+            if (selectedOption) {
+                this.contentSelectorDropdown.updateItem(this.createSelectorItem(status));
+            }
+        });
     }
 
     private updateSelectedOptions(updatedContents: ContentSummaryAndCompareStatus[], oldPaths?: ContentPath[]): SelectedOption<ContentTreeSelectorItem>[] {
@@ -425,7 +432,7 @@ export class ContentSelector
         this.newContentButton.setTitle(i18n('action.addNew'));
         this.newContentButton.onContentAdded((content: ContentSummary) => {
             const item = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(content, CompareStatus.NEW);
-        //    this.createSelectorDropdown.select(this.createSelectorItem(item));
+            this.contentSelectorDropdown.select(this.createSelectorItem(item));
         });
 
         this.comboBoxWrapper.appendChild(this.newContentButton);

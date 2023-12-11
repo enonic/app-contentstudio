@@ -145,4 +145,15 @@ export class ContentSelectorDropdown
         // selecting items from property array
         this.preSelectItems();
     }
+
+    updateItem(item: ContentTreeSelectorItem): void {
+        super.updateItem(item);
+
+        const existingOption = this.selectedOptionsView.getById(this.helper.getDataId(item))?.getOption();
+
+        if (existingOption) {
+            const newOption = this.createSelectedOption(item);
+            this.selectedOptionsView.updateOption(existingOption, newOption);
+        }
+    }
 }

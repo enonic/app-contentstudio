@@ -1,6 +1,7 @@
 import {ContentListBox, ContentListBoxOptions} from './ContentListBox';
 import {ImageSelectorViewer} from '../ui/selector/image/ImageSelectorViewer';
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class ImageContentListBox extends ContentListBox<MediaTreeSelectorItem> {
 
@@ -17,4 +18,8 @@ export class ImageContentListBox extends ContentListBox<MediaTreeSelectorItem> {
         return viewer;
     }
 
+    protected updateItemView(itemView: Element, item: MediaTreeSelectorItem): void {
+        const viewer = itemView as ImageSelectorViewer;
+        viewer.setObject(item);
+    }
 }
