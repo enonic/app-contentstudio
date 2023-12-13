@@ -7,7 +7,6 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const ConfirmationMask = require('../../page_objects/confirmation.mask');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const OptionSetForm = require('../../page_objects/wizardpanel/optionset/optionset.form.view');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SingleSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/single.selection.option.set.view');
 const MultiSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/multi.selection.set.view');
@@ -38,11 +37,15 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             // 1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
+            // 2. Fill in the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             await contentWizard.pause(1000);
+            // 3. Verify that the content is invalid:
             let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "The Content should be invalid, because an option is not selected in the required 'single selection'");
+            assert.isTrue(result, "The Content should be invalid, because the required option is not selected in 'single selection'");
+            // 4. Click on 'Save' button:
             await contentWizard.waitAndClickOnSave();
+            // 5. Verify the validation message:
             let recording = await singleSelectionOptionSet.getValidationRecording();
             assert.equal(recording, appConst.VALIDATION_MESSAGE.SINGLE_SELECTION_OPTION_SET, "Expected message gets visible");
         });
@@ -138,15 +141,17 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await singleSelectionOptionSet.selectOption('Option 1');
             // 3. Expand the menu in the single item set:
             await singleSelectionOptionSet.expandItemSetMenu(0);
+            // 4. Verify that 3 menu items are displayed:
+            let items = await singleSelectionOptionSet.getOccurrenceViewMenuItems();
+            assert.equal(items.length, 3, "Three menu items should be displayed in the occurrence menu");
             await studioUtils.saveScreenshot('single_item_set_menu_expanded');
+            // 5. Verify that 'Delete' menu item is disabled, 'Add below' and 'Add above' are enabled
             let isDeleteDisabled = await singleSelectionOptionSet.isDeleteSetMenuItemDisabled();
             assert.isTrue(isDeleteDisabled, "Delete menu item should be disabled");
             let isAddAboveDisabled = await singleSelectionOptionSet.isAddAboveSetMenuItemDisabled();
             assert.isFalse(isAddAboveDisabled, "'Add above' menu item should be enabled");
             let isAddBelowDisabled = await singleSelectionOptionSet.isAddBelowSetMenuItemDisabled();
-            assert.isFalse(isAddAboveDisabled, "'Add below' menu item should be enabled");
-            let isResetDisabled = await singleSelectionOptionSet.isResetMenuItemDisabled();
-            assert.isFalse(isResetDisabled, "'Reset' menu item should be enabled");
+            assert.isFalse(isAddBelowDisabled, "'Add below' menu item should be enabled");
         });
 
     // New set with dirty fields: confirmation should appear
@@ -162,7 +167,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await studioUtils.saveScreenshot('new_item_set_added_1');
             await singleSelectionOptionSet.typeTextInOptionNameInput('test option');
             // 3. Type a text in the second item-set:
-            await singleSelectionOptionSet.typeInLabelInput("label1", 1);
+            await singleSelectionOptionSet.typeInLabelInput('label1', 1);
             // 4. Click on 'remove-icon' and try to close the second item-set:
             await singleSelectionOptionSet.expandMenuClickOnDelete(1);
             await studioUtils.saveScreenshot('item_set_confirmation_dialog');
@@ -196,11 +201,11 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             // 1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
             // 2. Select 'Option 1' and click on add new item-set:
-            await singleSelectionOptionSet.selectOption("Option 1");
+            await singleSelectionOptionSet.selectOption('Option 1');
             await singleSelectionOptionSet.clickOnAddItemSetButton();
-            await singleSelectionOptionSet.typeTextInOptionNameInput("test option");
+            await singleSelectionOptionSet.typeTextInOptionNameInput('test option');
             // 3. Type a text in the second item-set:
-            await singleSelectionOptionSet.typeInLabelInput("label1", 1);
+            await singleSelectionOptionSet.typeInLabelInput('label1', 1);
             // 4. Click on 'Delete' menu item and try to delete the second item-set:
             await singleSelectionOptionSet.expandMenuClickOnDelete(1);
             await studioUtils.saveScreenshot('item_set_confirmation_dialog');
@@ -228,7 +233,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             // 3. Click on the radio button and save new changes:
             await singleSelectionOptionSet.selectOption('Option 1');
             // 4. Fill in the required 'name' input:
-            await singleSelectionOptionSet.typeTextInOptionNameInput("test option");
+            await singleSelectionOptionSet.typeTextInOptionNameInput('test option');
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('item_set_validation1');
             // 5. Verify - "Red icon" should not be displayed, because required inputs are filled in!
@@ -301,7 +306,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             // 2. Fill in the first required input:
             await articleForm.typeArticleTitle('test');
             // 2. Fill in the second required input:
-            await articleForm.typeInTextArea("body text");
+            await articleForm.typeInTextArea('body text');
             await contentWizard.typeDisplayName(displayName);
             // 3. Click on Save button:
             await contentWizard.waitAndClickOnSave();
