@@ -11,6 +11,7 @@ import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.project.ProjectReadAccessType;
 import com.enonic.xp.data.PropertyTreeJson;
 import com.enonic.xp.project.Project;
+import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectPermissions;
 
 public final class ProjectJson
@@ -23,7 +24,7 @@ public final class ProjectJson
 
     private final String language;
 
-    private final String parent;
+    private final List<String> parents;
 
     private final AttachmentJson icon;
 
@@ -44,7 +45,10 @@ public final class ProjectJson
         this.description = project.getDescription();
         this.icon = project.getIcon() != null ? new AttachmentJson( project.getIcon() ) : null;
         this.language = language != null ? language.toLanguageTag() : null;
-        this.parent = project.getParent() != null ? project.getParent().toString() : null;
+        this.parents = project.getParents() != null ? project.getParents()
+            .stream()
+            .map( ProjectName::toString )
+            .collect( Collectors.toList() ) : null;
         this.permissions = projectPermissions != null ? new ProjectPermissionsJson( projectPermissions ) : null;
         this.projectReadAccess = readAccessType != null ? new ProjectReadAccessJson( readAccessType, ImmutableList.copyOf(
             projectPermissions.getViewer().getSet() ) ) : null;
@@ -79,9 +83,9 @@ public final class ProjectJson
         return language;
     }
 
-    public String getParent()
+    public List<String> getParents()
     {
-        return parent;
+        return parents;
     }
 
     public ProjectPermissionsJson getPermissions()

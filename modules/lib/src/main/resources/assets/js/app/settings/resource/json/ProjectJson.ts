@@ -10,7 +10,7 @@ export interface ProjectJson {
 
     description: string;
 
-    parent: string;
+    parents: string[];
 
     icon: AttachmentJson;
 

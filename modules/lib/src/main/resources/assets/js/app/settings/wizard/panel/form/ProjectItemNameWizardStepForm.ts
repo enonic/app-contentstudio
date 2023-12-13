@@ -57,11 +57,16 @@ export class ProjectItemNameWizardStepForm
         return this.parentProjectFormItem ? this.getProjectComboBox().getValue() : undefined;
     }
 
-    setParentProject(project: Project) {
+    setParentProject(project: Project): void {
         super.setParentProject(project);
 
         this.appendParentProjectDropdown();
-        this.getProjectComboBox().selectProject(project);
+    }
+
+    selectParentProjects(projects: Project[]): void {
+        projects?.forEach((project) => {
+            this.getProjectComboBox().selectProject(project);
+        });
     }
 
     onParentProjectChanged(callback: (project: Project) => void) {
@@ -106,7 +111,7 @@ export class ProjectItemNameWizardStepForm
         return Q(null);
     }
 
-    disableParentProjectElements(parentProject: string) {
+    disableParentProjectElements() {
         this.disableParentProjectHelpText();
         this.disableParentProjectInput();
     }

@@ -360,15 +360,13 @@ export class ProjectWizardPanel
     }
 
     getParentProject(): string {
-        return !!this.projectWizardStepForm ? this.projectWizardStepForm.getParentProject() : null;
+        return this.projectWizardStepForm?.getParentProject() ?? null;
     }
 
-    setParentProject(project?: Project) {
+    setMainParentProject(project?: Project) {
         this.whenRendered(() => {
             this.projectWizardStepForm.setParentProject(project);
-            if (!!project && this.getPersistedItem()) { // Existing layer
-                this.projectWizardStepForm.disableParentProjectElements(project.getName());
-            }
+
             this.readAccessWizardStepForm.setParentProject(project);
             this.rolesWizardStepForm.setParentProject(project);
 
@@ -376,6 +374,16 @@ export class ProjectWizardPanel
                 this.readAccessWizardStepForm.setParentProject(_project);
                 this.rolesWizardStepForm.setParentProject(_project);
             });
+        });
+    }
+
+    setParentProjects(projects: Project[]): void {
+        this.whenRendered(() => {
+            this.projectWizardStepForm.selectParentProjects(projects);
+
+            if (projects?.length > 0 && this.getPersistedItem()) { // Existing layer
+                this.projectWizardStepForm.disableParentProjectElements();
+            }
         });
     }
 

@@ -83,10 +83,12 @@ export class SettingsAppPanel
 
             wizard.setHasChildrenLayers(this.browsePanel.hasChildren(projectItem.getId()));
 
-            if (projectItem.getData() && projectItem.getData().getParent()) {
-                const parentProject: Project =
-                    (this.browsePanel.getItemById(projectItem.getData().getParent()) as ProjectViewItem).getData();
-                wizard.setParentProject(parentProject);
+            if (projectItem.getData()?.getParent()) {
+                const parentProjects: Project[] = projectItem.getData().getParents()
+                    .map((name) => (this.browsePanel.getItemById(name) as ProjectViewItem).getData());
+
+                wizard.setMainParentProject(parentProjects[0]);
+                wizard.setParentProjects(parentProjects);
             }
 
             return wizard;
@@ -174,7 +176,7 @@ export class SettingsAppPanel
         }
 
         if (projectWizardPanel.getParentProject() === projectItem.getName()) {
-            projectWizardPanel.setParentProject(projectItem.getData());
+            projectWizardPanel.setMainParentProject(projectItem.getData());
         }
     }
 

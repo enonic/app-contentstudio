@@ -4,7 +4,6 @@ import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
 import {SettingsTreeGridActions} from '../grid/SettingsTreeGridActions';
 import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
 import {SettingsViewItem} from '../view/SettingsViewItem';
-import {ProjectContext} from '../../project/ProjectContext';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {

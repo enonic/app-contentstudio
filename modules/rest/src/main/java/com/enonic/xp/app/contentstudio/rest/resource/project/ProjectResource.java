@@ -34,6 +34,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.project.json.ModifyLanguage
 import com.enonic.xp.app.contentstudio.rest.resource.project.json.ModifyPermissionsParamsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.project.json.ModifyProjectParamsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.project.json.ModifyReadAccessParamsJson;
+import com.enonic.xp.app.contentstudio.rest.resource.project.json.ProjectConfigJson;
 import com.enonic.xp.app.contentstudio.rest.resource.project.json.ProjectGraphJson;
 import com.enonic.xp.app.contentstudio.rest.resource.project.json.ProjectJson;
 import com.enonic.xp.app.contentstudio.rest.resource.project.json.ProjectPermissionsJson;
@@ -74,7 +75,7 @@ import com.enonic.xp.web.multipart.MultipartItem;
 @Path(ResourceConstants.REST_ROOT + "project")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_ID, RoleKeys.ADMIN_LOGIN_ID})
-@Component(immediate = true, property = "group=v2cs")
+@Component(immediate = true, property = "group=v2cs",  configurationPid = "com.enonic.xp.project")
 public final class ProjectResource
     implements JaxRsComponent
 {
@@ -92,11 +93,14 @@ public final class ProjectResource
 
     private volatile long uploadMaxFileSize;
 
+    private ProjectConfig projectConfig;
+
     @Activate
     @Modified
-    public void activate( final AdminRestConfig config )
+    public void activate( final AdminRestConfig config, final ProjectConfig projectConfig )
     {
         uploadMaxFileSize = ByteSizeParser.parse( config.uploadMaxFileSize() );
+        this.projectConfig = projectConfig;
     }
 
     @POST
@@ -181,6 +185,13 @@ public final class ProjectResource
     }
 
     @GET
+    @Path("config")
+    public ProjectConfigJson config()
+    {
+        return new ProjectConfigJson( projectConfig.multiInheritance() );
+    }
+
+    @GET
     @Path("fetchByContentId")
     public ProjectsJson fetchByContentId( @QueryParam("contentId") final String contentIdString )
     {
@@ -232,7 +243,7 @@ public final class ProjectResource
             .name( json.getName() )
             .displayName( json.getDisplayName() )
             .description( json.getDescription() )
-            .parent( json.getParent() )
+            .addParents( json.getParents() )
             .forceInitialization( true );
 
         json.getApplicationConfigs().stream().forEach( paramsBuilder::addSiteConfig );
@@ -386,4 +397,13 @@ public final class ProjectResource
     {
         this.syncContentService = syncContentService;
     }
+
+    /*
+    @Reference
+    public void setProjectConfigHolder( final ProjectConfigHolder projectConfigHolder )
+    {
+        this.projectConfigHolder = projectConfigHolder;
+    }
+    */
+
 }

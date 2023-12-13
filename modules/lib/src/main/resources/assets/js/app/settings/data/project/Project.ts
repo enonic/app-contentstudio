@@ -19,7 +19,7 @@ export class Project
 
     private readonly description: string;
 
-    private readonly parent: string;
+    private readonly parents: string[];
 
     private readonly icon: Attachment;
 
@@ -35,7 +35,7 @@ export class Project
         this.name = builder.name;
         this.displayName = builder.displayName;
         this.description = builder.description;
-        this.parent = builder.parent;
+        this.parents = builder.parents;
         this.icon = builder.icon;
         this.permissions = builder.permissions;
         this.readAccess = builder.readAccess;
@@ -80,7 +80,11 @@ export class Project
     }
 
     getParent(): string {
-        return this.parent;
+        return this.parents?.length > 0 ? this.parents[0] : null;
+    }
+
+    getParents(): string[] {
+        return this.parents?.slice();
     }
 
     getSiteConfigs(): ApplicationConfig[] {
@@ -92,7 +96,7 @@ export class Project
             name: this.name,
             displayName: this.displayName,
             description: this.description,
-            parent: this.parent,
+            parents: this.parents,
             language: this.language,
             icon: this.icon ? this.icon.toJson() : null,
             permissions: this.permissions ? this.permissions.toJson() : null,
@@ -133,7 +137,7 @@ export class ProjectBuilder {
 
     description: string;
 
-    parent: string;
+    parents: string[];
 
     icon: Attachment;
 
@@ -150,7 +154,7 @@ export class ProjectBuilder {
             this.name = source.getName();
             this.displayName = source.getDisplayName();
             this.description = source.getDescription();
-            this.parent = source.getParent();
+            this.parents = source.getParents();
             this.icon = source.getIcon();
             this.permissions = source.getPermissions();
             this.readAccess = source.getReadAccess();
@@ -175,7 +179,12 @@ export class ProjectBuilder {
     }
 
     setParent(value: string): ProjectBuilder {
-        this.parent = value;
+        this.parents = [value];
+        return this;
+    }
+
+    setParents(value: string[]): ProjectBuilder {
+        this.parents = value;
         return this;
     }
 
@@ -208,7 +217,7 @@ export class ProjectBuilder {
         this.name = json.name;
         this.displayName = json.displayName;
         this.description = json.description || '';
-        this.parent = json.parent;
+        this.parents = json.parents;
         this.icon = json.icon ? new AttachmentBuilder().fromJson(json.icon).build() : null;
         this.permissions = ProjectPermissions.fromJson(json.permissions);
         this.readAccess = ProjectReadAccess.fromJson(json.readAccess);

@@ -11,7 +11,7 @@
       },
       "language": "en",
       "name": "project1",
-      "parent": null,
+      "parents": [ ],
       "permissions": {
         "author": [],
         "contributor": [],
@@ -32,7 +32,7 @@
       "icon": null,
       "language": "en",
       "name": "project2",
-      "parent": "parent1",
+      "parents": ["parent1"],
       "permissions": {
         "author": [],
         "contributor": [],
@@ -53,7 +53,7 @@
       "icon": null,
       "language": "en",
       "name": "project3",
-      "parent": null,
+      "parents": [ ],
       "permissions": {
         "author": [
           "user:system:author"
@@ -74,7 +74,7 @@
       "icon": null,
       "language": "en",
       "name": "project4",
-      "parent": "parent2",
+      "parents": ["parent2"],
       "permissions": {
         "author": [],
         "contributor": [

@@ -6,7 +6,7 @@
       "icon": null,
       "language": "en",
       "name": "project1",
-      "parent": "base",
+      "parents": ["base"],
       "permissions": {
         "author": [],
         "contributor": [],
@@ -27,7 +27,7 @@
       "icon": null,
       "language": "en",
       "name": "project3",
-      "parent": null,
+      "parents": [ ],
       "permissions": {
         "author": [
           "user:system:author"
