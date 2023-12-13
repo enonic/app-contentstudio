@@ -11,7 +11,7 @@ const xpath = {
     itemSetOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//button[contains(@id,'MoreButton')]",
     optionSetMenuButton: "//div[contains(@class,'single-selection-header selected')]" + "//button[contains(@id,'MoreButton')]",
     labelInput: "//div[contains(@id,'FormItemSetOccurrenceView')]//input[contains(@name,'label')]",
-    itemSetOccurrenceMenuItems: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//li[contains(@id,'MenuItem')]",
+    itemSetOccurrenceMenuItems: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem')]",
     itemSetOccurrenceDeleteMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Delete']",
     itemSetOccurrenceAddAboveMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Add above']",
     itemSetOccurrenceAddBelowMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Add below']",
@@ -32,10 +32,6 @@ class SingleSelectionOptionSet extends Page {
 
     get addItemSetButton() {
         return xpath.container + xpath.addItemSetButton;
-    }
-
-    get removeItemSetOccurrenceButton() {
-        return xpath.container + xpath.removeItemSetOccurrenceButton;
     }
 
     async typeTextInOptionNameInput(name) {
@@ -114,10 +110,15 @@ class SingleSelectionOptionSet extends Page {
             await menuButtons[index].click();
             return await this.pause(400);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_opt_set");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_opt_set');
             throw new Error("Option Set , error after expand option menu, screenshot:" + screenshot + " " + err);
         }
+    }
+
+    async getOccurrenceViewMenuItems() {
+        let locator = xpath.container + xpath.itemSetOccurrenceMenuItems;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
     }
 
     async isDeleteSetMenuItemDisabled() {
@@ -133,12 +134,6 @@ class SingleSelectionOptionSet extends Page {
     }
 
     async isAddBelowSetMenuItemDisabled() {
-        let menuItemElements = await this.getDisplayedElements(xpath.itemSetOccurrenceAddBelowMenuItem);
-        let res = await menuItemElements[0].getAttribute('class');
-        return res.includes('disabled');
-    }
-
-    async isResetMenuItemDisabled() {
         let menuItemElements = await this.getDisplayedElements(xpath.itemSetOccurrenceAddBelowMenuItem);
         let res = await menuItemElements[0].getAttribute('class');
         return res.includes('disabled');
