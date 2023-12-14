@@ -11,6 +11,7 @@ const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe("Tests for updating a number in aggregation checkboxes", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -69,9 +70,11 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             // 3. Verify that Me is displayed in 'Last Modified By' and 'Owner' aggregation checkboxes:
             await filterPanel.waitForCheckboxDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY, 'Me');
             await filterPanel.waitForCheckboxDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.OWNER, 'Me');
+            // 4. Work in progress checkbox should not be displayed, because the content is ready for publishing
+            await filterPanel.waitForCheckboxNotDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW, 'Work in progress');
             // TODO workflow checkbox temporarily not visible
             //await filterPanel.waitForCheckboxDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW, "Ready for publishing");
-            //await filterPanel.waitForCheckboxNotDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW, "Work in progress");
+
             //4. 1 should be displayed in aggregation checkboxes:
             //let result = await filterPanel.getNumberOfItemsInAggregationView(appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW,
             //    "Ready for publishing");
@@ -130,30 +133,34 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             assert.isTrue(numberAfter - numberBefore === 1, "Number in 'work in progress' checkbox should be increased");
         });
 
-    it.skip(`GIVEN existing 'Work in progress shortcut' is selected WHEN the shortcut has been marked as ready THEN number in 'Ready for publishing' checkbox should be increased by 1`,
+    it(`WHEN existing 'Work in progress shortcut' has been marked as ready THEN the number in 'Work in progress' checkbox should decrease by 1`,
         async () => {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentPublishDialog = new ContentPublishDialog();
             // 1. Open Filter Panel
             await studioUtils.openFilterPanel();
             // 2. Click on 'Shortcut' checkbox:
             await filterPanel.clickOnCheckboxInContentTypesBlock('Shortcut');
             await studioUtils.saveScreenshot('shortcut_workflow_aggregation_3');
             // 3. Get the number in 'Ready for publishing' checkbox in Filter Panel
-            let ready1 = await filterPanel.getNumberOfItemsInAggregationView(WORKFLOW_AGGREGATION,
-                appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+            let number1 = await filterPanel.getNumberOfItemsInAggregationView(WORKFLOW_AGGREGATION,
+                appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
             // 4. Click on the row then press on 'Mark as ready' button:
             await contentBrowsePanel.clickOnRowByName(SHORTCUT_NAME);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentBrowsePanel.waitForNotificationMessage();
-            await contentBrowsePanel.pause(1500);
+            await contentPublishDialog.waitForDialogOpened();
+            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.waitForDialogClosed();
+            await contentBrowsePanel.pause(1000);
             await studioUtils.saveScreenshot('shortcut_workflow_aggregation_4');
 
             // 5. Get the number in 'ready for publishing' checkbox in the filter panel
-            let ready2 = await filterPanel.getNumberOfItemsInAggregationView(WORKFLOW_AGGREGATION,
-                appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
-            // 6. Verify that number in 'ready for publishing' is increased by 1
-            assert.isTrue(ready2 - ready1 === 1, "Number in 'Ready for publishing' checkbox should be increased");
+            let number2 = await filterPanel.getNumberOfItemsInAggregationView(WORKFLOW_AGGREGATION,
+                appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
+            // 6. Verify that number in 'Work in progress' is reduced by 1
+            assert.isTrue(number1 - number2 === 1, "Number in 'Work in progress' checkbox should decrease");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

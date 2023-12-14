@@ -30,7 +30,7 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
         });
 
     // Verify issue: 500 error in image service when using filters XP#9497
-    it.skip(`GIVEN Insert Image modal dialog is opened WHEN 'Avatar' option with filter has been selected THEN modal should be closed`,
+    it(`GIVEN Insert Image modal dialog is opened WHEN 'Avatar' option with filter has been selected THEN modal should be closed`,
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
@@ -50,7 +50,7 @@ describe('insert.image.custom.style.filters.spec: select an image with filters i
         });
 
     // Verify issue: 500 error in image service when using filters XP#9497
-    it.skip(`WHEN double click on the image with custom styles (filter) THEN expected style should be present in style selector in Insert Image modal dialog`,
+    it(`WHEN double click on the image with custom styles (filter) THEN expected style should be present in style selector in Insert Image modal dialog`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
