@@ -31,6 +31,26 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await studioUtils.doAddSite(SITE);
         });
 
+    it(`GIVEN insert 'option 1' (lower case) in options filter input WHEN the filtered option has been clicked THEN 'Option 1' should be selected`,
+        async () => {
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            // 1. Open wizard for new option set:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET_HELP_TEXT);
+            let optionSetHelpFormView = new OptionSetHelpFormView();
+            // 2. Type the text 'option 1' in lower case and select the option in Single selection radio option set:
+            await singleSelectionOptionSet.filterAndSelectOption('option 1');
+            // 3. Verify the menu items in the selected option:
+            await singleSelectionOptionSet.expandMoreMenuInSingleSelectionOptionSet(0)
+            let isDeleteDisabled = await singleSelectionOptionSet.isDeleteMenuItemInSingleSelectedOptionDisabled();
+            assert.isTrue(isDeleteDisabled, "'Delete' menu item should be disabled");
+            let isResetDisabled = await singleSelectionOptionSet.isResetMenuItemInSingleSelectedOptionDisabled();
+            // 4.  Only 'Reset' menu item is enabled due to the config: <occurrences minimum="1" maximum="1"/>
+            assert.isFalse(isResetDisabled, "'Reset' menu item should be enabled");
+            // 5. 'Add above' menu item is disabled due to the config: <occurrences minimum="1" maximum="1"/>
+            let isAddAboveDisabled = await singleSelectionOptionSet.isAddAboveMenuItemInSingleSelectedOptionDisabled();
+            assert.isTrue(isAddAboveDisabled, "'Add above' menu item should be disable");
+        });
+
     it(`GIVEN wizard for new content with Option Set is opened WHEN name input has been filled AND Save button pressed THEN validation recording should appear`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -81,16 +101,16 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
         async () => {
             let contentWizard = new ContentWizard();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
-            //1. Open the new wizard:
+            // 1. Open the new wizard:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_1);
-            //2. Select 'Option 2'
-            await singleSelectionOptionSet.selectOption("Option 2");
+            // 2. Select 'Option 2' in Single Selection radio option set:
+            await singleSelectionOptionSet.selectOption('Option 2');
             await contentWizard.pause(1000);
-            //3. The content should be valid:
+            // 3. The content should be valid:
             let result = await contentWizard.isContentInvalid();
             assert.isFalse(result, "The Content should be valid, because an option is selected in the required 'single selection'");
             await contentWizard.waitAndClickOnSave();
-            //4. Validation recording should not be displayed:
+            // 4. Validation recording should not be displayed:
             await singleSelectionOptionSet.waitForValidationRecordingNotDisplayed();
         });
 
@@ -98,14 +118,15 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
         async () => {
             let contentWizard = new ContentWizard();
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
-            //1. Open the new wizard:
+            // 1. Open the new wizard:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_1);
-            //2. Click on 'Option 2' and unselect the checkbox:
+            // 2. Click on 'Option 2' and unselect the checkbox:
             await multiSelectionOptionSet.clickOnOption('Option 2');
-            //3. Validation recording should appear:
+            // 3. Validation recording should appear in Multi selection option set;
             let recording = await multiSelectionOptionSet.getValidationRecording();
-            assert.equal(recording, appConst.VALIDATION_MESSAGE.SINGLE_SELECTION_OPTION_SET, "Expected message gets visible");
-            //4. The content should be invalid:
+            // At least one option must be selected:
+            assert.equal(recording, appConst.VALIDATION_MESSAGE.SINGLE_SELECTION_OPTION_SET, "Expected message should be visible");
+            // 4. The content should be invalid:
             let result = await contentWizard.isContentInvalid();
             assert.isTrue(result, "The content should be invalid, because an option must be selected in the Multi Selection");
         });
@@ -247,11 +268,16 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
             let displayName = contentBuilder.generateRandomName('optionset');
+            // 1. Fill in the name input
             await contentWizard.typeDisplayName(displayName);
+            // 2. Click on Save button:
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('item_set_saved_button_wizard');
-            // "Saved" button should appear in the wizard-toolbar
+            // 3. Verify - "Saved" button should appear in the wizard-toolbar
             await contentWizard.waitForSavedButtonVisible();
+            // 4. The contrnt should be invalid
+            let result = await contentWizard.isContentInvalid();
+            assert.isTrue(result, "The content should be invalid because required option is not selected");
         });
 
     // Verifies: Incorrect behaviour of validation when two required text inputs/ text area/ text line are present in the wizard #2616
