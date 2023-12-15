@@ -10,7 +10,7 @@ import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ContentComboBox, ContentComboBoxBuilder, ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
+import {ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
 import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagingAdd';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ui/selector/ContentSummaryOptionDataLoader';
@@ -95,17 +95,8 @@ export class ContentSelector
                 return;
             }
 
-            statuses.forEach((status: ContentSummaryAndCompareStatus, index: number) => {
-                let selectedOption: SelectedOption<ContentTreeSelectorItem>;
-
-                if (oldPaths) {
-                    selectedOption = this.findSelectedOptionByContentPath(oldPaths[index]);
-                } else {
-                    selectedOption = this.getSelectedOptionsView().getById(status.getContentId().toString());
-                }
-                if (selectedOption) {
-                    this.contentSelectorDropdown.updateItem(this.createSelectorItem(status));
-                }
+            statuses.forEach((status: ContentSummaryAndCompareStatus) => {
+                this.contentSelectorDropdown.updateItem(this.createSelectorItem(status));
             });
         };
 
@@ -115,11 +106,7 @@ export class ContentSelector
             }
 
             movedItems.forEach((movedItem: MovedContentItem) => {
-                const selectedOption: SelectedOption<ContentTreeSelectorItem> = this.findSelectedOptionByContentPath(movedItem.oldPath);
-
-                if (selectedOption) {
-                    this.contentSelectorDropdown.updateItem(this.createSelectorItem(movedItem.item));
-                }
+                this.contentSelectorDropdown.updateItem(this.createSelectorItem(movedItem.item));
             });
         };
 
@@ -133,16 +120,6 @@ export class ContentSelector
             handler.unContentRenamed(contentUpdatedListener);
             handler.unContentMoved(contentMovedListener);
         });
-    }
-
-    private findSelectedOptionByContentPath(contentPath: ContentPath): SelectedOption<ContentTreeSelectorItem> {
-        const selectedOptions = this.getSelectedOptions();
-        for (const selectedOption of selectedOptions) {
-            if (contentPath.equals(this.getContentPath(selectedOption.getOption().getDisplayValue()))) {
-                return selectedOption;
-            }
-        }
-        return null;
     }
 
     private handleContentDeletedEvent() {
@@ -176,7 +153,7 @@ export class ContentSelector
     }
 
     protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): ContentTreeSelectorItem {
-        if (content instanceof  ContentSummaryAndCompareStatus) {
+        if (content instanceof ContentSummaryAndCompareStatus) {
             return new ContentAndStatusTreeSelectorItem(content);
         }
 
@@ -359,28 +336,6 @@ export class ContentSelector
 
     protected createLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
         return this.createOptionDataLoaderBuilder().setAppendLoadResults(false).build();
-    }
-
-    protected doCreateContentComboBoxBuilder(): ContentComboBoxBuilder<ContentTreeSelectorItem> {
-        return ContentComboBox.create().setProject(this.context.project);
-    }
-
-    protected createOptionDataLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
-        return this.createOptionDataLoaderBuilder().build();
-    }
-
-    protected createContentComboBoxBuilder(input: Input, propertyArray: PropertyArray): ContentComboBoxBuilder<ContentTreeSelectorItem> {
-        const optionDataLoader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem> = this.createOptionDataLoader();
-        const comboboxValue: string = this.getValueFromPropertyArray(propertyArray);
-
-        return this.doCreateContentComboBoxBuilder()
-            .setComboBoxName(input.getName())
-            .setLoader(optionDataLoader)
-            .setMaximumOccurrences(input.getOccurrences().getMaximum())
-            .setRemoveMissingSelectedOptions(true)
-            .setTreegridDropdownEnabled(this.treeMode)
-            .setTreeModeTogglerAllowed(!this.hideToggleIcon)
-            .setValue(comboboxValue);
     }
 
     protected removePropertyWithId(id: string) {
