@@ -82,7 +82,7 @@ public class ProjectResourceTest
         resource.setContentService( contentService );
         resource.setTaskService( taskService );
         resource.setSyncContentService( syncContentService );
-        resource.activate( Mockito.mock( AdminRestConfig.class, invocation -> invocation.getMethod().getDefaultValue() ) );
+        resource.activate( Mockito.mock( AdminRestConfig.class, invocation -> invocation.getMethod().getDefaultValue() ), Mockito.mock( ProjectConfig.class, invocation -> invocation.getMethod().getDefaultValue() ) );
         return resource;
     }
 
@@ -160,7 +160,6 @@ public class ProjectResourceTest
         Mockito.when( projectService.graph( project1.getName() ) ).thenReturn( ProjectGraph.create().
             add( ProjectGraphEntry.create().
                 name( project1.getName() ).
-                parent( null ).
                 build() ).
             add( ProjectGraphEntry.create().
                 name( project2.getName() ).
@@ -430,9 +429,12 @@ public class ProjectResourceTest
     public void testModifyIcon_exceed_max_upload_size()
         throws Exception
     {
-        final AdminRestConfig config = Mockito.mock( AdminRestConfig.class );
-        Mockito.when( config.uploadMaxFileSize() ).thenReturn( "1b" );
-        resource.activate( config );
+        final AdminRestConfig adminRestConfig = Mockito.mock( AdminRestConfig.class );
+        final ProjectConfig projectConfig = Mockito.mock( ProjectConfig.class );
+        Mockito.when( adminRestConfig.uploadMaxFileSize() ).thenReturn( "1b" );
+        Mockito.when( projectConfig.multiInheritance() ).thenReturn( false );
+
+        resource.activate( adminRestConfig, projectConfig );
         final Project project = createProject( "project1", "project name 1", "project description 1",
                                                Attachment.create().name( "logo.png" ).mimeType( "image/png" ).label( "small" ).build() );
 
@@ -540,13 +542,15 @@ public class ProjectResourceTest
     private Project createProject( final String name, final String displayName, final String description, final Attachment icon,
                                    final String parent )
     {
-        return Project.create().
-            name( ProjectName.from( name ) ).
-            displayName( displayName ).
-            description( description ).
-            icon( icon ).
-            parent( parent != null ? ProjectName.from( parent ) : null ).
-            build();
+        final Project.Builder builder =
+            Project.create().name( ProjectName.from( name ) ).displayName( displayName ).description( description ).icon( icon );
+
+        if ( parent != null )
+        {
+            builder.parent( ProjectName.from( parent ) );
+        }
+
+        return builder.build();
     }
 
     private MultipartForm createIconForm( final ProjectName projectName, final int scaleWidth )

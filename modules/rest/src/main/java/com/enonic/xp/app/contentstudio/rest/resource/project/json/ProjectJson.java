@@ -45,8 +45,10 @@ public final class ProjectJson
         this.description = project.getDescription();
         this.icon = project.getIcon() != null ? new AttachmentJson( project.getIcon() ) : null;
         this.language = language != null ? language.toLanguageTag() : null;
-        this.parents =
-            project.getParents() != null ? project.getParents().stream().map( ProjectName::toString ).collect( Collectors.toList() ) : null;
+        this.parents = project.getParents() != null ? project.getParents()
+            .stream()
+            .map( ProjectName::toString )
+            .collect( Collectors.toList() ) : null;
         this.permissions = projectPermissions != null ? new ProjectPermissionsJson( projectPermissions ) : null;
         this.projectReadAccess = readAccessType != null ? new ProjectReadAccessJson( readAccessType, ImmutableList.copyOf(
             projectPermissions.getViewer().getSet() ) ) : null;
