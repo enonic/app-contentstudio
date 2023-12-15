@@ -212,5 +212,5 @@ export class ProjectsDropdownBuilder extends RichComboBoxBuilder<Project> {
 
     selectedOptionsView: ProjectSelectedOptionsView = new ProjectSelectedOptionsView();
 
-    maximumOccurrences: number = 0;
+    maximumOccurrences: number = 1;
 }

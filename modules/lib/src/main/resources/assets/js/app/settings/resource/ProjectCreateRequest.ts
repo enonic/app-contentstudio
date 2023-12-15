@@ -1,10 +1,11 @@
 import {ProjectCreateUpdateRequest} from './ProjectCreateUpdateRequest';
 import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
+import {Project} from '../data/project/Project';
 
 export class ProjectCreateRequest
     extends ProjectCreateUpdateRequest {
 
-    private parents: string[];
+    private parents: Project[];
 
     private readAccess: ProjectReadAccess;
 
@@ -13,7 +14,7 @@ export class ProjectCreateRequest
         this.addRequestPathElements('create');
     }
 
-    setParents(value: string[]): ProjectCreateRequest {
+    setParents(value: Project[]): ProjectCreateRequest {
         this.parents = value;
         return this;
     }
@@ -26,8 +27,8 @@ export class ProjectCreateRequest
     getParams(): Object {
         const params: Object = super.getParams();
 
-        if (this.parents) {
-            params['parents'] = this.parents;
+        if (this.parents?.length > 0) {
+            params['parents'] = this.parents.map((p) => p.getName());
         }
 
         if (this.readAccess) {

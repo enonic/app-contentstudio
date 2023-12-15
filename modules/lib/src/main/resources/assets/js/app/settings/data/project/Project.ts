@@ -190,6 +190,11 @@ export class ProjectBuilder {
         return this;
     }
 
+    setParent(value: string): ProjectBuilder {
+        this.parents = [value];
+        return this;
+    }
+
     setParents(value: string[]): ProjectBuilder {
         this.parents = value;
         return this;

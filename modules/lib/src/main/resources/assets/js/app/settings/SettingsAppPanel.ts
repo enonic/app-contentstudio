@@ -83,7 +83,7 @@ export class SettingsAppPanel
 
             wizard.setHasChildrenLayers(this.browsePanel.hasChildren(projectItem.getId()));
 
-            if (projectItem.getData() && projectItem.getData().hasParents()) {
+            if (projectItem.getData()?.hasParents()) {
                 const parentProjects = projectItem.getData().getParents().map(id => {
                     return (this.browsePanel.getItemById(id) as ProjectViewItem).getData();
                 });

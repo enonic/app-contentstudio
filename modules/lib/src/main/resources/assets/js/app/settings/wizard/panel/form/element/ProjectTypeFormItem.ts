@@ -1,11 +1,12 @@
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
-import {ProjectsSelector} from './ProjectsSelector';
+import {ProjectsDropdownBuilder, ProjectsSelector} from './ProjectsSelector';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {Project} from '../../../../data/project/Project';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ProjectConfigContext} from '../../../../data/project/ProjectConfigContext';
 
 enum PARENT_TYPE {
     PROJECT = 'project', LAYER = 'layer'
@@ -36,7 +37,9 @@ export class ProjectTypeFormItem
         readAccessRadioGroup.addOption(PARENT_TYPE.PROJECT, i18n('settings.items.type.project'));
         readAccessRadioGroup.addOption(PARENT_TYPE.LAYER, i18n('settings.items.type.layer'));
 
-        this.projectsSelector = new ProjectsSelector();
+        const maxParents: number = ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance() ? 0 : 1;
+        const builder = new ProjectsDropdownBuilder().setMaximumOccurrences(maxParents) as ProjectsDropdownBuilder;
+        this.projectsSelector = new ProjectsSelector(builder);
         this.projectsSelector.insertAfterEl(this.getRadioGroup());
         this.projectsSelector.setEnabled(false);
         this.projectsSelector.hide();

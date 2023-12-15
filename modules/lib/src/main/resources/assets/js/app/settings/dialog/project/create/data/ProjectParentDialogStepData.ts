@@ -14,4 +14,8 @@ export class ProjectParentDialogStepData
     getParentProjects(): Project[] {
         return this.parentProjects;
     }
+
+    getMainParentProject(): Project {
+        return this.parentProjects && this.parentProjects[0];
+    }
 }
