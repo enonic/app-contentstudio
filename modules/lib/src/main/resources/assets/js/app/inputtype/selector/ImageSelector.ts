@@ -11,7 +11,7 @@ import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/Sel
 import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
 import {UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
 import {MediaSelector} from './MediaSelector';
-import {ImageContentComboBox, ImageContentComboBoxBuilder} from '../ui/selector/image/ImageContentComboBox';
+import {ImageContentComboBox} from '../ui/selector/image/ImageContentComboBox';
 import {ImageSelectorSelectedOptionsView} from '../ui/selector/image/ImageSelectorSelectedOptionsView';
 import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
 import {ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelectorSelectedOptionView';
@@ -21,7 +21,6 @@ import {Content} from '../../content/Content';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
 import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentPath} from '../../content/ContentPath';
@@ -82,23 +81,8 @@ export class ImageSelector
         return selectedOptionsView;
     }
 
-    protected createOptionDataLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
-        return ImageOptionDataLoader.build(this.createOptionDataLoaderBuilder());
-    }
-
     createLoader(): ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
         return ImageOptionDataLoader.build(this.createOptionDataLoaderBuilder());
-    }
-
-    protected doCreateContentComboBoxBuilder(): ImageContentComboBoxBuilder {
-        return ImageContentComboBox.create().setProject(this.context.project);
-    }
-
-    protected createContentComboBoxBuilder(input: Input, propertyArray: PropertyArray): ImageContentComboBoxBuilder {
-        return super.createContentComboBoxBuilder(input, propertyArray)
-            .setSelectedOptionsView(this.createSelectedOptionsView())
-            .setDisplayMissingSelectedOptions(true)
-            .setRemoveMissingSelectedOptions(false) as ImageContentComboBoxBuilder;
     }
 
     protected initEvents(contentComboBox: ImageContentComboBox) {
