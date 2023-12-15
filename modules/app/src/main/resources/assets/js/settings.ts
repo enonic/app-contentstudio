@@ -3,6 +3,8 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementEvent} from '@enonic/lib-admin-ui/dom/ElementEvent';
 import {SettingsAppContainer} from 'lib-contentstudio/app/settings/SettingsAppContainer';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {ProjectConfigContext} from 'lib-contentstudio/app/settings/data/project/ProjectConfigContext';
+import * as Q from 'q';
 
 const waitForWidgetElemAttached = (elemId: string): void => {
     const body: Body = Body.get();
@@ -23,7 +25,7 @@ const appendHtml = (widgetElem: Element): void => {
 };
 
 const init = async (configUri: string, elemId: string): Promise<void> => {
-    await CONFIG.init(configUri);
+    await Q.all([CONFIG.init(configUri), ProjectConfigContext.get().init()]);
 
     const body: Body = Body.get();
     const widgetEl: Element = body.findChildById(elemId, true);
