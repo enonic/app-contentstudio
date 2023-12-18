@@ -32,7 +32,7 @@ import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeS
 import {CompareStatus} from '../../content/CompareStatus';
 import {MovedContentItem} from '../../browse/MovedContentItem';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
-import {ContentSelectorDropdown} from './ContentSelectorDropdown';
+import {ContentSelectorDropdown, ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentListBox} from './ContentListBox';
 import {ContentTreeSelectorDropdown} from './ContentTreeSelectorDropdown';
@@ -218,7 +218,6 @@ export class ContentSelector
         const loader = this.createLoader();
         const listBox = this.createContentListBox(loader);
         const dropdownOptions = {
-            listBox: listBox,
             loader: loader,
             className: this.getDropdownClassName(),
             maxSelected: input.getOccurrences().getMaximum(),
@@ -226,7 +225,7 @@ export class ContentSelector
             getSelectedItems: this.getSelectedItemsIds.bind(this),
         };
 
-        const contentSelectorDropdown = this.doCreateSelectorDropdown(dropdownOptions);
+        const contentSelectorDropdown = this.doCreateSelectorDropdown(listBox, dropdownOptions);
 
         this.contentSelectedOptionsView.onOptionMoved(this.handleMoved.bind(this));
 
@@ -263,8 +262,9 @@ export class ContentSelector
         return contentSelectorDropdown;
     }
 
-    protected doCreateSelectorDropdown(dropdownOptions): ContentSelectorDropdown {
-        return new ContentTreeSelectorDropdown(dropdownOptions);
+    protected doCreateSelectorDropdown(listBox: ContentListBox<ContentTreeSelectorItem>,
+                                       dropdownOptions: ContentSelectorDropdownOptions): ContentSelectorDropdown {
+        return new ContentTreeSelectorDropdown(listBox, dropdownOptions);
     }
 
     protected getDropdownClassName(): string {
