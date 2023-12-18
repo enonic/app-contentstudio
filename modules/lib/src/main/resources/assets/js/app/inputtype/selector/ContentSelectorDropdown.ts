@@ -15,17 +15,17 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeSelectorItem';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
+import {
+    FilterableListBoxWrapperWithSelectedView,
+    ListBoxInputOptions
+} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 
-export interface ContentSelectorDropdownOptions {
-    listBox: ContentListBox<ContentTreeSelectorItem>;
-    maxSelected: number;
+export interface ContentSelectorDropdownOptions extends ListBoxInputOptions<ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
     selectedOptionsView: BaseSelectedOptionsView<ContentTreeSelectorItem>;
     getSelectedItems: () => string[];
-    className?: string;
 }
 
 export class ContentSelectorDropdown
@@ -33,22 +33,16 @@ export class ContentSelectorDropdown
 
     protected helper: ContentSummaryOptionDataHelper;
 
-    protected readonly loadMask: LoadMask;
+    protected options: ContentSelectorDropdownOptions;
 
-    protected readonly loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
+    protected readonly loadMask: LoadMask;
 
     protected readonly getSelectedItemsHandler: () => string[];
 
-    constructor(options: ContentSelectorDropdownOptions) {
-        super(options.listBox, {
-            selectedOptionsView: options.selectedOptionsView,
-            maxSelected: options.maxSelected,
-            checkboxPosition: 'right',
-            className: 'content-selector-dropdown ' + (options.className || ''),
-        });
+    constructor(listBox, options: ContentSelectorDropdownOptions) {
+        super(listBox, options);
 
         this.loadMask = new LoadMask(this);
-        this.loader = options.loader;
         this.helper = new ContentSummaryOptionDataHelper();
         this.getSelectedItemsHandler = options.getSelectedItems;
         this.selectedOptionsView.setOccurrencesSortable(true);
@@ -81,7 +75,7 @@ export class ContentSelectorDropdown
     }
 
     protected postInitListeners(): void {
-        this.loader.onLoadedData((event: LoadedDataEvent<ContentTreeSelectorItem>) => {
+        this.options.loader.onLoadedData((event: LoadedDataEvent<ContentTreeSelectorItem>) => {
             if (event.isPostLoad()) {
                 this.listBox.addItems(event.getData());
             } else {
@@ -93,7 +87,7 @@ export class ContentSelectorDropdown
 
     protected search(value?: string): void {
         this.loadMask.show();
-        this.loader.search(value).catch(DefaultErrorHandler.handle).finally(() => this.loadMask.hide());
+        this.options.loader.search(value).catch(DefaultErrorHandler.handle).finally(() => this.loadMask.hide());
     }
 
     protected preSelectItems(): void {
@@ -130,6 +124,7 @@ export class ContentSelectorDropdown
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            this.addClass('content-selector-dropdown');
             this.preSelectItems();
 
             return rendered;

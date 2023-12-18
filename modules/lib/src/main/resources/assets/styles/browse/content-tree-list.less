@@ -1,7 +1,7 @@
 .content-tree-list {
   .content-tree-list-element {
     .toggle-and-item-wrapper {
-      .names-and-icon-viewer  {
+      .names-and-icon-viewer {
         display: grid;
         grid-template-columns: 1fr 90px;
         flex-grow: 1;
@@ -33,6 +33,14 @@
 
       > .selection-checkbox {
         background-color: @admin-blue;
+      }
+    }
+
+    &.non-selectable {
+      > .item-view-wrapper {
+        .checkbox {
+          display: none;
+        }
       }
     }
   }

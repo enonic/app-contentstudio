@@ -28,6 +28,9 @@ import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ImageContentListBox} from './ImageContentListBox';
 import {ImageSelectorDropdown} from './ImageSelectorDropdown';
+import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
+import {ContentListBox} from './ContentListBox';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 
 export class ImageSelector
     extends MediaSelector {
@@ -214,8 +217,9 @@ export class ImageSelector
         return new ImageContentListBox({loader: loader});
     }
 
-    protected doCreateSelectorDropdown(dropdownOptions): ImageSelectorDropdown {
-        return new ImageSelectorDropdown(dropdownOptions);
+    protected doCreateSelectorDropdown(listBox: ContentListBox<ContentTreeSelectorItem>,
+                                       dropdownOptions: ContentSelectorDropdownOptions): ImageSelectorDropdown {
+        return new ImageSelectorDropdown(listBox, dropdownOptions);
     }
 
     protected getDropdownClassName(): string {

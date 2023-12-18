@@ -6,4 +6,10 @@ export class ContentTreeSelectionWrapper extends SelectableListBoxWrapper<Conten
     toggleItemWrapperSelected(itemId: string, isSelected: boolean) {
         super.toggleItemWrapperSelected(itemId, isSelected);
     }
+
+    protected handleUserToggleAction(item: ContentTreeSelectorItem) {
+        if (item.isSelectable()) {
+            super.handleUserToggleAction(item);
+        }
+    }
 }
