@@ -1,17 +1,16 @@
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import Q from 'q';
-import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentResponse} from '../resource/ContentResponse';
 import {TreeListBox, TreeListBoxParams, TreeListElement} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import {ContentAndStatusSelectorViewer} from '../inputtype/selector/ContentAndStatusSelectorViewer';
-import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
-import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
+import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {TreeNode, TreeNodeBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 
 export interface ContentsListParams extends TreeListBoxParams {
-    parentContent?: ContentSummary;
+    parentItem?: ContentTreeSelectorItem;
 }
 
 export class ContentsTreeList
@@ -19,19 +18,23 @@ export class ContentsTreeList
 
     public static FETCH_SIZE: number = 10;
 
-    protected fetcher: ContentSummaryAndCompareStatusFetcher;
+    protected loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
 
-    protected readonly parentContent: ContentSummary;
+    protected readonly parentItem: ContentTreeSelectorItem;
 
     constructor(params?: ContentsListParams) {
         super(params);
 
-        this.fetcher = new ContentSummaryAndCompareStatusFetcher();
-        this.parentContent = params?.parentContent;
+        this.parentItem = params?.parentItem;
+    }
+
+    setLoader(loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>): ContentsTreeList {
+        this.loader = loader;
+        return this;
     }
 
     protected createItemView(item: ContentTreeSelectorItem, readOnly: boolean): ContentListElement {
-        return new ContentListElement(item, this.scrollParent, this.level);
+        return new ContentListElement(item, this.loader, this.scrollParent, this.level);
     }
 
     protected getItemId(item: ContentTreeSelectorItem): string {
@@ -39,20 +42,29 @@ export class ContentsTreeList
     }
 
     protected handleLazyLoad(): void {
-        this.fetch().then((data: ContentResponse<ContentSummaryAndCompareStatus>) => {
-            if (data.getContents().length > 0) {
-                this.addItems(data.getContents().map((content) => new ContentAndStatusTreeSelectorItem(content)));
-            }
-        }).catch(DefaultErrorHandler.handle);
+        if (this.getItemCount() === 0 && !this.loader.isLoading()) {
+            this.fetch().then((data: OptionDataLoaderData<ContentTreeSelectorItem>) => {
+                if (data.getHits() > 0) {
+                    this.addItems(data.getData());
+                }
+            }).catch(DefaultErrorHandler.handle);
+        }
     }
 
-    private fetch(): Q.Promise<ContentResponse<ContentSummaryAndCompareStatus>> {
+    private fetch(): Q.Promise<OptionDataLoaderData<ContentTreeSelectorItem>> {
         const from: number = this.getItemCount();
         const size: number = ContentsTreeList.FETCH_SIZE;
 
-        return this.parentContent ?
-               this.fetcher.fetchChildren(this.parentContent?.getContentId(), from, size) :
-               this.fetcher.fetchRoot(from, size);
+        const data = this.parentItem ? Option.create<ContentTreeSelectorItem>()
+            .setValue(this.parentItem.getId())
+            .setDisplayValue(this.parentItem)
+            .build() : null;
+
+        const node = new TreeNodeBuilder()
+            .setData(data)
+            .build() as TreeNode<Option<ContentTreeSelectorItem>>;
+
+        return this.loader.fetchChildren(node, from, size);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -67,19 +79,24 @@ export class ContentsTreeList
 
 export class ContentListElement extends TreeListElement<ContentTreeSelectorItem> {
 
-    constructor(content: ContentTreeSelectorItem, scrollParent: Element, level: number) {
+    protected childrenList: ContentsTreeList;
+
+    constructor(content: ContentTreeSelectorItem, loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>, scrollParent: Element,
+                level: number) {
         super(content, scrollParent, level);
+
+        this.childrenList.setLoader(loader);
     }
 
     protected createChildrenListParams(): TreeListBoxParams {
         const params =  super.createChildrenListParams() as ContentsListParams;
 
-        params.parentContent = this.item.getContent();
+        params.parentItem = this.item;
 
         return params;
     }
 
-    protected createChildrenList(params?: TreeListBoxParams): ContentsTreeList {
+    protected createChildrenList(params?: ContentsListParams): ContentsTreeList {
         return new ContentsTreeList(params);
     }
 
@@ -96,6 +113,7 @@ export class ContentListElement extends TreeListElement<ContentTreeSelectorItem>
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addClass('content-tree-list-element');
+            this.toggleClass('non-selectable', !this.item.isSelectable());
 
             return rendered;
         });
