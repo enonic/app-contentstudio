@@ -32,7 +32,7 @@
     "assert": "^2.1.0",
     "chai": "^4.3.10",
     "properties-reader": "2.3.0",
-    "webdriverio": "8.26.1"
+    "webdriverio": "8.26.2"
   },
   "engines": {
     "node": ">= 18.12.1",
