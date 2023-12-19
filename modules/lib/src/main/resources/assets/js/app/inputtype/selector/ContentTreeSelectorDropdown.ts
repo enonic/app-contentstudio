@@ -6,6 +6,9 @@ import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import * as Q from 'q';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentTreeSelectorDropdown
     extends ContentSelectorDropdown {
@@ -17,6 +20,10 @@ export class ContentTreeSelectorDropdown
     protected isTreeMode: boolean = false;
 
     protected modeButton: ModeTogglerButton;
+
+    private lastFlatSearchValue: string;
+
+    private lastTreeSearchValue: string;
 
     protected initElements() {
         super.initElements();
@@ -47,6 +54,11 @@ export class ContentTreeSelectorDropdown
             this.isTreeMode = active;
 
             this.handleModeChanged();
+
+            if (ObjectHelper.bothDefined(this.lastTreeSearchValue, this.lastFlatSearchValue) &&
+                !ObjectHelper.stringEquals(this.lastTreeSearchValue, this.lastFlatSearchValue)) {
+                this.search(this.isTreeMode ? this.lastFlatSearchValue : this.lastTreeSearchValue);
+            }
         });
 
         this.treeList.onShown(() => {
@@ -118,9 +130,19 @@ export class ContentTreeSelectorDropdown
     }
 
     protected handleModeChanged(): void {
+        this.options.loader.setTreeLoadMode(this.isTreeMode);
         this.treeSelectionWrapper.setVisible(this.isTreeMode);
         this.treeList.setVisible(this.isTreeMode);
         this.listBox.setVisible(!this.isTreeMode);
+    }
+
+    protected handleValueChange(event: ValueChangedEvent): void {
+        if (this.isTreeMode) {
+            this.treeSelectionWrapper.setVisible(true);
+            this.treeList.setVisible(true);
+        } else {
+            this.listBox.setVisible(true);
+        }
     }
 
     protected applySelection() {
@@ -152,6 +174,19 @@ export class ContentTreeSelectorDropdown
 
         this.treeSelectionWrapper.setVisible(false);
         this.treeList.setVisible(false);
+    }
+
+    protected search(value?: string) {
+        this.options.loader.setTreeFilterValue(value);
+
+        if (this.isTreeMode) {
+            this.lastTreeSearchValue = value;
+            this.treeList.clearItems();
+            this.treeList.load();
+        }  else {
+            this.lastFlatSearchValue = value;
+            super.search(value);
+        }
     }
 
     doRender(): Q.Promise<boolean> {
