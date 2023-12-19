@@ -21,6 +21,7 @@ import {
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export interface ContentSelectorDropdownOptions extends ListBoxInputOptions<ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
@@ -62,15 +63,25 @@ export class ContentSelectorDropdown
         super.initListeners();
 
         this.listBox.whenShown(() => {
-            this.search(this.optionFilterInput.getValue());
+            // if not empty then search will be performed after finished typing
+            if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
+                this.search(this.optionFilterInput.getValue());
+            }
         });
 
         this.listBox.onItemsAdded((items: ContentTreeSelectorItem[]) => {
             this.selectLoadedFlatListItems(items);
         });
 
+        let searchValue = '';
+
+        const debouncedSearch = AppHelper.debounce(() => {
+            this.search(searchValue);
+        }, 300);
+
         this.optionFilterInput.onValueChanged((event: ValueChangedEvent) => {
-            this.search(event.getNewValue());
+            searchValue = event.getNewValue();
+            debouncedSearch();
         });
     }
 

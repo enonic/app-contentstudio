@@ -254,6 +254,10 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     isPartiallyLoaded(): boolean {
         return this.isTreeLoadMode ? this.treeRequest.isPartiallyLoaded() : this.flatRequest.isPartiallyLoaded();
     }
+
+    setTreeLoadMode(value: boolean): void {
+        this.isTreeLoadMode = !!value;
+    }
 }
 
 export class ContentSummaryOptionDataLoaderBuilder {

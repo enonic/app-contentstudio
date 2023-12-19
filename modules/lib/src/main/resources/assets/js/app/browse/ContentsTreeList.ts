@@ -43,11 +43,7 @@ export class ContentsTreeList
 
     protected handleLazyLoad(): void {
         if (this.getItemCount() === 0 && !this.loader.isLoading()) {
-            this.fetch().then((data: OptionDataLoaderData<ContentTreeSelectorItem>) => {
-                if (data.getHits() > 0) {
-                    this.addItems(data.getData());
-                }
-            }).catch(DefaultErrorHandler.handle);
+            this.load();
         }
     }
 
@@ -65,6 +61,14 @@ export class ContentsTreeList
             .build() as TreeNode<Option<ContentTreeSelectorItem>>;
 
         return this.loader.fetchChildren(node, from, size);
+    }
+
+    load(): void {
+        this.fetch().then((data: OptionDataLoaderData<ContentTreeSelectorItem>) => {
+            if (data.getHits() > 0) {
+                this.addItems(data.getData());
+            }
+        }).catch(DefaultErrorHandler.handle);
     }
 
     doRender(): Q.Promise<boolean> {
