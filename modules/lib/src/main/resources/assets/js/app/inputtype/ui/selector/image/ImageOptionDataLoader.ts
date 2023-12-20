@@ -9,11 +9,16 @@ import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataL
 import {ContentAndStatusTreeSelectorItem} from '../../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 export class ImageOptionDataLoader
     extends ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
 
     private preloadedDataListeners: ((data: MediaTreeSelectorItem[]) => void)[] = [];
+
+    constructor(builder: ImageOptionDataLoaderBuilder = new ImageOptionDataLoaderBuilder()) {
+        super(builder);
+    }
 
     fetch(node: TreeNode<Option<MediaTreeSelectorItem>>): Q.Promise<MediaTreeSelectorItem> {
         return super.fetch(node).then((data) => {
@@ -95,7 +100,16 @@ export class ImageOptionDataLoader
         return MediaTreeSelectorItem.createMediaTreeSelectorItemWithStatus(item as ContentAndStatusTreeSelectorItem);
     }
 
-    static build(builder: ContentSummaryOptionDataLoaderBuilder): ImageOptionDataLoader {
+    static build(builder: ImageOptionDataLoaderBuilder): ImageOptionDataLoader {
         return new ImageOptionDataLoader(builder);
+    }
+}
+
+export class ImageOptionDataLoaderBuilder extends ContentSummaryOptionDataLoaderBuilder {
+
+    contentTypeNames: string[] = [ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()];
+
+    build(): ImageOptionDataLoader {
+        return new ImageOptionDataLoader(this);
     }
 }

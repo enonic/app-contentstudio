@@ -325,17 +325,19 @@ export class ContentSelector
     }
 
     protected createOptionDataLoaderBuilder(): ContentSummaryOptionDataLoaderBuilder {
-        return ContentSummaryOptionDataLoader.create()
+        return ContentSummaryOptionDataLoader.create();
+    }
+
+    protected createLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
+        return this.createOptionDataLoaderBuilder()
             .setAllowedContentPaths(this.allowedContentPaths)
             .setContentTypeNames(this.allowedContentTypes)
             .setRelationshipType(this.relationshipType)
             .setContent(this.context.content)
             .setProject(this.context.project)
-            .setApplicationKey(this.context.applicationKey);
-    }
-
-    protected createLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
-        return this.createOptionDataLoaderBuilder().setAppendLoadResults(false).build();
+            .setApplicationKey(this.context.applicationKey)
+            .setAppendLoadResults(false)
+            .build();
     }
 
     protected removePropertyWithId(id: string) {
