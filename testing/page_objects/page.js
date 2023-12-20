@@ -41,12 +41,14 @@ class Page {
 
     async getDisplayedElements(selector) {
         let elements = await this.findElements(selector);
-        let pr = elements.map(el => el.isDisplayed());
-        return await Promise.all(pr).then(result => {
+        if (elements.length === 0) {
+            return [];
+        }
+        let pr = await elements.map(el => el.isDisplayed());
+        return Promise.all(pr).then(result => {
             return elements.filter((el, i) => result[i]);
         });
     }
-
     pause(ms) {
         return this.browser.pause(ms);
     }
@@ -70,15 +72,22 @@ class Page {
     async getTextInElements(selector) {
         let strings = [];
         let elements = await this.findElements(selector);
-        elements.forEach(el => {
+        if (elements.length === 0) {
+            return [];
+        }
+        await elements.forEach(el => {
             strings.push(el.getText());
         });
         return Promise.all(strings);
     }
 
+
     async getTextInDisplayedElements(selector) {
         let strings = [];
         let elements = await this.getDisplayedElements(selector);
+        if (elements.length === 0) {
+            return [];
+        }
         elements.forEach(el => {
             strings.push(el.getText());
         });

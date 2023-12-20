@@ -146,6 +146,9 @@ class ContentItemPreviewPanel extends Page {
 
     async getContentStatus() {
         let result = await this.getDisplayedElements(this.contentStatus);
+        if (result.length === 0) {
+            throw new Error("Content status is not displayed: ");
+        }
         return await result[0].getText();
     }
 

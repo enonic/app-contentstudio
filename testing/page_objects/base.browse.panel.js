@@ -203,7 +203,7 @@ class BaseBrowsePanel extends Page {
     async waitForContextMenuDisplayed() {
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getDisplayedElements(lib.TREE_GRID_CONTEXT_MENU);
-            return result.length;
+            return result.length > 0;
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Context menu was not loaded"});
     }
 
@@ -215,7 +215,7 @@ class BaseBrowsePanel extends Page {
     async waitForContextMenuItemEnabled(menuItem) {
         let menuItemSelector = XPATH.contextMenuItemByName(menuItem);
         let el = await this.getDisplayedElements(menuItemSelector);
-        if (!el.length) {
+        if (el.length === 0) {
             throw new Error("Menu item is not displayed: " + menuItem);
         }
         return await this.browser.waitUntil(async () => {
@@ -227,7 +227,7 @@ class BaseBrowsePanel extends Page {
     async waitForContextMenuItemDisabled(menuItem) {
         let menuItemSelector = XPATH.contextMenuItemByName(menuItem);
         let el = await this.getDisplayedElements(menuItemSelector);
-        if (!el.length) {
+        if (el.length === 0) {
             throw new Error("Menu item is not displayed: " + menuItem);
         }
         return await this.browser.waitUntil(async () => {
@@ -240,6 +240,9 @@ class BaseBrowsePanel extends Page {
         let menuItemSelector = XPATH.contextMenuItemByName(menuItem);
         await this.waitForContextMenuItemEnabled(menuItem);
         let el = await this.getDisplayedElements(menuItemSelector);
+        if (el.length === 0) {
+            throw new Error("Menu item is not displayed: " + menuItem);
+        }
         await el[0].click();
         return await this.pause(1000);
     }
