@@ -117,7 +117,7 @@ export class ContentTreeSelectorDropdown
         this.treeList.setVisible(false);
     }
 
-    protected getItemById(id: string): ContentTreeSelectorItem {
+    getItemById(id: string): ContentTreeSelectorItem {
         return this.isTreeMode ? this.treeList.getItem(id) : super.getItemById(id);
     }
 

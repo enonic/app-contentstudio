@@ -159,4 +159,17 @@ export class ContentSelectorDropdown
             this.selectedOptionsView.updateOption(existingOption, newOption);
         }
     }
+
+    clear(): void {
+        this.optionFilterInput.reset();
+    }
+
+    deselectAll(): void {
+        this.getSelectedOptions()
+            .map((option) => option.getOption().getDisplayValue())
+            .filter((item) => !!item)
+            .forEach((item) => {
+                this.deselect(item);
+            });
+    }
 }
