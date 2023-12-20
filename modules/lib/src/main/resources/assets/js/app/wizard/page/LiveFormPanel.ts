@@ -14,7 +14,6 @@ import {LiveEditPageProxy} from './LiveEditPageProxy';
 import {TextInspectionPanel} from './contextwindow/inspect/region/TextInspectionPanel';
 import {ContentInspectionPanel} from './contextwindow/inspect/ContentInspectionPanel';
 import {RegionInspectionPanel} from './contextwindow/inspect/region/RegionInspectionPanel';
-import {ImageInspectionPanel} from './contextwindow/inspect/region/ImageInspectionPanel';
 import {LayoutInspectionPanel} from './contextwindow/inspect/region/LayoutInspectionPanel';
 import {FragmentInspectionPanel} from './contextwindow/inspect/region/FragmentInspectionPanel';
 import {PartInspectionPanel} from './contextwindow/inspect/region/PartInspectionPanel';
@@ -44,7 +43,6 @@ import {Component} from '../../page/region/Component';
 import {Page} from '../../page/Page';
 import {PartComponent} from '../../page/region/PartComponent';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
-import {ImageComponent} from '../../page/region/ImageComponent';
 import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
@@ -58,7 +56,6 @@ import {BrEl} from '@enonic/lib-admin-ui/dom/BrEl';
 import {ContentId} from '../../content/ContentId';
 import {InspectEvent} from '../../event/InspectEvent';
 import {ContextPanelMode} from '../../view/context/ContextSplitPanel';
-import {ContextPanelStateEvent} from '../../view/context/ContextPanelStateEvent';
 import {LiveEditPagePlaceholder} from './LiveEditPagePlaceholder';
 import {Descriptor} from '../../page/Descriptor';
 import {ContentType} from '../../inputtype/schema/ContentType';
@@ -155,7 +152,6 @@ export class LiveFormPanel
     private contentInspectionPanel: ContentInspectionPanel;
     private pageInspectionPanel: PageInspectionPanel;
     private regionInspectionPanel: RegionInspectionPanel;
-    private imageInspectionPanel: ImageInspectionPanel;
     private partInspectionPanel: PartInspectionPanel;
     private layoutInspectionPanel: LayoutInspectionPanel;
     private fragmentInspectionPanel: FragmentInspectionPanel;
@@ -399,8 +395,6 @@ export class LiveFormPanel
                 this.liveEditPageProxy?.setLocked(true);
                 this.lockPageAfterProxyLoad = false;
             }
-
-            this.imageInspectionPanel.refresh();
         });
     }
 
@@ -444,7 +438,6 @@ export class LiveFormPanel
         this.pageInspectionPanel = new PageInspectionPanel(SaveAsTemplateAction.get());
         this.partInspectionPanel = new PartInspectionPanel();
         this.layoutInspectionPanel = new LayoutInspectionPanel();
-        this.imageInspectionPanel = new ImageInspectionPanel();
         this.fragmentInspectionPanel = new FragmentInspectionPanel();
 
         this.textInspectionPanel = new TextInspectionPanel();
@@ -454,7 +447,6 @@ export class LiveFormPanel
             contentInspectionPanel: this.contentInspectionPanel,
             pageInspectionPanel: this.pageInspectionPanel,
             regionInspectionPanel: this.regionInspectionPanel,
-            imageInspectionPanel: this.imageInspectionPanel,
             partInspectionPanel: this.partInspectionPanel,
             layoutInspectionPanel: this.layoutInspectionPanel,
             fragmentInspectionPanel: this.fragmentInspectionPanel,
@@ -564,7 +556,6 @@ export class LiveFormPanel
         this.pageInspectionPanel.setModel(liveEditModel);
         this.partInspectionPanel.setModel(liveEditModel);
         this.layoutInspectionPanel.setModel(liveEditModel);
-        this.imageInspectionPanel.setModel(liveEditModel);
         this.fragmentInspectionPanel.setModel(liveEditModel);
 
         this.handleContentUpdatedEvent();
@@ -808,10 +799,7 @@ export class LiveFormPanel
                     silent: true
                 })
             );
-        if (component instanceof ImageComponent) {
-            showInspectionPanel(this.imageInspectionPanel);
-            this.imageInspectionPanel.setImageComponent(component);
-        } else if (component instanceof PartComponent) {
+         if (component instanceof PartComponent) {
             showInspectionPanel(this.partInspectionPanel);
             this.partInspectionPanel.setDescriptorBasedComponent(component);
         } else if (component instanceof LayoutComponent) {

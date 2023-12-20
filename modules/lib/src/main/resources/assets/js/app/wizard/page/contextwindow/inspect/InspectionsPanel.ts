@@ -6,23 +6,19 @@ import {FragmentInspectionPanel} from './region/FragmentInspectionPanel';
 import {TextInspectionPanel} from './region/TextInspectionPanel';
 import {LayoutInspectionPanel} from './region/LayoutInspectionPanel';
 import {PartInspectionPanel} from './region/PartInspectionPanel';
-import {ImageInspectionPanel} from './region/ImageInspectionPanel';
 import {RegionInspectionPanel} from './region/RegionInspectionPanel';
 import {PageInspectionPanel} from './page/PageInspectionPanel';
 import {NoSelectionInspectionPanel} from './NoSelectionInspectionPanel';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DeckPanel} from '@enonic/lib-admin-ui/ui/panel/DeckPanel';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {DescriptorBasedComponentInspectionPanel} from './region/DescriptorBasedComponentInspectionPanel';
 import {Descriptor} from '../../../../page/Descriptor';
-import {PageState} from '../../PageState';
 import {PageEventsManager} from '../../../PageEventsManager';
 
 export interface InspectionsPanelConfig {
     contentInspectionPanel: ContentInspectionPanel;
     pageInspectionPanel: PageInspectionPanel;
     regionInspectionPanel: RegionInspectionPanel;
-    imageInspectionPanel: ImageInspectionPanel;
     partInspectionPanel: PartInspectionPanel;
     layoutInspectionPanel: LayoutInspectionPanel;
     fragmentInspectionPanel: FragmentInspectionPanel;
@@ -48,7 +44,6 @@ export class InspectionsPanel
         this.noSelectionPanel = new NoSelectionInspectionPanel();
         this.pageInspectionPanel = config.pageInspectionPanel;
 
-        const imageInspectionPanel = config.imageInspectionPanel;
         const partInspectionPanel = config.partInspectionPanel;
         const layoutInspectionPanel = config.layoutInspectionPanel;
         const contentInspectionPanel = config.contentInspectionPanel;
@@ -56,7 +51,6 @@ export class InspectionsPanel
         const fragmentInspectionPanel = config.fragmentInspectionPanel;
         this.textInspectionPanel = config.textInspectionPanel;
 
-        this.deck.addPanel(imageInspectionPanel);
         this.deck.addPanel(partInspectionPanel);
         this.deck.addPanel(layoutInspectionPanel);
         this.deck.addPanel(contentInspectionPanel);
