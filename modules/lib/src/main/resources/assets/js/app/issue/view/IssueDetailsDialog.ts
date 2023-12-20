@@ -19,7 +19,6 @@ import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPan
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {TabBar} from '@enonic/lib-admin-ui/ui/tab/TabBar';
 import {TabBarItem, TabBarItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
@@ -33,7 +32,7 @@ import {ContentId} from '../../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
 import {DialogStateBar} from '../../dialog/DialogStateBar';
-import {ContentComboBox} from '../../inputtype/ui/selector/ContentComboBox';
+import {ContentSelectedOptionsView} from '../../inputtype/ui/selector/ContentComboBox';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentPublishDialog} from '../../publish/ContentPublishDialog';
 import {ContentPublishDialogAction} from '../../publish/ContentPublishDialogAction';
@@ -59,6 +58,11 @@ import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
 import {IssueDetailsDialogHeader} from './IssueDetailsDialogHeader';
 import {IssueDetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
+import {ContentTreeSelectorDropdown} from '../../inputtype/selector/ContentTreeSelectorDropdown';
+import {ContentSummaryOptionDataLoader} from '../../inputtype/ui/selector/ContentSummaryOptionDataLoader';
+import {ContentListBox} from '../../inputtype/selector/ContentListBox';
+import {ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSelectorDropdown';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -99,7 +103,7 @@ export class IssueDetailsDialog
 
     private tabBar: TabBar;
 
-    private itemSelector: ContentComboBox<ContentTreeSelectorItem>;
+    private itemSelector: ContentTreeSelectorDropdown;
 
     private stateBar: DialogStateBar;
 
@@ -183,9 +187,7 @@ export class IssueDetailsDialog
         this.backButton = new AEl('back-button');
         this.header.addClass('with-back-button');
         this.initTabs();
-        this.itemSelector = ContentComboBox.create()
-            .setHideComboBoxWhenMaxReached(false)
-            .build();
+        this.itemSelector = this.createContentSelector();
         this.tabBar = new TabBar();
         this.tabPanel = new NavigatedDeckPanel(this.tabBar);
 
@@ -194,6 +196,20 @@ export class IssueDetailsDialog
 
         this.errorTooltip = new Tooltip(this.actionButton, i18n('dialog.publish.invalidError'), 500);
         this.isUpdatePending = false;
+    }
+
+    private createContentSelector(): ContentTreeSelectorDropdown {
+        const loader = new ContentSummaryOptionDataLoader<ContentTreeSelectorItem>();
+        const listBox = new ContentListBox({loader: loader});
+        const dropdownOptions: ContentSelectorDropdownOptions = {
+            loader: loader,
+            selectedOptionsView: new ContentSelectedOptionsView(),
+            maxSelected: 0,
+            className: 'multiple-occurrence',
+            getSelectedItems: () => this.issue?.getPublishRequest().getItemsIds()?.map(itemId => itemId.toString()) || [],
+        };
+
+        return new ContentTreeSelectorDropdown(listBox, dropdownOptions);
     }
 
     protected initTabs(): void {
@@ -338,22 +354,25 @@ export class IssueDetailsDialog
             });
         });
 
-        this.itemSelector.onOptionSelected((option: SelectedOptionEvent<ContentTreeSelectorItem>) => {
-            this.saveOnLoaded = true;
-            this.isUpdatePending = true;
-            const ids = [option.getSelectedOption().getOption().getDisplayValue().getContentId()];
-            this.contentFetcher.fetchAndCompareStatus(ids).then((result: ContentSummaryAndCompareStatus[]) => {
-                this.addListItems(result);
-            }).catch(DefaultErrorHandler.handle);
-        });
+        this.itemSelector.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>): void => {
+            if (selectionChange.selected?.length > 0) {
+                const selectedIds: ContentId[] = selectionChange.selected.map(item => item.getContentId());
+                this.saveOnLoaded = true;
+                this.isUpdatePending = true;
+                this.contentFetcher.fetchByIds(selectedIds).then((result: ContentSummaryAndCompareStatus[]) => {
+                    this.addListItems(result);
+                }).catch(DefaultErrorHandler.handle);
+            }
 
-        this.itemSelector.onOptionDeselected((option: SelectedOptionEvent<ContentTreeSelectorItem>) => {
-            this.saveOnLoaded = true;
-            this.isUpdatePending = true;
-            const id = option.getSelectedOption().getOption().getDisplayValue().getContentId();
-            const items = [this.getItemList().getItem(id.toString())];
-            this.removeListItems(items);
-            this.getItemList().refreshList();
+            if (selectionChange.deselected?.length > 0) {
+                this.saveOnLoaded = true;
+                this.isUpdatePending = true;
+                const items = selectionChange.deselected
+                    .map((item) => item.getContentId().toString())
+                    .map((id) => this.getItemList().getItem(id));
+                this.removeListItems(items);
+                this.getItemList().refreshList();
+            }
         });
 
         this.tabPanel.onPanelShown(event => {
@@ -575,11 +594,10 @@ export class IssueDetailsDialog
         const handleRemoveItemClicked = (item) => {
             this.saveOnLoaded = true;
 
-            const combo = this.itemSelector.getComboBox();
-            const option = combo.getOptionByValue(item.getContentId().toString());
+            const option = this.itemSelector.getItemById(item.getContentId().toString());
             if (option) {
                 // option may not be loaded yet
-                combo.deselectOption(option, true);
+                this.itemSelector.deselect(option, true);
             }
         };
         const itemList = this.getItemList();
@@ -730,13 +748,13 @@ export class IssueDetailsDialog
         const ids: ContentId[] = this.issue.getPublishRequest().getItemsIds();
 
         if (ids.length === 0) {
-            this.itemSelector.getComboBox().clearSelection(true, false);
+            this.itemSelector.deselectAll();
             this.getItemList().clearItems();
             this.updateItemsCountAndButtonLabels();
             return;
         }
 
-        this.itemSelector.setValue(ids.map(id => id.toString()).join(';'));
+        this.itemSelector.updateSelectedItems();
         this.showLoadMask();
 
         this.contentFetcher.fetchAndCompareStatus(ids).then((items: ContentSummaryAndCompareStatus[]) => {
@@ -1103,7 +1121,7 @@ export class IssueDetailsDialog
             this.doUpdateIssue();
         }
 
-        this.itemSelector.resetBaseValues();
+        this.itemSelector.clear();
         this.getItemList().clearExcludeChildrenIds();
         this.publishProcessor.resetDependantIds();
 
