@@ -120,13 +120,13 @@ class SiteConfiguratorDialog extends Page {
     }
 
     async getIdOfHtmlAreas() {
-        let locator = XPATH.container + lib.FORM_VIEW + lib.TEXT_AREA;
-        let elements = await this.findElements(locator);
+        let selector = XPATH.container + lib.FORM_VIEW + lib.TEXT_AREA;
+        let elems = await this.findElements(selector);
         let ids = [];
-        elements.forEach(el => {
-            ids.push(el.getAttribute("id"));
-        });
-        return Promise.all(ids);
+        for (const item of elems) {
+            ids.push(await item.getAttribute('id'));
+        }
+        return ids;
     }
 
     async getTextInHtmlArea(index) {

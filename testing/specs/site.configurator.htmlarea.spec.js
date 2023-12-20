@@ -21,12 +21,12 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
     }
 
     let SITE;
-    let LINK_TEXT = 'test';
-    let CONTROLLER_NAME = 'Page';
-    let TEST_URL = 'http://google.com';
+    const LINK_TEXT = 'test';
+    const CONTROLLER_NAME = 'Page';
+    const TEST_URL = 'http://google.com';
     const TEST_TEXT = 'My text';
 
-    it(`GIVEN existing site is opened WHEN 'edit' button in the 'selected-option-view' has been clicked THEN 'site configurator dialog should appear'`,
+    it(`GIVEN site-config is opened WHEN link has been inserted in the htmlArea THEN expected URL should be displayed in the htmlarea'`,
         async () => {
             let siteFormPanel = new SiteFormPanel();
             let insertLinkDialog = new InsertLinkDialog();
