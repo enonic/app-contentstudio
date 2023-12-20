@@ -990,7 +990,10 @@ module.exports = {
 
     },
     async getDisplayedElements(selector) {
-        let elements = this.getBrowser().$$(selector);
+        let elements = await this.getBrowser().$$(selector);
+        if (elements.length === 0) {
+            return [];
+        }
         let pr = elements.map(el => el.isDisplayed());
         return await Promise.all(pr).then(result => {
             return elements.filter((el, i) => result[i]);

@@ -459,9 +459,11 @@ class ContentPublishDialog extends Page {
 
     async clickOnOkButton() {
         let locator = "//div[@class='picker-buttons']//button[child::span[text()='OK']]";
-        //let locator = "//div[@class='picker-buttons']//button/span[text()='OK']";
         await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         let elems = await this.getDisplayedElements(locator);
+        if (elems.length === 0) {
+            throw new Error("Button OK is not displayed");
+        }
         await elems[0].click();
         await this.pause(200);
     }

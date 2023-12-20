@@ -78,6 +78,9 @@ class ArchiveDeleteDialog extends Page {
         let typeSelector = XPATH.contentTypeByName(contentTypeName);
         await this.waitForElementDisplayed(typeSelector, appConst.mediumTimeout);
         let elems = await this.getDisplayedElements(typeSelector);
+        if (elems.length === 0) {
+            throw new Error("contentTypeName was not found: " + contentTypeName);
+        }
         await elems[0].click();
         return await this.pause(500);
     }
