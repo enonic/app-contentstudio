@@ -5,7 +5,7 @@ import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeNa
 import {OptionDataHelper} from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
 import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
 import {ContentComboBox, ContentComboBoxBuilder} from '../ContentComboBox';
-import {ImageOptionDataLoader} from './ImageOptionDataLoader';
+import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from './ImageOptionDataLoader';
 import {ImageContentComboboxKeyEventsHandler} from './ImageContentComboboxKeyEventsHandler';
 import {ImageSelectorSelectedOptionsView} from './ImageSelectorSelectedOptionsView';
 import {ImageSelectorViewer} from './ImageSelectorViewer';
@@ -60,11 +60,10 @@ export class ImageContentComboBox
         return ImageOptionDataLoader.build(this.createLoaderBuilder(builder));
     }
 
-    protected createLoaderBuilder(builder: ImageContentComboBoxBuilder): ContentSummaryOptionDataLoaderBuilder {
-        return super.createLoaderBuilder(builder)
+    protected createLoaderBuilder(builder: ImageContentComboBoxBuilder): ImageOptionDataLoaderBuilder {
+        return new ImageOptionDataLoaderBuilder()
             .setContent(builder.content)
-            .setProject(builder.project)
-            .setContentTypeNames([ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()]);
+            .setProject(builder.project);
     }
 
     getContent(contentId: ContentId): ContentSummary {

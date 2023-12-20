@@ -282,52 +282,52 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean = () => true;
 
-    setContentTypeNames(contentTypeNames: string[]): ContentSummaryOptionDataLoaderBuilder {
+    setContentTypeNames(contentTypeNames: string[]): this {
         this.contentTypeNames = contentTypeNames;
         return this;
     }
 
-    setAllowedContentPaths(allowedContentPaths: string[]): ContentSummaryOptionDataLoaderBuilder {
+    setAllowedContentPaths(allowedContentPaths: string[]): this {
         this.allowedContentPaths = allowedContentPaths;
         return this;
     }
 
-    setRelationshipType(relationshipType: string): ContentSummaryOptionDataLoaderBuilder {
+    setRelationshipType(relationshipType: string): this {
         this.relationshipType = relationshipType;
         return this;
     }
 
-    setContent(content: ContentSummary): ContentSummaryOptionDataLoaderBuilder {
+    setContent(content: ContentSummary): this {
         this.content = content;
         return this;
     }
 
-    setSmartTreeMode(smartTreeMode: boolean): ContentSummaryOptionDataLoaderBuilder {
+    setSmartTreeMode(smartTreeMode: boolean): this {
         this.smartTreeMode = smartTreeMode;
         return this;
     }
 
-    setFakeRoot(fakeRoot: ContentSummary): ContentSummaryOptionDataLoaderBuilder {
+    setFakeRoot(fakeRoot: ContentSummary): this {
         this.fakeRoot = fakeRoot;
         return this;
     }
 
-    setProject(project: Project): ContentSummaryOptionDataLoaderBuilder {
+    setProject(project: Project): this {
         this.project = project;
         return this;
     }
 
-    setApplicationKey(key: ApplicationKey): ContentSummaryOptionDataLoaderBuilder {
+    setApplicationKey(key: ApplicationKey): this {
         this.applicationKey = key;
         return this;
     }
 
-    setPostFilterFn(postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean): ContentSummaryOptionDataLoaderBuilder {
+    setPostFilterFn(postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean): this {
         this.postFilterFn = postFilterFn;
         return this;
     }
 
-    setAppendLoadResults(appendLoadResults: boolean): ContentSummaryOptionDataLoaderBuilder {
+    setAppendLoadResults(appendLoadResults: boolean): this {
         this.appendLoadResults = appendLoadResults;
         return this;
     }
