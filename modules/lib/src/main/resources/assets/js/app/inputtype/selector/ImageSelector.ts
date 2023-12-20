@@ -5,13 +5,10 @@ import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeMan
 import {Class} from '@enonic/lib-admin-ui/Class';
 import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
 import {UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
 import {MediaSelector} from './MediaSelector';
-import {ImageContentComboBox} from '../ui/selector/image/ImageContentComboBox';
 import {ImageSelectorSelectedOptionsView} from '../ui/selector/image/ImageSelectorSelectedOptionsView';
 import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
 import {ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelectorSelectedOptionView';
@@ -90,38 +87,6 @@ export class ImageSelector
 
     protected createOptionDataLoaderBuilder(): ImageOptionDataLoaderBuilder {
         return new ImageOptionDataLoaderBuilder();
-    }
-
-    protected initEvents(contentComboBox: ImageContentComboBox) {
-        const comboBox: ComboBox<MediaTreeSelectorItem> = contentComboBox.getComboBox();
-
-        comboBox.onOptionDeselected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
-            // property not found.
-            const option = event.getSelectedOption();
-            if (option.getOption().getDisplayValue().getContentSummary()) {
-                this.handleDeselected(option.getIndex());
-            }
-            this.handleValueChanged(false);
-        });
-
-        comboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
-            this.fireFocusSwitchEvent(event);
-
-            if (!this.isLayoutInProgress()) {
-                let contentId = event.getSelectedOption().getOption().getDisplayValue().getContentId();
-                if (!contentId) {
-                    return;
-                }
-
-                this.setContentIdProperty(contentId);
-            }
-            this.handleValueChanged(false);
-        });
-
-        comboBox.onOptionMoved((moved: SelectedOption<MediaTreeSelectorItem>, fromIndex: number) => {
-            this.handleMoved(moved, fromIndex);
-            this.handleValueChanged(false);
-        });
     }
 
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {

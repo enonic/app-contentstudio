@@ -12,7 +12,6 @@ import {DefaultModels} from './DefaultModels';
 import {LiveEditPageProxy} from './LiveEditPageProxy';
 import {TextInspectionPanel} from './contextwindow/inspect/region/TextInspectionPanel';
 import {RegionInspectionPanel} from './contextwindow/inspect/region/RegionInspectionPanel';
-import {ImageInspectionPanel} from './contextwindow/inspect/region/ImageInspectionPanel';
 import {LayoutInspectionPanel} from './contextwindow/inspect/region/LayoutInspectionPanel';
 import {FragmentInspectionPanel} from './contextwindow/inspect/region/FragmentInspectionPanel';
 import {PartInspectionPanel} from './contextwindow/inspect/region/PartInspectionPanel';
@@ -42,6 +41,7 @@ import {Component} from '../../page/region/Component';
 import {Page} from '../../page/Page';
 import {PartComponent} from '../../page/region/PartComponent';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
+import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
@@ -886,6 +886,20 @@ export class LiveFormPanel
         if (inspectionPanel instanceof ComponentInspectionPanel) {
             showInspectionPanel(inspectionPanel);
             inspectionPanel.setComponent(component);
+         if (component instanceof PartComponent) {
+            showInspectionPanel(this.partInspectionPanel);
+            this.partInspectionPanel.setDescriptorBasedComponent(component);
+        } else if (component instanceof LayoutComponent) {
+            showInspectionPanel(this.layoutInspectionPanel);
+            this.layoutInspectionPanel.setDescriptorBasedComponent(component);
+        } else if (component instanceof TextComponent) {
+            showInspectionPanel(this.textInspectionPanel);
+            this.textInspectionPanel.setTextComponent(component);
+        } else if (component instanceof FragmentComponent) {
+            showInspectionPanel(this.fragmentInspectionPanel);
+            this.fragmentInspectionPanel.setFragmentComponent(component);
+        } else {
+            throw new Error('Component cannot be selected: ' + ClassHelper.getClassName(component));
         }
     }
 
