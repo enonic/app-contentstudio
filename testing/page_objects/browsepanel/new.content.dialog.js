@@ -95,7 +95,7 @@ class NewContentDialog extends Page {
 
     async getItems() {
         let locator = XPATH.typesList + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements(locator);
+        return await this.getTextInElements(locator);
     }
 }
 

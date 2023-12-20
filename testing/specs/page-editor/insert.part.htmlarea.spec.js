@@ -20,10 +20,10 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = 'main region';
     let CONTENT_NAME;
-    let PART_DESCRIPTION = "Html Area Example";
-    let TEST_TEXT = "Test text";
+    const PART_DESCRIPTION = 'Html Area Example';
+    const TEST_TEXT = 'Test text';
     let TEMPLATE;
 
     it(`Preconditions: new site should be created`,

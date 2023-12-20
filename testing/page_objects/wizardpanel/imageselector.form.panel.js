@@ -97,19 +97,15 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.getTextInElements(options);
     }
 
-    getFlatModeOptionImageNames() {
+    async getFlatModeOptionImageNames() {
         let titles = [];
         let imgSelector = XPATH.flatOptionView;
-        return this.waitForElementDisplayed(imgSelector, appConst.mediumTimeout).then(() => {
-            return this.findElements(imgSelector);
-        }).then(result => {
-            result.forEach(el => {
-                titles.push(this.getBrowser().getElementAttribute(el.elementId, 'title'));
-            });
-            return Promise.all(titles).then(p => {
-                return p;
-            });
-        });
+        await this.waitForElementDisplayed(imgSelector, appConst.mediumTimeout);
+        let result = await this.findElements(imgSelector);
+        for (const item of result) {
+            titles.push(await this.getBrowser().getElementAttribute(item.elementId, 'title'));
+        }
+        return titles;
     }
 
     selectImages(imgNames) {

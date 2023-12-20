@@ -38,7 +38,7 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -66,7 +66,7 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -96,7 +96,7 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -124,7 +124,7 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -159,7 +159,7 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -198,7 +198,7 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -228,7 +228,7 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -252,7 +252,7 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
