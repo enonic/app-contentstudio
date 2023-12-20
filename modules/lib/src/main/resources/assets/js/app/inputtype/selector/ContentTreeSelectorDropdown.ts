@@ -1,14 +1,12 @@
 import {ContentSelectorDropdown} from './ContentSelectorDropdown';
 import {ContentsTreeList} from '../../browse/ContentsTreeList';
 import {ModeTogglerButton} from '../ui/selector/ModeTogglerButton';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import * as Q from 'q';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 
 export class ContentTreeSelectorDropdown
     extends ContentSelectorDropdown {
@@ -65,31 +63,6 @@ export class ContentTreeSelectorDropdown
             this.dropdownHandle.down();
         });
 
-        const mouseClickListener: (event: MouseEvent) => void = (event: MouseEvent) => {
-            for (let element = event.target; element; element = (element as HTMLElement).parentNode) {
-                if (element === this.getHTMLElement()) {
-                    return;
-                }
-            }
-            this.handleClickOutside();
-        };
-
-        let isShown: boolean = false;
-
-        this.treeList.onHidden(() => {
-            if (isShown) {
-                isShown = false;
-                Body.get().unMouseDown(mouseClickListener);
-            }
-        });
-
-        this.treeList.onShown(() => {
-            if (!isShown) {
-                isShown = true;
-                Body.get().onMouseDown(mouseClickListener);
-            }
-        });
-
         this.treeSelectionWrapper.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>) => {
             selectionChange.selected?.forEach((item: ContentTreeSelectorItem) => {
                 this.handleUserToggleAction(item);
@@ -111,14 +84,14 @@ export class ContentTreeSelectorDropdown
         });
     }
 
-    protected handleDropdownClicked(): void {
-        if (this.dropdownHandle.isDown()) {
-            this.handleModeChanged();
-        } else {
-            this.treeSelectionWrapper.setVisible(false);
-            this.treeList.setVisible(false);
-            this.listBox.setVisible(false);
-        }
+    protected doShowDropdown() {
+        this.handleModeChanged();
+    }
+
+    protected doHideDropdown() {
+        this.treeSelectionWrapper.setVisible(false);
+        this.treeList.setVisible(false);
+        this.listBox.setVisible(false);
     }
 
     protected resetSelection(): void {
@@ -131,18 +104,10 @@ export class ContentTreeSelectorDropdown
 
     protected handleModeChanged(): void {
         this.options.loader.setTreeLoadMode(this.isTreeMode);
+
         this.treeSelectionWrapper.setVisible(this.isTreeMode);
         this.treeList.setVisible(this.isTreeMode);
         this.listBox.setVisible(!this.isTreeMode);
-    }
-
-    protected handleValueChange(event: ValueChangedEvent): void {
-        if (this.isTreeMode) {
-            this.treeSelectionWrapper.setVisible(true);
-            this.treeList.setVisible(true);
-        } else {
-            this.listBox.setVisible(true);
-        }
     }
 
     protected applySelection() {

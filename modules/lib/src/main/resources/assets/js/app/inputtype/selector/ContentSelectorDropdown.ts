@@ -4,7 +4,6 @@ import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ContentSummaryOptionDataHelper} from '../../util/ContentSummaryOptionDataHelper';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {ContentListBox} from './ContentListBox';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
@@ -19,8 +18,6 @@ import {
     FilterableListBoxWrapperWithSelectedView,
     ListBoxInputOptions
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export interface ContentSelectorDropdownOptions extends ListBoxInputOptions<ContentTreeSelectorItem> {
