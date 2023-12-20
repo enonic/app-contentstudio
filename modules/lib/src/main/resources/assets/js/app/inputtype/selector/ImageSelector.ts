@@ -19,7 +19,7 @@ import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem'
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {Content} from '../../content/Content';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
-import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader';
+import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../ui/selector/image/ImageOptionDataLoader';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
@@ -86,6 +86,10 @@ export class ImageSelector
 
     createLoader(): ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
         return ImageOptionDataLoader.build(this.createOptionDataLoaderBuilder());
+    }
+
+    protected createOptionDataLoaderBuilder(): ImageOptionDataLoaderBuilder {
+        return new ImageOptionDataLoaderBuilder();
     }
 
     protected initEvents(contentComboBox: ImageContentComboBox) {
