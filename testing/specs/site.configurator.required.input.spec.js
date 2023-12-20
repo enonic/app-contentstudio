@@ -20,6 +20,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
     }
 
     let SITE;
+
     it(`GIVEN existing site is opened WHEN 'edit' button in the 'selected-option-view' has been clicked THEN 'site configurator dialog should appear'`,
         async () => {
             let siteFormPanel = new SiteFormPanel();
