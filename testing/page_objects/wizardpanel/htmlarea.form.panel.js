@@ -77,10 +77,10 @@ class HtmlAreaForm extends OccurrencesFormView {
         let selector = lib.FORM_VIEW + lib.TEXT_AREA;
         let elems = await this.findElements(selector);
         let ids = [];
-        elems.forEach(el => {
-            ids.push(el.getAttribute("id"));
-        });
-        return Promise.all(ids);
+        for (const item of elems) {
+            ids.push(await item.getAttribute('id'));
+        }
+        return ids;
     }
 
     async isEditorToolbarVisible(index) {

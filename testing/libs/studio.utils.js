@@ -1053,10 +1053,10 @@ module.exports = {
         let selector = lib.FORM_VIEW + lib.TEXT_AREA;
         let elems = await this.getBrowser().$$(selector);
         let ids = [];
-        elems.forEach(el => {
-            ids.push(el.getAttribute("id"));
-        });
-        return Promise.all(ids);
+        for (const item of elems) {
+            ids.push(await item.getAttribute('id'));
+        }
+        return ids;
     },
     async openEditSettingDialog() {
         let propertiesWidgetItem = new PropertiesWidgetItem();
