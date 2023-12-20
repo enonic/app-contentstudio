@@ -53,7 +53,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         this.fakeRoot = builder?.fakeRoot;
 
         this.flatRequest =
-            new ContentSelectorQueryRequest().setAppendLoadResults(builder.appendLoadResults).setRequestProject(this.project);
+            new ContentSelectorQueryRequest().setAppendLoadResults(builder?.appendLoadResults).setRequestProject(this.project);
         this.treeRequest = this.smartTreeMode ? new ContentTreeSelectorQueryRequest<DATA>().setRequestProject(this.project) :
                            new ListByIdSelectorRequest<DATA>().setRequestProject(this.project);
 
