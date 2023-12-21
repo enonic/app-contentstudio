@@ -42,7 +42,12 @@ export class ContentsTreeList
     }
 
     protected handleLazyLoad(): void {
-        if (this.getItemCount() === 0 && !this.loader.isLoading()) {
+        // if ContentTreeSelectorQueryRequest is used (not really smart mode), then all items are loaded at once
+        if (this.loader.isSmartTreeMode()) {
+            if (this.getItemCount() === 0 && !this.loader.isLoading()) {
+                this.load();
+            }
+        } else {
             this.load();
         }
     }
