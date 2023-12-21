@@ -18,7 +18,7 @@ import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem';
 import {MediaSelectorDisplayValue} from '../../selector/media/MediaSelectorDisplayValue';
-import {ContentComboBox, ContentSelectedOptionsView} from '../../selector/ContentComboBox';
+import {ContentSelectedOptionsView} from '../../selector/ContentComboBox';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../../selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
@@ -1103,8 +1103,8 @@ export class LinkModalDialog
         return this.generateUrlParamsForNonMedia();
     }
 
-    private getContentIdFormItemEl(): ContentComboBox<ContentTreeSelectorItem> {
-        return this.getFieldById('contentId') as ContentComboBox<ContentTreeSelectorItem>;
+    private getContentIdFormItemEl(): ContentSelectorFormInputWrapper {
+        return this.getFieldById('contentId') as ContentSelectorFormInputWrapper;
     }
 
     private generateUrlParamsForMedia(): ContentLinkParams {

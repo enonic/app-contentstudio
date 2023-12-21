@@ -59,13 +59,6 @@ export class ContentSelectorDropdown
     protected initListeners(): void {
         super.initListeners();
 
-        this.listBox.whenShown(() => {
-            // if not empty then search will be performed after finished typing
-            if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
-                this.search(this.optionFilterInput.getValue());
-            }
-        });
-
         this.listBox.onItemsAdded((items: ContentTreeSelectorItem[]) => {
             this.selectLoadedFlatListItems(items);
         });
