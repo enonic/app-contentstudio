@@ -7,6 +7,7 @@ import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export class ContentTreeSelectorDropdown
     extends ContentSelectorDropdown {
@@ -39,6 +40,13 @@ export class ContentTreeSelectorDropdown
 
     protected initListeners(): void {
         super.initListeners();
+
+        this.listBox.whenShown(() => {
+            // if not empty then search will be performed after finished typing
+            if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
+                this.search(this.optionFilterInput.getValue());
+            }
+        });
 
         this.treeList.onItemsAdded((items: ContentTreeSelectorItem[]) => {
             this.selectLoadedTreeListItems(items);

@@ -162,7 +162,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
         this.treeRequest.setSearchString(this.treeFilterValue);
 
-        const hasFakeRoot = this.fakeRoot && parentNode.getDataId() == null && !this.treeFilterValue;
+        const needsFakeRoot = this.fakeRoot && parentNode.getDataId() == null && !this.treeFilterValue && from === 0;
 
         return this.loadItems().then((result: DATA[]) => {
             result = result.filter(this.postFilterFn);
@@ -170,11 +170,16 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
             this.notifyLoadedData([], postLoad, true);
 
             return this.createOptionData(
-                hasFakeRoot ? [new ContentTreeSelectorItem(this.fakeRoot, true, false) as DATA, ...result] : result,
+                needsFakeRoot ? [this.wrapFakeRoot(), ...result] : result,
                 this.treeRequest.getMetadata().getHits(),
                 this.treeRequest.getMetadata().getTotalHits(),
             );
         });
+    }
+
+    protected wrapFakeRoot(): DATA {
+        const item = ContentSummaryAndCompareStatus.fromContentSummary(this.fakeRoot);
+        return new ContentAndStatusTreeSelectorItem(item, true, false) as ContentTreeSelectorItem as DATA;
     }
 
     protected createRequest(): ContentSelectorRequest<DATA> {
@@ -257,6 +262,10 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     setTreeLoadMode(value: boolean): void {
         this.isTreeLoadMode = !!value;
+    }
+
+    isSmartTreeMode(): boolean {
+        return this.smartTreeMode;
     }
 }
 
