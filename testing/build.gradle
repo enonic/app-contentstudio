@@ -29,14 +29,14 @@ dependencies {
     distro "com.enonic.xp:enonic-xp-generic:$xpVersion@zip"
 }
 
-task unpackDistro( type: Copy ) {
+tasks.register( 'unpackDistro', Copy ) {
     from {
         configurations.distro.collect { zipTree( it ) }
     }
     into file( unpackDir )
 }
 
-task copyConfig( type: Copy ) {
+tasks.register( 'copyConfig', Copy ) {
     println "$appDir${File.separator}common-config"
     from "$appDir${File.separator}common-config"
     include '**.*.cfg'
@@ -45,14 +45,14 @@ task copyConfig( type: Copy ) {
     mustRunAfter unpackDistro
 }
 
-task copyCustomConfig( type: Copy ) {
+tasks.register( 'copyCustomConfig', Copy ) {
     println "$appDir${File.separator}custom-config"
     from "$appDir${File.separator}custom-config"
     include '**.*.cfg'
     into file( configDir )
 }
 
-task copyApps( type: Copy ) {
+tasks.register( 'copyApps', Copy ) {
     println '*********************************************************'
     println '* task started:copyApps  *'
     println '*********************************************************'
@@ -64,7 +64,7 @@ task copyApps( type: Copy ) {
     mustRunAfter 'startServer'
 }
 
-task deployContentStudio( type: DefaultTask ) {
+tasks.register( 'deployContentStudio', DefaultTask ) {
     outputs.files( contentStudioFile )
     doLast {
         println 'Retrieving Content Studio App from:'
@@ -75,7 +75,7 @@ task deployContentStudio( type: DefaultTask ) {
         def f = new File( contentStudioFile )
         if ( !f.exists() )
         {
-            new URL( contentStudioAppUrl ).withInputStream { i -> f.withOutputStream { it << i } }
+            new URL(contentStudioAppUrl as String).withInputStream { i -> f.withOutputStream { it << i } }
             println 'Content Studio App is downloaded.'
         }
         else
@@ -86,7 +86,8 @@ task deployContentStudio( type: DefaultTask ) {
     mustRunAfter unpackDistro
 }
 
-task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio] ) {
+tasks.register( 'startServer' ) {
+    dependsOn( unpackDistro, copyConfig, deployContentStudio )
     doLast {
         xpServer.installDir = file( distroDir )
         xpServer.start()
@@ -94,150 +95,180 @@ task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio] ) {
     mustRunAfter npmInstall
 }
 
-task stopServer {
+tasks.register( 'stopServer' ) {
     doLast {
         xpServer.stop()
     }
 }
 
-task cleanup(type: Delete) {
+tasks.register( 'cleanup', Delete) {
     delete './build/reports/allure'
 }
 
-task generateReportAndStopServer( type: NpmTask ) {
+tasks.register( 'generateReportAndStopServer', NpmTask ) {
     args = ['run-script', 'allure-report']
     finalizedBy cleanup
     finalizedBy stopServer
 }
 
 /////////////////////////////Firefox geckodriver:
-task testWizardsGridFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'testWizardsGridFirefox', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_wizards_grid:firefox']
     finalizedBy generateReportAndStopServer
 }
 
-task testPageEditorFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'testPageEditorFirefox', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_page_editor:firefox']
     finalizedBy generateReportAndStopServer
 }
 
-task testWizardsGridFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'testWizardsGridFirefoxLocal', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_wizards_grid:firefox']
 }
 
-task testPageEditorFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'testPageEditorFirefoxLocal', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_page_editor:firefox']
 }
 
-task testInputTypesFirefox_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'testInputTypesFirefox_2', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_input_types_2:firefox']
     finalizedBy generateReportAndStopServer
 }
 
-task testInputTypesFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'testInputTypesFirefox', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_input_types:firefox']
     finalizedBy generateReportAndStopServer
 }
 
-task testInputTypesFirefox_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'testInputTypesFirefox_2_Local', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_input_types_2:firefox']
 }
 
-task testInputTypesFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'testInputTypesFirefoxLocal', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_input_types:firefox']
 }
 
-task testContentStudioProjectsFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'testContentStudioProjectsFirefox', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_project:firefox']
     finalizedBy generateReportAndStopServer
 }
-task testPublishIssuesFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+
+tasks.register( 'testPublishIssuesFirefox', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_publish_issues:firefox']
     finalizedBy generateReportAndStopServer
 }
 
-task testModalDialogFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'testModalDialogFirefox', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_modal_dialog:firefox']
     finalizedBy generateReportAndStopServer
 }
 
-task testPublishIssuesFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'testPublishIssuesFirefoxLocal', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_publish_issues:firefox']
 }
 
-task testModalDialogFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'testModalDialogFirefoxLocal', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_modal_dialog:firefox']
 }
 
 ///////////////// CHROME WDIO , startServer, copyApps
-task w_testInputTypes( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'w_testInputTypes', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_input_types:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
-task w_testInputTypesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'w_testInputTypesLocal', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_input_types:wdio_chrome']
 }
 
-task w_testInputTypes_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'w_testInputTypes_2', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_input_types_2:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
-task w_testInputTypes_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'w_testInputTypes_2_Local', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_input_types_2:wdio_chrome']
 }
 
-task w_testModalDialog( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'w_testModalDialog', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_modal_dialog:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
-task w_testModalDialogLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'w_testModalDialogLocal', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_modal_dialog:wdio_chrome']
 }
 
-task w_testWizardsGrid( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'w_testWizardsGrid', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_wizards_grid:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
-task w_testWizardsGridLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'w_testWizardsGridLocal', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_wizards_grid:wdio_chrome']
 }
 
-task w_testPublishIssues( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'w_testPublishIssues', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_publish_issues:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
-task w_testPublishIssuesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'w_testPublishIssuesLocal', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_publish_issues:wdio_chrome']
 }
 
-task w_testProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'w_testProjects', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_project:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
-task w_testProjects_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'w_testProjects_2', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_project_2:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
-task w_testProjectsLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'w_testProjectsLocal', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_project:wdio_chrome']
 }
 
-task w_testPageEditor( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+tasks.register( 'w_testPageEditor', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps )
     args = ['run-script', 'test_page_editor:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
 
-task w_testPageEditorLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+tasks.register( 'w_testPageEditorLocal', NpmTask ) {
+    dependsOn ( npmInstall )
     args = ['run-script', 'test_page_editor:wdio_chrome']
 }
 
-task w_testHiddenDefProject( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, copyCustomConfig] ) {
+tasks.register( 'w_testHiddenDefProject', NpmTask ) {
+    dependsOn ( npmInstall, startServer, copyApps, copyCustomConfig )
     args = ['run-script', 'test_hide_default_project:wdio_chrome']
     finalizedBy generateReportAndStopServer
 }
