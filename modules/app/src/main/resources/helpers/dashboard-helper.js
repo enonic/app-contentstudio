@@ -14,7 +14,7 @@ const getIssuesInRepo = (repositoryId, count, principalKey) => {
 
 const getProjects = () => {
     const projects = projectLib.list();
-    const hideDefaultProject = app.config['settings.hideDefaultProject'] === 'true' || false;
+    const hideDefaultProject = app.config['settings.hideDefaultProject'] !== 'false';
 
     if (hideDefaultProject) {
         return projects.filter((p) => p.id !== 'default');
