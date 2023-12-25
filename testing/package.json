@@ -27,7 +27,7 @@
     "@wdio/cli": "^8.26.2",
     "@wdio/concise-reporter": "^8.26.2",
     "@wdio/local-runner": "^8.26.3",
-    "@wdio/mocha-framework": "^8.26.2",
+    "@wdio/mocha-framework": "^8.27.0",
     "allure-commandline": "^2.25.0",
     "assert": "^2.1.0",
     "chai": "^4.3.10",
