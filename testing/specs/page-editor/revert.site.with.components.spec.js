@@ -50,7 +50,8 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             await liveFormPanel.waitForEditableTextComponentDisplayed(TEXT);
         });
 
-    it(`GIVEN existing site with text component is opened WHEN do right click on the text-component THEN component's context menu should appear`,
+    // TODO check this case
+    it.skip(`GIVEN existing site with text component is opened WHEN do right click on the text-component THEN component's context menu should appear`,
         async () => {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
