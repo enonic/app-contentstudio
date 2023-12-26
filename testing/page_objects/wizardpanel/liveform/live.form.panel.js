@@ -175,7 +175,7 @@ class LiveFormPanel extends Page {
             }
             let selector = xpath.textComponentByText(text);
             if (this.getBrowser().capabilities.browserName === 'chrome') {
-                await this.doRightClickWithOffset(selector, liveFrameX + 35, liveFrameY);
+                await this.doRightClickWithOffset(selector, liveFrameX + 35, liveFrameY + 5);
             } else {
                 await this.doRightClickWithOffset(selector, liveFrameX + 15, liveFrameY - 15);
             }
