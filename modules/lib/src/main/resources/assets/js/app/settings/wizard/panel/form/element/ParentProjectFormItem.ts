@@ -3,6 +3,7 @@ import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
 import {ProjectsDropdownBuilder, ProjectsSelector} from './ProjectsSelector';
 import {Project} from '../../../../data/project/Project';
 import {ProjectConfigContext} from '../../../../data/project/ProjectConfigContext';
+import {ParentProjectFormInputWrapper, ProjectsComboBox} from './ProjectsComboBox';
 
 export class ParentProjectFormItem
     extends ProjectFormItem {
@@ -16,7 +17,7 @@ export class ParentProjectFormItem
 
         const projectSelector = new ProjectsSelector(inputBuilder);
 
-        const projectFormItemBuilder = new ProjectFormItemBuilder(projectSelector)
+        const projectFormItemBuilder = new ProjectFormItemBuilder(new ParentProjectFormInputWrapper(new ProjectsComboBox()))
             .setHelpText(i18n('settings.projects.parent.helptext'))
             .setLabel(i18n(isMultiInheritance ? 'settings.field.project.parents' : 'settings.field.project.parent'));
 
@@ -43,7 +44,7 @@ export class ParentProjectFormItem
         }
     }
 
-    getProjectsSelector(): ProjectsSelector {
-        return this.projectsSelector;
+    getProjectsSelector(): ParentProjectFormInputWrapper {
+        return this.getInput() as ParentProjectFormInputWrapper;
     }
 }
