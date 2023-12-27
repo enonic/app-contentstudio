@@ -10,6 +10,7 @@ import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {SettingsType} from '../../../data/type/SettingsType';
 import {ParentProjectFormItem} from './element/ParentProjectFormItem';
 import {ProjectNameFormItem} from './element/ProjectNameFormItem';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class ProjectItemNameWizardStepForm
     extends ProjectWizardStepForm {
@@ -64,14 +65,19 @@ export class ProjectItemNameWizardStepForm
         super.setParentProjects(projects);
 
         this.appendParentProjectDropdown();
-        this.getProjectsComboBox().updateAndSelectProjects(projects);
+        this.getProjectComboBox().getSelector().selectProject(project);
     }
 
-    onParentProjectChanged(callback: (projects: Project[]) => void) {
-        const handler = () => callback(this.getProjectsComboBox().getSelectedDisplayValues());
+    onParentProjectChanged(callback: (project: Project) => void) {
+        this.getProjectComboBox().getSelector().onSelectionChanged((selectionChange: SelectionChange<Project>) => {
+            if (selectionChange.selected?.length > 0) {
+                callback(selectionChange.selected[0]);
+            }
 
-        this.getProjectsComboBox().onOptionSelected(handler);
-        this.getProjectsComboBox().onOptionDeselected(handler);
+            if (selectionChange.deselected?.length > 0) {
+                callback(null);
+            }
+        });
     }
 
     doRender(): Q.Promise<boolean> {
