@@ -30,8 +30,7 @@ export class ContentMoveComboBox
 
         loader.setTreeLoadMode(true);
 
-        const treeList = new ContentsTreeList();
-        treeList.setLoader(loader);
+        const treeList = new ContentsTreeList({loader: loader});
         const dropdownOptions = {
             loader: loader,
             maxSelected: 1,

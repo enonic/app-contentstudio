@@ -29,8 +29,7 @@ export class ContentTreeSelectorDropdown
 
         this.modeButton = new ModeTogglerButton();
         this.modeButton.setActive(false);
-        this.treeList = new ContentsTreeList();
-        this.treeList.setLoader(this.options.loader);
+        this.treeList = new ContentsTreeList({loader: this.options.loader});
         this.treeSelectionWrapper = new ContentTreeSelectionWrapper(this.treeList, {
             maxSelected: this.options.maxSelected,
             checkboxPosition: this.options.checkboxPosition,

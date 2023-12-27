@@ -1,6 +1,6 @@
 import Q from 'q';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {TreeListBox, TreeListBoxParams, TreeListElement} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {TreeListBox, TreeListBoxParams, TreeListElement, TreeListElementParams} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import {ContentAndStatusSelectorViewer} from '../inputtype/selector/ContentAndStatusSelectorViewer';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
@@ -11,6 +11,7 @@ import {TreeNode, TreeNodeBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeNo
 
 export interface ContentsListParams extends TreeListBoxParams {
     parentItem?: ContentTreeSelectorItem;
+    loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
 }
 
 export class ContentsTreeList
@@ -18,23 +19,19 @@ export class ContentsTreeList
 
     public static FETCH_SIZE: number = 10;
 
-    protected loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
+    protected readonly loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;
 
-    protected readonly parentItem: ContentTreeSelectorItem;
+    protected readonly parentItem?: ContentTreeSelectorItem;
 
     constructor(params?: ContentsListParams) {
         super(params);
 
         this.parentItem = params?.parentItem;
-    }
-
-    setLoader(loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>): ContentsTreeList {
-        this.loader = loader;
-        return this;
+        this.loader = params.loader;
     }
 
     protected createItemView(item: ContentTreeSelectorItem, readOnly: boolean): ContentListElement {
-        return new ContentListElement(item, this.loader, this.scrollParent, this.level);
+        return new ContentListElement(item, {loader: this.loader, scrollParent: this.scrollParent, level: this.level});
     }
 
     protected getItemId(item: ContentTreeSelectorItem): string {
@@ -86,21 +83,25 @@ export class ContentsTreeList
 
 }
 
+export interface ContentsListElementParams extends TreeListElementParams {
+    loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>
+}
+
 export class ContentListElement extends TreeListElement<ContentTreeSelectorItem> {
+
+    protected readonly options: ContentsListElementParams;
 
     protected childrenList: ContentsTreeList;
 
-    constructor(content: ContentTreeSelectorItem, loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>, scrollParent: Element,
-                level: number) {
-        super(content, scrollParent, level);
-
-        this.childrenList.setLoader(loader);
+    constructor(content: ContentTreeSelectorItem, params: ContentsListElementParams) {
+        super(content, params);
     }
 
-    protected createChildrenListParams(): TreeListBoxParams {
+    protected createChildrenListParams(): ContentsListParams {
         const params =  super.createChildrenListParams() as ContentsListParams;
 
         params.parentItem = this.item;
+        params.loader = this.options.loader;
 
         return params;
     }
