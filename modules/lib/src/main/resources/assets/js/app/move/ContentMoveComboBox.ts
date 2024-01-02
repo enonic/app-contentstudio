@@ -48,22 +48,16 @@ export class ContentMoveComboBox
     protected initListeners(): void {
         super.initListeners();
 
-        this.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>) => {
-            if (selectionChange.selected?.length > 0) {
-                this.optionFilterInput.getParentElement()?.hide();
-            }
-
-            if (selectionChange.deselected?.length > 0) {
-                this.clear();
-                this.optionFilterInput.getParentElement()?.show();
-            }
-        });
-
         this.listBox.onItemsAdded((items: ContentTreeSelectorItem[]) => {
             items.forEach((item: ContentTreeSelectorItem) => {
                 this.listBox.getItemView(item).toggleClass('readonly', this.readonlyChecker.isReadOnly(item.getContent()));
             });
         });
+    }
+
+    protected handleSelectionLimitIsNoLongerReached(): void {
+        this.clear();
+        super.handleSelectionLimitIsNoLongerReached();
     }
 
     private static createRootContent(): ContentSummary {

@@ -65,15 +65,7 @@ export class ProjectsSelector
 
                     const view = this.selectedOptionsView.getSelectedOptions()[0].getOptionView() as ProjectSelectedOptionView;
                     view?.getNamesAndIconView().setSubName(subName);
-
-                    if (this.maximumOccurrencesReached()) {
-                        this.optionFilterInput.getParentElement().hide();
-                    }
                 }).catch(DefaultErrorHandler.handle);
-            }
-
-            if (selectionChange.deselected?.length > 0) {
-                this.optionFilterInput.getParentElement().show();
             }
         });
 

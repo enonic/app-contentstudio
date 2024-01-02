@@ -32,7 +32,13 @@ export class MediaSelector
 
     protected addExtraElementsOnLayout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         return this.createUploader().then((mediaUploader: MediaUploaderEl) => {
-            this.comboBoxWrapper.appendChild(this.uploader = mediaUploader);
+            this.uploader = mediaUploader;
+
+            this.contentSelectorDropdown.whenRendered(() => {
+               this.contentSelectorDropdown.appendChild(this.uploader);
+               this.uploader.addClass('extra-button');
+               this.contentSelectorDropdown.addClass('has-extra-button');
+            });
 
             if (!this.contentSelectorDropdown.isVisible()) {
                 this.uploader.hide();

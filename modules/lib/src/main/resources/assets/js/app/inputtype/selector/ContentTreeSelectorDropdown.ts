@@ -6,7 +6,6 @@ import * as Q from 'q';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export class ContentTreeSelectorDropdown
