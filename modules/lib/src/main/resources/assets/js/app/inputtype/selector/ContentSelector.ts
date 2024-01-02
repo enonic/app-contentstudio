@@ -44,8 +44,6 @@ export class ContentSelector
 
     protected contentSelectedOptionsView: ContentSelectedOptionsView;
 
-    protected comboBoxWrapper: DivEl;
-
     protected newContentButton: NewContentButton;
 
     protected treeMode: boolean;
@@ -205,10 +203,8 @@ export class ContentSelector
 
         return super.layout(input, propertyArray).then(() => {
             this.initiallySelectedItems = this.getSelectedItemsIds();
-            this.contentSelectorDropdown = this.createSelectorDropdown(input);
-            this.comboBoxWrapper = new DivEl('combobox-wrapper');
-            this.comboBoxWrapper.appendChild(this.contentSelectorDropdown);
-            this.appendChild(this.comboBoxWrapper);
+                this.contentSelectorDropdown = this.createSelectorDropdown(input);
+            this.appendChild(this.contentSelectorDropdown);
             return this.addExtraElementsOnLayout(input, propertyArray).then(() => this.doLayout(propertyArray));
         });
     }
@@ -231,8 +227,6 @@ export class ContentSelector
 
         contentSelectorDropdown.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>) => {
             selectionChange.selected?.forEach((item: ContentTreeSelectorItem) => {
-                this.updateNewContentButton();
-
                 const contentId: ContentId = item.getContentId();
 
                 if (contentId) {
@@ -253,7 +247,6 @@ export class ContentSelector
                 if (property) {
                     this.handleDeselected(property.getIndex());
                     this.updateSelectedOptionStyle();
-                    this.updateNewContentButton();
                     this.handleValueChanged(false);
                 }
             });
@@ -304,8 +297,6 @@ export class ContentSelector
     }
 
     private addNewContentButton(): void {
-        this.comboBoxWrapper.addClass('new-content');
-
         this.newContentButton = new NewContentButton(
             {content: this.context.content, allowedContentTypes: this.allowedContentTypes, project: this.context.project});
         this.newContentButton.setTitle(i18n('action.addNew'));
@@ -314,7 +305,11 @@ export class ContentSelector
             this.contentSelectorDropdown.select(this.createSelectorItem(item));
         });
 
-        this.comboBoxWrapper.appendChild(this.newContentButton);
+        this.contentSelectorDropdown.whenRendered(() => {
+            this.contentSelectorDropdown.appendChild(this.newContentButton);
+            this.newContentButton.addClass('extra-button');
+            this.contentSelectorDropdown.addClass('has-extra-button');
+        });
     }
 
     protected doLayout(propertyArray: PropertyArray): Q.Promise<void> {
@@ -450,10 +445,6 @@ export class ContentSelector
 
     protected getNumberOfValids(): number {
         return this.getPropertyArray().getSize();
-    }
-
-    private updateNewContentButton(): void {
-        this.newContentButton?.setVisible(!this.contentSelectorDropdown.maximumOccurrencesReached());
     }
 
     giveFocus(): boolean {
