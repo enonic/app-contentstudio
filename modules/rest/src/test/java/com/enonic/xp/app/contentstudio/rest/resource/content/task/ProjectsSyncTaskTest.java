@@ -1,9 +1,13 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import aQute.bnd.build.ProjectBuilder;
+import com.enonic.xp.project.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -13,10 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.enonic.xp.content.ProjectSyncParams;
 import com.enonic.xp.content.SyncContentService;
-import com.enonic.xp.project.Project;
-import com.enonic.xp.project.ProjectName;
-import com.enonic.xp.project.ProjectService;
-import com.enonic.xp.project.Projects;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskId;
 
@@ -133,11 +133,15 @@ class ProjectsSyncTaskTest
 
     private Project createProject( final String name, final String parent )
     {
-        return Project.create().
+        final Project.Builder project = Project.create().
             name( ProjectName.from( name ) ).
-            parent( parent != null ? ProjectName.from( parent ) : null ).
             displayName( name ).
-            description( name ).
-            build();
+            description( name );
+
+        if (parent != null) {
+            project.parent(ProjectName.from(parent));
+        }
+
+        return project.build();
     }
 }
