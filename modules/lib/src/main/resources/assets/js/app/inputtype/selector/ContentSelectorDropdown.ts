@@ -99,6 +99,7 @@ export class ContentSelectorDropdown
                 const items = contents.map((content) => this.createSelectorItem(content));
                 const options = items.map((item) => this.createSelectedOption(item));
                 this.selectedOptionsView.addOptions(options, true, -1);
+                this.checkSelectionLimitReached();
             }).catch(DefaultErrorHandler.handle);
         }
     }

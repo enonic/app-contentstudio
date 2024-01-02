@@ -10,6 +10,7 @@ import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeNa
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import * as Q from 'q';
 
 export interface ContentTypeFilterDropdownOptions {
     maxSelected?: number;
@@ -75,15 +76,22 @@ export class ContentTypeFilterDropdown
     }
 
     private preSelectItems(): void {
-        this.getSelectedItemsHandler().filter(id => !StringHelper.isBlank(id)).forEach((id: string) => {
-            this.preselectItemById(id);
-        });
+        const ids = this.getSelectedItemsHandler().filter(id => !StringHelper.isBlank(id));
+
+        if (ids.length > 0) {
+            this.fetchItems(ids).then((contentTypes) => {
+                if (contentTypes.length > 0) {
+                    const options = contentTypes.map((item) => this.createSelectedOption(item));
+                    this.selectedOptionsView.addOptions(options, true, -1);
+                    this.checkSelectionLimitReached();
+                }
+            }).catch(DefaultErrorHandler.handle);
+        }
     }
 
-    private preselectItemById(id: string): void {
-        new GetContentTypeByNameRequest(new ContentTypeName(id)).sendAndParse().then((contentType) => {
-            this.selectedOptionsView.addOption(this.createSelectedOption(contentType), true, -1);
-        }).catch(DefaultErrorHandler.handle);
+    private fetchItems(ids: string[]): Q.Promise<ContentTypeSummary[]> {
+        const promises = ids.map((id) => new GetContentTypeByNameRequest(new ContentTypeName(id)).sendAndParse());
+        return Q.all(promises);
     }
 
     doRender(): Q.Promise<boolean> {
