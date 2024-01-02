@@ -14,13 +14,21 @@ const getIssuesInRepo = (repositoryId, count, principalKey) => {
 
 const getProjects = () => {
     const projects = projectLib.list();
-    const hideDefaultProject = app.config['settings.hideDefaultProject'] !== 'false';
+    const hideDefaultProjectAndSubprojects = app.config['settings.hideDefaultProject'] !== 'false';
 
-    if (hideDefaultProject) {
-        return projects.filter((p) => p.id !== 'default');
+    if (hideDefaultProjectAndSubprojects) {
+        return projects.filter((p) => !isDefaultProjectOrSubproject(p, projects));
     }
 
     return projects;
+}
+
+const isDefaultProjectOrSubproject = (project, projects) => {
+    if (!project) {
+        return false;
+    }
+
+    return project.id === 'default' || isDefaultProjectOrSubproject(projects.filter((p) => p.id === project.parent)[0], projects);
 }
 
 const parseDateTime = (value) => {
