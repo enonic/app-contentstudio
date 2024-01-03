@@ -21,7 +21,6 @@ const XPATH = {
     projectApplicationsComboboxDiv: "//div[contains(@id, 'ProjectApplicationsComboBox')]",
     languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
     projectAccessSelectorTabMenu: "//div[contains(@id,'ProjectAccessSelector') and contains(@class,'tab-menu access-selector')]",
-    parentProjectComboboxDiv: "//div[contains(@id,'ProjectsComboBox')]",
     selectedAppView: "//div[contains(@id,'ProjectSelectedApplicationViewer')]",
     accessItemByName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
@@ -59,10 +58,6 @@ class ProjectWizardPanel extends Page {
 
     get projectApplicationsOptionsFilterInput() {
         return XPATH.container + XPATH.projectApplicationsComboboxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-    }
-
-    get parentProjectsOptionsFilterInput() {
-        return XPATH.container + XPATH.parentProjectComboboxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
     get saveButton() {
@@ -236,14 +231,6 @@ class ProjectWizardPanel extends Page {
         await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
         console.log('Project Wizard, principal is selected: ' + principalDisplayName);
         return await this.pause(1000);
-    }
-
-    //selects an project(parent) :
-    async selectParentProject(projectDisplayName) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(projectDisplayName, XPATH.container + XPATH.parentProjectComboboxDiv);
-        console.log('Project Wizard, parent project is selected: ' + projectDisplayName);
-        return await this.pause(400);
     }
 
     //click on the role, open menu and select new role for the user:
