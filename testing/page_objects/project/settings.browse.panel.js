@@ -240,7 +240,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async openProjectWizardDialog() {
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-        let projectWizard = new ProjectWizard();
         //1.'New...' button has been clicked:
         await this.clickOnNewButton();
         //2. 'Project Wizard Dialog' should be loaded:
