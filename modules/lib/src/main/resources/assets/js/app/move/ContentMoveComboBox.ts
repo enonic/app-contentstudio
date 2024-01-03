@@ -9,7 +9,6 @@ import {ContentSelectedOptionsView} from '../inputtype/ui/selector/ContentComboB
 import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentSelectorDropdown} from '../inputtype/selector/ContentSelectorDropdown';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentsTreeList} from '../browse/ContentsTreeList';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 

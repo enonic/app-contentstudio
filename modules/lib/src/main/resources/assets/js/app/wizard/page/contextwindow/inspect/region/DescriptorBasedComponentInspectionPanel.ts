@@ -10,19 +10,18 @@ import {SiteModel} from '../../../../../site/SiteModel';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {Descriptor} from '../../../../../page/Descriptor';
 import {DescriptorKey} from '../../../../../page/DescriptorKey';
-import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {Form} from '@enonic/lib-admin-ui/form/Form';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ComponentType} from '../../../../../page/region/ComponentType';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
-import {DescriptorViewer} from '../DescriptorViewer';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {ComponentUpdatedEventHandler} from '../../../../../page/region/Component';
 import {PageState} from '../../../PageState';
 import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
 import {ComponentDescriptorUpdatedEvent} from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
 import {PageEventsManager} from '../../../../PageEventsManager';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {
@@ -158,11 +157,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 
     protected createSelector(componentType: ComponentType): ComponentDescriptorsDropdown {
-        return new ComponentDescriptorsDropdown({
-            optionDisplayValueViewer: new DescriptorViewer(),
-            dataIdProperty: 'value',
-            noOptionsText: 'No components available'
-        }).setComponentType(componentType);
+        return new ComponentDescriptorsDropdown().setComponentType(componentType);
     }
 
     protected abstract getFormName(): string;
@@ -184,7 +179,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     private updateSelectorValue() {
         const key: DescriptorKey = this.component.getDescriptorKey();
         if (key) {
-            const descriptor: Descriptor = this.selector.getDescriptor(key);
+            const descriptor: Descriptor = this.selector.getDescriptorByKey(key);
             if (descriptor) {
                 this.setSelectorValue(descriptor);
             } else {
@@ -204,9 +199,11 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 
     private initSelectorListeners() {
-        this.selector.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
-            const descriptor: Descriptor = event.getOption().getDisplayValue();
-            PageEventsManager.get().notifyComponentDescriptorSetRequested(this.getComponent().getPath(), descriptor.getKey());
+        this.selector.onSelectionChanged((selectionChange: SelectionChange<Descriptor>) => {
+            if (selectionChange.selected?.length > 0) {
+                const descriptor: Descriptor = selectionChange.selected[0];
+                PageEventsManager.get().notifyComponentDescriptorSetRequested(this.getComponent().getPath(), descriptor.getKey());
+            }
         });
     }
 
@@ -261,10 +258,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     cleanUp() {
         this.unregisterComponentListeners();
         this.component = null;
-    }
-
-    getDescriptor(): Descriptor {
-        return this.selector.getSelectedOption()?.getDisplayValue();
     }
 
     doRender(): Q.Promise<boolean> {

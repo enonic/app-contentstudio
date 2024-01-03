@@ -9,10 +9,11 @@ import {GetContentTypeByNameRequest} from '../app/resource/GetContentTypeByNameR
 import {ContentType} from '../app/inputtype/schema/ContentType';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {Descriptor} from '../app/page/Descriptor';
-import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ContentId} from '../app/content/ContentId';
 import {SelectPageDescriptorEvent} from './event/outgoing/manipulation/SelectPageDescriptorEvent';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import * as Q from 'q';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class PagePlaceholder
     extends ItemViewPlaceholder {
@@ -45,9 +46,11 @@ export class PagePlaceholder
             event.stopPropagation();
         });
 
-        this.controllerDropdown.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
-            const pageDescriptor: Descriptor = event.getOption().getDisplayValue();
-            new SelectPageDescriptorEvent(pageDescriptor.getKey().toString()).fire();
+        this.controllerDropdown.onSelectionChanged((selectionChange: SelectionChange<Descriptor>) => {
+            if (selectionChange.selected?.length > 0) {
+                const pageDescriptor: Descriptor = selectionChange.selected[0];
+                new SelectPageDescriptorEvent(pageDescriptor.getKey().toString()).fire();
+            }
         });
     }
 
@@ -57,17 +60,17 @@ export class PagePlaceholder
         this.pageDescriptorPlaceholder = new DivEl('page-descriptor-placeholder', StyleHelper.getCurrentPrefix());
     }
 
-    private dataLoadedHandler: (event: LoadedDataEvent<Descriptor>) => void = (event: LoadedDataEvent<Descriptor>) => {
+    private dataLoadedHandler: (event: LoadedDataEvent<Descriptor>) => Q.Promise<void> = (event: LoadedDataEvent<Descriptor>) => {
         if (event.getData().length > 0) {
             this.controllerDropdown.show();
             const type = new ContentTypeName(this.pageView.getLiveEditParams().contentType);
             if (!type.isPageTemplate()) {
-                new GetContentTypeByNameRequest(type).sendAndParse().then((contentType: ContentType) => {
+                return new GetContentTypeByNameRequest(type).sendAndParse().then((contentType: ContentType) => {
                     this.infoBlock.setTextForContent(contentType.getDisplayName());
                 }).catch((reason) => {
                     this.infoBlock.setTextForContent(type.toString());
                     DefaultErrorHandler.handle(reason);
-                }).done();
+                });
             } else {
                 this.infoBlock.toggleHeader(true);
             }
@@ -77,6 +80,8 @@ export class PagePlaceholder
             this.infoBlock.setEmptyText();
             this.infoBlock.addClass('empty');
         }
+
+        return Q.resolve();
     };
 
     remove() {
