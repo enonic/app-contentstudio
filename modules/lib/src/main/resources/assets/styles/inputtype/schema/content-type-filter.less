@@ -6,22 +6,7 @@
 
   .item-view-wrapper {
     .custom-option-viewer(26px, 13px, 11px);
-
-    &.selected {
-      .viewer {
-        .names-and-icon-view {
-          .@{_COMMON_PREFIX}names-view {
-            .@{_COMMON_PREFIX}main-name {
-              color: @admin-white;
-            }
-
-            .@{_COMMON_PREFIX}sub-name {
-              color: @admin-white;
-            }
-          }
-        }
-      }
-    }
+    .viewer-selected();
   }
 
   .filterable-listbox-wrapper-with-selected-view {
@@ -55,6 +40,24 @@
 
         .@{_COMMON_PREFIX}sub-name {
           font-size: @sub;
+        }
+      }
+    }
+  }
+}
+
+.viewer-selected() {
+  &.selected {
+    .viewer {
+      .names-and-icon-view {
+        .@{_COMMON_PREFIX}names-view {
+          .@{_COMMON_PREFIX}main-name {
+            color: @admin-white;
+          }
+
+          .@{_COMMON_PREFIX}sub-name {
+            color: @admin-white;
+          }
         }
       }
     }
