@@ -29,7 +29,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
 
     it(`Preconditions: new system user should be created`,
         async () => {
-            //Do Log in with 'SU', navigate to 'Users' and create new user:
+            // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName('viewer');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];

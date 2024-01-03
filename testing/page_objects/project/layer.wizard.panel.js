@@ -7,65 +7,74 @@ const XPATH = {
     languageProjectFormItem: "//div[contains(@id,'LocaleFormItem') and descendant::label[text()='Default Language']]",
     accessModeProjectFormItem: "//div[contains(@id,'ProjectReadAccessFormItem') and descendant::label[text()='Access mode']]",
     projectRolesWizardStepFormDiv: "//div[contains(@id,'ProjectRolesWizardStepForm')]",
-    copyButton: "//button[child::span[text()='Copy from parent']]",
+    copyButton: label => `//button[child::span[text()='Copy from ${label}']]`,
     projectSelectedOptionView: "//div[contains(@id,'ParentProjectFormItem')]",
 };
 
 class LayerWizardPanel extends ProjectWizardPanel {
 
-    get copyLanguageFromParentButton() {
-        return XPATH.container + XPATH.languageProjectFormItem + XPATH.copyButton;
+    get copyLanguageFormItem() {
+        return XPATH.container + XPATH.languageProjectFormItem;
     }
 
-    get copyAccessModeFromParentButton() {
-        return XPATH.container + XPATH.accessModeProjectFormItem + XPATH.copyButton;
+    get copyAccessModeFormItem() {
+        return XPATH.container + XPATH.accessModeProjectFormItem;
     }
 
-    get copyRolesFromParentButton() {
-        return XPATH.container + XPATH.projectRolesWizardStepFormDiv + XPATH.copyButton;
+    get copyRolesFormItem() {
+        return XPATH.container + XPATH.projectRolesWizardStepFormDiv;
     }
 
-    async clickOnCopyLanguageFromParent() {
-        await this.waitForCopyLanguageFromParentEnabled();
-        return await this.clickOnElement(this.copyLanguageFromParentButton);
+    async clickOnCopyLanguageFromParent(parent) {
+        await this.waitForCopyLanguageFromParentEnabled(parent);
+        let locator = this.copyLanguageFormItem + XPATH.copyButton(parent);
+        return await this.clickOnElement(locator);
     }
 
-    async clickOnCopyAccessModeFromParent() {
-        await this.waitForCopyAccessModeFromParentEnabled();
-        return await this.clickOnElement(this.copyAccessModeFromParentButton);
+    async clickOnCopyAccessModeFromParent(parent) {
+        let locator = this.copyAccessModeFormItem + XPATH.copyButton(parent);
+        await this.waitForCopyAccessModeFromParentEnabled(parent);
+        return await this.clickOnElement(locator);
     }
 
-    async clickOnCopyRolesFromParent() {
-        await this.clickOnWizardStep("Roles");
-        await this.waitForCopyRolesFromParentEnabled();
-        return await this.clickOnElement(this.copyRolesFromParentButton);
+    async clickOnCopyRolesFromParent(parent) {
+        await this.clickOnWizardStep('Roles');
+        await this.waitForCopyRolesFromParentEnabled(parent);
+        let locator = this.copyRolesFormItem + XPATH.copyButton(parent);
+        return await this.clickOnElement(locator);
     }
 
-    waitForCopyLanguageFromParentEnabled() {
-        return this.waitForElementEnabled(this.copyLanguageFromParentButton, appConst.mediumTimeout);
+    waitForCopyLanguageFromParentEnabled(parent) {
+        let locator = this.copyLanguageFormItem + XPATH.copyButton(parent);
+        return this.waitForElementEnabled(locator, appConst.mediumTimeout);
     }
 
-    async waitForCopyLanguageFromParentDisabled() {
-        await this.waitForElementDisplayed(this.copyLanguageFromParentButton, appConst.mediumTimeout);
-        return await this.waitForElementDisabled(this.copyLanguageFromParentButton, appConst.mediumTimeout);
+    async waitForCopyLanguageFromParentDisabled(parent) {
+        let locator = this.copyLanguageFormItem + XPATH.copyButton(parent);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.waitForElementDisabled(locator, appConst.mediumTimeout);
     }
 
-    waitForCopyAccessModeFromParentEnabled() {
-        return this.waitForElementEnabled(this.copyAccessModeFromParentButton, appConst.mediumTimeout);
+    waitForCopyAccessModeFromParentEnabled(parent) {
+        let locator = this.copyAccessModeFormItem + XPATH.copyButton(parent);
+        return this.waitForElementEnabled(locator, appConst.mediumTimeout);
     }
 
-    async waitForCopyAccessModeFromParentDisabled() {
-        await this.waitForElementDisplayed(this.copyAccessModeFromParentButton, appConst.mediumTimeout);
-        return await this.waitForElementDisabled(this.copyAccessModeFromParentButton, appConst.mediumTimeout);
+    async waitForCopyAccessModeFromParentDisabled(parent) {
+        let locator = this.copyAccessModeFormItem + XPATH.copyButton(parent);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.waitForElementDisabled(locator, appConst.mediumTimeout);
     }
 
-    waitForCopyRolesFromParentEnabled() {
-        return this.waitForElementEnabled(this.copyRolesFromParentButton, appConst.mediumTimeout);
+    waitForCopyRolesFromParentEnabled(parent) {
+        let locator = this.copyRolesFormItem + XPATH.copyButton(parent);
+        return this.waitForElementEnabled(locator, appConst.mediumTimeout);
     }
 
-    async waitForCopyRolesFromParentDisabled() {
-        await this.waitForElementDisplayed(this.copyRolesFromParentButton, appConst.mediumTimeout);
-        return await this.waitForElementDisabled(this.copyRolesFromParentButton, appConst.mediumTimeout);
+    async waitForCopyRolesFromParentDisabled(parent) {
+        let locator = this.copyRolesFormItem + XPATH.copyButton(parent);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.waitForElementDisabled(locator, appConst.mediumTimeout);
     }
 
     async getParentProjectName() {
@@ -75,8 +84,7 @@ class LayerWizardPanel extends ProjectWizardPanel {
             await this.waitForElementDisplayed(locator, appConst.shortTimeout);
             return await this.getText(locator);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_layer_parent")
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_layer_parent');
             throw new Error("Error, Layer wizard, parent project name: screenshot " + screenshot + "  " + err);
         }
     }

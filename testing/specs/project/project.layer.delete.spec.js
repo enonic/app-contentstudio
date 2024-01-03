@@ -25,7 +25,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
     it(`Preconditions: new project(with Norsk (no) language) and 'Private' access mode should be added`,
         async () => {
             // 1. Save new project (mode access is Public):
-            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.NORSK_NO, null, "Public");
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.NORSK_NO, null, 'Public');
         });
 
     it("GIVEN new layer has been created WHEN the layer has been reopened THEN 'Copy Access mode' button is enabled",
@@ -43,11 +43,11 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
             // 3. Verify that 'Copy Access mode from parent' button should be enabled(because Public access is in parent project):
-            await layerWizard.waitForCopyAccessModeFromParentEnabled();
+            await layerWizard.waitForCopyAccessModeFromParentEnabled(PROJECT_DISPLAY_NAME);
             // 4. Verify that 'Copy language from parent' button is enabled:
-            await layerWizard.waitForCopyLanguageFromParentEnabled();
+            await layerWizard.waitForCopyLanguageFromParentEnabled(PROJECT_DISPLAY_NAME);
             // And 'Copy roles from parent' is disabled
-            await layerWizard.waitForCopyRolesFromParentDisabled();
+            await layerWizard.waitForCopyRolesFromParentDisabled(PROJECT_DISPLAY_NAME);
         });
 
     it("GIVEN new layer is created WHEN the layer has been deleted in the wizard THEN layer should not be present in the grid",

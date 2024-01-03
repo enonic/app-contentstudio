@@ -277,19 +277,19 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
     it("GIVEN user with 'Contributor' role is logged in WHEN 2 folders have been selected THEN 'Duplicate' button should be disabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Select 2 folders:
+            // 2. Select 2 folders:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(FOLDER_READY_TO_PUBLISH.displayName);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(FOLDER_WORK_IN_PROGRESS.displayName);
-            //3. Verify that 'Duplicate' button is disabled:
+            // 3. Verify that 'Duplicate' button is disabled:
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
         });
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         //Do not close the Login page:
-        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });

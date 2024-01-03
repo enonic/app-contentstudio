@@ -51,7 +51,7 @@ describe('project.delete.in.grid.panel.spec - ui-tests for saving/deleting a pro
             await confirmValueDialog.clickOnConfirmButton();
             // 5. Verify the notification message:
             let actualMessage = await settingsBrowsePanel.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("project_deleted_1");
+            await studioUtils.saveScreenshot('project_deleted_1');
             assert.equal(actualMessage, appConst.projectDeletedMessage(PROJECT_DISPLAY_NAME));
             // 6. Verify that the project is not present in Browse Panel:
             await settingsBrowsePanel.waitForProjectNotDisplayed(PROJECT_DISPLAY_NAME);
