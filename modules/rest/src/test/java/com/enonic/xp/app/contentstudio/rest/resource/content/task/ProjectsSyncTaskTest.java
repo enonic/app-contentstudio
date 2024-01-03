@@ -1,12 +1,9 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import aQute.bnd.build.ProjectBuilder;
 import com.enonic.xp.project.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
