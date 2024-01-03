@@ -12,12 +12,23 @@ const XPATH = {
     folderStatisticsViewer: "//div[contains(@id,'FolderStatisticsViewer')]",
     projectMetaStatisticsDiv: "//div[contains(@id,'ProjectMetaStatisticsBlock')]",
     projectRolesStatisticsBlockDiv: "//div[contains(@id,'ProjectRolesStatisticsBlock')]",
+    svgDiv: "//div[contains(@id,'svg-container')]",
 };
 
 class SettingsItemStatisticsPanel extends Page {
 
     get description() {
         return XPATH.container + XPATH.descriptionBlock;
+    }
+
+    async waitForGraphicElementDisplayed(title) {
+        try {
+            let locator = XPATH.svgDiv + `//*[contains(@id,'txt-dn') and text()='${title}']`;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_get_project_description');
+            throw new Error('error: graphic element is not displayed in statistics panel, screenshot' + screenshot + ' ' + err);
+        }
     }
 
     async getDescription() {
@@ -35,7 +46,7 @@ class SettingsItemStatisticsPanel extends Page {
             await this.waitForProjectStatisticsViewerDisplayed();
             return await this.getText(XPATH.container + XPATH.projectStatisticsViewer + lib.H6_DISPLAY_NAME);
         } catch (err) {
-            this.saveScreenshot('err_get_project_display_name');
+            await this.saveScreenshot('err_get_project_display_name');
             throw new Error('error when getting the display name in statistics panel ' + err);
         }
     }
@@ -45,7 +56,7 @@ class SettingsItemStatisticsPanel extends Page {
             await this.waitForElementDisplayed(XPATH.container + XPATH.folderStatisticsViewer, appConst.mediumTimeout);
             return await this.getText(XPATH.container + XPATH.folderStatisticsViewer + lib.H6_DISPLAY_NAME);
         } catch (err) {
-            this.saveScreenshot('err_get_project_display_name');
+            await this.saveScreenshot('err_get_project_display_name');
             throw new Error('error when getting the display name in statistics panel ' + err);
         }
     }
@@ -54,7 +65,7 @@ class SettingsItemStatisticsPanel extends Page {
         try {
             return await this.waitForElementDisplayed(XPATH.container + XPATH.descriptionBlock, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_description_block_should_be_displayed');
+            await this.saveScreenshot('err_description_block_should_be_displayed');
             throw new Error("Project's description is not displayed ! " + err);
         }
     }
@@ -63,7 +74,7 @@ class SettingsItemStatisticsPanel extends Page {
         try {
             return await this.waitForElementDisplayed(XPATH.container + XPATH.projectStatisticsViewer, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_header_should_be_displayed');
+            await this.saveScreenshot('err_header_should_be_displayed');
             throw new Error("Statistics Panel - Project's display name is not displayed ! " + err);
         }
     }
@@ -72,7 +83,7 @@ class SettingsItemStatisticsPanel extends Page {
         try {
             return await this.waitForElementNotDisplayed(XPATH.container + XPATH.descriptionBlock, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_description_block_should_not_be_displayed');
+            await this.saveScreenshot('err_description_block_should_not_be_displayed');
             throw new Error("Project's description should not be displayed ! " + err);
         }
     }

@@ -28,7 +28,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
 
     it(`Preconditions: new system user should be created`,
         async () => {
-            //Do Log in with 'SU', navigate to 'Users' and create new user:
+            // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName("editor");
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
@@ -86,14 +86,14 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await studioUtils.doLogout();
         });
 
-    //Verifies Project selector button should not be clickable if current user has access to only one project #2089
+    // Verifies Project selector button should not be clickable if current user has access to only one project #2089
     it("WHEN current user has access to only one project THEN ProjectViewer button should not be clickable",
         async () => {
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.pause(500);
             await studioUtils.saveScreenshot('select_project_button_not_clickable');
-            //Verify that 'Select project' button is not clickable on the browse toolbar:
+            // Verify that 'Select project' button is not clickable on the browse toolbar:
             let isClickable = await contentBrowsePanel.isProjectViewerClickable();
             assert.ok(isClickable === false, 'ProjectViewer button should not be clickable');
         });

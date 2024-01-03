@@ -17,24 +17,20 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
         webDriverHelper.setupBrowser();
     }
 
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    const NEW_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    const DESCRIPTION = "Test description";
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const NEW_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const DESCRIPTION = 'Test description';
 
-    it(`WHEN existing 'Projects' folder has been highlighted THEN expected description and title should appear in statistics panel`,
+    it(`WHEN existing 'Projects' folder has been highlighted THEN graphic element for Default project should be displayed in statistics panel`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
-            // 1.Click on the row. This row should be highlighted:
-            await settingsBrowsePanel.clickOnRowByDisplayName("Projects");
-            // 2. Wait for expected description in statistics panel:
-            let actualDescription = await settingsItemStatisticsPanel.getDescription();
-            await studioUtils.saveScreenshot("project_item_statistics");
-            // 3. Verify the text of the description:
-            assert.equal(actualDescription, "Manage projects and layers", "Expected description should be displayed");
-            let actualDisplayName = await settingsItemStatisticsPanel.getFolderDisplayName();
-            // 4. Verify the display name in statistics panel:
-            assert.equal(actualDisplayName, "Projects", "Expected display name should be displayed");
+            // 1. Click on the row. This row should be highlighted:
+            await settingsBrowsePanel.clickOnRowByDisplayName('Projects');
+            // 2. Wait for the graphic element for Default project is displayed in statistics panel:
+            await studioUtils.saveScreenshot('project_item_statistics');
+            await settingsItemStatisticsPanel.waitForGraphicElementDisplayed("Default");
+
         });
 
     it(`GIVEN new project is saved WHEN the project has been selected THEN expected description should appear in statistics panel`,
@@ -77,8 +73,8 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             let contributors = await settingsItemStatisticsPanel.getContributors();
             assert.equal(contributors[0], appConst.systemUsersDisplayName.SUPER_USER, "New added contributor is displayed in Roles");
         });
-    //Verifies:  Item Statistics panel is not refreshed after updating an item in wizard. #1493
-    //https://github.com/enonic/lib-admin-ui/issues/1493
+    // Verifies:  Item Statistics panel is not refreshed after updating an item in wizard. #1493
+    // https://github.com/enonic/lib-admin-ui/issues/1493
     it("GIVEN existing project is checked WHEN the project has been opened and updated THEN the project should be updated in Statistics Panel",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -113,6 +109,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             await confirmValueDialog.clickOnConfirmButton();
             // 2.Description block gets not visible in the statistics panel:
             await settingsItemStatisticsPanel.waitForDescriptionNotDisplayed();
+            await studioUtils.saveScreenshot("project_item_statistics_description_not_displayed");
         });
 
     beforeEach(async () => {
@@ -121,7 +118,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

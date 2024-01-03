@@ -16,36 +16,38 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
+    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
+    const PARENT_DEFAULT = 'Default';
 
     it("GIVEN layer(in Default) with roles has been saved and reopened WHEN 'Copy roles from parent' has been clicked THEN 'Save' button gets enabled",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let layerWizard = new LayerWizardPanel();
-            //1. Open Project Wizard Dialog:
+            // 1. Open Project Wizard Dialog:
             await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildLayer("Default", appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PUBLIC,"Super User",null, LAYER_DISPLAY_NAME)
-            //2. Fill in forms in the wizard then click on Create button:
+            let layer = projectUtils.buildLayer(PARENT_DEFAULT, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PUBLIC, 'Super User',
+                null, LAYER_DISPLAY_NAME)
+            // 2. Fill in forms in the wizard then click on Create button:
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();
-            //3.Open just created layer:
+            // 3.Open just created layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
-            //4. Click on 'Copy roles from parent':
-            await layerWizard.clickOnCopyRolesFromParent();
-            //5. Verify that notification message appears:
+            // 4. Click on 'Copy roles from parent':
+            await layerWizard.clickOnCopyRolesFromParent(PARENT_DEFAULT);
+            // 5. Verify that notification message appears:
             await layerWizard.waitForNotificationMessage();
-            //6. Verify that 'Save' button gets enabled:
+            // 6. Verify that 'Save' button gets enabled:
             await layerWizard.waitForSaveButtonEnabled();
-            //7. Click on 'Home' (SETTINGS) button and go to the grid:
+            // 7. Click on 'Home' (SETTINGS) button and go to the grid:
             await settingsBrowsePanel.clickOnHomeButton();
-            //8. Verify that the layer is displayed with the language icon, because Save button is not pressed yet:
+            // 8. Verify that the layer is displayed with the language icon, because Save button is not pressed yet:
             let flagCode = await settingsBrowsePanel.waitForLanguageIconDisplayed(LAYER_DISPLAY_NAME);
             assert.equal(flagCode, "gb", "Expected language icon should be displayed in the grid");
-            //9. Verify the language in the Statistics Panel:
+            // 9. Verify the language in the Statistics Panel:
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
-            await studioUtils.saveScreenshot("layer_created_with_language");
+            await studioUtils.saveScreenshot('layer_created_with_language');
             let actualLanguage = await settingsItemStatisticsPanel.getLanguage();
             assert.equal(actualLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed in Statistics panel.");
         });
@@ -55,14 +57,14 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
             let layerWizard = new LayerWizardPanel();
-            //1.Open the layer:
+            // 1.Open the layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
-            //2. Click on Copy Roles from parent:
-            await layerWizard.clickOnCopyRolesFromParent();
+            // 2. Click on Copy Roles from parent:
+            await layerWizard.clickOnCopyRolesFromParent(PARENT_DEFAULT);
             await layerWizard.waitForNotificationMessage();
-            //4. Click on 'close' icon:
+            // 4. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(LAYER_DISPLAY_NAME);
             await studioUtils.saveScreenshot("layer_wizard_unsaved_changes_1");
             await confirmationDialog.waitForDialogOpened();
@@ -75,15 +77,15 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
             let layerWizard = new LayerWizardPanel();
-            //1.Open the layer:
+            // 1.Open the layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
-            await layerWizard.clickOnCopyAccessModeFromParent();
-            //2. Confirm the coping:
+            await layerWizard.clickOnCopyAccessModeFromParent(PARENT_DEFAULT);
+            // 2. Confirm the coping:
             await confirmationDialog.clickOnYesButton();
             await layerWizard.waitForNotificationMessage();
-            //3. Click on 'close' icon:
+            // 3. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(LAYER_DISPLAY_NAME);
             await studioUtils.saveScreenshot("layer_wizard_unsaved_changes_2");
             await confirmationDialog.waitForDialogOpened();
@@ -96,16 +98,16 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
             let layerWizard = new LayerWizardPanel();
-            //1.Open the layer:
+            // 1.Open the layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await layerWizard.waitForLoaded();
-            //2. Click on Copy button:
-            await layerWizard.clickOnCopyLanguageFromParent();
+            // 2. Click on Copy button:
+            await layerWizard.clickOnCopyLanguageFromParent(PARENT_DEFAULT);
             await layerWizard.waitForNotificationMessage();
-            //3. Click on 'close' icon:
+            // 3. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(LAYER_DISPLAY_NAME);
-            studioUtils.saveScreenshot("layer_wizard_unsaved_changes_3");
+            await studioUtils.saveScreenshot('layer_wizard_unsaved_changes_3');
             await confirmationDialog.waitForDialogOpened();
             let actualMessage = await confirmationDialog.getWarningMessage();
             assert.equal(actualMessage, appConst.PROJECT_UNSAVED_CHANGES_MESSAGE);
@@ -113,7 +115,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
 
     it("WHEN existing layer selected and has been deleted THEN expected notification message should appear",
         async () => {
-            //1.Select and delete the layer:
+            // 1.Select and delete the layer:
             await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
@@ -123,7 +125,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -15,7 +15,7 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
         webDriverHelper.setupBrowser();
     }
 
-    let PROJECT_DISPLAY_NAME = appConst.generateRandomName("Project1");
+    const PROJECT_DISPLAY_NAME = appConst.generateRandomName('Project1');
 
     it(`WHEN new project wizard is opened THEN required elements should be present in the wizard page`,
         async () => {
