@@ -20,7 +20,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
     }
     const TEST_NUMBER = '12345';
 
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
 
     it(`GIVEN existing project has been opened WHEN application has been selected THEN expected application should be present in selected options view`,
         async () => {
