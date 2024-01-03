@@ -127,16 +127,16 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Select existing folder:
+            // 2. Select existing folder:
             await studioUtils.findAndSelectItem(FOLDER_WORK_IN_PROGRESS.displayName);
-            //3. open Versions Panel
+            // 3. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            //4. Click on the first item in versions widget:
+            // 4. Click on the first item in versions widget:
             await browseVersionsWidget.clickAndExpandVersionItemByHeader('Created');
             await studioUtils.saveScreenshot('revert_button_should_be_disabled1');
-            //5. Verify that Revert button in browse versions panel is disabled:
+            // 5. Verify that Revert button in browse versions panel is disabled:
             await browseVersionsWidget.waitForRevertButtonDisabled();
         });
 
@@ -174,7 +174,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentBrowsePanel.waitForNewButtonDisabled();
             // 4. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
-            studioUtils.saveScreenshot('project_contributor_3');
+            await studioUtils.saveScreenshot('project_contributor_3');
             // 5. Verify that 'Create Issue' and 'Request Publishing' menu items are enabled for Contributor role:
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
@@ -252,23 +252,23 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Select the folder and open Request wizard:
+            // 2. Select the folder and open Request wizard:
             await studioUtils.findAndSelectItem(FOLDER_READY_TO_PUBLISH.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.clickOnNextButton();
             await createRequestPublishDialog.typeInChangesInput('contributor request');
-            //3. Click on 'Create Request' button:
+            // 3. Click on 'Create Request' button:
             await createRequestPublishDialog.clickOnCreateRequestButton();
-            //4. Verify that Create Request dialog closes:
+            // 4. Verify that Create Request dialog closes:
             await publishRequestDetailsDialog.waitForClosed();
-            //5. Click on issue-button and open the request:
+            // 5. Click on issue-button and open the request:
             await contentItemPreviewPanel.clickOnIssueButtonByName('contributor request');
-            //6. Verify that 'Request Details' dialog is loaded:
+            // 6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
-            //7. Verify that 'Publish Now' button is disabled:
+            // 7. Verify that 'Publish Now' button is disabled:
             await studioUtils.saveScreenshot('project_contributor_4');
             await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
         });
@@ -278,19 +278,19 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
     it("GIVEN user with 'Contributor' role is logged in WHEN 2 folders have been selected THEN 'Duplicate' button should be disabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Select 2 folders:
+            // 2. Select 2 folders:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(FOLDER_READY_TO_PUBLISH.displayName);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(FOLDER_WORK_IN_PROGRESS.displayName);
-            //3. Verify that 'Duplicate' button is disabled:
+            // 3. Verify that 'Duplicate' button is disabled:
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
         });
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         //Do not close the Login page:
-        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });

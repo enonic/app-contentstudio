@@ -160,7 +160,6 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
         });
 
-
     beforeEach(async () => {
         return await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });

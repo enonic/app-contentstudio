@@ -12,13 +12,13 @@ const appConst = require('../../libs/app_const');
 
 describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const TEST_FOLDER_DISPLAY_NAME = studioUtils.generateRandomName("folder");
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    const LAYER1_DISPLAY_NAME = studioUtils.generateRandomName("layer");
-    const LAYER2_DISPLAY_NAME = studioUtils.generateRandomName("layer");
+    const TEST_FOLDER_DISPLAY_NAME = studioUtils.generateRandomName('folder');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const LAYER1_DISPLAY_NAME = studioUtils.generateRandomName('layer');
+    const LAYER2_DISPLAY_NAME = studioUtils.generateRandomName('layer');
 
     it("Preconditions: new project with folder should be added",
         async () => {
@@ -98,7 +98,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -12,11 +12,11 @@ const projectUtils = require('../../libs/project.utils');
 
 describe('project.delete.in.grid.panel.spec - ui-tests for saving/deleting a project', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
 
     it(`New project should be added`,
         async () => {
@@ -31,10 +31,9 @@ describe('project.delete.in.grid.panel.spec - ui-tests for saving/deleting a pro
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await settingsBrowsePanel.clickOnSyncButton();
-
             let messages = await settingsBrowsePanel.waitForNotificationMessages();
             assert.equal(messages[0], appConst.PROJECT_SYNC.STARTED, "Expected message should be displayed");
-            //"Content synchronisation job has finished" - this message should appear:
+            // "Content synchronisation job has finished" - this message should appear:
             await settingsBrowsePanel.waitForExpectedNotificationMessage(appConst.PROJECT_SYNC.FINISHED);
         });
 
@@ -42,20 +41,20 @@ describe('project.delete.in.grid.panel.spec - ui-tests for saving/deleting a pro
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmValueDialog = new ConfirmValueDialog();
-            //1. click on the project:
+            // 1. click on the project:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //2. Verify that Delete button gets enabled, then click on it
+            // 2. Verify that Delete button gets enabled, then click on it
             await settingsBrowsePanel.clickOnDeleteButton();
-            //3. Verify that Confirmation Dialog is loaded:
+            // 3. Verify that Confirmation Dialog is loaded:
             await confirmValueDialog.waitForDialogOpened();
             await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME);
-            //4. Click on Confirm button:
+            // 4. Click on Confirm button:
             await confirmValueDialog.clickOnConfirmButton();
-            //5. Verify the notification message:
+            // 5. Verify the notification message:
             let actualMessage = await settingsBrowsePanel.waitForNotificationMessage();
-            await studioUtils.saveScreenshot("project_deleted_1");
+            await studioUtils.saveScreenshot('project_deleted_1');
             assert.equal(actualMessage, appConst.projectDeletedMessage(PROJECT_DISPLAY_NAME));
-            //6. Verify that the project is not present in Browse Panel:
+            // 6. Verify that the project is not present in Browse Panel:
             await settingsBrowsePanel.waitForProjectNotDisplayed(PROJECT_DISPLAY_NAME);
         });
 
@@ -65,7 +64,7 @@ describe('project.delete.in.grid.panel.spec - ui-tests for saving/deleting a pro
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
