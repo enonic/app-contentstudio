@@ -15,6 +15,7 @@ describe('project.wizard.dialog.access.mode.step.spec - ui-tests for Access mode
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
+    const PARENT_DEFAULT = 'Default';
 
     it(`GIVEN wizard dialog is opened AND Default project is selected here WHEN navigate to Access mode wizard step THEN 'Copy from parent' button should be enabled`,
         async () => {
@@ -22,24 +23,24 @@ describe('project.wizard.dialog.access.mode.step.spec - ui-tests for Access mode
             let languageStep = new ProjectWizardDialogLanguageStep();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
             let accessModeStep = new ProjectWizardDialogAccessModeStep();
-            //1.Open new project wizard:
+            // 1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            //2. Select Default project and go to 'Access mode' step
+            // 2. Select Default project and go to 'Access mode' step
             await parentProjectStep.clickOnLayerRadioButton();
-            await parentProjectStep.selectParentProject("Default");
+            await parentProjectStep.selectParentProject(PARENT_DEFAULT);
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
-            //3. Verify that 'Next' button is disabled in Access mode step:
+            // 3. Verify that 'Next' button is disabled in Access mode step:
             await accessModeStep.waitForNextButtonDisabled();
-            //4. Click on 'Copy from parent' button:
-            await accessModeStep.clickOnCopyFromParentButton();
+            // 4. Click on 'Copy from parent' button:
+            await accessModeStep.clickOnCopyFromParentButton(PARENT_DEFAULT);
             let actualMessage = await accessModeStep.waitForNotificationMessage();
             assert.equal(actualMessage, 'Access mode successfully copied from \"Default\"');
             await studioUtils.saveScreenshot("access_mode_copied_from_default");
-            //5. Verify that 'Next' button gets enabled now:
+            // 5. Verify that 'Next' button gets enabled now:
             await accessModeStep.waitForNextButtonEnabled();
-            //5. Verify that 'Copy from parent' button gets disabled now:
-            await accessModeStep.waitForCopyFromParentButtonDisabled();
+            // 6. Verify that 'Copy from parent' button gets disabled now:
+            await accessModeStep.waitForCopyFromParentButtonDisabled(PARENT_DEFAULT);
         });
 
     it(`GIVEN wizard dialog is opened AND Default project is selected here WHEN navigate to Access mode wizard step THEN 'Copy from parent' button should be enabled`,
@@ -48,28 +49,28 @@ describe('project.wizard.dialog.access.mode.step.spec - ui-tests for Access mode
             let languageStep = new ProjectWizardDialogLanguageStep();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
             let accessModeStep = new ProjectWizardDialogAccessModeStep();
-            //1.Open new project wizard:
+            // 1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            //2. Select Default project and go to Access mode step
+            // 2. Select Default project and go to Access mode step
             await parentProjectStep.clickOnLayerRadioButton();
-            await parentProjectStep.selectParentProject("Default");
+            await parentProjectStep.selectParentProject(PARENT_DEFAULT);
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
-            //3. Verify that 'Next' button is disabled in Access mode step:
+            // 3. Verify that 'Next' button is disabled in Access mode step:
             await accessModeStep.waitForNextButtonDisabled();
-            //4. Click on 'Public' radio button:
+            // 4. Click on 'Public' radio button:
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
-            //5. Verify that Next button gets enabled:
+            // 5. Verify that Next button gets enabled:
             await accessModeStep.waitForNextButtonEnabled();
-            //6. Verify that 'Copy from parent' button is enabled:
-            await accessModeStep.waitForCopyFromParentButtonEnabled();
-            //7.Click on 'Private' radio button
+            // 6. Verify that 'Copy from parent' button is enabled:
+            await accessModeStep.waitForCopyFromParentButtonEnabled(PARENT_DEFAULT);
+            // 7.Click on 'Private' radio button
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PRIVATE);
-            await studioUtils.saveScreenshot("access_mode_the_same_in_default");
-            //8. Verify that 'Next' button gets enabled:
+            await studioUtils.saveScreenshot('access_mode_the_same_in_default');
+            // 8. Verify that 'Next' button gets enabled:
             await accessModeStep.waitForNextButtonEnabled();
-            //9. Verify that 'Copy from parent' button gets disabled again:
-            await accessModeStep.waitForCopyFromParentButtonDisabled();
+            // 9. Verify that 'Copy from parent' button gets disabled again:
+            await accessModeStep.waitForCopyFromParentButtonDisabled(PARENT_DEFAULT);
         });
 
     beforeEach(async () => {
