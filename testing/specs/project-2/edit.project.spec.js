@@ -100,13 +100,15 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            await projectWizard.clickOnAccessModeRadio("Public");
+            // 2. Click on 'Public' radio:
+            await projectWizard.clickOnAccessModeRadio('Public');
+            // 3. Confirm, click on 'Yes' button:
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
-            // 2. Verify that combobox in 'Custom mode access' gets disabled:
+            // 4. Verify that combobox in 'Custom mode access' gets disabled:
             await projectWizard.waitForCustomAccessModeComboboxDisabled();
-            // 3. Verify that 'Save' button gets enabled:
+            // 5. Verify that 'Save' button gets enabled:
             await projectWizard.waitForSaveButtonEnabled();
         });
 

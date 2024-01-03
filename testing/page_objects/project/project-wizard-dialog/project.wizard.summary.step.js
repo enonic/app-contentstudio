@@ -1,10 +1,8 @@
 /**
  * Created on 05.08.2022
  */
-const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const ComboBox = require('../../components/loader.combobox');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 
 const XPATH = {
@@ -12,10 +10,10 @@ const XPATH = {
     createProjectButton: "//button[contains(@id,'DialogButton') and child::span[text()='Create Project']]",
     projectNameXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Project name/id']]/following-sibling::div[contains(@id,'SummaryValueContainer')]/h6",
     accessModeValueXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Access mode']]/following-sibling::div[contains(@id,'AccessValueContainer')]/h6",
-    parentProjectNameXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Parent Project']]/following-sibling::div[contains(@id,'SummaryValueContainer')]/h6",
+    parentProjectNameXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Parent Projects']]/following-sibling::div[contains(@id,'ProjectsValueContainer')]/h6",
     defaultLanguageXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Default language']]/following-sibling::div[contains(@id,'LanguageValueContainer')]//h6[contains(@class,'main-name')]",
 };
-const DESCRIPTION = "View summary of a new project";
+const DESCRIPTION = 'View summary of a new project';
 
 
 class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
@@ -50,8 +48,7 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
             await this.waitForElementDisplayed(this.accessMode, appConst.mediumTimeout);
             return await this.getText(this.accessMode);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_summary_step");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_summary_step');
             throw new Error("Summary step, access mode, screenshot:" + screenshot + "  " + err);
         }
     }
@@ -61,8 +58,7 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
             await this.waitForElementDisplayed(this.parentProjectName, appConst.mediumTimeout);
             return await this.getText(this.parentProjectName);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_summary_step");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_summary_step');
             throw new Error("Summary step, parent project name, screenshot:" + screenshot + "  " + err);
         }
     }
@@ -72,8 +68,7 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
             await this.waitForElementDisplayed(this.defaultLanguage, appConst.mediumTimeout);
             return await this.getText(this.defaultLanguage);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_summary_step");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_summary_step');
             throw new Error("Summary step, parent project name, screenshot:" + screenshot + "  " + err);
         }
     }
@@ -83,8 +78,7 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
             await this.waitForElementDisplayed(this.projectName, appConst.mediumTimeout);
             return await this.getText(this.projectName);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_summary_step");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_summary_step');
             throw new Error("Summary step, project name, screenshot:" + screenshot + "  " + err);
         }
     }
