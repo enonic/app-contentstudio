@@ -10,9 +10,9 @@ import {LayoutComponentType} from '../../app/page/region/LayoutComponentType';
 import {SetFragmentComponentEvent} from '../event/outgoing/manipulation/SetFragmentComponentEvent';
 import {FragmentDropdown} from '../../app/wizard/page/contextwindow/inspect/region/FragmentDropdown';
 import Q from 'q';
-import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ContentSummary} from '../../app/content/ContentSummary';
 import {ContentId} from '../../app/content/ContentId';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class FragmentPlaceholder
     extends ItemViewPlaceholder {
@@ -39,24 +39,26 @@ export class FragmentPlaceholder
     }
 
     protected initListeners(): void {
-        this.fragmentDropdown.onOptionSelected((event: OptionSelectedEvent<ContentSummary>) => {
-            const contentId: ContentId = event.getOption().getDisplayValue().getContentId();
+        this.fragmentDropdown.onSelectionChanged((selectionChange: SelectionChange<ContentSummary>) => {
+            if (selectionChange.selected?.length > 0) {
+                const contentId: ContentId = selectionChange.selected[0].getContentId();
 
-            if (this.isInsideLayout()) {
-                new GetContentByIdRequest(contentId).sendAndParse().done((content: Content) => {
-                    let fragmentComponent = content.getPage() ? content.getPage().getFragment() : null;
+                if (this.isInsideLayout()) {
+                    new GetContentByIdRequest(contentId).sendAndParse().done((content: Content) => {
+                        let fragmentComponent = content.getPage() ? content.getPage().getFragment() : null;
 
-                    if (fragmentComponent && fragmentComponent.getType() instanceof LayoutComponentType) {
-                        this.fragmentDropdown.deselectOptions();
-                        new ShowWarningLiveEditEvent(i18n('notify.nestedLayouts')).fire();
-                    } else {
-                        new SetFragmentComponentEvent(this.fragmentComponentView.getPath(), contentId.toString()).fire();
-                        this.fragmentComponentView.showLoadingSpinner();
-                    }
-                });
-            } else {
-                new SetFragmentComponentEvent(this.fragmentComponentView.getPath(), contentId.toString()).fire();
-                this.fragmentComponentView.showLoadingSpinner();
+                        if (fragmentComponent && fragmentComponent.getType() instanceof LayoutComponentType) {
+                            this.fragmentDropdown.setSelectedFragment(null);
+                            new ShowWarningLiveEditEvent(i18n('notify.nestedLayouts')).fire();
+                        } else {
+                            new SetFragmentComponentEvent(this.fragmentComponentView.getPath(), contentId.toString()).fire();
+                            this.fragmentComponentView.showLoadingSpinner();
+                        }
+                    });
+                } else {
+                    new SetFragmentComponentEvent(this.fragmentComponentView.getPath(), contentId.toString()).fire();
+                    this.fragmentComponentView.showLoadingSpinner();
+                }
             }
         });
     }
