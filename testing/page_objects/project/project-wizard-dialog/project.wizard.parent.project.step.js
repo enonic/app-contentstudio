@@ -10,7 +10,7 @@ const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
 
     projectSelectedOptionView: "//div[contains(@id,'ProjectSelectedOptionView')]",
-    parentProjectComboboxDiv: "//div[contains(@id,'ProjectsComboBox')]",
+    parentProjectComboboxDiv: "//div[contains(@id,'ProjectsSelector')]",
 };
 const DESCRIPTION = "To set up synchronization of a content with another project, select it here (optional)";
 
