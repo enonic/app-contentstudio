@@ -14,6 +14,7 @@ describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizar
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
+    const PARENT_DEFAULT = 'Default';
 
     it(`GIVEN Default project is selected AND wizard dialog is opened WHEN a language has been selected in the wizard step THEN 'Copy from parent' button gets enabled`,
         async () => {
@@ -24,18 +25,18 @@ describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizar
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select Default project:
             await parentProjectStep.clickOnLayerRadioButton();
-            await parentProjectStep.selectParentProject("Default");
+            await parentProjectStep.selectParentProject(PARENT_DEFAULT);
             await parentProjectStep.clickOnNextButton();
             // 3. Verify that 'Copy from parent' button is disabled:
-            await languageStep.waitForCopyFromParentButtonDisabled();
+            await languageStep.waitForCopyFromParentButtonDisabled(PARENT_DEFAULT);
             // 4. Select the language:
             await languageStep.selectLanguage(appConst.LANGUAGES.EN);
             // 5. Verify that 'Next' button gets visible now:
             await languageStep.waitForNextButtonDisplayed();
             // 6. Verify that 'Copy from parent' gets enabled, Click on the button:
-            await languageStep.clickOnCopyFromParentButton();
+            await languageStep.clickOnCopyFromParentButton(PARENT_DEFAULT);
             let message = await languageStep.waitForNotificationMessage();
-            assert.equal(message, appConst.languageCopiedNotification("Default"), "Expected notification message");
+            assert.equal(message, appConst.languageCopiedNotification(PARENT_DEFAULT), "Expected notification message");
             // 7. Verify that 'Skip' button gets visible again:
             await languageStep.waitForSkipButtonDisplayed();
             // 8. Verify that Language options filter input gets visible:
@@ -51,7 +52,7 @@ describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizar
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select Default project:
             await parentProjectStep.clickOnLayerRadioButton();
-            await parentProjectStep.selectParentProject("Default");
+            await parentProjectStep.selectParentProject(PARENT_DEFAULT);
             await parentProjectStep.clickOnNextButton();
             // 3. Select a language:
             await languageStep.selectLanguage(appConst.LANGUAGES.EN);
@@ -61,7 +62,7 @@ describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizar
             // 5. Verify that 'Skip' button gets visible again
             await languageStep.waitForSkipButtonDisplayed();
             // 6. 'Copy from parent' button gets disabled again:
-            await languageStep.waitForCopyFromParentButtonDisabled();
+            await languageStep.waitForCopyFromParentButtonDisabled(PARENT_DEFAULT);
         });
 
     beforeEach(async () => {

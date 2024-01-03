@@ -8,7 +8,6 @@ const ProjectWizardDialog = require('./project.wizard.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
-
     projectSelectedOptionView: "//div[contains(@id,'ProjectSelectedOptionView')]",
     parentProjectComboboxDiv: "//div[contains(@id,'ProjectsSelector')]",
 };
@@ -33,8 +32,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
             await this.waitForElementDisplayed(this.projectRadioButton, appConst.mediumTimeout);
             await this.clickOnElement(this.projectRadioButton);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_project_radio");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_project_radio');
             throw new Error("Error after clicking on project radio. screenshot: " + screenshot + "  " + err);
         }
     }
@@ -51,8 +49,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
             await this.clickOnElement(this.layerRadioButton);
             await this.pause(200);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_layer_radio");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_layer_radio');
             throw new Error("Error after clicking on layer radio. screenshot: " + screenshot + "  " + err);
         }
     }
