@@ -26,7 +26,7 @@ export class FragmentDropdown
     constructor() {
         super(new FragmentDropdownList(), {
             maxSelected: 1,
-            className: 'fragment-dropdown',
+            className: 'common-page-dropdown',
         });
     }
 
