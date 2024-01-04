@@ -8,7 +8,7 @@ export class FragmentDropdownList extends LazyListBox<ContentSummary> {
     private loader: FragmentContentSummaryLoader;
 
     constructor() {
-        super('fragment-list-box');
+        super('common-page-list-box');
     }
 
     setLoader(loader: FragmentContentSummaryLoader): this {
