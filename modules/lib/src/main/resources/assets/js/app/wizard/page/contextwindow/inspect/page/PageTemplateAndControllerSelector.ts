@@ -3,7 +3,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {PageTemplateOption} from './PageTemplateOption';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {GetPageTemplatesByCanRenderRequest} from './GetPageTemplatesByCanRenderRequest';
@@ -13,9 +12,7 @@ import {PageTemplate} from '../../../../../content/PageTemplate';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
 import {PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './PageTemplateAndSelectorViewer';
 import {PageControllerOption} from './PageControllerOption';
-import {Dropdown, DropdownConfig} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ContentServerChangeItem} from '../../../../../event/ContentServerChangeItem';
 import {Descriptor} from '../../../../../page/Descriptor';
@@ -27,41 +24,85 @@ import {PageUpdatedEvent} from '../../../../../page/event/PageUpdatedEvent';
 import {PageControllerUpdatedEvent} from '../../../../../page/event/PageControllerUpdatedEvent';
 import {PageTemplateUpdatedEvent} from '../../../../../page/event/PageTemplateUpdatedEvent';
 import {Page} from '../../../../../page/Page';
+import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
+import {PageOptionsList} from './PageOptionsList';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class PageTemplateAndControllerSelector
-    extends Dropdown<PageTemplateAndControllerOption> {
+    extends FilterableListBoxWrapper<PageTemplateAndControllerOption> {
+
+    protected listBox: PageOptionsList;
+
+    protected selectedViewer: PageTemplateAndSelectorViewer;
+
+    private selectedOption: PageTemplateAndControllerOption;
 
     private liveEditModel: LiveEditModel;
 
-    private optionViewer: PageTemplateAndSelectorViewer;
-
-    private autoOption: Option<PageTemplateOption>;
+    private autoOption: PageTemplateOption;
 
     constructor() {
-        const optionViewer = new PageTemplateAndSelectorViewer();
-        super(
-            'pageTemplateAndController',
-            {optionDisplayValueViewer: optionViewer, rowHeight: 50} as DropdownConfig<PageTemplateOption>
-        );
-
-        this.optionViewer = optionViewer;
+        super(new PageOptionsList(), {
+            maxSelected: 1,
+            className: 'common-page-dropdown',
+            filter: PageTemplateAndControllerSelector.filterFunction,
+        });
 
         this.initServerEventsListeners();
     }
 
-    setModel(model: LiveEditModel) {
+    protected initElements(): void {
+        super.initElements();
+
+        this.selectedViewer = new PageTemplateAndSelectorViewer('selected-option');
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        this.onSelectionChanged((selection: SelectionChange<PageTemplateAndControllerOption>) => {
+            if (selection.selected?.length > 0) {
+                this.selectedViewer.setObject(selection.selected[0]);
+                this.selectedViewer.show();
+                this.optionFilterInput.hide();
+            } else {
+                this.selectedViewer.hide();
+                this.optionFilterInput.show();
+            }
+        });
+    }
+
+    protected doShowDropdown(): void {
+        super.doShowDropdown();
+
+        this.selectedViewer.hide();
+        this.optionFilterInput.show();
+    }
+
+    protected doHideDropdown(): void {
+        super.doHideDropdown();
+
+        if (this.selectedOption) {
+            this.selectedViewer.show();
+            this.optionFilterInput.hide();
+        }
+    }
+
+    setModel(model: LiveEditModel): void {
         this.liveEditModel = model;
         PageTemplateAndSelectorViewer.setDefaultPageTemplate(this.liveEditModel.getDefaultModels().getDefaultPageTemplate());
 
         if (!this.liveEditModel.getContent().isPageTemplate() && !PageState.getState()?.isFragment()) {
-            this.autoOption = Option.create<PageTemplateOption>()
-                .setValue('__auto__')
-                .setDisplayValue(new PageTemplateOption())
-                .build();
+            this.autoOption = new PageTemplateOption();
         }
 
         this.initPageModelListeners();
         this.reload();
+    }
+
+    getSelectedOption(): PageTemplateAndControllerOption {
+        return this.selectedOption;
     }
 
     private initServerEventsListeners() {
@@ -79,18 +120,17 @@ export class PageTemplateAndControllerSelector
         eventsHandler.onContentDeleted((items: ContentServerChangeItem[]) => {
             // Remove template from the list, if the corresponding content was deleted
             items.forEach(item => {
-                const option = this.getOptionByValue(item.getContentId().toString());
-                if (option) {
-                    this.removeOption(option);
+                const listItem = this.getItemById(item.getId());
+
+                if (listItem) {
+                    this.listBox.removeItem(listItem);
                 }
             });
         });
 
-        this.onOptionSelected((event: OptionSelectedEvent<PageTemplateAndControllerOption>) => {
-            const selectedOption: PageTemplateAndControllerOption = event.getOption().getDisplayValue();
-            const previousOption: PageTemplateAndControllerOption = event.getPreviousOption() ?
-                                                                    event.getPreviousOption().getDisplayValue() :
-                                                                    null;
+        this.onSelectionChanged((selectionChange: SelectionChange<PageTemplateAndControllerOption>) => {
+            const selectedOption: PageTemplateAndControllerOption = selectionChange.selected[0];
+            const previousOption: PageTemplateAndControllerOption = this.selectedOption;
 
             const selectedIsTemplate = ObjectHelper.iFrameSafeInstanceOf(selectedOption, PageTemplateOption);
             const previousIsTemplate = ObjectHelper.iFrameSafeInstanceOf(previousOption, PageTemplateOption);
@@ -103,14 +143,14 @@ export class PageTemplateAndControllerSelector
             // controller -> template
             if (!previousIsTemplate && selectedIsTemplate) {
                 const selectionHandler = () => this.doSelectTemplate(selectedOption as PageTemplateOption);
-                this.openConfirmationDialog(i18n('dialog.template.change'), event, selectionHandler);
+                this.openConfirmationDialog(i18n('dialog.template.change'), selectionHandler);
                 // template -> template
             } else if (previousIsTemplate && selectedIsTemplate) {
                 this.doSelectTemplate(selectedOption as PageTemplateOption);
                 // controller -> controller
             } else if (!previousIsTemplate && !selectedIsTemplate) {
                 const selectionHandler = () => this.doSelectController(selectedOption as PageControllerOption);
-                this.openConfirmationDialog(i18n('dialog.controller.change'), event, selectionHandler);
+                this.openConfirmationDialog(i18n('dialog.controller.change'), selectionHandler);
                 // template -> controller
             } else {
                 this.doSelectController(selectedOption as PageControllerOption);
@@ -118,19 +158,13 @@ export class PageTemplateAndControllerSelector
         });
     }
 
-    private openConfirmationDialog(
-        message: string,
-        event: OptionSelectedEvent<PageTemplateAndControllerOption>,
-        selectionHandler: (event: OptionSelectedEvent<PageTemplateAndControllerOption>
-        ) => void) {
-
+    private openConfirmationDialog(message: string, selectionHandler: () => void): void {
         return new ConfirmationDialog()
             .setQuestion(message)
             .setNoCallback(() => {
-                this.selectOption(event.getPreviousOption(), true);
-                this.resetActiveSelection();
+                this.selectOptionByValue(this.selectedOption.getKey());
             })
-            .setYesCallback(() => selectionHandler(event))
+            .setYesCallback(() => selectionHandler())
             .open();
     }
 
@@ -157,28 +191,26 @@ export class PageTemplateAndControllerSelector
         Q.all([
             this.loadPageTemplates(),
             this.loadPageControllers()
-        ]).spread((templateOptions: Option<PageTemplateOption>[], controllerOptions: Option<PageControllerOption>[]) => {
+        ]).spread((templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]) => {
             this.handleReloaded(templateOptions, controllerOptions);
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private handleReloaded(templateOptions: Option<PageTemplateOption>[], controllerOptions: Option<PageControllerOption>[]): void {
-        this.removeAllOptions();
+    private handleReloaded(templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]): void {
         this.initOptionsList(templateOptions, controllerOptions);
         this.selectInitialOption();
     }
 
-    private loadPageTemplates(): Q.Promise<Option<PageTemplateOption>[]> {
-
-        const deferred = Q.defer<Option<PageTemplateOption>[]>();
+    private loadPageTemplates(): Q.Promise<PageTemplateOption[]> {
+        const deferred = Q.defer<PageTemplateOption[]>();
 
         const loader = new PageTemplateLoader(
             new GetPageTemplatesByCanRenderRequest(this.liveEditModel.getSiteModel().getSiteId(), this.liveEditModel.getContent().getType())
         );
 
         loader.onLoadedData((event: LoadedDataEvent<PageTemplate>) => {
-            const options: Option<PageTemplateOption>[] = event.getData().map(
-                (pageTemplate: PageTemplate) => PageTemplateAndControllerSelector.createTemplateOption(pageTemplate)
+            const options: PageTemplateOption[] = event.getData().map(
+                (pageTemplate: PageTemplate) => new PageTemplateOption(pageTemplate)
             );
             deferred.resolve(options);
 
@@ -190,17 +222,15 @@ export class PageTemplateAndControllerSelector
         return deferred.promise;
     }
 
-    private loadPageControllers(): Q.Promise<Option<PageControllerOption>[]> {
-
-        const deferred = Q.defer<Option<PageControllerOption>[]>();
-
+    private loadPageControllers(): Q.Promise<PageControllerOption[]> {
+        const deferred = Q.defer<PageControllerOption[]>();
         const loader = new ComponentDescriptorsLoader()
             .setComponentType(PageComponentType.get())
             .setContentId(this.liveEditModel.getContent().getContentId());
 
         loader.onLoadedData((event: LoadedDataEvent<Descriptor>) => {
-            const options: Option<PageControllerOption>[] = event.getData().map(
-                (pageDescriptor: Descriptor) => PageTemplateAndControllerSelector.createControllerOption(pageDescriptor)
+            const options: PageControllerOption[] = event.getData().map(
+                (pageDescriptor: Descriptor) => new PageControllerOption(pageDescriptor)
             );
             deferred.resolve(options);
 
@@ -212,57 +242,28 @@ export class PageTemplateAndControllerSelector
         return deferred.promise;
     }
 
-    private static createTemplateOption(data: PageTemplate): Option<PageTemplateOption> {
-        const value = data.getId().toString();
-        const displayValue = new PageTemplateOption(data);
-        const indices: string[] = [
-            data.getName().toString(),
-            data.getDisplayName(),
-            data.getController().toString()
-        ];
+    private initOptionsList(templateOptions: PageTemplateOption[], controllerOptions: PageControllerOption[]): void {
+        this.listBox.clearItems();
 
-        return Option.create<PageTemplateOption>()
-            .setValue(value)
-            .setDisplayValue(displayValue)
-            .setIndices(indices)
-            .build();
-    }
-
-    private static createControllerOption(data: Descriptor): Option<PageControllerOption> {
-        const value = data.getKey().toString();
-        const displayValue = new PageControllerOption(data);
-        const indices: string[] = [
-            data.getName().toString(),
-            data.getDisplayName()
-        ];
-
-        return Option.create<PageControllerOption>()
-            .setValue(value)
-            .setDisplayValue(displayValue)
-            .setIndices(indices)
-            .build();
-    }
-
-    private initOptionsList(templateOptions: Option<PageTemplateOption>[], controllerOptions: Option<PageControllerOption>[]) {
         if (this.autoOption) {
-            this.addOption(this.autoOption);
+            this.listBox.addItem(this.autoOption);
         }
 
-        templateOptions.forEach(option => this.addOption(option));
-        controllerOptions.forEach(option => this.addOption(option));
+        this.listBox.addItems(templateOptions);
+        this.listBox.addItems(controllerOptions);
     }
 
-    private selectInitialOption() {
+    private selectInitialOption(): void {
         const currentPageState: Page = PageState.getState();
 
         if (currentPageState?.hasController()) {
-            if (currentPageState.getController().toString() !== this.getValue()) {
+            if (currentPageState.getController().toString() !== this.selectedOption?.getKey()) {
                 this.selectOptionByValue(currentPageState.getController().toString());
             }
         } else if (currentPageState?.hasTemplate()) {
             this.selectOptionByValue(currentPageState.getTemplate().toString());
         } else if (this.autoOption) {
-            this.selectOption(this.autoOption, true);
+            this.selectOptionByValue(this.autoOption.getKey());
         }
     }
 
@@ -274,7 +275,7 @@ export class PageTemplateAndControllerSelector
                 if (pageTemplateKey) {
                     this.selectOptionByValue(pageTemplateKey.toString());
                 } else if (this.autoOption) {
-                    this.selectOption(this.autoOption, true);
+                    this.selectOptionByValue(this.autoOption.getKey());
                 }
             } else if (event instanceof PageControllerUpdatedEvent) {
                 this.selectOptionByValue(event.getPageController().toString());
@@ -283,18 +284,40 @@ export class PageTemplateAndControllerSelector
 
         PageState.getEvents().onPageReset(() => {
             if (this.autoOption) {
-                this.selectOption(this.autoOption, true);
+                this.selectOptionByValue(this.autoOption.getKey());
             } else {
                 this.reset();
             }
         });
     }
 
+    private reset(): void {
+        this.selectedOption = null;
+    }
+
     private selectOptionByValue(key: string): void {
-        const optionToSelect: Option<PageTemplateAndControllerOption> = this.getOptionByValue(key);
+        this.deselectAll(true);
+        const optionToSelect: PageTemplateAndControllerOption = this.getItemById(key);
 
         if (optionToSelect) {
-            this.selectOption(optionToSelect, true);
+            this.selectedOption = optionToSelect;
+            this.selectedViewer.setObject(optionToSelect);
+            this.optionFilterInput.hide();
+            this.select(optionToSelect, true);
         }
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.filterContainer.appendChild(this.selectedViewer);
+
+            return rendered;
+        });
+    }
+
+    private static filterFunction(item: PageTemplateAndControllerOption, searchString: string): boolean {
+        return !StringHelper.isBlank(searchString) &&
+               item.getData().getName().toString().toLowerCase().indexOf(searchString.toLowerCase()) >= 0 ||
+               item.getData().getDisplayName().toString().toLowerCase().indexOf(searchString.toLowerCase()) >= 0;
     }
 }

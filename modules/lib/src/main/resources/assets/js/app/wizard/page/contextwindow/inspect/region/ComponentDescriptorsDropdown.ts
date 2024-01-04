@@ -8,7 +8,7 @@ import * as Q from 'q';
 import {DescriptorViewer} from '../DescriptorViewer';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
-import {DescriptorListBox} from '../DescriptorListBox';
+import {DescriptorListBox} from './DescriptorListBox';
 import {DescriptorKey} from '../../../../../page/DescriptorKey';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
@@ -24,7 +24,7 @@ export class ComponentDescriptorsDropdown
     constructor() {
         super(new DescriptorListBox(), {
             maxSelected: 1,
-            className: 'descriptor-based-dropdown',
+            className: 'common-page-dropdown',
             filter: ComponentDescriptorsDropdown.filterFunction,
         });
     }

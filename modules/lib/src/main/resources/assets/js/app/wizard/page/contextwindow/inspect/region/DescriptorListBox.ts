@@ -1,11 +1,11 @@
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {Descriptor} from '../../../../page/Descriptor';
-import {DescriptorViewer} from './DescriptorViewer';
+import {Descriptor} from '../../../../../page/Descriptor';
+import {DescriptorViewer} from '../DescriptorViewer';
 
 export class DescriptorListBox extends ListBox<Descriptor> {
 
     constructor() {
-        super('descriptor-list-box');
+        super('common-page-list-box');
     }
 
     protected createItemView(item: Descriptor, readOnly: boolean): DescriptorViewer {
