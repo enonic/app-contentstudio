@@ -60,7 +60,7 @@ export class ProjectsTreeBuilder {
 
         const notAvailableParentProject = new ProjectBuilder()
             .setName(parentProjectsTreeItem.getName())
-            .setParents([parentProjectsTreeItem.getParent()])
+            .setParents(parentProjectsTreeItem.getParent() ? [parentProjectsTreeItem.getParent()] : null)
             .build();
 
         this.projectsTree.push(notAvailableParentProject);
