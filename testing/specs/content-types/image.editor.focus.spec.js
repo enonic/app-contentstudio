@@ -38,7 +38,7 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             if (isOpened) {
                 await contentWizard.dismissAlert();
             }
-            assert.ok(isOpened === false, "Alert should appear after trying to close the wizard with unsaved changes");
+            assert.ok(isOpened, "Alert should appear after trying to close the wizard with unsaved changes");
         });
 
     it(`GIVEN existing image is opened WHEN focus circle has been moved AND 'Apply' button pressed THEN focus circle should be displayed in the editor`,
