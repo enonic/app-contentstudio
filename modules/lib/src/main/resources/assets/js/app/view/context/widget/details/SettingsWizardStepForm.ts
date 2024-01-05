@@ -4,7 +4,7 @@ import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalCombo
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
-import {LocaleComboBox} from '../../../../locale/LocaleComboBox';
+import {LocaleComboBox, LocaleFormInputElWrapper} from '../../../../locale/LocaleComboBox';
 import {PrincipalLoader} from '../../../../security/PrincipalLoader';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
@@ -35,17 +35,16 @@ export class SettingsWizardStepForm
 
         this.ownerCombo.onOptionSelected(listener);
         this.ownerCombo.onOptionDeselected(listener);
-        this.localeCombo.onOptionSelected(listener);
-        this.localeCombo.onOptionDeselected(listener);
+        this.localeCombo.onSelectionChanged(listener);
     }
 
     layout(content: ContentSummary): void {
         super.layout(content);
 
 
-        this.localeCombo.getComboBox().getInput().openForTyping();
-        this.localeCombo.getComboBox().setEnabled(true);
-        this.localeCombo.setValue(this.content.getLanguage() || '', true);
+        this.localeCombo.openForTyping();
+        this.localeCombo.setEnabled(true);
+        this.localeCombo.setSelectedLocale(this.content.getLanguage() || '');
 
         this.ownerCombo.setValue(this.content.getOwner()?.toString() || '', true);
     }
@@ -73,8 +72,8 @@ export class SettingsWizardStepForm
     }
 
     private addLocaleFormItem(): FormItem {
-        this.localeCombo = LocaleComboBox.create().setMaximumOccurrences(1).build() as LocaleComboBox;
-        return new FormItemBuilder(this.localeCombo).setLabel(i18n('field.lang')).build();
+        this.localeCombo = new LocaleComboBox();
+        return new FormItemBuilder(new LocaleFormInputElWrapper(this.localeCombo)).setLabel(i18n('field.lang')).build();
     }
 
     private addOwnerFormItem(): FormItem {
@@ -106,7 +105,7 @@ export class SettingsWizardStepForm
     }
 
     applyChange(request: UpdateContentRequest): UpdateContentRequest {
-        request.setLanguage(this.localeCombo.getValue());
+        request.setLanguage(this.localeCombo.getSelectedLocate()?.getId());
         request.setOwner(this.getSelectedOwner());
 
         return request;
