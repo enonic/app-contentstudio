@@ -15,45 +15,31 @@ import {SpecialCharDialog} from './SpecialCharDialog';
 import {TableDialog} from './TableDialog';
 import eventInfo = CKEDITOR.eventInfo;
 
-export class HTMLAreaDialogHandler {
+export class HTMLAreaProxy {
 
     static createAndOpenDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        let modalDialog: ModalDialog;
-
         switch (event.getType()) {
         case HtmlAreaDialogType.ANCHOR:
-            modalDialog = this.openAnchorDialog(event);
-            break;
+            return this.openAnchorDialog(event);
         case HtmlAreaDialogType.IMAGE:
-            modalDialog = this.openImageDialog(event as CreateHtmlAreaContentDialogEvent);
-            break;
+            return this.openImageDialog(event as CreateHtmlAreaContentDialogEvent);
         case HtmlAreaDialogType.LINK:
-            modalDialog = this.openLinkDialog(event as CreateHtmlAreaContentDialogEvent);
-            break;
+            return this.openLinkDialog(event as CreateHtmlAreaContentDialogEvent);
         case HtmlAreaDialogType.MACRO:
-            modalDialog = this.openMacroDialog(event as CreateHtmlAreaMacroDialogEvent);
-            break;
+            return this.openMacroDialog(event as CreateHtmlAreaMacroDialogEvent);
         case HtmlAreaDialogType.CODE:
-            modalDialog = this.openCodeDialog(event);
-            break;
+            return this.openCodeDialog(event);
         case HtmlAreaDialogType.SPECIALCHAR:
-            modalDialog = this.openSpecialCharDialog(event);
-            break;
+            return this.openSpecialCharDialog(event);
         case HtmlAreaDialogType.FULLSCREEN:
-            modalDialog = this.openFullscreenDialog(event);
-            break;
+            return this.openFullscreenDialog(event);
         case HtmlAreaDialogType.TABLE:
-            modalDialog = this.openTableDialog(event);
-            break;
+            return this.openTableDialog(event);
         case HtmlAreaDialogType.NUMBERED_LIST:
-            modalDialog = this.openNumberedListDialog(event);
-            break;
+            return this.openNumberedListDialog(event);
         case HtmlAreaDialogType.BULLETED_LIST:
-            modalDialog = this.openBulletedListDialog(event);
-            break;
+            return this.openBulletedListDialog(event);
         }
-
-        return modalDialog;
     }
 
     private static openLinkDialog(event: CreateHtmlAreaContentDialogEvent): ModalDialog {

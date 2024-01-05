@@ -28,7 +28,7 @@ import * as Q from 'q';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
+import {HTMLAreaProxy} from '../ui/text/dialog/HTMLAreaProxy';
 import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
 import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
@@ -279,9 +279,6 @@ export class HtmlArea
             }
         };
 
-        const createDialogHandler = event => {
-            HTMLAreaDialogHandler.createAndOpenDialog(event);
-        };
 
         const editorLoadedHandler = () => {
             if (this.notInLiveEdit()) {
@@ -312,7 +309,7 @@ export class HtmlArea
             .setEditorContainerId(id)
             .setAssetsUri(CONFIG.getString('assetsUri'))
             .setInline(false)
-            .setCreateDialogHandler(createDialogHandler)
+            .setCreateDialogHandler(HTMLAreaProxy.createAndOpenDialog)
             .setFocusHandler(focusHandler)
             .setBlurHandler(blurHandler)
             .setKeydownHandler(keydownHandler)
