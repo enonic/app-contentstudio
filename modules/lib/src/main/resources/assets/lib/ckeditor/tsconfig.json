@@ -2,5 +2,6 @@
   "extends": "../../../../../../tsconfig.json",
   "include": [
     "./plugins/findAndReplace/**/*.ts",
+      "./plugins/saga/**/*.ts"
   ]
 }
