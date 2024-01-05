@@ -112,7 +112,7 @@ jobs:
                   SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
                   SLACK_COLOR: ${{ job.status }}
 
-            - uses: actions/upload-artifact@v4
+            -   uses: actions/upload-artifact@v4
                 if: always()
                 with:
                     name: 'ui-test-report-${{ matrix.suite }}'
