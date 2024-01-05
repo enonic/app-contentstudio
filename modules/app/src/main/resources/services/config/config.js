@@ -42,6 +42,7 @@ function handleGet() {
                 collaborationUrl: portal.serviceUrl({service: 'collaboration'}),
                 appServiceUrl: portal.serviceUrl({service: 'applications'}),
                 exportServiceUrl: portal.serviceUrl({service: 'export'}),
+                sagaServiceUrl: portal.serviceUrl({service: 'saga'}),
             },
             theme: 'light',
             /* Remove in CS/lib-admin-ui 5.0 */

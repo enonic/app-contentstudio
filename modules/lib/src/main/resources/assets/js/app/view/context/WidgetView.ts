@@ -1,21 +1,22 @@
-import * as Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContextView} from './ContextView';
-import {WidgetItemView} from './WidgetItemView';
-import {UriHelper} from '../../rendering/UriHelper';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import * as Q from 'q';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {UriHelper} from '../../rendering/UriHelper';
+import {ContextView} from './ContextView';
+import {WidgetItemView} from './WidgetItemView';
 
 export enum InternalWidgetType {
-    INFO,
-    HISTORY,
-    DEPENDENCIES,
-    EMULATOR,
-    COMPONENTS,
-    LAYERS
+    INFO = 'info',
+    HISTORY = 'history',
+    DEPENDENCIES = 'dependencies',
+    EMULATOR = 'emulator',
+    COMPONENTS = 'components',
+    LAYERS = 'layers',
+    SAGA = 'saga',
 }
 
 export class WidgetView
