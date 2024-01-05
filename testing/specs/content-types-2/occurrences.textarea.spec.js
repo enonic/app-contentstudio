@@ -81,7 +81,7 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             await studioUtils.saveScreenshot('textarea_not_req');
             // 3. Verify that the content gets valid, because the text area is not required:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid, 'the content should be valid, because the input is filled');
+            assert.ok(isInvalid === false, 'the content should be valid, because the TextAre is not required');
             // 4. Save the content
             await contentWizard.waitAndClickOnSave();
             // 5. Verify that validation message is not visible:

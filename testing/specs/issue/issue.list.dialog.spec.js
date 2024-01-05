@@ -50,8 +50,8 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             await studioUtils.openIssuesListDialog();
             let openButton = await issueListDialog.isOpenButtonActive();
             assert.ok(openButton, 'Open issues should be loaded by default');
-            let closedButton = await issueListDialog.isClosedButtonActive();
-            assert.ok(closedButton, 'Closed issues should be hidden by default');
+            let isClosedButtonActive = await issueListDialog.isClosedButtonActive();
+            assert.ok(isClosedButtonActive === false, "'Closed' button should be grey color by default");
         });
 
     it(`GIVEN 'Issues List Dialog' has been opened WHEN 'Esc' key has been clicked THEN issues list dialog closes`,

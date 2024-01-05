@@ -74,7 +74,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await studioUtils.openIssuesListDialog();
             // 3. Verify the selected option in the selector:
             let result = await issueListDialog.getTypeFilterSelectedOption();
-            assert.include(result, 'Assigned to Me', "'Assigned to Me' options should be selected in the filter");
+            assert.ok(result.includes('Assigned to Me'), "'Assigned to Me' options should be selected in the filter");
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });

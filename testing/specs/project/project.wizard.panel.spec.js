@@ -36,9 +36,10 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             assert.ok(isSelected === false, "'Custom' radio button should not be selected");
             // 5. Verify that Private radio is selected:
             isSelected = await projectWizard.isAccessModeRadioSelected("Private");
-            assert.ok(isSelected, "'Private' radio button should not be selected");
+            assert.ok(isSelected, "'Private' radio button should be selected");
+            // 6. Public radio button should not be selected:
             isSelected = await projectWizard.isAccessModeRadioSelected("Public");
-            assert.ok(isSelected, "'Public' radio button should not be selected");
+            assert.ok(isSelected === false, "'Public' radio button should not be selected");
         });
 
     it("Deleting a project whose name contains uppercase letters",

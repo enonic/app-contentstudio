@@ -147,7 +147,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             let result = await contentPublishDialog.getDisplayNameInDependentItems();
             // returns a truthy value for at least one element in the array contains the name. Otherwise, false.
             let isPresent = result.some(el => el.includes(TEST_CONTENT_NAME));
-            assert.ok(isPresent === false, 'Unselected content should  be present in dependency block in Publishing Wizard');
+            assert.ok(isPresent, 'Unselected content should  be present in dependency block in Publishing Wizard');
             // 6. The checkbox should be unselected
             let isSelected = await issueDetailsDialogItemsTab.isDependantCheckboxSelected(TEST_CONTENT_NAME);
             assert.ok(isSelected === false, 'CheckBox for the excluded item should be unselected');
