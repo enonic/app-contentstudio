@@ -11,7 +11,6 @@ import {LocaleLoader} from './LocaleLoader';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export interface LocaleComboBoxOptions {
     selectedOptionsView?: LocaleSelectedOptionsView;
@@ -23,7 +22,7 @@ export class LocaleComboBox
 
     private selectedLocale: Locale;
 
-    private localeLoader: LocaleLoader;
+    private loader: LocaleLoader;
 
     constructor(options?: LocaleComboBoxOptions) {
         super(new LocaleListBox(), {
@@ -37,13 +36,13 @@ export class LocaleComboBox
     protected initElements(): void {
         super.initElements();
 
-        this.localeLoader = new LocaleLoader();
+        this.loader = new LocaleLoader();
     }
 
     protected initListeners(): void {
         super.initListeners();
 
-        this.localeLoader.onLoadedData((event: LoadedDataEvent<Locale>) => {
+        this.loader.onLoadedData((event: LoadedDataEvent<Locale>) => {
             if (this.listBox.getItemCount() === 0) {
                 this.listBox.setItems(event.getData());
             }
@@ -51,8 +50,8 @@ export class LocaleComboBox
         });
 
         this.listBox.whenShown(() => {
-            if (!this.localeLoader.isLoaded() && !this.localeLoader.isLoading()) {
-                this.localeLoader.load().catch(DefaultErrorHandler.handle);
+            if (!this.loader.isLoaded() && !this.loader.isLoading()) {
+                this.loader.load().catch(DefaultErrorHandler.handle);
             }
         });
 
@@ -76,10 +75,10 @@ export class LocaleComboBox
         } else if (locale instanceof Locale) {
             this.select(locale);
         } else {
-            if (this.localeLoader.isLoaded()) {
+            if (this.loader.isLoaded()) {
                 this.selectLocaleById(locale);
             } else {
-                this.localeLoader.load().then(() => {
+                this.loader.load().then(() => {
                     this.selectLocaleById(locale);
                 }).catch(DefaultErrorHandler.handle);
             }
@@ -107,7 +106,7 @@ export class LocaleComboBox
     }
 
     private getLocaleById(id: string): Locale {
-        return this.localeLoader.getResults().find((locale: Locale) => locale.getId() === id);
+        return this.loader.getResults().find((locale: Locale) => locale.getId() === id);
     }
 
     private static filter(locale: Locale, searchString: string): boolean {
@@ -165,7 +164,7 @@ export class LocaleFormInputElWrapper
     private readonly selector: LocaleComboBox;
 
     constructor(selector: LocaleComboBox) {
-        super('div', 'content-selector-wrapper');
+        super('div', 'locale-selector-wrapper');
 
         this.selector = selector;
         this.appendChild(this.selector);
