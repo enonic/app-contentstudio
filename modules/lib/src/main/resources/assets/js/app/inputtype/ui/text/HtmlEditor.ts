@@ -11,11 +11,15 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import * as Q from 'q';
 import {ContentPath} from '../../../content/ContentPath';
+import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
 import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
 import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {UrlHelper} from '../../../util/UrlHelper';
+import {ContextPanelState} from '../../../view/context/ContextPanelState';
+import {ToggleContextPanelEvent} from '../../../view/context/ToggleContextPanelEvent';
+import {UpdateSagaWidgetItemView} from '../../../view/context/widget/saga/UpdateSagaWidgetItemView';
 import {CreateHtmlAreaDialogEventGenerator} from './CreateHtmlAreaDialogEventGenerator';
 import {HTMLAreaHelper} from './HTMLAreaHelper';
 import {HtmlEditorParams} from './HtmlEditorParams';
@@ -50,6 +54,17 @@ export interface Macro {
     element: CKEDITOR.dom.element;
     index: number,
     body?: string;
+}
+
+export interface SagaHtmlEditorEventData {
+    selection?: {
+        startOffset: number;
+        endOffset: number;
+        text: string;
+        html: string;
+    }
+    text: string;
+    html: string;
 }
 
 /**
@@ -182,6 +197,12 @@ export class HtmlEditor {
                 });
             }, 1);
 
+        });
+
+        this.editor.on('openSaga', (event: eventInfo) => {
+            const data = event.data satisfies SagaHtmlEditorEventData;
+            new ToggleContextPanelEvent(ContextPanelState.EXPANDED).fire();
+            new UpdateSagaWidgetItemView({...data, editor: this}).fire();
         });
 
         this.editor.on('saveSnapshot', (evt: CKEDITOR.eventInfo) => {
@@ -644,6 +665,18 @@ export class HtmlEditor {
         });
     }
 
+    getName(): string {
+        return this.editor.name;
+    }
+
+    getHTMLElement(): HTMLElement {
+        return this.editor.element.$;
+    }
+
+    getContent(): ContentSummary {
+        return this.editorParams.getContent();
+    }
+
     getCursorPosition(): HtmlEditorCursorPosition {
         const selection: CKEDITOR.dom.selection = this.editor.getSelection();
         const range: CKEDITOR.dom.range = selection.getRanges()[0];
@@ -700,6 +733,8 @@ export class HtmlEditor {
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 56, 'div'); // apply the 'Normal (DIV)' format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 57, 'address'); // apply the 'Address' format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 32, 'insertNbsp');
+            this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 83, 'openSaga'); // open Saga on CTRL + ALT + S
+            this.editor.setKeystroke(CKEDITOR.CTRL + 32, 'insertNbsp');
             this.editor.setKeystroke(CKEDITOR.CTRL + 83, 'saveHandler');
         });
 
@@ -906,7 +941,7 @@ class HtmlEditorConfigBuilder {
     private enabledTools: string[] = [];
 
     private tools: string[][]  = [
-        ['Styles', 'Bold', 'Italic', 'Underline'],
+        ['Saga', 'Styles', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
         ['FindAndReplace', 'SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
@@ -1004,7 +1039,7 @@ class HtmlEditorConfigBuilder {
             ],
             removePlugins: this.getPluginsToRemove(),
             removeButtons: this.disabledTools?.join(),
-            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,findAndReplace',
+            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,findAndReplace,saga',
             extraAllowedContent: this.getExtraAllowedContent(),
             stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
             image2_disableResizer: true,

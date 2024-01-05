@@ -1,26 +1,25 @@
-import * as Q from 'q';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {InternalWidgetType, WidgetView} from './WidgetView';
-import {WidgetsSelectionRow} from './WidgetsSelectionRow';
-import {VersionHistoryView} from './widget/version/VersionHistoryView';
-import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
-import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
-import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
-import {PageTemplateWidgetItemView} from './widget/details/PageTemplateWidgetItemView';
-import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
+import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import * as Q from 'q';
+import {CompareStatus} from '../../content/CompareStatus';
+import {ContentId} from '../../content/ContentId';
+import {ContentIds} from '../../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
-import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
-import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
-import {ContentWidgetItemView} from './widget/details/ContentWidgetItemView';
-import {InspectEvent} from '../../event/InspectEvent';
+import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
-import {EmulatorDevice} from './widget/emulator/EmulatorDevice';
+import {InspectEvent} from '../../event/InspectEvent';
+import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
+import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
+import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
+import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import {ShowLiveEditEvent} from '../../wizard/ShowLiveEditEvent';
 import {ShowSplitEditEvent} from '../../wizard/ShowSplitEditEvent';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
@@ -34,8 +33,23 @@ import {WidgetItemView} from './WidgetItemView';
 import {VersionContext} from './widget/version/VersionContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
+import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
+import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
 import {BasePropertiesWidgetItemView} from './widget/details/BasePropertiesWidgetItemView';
+import {ContentWidgetItemView} from './widget/details/ContentWidgetItemView';
 import {OnlinePropertiesWidgetItemView} from './widget/details/OnlinePropertiesWidgetItemView';
+import {PageTemplateWidgetItemView} from './widget/details/PageTemplateWidgetItemView';
+import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
+import {EmulatorDevice} from './widget/emulator/EmulatorDevice';
+import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
+import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
+import {SagaWidgetItemView} from './widget/saga/SagaWidgetItemView';
+import {UpdateSagaWidgetItemView} from './widget/saga/UpdateSagaWidgetItemView';
+import {VersionContext} from './widget/version/VersionContext';
+import {VersionHistoryView} from './widget/version/VersionHistoryView';
+import {WidgetItemView} from './WidgetItemView';
+import {WidgetsSelectionRow} from './WidgetsSelectionRow';
+import {InternalWidgetType, WidgetView} from './WidgetView';
 
 export class ContextView
     extends DivEl {
@@ -57,6 +71,7 @@ export class ContextView
     protected propertiesWidgetView: WidgetView;
     protected versionsWidgetView: WidgetView;
     protected emulatorWidgetView?: WidgetView;
+    protected sagaWidgetView?: WidgetView;
 
     protected contextWindow?: ContextWindow;
     protected alreadyFetchedCustomWidgets: boolean;
@@ -145,6 +160,10 @@ export class ContextView
             if (this.activeWidget) {
                 this.activeWidget.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
             }
+        });
+
+        UpdateSagaWidgetItemView.on(() => {
+            this.sagaWidgetView.setActive();
         });
     }
 
@@ -366,6 +385,15 @@ export class ContextView
             .setContextView(this)
             .addWidgetItemView(new EmulatorWidgetItemView()).build();
 
+        this.sagaWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.saga'))
+            .setDescription(i18n('field.contextPanel.saga.description'))
+            .setWidgetClass('saga-widget')
+            .setIconClass('icon-sparkling')
+            .setType(InternalWidgetType.SAGA)
+            .setContextView(this)
+            .addWidgetItemView(new SagaWidgetItemView()).build();
+
         this.versionsWidgetView = this.createVersionsWidgetView();
 
         this.defaultWidgetView = this.propertiesWidgetView;
@@ -398,7 +426,7 @@ export class ContextView
     }
 
     protected getInitialWidgets(): WidgetView[] {
-        return [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
+        return [this.propertiesWidgetView, this.sagaWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
     }
 
     protected createVersionsWidgetView(): WidgetView {
