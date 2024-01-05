@@ -6,11 +6,9 @@ import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {ProjectReadAccess} from '../../../data/project/ProjectReadAccess';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {Project} from '../../../data/project/Project';
-import {LocaleLoader} from '../../../../locale/LocaleLoader';
 import {ProjectReadAccessType} from '../../../data/project/ProjectReadAccessType';
 import {LocaleFormItem} from './element/LocaleFormItem';
 import {ProjectReadAccessFormItem} from './element/ProjectReadAccessFormItem';
@@ -42,36 +40,13 @@ export class ProjectReadAccessWizardStepForm
             return Q(null);
         }
 
-        return this.getLocales().then((locales: Locale[]) => {
-            const localeToSelect: Locale = this.getLocaleByLanguage(language, locales);
-
-            if (localeToSelect) {
-                this.localeFormItem.getLocaleCombobox().select(localeToSelect, false, true);
-                this.localeFormItem.getLocaleCombobox().resetBaseValues();
-            }
-
-            return Q(null);
-        });
+        this.localeFormItem.getLocaleCombobox().setSelectedLocale(language);
     }
 
     setEnabled(enable: boolean): void {
         super.setEnabled(enable);
 
         this.readAccessFormItem?.setPrincipalComboboxEnabled(enable);
-    }
-
-    private getLocales(): Q.Promise<Locale[]> {
-        const localeLoader: LocaleLoader = this.localeFormItem.getLocaleCombobox().getLoader() as LocaleLoader;
-
-        if (localeLoader.isLoaded()) {
-            return Q(this.localeFormItem.getLocaleCombobox().getDisplayValues());
-        }
-
-        return this.localeFormItem.getLocaleCombobox().getLoader().load();
-    }
-
-    private getLocaleByLanguage(language: string, locales: Locale[]): Locale {
-        return locales.find((locale: Locale) => locale.getId() === language);
     }
 
     setup(item?: ProjectViewItem) {
@@ -157,7 +132,7 @@ export class ProjectReadAccessWizardStepForm
     }
 
     protected initListeners(item?: ProjectViewItem) {
-        this.localeFormItem.getLocaleCombobox().onValueChanged(() => {
+        this.localeFormItem.getLocaleCombobox().onSelectionChanged(() => {
             this.notifyDataChanged();
         });
 
