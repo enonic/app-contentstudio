@@ -1,8 +1,8 @@
 /**
  * Created on 31.08.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
+t;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
@@ -12,7 +12,7 @@ const ProjectWizardDialogParentProjectStep = require('../../page_objects/project
 
 describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizard step', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -71,7 +71,7 @@ describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizar
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

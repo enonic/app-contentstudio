@@ -1,8 +1,7 @@
 /**
  * Created on 14.04.2021.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -46,11 +45,12 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             // 4. Verify that 4 areas are present in the form:
             let ids = await htmlAreaForm.getIdOfHtmlAreas();
             assert.equal(ids.length, 4, "Four html-area should be displayed now");
-            let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "The content should be valid, because these html areas are not required inputs");
+            // 5. The content should be valid:
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, "The content should be valid, because these html areas are not required inputs");
         });
 
-    it(`GIVEN wizard for 'htmlArea 1:1' is opened WHEN display name has been typed THEN the content remains not valid`,
+    it(`GIVEN wizard for 'htmlArea 1:1' is opened WHEN display name has been typed THEN the content remains invalid`,
         async () => {
             let contentWizard = new ContentWizard();
             // 1. Open new wizard
@@ -58,9 +58,9 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             await contentWizard.pause(1000);
-            // 3. Verify that the content is invalid html-area is required input
-            let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "The content should be not valid, because html area is required input");
+            // 3. Verify that the content is invalid, the html-area is required input
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === true, "The content should be not valid, because html area is required input");
             // 4. Verify that 'Create Issue' button is displayed in the wizard toolbar(It is the default action):
             await contentWizard.waitForCreateIssueButtonDisplayed();
         });
@@ -75,9 +75,10 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             // 3. Save the content
             await contentWizard.waitAndClickOnSave();
-            let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "The content should be not valid, because html area is required input");
-            // 4. Verify that validation message gets visible now:
+            // 4. Verify that the content is invalid:
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === true, "The content should be invalid, because html area is required input");
+            // 5. Verify that validation message gets visible now:
             let message = await htmlAreaForm.getFormValidationRecording();
             assert.equal(message, "This field is required", "Expected message should be displayed");
         });
@@ -92,8 +93,8 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             // 3. Insert a text in html-area
             await htmlAreaForm.insertTextInHtmlArea(0, 'test');
-            let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "The content should be valid, because the required html area is filled");
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, "The content should be valid, because the required html area is filled");
             // 4. Verify that 'Mark as ready' button is displayed in the wizard toolbar:
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
@@ -107,8 +108,8 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             await contentWizard.pause(1000);
             // 3. Verify that the content gets valid but it is not saved yet:
-            let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "The content should be valid, because html area is not required input");
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, "The content should be valid, because html area is not required input");
             // 4. Verify that 'Mark as ready' button is displayed in the wizard toolbar:
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
@@ -141,9 +142,9 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             // 3. Save the content
             await contentWizard.waitAndClickOnSave();
-            // 4. This content should be valid after the saving:
+            // 4. This content should be valid after clicking on Save button:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, 'the content should be valid, because the input is not required');
+            assert.ok(isInvalid === false, 'the content should be valid, because the input is not required');
             let actualResult = await htmlAreaForm.getTextFromHtmlArea();
             assert.equal(actualResult[0], "", "Html Area should be empty");
         });
@@ -217,8 +218,8 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             await htmlAreaForm.pause(1500);
             // 5. Verify that expected text is correctly saved:
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result.includes(EXPECTED_TEXT_TEXT1), "Expected text should be in the area");
-            assert.isTrue(result.includes(EXPECTED_TEXT_TEXT2), "Expected text should be in the area");
+            assert.ok(result.includes(EXPECTED_TEXT_TEXT1), "Expected text should be in the area");
+            assert.ok(result.includes(EXPECTED_TEXT_TEXT2), "Expected text should be in the area");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

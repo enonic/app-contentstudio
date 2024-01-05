@@ -1,8 +1,7 @@
 /**
  * Created on 05.01.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
@@ -19,9 +18,9 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
     let PARENT_FOLDER;
     let CHILD_FOLDER_1;
     let CHILD_FOLDER_2;
-    const PARENT_FOLDER_NAME = appConst.generateRandomName("parent");
-    const CHILD_FOLDER_NAME_1 = appConst.generateRandomName("folder");
-    const CHILD_FOLDER_NAME_2 = appConst.generateRandomName("folder");
+    const PARENT_FOLDER_NAME = appConst.generateRandomName('parent');
+    const CHILD_FOLDER_NAME_1 = appConst.generateRandomName('folder');
+    const CHILD_FOLDER_NAME_2 = appConst.generateRandomName('folder');
 
     it(`Preconditions: create a folder`,
         async () => {
@@ -34,16 +33,16 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
             let contentBrowsePanel = new ContentBrowsePanel();
             CHILD_FOLDER_1 = contentBuilder.buildFolder(CHILD_FOLDER_NAME_1);
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            //1. Select existing folder and add a child folder:
+            // 1. Select existing folder and add a child folder:
             await studioUtils.doAddFolder(CHILD_FOLDER_1);
-            //2. Verify that the parent folder is collapsed
+            // 2. Verify that the parent folder is collapsed
             let isExpanded = await contentBrowsePanel.isContentExpanded(PARENT_FOLDER.displayName);
-            assert.isFalse(isExpanded, "Parent folder should be collapsed");
-            //3. Click on the toggle icon and expand the folder:
+            assert.ok(isExpanded === false, "Parent folder should be collapsed");
+            // 3. Click on the toggle icon and expand the folder:
             await contentBrowsePanel.clickOnExpanderIcon(PARENT_FOLDER.displayName);
             isExpanded = await contentBrowsePanel.isContentExpanded(PARENT_FOLDER.displayName);
-            assert.isTrue(isExpanded, "Parent folder should be expanded");
-            //4. Verify that the child folder is visible now:
+            assert.ok(isExpanded, "Parent folder should be expanded");
+            // 4. Verify that the child folder is visible now:
             await contentBrowsePanel.waitForContentDisplayed(CHILD_FOLDER_1.displayName);
         });
 
@@ -51,16 +50,16 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             CHILD_FOLDER_2 = contentBuilder.buildFolder(CHILD_FOLDER_NAME_2);
-            //1. Select the parent folder and expand it:
+            // 1. Select the parent folder and expand it:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             await contentBrowsePanel.clickOnExpanderIcon(PARENT_FOLDER.displayName);
-            //2. Add a child folder:
+            // 2. Add a child folder:
             await studioUtils.doAddFolder(CHILD_FOLDER_2);
             await studioUtils.saveScreenshot("parent_should_be_expanded");
-            //3. Verify that the parent folder remains expanded:
+            // 3. Verify that the parent folder remains expanded:
             let isExpanded = await contentBrowsePanel.isContentExpanded(PARENT_FOLDER.displayName);
-            assert.isTrue(isExpanded, "Parent folder should be expanded");
-            //4. Verify that the child folder is visible
+            assert.ok(isExpanded, "Parent folder should be expanded");
+            // 4. Verify that the child folder is visible
             await contentBrowsePanel.waitForContentDisplayed(CHILD_FOLDER_2.displayName);
         });
 
@@ -69,10 +68,10 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
             let confirmValueDialog = new ConfirmValueDialog();
-            //1. Select the parent folder and expand it:
+            // 1. Select the parent folder and expand it:
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             await contentBrowsePanel.clickOnExpanderIcon(PARENT_FOLDER.displayName);
-            //2. Both child folders have been deleted:
+            // 2. Both child folders have been deleted:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(CHILD_FOLDER_1.displayName);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(CHILD_FOLDER_2.displayName);
             await contentBrowsePanel.clickOnArchiveButton();
@@ -81,11 +80,11 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
             await confirmValueDialog.waitForDialogOpened();
             await confirmValueDialog.typeNumberOrName(2);
             await confirmValueDialog.clickOnConfirmButton();
-            //3. Verify that both folders are not displayed:
+            // 3. Verify that both folders are not displayed:
             await contentBrowsePanel.waitForContentNotDisplayed(CHILD_FOLDER_1.displayName);
             await contentBrowsePanel.waitForContentNotDisplayed(CHILD_FOLDER_2.displayName);
             await studioUtils.saveScreenshot("toggle_icon_content_deleted");
-            //4. Verify that the parent folder does not have 'toggle icon'
+            // 4. Verify that the parent folder does not have 'toggle icon'
             await contentBrowsePanel.waitForExpanderIconNotDisplayed(PARENT_FOLDER.displayName);
         });
 
@@ -94,7 +93,7 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

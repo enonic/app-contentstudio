@@ -1,8 +1,7 @@
 /**
  * Created on 21.01.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -170,8 +169,8 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             // 9. Excluded items should be displayed now:
             depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 3, '3 dependent items should be displayed');
-            assert.isTrue(depItems[0].includes('_unnamed_'), 'Expected invalid item(unnamed) should be displayed in the dependant list');
-            assert.isTrue(depItems[2].includes('_templates'), 'Expected item-name should be displayed in the dependant list');
+            assert.ok(depItems[0].includes('_unnamed_'), 'Expected invalid item(unnamed) should be displayed in the dependant list');
+            assert.ok(depItems[2].includes('_templates'), 'Expected item-name should be displayed in the dependant list');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

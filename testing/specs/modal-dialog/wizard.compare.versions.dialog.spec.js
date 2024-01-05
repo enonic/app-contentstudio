@@ -1,8 +1,7 @@
 /**
  * Created on 22.01.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const contentBuilder = require("../../libs/content.builder");
@@ -103,11 +102,11 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await wizardVersionsWidget.clickOnOnShowChangesButton(1);
             await compareContentVersionsDialog.waitForDialogOpened();
             let isSelected = await compareContentVersionsDialog.isShowEntireContentCheckboxSelected();
-            assert.isFalse(isSelected, "'Show entire content' checkbox should not be selected");
+            assert.ok(isSelected === false, "'Show entire content' checkbox should not be selected");
             // 4. Click on 'Show entire content' checkbox
             await compareContentVersionsDialog.clickOnShowEntireContentCheckbox();
             isSelected = await compareContentVersionsDialog.isShowEntireContentCheckboxSelected();
-            assert.isTrue(isSelected, "'Show entire content' checkbox should be selected");
+            assert.ok(isSelected, "'Show entire content' checkbox should be selected");
             // 5. Close then reopen the modal dialog:
             await compareContentVersionsDialog.clickOnCancelButtonTop();
             await compareContentVersionsDialog.waitForDialogClosed();
@@ -116,7 +115,7 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await studioUtils.saveScreenshot('show_entire_content_not_selected');
             // 6. Verify that 'Show entire content' checkbox  is not selected:
             isSelected = await compareContentVersionsDialog.isShowEntireContentCheckboxSelected();
-            assert.isFalse(isSelected, "'Show entire content' checkbox should not be selected");
+            assert.ok(isSelected === false, "'Show entire content' checkbox should not be selected");
         });
 
     it(`GIVEN existing folder is opened WHEN compare icon in the active version item has been clicked THEN then right Revert button should be disabled in the compare versions dialog`,

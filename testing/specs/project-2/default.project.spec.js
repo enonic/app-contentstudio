@@ -1,8 +1,7 @@
 /**
  * Created on 12.06.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
@@ -15,7 +14,7 @@ describe('default.project.spec - ui-tests for Default project', function () {
         webDriverHelper.setupBrowser();
     }
 
-    let DEFAULT_DESCRIPTION = 'Test description';
+    const DEFAULT_DESCRIPTION = 'Test description';
 
     it("GIVEN SU is logged in WHEN description has been updated in 'Default' project and 'Save' button pressed THEN expected notification should appear",
         async () => {

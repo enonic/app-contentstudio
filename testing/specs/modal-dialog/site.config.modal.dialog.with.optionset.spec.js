@@ -1,8 +1,7 @@
 /**
  * Created on 19.10.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -36,7 +35,7 @@ describe('Tests for site configurator modal dialog with multi-selection Option S
             await studioUtils.saveScreenshot('site_cfg_option2_selected_default');
             // 3. Verify that 'Option 2' is selected by default:
             let result = await siteConfiguratorDialog.isCheckboxSelected('Option 2');
-            assert.isTrue(result, 'Option 2 option should be selected');
+            assert.ok(result, 'Option 2 option should be selected');
             // 4. Unselect the 'Option 2' then Apply it:
             await siteConfiguratorDialog.clickOnOption('Option 2');
             await siteConfiguratorDialog.clickOnApplyButton();
@@ -47,7 +46,7 @@ describe('Tests for site configurator modal dialog with multi-selection Option S
             await studioUtils.saveScreenshot('site_cfg_option2_unselected_reopened');
             // 6. Verify that 'Option 2' is unselected:
             result = await siteConfiguratorDialog.isCheckboxSelected('Option 2');
-            assert.isFalse(result, 'Option 2 option should be not selected');
+            assert.ok(result === false, 'Option 2 option should be not selected');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

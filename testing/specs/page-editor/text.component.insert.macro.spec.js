@@ -1,8 +1,7 @@
 /**
  * Created on 20.04.2022.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -14,12 +13,12 @@ const appConst = require('../../libs/app_const');
 
 describe('Text Component - insert embed iframe and preview the site', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = 'main region';
     const ENONIC_IFRAME = "<iframe src='http://www.enonic.com'> enonic</iframe>";
 
     it(`Precondition: new site should be added`,
@@ -35,7 +34,7 @@ describe('Text Component - insert embed iframe and preview the site', function (
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             let insertMacroModalDialog = new InsertMacroDialog();
-           // 1. Open the site:
+            // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
@@ -64,7 +63,7 @@ describe('Text Component - insert embed iframe and preview the site', function (
             // 11. Verify that iframe is present in the page:
             let isDisplayed = await studioUtils.isElementDisplayed(`//iframe[@src='http://www.enonic.com']`);
             await studioUtils.saveScreenshot('embed_iframe_text_component_preview');
-            assert.isTrue(isDisplayed, 'expected iframe should be loaded in the new browser tab');
+            assert.ok(isDisplayed, 'expected iframe should be loaded in the new browser tab');
             // 12. Verify that Embed macro should not allow preview:
             await studioUtils.switchToFrameBySrc('http://www.enonic.com');
             // 13. error message should be displayed in the frame:
@@ -83,7 +82,7 @@ describe('Text Component - insert embed iframe and preview the site', function (
         })
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -1,8 +1,7 @@
 /**
  * Created on 17.07.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -13,7 +12,7 @@ const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('layer.in.default.spec - ui-tests for creating a layer in Default project', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const LAYER_DISPLAY_NAME = appConst.generateRandomName("layer");
@@ -138,7 +137,7 @@ describe('layer.in.default.spec - ui-tests for creating a layer in Default proje
             await layerWizard.waitForCopyLanguageFromParentDisabled();
             //6. Verify that locale options filter gets visible and enabled:
             let isClickable = await layerWizard.isLocaleOptionsFilterInputClickable();
-            assert.isTrue(isClickable, "locale options filter gets visible and enabled");
+            assert.ok(isClickable, "locale options filter gets visible and enabled");
         });
 
     it("GIVEN 'Public access mode' is updated in layer wizard WHEN 'Copy Access Mode from parent' button has been pressed THEN 'Copy access mode from parent' button gets disabled",
@@ -166,7 +165,7 @@ describe('layer.in.default.spec - ui-tests for creating a layer in Default proje
             await layerWizard.waitForCopyAccessModeFromParentDisabled();
             //6. Verify that access mode changed to 'Private':
             let isSelected = await layerWizard.isAccessModeRadioSelected("Private");
-            assert.isTrue(isSelected, "Private radio button gets selected now");
+            assert.ok(isSelected, "Private radio button gets selected now");
         });
 
     beforeEach(async () => {
@@ -175,7 +174,7 @@ describe('layer.in.default.spec - ui-tests for creating a layer in Default proje
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

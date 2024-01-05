@@ -1,8 +1,7 @@
 /**
  * Created on 16.05.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -54,7 +53,7 @@ describe('Text Component with CKE - insert content-link specification', function
             // 6. Verify the text in CKE html area:
             await studioUtils.saveScreenshot('content_link_inserted');
             let actualText = await textComponentCke.getTextFromEditor();
-            assert.include(actualText, EXPECTED_SRC, 'expected data should be present in CKE');
+            assert.ok(actualText.includes(EXPECTED_SRC), 'expected data should be present in CKE');
             await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
         });
@@ -62,14 +61,14 @@ describe('Text Component with CKE - insert content-link specification', function
     it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN content-link should be present in the page`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the site and click on Preview button:
+            // 1. Select the site and click on Preview button:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPreviewButton();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
-            //2. Verify the link in the page:
+            // 2. Verify the link in the page:
             let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
             await studioUtils.saveScreenshot('content_link_present');
-            assert.isTrue(isDisplayed, 'download link should be present on the page');
+            assert.ok(isDisplayed, 'download link should be present on the page');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

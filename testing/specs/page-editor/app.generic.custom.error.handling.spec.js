@@ -1,8 +1,7 @@
 /**
  * Created on 05.02.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -56,8 +55,8 @@ describe('Custom error handling - specification. Verify that application error p
             // 2. Verify the page source:
             let pageSource = await studioUtils.getPageSource();
             await studioUtils.saveScreenshot('custom_error_handling');
-            assert.include(pageSource, 'Oops, something went wrong!', "Expected message should be in the error page!");
-            assert.include(pageSource, 'System got an error 500', "Expected response code should be displayed");
+            assert.ok(pageSource.includes('Oops, something went wrong!'), "Expected message should be in the error page!");
+            assert.ok(pageSource.includes('System got an error 500'), "Expected response code should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

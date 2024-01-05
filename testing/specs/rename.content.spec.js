@@ -1,8 +1,7 @@
 /**
  * Created on 20.10.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
@@ -15,11 +14,11 @@ const BrowseVersionsWidget = require('../page_objects/browsepanel/detailspanel/b
 
 describe('rename.content.spec - tests for Renamed version item', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let TEST_FOLDER;
-    let NEW_NAME = contentBuilder.generateRandomName('folder');
+    const NEW_NAME = contentBuilder.generateRandomName('folder');
 
     it("Precondition - folder should be added",
         async () => {
@@ -71,7 +70,7 @@ describe('rename.content.spec - tests for Renamed version item', function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

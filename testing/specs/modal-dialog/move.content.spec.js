@@ -1,8 +1,7 @@
 /**
  * Created on 24.01.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -29,7 +28,7 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             await moveContentDialog.pause(500);
             // Verify - unable to move folder to itself:
             let result = await moveContentDialog.isDestinationDisabled(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            assert.isTrue(result, 'Dropdown option should be disabled');
+            assert.ok(result, 'Dropdown option should be disabled');
         });
 
     it(`GIVEN existing root folder is selected WHEN move combobox has been expanded THEN 'Project root' option should be disabled`,
@@ -45,7 +44,7 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             await moveContentDialog.clickOnDropdownHandle();
             // 4. Verify - 'Project root' option item is disabled:
             let result = await moveContentDialog.isDestinationByDisplayNameDisabled('Project root');
-            assert.isTrue(result, "'Project root' option should be disabled");
+            assert.ok(result, "'Project root' option should be disabled");
         });
 
     it(`WHEN existing content in parent folder is selected AND 'Move' button pressed THEN 'Project root' option should be enabled in Move dropdown`,
@@ -61,7 +60,7 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             await moveContentDialog.clickOnDropdownHandle();
             // 4. Verify - 'Project root' option item should be enabled:
             let result = await moveContentDialog.isDestinationByDisplayNameDisabled('Project root');
-            assert.isFalse(result, "'Project root' option should be enabled");
+            assert.ok(result === false, "'Project root' option should be enabled");
             // 5. Select 'Project root' option, verify  Move button
             await studioUtils.saveScreenshot('move_dlg_project_root');
             await moveContentDialog.clickOnOptionInDropdown('Project root');
@@ -83,11 +82,11 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             // 3. Fill in the options filter input:
             await moveContentDialog.typeTextInOptionFilterInput(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             await moveContentDialog.pause(500);
-            // 4. Verify - unable to move folder to itself:
+            // 4. Verify - unable to move a folder to itself:
             let isDisabled = await moveContentDialog.isDestinationDisabled(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            assert.isTrue(isDisabled, "the option should be disabled in the dropdown");
+            assert.ok(isDisabled, "the option should be disabled in the dropdown");
             isDisabled = await moveContentDialog.isDestinationDisabled(appConst.TEST_IMAGES.CAPE);
-            assert.isTrue(isDisabled, "the option should be disabled in the dropdown");
+            assert.ok(isDisabled, "the option should be disabled in the dropdown");
         });
 
     it(`GIVEN parent folder and its child are selected AND 'Move' button has been pressed WHEN name of another existing folder has been typed THEN the option should be enabled in the selector`,
@@ -104,9 +103,9 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             // 3. Fill in the options filter input:
             await moveContentDialog.typeTextInOptionFilterInput(appConst.TEST_FOLDER_WITH_IMAGES_NAME_2);
             await moveContentDialog.pause(500);
-            // 4. Verify - unable to move folder to itself:
+            // 4. Verify - it possible to move a folder to another foldrt:
             let isDisabled = await moveContentDialog.isDestinationDisabled(appConst.TEST_FOLDER_WITH_IMAGES_NAME_2);
-            assert.isFalse(isDisabled, "The option should be enabled in the dropdown");
+            assert.ok(isDisabled === false, "The option should be enabled in the dropdown");
         });
 
     it(`GIVEN Move dialog is opened WHEN dropdown handle button has been pressed THEN expected options should be loaded`,
@@ -123,8 +122,8 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             await moveContentDialog.pause(1000);
             await studioUtils.saveScreenshot('move_dropdown_handle_1');
             let options = await moveContentDialog.getOptionsName();
-            assert.isTrue(options.length > 1, "Dropdown should be expanded");
-            assert.isTrue(options.includes("All Content types images"), "Expected option should be displayed");
+            assert.ok(options.length > 1, "Dropdown should be expanded");
+            assert.ok(options.includes("All Content types images"), "Expected option should be displayed");
             // 4. Click on Cancel top button
             await moveContentDialog.clickOnCancelTopButton();
             // 5. Verify that the modal dialog is closed

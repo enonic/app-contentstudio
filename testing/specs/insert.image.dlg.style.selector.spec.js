@@ -1,8 +1,7 @@
 /**
  * Created on 08.01.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
@@ -17,7 +16,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
     }
 
     let SITE;
-    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
+    const IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -61,7 +60,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
             await insertImageDialog.waitForCustomWidthCheckBoxDisabled();
             // 6. 'Custom Width' checkbox should be unchecked:
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-            assert.isFalse(isChecked, "'Custom Width' checkbox should be unchecked");
+            assert.ok(isChecked === false, "'Custom Width' checkbox should be unchecked");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

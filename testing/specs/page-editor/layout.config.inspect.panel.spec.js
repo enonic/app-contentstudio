@@ -1,8 +1,8 @@
 /**
  * Created on 24.01.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
+t;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');

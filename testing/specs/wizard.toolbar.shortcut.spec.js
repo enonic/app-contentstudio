@@ -1,8 +1,6 @@
 /**
  * Created on 17.05.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
@@ -14,7 +12,7 @@ const appConst = require('../libs/app_const');
 
 describe('Wizard toolbar - shortcut spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let DISPLAY_NAME;
@@ -22,13 +20,13 @@ describe('Wizard toolbar - shortcut spec', function () {
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`, async () => {
         let contentWizard = new ContentWizard();
         DISPLAY_NAME = contentBuilder.generateRandomName('folder');
-        //1. Open new wizard:
+        // 1. Open new wizard:
         await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
         await contentWizard.typeDisplayName(DISPLAY_NAME);
         await contentWizard.pause(1000);
-        //2. Press 'Ctrl+S'
+        // 2. Press 'Ctrl+S'
         await contentWizard.hotKeySave();
-        //3. Verify the notification message:
+        // 3. Verify the notification message:
         await contentWizard.waitForExpectedNotificationMessage(appConst.itemSavedNotificationMessage(DISPLAY_NAME));
     });
 

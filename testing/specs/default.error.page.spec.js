@@ -1,9 +1,7 @@
 /**
  * Created on 25.09.2020.
- *
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
@@ -19,7 +17,7 @@ describe('default.error.page.spec tests for Default error page', function () {
     }
 
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = 'main region';
 
     it(`Preconditions: test site should be created`, async () => {
         let displayName = contentBuilder.generateRandomName('site');
@@ -33,7 +31,7 @@ describe('default.error.page.spec tests for Default error page', function () {
             let contentWizard = new ContentWizardPanel();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. open the context menu
             await pageComponentView.openMenu("main");
@@ -48,14 +46,14 @@ describe('default.error.page.spec tests for Default error page', function () {
             await studioUtils.saveScreenshot("default-error-page");
             // 6. Verify that Default Error Page is loaded:
             let pageSource = await studioUtils.getPageSource();
-            assert.isTrue(pageSource.includes("500 - Internal Server Error"), "Expected title should be loaded");
-            assert.isTrue(pageSource.includes("D'oh!"), "Expected message should be loaded");
+            assert.ok(pageSource.includes("500 - Internal Server Error"), "Expected title should be loaded");
+            assert.ok(pageSource.includes("D'oh!"), "Expected message should be loaded");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

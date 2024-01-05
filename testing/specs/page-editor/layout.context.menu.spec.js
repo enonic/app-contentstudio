@@ -1,8 +1,7 @@
 /**
  * Created on 24.08.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -72,9 +71,9 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await pageComponentsWizardStepForm.openMenu(appConst.LAYOUT_NAME.COL_3);
             // 4. Verify that the only two menu items are displayed in the menu:
             let menuItems = await pageComponentsWizardStepForm.getContextMenuItems();
-            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET),
+            assert.ok(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET),
                 "'Reset' menu item should be present in the context menu");
-            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT),
+            assert.ok(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT),
                 "'Inspect' menu item should be present in the context menu");
             assert.equal(menuItems.length, 2, "The only two menu items should be present in the Context Menu");
         });
@@ -110,7 +109,7 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await studioUtils.saveScreenshot('layout_fragment_context_menu_inspect')
             let menuItems = await pageComponentsWizardStepForm.getContextMenuItems();
             // 8. Verify that only 'Inspect' menu is present in the context menu:
-            assert.isTrue(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT),
+            assert.ok(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT),
                 "'Inspect' menu item should be present in the context menu");
             assert.equal(menuItems.length, 1, "The only one menu item should be present in the context menu");
             // 9. Verify that 'Save' button should be enabled after clicking on Reset menu item:

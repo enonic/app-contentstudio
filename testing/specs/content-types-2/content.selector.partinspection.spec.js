@@ -1,8 +1,7 @@
 /**
  * Created on 29.09.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -107,8 +106,8 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await cityCreationPartInspectionPanel.clickOnImageSelectorModeTogglerButton();
             // 7. Verify that expected options are displayed in tree mode:
             let items = await cityCreationPartInspectionPanel.getTreeModeOptionsImagesDisplayName();
-            assert.isTrue(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Expected item should be present in options");
-            assert.isTrue(items.includes(appConst.TEST_FOLDER_WITH_IMAGES_2), "Expected item should be present in options");
+            assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Expected item should be present in options");
+            assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES_2), "Expected item should be present in options");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -1,8 +1,7 @@
 /**
  * Created on 09.03.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -17,8 +16,8 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
     }
     let SITE;
     let TEMPLATE;
-    let SUPPORT = 'Folder';
-    let CONTROLLER_NAME = 'Page';
+    const SUPPORT = 'Folder';
+    const CONTROLLER_NAME = 'Page';
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -54,7 +53,7 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
             let items = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(items.length, 2, 'Two dependant items should be displayed');
             let expectedItem = '/' + SITE.displayName + '/' + '_templates';
-            assert.isTrue(items.includes(expectedItem), "Expected items should be displayed in dependants items");
+            assert.ok(items.includes(expectedItem), "Expected items should be displayed in dependants items");
             // verifies -  Disable All checkbox in dependants dialog if list is not editable #5960
             // 6. Verify that 'All' checkbox is not clickable(disabled), all items are required for publishing:
             await contentPublishDialog.waitForAllDependantsCheckboxDisabled();

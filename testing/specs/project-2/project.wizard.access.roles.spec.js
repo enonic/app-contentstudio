@@ -1,8 +1,7 @@
 /**
  * Created on 30.04.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils');
@@ -12,13 +11,13 @@ const appConst = require('../../libs/app_const');
 
 describe('project.wizard.access.roles.spec - tests for giving access to manage project and content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    let TEST_DESCRIPTION = "test description";
-    let PRINCIPALS = [appConst.systemUsersDisplayName.SUPER_USER];
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const TEST_DESCRIPTION = "test description";
+    const PRINCIPALS = [appConst.systemUsersDisplayName.SUPER_USER];
 
     it(`Preconditions: new project should be added. SU should be assigned as Contributor`,
         async () => {
@@ -97,7 +96,7 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

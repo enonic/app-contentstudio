@@ -1,8 +1,7 @@
 /**
  * Created on 14.06.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -21,8 +20,8 @@ describe('Text Component with CKE - insert email link  specification', function 
     }
 
     let SITE;
-    let TEST_EMAIL = 'test@mail.com';
-    let CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
+    const TEST_EMAIL = 'test@mail.com';
+    const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const EXPECTED_SRC = '<p><a href="mailto:test@mail.com">test</a></p>';
 
 
@@ -54,8 +53,8 @@ describe('Text Component with CKE - insert email link  specification', function 
             // 5. Verify inserted link in the page:
             await studioUtils.saveScreenshot('email_link_inserted');
             let actualText = await textComponentCke.getTextFromEditor();
-            assert.include(actualText, EXPECTED_SRC, 'expected data should be in CKE');
-            //Save the changes:
+            assert.ok(actualText.includes(EXPECTED_SRC), 'expected data should be in CKE');
+            // Save the changes:
             await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
         });
@@ -63,15 +62,15 @@ describe('Text Component with CKE - insert email link  specification', function 
     it(`GIVEN site is selected WHEN 'Preview' button has been pressed THEN email-link should be present in the page`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the site and click on Preview button:
+            // 1. Select the site and click on Preview button:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPreviewButton();
             await contentBrowsePanel.pause(1000);
             await studioUtils.switchToContentTabWindow(SITE.displayName);
-            //2. Verify that the link is present:
+            // 2. Verify that the link is present:
             let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
             await studioUtils.saveScreenshot('email_link_present');
-            assert.isTrue(isDisplayed, 'email link should be present in the page');
+            assert.ok(isDisplayed, 'email link should be present in the page');
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/3476
@@ -104,7 +103,7 @@ describe('Text Component with CKE - insert email link  specification', function 
             let textComponent = new TextComponentCke();
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizardPanel();
-            //1. Open new site-wizard, select an application and controller:
+            // 1. Open new site-wizard, select an application and controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await siteFormPanel.addApplications([appConst.APP_CONTENT_TYPES]);
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
@@ -112,10 +111,10 @@ describe('Text Component with CKE - insert email link  specification', function 
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            //3. Verify that the text area is focused:
+            // 3. Verify that the text area is focused:
             await studioUtils.saveScreenshot('text_component_focused');
             let isFocused = await textComponent.isTextAreaFocused();
-            assert.isTrue(isFocused, 'text area should be focused in the text component');
+            assert.ok(isFocused, 'text area should be focused in the text component');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

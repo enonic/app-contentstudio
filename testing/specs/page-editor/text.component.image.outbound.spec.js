@@ -1,8 +1,7 @@
 /**
  * Created on 01.02.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -41,7 +40,7 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            //automatic template does not exist, so no need to unlock the editor
+            // automatic template does not exist, so no need to unlock the editor
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:

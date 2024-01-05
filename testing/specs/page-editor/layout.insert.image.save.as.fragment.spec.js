@@ -1,8 +1,8 @@
 /**
  * Created on 21.11.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
+;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -66,7 +66,7 @@ describe('layot.insert.save.as.fragment.spec - tests for inserting a fragment wi
             // 7. Verify the image in the layout fragment-component
             let srcAttr = await liveFormPanel.verifyImageElementsInFragmentComponent(0);
             await contentWizard.switchToParentFrame();
-            assert.isTrue(srcAttr.includes('/admin/rest'), "Image in the fragment - Attribute 'src' is not correct");
+            assert.ok(srcAttr.includes('/admin/rest'), "Image in the fragment - Attribute 'src' is not correct");
         });
 
     it(`GIVEN existing layout-fragment is opened WHEN an image has been inserted in the center region THEN LiveEdit should be updated in the its site`,
@@ -105,10 +105,9 @@ describe('layot.insert.save.as.fragment.spec - tests for inserting a fragment wi
             let srcAttr1 = await liveFormPanel.verifyImageElementsInFragmentComponent(0);
             let srcAttr2 = await liveFormPanel.verifyImageElementsInFragmentComponent(1);
             await contentWizard.switchToParentFrame();
-            assert.isTrue(srcAttr1.includes('/admin/rest'), "Image in the fragment - Attribute 'src' is not correct");
-            assert.isTrue(srcAttr2.includes('/admin/rest'), "Image in the fragment - Attribute 'src' is not correct");
+            assert.ok(srcAttr1.includes('/admin/rest'), "Image in the fragment - Attribute 'src' is not correct");
+            assert.ok(srcAttr2.includes('/admin/rest'), "Image in the fragment - Attribute 'src' is not correct");
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

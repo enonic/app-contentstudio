@@ -1,8 +1,7 @@
 /**
  * Created on 21.11.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
@@ -16,9 +15,9 @@ describe('wizard.update.permissions.spec: update permissions and check the state
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let DISPLAY_NAME = contentBuilder.generateRandomName('folder');
-    let DISPLAY_NAME_1 = contentBuilder.generateRandomName('folder');
-    let newDisplayName = contentBuilder.generateRandomName('folder');
+    const DISPLAY_NAME = contentBuilder.generateRandomName('folder');
+    const DISPLAY_NAME_1 = contentBuilder.generateRandomName('folder');
+    const newDisplayName = contentBuilder.generateRandomName('folder');
 
     // Verify - https://github.com/enonic/app-contentstudio/issues/5172
     // Content Wizard has incorrect state after data changes followed by permissions update #5172
@@ -50,15 +49,15 @@ describe('wizard.update.permissions.spec: update permissions and check the state
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let userAccessWidget = new UserAccessWidget();
-            //1. Open new folder-wizard,
+            // 1. Open new folder-wizard,
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            //2. Open 'Edit Permissions' dialog:
+            // 2. Open 'Edit Permissions' dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            //3. Apply button should be disabled:
+            // 3. Apply button should be disabled:
             await editPermissionsDialog.waitForApplyButtonDisabled();
-            //4. "Overwrite child permissions" checkbox should not be selected
+            // 4. "Overwrite child permissions" checkbox should not be selected
             let isSelected = await editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected();
-            assert.isFalse(isSelected, "'Overwrite child permissions' checkbox should not be selected");
+            assert.ok(isSelected === false, "'Overwrite child permissions' checkbox should not be selected");
         });
 
     it(`GIVEN wizard for folder is opened WHEN 'Edit Permissions' dialog has been opened THEN three default permissions should be present in the dialog`,
@@ -98,7 +97,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             // 2. Verify the content path in the modal dialog:
             let actualPath1 = await editPermissionsDialog.getContentPath();
-            assert.isTrue(actualPath1.includes('unnamed'));
+            assert.ok(actualPath1.includes('unnamed'));
             // 3. Close the modal dialog
             await editPermissionsDialog.clickOnCancelButton();
             await editPermissionsDialog.waitForDialogClosed();
@@ -111,7 +110,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             await editPermissionsDialog.waitForDialogLoaded();
             // 7. Verify that the path is updated
             let actualPath2 = await editPermissionsDialog.getContentPath();
-            assert.isTrue(actualPath2.includes(DISPLAY_NAME_1), "Content path should be updated int he modal dialog");
+            assert.ok(actualPath2.includes(DISPLAY_NAME_1), "Content path should be updated int he modal dialog");
 
         });
     it(`GIVEN new folder wizard is opened and the folder is saved WHEN permissions have been updated THEN 'Saved' button remains visible after applying the permissions`,
@@ -119,7 +118,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             let contentWizard = new ContentWizard();
             let editPermissionsDialog = new EditPermissionsDialog();
             let userAccessWidget = new UserAccessWidget();
-            //1. Open new folder-wizard, fill in the name input and save it:
+            // 1. Open new folder-wizard, fill in the name input and save it:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(DISPLAY_NAME);
             // 2. Save the folder:

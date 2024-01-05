@@ -1,8 +1,7 @@
 /**
  * Created on 10.10.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -97,7 +96,7 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
             // 5. Verify that only child-item is displayed in the dependant block:
             let items = await contentPublishDialog.getDisplayNameInDependentItems();
-            assert.isTrue(items[0].includes(CHILD_FOLDER.displayName), 'Only child-item should be displayed in the dependant block');
+            assert.ok(items[0].includes(CHILD_FOLDER.displayName), 'Only child-item should be displayed in the dependant block');
             assert.equal(items.length, 1, 'Only one dependent-item should be displayed in the block');
             // 6. Click on the checkbox:  dependent item for the child folder
             await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
@@ -106,12 +105,12 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             await studioUtils.saveScreenshot('publish_wizard_with_selected_parent_item');
             // 8. Verify that item for the parent site gets visible and disabled
             let isEnabled = await contentPublishDialog.isDependantCheckboxEnabled(SITE.displayName);
-            assert.isFalse(isEnabled, 'The parent-item should be disabled in the dependant block');
+            assert.ok(isEnabled === false, 'The parent-item should be disabled in the dependant block');
             let isSelected = await contentPublishDialog.isDependantCheckboxSelected(SITE.displayName);
-            assert.isTrue(isSelected, 'The parent-item should be selected in the dependant block');
+            assert.ok(isSelected, 'The parent-item should be selected in the dependant block');
             isSelected = await contentPublishDialog.isDependantCheckboxSelected(CHILD_FOLDER.displayName);
             // 9. Verify that item for the child folder should be selected as well:
-            assert.isTrue(isSelected, 'The child-item should be selected in the dependant block');
+            assert.ok(isSelected, 'The child-item should be selected in the dependant block');
             // 10. Verify that 'Publish now' button gets disabled, because the just selected site is 'work in progress'
             await contentPublishDialog.waitForPublishNowButtonDisabled();
             // 11. Verify that 'Mark as ready' button gets visible in the modal dialog, 'work in progress' item is selected now:
@@ -245,7 +244,7 @@ describe('publish.wizard.complex.dependencies.spec - tests for config with non r
             // 5. Verify that 'Modified' content is displayed in the dependencies list
             let actualItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(actualItems.length, 1, "One item should be present in the list");
-            assert.isTrue(actualItems[0].includes(TEST_FOLDER.displayName),
+            assert.ok(actualItems[0].includes(TEST_FOLDER.displayName),
                 "Expected folder-name(path) should be present in the dependencies list");
         });
 

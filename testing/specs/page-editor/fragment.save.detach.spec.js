@@ -1,8 +1,7 @@
 /**
  * Created on 28.03.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -43,8 +42,8 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await pageComponentView.waitForHidePcvDialogButtonDisplayed();
             // 4. Verify that 2 items are displayed in the modal dialog:
             let result = await pageComponentView.getPageComponentsDisplayName();
-            assert.isTrue(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
+            assert.ok(result.includes('main'), 'main item should be displayed in the modal dialog');
         });
 
     it(`GIVEN 'Live Edit' has been maximized WHEN Hide Page Component view has been clicked THEN 'Page Component View' should be collapsed`,
@@ -186,7 +185,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await pageComponentView.selectMenuItem(['Edit']);
             await studioUtils.doSwitchToNextTab();
             let result = await contentWizard.isWizardStepPresent('Fragment');
-            assert.isTrue(result, "'Fragment' Wizard Step should be present in the toolbar");
+            assert.ok(result, "'Fragment' Wizard Step should be present in the toolbar");
             // parent site is 'Work in progress', so this fragment must have the same state
             let state = await contentWizard.getContentWorkflowState();
             assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "Work in progress state should be in fragment-wizard ");
@@ -210,7 +209,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await contentWizard.pause(1000);
             await contentWizard.clickOnMinimizeLiveEditToggler();
             let result = await pageComponentView.isComponentSelected('Text');
-            assert.isTrue(result, 'The component should be selected after changes are saved');
+            assert.ok(result, 'The component should be selected after changes are saved');
         });
 
     it(`WHEN fragment's context menu has been opened AND 'Detach from Fragment' has been clicked THEN 'Save as Fragment' menu item should appear again`,

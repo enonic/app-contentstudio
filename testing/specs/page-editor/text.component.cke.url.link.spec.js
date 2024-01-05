@@ -1,8 +1,7 @@
 /**
  * Created on 10.05.2018
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -22,9 +21,9 @@ describe('Text Component with CKE - insert link and table specification', functi
     }
 
     let SITE;
-    let INVALID_URL_SPEC = 'http://test$$.com';
-    let CONTROLLER_NAME = 'main region';
-    let EXPECTED_URL = '<a href="http://google.com">test</a>';
+    const INVALID_URL_SPEC = 'http://test$$.com';
+    const CONTROLLER_NAME = 'main region';
+    const EXPECTED_URL = '<a href="http://google.com">test</a>';
 
     it(`Precondition: new site should be added`,
         async () => {
@@ -47,7 +46,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             // Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
-            //2. Click on 'Insert Table' menu-button:
+            // 2. Click on 'Insert Table' menu-button:
             await textComponentCke.clickOnInsertTableButton();
             // menu item for inserting of Html-table gets visible:
             await textComponentCke.waitForTableDisplayedInCke();
@@ -96,19 +95,19 @@ describe('Text Component with CKE - insert link and table specification', functi
             // 2. Click on minimize-toggler  expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text component:
-            await pageComponentView.openMenu("main");
+            await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
             // 4. Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
             // 5. Open Insert Link dialog and add the link:
             await textComponentCke.clickOnInsertLinkButton();
-            await studioUtils.insertUrlLinkInCke("test", 'http://google.com');
+            await studioUtils.insertUrlLinkInCke('test', 'http://google.com');
             await textComponentCke.switchToLiveEditFrame();
             await studioUtils.saveScreenshot('url_link_inserted');
             // 6. Get and check the text in CKE:
             let result = await textComponentCke.getTextFromEditor();
-            assert.isTrue(result.includes(EXPECTED_URL), 'expected URL should appear in CKE');
+            assert.ok(result.includes(EXPECTED_URL), 'expected URL should appear in CKE');
             await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -143,14 +142,14 @@ describe('Text Component with CKE - insert link and table specification', functi
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentItemPreviewPanel.clickOnElementInFrame("a=test");
             await studioUtils.saveScreenshot('enonic_not_loaded_in_preview_panel');
-            //The Link gets not visible:
+            // The Link gets not visible:
             let result = await contentItemPreviewPanel.waitForElementNotDisplayedInFrame("a=test");
-            assert.isTrue(result, 'The link should not be visible');
+            assert.ok(result, 'The link should not be visible');
             await contentItemPreviewPanel.pause(2000);
             await studioUtils.saveScreenshot("link_clicked_in_preview_panel");
-            //Web page should not be loaded as well, because disallowed loading of the resource in an iframe outside of their domain:
+            // Web page should not be loaded as well, because disallowed loading of the resource in an iframe outside of their domain:
             result = await contentItemPreviewPanel.waitForElementNotDisplayedInFrame("//input[name='q']");
-            assert.isTrue(result, "Web page should not be loaded");
+            assert.ok(result, "Web page should not be loaded");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

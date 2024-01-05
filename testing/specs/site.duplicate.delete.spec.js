@@ -1,8 +1,7 @@
 /**
  * Created on 31.05.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
@@ -117,7 +116,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             await studioUtils.findAndSelectItem(SITE.displayName + '-copy-2');
             await studioUtils.saveScreenshot("site_duplicated_no_child");
             let isDisplayed = await contentBrowsePanel.isExpanderIconPresent(SITE.displayName + "-copy-2");
-            assert.isFalse(isDisplayed, 'Site should be displayed without a expander, because the site has no children');
+            assert.ok(isDisplayed === false, 'Site should be displayed without a expander, because the site has no children');
         });
 
     it("GIVEN 'Confirm Value' dialog is opened WHEN required number to delete has been typed THEN 'Confirm' button gets enabled",
@@ -160,7 +159,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

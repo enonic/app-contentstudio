@@ -1,8 +1,7 @@
 /**
  * Created on 03.01.2023.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -61,8 +60,8 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             await contentPublishDialog.waitForDependantsBlockDisplayed();
             // one item should be present in the 'Dependent block':
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-            assert.isTrue(depItems[0].includes(CHILD_FOLDER.displayName), "Expected dependent's display name should be present in the block");
-            assert.isTrue(depItems.length === 1, 'One dependent items should be present in the block');
+            assert.ok(depItems[0].includes(CHILD_FOLDER.displayName), "Expected dependent's display name should be present in the block");
+            assert.ok(depItems.length === 1, 'One dependent items should be present in the block');
         });
 
     it("GIVEN Publish Wizard is opened WHEN 'Exclude child items' icon has been clicked THEN 'Exclude items in progress' button gets not visible",
@@ -104,7 +103,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             // 4. Unselect the checkbox for 'work in progress' child item:
             await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
             await contentPublishDialog.clickOnApplySelectionButton();
-            //await contentPublishDialog.waitForAllDependantsCheckboxNotDisplayed();
+            // await contentPublishDialog.waitForAllDependantsCheckboxNotDisplayed();
             await studioUtils.saveScreenshot('publish_w_work_in_progress_unselected');
             // 4. Verify that 'Publish Now' button gets enabled after excluding 'work in progress' child item:
             await contentPublishDialog.waitForPublishNowButtonEnabled();
@@ -169,7 +168,7 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             // 8. 'All' checkbox remains visible and selected:
             await contentPublishDialog.waitForAllDependantsCheckboxEnabled();
             let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
-            assert.isTrue(isSelected, "'All' checkbox should be visible and selected");
+            assert.ok(isSelected, "'All' checkbox should be visible and selected");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -1,8 +1,7 @@
 /**
  * Created on 05.09.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
@@ -18,7 +17,7 @@ const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.di
 
 describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard step', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const NAME = appConst.generateRandomName("project");
@@ -39,7 +38,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Select 'Default' project and go to 'Name/ID' step
             await parentProjectStep.clickOnLayerRadioButton();
-            await parentProjectStep.selectParentProject("Default");
+            await parentProjectStep.selectParentProject('Default');
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
@@ -56,7 +55,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //4. Verify that white spaces are trimmed
             let actualId = await nameIdStep.getProjectIdentifier();
             let whitespace = containsWhitespace(actualId);
-            assert.isFalse(whitespace, "White spaces should be trimmed in the input");
+            assert.ok(whitespace === false, "White spaces should be trimmed in the input");
         });
 
     it(`GIVEN navigated to Name/Id wizard step WHEN identifier input has been cleared THEN 'This field is required' should be displayed`,
@@ -172,7 +171,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

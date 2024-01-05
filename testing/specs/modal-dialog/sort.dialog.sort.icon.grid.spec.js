@@ -2,8 +2,7 @@
  * Created on 05.07.2019.
  *
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');

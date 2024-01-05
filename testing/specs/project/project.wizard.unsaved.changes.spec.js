@@ -1,8 +1,7 @@
 /**
  * Created on 27.03.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -13,12 +12,12 @@ const appConst = require('../../libs/app_const');
 
 describe('project.wizard.unsaved.changes.spec - checks unsaved changes in project wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
-    let PROJECT_NAME = studioUtils.generateRandomName("project");
-    let PROJECT_NAME_2 = studioUtils.generateRandomName("project");
+    const PROJECT_NAME = studioUtils.generateRandomName('project');
+    const PROJECT_NAME_2 = studioUtils.generateRandomName('project');
 
     it(`GIVEN existing project is opened WHEN name has been updated AND 'close' icon has been clicked THEN Confirmation Dialog should appear`,
         async () => {
@@ -68,21 +67,21 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             let confirmationDialog = new ConfirmationDialog();
-            //1.open existing project:
+            // 1.open existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            //2. Type the display name:
+            // 2. Type the display name:
             await projectWizard.typeDisplayName(PROJECT_NAME_2);
-            //3. Click on 'close' icon:
+            // 3. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(PROJECT_NAME_2);
-            studioUtils.saveScreenshot("project_wizard_unsaved_changes_1");
+            await studioUtils.saveScreenshot('project_wizard_unsaved_changes_1');
             await confirmationDialog.waitForDialogOpened();
-            //4. Click on 'Yes' button:
+            // 4. Click on 'Yes' button:
             await confirmationDialog.clickOnYesButton();
             await projectWizard.waitForWizardClosed();
             await settingsBrowsePanel.pause(200);
-            //5. Verify that new project is not created:
+            // 5. Verify that new project is not created:
             await settingsBrowsePanel.waitForItemByDisplayNameDisplayed(PROJECT_NAME_2);
         });
 
@@ -90,13 +89,13 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1. Open existing project:
+            // 1. Open existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_NAME_2);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            //2. Click on close-icon
+            // 2. Click on close-icon
             await settingsBrowsePanel.clickOnCloseIcon(PROJECT_NAME_2);
-            //3. Verify that the wizard is closed:
+            // 3. Verify that the wizard is closed:
             await projectWizard.waitForWizardClosed();
             await studioUtils.saveScreenshot("project_wizard_no_unsaved_changes");
         });

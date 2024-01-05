@@ -1,8 +1,7 @@
 /**
  * Created on 05.02.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -88,7 +87,7 @@ describe('publish.site.with.invalid.child.spec tests for Publish Wizard with inv
             // 6. Verify that 'Exclude Invalid Items' button is displayed:
             await contentPublishDialog.waitForExcludeInvalidItemsButtonDisplayed();
             let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
-            assert.isTrue(isSelected, "'All' checkbox remains selected");
+            assert.ok(isSelected, "'All' checkbox remains selected");
             let result = await contentPublishDialog.getNumberInAllCheckbox();
             assert.equal(result, EXPECTED_NUMBER_ALL, 'Expected label with the number should be displayed in All checkbox')
         });

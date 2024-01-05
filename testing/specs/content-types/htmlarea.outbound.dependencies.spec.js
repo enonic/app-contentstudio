@@ -1,8 +1,7 @@
 /**
  * Created on 26.11.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -51,7 +50,8 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
         });
 
     //verifies  https://github.com/enonic/xp/issues/6768
-    it(`GIVEN existing 'htmlArea' content is selected WHEN Dependencies panel is opened THEN 'Outbound dependency' should be present`,
+    // Image referenced by an HTML Area is not listed as its outbound dependency in the widget #6768
+    it(`GIVEN existing 'htmlArea' content with inserted image is selected WHEN Dependencies panel is opened THEN 'Outbound dependency' should be present`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
@@ -61,10 +61,11 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             await contentWizard.openDetailsPanel();
             await wizardDetailsPanel.openDependencies();
             await studioUtils.saveScreenshot('htmlarea_with_image');
-            // 2. Verify that 'Show outbound' button gets visible in the widget, because image was inserted in htmlarea
+            // 2. Verify that 'Show outbound' button gets visible in the widget, because an image was inserted in htmlarea
             await wizardDependenciesWidget.waitForOutboundButtonVisible();
+            // 3. 'Show Inbound' should be not visible:
             let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
-            assert.isFalse(isVisible, '`Show Inbound` button should not be visible');
+            assert.equal(isVisible, false, '`Show Inbound` button should not be visible');
         });
 
     // verifies https://github.com/enonic/xp/issues/6795 (Outbound Dependency is not cleared after removing an image in html area)
@@ -74,19 +75,20 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             let contentWizard = new ContentWizard();
             let wizardDetailsPanel = new WizardDetailsPanel();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
-            //1. Open the content:
+            // 1. Open the content:
             await studioUtils.selectContentAndOpenWizard(CONTENT_NAME);
             await contentWizard.openDetailsPanel();
             await wizardDetailsPanel.openDependencies();
-            //2. Clear the html area:
+            // 2. Clear the html area:
             await htmlAreaForm.clearHtmlArea(0);
-            //3. Save the changes!
+            // 3. Save the changes!
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('htmlarea_image_removed');
-            // 'Show outbound' button gets not visible in the widget, because the image was removed:
+            // 4. Verify that 'Show outbound' button gets not visible in the widget, because the image was removed:
             await wizardDependenciesWidget.waitForOutboundButtonNotVisible();
+            // 5. Show inbound button should be not visible as well:
             let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
-            assert.isFalse(isVisible, '`Show Inbound` button should not be visible');
+            assert.equal(isVisible, false, '`Show Inbound` button should not be visible');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

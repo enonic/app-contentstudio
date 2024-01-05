@@ -1,8 +1,7 @@
 /**
  * Created on 16.02.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -103,7 +102,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             let info = await issueDetailsDialog.getStatusInfo();
             let expectedMessage = appConst.issueClosedBy(USER.displayName);
             // 6. Verify that the info message is displayed in the status selector : "Closed by user:system:${userName}"
-            assert.isTrue(info.includes(expectedMessage), "Expected notification message should appear");
+            assert.ok(info.includes(expectedMessage), "Expected notification message should appear");
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });

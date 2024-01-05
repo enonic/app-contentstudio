@@ -1,8 +1,7 @@
 /**
  * Created on 07.02.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -33,13 +32,12 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
             await projectWizard.waitForLoaded();
             // 4. Go to Applications step form in the wizard page:
             await projectWizard.clickOnWizardStep('Applications');
-
             await studioUtils.saveScreenshot('proj_wizard_2_selected_apps');
             // 5. Verify the selected applications in the Wizard step form:
             let actualApplications = await projectWizard.getSelectedApplications();
-            assert.isTrue(actualApplications.includes(appConst.TEST_APPS_NAME.APP_CONTENT_TYPES),
+            assert.ok(actualApplications.includes(appConst.TEST_APPS_NAME.APP_CONTENT_TYPES),
                 'Expected application should be present in the form');
-            assert.isTrue(actualApplications.includes(appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN),
+            assert.ok(actualApplications.includes(appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN),
                 'Expected application should be present in the form');
         });
 

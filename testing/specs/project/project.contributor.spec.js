@@ -1,8 +1,7 @@
 /**
  * Created on 09.06.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
@@ -104,7 +103,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentWizardPanel.pause(1000);
             // 3. Verify that Page Controller is disabled (not clickable):
             let result = await contentWizardPanel.isPageControllerFilterInputClickable();
-            assert.isFalse(result, 'Page Controller selector should be disabled for user with contributor role')
+            assert.ok(result === false, 'Page Controller selector should be disabled for user with contributor role')
         });
 
     it("GIVEN contributor user is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
@@ -127,16 +126,16 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Select existing folder:
+            // 2. Select existing folder:
             await studioUtils.findAndSelectItem(FOLDER_WORK_IN_PROGRESS.displayName);
-            //3. open Versions Panel
+            // 3. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            //4. Click on the first item in versions widget:
+            // 4. Click on the first item in versions widget:
             await browseVersionsWidget.clickAndExpandVersionItemByHeader('Created');
             await studioUtils.saveScreenshot('revert_button_should_be_disabled1');
-            //5. Verify that Revert button in browse versions panel is disabled:
+            // 5. Verify that Revert button in browse versions panel is disabled:
             await browseVersionsWidget.waitForRevertButtonDisabled();
         });
 
@@ -174,7 +173,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentBrowsePanel.waitForNewButtonDisabled();
             // 4. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
-            studioUtils.saveScreenshot('project_contributor_3');
+            await studioUtils.saveScreenshot('project_contributor_3');
             // 5. Verify that 'Create Issue' and 'Request Publishing' menu items are enabled for Contributor role:
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
@@ -204,7 +203,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             // 7. Verify that 'Publish' menu item is disabled:
             let menuItems = await contentBrowsePanel.getPublishMenuItems();
-            assert.isFalse(menuItems.includes(appConst.PUBLISH_MENU.PUBLISH), 'Publish menu item should not be present');
+            assert.ok(menuItems.includes(appConst.PUBLISH_MENU.PUBLISH) === false, 'Publish menu item should not be present');
         });
 
     it("GIVEN user with 'Contributor' role is logged in WHEN double click on an existing folder THEN the folder should be opened in the new browser tab AND all inputs should be disabled",
@@ -223,7 +222,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentWizardPanel.waitForDuplicateButtonDisabled();
             // 4. Verify that display name input is not clickable:
             let isClickable = await contentWizardPanel.isDisplayNameInputClickable();
-            assert.isFalse(isClickable, 'Name Input should be not clickable');
+            assert.ok(isClickable === false, 'Name Input should be not clickable');
             await propertiesWidgetItem.waitForEditSettingsButtonNotDisplayed();
         });
 
@@ -252,23 +251,23 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
-            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Select the folder and open Request wizard:
+            // 2. Select the folder and open Request wizard:
             await studioUtils.findAndSelectItem(FOLDER_READY_TO_PUBLISH.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.clickOnNextButton();
             await createRequestPublishDialog.typeInChangesInput('contributor request');
-            //3. Click on 'Create Request' button:
+            // 3. Click on 'Create Request' button:
             await createRequestPublishDialog.clickOnCreateRequestButton();
-            //4. Verify that Create Request dialog closes:
+            // 4. Verify that Create Request dialog closes:
             await publishRequestDetailsDialog.waitForClosed();
-            //5. Click on issue-button and open the request:
+            // 5. Click on issue-button and open the request:
             await contentItemPreviewPanel.clickOnIssueButtonByName('contributor request');
-            //6. Verify that 'Request Details' dialog is loaded:
+            // 6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
-            //7. Verify that 'Publish Now' button is disabled:
+            // 7. Verify that 'Publish Now' button is disabled:
             await studioUtils.saveScreenshot('project_contributor_4');
             await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
         });

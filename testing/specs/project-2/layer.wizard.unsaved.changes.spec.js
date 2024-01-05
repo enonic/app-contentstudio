@@ -1,8 +1,7 @@
 /**
  * Created on 30.07.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -14,7 +13,7 @@ const appConst = require('../../libs/app_const');
 
 describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");

@@ -1,8 +1,7 @@
 /**
  * Created on 19.02.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -34,7 +33,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
     const LAYOUT_3_COL = '3-col';
     const FRAGMENT_2_COL_GENERATED_NAME = 'fragment-25-75';
 
-    //Verifies:
+    // Verifies:
     // 1)"Descriptor dropdowns in the Inspection panel is not updated after content path has changed #1095"
     // 2) Page Component View - incorrect description of a fragment. https://github.com/enonic/app-contentstudio/issues/1534
     it("GIVEN layout saved as fragment in new site WHEN site's name has been updated THEN path should be updated in selected option in Fragment Inspect Panel",
@@ -77,7 +76,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await studioUtils.saveScreenshot('fragment_path_updated');
             // 7. Fragment Inspection Panel should be loaded automatically in the site wizard. Verify that path is updated in the dropdown:
             let actualPath = await fragmentInspectionPanel.getSelectedOptionPath();
-            assert.include(actualPath, SITE_1_NAME, 'Path should be updated in Fragment Inspection Panel');
+            assert.ok(actualPath.includes(SITE_1_NAME), 'Path should be updated in Fragment Inspection Panel');
             // 8. Verify that expected description should be present in the site in wizard step:
             let actualDescriptionFragment = await pageComponentsWizardStepForm.getComponentDescription(LAYOUT_2_COL);
             assert.equal(actualDescriptionFragment, FRAGMENT_LAYOUT_DESCRIPTION, "'layout' description should be present in 'fragment item'");
@@ -110,8 +109,8 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let actualOptions = await fragmentInspectionPanel.getFragmentDropdownOptions();
             // 6. Verify that options in the dropdown list are refreshed:
             assert.equal(actualOptions.length, 2, 'Two options should be present in the dropdown list');
-            assert.isTrue(actualOptions.includes(LAYOUT_2_COL), 'The first layout should be present in the dropdown options');
-            assert.isTrue(actualOptions.includes(LAYOUT_3_COL), 'The first layout should be present in the dropdown options');
+            assert.ok(actualOptions.includes(LAYOUT_2_COL), 'The first layout should be present in the dropdown options');
+            assert.ok(actualOptions.includes(LAYOUT_3_COL), 'The first layout should be present in the dropdown options');
         });
 
     it("GIVEN 'Page Components View' is opened WHEN a fragment has been selected AND 'Edit' button in Inspect Panel has been clicked THEN the fragment should be opened in new browser tab",
@@ -130,7 +129,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await studioUtils.doSwitchToNextTab();
             // Verify the wizard-step:
             let result = await contentWizard.isWizardStepPresent('Fragment');
-            assert.isTrue(result, 'Fragment wizard step should be present in the page');
+            assert.ok(result, 'Fragment wizard step should be present in the page');
             // Verify the display name
             let displayName = await contentWizard.getDisplayName();
             assert.equal(displayName, LAYOUT_2_COL, 'Expected display name should be present');

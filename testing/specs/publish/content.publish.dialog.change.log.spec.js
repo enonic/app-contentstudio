@@ -1,8 +1,7 @@
 /**
  * Created on 16.09.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -12,11 +11,11 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('content.publish.dialog.change.log.spec - open publish modal dialog and type a text in the change log input', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let FOLDER1_NAME;
-    let TEST_TEXT = "Hello world";
+    const TEST_TEXT = 'Hello world';
 
     it(`GIVEN Publish Dialog is opened WHEN a text has been typed in the change log THEN expected text should be present in the dialog`,
         async () => {
@@ -25,14 +24,13 @@ describe('content.publish.dialog.change.log.spec - open publish modal dialog and
             FOLDER1_NAME = contentBuilder.generateRandomName('folder');
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER1_NAME);
-            //Publish... menu item has been clicked:
+            // Publish... menu item has been clicked:
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentWizard.pause(1000);
-
             //type a text in the Change Log input
             await contentPublishDialog.typeTextInChangeLog(TEST_TEXT);
-            studioUtils.saveScreenshot("text_in_change_log");
-            //Check that text:
+            await studioUtils.saveScreenshot("text_in_change_log");
+            // Check that text:
             let actualText = await contentPublishDialog.getTextInChangeLog();
             assert.equal(actualText, TEST_TEXT, "Change log input - actual and expected text should be equal");
         });
@@ -40,7 +38,7 @@ describe('content.publish.dialog.change.log.spec - open publish modal dialog and
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

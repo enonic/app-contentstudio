@@ -1,10 +1,7 @@
 /**
  * Created on 28.05.2018.
- *
  */
-const chai = require('chai');
-const expect = require('chai').expect;
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
@@ -48,19 +45,19 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             await studioUtils.saveScreenshot('before_arrow_right');
             let isExpanded = await contentBrowsePanel.isContentExpanded(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            assert.isFalse(isExpanded, "The folder should be collapsed");
+            assert.ok(isExpanded === false, "The folder should be collapsed");
             // 2. Press the 'Arrow Right' key
             await contentBrowsePanel.pressArrowRight();
             await studioUtils.saveScreenshot('after_arrow_right');
             // 3. Verify that the  folder gets expanded:
             isExpanded = await contentBrowsePanel.isContentExpanded(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            assert.isTrue(isExpanded, 'The folder gets expanded');
+            assert.ok(isExpanded === true, 'The folder gets expanded');
             // 4. Press the 'Arrow Left' key:
             await contentBrowsePanel.pressArrowLeft();
             await studioUtils.saveScreenshot('after_arrow_left');
             // 5. Verify that the  folder gets collapsed:
             isExpanded = await contentBrowsePanel.isContentExpanded(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
-            assert.isFalse(isExpanded, 'The folder gets collapsed');
+            assert.ok(isExpanded === false, 'The folder gets collapsed');
         });
 
     it("GIVEN one row is highlighted WHEN 'Arrow Down' key has been pressed THEN the next row should be highlighted",
@@ -77,7 +74,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await studioUtils.saveScreenshot('after_arrow_down');
             // 3. Verify that the next content is highlighted:
             let displayName2 = await contentBrowsePanel.getNameInHighlightedRow();
-            expect(displayName1).not.equal(displayName2);
+            assert.notEqual(displayName1, displayName2, "Highlighted item should be updated");
         });
 
     it("GIVEN one checkbox has been clicked in the grid WHEN 'white space' key has been pressed THEN the row gets unselected",
@@ -184,7 +181,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number2, 0, "the number of checked rows is 0");
             let isVisible = await contentBrowsePanel.waitForSelectionTogglerVisible();
-            assert.isFalse(isVisible, "'Selection Toggler' should not be visible in the toolbar");
+            assert.ok(isVisible === false, "'Selection Toggler' should not be visible in the toolbar");
         });
 
     it("WHEN one row with content has been checked THEN the row gets checked AND 'Selection Toggler' gets visible",
@@ -197,9 +194,9 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await studioUtils.saveScreenshot('one_row_checked');
             assert.equal(number1, 0, "no one row should be highlighted");
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.isTrue(number2 === 1, "One row should be checked");
+            assert.ok(number2 === 1, "One row should be checked");
             let isVisible = await contentBrowsePanel.waitForSelectionTogglerVisible();
-            assert.isTrue(isVisible, "Selection Toggler should appear in the toolbar");
+            assert.ok(isVisible, "Selection Toggler should appear in the toolbar");
         });
 
     it("GIVEN one row is checked WHEN one more row has been checked THEN 2 rows should be checked AND 0 rows should be highlighted",

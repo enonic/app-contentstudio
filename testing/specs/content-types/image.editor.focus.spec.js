@@ -1,8 +1,7 @@
 /**
  * Created on 21.09.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -35,11 +34,11 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             await imageEditor.waitForResetFiltersDisplayed();
             //5. Try to close the wizard with unsaved set focus:
             await contentWizard.clickOnCloseBrowserTab();
-            let result = await contentWizard.isAlertOpen();
-            if (result) {
+            let isOpened = await contentWizard.isAlertOpen();
+            if (isOpened) {
                 await contentWizard.dismissAlert();
             }
-            assert.isTrue(result, "Alert should appear after trying to close the wizard with unsaved changes");
+            assert.ok(isOpened === false, "Alert should appear after trying to close the wizard with unsaved changes");
         });
 
     it(`GIVEN existing image is opened WHEN focus circle has been moved AND 'Apply' button pressed THEN focus circle should be displayed in the editor`,
@@ -50,7 +49,7 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Verify that red circle is not displayed
+            // 2. Verify that red circle is not displayed
             await imageEditor.waitForFocusCircleNotDisplayed();
             // 3. Click on 'Focus' button and switch to 'edit' mode
             await imageEditor.clickOnFocusButton();

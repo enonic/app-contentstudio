@@ -1,8 +1,7 @@
 /**
  * Created on 20.07.2021.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -37,16 +36,16 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
             await wizardDetailsPanel.clickOnWidgetSelectorDropdownHandle();
             // 4. Verify that Emulator and Components options are not present before selecting a controller:
             let actualOptions1 = await wizardDetailsPanel.getWidgetSelectorDropdownOptions();
-            assert.isFalse(actualOptions1.includes('Emulator'));
-            assert.isFalse(actualOptions1.includes('Components'));
+            assert.ok(actualOptions1.includes('Emulator') === false, "'Emulator' option should not be displayed in the dropdown");
+            assert.ok(actualOptions1.includes('Components') === false, "'Components' option should not be displayed in the dropdown");
             // 5. Select a controller:
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
             // 6. Verify that 'Emulator' and 'Components' options get visible in options after selecting a controller:
             await wizardDetailsPanel.clickOnWidgetSelectorDropdownHandle();
             await studioUtils.saveScreenshot('widget_menu_1');
             let actualOptions2 = await wizardDetailsPanel.getWidgetSelectorDropdownOptions();
-            assert.isTrue(actualOptions2.includes('Emulator'));
-            assert.isTrue(actualOptions2.includes('Components'));
+            assert.ok(actualOptions2.includes('Emulator'), "'Emulator' option should be displayed in the dropdown");
+            assert.ok(actualOptions2.includes('Components'), "'Components' option should be displayed in the dropdown");
         });
 
     it(`GIVEN wizard for new site is opened WHEN Emulator widget has been opened THEN expected resolutions should be present in the widget`,

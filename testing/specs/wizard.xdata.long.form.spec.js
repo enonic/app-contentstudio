@@ -14,7 +14,7 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let contentName = contentBuilder.generateRandomName('content');
+    const contentName = contentBuilder.generateRandomName('content');
     const HTML_AREA_X_DATA_NAME = 'Html Area x-data';
     const TEXT_AREA_X_DATA_NAME = 'Text Area x-data';
     const IMAGE_X_DATA_NAME = 'X-data (image selector)';

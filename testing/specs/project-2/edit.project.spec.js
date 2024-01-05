@@ -1,8 +1,7 @@
 /**
  * Created on 26.03.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -134,7 +133,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await confirmationDialog.clickOnCancelTopButton();
             let isSelected = await projectWizard.isAccessModeRadioSelected("Private");
             // 5. Verify that access mode returns to the initial state:
-            assert.isTrue(isSelected, "Private mode should be reverted in the Access Mode form");
+            assert.ok(isSelected, "Private mode should be reverted in the Access Mode form");
             // 6. Verify that 'Save' button is disabled
             await projectWizard.waitForSaveButtonDisabled();
         });

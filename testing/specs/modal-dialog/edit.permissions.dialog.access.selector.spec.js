@@ -1,8 +1,7 @@
 /**
  * Created on 20.07.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -61,23 +60,23 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             //3. Verify that operations are 'allowed':
             let isAllowed = await editPermissionsDialog.isOperationAllowed(appConst.roleName.CONTENT_MANAGER_APP, 'Read');
-            assert.isTrue(isAllowed, "'Read' operation should be allowed(green)");
+            assert.ok(isAllowed, "'Read' operation should be allowed(green)");
             isAllowed = await editPermissionsDialog.isOperationAllowed(appConst.roleName.CONTENT_MANAGER_APP, 'Create');
-            assert.isTrue(isAllowed, "'Create' operation should be allowed(green)");
+            assert.ok(isAllowed, "'Create' operation should be allowed(green)");
         });
 
     it(`GIVEN existing folder is selected AND Edit Permissions dialog is opened WHEN 'Create' toggle has been clicked THEN 'Create' operation gets denied(red)`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let userAccessWidget = new UserAccessWidget();
-            //1. Select the folder and open Edit Permissions dialog:
+            // 1. Select the folder and open Edit Permissions dialog:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await studioUtils.openBrowseDetailsPanel();
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            //2. Click on permission-toggle:
+            // 2. Click on permission-toggle:
             await editPermissionsDialog.clickOnPermissionToggle(appConst.roleName.CONTENT_MANAGER_APP, appConst.permissionOperation.CREATE);
             await studioUtils.saveScreenshot("create_operation_is_denied");
-            //3. Verify that this operation is denied now:
+            // 3. Verify that this operation is denied now:
             await editPermissionsDialog.isOperationDenied(appConst.roleName.CONTENT_MANAGER_APP, 'Create');
             await editPermissionsDialog.isOperationAllowed(appConst.roleName.CONTENT_MANAGER_APP, 'Read');
         });
@@ -86,13 +85,13 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let userAccessWidget = new UserAccessWidget();
-            //1. Select the folder and open Details Panel
+            // 1. Select the folder and open Details Panel
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await studioUtils.openBrowseDetailsPanel();
-            //2. Open Edit Permissions dialog:
+            // 2. Open Edit Permissions dialog:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             let entries = await editPermissionsDialog.getNameOfAccessControlEntries();
-            //3. Verify the order of ACE:
+            // 3. Verify the order of ACE:
             assert.equal(entries[0], '/roles/cms.admin', " ACL-entries should be consistently sorted by name");
             assert.equal(entries[1], '/roles/cms.cm.app', " ACL-entries should be consistently sorted by name");
             assert.equal(entries[2], '/roles/system.admin', " ACL-entries should be consistently sorted by name");

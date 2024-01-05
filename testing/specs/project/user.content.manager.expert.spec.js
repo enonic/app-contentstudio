@@ -1,8 +1,7 @@
 /**
  * Created on 17.05.2021.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -11,7 +10,7 @@ const appConst = require('../../libs/app_const');
 
 describe('user.content.manager.expert.spec - ui-tests for content manager expert role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -31,8 +30,8 @@ describe('user.content.manager.expert.spec - ui-tests for content manager expert
             await studioUtils.doLogout();
         });
 
-    //Verifies - https://github.com/enonic/app-contentstudio/issues/3112
-    //No message is shown in the Select project dialog when user doesn't have any available projects #3112
+    // Verifies - https://github.com/enonic/app-contentstudio/issues/3112
+    // No message is shown in the Select project dialog when user doesn't have any available projects #3112
     it("WHEN user with 'Content Manage Expert' is logged in THEN 'Project Selection' dialog should should be loaded with the expected warning message",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
@@ -51,7 +50,7 @@ describe('user.content.manager.expert.spec - ui-tests for content manager expert
         }
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

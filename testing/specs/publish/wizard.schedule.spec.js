@@ -1,8 +1,7 @@
 /**
  * Created on 22.11.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -64,7 +63,7 @@ describe('Wizard page - verify schedule form', function () {
             // 5. Verify the date in Online from input:
             let expectedDate = new Date().toISOString().substring(0, 10);
             let from = await editScheduleDialog.getOnlineFrom();
-            assert.isTrue(from.includes(expectedDate), "Expected date time should be displayed");
+            assert.ok(from.includes(expectedDate), "Expected date time should be displayed");
         });
 
     it("GIVEN existing published folder is opened WHEN 'Online to' is earlier than 'Online from' THEN expected validation message appears",
@@ -143,8 +142,8 @@ describe('Wizard page - verify schedule form', function () {
             await contentWizard.openVersionsHistoryPanel();
             // 8. Verify the status in versions widget
             let status = await wizardVersionsWidget.getContentStatus();
-            assert.isTrue(status.includes('Will be published'), "'Will be published' should be present in the versions widget");
-            assert.isTrue(status.includes(DATE_TIME_IN_FUTURE), 'Expected date time in future should be displayed');
+            assert.ok(status.includes('Will be published'), "'Will be published' should be present in the versions widget");
+            assert.ok(status.includes(DATE_TIME_IN_FUTURE), 'Expected date time in future should be displayed');
         });
 
     it(`WHEN 'Online from' has been set in future THEN 'Published until' should be displayed in versions widget`,
@@ -177,8 +176,8 @@ describe('Wizard page - verify schedule form', function () {
             await contentWizard.openVersionsHistoryPanel();
             // 9. Verify the status in versions widget
             let status = await wizardVersionsWidget.getContentStatus();
-            assert.isTrue(status.includes('Published until'), "'Published until' should be present in the versions widget");
-            assert.isTrue(status.includes(DATE_TIME_TO), 'Expected date time in future should be displayed');
+            assert.ok(status.includes('Published until'), "'Published until' should be present in the versions widget");
+            assert.ok(status.includes(DATE_TIME_TO), 'Expected date time in future should be displayed');
         });
 
 

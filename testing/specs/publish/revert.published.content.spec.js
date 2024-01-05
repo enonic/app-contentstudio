@@ -1,8 +1,7 @@
 /**
  * Created on 15.02.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -34,7 +33,6 @@ describe('Revert published content spec', function () {
             // 4. Publish the folder
             await contentWizard.clickOnMarkAsReadyButton();
             await studioUtils.doPublish();
-
             // "Published status should be in Wizard"
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHED);
         });
@@ -51,7 +49,8 @@ describe('Revert published content spec', function () {
             await wizardVersionsWidget.clickOnRevertButton();
             // 3. Verify the message:
             let actualMessage = await contentWizard.waitForNotificationMessage();
-            assert.include(actualMessage, appConst.NOTIFICATION_MESSAGES.CONTENT_REVERTED, 'Expected notification message should appear');
+            assert.ok(actualMessage.includes(appConst.NOTIFICATION_MESSAGES.CONTENT_REVERTED),
+                'Expected notification message should appear');
             // 4. Verify that status gets Modified
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.MODIFIED, "'Modified' status should be in Wizard");

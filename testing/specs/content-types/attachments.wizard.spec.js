@@ -1,8 +1,7 @@
 /**
  * Created on 13.10.2021.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -49,7 +48,7 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
             assert.equal(actualRecording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Validation recording should be displayed");
             // 5. Verify that the content is invalid
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, 'Content should be not valid');
+            assert.ok(isInvalid, 'Content should be invalid');
             // 6. Verify that attachments item is not visible now:
             await wizardAttachmentsItemWidget.waitForAttachmentItemsNotDisplayed();
             // 7. Verify the message in the widget:
@@ -90,7 +89,7 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
             await contentWizard.typeDisplayName(ATTACHMENT_NAME);
             // 3. Verify that the content is invalid, because attachment input is required:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, 'Content should be not valid');
+            assert.ok(isInvalid, 'Content should be invalid');
             // 4. Verify that validation recording does not appear until content is saved
             await attachmentsForm.waitForFormValidationRecordingNotDisplayed();
             await contentWizard.waitAndClickOnSave();
@@ -108,7 +107,7 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
             assert.equal(actualRecording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Validation recording should be displayed");
             // 3. Verify that the content is invalid
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, 'Content should be not valid');
+            assert.ok(isInvalid, 'Content should be invalid');
         });
 
     it("WHEN new wizard with not required 'attachment' is opened AND name input is filled in THEN the content gets valid",
@@ -120,7 +119,7 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
             await studioUtils.saveScreenshot('attachments_wizard_2');
             // 3. Verify that the content is valid, because attachment input is not required:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, 'Content should be valid');
+            assert.ok(isInvalid === false, 'Content should be valid');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

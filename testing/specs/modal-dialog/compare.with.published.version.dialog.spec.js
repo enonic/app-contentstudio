@@ -1,8 +1,7 @@
 /**
  * Created on 28.12.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
@@ -49,7 +48,7 @@ describe("compare.with.published.version.dialog.spec tests for 'Show changes' mo
             await compareWithPublishedVersionDialog.waitForAddedPropertyDisplayed(appConst.COMPARE_VERSIONS_DLG_PROP.LANGUAGE);
             // 5. Expected language should be displayed
             let value = await compareWithPublishedVersionDialog.getValueInAddedProperty(appConst.COMPARE_VERSIONS_DLG_PROP.LANGUAGE);
-            assert.isTrue(value.includes('en'), 'language:"en"  should be displayed in the dialog');
+            assert.ok(value.includes('en'), 'language:"en"  should be displayed in the dialog');
             // 6. workflow property should be displayed in the modal dialog:
             await compareWithPublishedVersionDialog.waitForModifiedWorkflowDisplayed();
             // 7. Verify  the modifiedTime property

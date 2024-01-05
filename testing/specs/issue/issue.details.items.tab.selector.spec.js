@@ -1,8 +1,8 @@
 /**
  * Created on 28.03.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
+;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');

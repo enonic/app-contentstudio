@@ -1,8 +1,7 @@
 /**
  * Created on 13.04.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
@@ -54,11 +53,11 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             await issueDetailsDialog.clickOnItemsTabBarItem();
 
             let isActive = await issueDetailsDialog.isItemsTabBarItemActive();
-            assert.isTrue(isActive, "Items tab gets active");
+            assert.ok(isActive, "Items tab gets active");
             // 4. Content option filter input should be present:
             await issueDetailsDialogItemsTab.waitForContentOptionsFilterInputDisplayed();
             let result = await issueDetailsDialogItemsTab.isPublishButtonDisplayed();
-            assert.isTrue(result, "'Publish...' button should be displayed");
+            assert.ok(result, "'Publish...' button should be displayed");
         });
 
     it(`GIVEN Items-tab has been clicked WHEN 'Include Child Items' icon has been clicked THEN List of items should be expanded AND 'All' dependant checkbox should appear`,
@@ -78,7 +77,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             assert.equal(message, "The issue is updated.");
             await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
             let isSelected = await issueDetailsDialogItemsTab.isAllDependantsCheckboxSelected();
-            assert.isTrue(isSelected, "'All' checkbox should be selected");
+            assert.ok(isSelected, "'All' checkbox should be selected");
             let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '14', 'Number of items should be updated to 14');
             let numberInHideDepItemsLink = await issueDetailsDialogItemsTab.getNumberInAllCheckbox();
@@ -157,7 +156,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             // 4. Verify that Items tab remains active:
             await issueDetailsDialogItemsTab.pause(2000);
             let isActive = await issueDetailsDialog.isItemsTabBarItemActive();
-            assert.isTrue(isActive, 'Items Tab should remain active after adding a item');
+            assert.ok(isActive, 'Items Tab should remain active after adding a item');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

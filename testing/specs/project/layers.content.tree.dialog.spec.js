@@ -12,7 +12,7 @@ const appConst = require('../../libs/app_const');
 
 describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const TEST_FOLDER_DISPLAY_NAME = studioUtils.generateRandomName("folder");
@@ -51,7 +51,6 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
             let layer = projectUtils.buildLayer(LAYER1_DISPLAY_NAME, appConst.LANGUAGES.NORSK_NO, appConst.PROJECT_ACCESS_MODE.PUBLIC,
                 null, null, LAYER2_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
-
             await settingsBrowsePanel.waitForNotificationMessage();
         });
 
@@ -98,7 +97,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

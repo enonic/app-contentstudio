@@ -1,8 +1,7 @@
 /**
  * Created on 11.06.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
@@ -151,8 +150,8 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.saveScreenshot('project_author_3');
             //3. Verify that only 'Folders' and 'Shortcut' are allowed for Author role
             assert.equal(items.length, 2, 'Two items should be available for Author');
-            assert.isTrue(items.includes('Folder'), 'Folder is allowed for creating');
-            assert.isTrue(items.includes('Shortcut'), 'Shortcut is allowed for creating');
+            assert.ok(items.includes('Folder'), 'Folder is allowed for creating');
+            assert.ok(items.includes('Shortcut'), 'Shortcut is allowed for creating');
         });
 
     // Verify that user with Author role can not select a language or owner in Wizard, but can make a content ready for publishing( Mark as Ready)

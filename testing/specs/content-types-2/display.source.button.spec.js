@@ -23,7 +23,7 @@ describe('display.source.button.spec - tests for Display Source button in html a
 
     it(`Precondition 1: new user with 'Content Manager Expert'  role should be created`,
         async () => {
-            //Do Log in with 'SU', navigate to 'Users' and create new user:
+            // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName('user');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP_EXPERT, appConst.SYSTEM_ROLES.CM_APP];
@@ -62,9 +62,9 @@ describe('display.source.button.spec - tests for Display Source button in html a
             let htmlAreaForm = new HtmlAreaForm();
             let sourceCodeDialog = new SourceCodeDialog();
             await studioUtils.navigateToContentStudioApp(USER.displayName, appConst.PASSWORD.MEDIUM);
-            //1. Open wizard for new content with htmlArea:
+            // 1. Open wizard for new content with htmlArea:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
-            //2. Verify that 'Source' button is displayed in the htmlArea toolbar
+            // 2. Verify that 'Source' button is displayed in the htmlArea toolbar
             await htmlAreaForm.clickOnSourceButton();
             await studioUtils.saveScreenshot('cm_expert_source_button');
             await sourceCodeDialog.waitForDialogLoaded();
@@ -76,12 +76,12 @@ describe('display.source.button.spec - tests for Display Source button in html a
         async () => {
             let siteFormPanel = new SiteFormPanel();
             await studioUtils.navigateToContentStudioApp(USER.displayName, appConst.PASSWORD.MEDIUM);
-            //1. Open existing site:
+            // 1. Open existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await studioUtils.saveScreenshot('cm_expert_edit_remove_icons_hidden');
-            //2. 'Edit' icon should be hidden
+            // 2. 'Edit' icon should be hidden
             await siteFormPanel.waitForEditApplicationIconNotDisplayed();
-            //3. 'Remove' icon should be hidden
+            // 3. 'Remove' icon should be hidden
             await siteFormPanel.waitForRemoveApplicationIconNotDisplayed();
         });
 

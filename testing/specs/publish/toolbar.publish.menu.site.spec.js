@@ -1,7 +1,6 @@
 /**
  * Created on 21.01.2019.
  */
-const chai = require('chai');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -15,7 +14,7 @@ describe('toolbar.publish.menu.site.spec - publishes a site and checks publish m
     }
 
     let SITE;
-    //verifies 'Create Issue' button should not appear on the toolbar after publishing site's child items #493
+    // verifies 'Create Issue' button should not appear on the toolbar after publishing site's child items #493
     it(`WHEN existing site first has been published then Publish Tree actions has been performed THEN Unpublish button should appear in the toolbar`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
