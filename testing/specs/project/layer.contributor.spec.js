@@ -1,8 +1,7 @@
 /**
  * Created on 29.09.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -28,7 +27,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
 
     it(`Precondition 1: new system user should be created`,
         async () => {
-            //Do Log in with 'SU', navigate to 'Users' and create new user:
+            // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName('layer-contributor');
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];

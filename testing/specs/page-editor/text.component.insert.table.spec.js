@@ -1,7 +1,6 @@
 /**
  * Created on 15.08.2022
  */
-const chai = require('chai');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -18,7 +17,7 @@ describe('Text Component with CKE - insert html table', function () {
     }
 
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = 'main region';
 
     it(`Precondition: new site should be added`,
         async () => {
@@ -44,7 +43,7 @@ describe('Text Component with CKE - insert html table', function () {
             // 4. Click on 'Insert Table' menu-button:
             await textComponentCke.clickOnInsertTableButton();
             // menu item for inserting of Html-table gets visible:
-            //await textComponentCke.waitForTableDisplayedInCke();
+            // await textComponentCke.waitForTableDisplayedInCke();
             // 5. Click on More... button and open Table modal dialog
             await textComponentCke.clickOnMoreButtonInHtmlTableFrame();
             await htmlTableDialog.waitForDialogLoaded();

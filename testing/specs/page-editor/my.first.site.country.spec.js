@@ -1,8 +1,7 @@
 /**
  * Created on 28.07.2021.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -81,8 +80,8 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.saveScreenshot('usa-country');
             // 5. Verify expected population and description are loaded in the new browser tab:
             let pageSource = await studioUtils.getPageSource();
-            assert.isTrue(pageSource.includes(USA_DESCRIPTION), 'Expected description should be loaded');
-            assert.isTrue(pageSource.includes(USA_POPULATION), 'Expected population should be loaded');
+            assert.ok(pageSource.includes(USA_DESCRIPTION), 'Expected description should be loaded');
+            assert.ok(pageSource.includes(USA_POPULATION), 'Expected population should be loaded');
         });
 
     it(`GIVEN 'San Francisco' city-content is added WHEN USA-country content has been opened in 'draft' THEN expected city population should be loaded in the browser tab`,
@@ -102,7 +101,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.openResourceInDraft(SITE.displayName + "/" + USA_CONTENT_NAME);
             let pageSource = await studioUtils.getPageSource();
             // 4. Verify that expected population of San Francisco is loaded in the browser tab:
-            assert.isTrue(pageSource.includes(SF_POPULATION), 'San Francisco population should be loaded');
+            assert.ok(pageSource.includes(SF_POPULATION), 'San Francisco population should be loaded');
         });
 
     it("GIVEN site is not published yet WHEN USA content has been opened in 'master' THEN '404' page should be loaded",
@@ -110,7 +109,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.openResourceInMaster(SITE.displayName + '/' + USA_CONTENT_NAME);
             await studioUtils.saveScreenshot('country_site_404');
             let pageSource = await studioUtils.getPageSource();
-            assert.isTrue(pageSource.includes('404 - Not Found'), '404 page should be loaded');
+            assert.ok(pageSource.includes('404 - Not Found'), '404 page should be loaded');
         });
 
     it("GIVEN site has been published with children WHEN USA-content has been opened in 'master' THEN expected population and description should be displayed",
@@ -125,9 +124,9 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.openResourceInMaster(SITE.displayName + '/' + USA_CONTENT_NAME);
             let pageSource = await studioUtils.getPageSource();
             // 3. Verify all data:
-            assert.isTrue(pageSource.includes(USA_DESCRIPTION), 'Expected country description should be loaded');
-            assert.isTrue(pageSource.includes(USA_POPULATION), 'Expected country population should be loaded');
-            assert.isTrue(pageSource.includes(SF_POPULATION), 'Expected San Francisco population should be loaded');
+            assert.ok(pageSource.includes(USA_DESCRIPTION), 'Expected country description should be loaded');
+            assert.ok(pageSource.includes(USA_POPULATION), 'Expected country population should be loaded');
+            assert.ok(pageSource.includes(SF_POPULATION), 'Expected San Francisco population should be loaded');
         });
 
     it("GIVEN population of SF has been updated WHEN USA-content has been opened in 'master' THEN population should not be updated",
@@ -141,7 +140,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 2. Verify that population is not updated in master, because the content is not published now(Modified):
             await studioUtils.openResourceInMaster(SITE.displayName + '/' + USA_CONTENT_NAME);
             let pageSource = await studioUtils.getPageSource();
-            assert.isTrue(pageSource.includes(SF_POPULATION), "population should not be updated");
+            assert.ok(pageSource.includes(SF_POPULATION), "population should not be updated");
         });
 
     it("GIVEN modified site has been published with children WHEN USA-content has been opened in 'master' THEN updated city population should be loaded",
@@ -156,7 +155,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.saveScreenshot('master_population_updated');
             // 3. Verify the error page
             let pageSource = await studioUtils.getPageSource();
-            assert.isTrue(pageSource.includes(NEW_SF_POPULATION), 'updated San Francisco population should be loaded');
+            assert.ok(pageSource.includes(NEW_SF_POPULATION), 'updated San Francisco population should be loaded');
         });
 
     it("GIVEN just one resource(page template) has been unpublished WHEN USA-content has been opened in 'master' THEN '404' page should be loaded",
@@ -172,7 +171,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.saveScreenshot('master_404_err');
             // 3. Verify the error page
             let pageSource = await studioUtils.getPageSource();
-            assert.isTrue(pageSource.includes('404 - Not Found'), 'expected error page with should be loaded');
+            assert.ok(pageSource.includes('404 - Not Found'), 'expected error page with should be loaded');
         });
 
     it("GIVEN USA content has been opened WHEN 'Page Component View' has been opened THEN expected components should be displayed in the dialog",
@@ -191,9 +190,9 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 5. Verify that Page Component View modal dialog loads automatically after clicking on 'customize'
             await pageComponentView.waitForLoaded();
             let result = await pageComponentView.getPageComponentsDisplayName();
-            assert.isTrue(result.includes(PAGE_CONTROLLER_COUNTRY), "'Country Region'  should be present in the dialog");
-            assert.isTrue(result.includes('City list'), "'City list' part should be present in the dialog");
-            assert.isTrue(result.includes('country'), "'country part' should be present in the dialog");
+            assert.ok(result.includes(PAGE_CONTROLLER_COUNTRY), "'Country Region'  should be present in the dialog");
+            assert.ok(result.includes('City list'), "'City list' part should be present in the dialog");
+            assert.ok(result.includes('country'), "'country part' should be present in the dialog");
         });
 
     it("WHEN USA content has been opened THEN expected components should be displayed in the dialog in Page Component wizard step",
@@ -208,9 +207,9 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await contentWizard.switchToMainFrame();
             // 4. Verify that 'Page Component View' wizard step is displayed:
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
-            assert.isTrue(result.includes(PAGE_CONTROLLER_COUNTRY), 'template(top component)  should be present in the dialog');
-            assert.isTrue(result.includes('City list'), 'City list part should be present in the dialog');
-            assert.isTrue(result.includes('country'), 'country part should be present in the dialog');
+            assert.ok(result.includes(PAGE_CONTROLLER_COUNTRY), 'template(top component)  should be present in the dialog');
+            assert.ok(result.includes('City list'), 'City list part should be present in the dialog');
+            assert.ok(result.includes('country'), 'country part should be present in the dialog');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

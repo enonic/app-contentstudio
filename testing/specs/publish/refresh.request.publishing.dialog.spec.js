@@ -1,8 +1,7 @@
 /**
  * Created on 12.08.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -48,7 +47,7 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
                 "'Ready for publishing' status should be in the modal dialog");
             // Check the warning in the title:
             let isDisplayed = await createRequestPublishDialog.isWarningMessageDisplayed();
-            assert.isFalse(isDisplayed, "Work in progress! message gets not visible now")
+            assert.ok(isDisplayed === false, "Work in progress! message gets not visible now")
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

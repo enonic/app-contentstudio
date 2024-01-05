@@ -1,8 +1,7 @@
 /**
  * Created on 30.01.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -64,7 +63,7 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             let header = await contentUnpublishDialog.getDialogHeader();
             let subheader = await contentUnpublishDialog.getDialogSubheader();
             assert.equal(header, DIALOG_HEADER, 'Expected header should be displayed');
-            assert.isTrue(subheader.includes(DIALOG_SUBHEADER), 'Expected subheader should be displayed');
+            assert.ok(subheader.includes(DIALOG_SUBHEADER), 'Expected subheader should be displayed');
             // 3. Verify that 'Dependent items' are  displayed in the dialog:
             await contentUnpublishDialog.waitForDependantsBlockDisplayed();
             // 4. Press ESC key and verify that Unpublish dialog is closed:
@@ -119,7 +118,7 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             // 5. Verify the child item is in the dependent block:
             let dependentItems = await contentUnpublishDialog.getDependentItemsPath();
             assert.equal(dependentItems.length, 1, 'One item should be present in the dependent list');
-            assert.isTrue(dependentItems[0].includes('_templates'), 'Templates folder should be present in the dependent list');
+            assert.ok(dependentItems[0].includes('_templates'), 'Templates folder should be present in the dependent list');
         });
 
     it("GIVEN published folder and site are selected WHEN Unpublish dialog has been opened THEN two items and one dependent item should be present in the dialog",
@@ -135,8 +134,8 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             //2. Verify that two items should be present in the items list:
             let items = await contentUnpublishDialog.getItemDisplayName();
             assert.equal(items.length, 2, "Two items should be present in the items list");
-            assert.isTrue(items.includes(FOLDER.displayName), "Expected folder-name should be in the items list");
-            assert.isTrue(items.includes(SITE.displayName), "Expected site-name should be in the items list");
+            assert.ok(items.includes(FOLDER.displayName), "Expected folder-name should be in the items list");
+            assert.ok(items.includes(SITE.displayName), "Expected site-name should be in the items list");
             //3. Verify the label in Unpublish button - 3 items should be unpublished (site, _templates, test-folder)
             let result = await contentUnpublishDialog.getNumberInUnpublishButton();
             assert.equal(result, 3, "3 items should be displayed in the 'Unpublish' button");

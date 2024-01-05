@@ -1,8 +1,7 @@
 /**
  * Created on 29.06.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -87,8 +86,8 @@ describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', f
             await studioUtils.saveScreenshot('email_link_inserted');
             // 7. Verify that expected email link is present in the htmlArea
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART_1), "Expected text should be inserted in HtmlArea");
-            assert.isTrue(result[0].includes(EXPECTED_EMAIL_TXT_PART_2), "Expected text should be inserted in HtmlArea");
+            assert.ok(result[0].includes(EXPECTED_EMAIL_TXT_PART_1), "Expected text should be inserted in HtmlArea");
+            assert.ok(result[0].includes(EXPECTED_EMAIL_TXT_PART_2), "Expected text should be inserted in HtmlArea");
         });
 
 

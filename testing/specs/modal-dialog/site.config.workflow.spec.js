@@ -1,8 +1,7 @@
 /**
  * Created on 13.01.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -55,7 +54,7 @@ describe('Tests for workflow status for a site with configurator', function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

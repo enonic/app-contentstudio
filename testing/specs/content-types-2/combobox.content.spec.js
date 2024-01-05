@@ -1,8 +1,7 @@
 /**
  * Created on 19.10.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -15,7 +14,7 @@ const NewContentDialog = require('../../page_objects/browsepanel/new.content.dia
 
 describe('combobox.content.spec: tests for comboBox content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
@@ -36,17 +35,17 @@ describe('combobox.content.spec: tests for comboBox content', function () {
         async () => {
             let comboBoxForm = new ComboBoxForm();
             let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
+            // 1. open new wizard and fill in the name input:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.COMBOBOX_0_0);
             await contentWizard.typeDisplayName(COMBO_CHILD_FALSE);
-            //2. Select a not required option:
+            // 2. Select a not required option:
             await comboBoxForm.typeInFilterAndClickOnOption(OPTION_A);
             await studioUtils.saveScreenshot("combobox_not_req");
-            //3. Verify that options filter input remains visible and enabled after selecting this option:
+            // 3. Verify that options filter input remains visible and enabled after selecting this option:
             await comboBoxForm.waitForOptionFilterInputEnabled();
-            //4. Verify that the content gets valid even before clicking on the 'Save' button
+            // 4. Verify that the content gets valid even before clicking on the 'Save' button
             let isInValid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInValid, 'the content should be valid, because combobox input is not required');
+            assert.ok(isInValid === false, 'the content should be valid, because combobox input is not required');
 
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -65,7 +64,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await comboBoxForm.waitForOptionFilterInputDisabled();
             //4. Verify that the content gets valid even before clicking on the 'Save' button
             let isInValid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInValid, 'the content should be valid, because combobox input is not required');
+            assert.ok(isInValid === false, 'the content should be valid, because combobox input is not required');
 
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -75,16 +74,16 @@ describe('combobox.content.spec: tests for comboBox content', function () {
         async () => {
             let comboBoxForm = new ComboBoxForm();
             let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
+            // 1. open new wizard and fill in the name input:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_1);
-            //2. Remove the selected option:
+            // 2. Remove the selected option:
             await comboBoxForm.clickOnRemoveSelectedOptionButton(0);
-            //3. Verify that Options filter Input gets visible/enabled after removing the selected option
+            // 3. Verify that Options filter Input gets visible/enabled after removing the selected option
             await comboBoxForm.waitForOptionFilterInputEnabled();
-            //4. Verify that the content gets not valid even after removing a required selected option:
+            // 4. Verify that the content gets invalid even after removing a required selected option:
             let isInValid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInValid, 'the content should be not valid, because combobox input is required');
-            //5. Verify the message 'This field is required'
+            assert.ok(isInValid, 'the content should be not valid, because combobox input is required');
+            // 5. Verify the message 'This field is required'
             let actualMessage = await comboBoxForm.getComboBoxValidationMessage();
             assert.equal(actualMessage, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Expected validation message should appear");
         });
@@ -93,18 +92,18 @@ describe('combobox.content.spec: tests for comboBox content', function () {
         async () => {
             let comboBoxForm = new ComboBoxForm();
             let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
+            // 1. open new wizard and fill in the name input:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.COMBOBOX_2_4);
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
-            //2. Select 2 required options:
+            // 2. Select 2 required options:
             await comboBoxForm.typeInFilterAndClickOnOption(OPTION_A);
             await comboBoxForm.typeInFilterAndClickOnOption(OPTION_B);
-            //3. Verify that Options filter Input remains visible/disabled after selecting 2 options
+            // 3. Verify that Options filter Input remains visible/disabled after selecting 2 options
             await comboBoxForm.waitForOptionFilterInputEnabled();
-            //4. Verify that the content gets valid even before clicking on the 'Save' button
+            // 4. Verify that the content gets valid even before clicking on the 'Save' button
             let isInValid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInValid, 'the content should be valid, because combobox input is not required');
-            //5. Click on 'Mark as Ready' button and save the content
+            assert.ok(isInValid === false, 'the content should be valid, because combobox input is not required');
+            // 5. Click on 'Mark as Ready' button and save the content
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForNotificationMessage();
         });
@@ -117,15 +116,15 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_2);
             let result = await comboBoxForm.getSelectedOptionValues();
             await studioUtils.saveScreenshot('combobox_2_4__2_opt_selected');
-            assert.isTrue(result.includes(OPTION_A), "'option A' should be selected");
-            assert.isTrue(result.includes(OPTION_B), "'option B' should be selected");
+            assert.ok(result.includes(OPTION_A), "'option A' should be selected");
+            assert.ok(result.includes(OPTION_B), "'option B' should be selected");
             await studioUtils.saveScreenshot('combobox_2_options');
-            //2. Remove the selected option:
+            // 2. Remove the selected option:
             await comboBoxForm.clickOnRemoveSelectedOptionButton(1);
-            //3. Verify that the content gets not valid even after removing a required selected option:
+            // 3. Verify that the content gets not valid even after removing a required selected option:
             let isInValid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInValid, 'the content should be invalid, because combobox input is required');
-            //5. Verify the message: 'Min 2 valid occurrence(s) required'
+            assert.ok(isInValid, 'the content should be invalid, because combobox input is required');
+            // 4. Verify the message: 'Min 2 valid occurrence(s) required'
             let actualMessage = await comboBoxForm.getComboBoxValidationMessage();
             assert.equal(actualMessage, "Min 2 valid occurrence(s) required", "Expected validation message should appear");
         });
@@ -135,20 +134,19 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             let comboBoxForm = new ComboBoxForm();
             let versionPanel = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
-            //1. open existing content with 2 selected option
+            // 1. open existing content with 2 selected option
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_2);
             await contentWizard.openVersionsHistoryPanel();
-            //3. Revert the previous version:
+            // 2. Revert the previous version:
             await versionPanel.clickAndExpandVersion(1);
             await versionPanel.clickOnRevertButton();
             await studioUtils.saveScreenshot("revert_combobox_invalid_version");
-            //4. Verify that no options selected in the form:
+            // 3. Verify that no options selected in the form:
             await comboBoxForm.waitForNoOptionsSelected();
-            //5. Verify that the content gets invalid
+            // 4. Verify that the content gets invalid
             let isInValid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInValid, 'the content gets invalid, because combobox input is required');
-
-            //6. Verify the message: 'Min 2 valid occurrence(s) required'
+            assert.ok(isInValid, 'the content gets invalid, because combobox input is required');
+            // 5. Verify the message: 'Min 2 valid occurrence(s) required'
             let actualMessage = await comboBoxForm.getComboBoxValidationMessage();
             assert.equal(actualMessage, "Min 2 valid occurrence(s) required", "Expected validation message should appear");
         });
@@ -157,15 +155,15 @@ describe('combobox.content.spec: tests for comboBox content', function () {
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
-            //1. Select the existing content, 'allow-child-content-type' = 'base:folder'
+            // 1. Select the existing content, 'allow-child-content-type' = 'base:folder'
             await studioUtils.findAndSelectItem(CONTENT_NAME_2);
-            //2. Open New Content Dialog:
+            // 2. Open New Content Dialog:
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
-            await studioUtils.saveScreenshot("allow_child_folder");
-            //3. Verify that only folder can be created:
+            await studioUtils.saveScreenshot('allow_child_folder');
+            // 3. Verify that only folder can be created:
             let actualItems = await newContentDialog.getItems();
-            assert.isTrue(actualItems.length === 1, "Only one type should be present in the modal dialog");
+            assert.ok(actualItems.length === 1, "Only one type should be present in the modal dialog");
         });
 
     it("WHEN the content is selected AND 'allow-child-content' is 'false' THEN 'New' button should be disabled",
@@ -173,7 +171,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Select the existing content, 'allow-child-content' is 'false'
             await studioUtils.findAndSelectItem(COMBO_CHILD_FALSE);
-            await studioUtils.saveScreenshot("allow_child_false");
+            await studioUtils.saveScreenshot('allow_child_false');
             //2. Verify that New button is disabled:
             await contentBrowsePanel.waitForNewButtonDisabled();
         });
@@ -181,7 +179,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

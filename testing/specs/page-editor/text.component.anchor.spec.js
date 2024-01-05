@@ -1,8 +1,7 @@
 /**
  * Created on 23.05.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -53,7 +52,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await contentWizard.switchToLiveEditFrame();
             // 6. Verify the text in CKE:
             let actualText = await textComponentCke.getTextFromEditor();
-            assert.isTrue(actualText.includes(EXPECTED_DATA_CKE), 'expected text should be in CKE');
+            assert.ok(actualText.includes(EXPECTED_DATA_CKE), 'expected text should be in CKE');
         });
 
     //verifies XP-4949 HTML Area - Modal dialogs must handle close on Esc
@@ -93,12 +92,12 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // Open Insert Anchor modal dialog and type not correct value:
             await textComponentCke.clickOnInsertAnchorButton();
             await insertAnchorDialog.typeInTextInput('test anchor');
-            //Click on the Insert button and insert the anchor:
+            // Click on the Insert button and insert the anchor:
             await insertAnchorDialog.clickOnInsertButton();
-            //Verify the validation message:
+            // Verify the validation message:
             await studioUtils.saveScreenshot('invalid_text_in_anchor');
             let isDisplayed = await insertAnchorDialog.waitForValidationMessage();
-            assert.isTrue(isDisplayed, 'Validation message should be present in the modal dialog');
+            assert.ok(isDisplayed, 'Validation message should be present in the modal dialog');
         });
 
     // Verify  the issue - Page Component View - incorrect component name for the duplicated text component #3160

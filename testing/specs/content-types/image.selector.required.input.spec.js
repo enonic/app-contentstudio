@@ -1,8 +1,7 @@
 /**
  * Created on 23.11.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -14,12 +13,12 @@ const appConst = require('../../libs/app_const');
 
 describe('image.selector.required.input.spec tests for validation of content with required image', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let CONTENT_NAME = contentBuilder.generateRandomName('content');
+    const CONTENT_NAME = contentBuilder.generateRandomName('content');
 
-    let IMAGE_DISPLAY_NAME1 = appConst.TEST_IMAGES.PES;
+    const IMAGE_DISPLAY_NAME1 = appConst.TEST_IMAGES.PES;
     let SITE;
 
     it(`Precondition: new site should be added`,
@@ -33,18 +32,18 @@ describe('image.selector.required.input.spec tests for validation of content wit
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
-            //1. Open new wizard
+            // 1. Open new wizard
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_1_1);
-            //2. Fill the name input:
+            // 2. Fill the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME);
-            //3. Verify that Uploader button is enabled:
+            // 3. Verify that Uploader button is enabled:
             await imageSelectorForm.waitForUploaderButtonEnabled();
-            //4. Verify that options filter input is displayed
+            // 4. Verify that options filter input is displayed
             await imageSelectorForm.waitForOptionsFilterInputDisplayed();
-            //5. Verify that the content is not valid
-            let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "This content should be not valid, because the image selector is required input");
-            //6. Verify that validation recording appears after the saving:
+            // 5. Verify that the content is not valid
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid, "This content should be invalid, because the image selector is required input");
+            // 6. Verify that validation recording appears after the saving:
             await contentWizard.waitAndClickOnSave();
             let record = await imageSelectorForm.getSelectorValidationMessage();
             assert.equal(record, "This field is required", "Expected validation record gets visible");
@@ -54,19 +53,19 @@ describe('image.selector.required.input.spec tests for validation of content wit
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
-            //1. Open existing not valid content:
+            // 1. Open existing not valid content:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-            //2. select an image:
+            // 2. select an image:
             await imageSelectorForm.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME1);
-            //3. Verify that the content gets valid:
-            let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "This content should be valid, because one required image is selected");
-            //4. Save the content
+            // 3. Verify that the content gets valid:
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, "This content should be valid, because one required image is selected");
+            // 4. Save the content
             await contentWizard.waitAndClickOnSave();
-            //5. Verify the expected selected option:
+            // 5. Verify the expected selected option:
             let names = await imageSelectorForm.getSelectedImages();
             assert.equal(names[0], IMAGE_DISPLAY_NAME1);
-            //6. Verify that options filter input is not displayed:
+            // 6. Verify that options filter input is not displayed:
             await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
         });
 
@@ -74,14 +73,14 @@ describe('image.selector.required.input.spec tests for validation of content wit
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
-            //1. Open existing not valid content:
+            // 1. Open existing not valid content:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-            //2. select an image:
+            // 2. select an image:
             await imageSelectorForm.clickOnSelectedImage(IMAGE_DISPLAY_NAME1);
-            //3. Verify that Edit and remove button get visible:
+            // 3. Verify that Edit and remove button get visible:
             await imageSelectorForm.waitForEditButtonDisplayed();
             await imageSelectorForm.waitForRemoveButtonDisplayed();
-            //4. Verify that default action is Mark as Ready:
+            // 4. Verify that default action is Mark as Ready:
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 
@@ -119,25 +118,25 @@ describe('image.selector.required.input.spec tests for validation of content wit
             await deleteContentDialog.waitForDialogClosed();
         });
 
-    it("GIVEN existing content with Image selector is opened WHEN required image is deleted THEN this content remains valid",
+    it("GIVEN selected required image was deleted/archived WHEN the content with not available image is opened THEN this content remains valid",
         async () => {
-            //1. Open existing content with one required image:
+            // 1. Open existing content with one required image:
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             await contentWizard.pause(1000);
-            //2. Verify that the content is valid, selected required image was deleted in the previous step:
-            let isNotValid = await contentWizard.isContentInvalid();
-            assert.isFalse(isNotValid, "This content remains valid");
+            // 2. Verify that the content is valid, selected required image was deleted in the previous step:
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, "This content should be valid when the selected image is not available");
         });
 
-    it("GIVEN searching for item with deleted required image WHEN item appears in browse panel THEN the content should be displayed as valid",
+    it("WHEN the content with not available required image has been filtered THEN the content should be displayed without the red icon",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select existing content with one required image:
+            // 1. Select existing content with one required image:
             await studioUtils.findAndSelectItem(CONTENT_NAME);
-            //2. Verify that the content is not valid, because the selected required image was deleted in the previous step:
-            let isNotValid = await contentBrowsePanel.isRedIconDisplayed(CONTENT_NAME);
-            assert.isFalse(isNotValid, "This content remains valid");
+            // 2. Verify that the content is invalid, because the selected required image was deleted in the previous step:
+            let isInvalid = await contentBrowsePanel.isRedIconDisplayed(CONTENT_NAME);
+            assert.ok(isInvalid === false, "This content should be valid when the selected image is not available");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

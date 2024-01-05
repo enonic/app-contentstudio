@@ -1,8 +1,6 @@
 /**
  * Created on 15.11.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -16,7 +14,6 @@ const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
-
 
 describe('publish.dialog.dependant.items.spec: tests for dependant items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

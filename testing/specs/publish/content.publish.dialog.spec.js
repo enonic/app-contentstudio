@@ -1,8 +1,7 @@
 /**
  * Created on 22.07.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -40,13 +39,13 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentPublishDialog.waitForDependantsBlockDisplayed();
             // 5. Verify that 'All' checkbox is selected by default:
             let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
-            assert.isTrue(isSelected, "'All' checkbox should be selected by default");
+            assert.ok(isSelected, "'All' checkbox should be selected by default");
             // 6. Verify that the dependant-checkbox is selected and enabled:
             let dependantItem = PARENT_FOLDER_NAME + '/' + TEST_IMAGE;
             isSelected = await contentPublishDialog.isDependantCheckboxSelected(dependantItem);
-            assert.isTrue(isSelected, "The dependant item-checkbox should be selected by default");
+            assert.ok(isSelected, "The dependant item-checkbox should be selected by default");
             let isEnabled = await contentPublishDialog.isDependantCheckboxEnabled(dependantItem);
-            assert.isTrue(isEnabled, "The dependant item-checkbox should be enabled by default");
+            assert.ok(isEnabled, "The dependant item-checkbox should be enabled by default");
         });
 
     it(`GIVEN a folder is opened AND 'Marked as ready' is done WHEN publish dialog has been opened THEN 'New' status should be displayed in the dialog`,
@@ -66,10 +65,10 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentPublishDialog.waitForAddScheduleIconDisplayed();
             // 4. This item should not be removable, remove-icon should be disabled:
             let isEnabled = await contentPublishDialog.isRemoveItemIconEnabled(FOLDER1_NAME);
-            assert.isFalse(isEnabled, "This item should not be removable, remove-icon should be disabled");
+            assert.ok(isEnabled === false, "This item should not be removable, remove-icon should be disabled");
             // 5. 'Include Children' toggler should not be displayed, the folder has no children!
             let isDisplayed = await contentPublishDialog.isIncludeChildTogglerDisplayed();
-            assert.isFalse(isDisplayed, "'Include child' icon should not be visible");
+            assert.ok(isDisplayed === false, "'Include child' icon should not be visible");
         });
 
 
@@ -89,16 +88,16 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentPublishDialog.waitForAddScheduleIconDisplayed();
             // Remove-icon should be disabled for the Parent item
             let isEnabled = await contentPublishDialog.isRemoveItemIconEnabled(appConst.TEST_FOLDER_WITH_IMAGES);
-            assert.isFalse(isEnabled, "Remove icon should be disabled for the Parent item");
+            assert.ok(isEnabled === false, "Remove icon should be disabled for the Parent item");
 
             let isDisplayed = await contentPublishDialog.isIncludeChildTogglerDisplayed();
-            assert.isTrue(isDisplayed, "Include child icon should be visible");
+            assert.ok(isDisplayed, "Include child icon should be visible");
 
             // 'Publish Now' button should be enabled!
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             // Log message link should be displayed:
             let isLinkDisplayed = await contentPublishDialog.isLogMessageLinkDisplayed();
-            assert.isTrue(isLinkDisplayed, "Log message link should be displayed");
+            assert.ok(isLinkDisplayed, "Log message link should be displayed");
         });
 
     it(`GIVEN folder with children is selected AND Publish... button ahs been pressed WHEN 'Include children' button has been clicked THEN all dependent items with checkboxes gets visible`,
@@ -113,7 +112,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             // 3. 'All' checkbox gets visible:
             await contentPublishDialog.waitForAllDependantsCheckboxDisplayed();
             let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
-            assert.isTrue(isSelected, "'All' checkbox should be selected");
+            assert.ok(isSelected, "'All' checkbox should be selected");
             let items = await contentPublishDialog.getNumberItemsToPublish();
             assert.equal(items, '14', "14 items to publish should be in the dialog");
         });
@@ -152,14 +151,14 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             // 3. Verify that All checkbox is displayed:
             await contentPublishDialog.waitForAllDependantsCheckboxDisplayed();
             let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
-            assert.isTrue(isSelected, "'All' checkbox should be selected");
+            assert.ok(isSelected, "'All' checkbox should be selected");
             // 4. Verify items to publish"
             let result = await contentPublishDialog.getItemsToPublish();
-            assert.isTrue(result.length === 1, '1 item to publish should be present in the dialog');
+            assert.ok(result.length === 1, '1 item to publish should be present in the dialog');
             let dependantItems = await contentPublishDialog.getDisplayNameInDependentItems();
             // 5. Verify dependent item to publish:
-            assert.isTrue(dependantItems.length === 1, '1 dependent item should be present in the dialog');
-            assert.isTrue(dependantItems[0].includes(CHILD_FOLDER.displayName), 'Expected dependent item should be displayed');
+            assert.ok(dependantItems.length === 1, '1 dependent item should be present in the dialog');
+            assert.ok(dependantItems[0].includes(CHILD_FOLDER.displayName), 'Expected dependent item should be displayed');
         });
 
     it(`GIVEN 'Publish Tree...' menu item has been clicked WHEN 'Exclude child items' has been has been clicked THEN 'All' checkbox gets not visible`,
@@ -247,7 +246,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -1,8 +1,7 @@
 /**
  * Created on 20.09.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -73,7 +72,7 @@ describe("image.content.crop.spec: tests for crop button", function () {
             await imageEditor.doZoomImage(30);
             // 4. Verify that the image is zoomed
             let zoomed = await imageEditor.getZoomKnobValue();
-            assert.isTrue(zoomed > 0, "The image should be zoomed");
+            assert.ok(zoomed > 0, "The image should be zoomed");
             // 5. Verify that Reset mask button gets visible
             await imageEditor.waitForResetMaskButtonDisplayed();
         });
@@ -94,7 +93,7 @@ describe("image.content.crop.spec: tests for crop button", function () {
             await studioUtils.saveScreenshot("image_zoomed");
             // 3. Verify that the image is zoomed
             let zoomed = await imageEditor.getZoomKnobValue();
-            assert.isTrue(zoomed > 0, "The image should be zoomed");
+            assert.ok(zoomed > 0, "The image should be zoomed");
             // 4. Verify that 'Reset filters' button gets visible
             await imageEditor.clickOnApplyButton();
             await imageEditor.waitForResetFiltersDisplayed();
@@ -113,7 +112,7 @@ describe("image.content.crop.spec: tests for crop button", function () {
             await imageEditor.clickOnCropButton();
             await studioUtils.saveScreenshot('image_reset_mask_1');
             let zoomed = await imageEditor.getZoomKnobValue();
-            assert.isTrue(zoomed > 0, 'The image should be zoomed');
+            assert.ok(zoomed > 0, 'The image should be zoomed');
             // 3. Click on 'Reset Mask' button
             await imageEditor.clickOnResetMaskButton();
             await studioUtils.saveScreenshot('image_reset_mask_clicked');
@@ -190,11 +189,11 @@ describe("image.content.crop.spec: tests for crop button", function () {
             await contentWizard.waitForNotificationMessage();
             await contentWizard.clickOnCloseBrowserTab();
             // Check the alert:
-            let result = await contentWizard.isAlertOpen();
-            if (result) {
+            let isOpened = await contentWizard.isAlertOpen();
+            if (isOpened) {
                 await contentWizard.dismissAlert();
             }
-            assert.isFalse(result, "Alert should not appear");
+            assert.ok(isOpened === false, "Alert should not appear");
         });
 
 

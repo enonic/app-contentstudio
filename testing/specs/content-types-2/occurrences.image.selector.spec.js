@@ -1,8 +1,7 @@
 /**
  * Created on 26.10.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -13,14 +12,14 @@ const ImageSelectorForm = require('../../page_objects/wizardpanel/imageselector.
 
 describe('occurrences.image.selector: tests for occurrences of image selector', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
     let SITE;
     let IMG_SEL_2_4;
-    let CONTENT_NAME_1 = appConst.generateRandomName('imgsel');
-    let CONTENT_NAME_2 = appConst.generateRandomName('imgsel');
+    const CONTENT_NAME_1 = appConst.generateRandomName('imgsel');
+    const CONTENT_NAME_2 = appConst.generateRandomName('imgsel');
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -46,28 +45,28 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
     it(`GIVEN wizard for content with not required image-selector(0:0) is opened WHEN only name input has been filled THEN the content gets valid`,
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Open wizard with not required Image Selector:
+            // 1. Open wizard with not required Image Selector:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_0_0);
-            //2. Fill in the name input:
+            // 2. Fill in the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
-            //3. The content should be valid:
+            // 3. The content should be valid:
             let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "The content should be valid");
+            assert.ok(result === false, "The content should be valid");
         });
 
     it(`GIVEN wizard for content with required image-selector(1:1) is opened WHEN only name input has been filled THEN the content remains invalid`,
         async () => {
             let contentWizard = new ContentWizard();
             let imageSelectorForm = new ImageSelectorForm();
-            //1. Open wizard with Image Selector:
+            // 1. Open wizard with Image Selector:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_1_1);
-            //2. Fill in the name input:
+            // 2. Fill in the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
-            //3. The content should be invalid even before a clicking on 'Save' button:
+            // 3. The content should be invalid even before a clicking on 'Save' button:
             let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, "The content should be invalid");
+            assert.ok(result, "The content should be invalid");
             await contentWizard.waitAndClickOnSave();
-            //4. Validation message should appear after clicking on Save button:
+            // 4. Validation message should appear after clicking on Save button:
             let actualMessage = await imageSelectorForm.getSelectorValidationMessage();
             assert.equal(actualMessage, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "'This field is required' should appear");
         });
@@ -76,15 +75,15 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
         async () => {
             let contentWizard = new ContentWizard();
             let imageSelectorForm = new ImageSelectorForm();
-            //1. Open existing content with image-selector(1:1)
+            // 1. Open existing content with image-selector(1:1)
             await studioUtils.selectContentAndOpenWizard(CONTENT_NAME_2);
-            //2. Select an image:
+            // 2. Select an image:
             await imageSelectorForm.filterOptionsAndSelectImage(appConst.TEST_IMAGES.SPUMANS);
-            //3. The content gets valid now:
+            // 3. The content gets valid now:
             let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "The content should be valid");
+            assert.ok(result === false, "The content should be valid");
             await contentWizard.waitAndClickOnSave();
-            //4. Options filter input gets not visible:
+            // 4. Options filter input gets not visible:
             await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
         });
 
@@ -112,20 +111,20 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
     it(`GIVEN existing image-selector(2:4) is opened WHEN the second image has been selected THEN the content gets valid`,
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
-            //1. existing image-selector(2:4) is opened:
+            // 1. existing image-selector(2:4) is opened:
             await studioUtils.selectAndOpenContentInWizard(IMG_SEL_2_4.displayName);
-            //2. One image is selected, so validation recording should be displayed:
+            // 2. One image is selected, so validation recording should be displayed:
             let validationRecording = await imageSelectorForm.getSelectorValidationMessage();
             assert.equal(validationRecording, "Min 2 valid occurrence(s) required", "Expected validation message should be displayed");
-            //3. The second image has been selected:
+            // 3. The second image has been selected:
             await imageSelectorForm.selectOption(appConst.TEST_IMAGES.SPUMANS);
-            //4. Validation recording gets not visible:
+            // 4. Validation recording gets not visible:
             await imageSelectorForm.waitForSelectorValidationMessageNotDisplayed();
-            //5. Click on checkboxes and select both images:
+            // 5. Click on checkboxes and select both images:
             await imageSelectorForm.clickOnCheckboxInSelectedImage(appConst.TEST_IMAGES.SPUMANS);
             await imageSelectorForm.clickOnCheckboxInSelectedImage(appConst.TEST_IMAGES.RENAULT);
             let numberItemsToRemove = await imageSelectorForm.getNumberItemInRemoveButton();
-            //6. Verify the "Remove (2)" label in the button
+            // 6. Verify the "Remove (2)" label in the button
             assert.equal(numberItemsToRemove, "Remove (2)", "2 should be displayed in Remove button")
         });
 

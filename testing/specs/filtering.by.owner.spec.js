@@ -1,8 +1,7 @@
 /**
  * Created on 24.05.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
@@ -78,8 +77,8 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             await studioUtils.saveScreenshot('owner_selector_expanded');
             // 4. Verify that expected options should be present in the options:
             let options = await filterPanel.getOwnerNameInSelector();
-            assert.isTrue(options.includes('Me'), "'Me' user should be displayed in options");
-            assert.isTrue(options.includes(USER.displayName), 'Expected user should be displayed in options');
+            assert.ok(options.includes('Me'), "'Me' user should be displayed in options");
+            assert.ok(options.includes(USER.displayName), 'Expected user should be displayed in options');
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
@@ -97,11 +96,11 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             await studioUtils.saveScreenshot('owner_selected_in_selector');
             // 4. Verify that only content that were created by the user are displayed in Grid
             let contentNames = await contentBrowsePanel.getDisplayNamesInGrid();
-            assert.isTrue(contentNames.includes(FOLDER.displayName));
+            assert.ok(contentNames.includes(FOLDER.displayName));
             assert.equal(contentNames.length, 3, 'Only three items should be present in the grid');
         });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

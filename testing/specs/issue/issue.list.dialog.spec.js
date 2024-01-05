@@ -1,8 +1,7 @@
 /**
  * Created on 05.01.2017.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
@@ -24,14 +23,13 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             // 'Open' button should be displayed
             await issueListDialog.waitForOpenButtonDisplayed();
             let closedButtonDisplayed = await issueListDialog.isClosedButtonDisplayed();
-            assert.isTrue(closedButtonDisplayed, "'Closed' button should be displayed");
+            assert.ok(closedButtonDisplayed, "'Closed' button should be displayed");
 
             let typeFilter = await issueListDialog.isTypeFilterSelectorDisplayed();
-            assert.isTrue(typeFilter, "'Type Filter' selector  should be displayed");
+            assert.ok(typeFilter, "'Type Filter' selector  should be displayed");
 
             let result = await issueListDialog.getTypeFilterSelectedOption();
-            assert.isTrue(result.includes(`All`), "All' option should be selected by default");
-
+            assert.ok(result.includes(`All`), "All' option should be selected by default");
             await issueListDialog.waitForNewIssueButtonDisplayed();
         });
 
@@ -51,9 +49,9 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             let issueListDialog = new IssueListDialog();
             await studioUtils.openIssuesListDialog();
             let openButton = await issueListDialog.isOpenButtonActive();
-            assert.isTrue(openButton, 'Open issues should be loaded by default');
-            let closedButton = await issueListDialog.isClosedButtonActive();
-            assert.isFalse(closedButton, 'Closed issues should be hidden by default');
+            assert.ok(openButton, 'Open issues should be loaded by default');
+            let isClosedButtonActive = await issueListDialog.isClosedButtonActive();
+            assert.ok(isClosedButtonActive === false, "'Closed' button should be grey color by default");
         });
 
     it(`GIVEN 'Issues List Dialog' has been opened WHEN 'Esc' key has been clicked THEN issues list dialog closes`,
@@ -73,7 +71,7 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

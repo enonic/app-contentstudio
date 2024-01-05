@@ -1,8 +1,7 @@
 /**
  * Created on 10.10.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
@@ -28,8 +27,8 @@ describe('Shortcut parameters specification', function () {
             let contentWizard = new ContentWizard();
             // 1. Open the wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
-            let result = await shortcutForm.waitForAddParametersButtonDisplayed();
-            assert.isTrue(result, "'Add Parameters' button should be visible");
+            let isDisplayed = await shortcutForm.waitForAddParametersButtonDisplayed();
+            assert.ok(isDisplayed, "'Add Parameters' button should be visible");
             // 2. Verify that the help text in Parameters form is not visible by default:
             await shortcutForm.waitForHelpTextInParametersFormNotDisplayed();
             // 3. Click on show/hide Help Texts toggler:

@@ -1,8 +1,7 @@
 /**
  * Created on 29.11.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const csConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -19,9 +18,9 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
-    let ISSUE_TITLE = csConst.generateRandomName('issue');
+    const ISSUE_TITLE = csConst.generateRandomName('issue');
     let TEST_FOLDER;
-    let PUBLISH_REQUEST_TITLE = 'my first request';
+    const PUBLISH_REQUEST_TITLE = 'my first request';
 
     it(`Precondition: new folder and new issue should be created`,
         async () => {
@@ -30,13 +29,13 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             let issueDetailsDialog = new IssueDetailsDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
-            //1.Add new folder:
+            // 1.Add new folder:
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentBrowsePanel.waitForPublishButtonVisible();
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             await createIssueDialog.typeTitle(ISSUE_TITLE);
-            //2. Create new issue:
+            // 2. Create new issue:
             await createIssueDialog.clickOnCreateIssueButton();
             await issueDetailsDialog.waitForDialogLoaded();
         });
@@ -56,18 +55,18 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
     it(`GIVEN Issue List dialog is opened WHEN dropdown handle in Type Filter selector has been clicked THEN expected options should be present in the selector`,
         async () => {
             let issueListDialog = new IssueListDialog();
-            //1.Open Issue List dialog:
+            // 1.Open Issue List dialog:
             await studioUtils.openIssuesListDialog();
-            //2. Click on the dropdown handle and expand the selector:
+            // 2. Click on the dropdown handle and expand the selector:
             let result = await issueListDialog.getTypeFilterOptions();
-            assert.isTrue(result[0].includes(csConst.ISSUE_LIST_TYPE_FILTER.ALL), "'All' option should be present");
-            assert.isTrue(result[1].includes(csConst.ISSUE_LIST_TYPE_FILTER.ASSIGNED_TO_ME),
+            assert.ok(result[0].includes(csConst.ISSUE_LIST_TYPE_FILTER.ALL), "'All' option should be present");
+            assert.ok(result[1].includes(csConst.ISSUE_LIST_TYPE_FILTER.ASSIGNED_TO_ME),
                 "'Assigned to Me' option should be present");
-            assert.isTrue(result[2].includes(csConst.ISSUE_LIST_TYPE_FILTER.CREATED_BY_ME), "'Created to Me' option should be present");
-            assert.isTrue(result[3].includes(csConst.ISSUE_LIST_TYPE_FILTER.PUBLISH_REQUESTS),
+            assert.ok(result[2].includes(csConst.ISSUE_LIST_TYPE_FILTER.CREATED_BY_ME), "'Created to Me' option should be present");
+            assert.ok(result[3].includes(csConst.ISSUE_LIST_TYPE_FILTER.PUBLISH_REQUESTS),
                 "'Publish requests' option should be present");
-            assert.isTrue(result[4].includes(csConst.ISSUE_LIST_TYPE_FILTER.ISSUES), "'Issues' option should be present");
-            assert.isTrue(result.length === 5, "5 options should be present");
+            assert.ok(result[4].includes(csConst.ISSUE_LIST_TYPE_FILTER.ISSUES), "'Issues' option should be present");
+            assert.ok(result.length === 5, "5 options should be present");
         });
 
     it(`GIVEN Issue List dialog is opened WHEN Type Filter selector has been expanded AND 'Issues' option clicked THEN selected option should be 'Issues'`,
@@ -80,7 +79,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             // 3. Selected option should be 'Issues':
             await studioUtils.saveScreenshot('issue_list_issues_filtered');
             let result = await issueListDialog.getTypeFilterSelectedOption();
-            assert.isTrue(result.includes(csConst.ISSUE_LIST_TYPE_FILTER.ISSUES), "'Issues' option should be selected in 'Type Filter'");
+            assert.ok(result.includes(csConst.ISSUE_LIST_TYPE_FILTER.ISSUES), "'Issues' option should be selected in 'Type Filter'");
         });
 
     it(`GIVEN SU is logged in, 'Issue List' dialog is opened WHEN Type Filter selector has been expanded THEN 'Assigned to Me' option should be disabled AND 'All' should be enabled`,
@@ -95,27 +94,27 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await issueListDialog.waitForFilterOptionDisabled(csConst.ISSUE_LIST_TYPE_FILTER.ASSIGNED_TO_ME);
             // 4. All option should not be disabled:
             let result = await issueListDialog.isFilterOptionDisabled("All");
-            assert.isFalse(result, "All' option should not be disabled in 'Type Filter' selector");
+            assert.ok(result === false, "All' option should not be disabled in 'Type Filter' selector");
         });
 
     it(`GIVEN Issue Details dialog is opened WHEN task has been closed THEN number in Open/Closed buttons should be updated`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
-            //1.Open Issue List dialog:
+            // 1.Open Issue List dialog:
             await studioUtils.openIssuesListDialog();
             let closedNumberBeforeClose = await issueListDialog.getNumberInClosedButton();
             let openNumberBeforeClose = await issueListDialog.getNumberInOpenButton();
             let filterInputNumberBeforeClose = await issueListDialog.getNumberInSelectedOption();
-            //2. Click on the issue, open Issue Details dialog:
+            // 2. Click on the issue, open Issue Details dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
-            //3. Close the issue:
+            // 3. Close the issue:
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await issueDetailsDialog.clickOnBackButton();
             await issueListDialog.pause(4000);
             let closedNumber = await issueListDialog.getNumberInClosedButton();
-            //4. Number of closed and Open issues should be updated:
+            // 4. Number of closed and Open issues should be updated:
             await issueListDialog.isOpenButtonActive();
             let openNumber = await issueListDialog.getNumberInOpenButton();
             let filterInputNumber = await issueListDialog.getNumberInSelectedOption();

@@ -1,8 +1,7 @@
 /**
  * Created on 01.06.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -19,8 +18,8 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         webDriverHelper.setupBrowser();
     }
     let FOLDER;
-    let TEST_FOLDER_NAME = studioUtils.generateRandomName('folder');
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const TEST_FOLDER_NAME = studioUtils.generateRandomName('folder');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
 
     it(`Preconditions: new projects with 'Private' access mode should be added`,
         async () => {
@@ -60,8 +59,8 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             // 4. Verify that 2  notification messages appear: 'Project is modified' and 'Permissions are applied'
             await studioUtils.saveScreenshot("project_access_mode_updated");
             assert.equal(actualMessages[1], appConst.projectModifiedMessage(PROJECT_DISPLAY_NAME));
-            assert.isTrue(actualMessages[0].includes("Permissions"), "Permissions are applied - the second expected notification message");
-            assert.isTrue(actualMessages[0].includes("are applied"), "Permissions are applied - the second expected notification message");
+            assert.ok(actualMessages[0].includes("Permissions"), "Permissions are applied - the second expected notification message");
+            assert.ok(actualMessages[0].includes("are applied"), "Permissions are applied - the second expected notification message");
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/1889
@@ -77,11 +76,11 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             await projectWizard.waitForLoaded();
             // 2. Verify that 'Public' radio is selected:
             let isSelected = await projectWizard.isAccessModeRadioSelected("Public");
-            assert.isTrue(isSelected, "'Public' radio button should be selected");
+            assert.ok(isSelected, "'Public' radio button should be selected");
             isSelected = await projectWizard.isAccessModeRadioSelected("Private");
-            assert.isFalse(isSelected, "'Private' radio button should not be selected");
+            assert.ok(isSelected === false, "'Private' radio button should not be selected");
             isSelected = await projectWizard.isAccessModeRadioSelected("Custom");
-            assert.isFalse(isSelected, "'Custom' radio button should not be selected");
+            assert.ok(isSelected === false, "'Custom' radio button should not be selected");
         });
 
     it(`GIVEN existing project context is selected WHEN existing folder has been clicked THEN 'Everyone can read this item' header should be displayed in Access Widget`,

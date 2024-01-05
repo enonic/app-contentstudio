@@ -1,8 +1,7 @@
 /**
  * Created on 27.04.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -17,8 +16,8 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     }
     const EXPECTED_TEXT_TEXT1 = '<p>test text</p>';
     const EXPECTED_TEXT_TEXT2 = '<p>test text 2</p>';
-    const TEXT_1 = "test text";
-    const TEXT_2 = "test text 2";
+    const TEXT_1 = 'test text';
+    const TEXT_2 = 'test text 2';
     let htmlAreaContent;
     let htmlAreaContentEmpty;
     let SITE;
@@ -59,7 +58,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             assert.equal(result, appConst.requiredValidationMessage(2), "Expected validation record should be displayed");
             // 3. Verify that red icon is present:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, "Red icon should be present, because both inputs are empty");
+            assert.ok(isInvalid === true, "Red icon should be present, because both inputs are empty");
         });
 
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN html area is empty and the content has been saved THEN red icon should appear, because the input is required`,
@@ -71,9 +70,9 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             // 2. Type a name and save:
             await contentWizard.waitAndClickOnSave();
             // 3. Verify that red icon gets visible:
-            let result = await contentWizard.isContentInvalid();
+            let isInvalid = await contentWizard.isContentInvalid();
             await studioUtils.saveScreenshot('cke_htmlarea_should_be_invalid');
-            assert.isTrue(result, 'the content should be invalid, because the input is required');
+            assert.ok(isInvalid === true, 'the content should be invalid, because the input is required');
         });
 
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN text has been typed in the first area THEN the text should be present in the first area`,
@@ -122,11 +121,11 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             assert.equal(actualResult[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equal');
             assert.equal(actualResult[1], EXPECTED_TEXT_TEXT2, 'expected and actual value should be equal');
             // 3. Verify that the content is valid:
-            let isRedIconDisplayed = await contentWizard.isContentInvalid();
-            assert.isFalse(isRedIconDisplayed, "Red icon should not be present, because both inputs are filled");
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, "Red icon should not be present, because both inputs are filled");
         });
 
-    //verifies https://github.com/enonic/lib-admin-ui/issues/461
+    // verifies https://github.com/enonic/lib-admin-ui/issues/461
     it(`GIVEN existing 'htmlArea 2:4' WHEN the first area has been cleared THEN red icon should appears in the wizard`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
@@ -141,8 +140,8 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             assert.equal(actualResult[0], '', 'the first area should be empty');
             assert.equal(actualResult[1], EXPECTED_TEXT_TEXT2, 'text should be in the second area');
             // 4. Verify that red icon gets visible
-            let isRedIconDisplayed = await contentWizard.isContentInvalid();
-            assert.isTrue(isRedIconDisplayed, "Red icon should appear in the wizard, because both inputs are required");
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === true, "Red icon should appear in the wizard, because both inputs are required");
             let validationRecord = await htmlAreaForm.getFormValidationRecording();
             // 'Min 2 valid occurrence(s) required'
             assert.equal(validationRecord, appConst.requiredValidationMessage(2), "Expected validation record gets visible");

@@ -1,8 +1,7 @@
 /**
  * Created on 22.10.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -35,22 +34,22 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             let contentWizard = new ContentWizard();
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
-            //1. open the existing folder:
+            // 1. open the existing folder:
             await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME);
-            //3. Open Edit Permissions dialog,  click on 'Access' button in WizardStepNavigatorAndToolbar
+            // 2. Open Edit Permissions dialog,  click on 'Access' button in WizardStepNavigatorAndToolbar
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            //4. Uncheck the 'Inherit permissions'
+            // 3. Uncheck the 'Inherit permissions'
             await editPermissionsDialog.waitForDialogLoaded();
             await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
-            //5. Update the permissions and click on Apply:
+            // 4. Update the permissions and click on Apply:
             await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
             await editPermissionsDialog.clickOnApplyButton();
             let expectedMessage = appConst.permissionsAppliedNotificationMessage(FOLDER_NAME);
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.equal(actualMessage, expectedMessage, "Permissions for 'contentName' are applied -  Message should appear");
-            //. open Versions Widget:
+            // 5. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
-            //6. Verify that the number of version-items with (Revert button) is not changed:
+            // 6. Verify that the number of version-items with (Revert button) is not changed:
             let result = await wizardVersionsWidget.countVersionItems();
             await studioUtils.saveScreenshot('number_versions_items_permissions_updated');
             assert.equal(result, 3, 'the number of versions items should be increased by 1');
@@ -61,39 +60,39 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
 
             //8. Verify 'Show changes' in all version items:
             let isDisplayed = await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
-            assert.isFalse(isDisplayed, "'Show changes' button should not be displayed for the first item (Created)");
+            assert.ok(isDisplayed === false, "'Show changes' button should not be displayed for the first item (Created)");
 
             isDisplayed =
                 await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
-            assert.isTrue(isDisplayed, "'Show changes' button should be displayed in the first Permissions updated-item");
+            assert.ok(isDisplayed, "'Show changes' button should be displayed in the first Permissions updated-item");
 
             isDisplayed = await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
-            assert.isTrue(isDisplayed, "'Show changes' button should be displayed in Edit-item");
+            assert.ok(isDisplayed, "'Show changes' button should be displayed in Edit-item");
         });
 
     it(`WHEN 'Permissions updated' item has been clicked THEN 'Revert' button should not be visible in the item`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
-            //1. open the existing folder:
+            // 1. open the existing folder:
             await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME);
-            //2. open Versions Widget:
+            // 2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
-            //3. Click on 'Permissions updated' item:
+            // 3. Click on 'Permissions updated' item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS_UPDATED, 0);
             await wizardVersionsWidget.pause(500);
-            //4 'Active version' "Revert" buttons are not displayed in the 'Permission updated' item
+            // 4 'Active version' "Revert" buttons are not displayed in the 'Permission updated' item
             await wizardVersionsWidget.waitForActiveVersionButtonNotDisplayed();
             await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
-            //5. Click on the first Edited item:
+            // 5. Click on the first Edited item:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await studioUtils.saveScreenshot('versions_widget_edited_item_expanded');
-            //6. Verify that Edited-item is expanded and Revert button gets visible:
+            // 6. Verify that Edited-item is expanded and Revert button gets visible:
             await wizardVersionsWidget.waitForRevertButtonDisplayed();
-            //7. Click on the expanded Edited item and collapse this one:
+            // 7. Click on the expanded Edited item and collapse this one:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 0);
             await studioUtils.saveScreenshot('versions_widget_edited_item_collapsed');
-            //8. Verify that Revert button is not visible now:
+            // 8. Verify that Revert button is not visible now:
             await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
         });
 
@@ -111,16 +110,16 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             await wizardVersionsWidget.clickOnRevertButton();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.openDetailsWidget();
-            //2. Open 'Edit Permissions' dialog
+            // 3. Open 'Edit Permissions' dialog
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             await studioUtils.saveScreenshot('acl_entries_after_reverting');
-            //3. 'Inherit Permissions' checkbox gets selected:
+            // 4. 'Inherit Permissions' checkbox gets selected:
             let isSelected = await editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
-            assert.isTrue(isSelected, 'The checkbox gets selected again after the reverting');
-            //3. Verify that Anonymous user is present after reverting the previous version:
+            assert.ok(isSelected, 'The checkbox gets selected again after the reverting');
+            // 5. Verify that Anonymous user is present after reverting the previous version:
             let principals = await editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
-            //4. Verify that 'Anonymous User' principal is not present in the permissions dialog:
-            assert.isFalse(principals.includes(appConst.systemUsersDisplayName.ANONYMOUS_USER),
+            // 6. Verify that 'Anonymous User' principal is not present in the permissions dialog:
+            assert.ok(principals.includes(appConst.systemUsersDisplayName.ANONYMOUS_USER) === false,
                 'Permissions should not be updated after the reverting');
         });
 
@@ -130,25 +129,25 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             let contentWizard = new ContentWizard();
             let editPermissionsDialog = new EditPermissionsDialog();
             let userAccessWidget = new UserAccessWidget();
-            //1. open the existing folder:
+            // 1. open the existing folder:
             await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME);
-            //2. open Versions Widget:
+            // 2. open Versions Widget:
             await contentWizard.openVersionsHistoryPanel();
             let number1 = await wizardVersionsWidget.countVersionItems();
             await contentWizard.openDetailsWidget();
-            //3. Open Edit Permissions dialog,  click on 'Access' button in WizardStepNavigatorAndToolbar
+            // 3. Open Edit Permissions dialog,  click on 'Access' button in WizardStepNavigatorAndToolbar
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
-            //4. Update the permissions and click on Apply:
+            // 4. Update the permissions and click on Apply:
             await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.SUPER_USER);
             await editPermissionsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
             await contentWizard.openVersionsHistoryPanel();
-            //5. Verify that the number of version-items is increased by 1:
+            // 5. Verify that the number of version-items is increased by 1:
             let number2 = await wizardVersionsWidget.countVersionItems();
             await studioUtils.saveScreenshot('number_versions_permissions_updated_2');
-            assert.isAbove(number2, number1, 'the number of versions should be increased by 1');
-            //7. Verify 2 items with 'Permissions updated' header are displayed in the widget:
+            assert.ok(number2 > number1, 'the number of versions should be increased by 1');
+            // 6. Verify 2 items with 'Permissions updated' header are displayed in the widget:
             let numberItems = await wizardVersionsWidget.countPermissionsUpdatedItems();
             assert.equal(numberItems, 2, "Two 'Permissions updated'  items should be present in the widget");
         });
@@ -158,17 +157,17 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
             let compareContentVersionsDialog = new CompareContentVersionsDialog();
-            //1. Select the existing folder with updated permissions
+            // 1. Select the existing folder with updated permissions
             await studioUtils.findAndSelectItem(FOLDER_NAME);
-            //2. open Versions Panel
+            // 2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            //3. Click on 'Show changes' button  in the previous edit-item:
+            // 3. Click on 'Show changes' button  in the previous edit-item:
             await browseVersionsWidget.clickOnShowChangesButtonByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             await compareContentVersionsDialog.waitForDialogOpened();
-            //4. Click on the left dropdown handle:
+            // 4. Click on the left dropdown handle:
             await compareContentVersionsDialog.clickOnLeftDropdownHandle();
             await studioUtils.saveScreenshot('compare_versions_dlg_changed_options');
-            //5. Verify that options with 'Changed' icon should be present in the dropdown list:
+            // 5. Verify that options with 'Changed' icon should be present in the dropdown list:
             let result = await compareContentVersionsDialog.getPermissionsUpdatedOptionsInDropdownList();
             assert.equal(result.length, 2, '2 Permissions updated items should be present in the selector options');
         });

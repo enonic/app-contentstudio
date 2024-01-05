@@ -1,8 +1,7 @@
 /**
  * Created on 05.06.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -22,19 +21,19 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
             let imageEditor = new ImageEditor();
             let contentWizard = new ContentWizard();
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.NORD);
-            //1. Click on Rotate button
+            // 1. Click on Rotate button
             await imageEditor.clickOnRotateButton();
-            //2. Verify that 'Reset filters' button gets visible
+            // 2. Verify that 'Reset filters' button gets visible
             await imageEditor.waitForResetFiltersDisplayed();
             await studioUtils.saveScreenshot('image_rotated');
-            //3. Verify that Save buttons gets enabled
+            // 3. Verify that Save buttons gets enabled
             await contentWizard.waitForSaveButtonEnabled();
-            //4. Click on 'Reset filters' button
+            // 4. Click on 'Reset filters' button
             await imageEditor.clickOnResetFiltersButton();
             await studioUtils.saveScreenshot('image_rotate_reset_filter_pressed3');
-            //5. Verify that Save button is disabled now
+            // 5. Verify that Save button is disabled now
             await contentWizard.waitForSaveButtonDisabled();
-            //6. Verify that 'Reset filters' button gets not visible:
+            // 6. Verify that 'Reset filters' button gets not visible:
             await imageEditor.waitForResetFilterNotDisplayed();
         });
 
@@ -44,14 +43,14 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
             let contentWizard = new ContentWizard();
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.NORD);
             await studioUtils.saveScreenshot('image_flip_reset_filter_pressed1');
-            //1. Click on Flip button:
+            // 1. Click on Flip button:
             await imageEditor.clickOnFlipButton();
-            //2. Verify that 'Reset filters' button gets visible
+            // 2. Verify that 'Reset filters' button gets visible
             await imageEditor.waitForResetFiltersDisplayed();
             await studioUtils.saveScreenshot('image_flip_reset_filter_pressed2');
-            //3. Verify that 'Save' button is enabled
+            // 3. Verify that 'Save' button is enabled
             await contentWizard.waitForSaveButtonEnabled();
-            //4. Click on 'Reset filters' button
+            // 4. Click on 'Reset filters' button
             await imageEditor.clickOnResetFiltersButton();
             await studioUtils.saveScreenshot('image_flip_reset_filter_pressed3');
             // Save gets disabled again. Exception will be thrown after the timeout:
@@ -106,23 +105,23 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
-            //1. Open an existing image:
+            // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.RENAULT);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Rotate the image
+            // 2. Rotate the image
             await imageEditor.clickOnRotateButton();
-            //3. Save the content
+            // 3. Save the content
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('rotated_saved_image');
             await imageEditor.waitForResetFiltersDisplayed();
-            //4. Try to close the wizard with the saved rotated image:
+            // 4. Try to close the wizard with the saved rotated image:
             await contentWizard.clickOnCloseBrowserTab();
-            //5. Verify that Alert does not appear in the wizard:
-            let result = await contentWizard.isAlertOpen();
-            if (result) {
+            // 5. Verify that Alert does not appear in the wizard:
+            let isOpened = await contentWizard.isAlertOpen();
+            if (isOpened) {
                 await contentWizard.dismissAlert();
             }
-            assert.isFalse(result, "Alert should not appear after trying to close the wizard with the saved rotation");
+            assert.ok(isOpened === false, "Alert should not appear after trying to close the wizard with the saved rotation");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

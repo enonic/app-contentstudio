@@ -1,8 +1,7 @@
 /**
  * Created on 14.10.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -45,8 +44,8 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             await studioUtils.saveScreenshot('textarea_req_empty');
             assert.equal(result, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, 'expected validation message should appear');
             // 5. Verify that the content is invalid:
-            let isNotValid = await contentWizard.isContentInvalid();
-            assert.isTrue(isNotValid, 'the content should be not valid, because the input is required');
+            let isInValid = await contentWizard.isContentInvalid();
+            assert.ok(isInValid, 'the content should be invalid, because the input is required');
         });
 
     it(`GIVEN wizard for required 'TextArea(1:1)' is opened WHEN name input and text area have been filled THEN the content gets valid`,
@@ -62,8 +61,8 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             await contentWizard.waitForMarkAsReadyButtonVisible();
             await studioUtils.saveScreenshot('textarea_req_filled');
             // 4. Verify that the content is valid:
-            let isNotValid = await contentWizard.isContentInvalid();
-            assert.isFalse(isNotValid, 'the content should be valid, because the input is filled');
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, 'the content should be valid, because the input is filled');
             // 5. Save the content
             await contentWizard.waitAndClickOnSave();
             // 6. Verify that validation message is not visible:
@@ -81,8 +80,8 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             await contentWizard.waitForMarkAsReadyButtonVisible();
             await studioUtils.saveScreenshot('textarea_not_req');
             // 3. Verify that the content gets valid, because the text area is not required:
-            let isNotValid = await contentWizard.isContentInvalid();
-            assert.isFalse(isNotValid, 'the content should be valid, because the input is filled');
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid === false, 'the content should be valid, because the TextAre is not required');
             // 4. Save the content
             await contentWizard.waitAndClickOnSave();
             // 5. Verify that validation message is not visible:
@@ -97,8 +96,8 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TEXT_AREA_2_4);
             await contentWizard.typeDisplayName(TEXT_AREA_NAME_4);
             // 2. Verify that the content is invalid, because 2 text area are required:
-            let isNotValid = await contentWizard.isContentInvalid();
-            assert.isTrue(isNotValid, 'the content should be invalid, because inputs are empty');
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.ok(isInvalid, 'the content should be invalid, because inputs are empty');
             // 5. Save the content
             await contentWizard.waitAndClickOnSave();
             // 6. Verify that validation message is displayed:
@@ -108,7 +107,6 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             // 7. Verify that Add button is displayed:
             await textAreaForm.waitForAddButtonDisplayed();
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

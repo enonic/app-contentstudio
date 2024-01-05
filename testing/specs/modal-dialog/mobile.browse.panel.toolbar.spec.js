@@ -1,8 +1,6 @@
 /**
  * Created on 01.03.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -21,19 +19,19 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
         async () => {
             await studioUtils.getBrowser().setWindowSize(MOBILE_WIDTH, MOBILE_HEIGHT);
             let mobileContentBrowsePanel = new MobileContentBrowsePanel();
-            //1. 'New' button should be enabled, 'Edit...','Archive..' buttons should be disabled
+            // 1. 'New' button should be enabled, 'Edit...','Archive..' buttons should be disabled
             await mobileContentBrowsePanel.waitForNewButtonEnabled();
             await mobileContentBrowsePanel.waitForEditButtonDisabled();
             await mobileContentBrowsePanel.waitForArchiveButtonDisabled();
 
-            //2. Click on 'More' button and expand the folded buttons:
+            // 2. Click on 'More' button and expand the folded buttons:
             await mobileContentBrowsePanel.clickOnMoreFoldButton();
             await studioUtils.saveScreenshot("mobile_folded_buttons");
-            //3. Folded 'Move...' button should be disabled
+            // 3. Folded 'Move...' button should be disabled
             await mobileContentBrowsePanel.waitForMoveFoldedButtonDisabled();
-            //3. Folded 'Sort...' button should be disabled
+            // 4. Folded 'Sort...' button should be disabled
             await mobileContentBrowsePanel.waitForSortFoldedButtonDisabled();
-            //4. Folded 'Preview...' button should be disabled
+            // 5. Folded 'Preview...' button should be disabled
             await mobileContentBrowsePanel.waitForPreviewFoldedButtonDisabled();
             await mobileContentBrowsePanel.waitForDuplicateFoldedButtonDisabled();
         });
@@ -42,25 +40,25 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
         async () => {
             let filterPanel = new FilterPanel();
             let mobileContentBrowsePanel = new MobileContentBrowsePanel();
-            //1.Open Filter Panel, type the name of folder
+            // 1.Open Filter Panel, type the name of folder
             await studioUtils.typeNameInFilterPanel(appConst.TEST_FOLDER_NAME);
-            await studioUtils.saveScreenshot("mobile_filter_panel");
-            //2. Click on 'Show results' button:
+            await studioUtils.saveScreenshot('mobile_filter_panel');
+            // 2. Click on 'Show results' button:
             await filterPanel.clickOnShowResultsButton();
-            //3. Load the Preview panel:
+            // 3. Load the Preview panel:
             await mobileContentBrowsePanel.clickOnRowByName(appConst.TEST_FOLDER_NAME);
             await mobileContentBrowsePanel.waitForHideMobilePreviewButtonDisplayed();
-            //4. Click on Fold button and expand the menu:
+            // 4. Click on Fold button and expand the menu:
             await mobileContentBrowsePanel.clickOnFoldWithNameButton(appConst.TEST_FOLDER_WITH_IMAGES);
             await studioUtils.saveScreenshot("mobile_folded_buttons_preview_panel");
-            //5. Verify buttons New, Edit, Archive, Duplicate, Move, Publish should be enabled:
+            // 5. Verify buttons New, Edit, Archive, Duplicate, Move, Publish should be enabled:
             await mobileContentBrowsePanel.waitForNewFoldedButtonEnabled();
             await mobileContentBrowsePanel.waitForEditFoldedButtonEnabled();
             await mobileContentBrowsePanel.waitForArchiveFoldedButtonEnabled();
             await mobileContentBrowsePanel.waitForDuplicateFoldedButtonEnabled();
             await mobileContentBrowsePanel.waitForMoveFoldedButtonEnabled();
             await mobileContentBrowsePanel.waitForPublishFoldedButtonEnabled();
-            //6. Folded 'Preview...' button should be disabled
+            // 6. Folded 'Preview...' button should be disabled
             await mobileContentBrowsePanel.waitForPreviewFoldedButtonDisabled();
         });
 

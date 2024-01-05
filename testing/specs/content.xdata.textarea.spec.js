@@ -1,8 +1,7 @@
 /**
  * Created on 04.10.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
@@ -19,8 +18,8 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let contentName = contentBuilder.generateRandomName('test');
-    let TEST_TEXT = 'test text';
+    const contentName = contentBuilder.generateRandomName('test');
+    const TEST_TEXT = 'test text';
     const HTML_AREA_X_DATA_NAME = 'Html Area x-data';
     const TEXT_AREA_X_DATA_NAME = 'Text Area x-data';
     const IMAGE_X_DATA_NAME = 'X-data (image selector)';
@@ -39,7 +38,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let contentWizard = new ContentWizard();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             let isDisplayed = await contentWizard.isWizardStepPresent(HTML_AREA_X_DATA_NAME);
-            assert.isFalse(isDisplayed, 'Inactive optional x-data should not be visible in the Content Wizard navigation bar');
+            assert.ok(isDisplayed === false, 'Inactive optional x-data should not be visible in the Content Wizard navigation bar');
         });
 
     // verifies:
@@ -54,7 +53,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             // Click on '+' icon and enable the x-data:
             await contentWizard.clickOnXdataToggler();
             let isDisplayed = await contentWizard.isWizardStepPresent(HTML_AREA_X_DATA_NAME);
-            assert.isTrue(isDisplayed, 'optional x-data should be visible in the Content Wizard navigation bar');
+            assert.ok(isDisplayed, 'optional x-data should be visible in the Content Wizard navigation bar');
             // Verify that 'This field is required' is not displayed before saving this content:
             await xDataHtmlArea.waitForFormValidationRecordingNotDisplayed();
             // Verify that red border is not displayed in x-data form
@@ -109,7 +108,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             // 4. Verify that x-data step gets not visible:
             await studioUtils.saveScreenshot('site_x_data_rollback_test');
             let isNotVisible = await contentWizard.waitForWizardStepByTitleNotVisible(HTML_AREA_X_DATA_NAME);
-            assert.isTrue(isNotVisible, 'x-data step should be not visible in the navigation bar, because x-data was disabled');
+            assert.ok(isNotVisible, 'x-data step should be not visible in the navigation bar, because x-data was disabled');
         });
     // verifies Incorrect order of x-data in Content Wizard(xp/issues/6728)
     // x-data forms in the Content Wizard - should follow the same order in which they are included in the XML schema
@@ -122,9 +121,9 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             await contentWizard.waitForXdataTogglerVisible();
             // 2. Verify the order of titles:
             let result = await contentWizard.getXdataTitles();
-            assert.isTrue(result.includes(TEXT_AREA_X_DATA_NAME), 'Text Area x-data should be present');
-            assert.isTrue(result.includes(IMAGE_X_DATA_NAME), 'X-data (image selector) should be present');
-            assert.isTrue(result.includes(HTML_AREA_X_DATA_NAME), 'Html Area x-data should be present');
+            assert.ok(result.includes(TEXT_AREA_X_DATA_NAME), 'Text Area x-data should be present');
+            assert.ok(result.includes(IMAGE_X_DATA_NAME), 'X-data (image selector) should be present');
+            assert.ok(result.includes(HTML_AREA_X_DATA_NAME), 'Html Area x-data should be present');
         });
 
     it(`GIVEN content with optional x-data(textarea) is opened WHEN x-data toggler has been clicked THEN x-data form should be added and text area gets visible`,
@@ -190,7 +189,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             await contentWizard.clickOnXdataToggler();
             let result = await xDataTextArea.getTextInTextArea();
             await studioUtils.saveScreenshot('xdata_textarea_should_be_cleared');
-            assert.isTrue(result == '', 'text-area in the x-data should be cleared');
+            assert.ok(result == '', 'text-area in the x-data should be cleared');
             // 2. Red icon should be present in the wizard, because text-area is required input
             await contentWizard.waitUntilInvalidIconAppears();
         });

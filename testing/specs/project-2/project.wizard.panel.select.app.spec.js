@@ -1,8 +1,7 @@
 /**
  * Created on 22.09.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -19,8 +18,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
         webDriverHelper.setupBrowser();
     }
     const TEST_NUMBER = '12345';
-
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
 
     it(`GIVEN existing project has been opened WHEN application has been selected THEN expected application should be present in selected options view`,
         async () => {
@@ -134,9 +132,9 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await studioUtils.saveScreenshot('root_new_content_with_apps_2');
             // 3. Verify that all input types are available for adding new content in root directory:
             let contentTypeItems = await newContentDialog.getItems();
-            assert.isTrue(contentTypeItems.includes('all-inputs'), "Expected input type should be displayed in the modal dialog");
-            assert.isTrue(contentTypeItems.includes('attachment0_0'), "Expected input type should be displayed in the modal dialog");
-            assert.isAbove(contentTypeItems.length, 50, "All types from the application should be present in the modal dialog");
+            assert.ok(contentTypeItems.includes('all-inputs'), "Expected input type should be displayed in the modal dialog");
+            assert.ok(contentTypeItems.includes('attachment0_0'), "Expected input type should be displayed in the modal dialog");
+            assert.ok(contentTypeItems.length > 50, "All types from the application should be present in the modal dialog");
         });
 
     it("GIVEN existing project(Private access mode) is opened WHEN access mode has been switched to 'Public' THEN Access Mode gets 'Public'",
@@ -165,9 +163,9 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await studioUtils.saveScreenshot('root_new_content_with_apps_3');
             // 3. Verify that only 3 types are available for creating new content in root directory:
             let contentTypeItems = await newContentDialog.getItems();
-            assert.isTrue(contentTypeItems.includes('Folder'), 'Folder input type is displayed in the modal dialog');
-            assert.isTrue(contentTypeItems.includes('Shortcut'), 'Shortcut input type is displayed in the modal dialog');
-            assert.isTrue(contentTypeItems.includes('Site'), 'Site input type is displayed in the modal dialog');
+            assert.ok(contentTypeItems.includes('Folder'), 'Folder input type is displayed in the modal dialog');
+            assert.ok(contentTypeItems.includes('Shortcut'), 'Shortcut input type is displayed in the modal dialog');
+            assert.ok(contentTypeItems.includes('Site'), 'Site input type is displayed in the modal dialog');
             assert.equal(contentTypeItems.length, 3, '3 items should be present in the modal dialog');
         });
 

@@ -1,8 +1,7 @@
 /**
  * Created on 14.05.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -60,9 +59,9 @@ describe('Text Component with CKE - insert download-link specification', functio
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu("main");
+            await pageComponentView.openMenu('main');
             // 3. Insert text component:
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await pageComponentView.selectMenuItem(['Insert', 'Text']);
             //Close the details panel
             await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
@@ -82,7 +81,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await studioUtils.saveScreenshot('download_link_inserted');
             // 8. Verify the text in CKE: 'media://download' should be present in the htmlarea
             let actualText = await textComponentCke.getTextFromEditor();
-            assert.include(actualText, EXPECTED_SRC, "Expected text should be in CKE");
+            assert.ok(actualText.includes(EXPECTED_SRC), "Expected text should be in the text component");
             // 9. Save the changes:
             await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
@@ -99,7 +98,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             // 2. Verify that new added link is present
             let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
             await studioUtils.saveScreenshot('download_link_present');
-            assert.isTrue(isDisplayed, 'download link should be present on the page');
+            assert.ok(isDisplayed, 'download link should be present on the page');
         });
 
     it(`GIVEN Moved content is opened WHEN Versions widget has been opened THEN expected Moved version item should be present in the widget`,
@@ -119,7 +118,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await wizardVersionsWidget.waitForRevertButtonNotDisplayed();
             // 5. Verify that 'Compare with current version' button is displayed in Moved item:
             let result = await wizardVersionsWidget.isShowChangesInVersionButtonDisplayed(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
-            assert.isTrue(result, "'Show changes' button should be present in Moved version item ");
+            assert.ok(result, "'Show changes' button should be present in Moved version item ");
         });
 
     it(`GIVEN Moved content has been opened WHEN 'Compare Content Versions Dialog' has been opened for the latest moved item THEN left revert menu buttons should be enabled`,
@@ -190,7 +189,7 @@ describe('Text Component with CKE - insert download-link specification', functio
         })
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

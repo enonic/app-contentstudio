@@ -1,8 +1,7 @@
 /**
  * Created on 21.02.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
@@ -39,17 +38,17 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
-            //1. Verify that Comments tab is active by default
+            // 1. Verify that Comments tab is active by default
             let isActive = await issueDetailsDialog.isCommentsTabBarItemActive();
-            assert.isTrue(isActive, 'Comments Tab should be active');
-            //2. Verify that status of the task is 'Open'
+            assert.ok(isActive, 'Comments Tab should be active');
+            // 2. Verify that status of the task is 'Open'
             let actualStatus = await issueDetailsDialog.getCurrentStatusInStatusSelector();
             assert.equal(actualStatus, 'Open', "'Open' status should be displayed in status selector button");
-            //3. Comment button should be disabled, because the textarea is empty.
+            // 3. Comment button should be disabled, because the textarea is empty.
             let isCommentButtonDisabled = await commentsTab.isCommentButtonEnabled();
-            assert.isFalse(isCommentButtonDisabled, 'Comment button should be disabled');
+            assert.ok(isCommentButtonDisabled === false, 'Comment button should be disabled');
             let isTextAreaDisplayed = await commentsTab.isCommentTextAreaDisplayed();
-            assert.isTrue(isTextAreaDisplayed, 'Text area for comments should be displayed');
+            assert.ok(isTextAreaDisplayed, 'Text area for comments should be displayed');
         });
 
     it(`GIVEN Task Details dialog is opened WHEN comment has been typed in the area THEN Comment button gets enabled`,
@@ -108,7 +107,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await issueDetailsDialog.waitForDialogLoaded();
             let result = await commentsTab.isCommentPresent(MY_COMMENT);
             await studioUtils.saveScreenshot('issue_comment_added');
-            assert.isTrue(result, 'Comment with the name should be present ');
+            assert.ok(result, 'Comment with the name should be present ');
         });
 
     it(`GIVEN existing task with a comment WHEN Task Details dialog is opened AND the comment has been changed THEN updated comment should appear in the comments-list`,
@@ -128,7 +127,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             // 4. Verify that new text is displayed in the comment
             let result = await commentsTab.isCommentPresent(newText);
             await studioUtils.saveScreenshot("task_comment_updated");
-            assert.isTrue(result, 'The comment should be updated');
+            assert.ok(result, 'The comment should be updated');
         });
 
     it(`GIVEN existing task with a comment WHEN Task Details dialog is opened AND the comment has been deleted THEN the comment should not be present in the comments-list`,
@@ -150,7 +149,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             // 4. Verify that comment is not displayed
             let result = await commentsTab.isCommentPresent(newText);
             await studioUtils.saveScreenshot('task_comment_deleted');
-            assert.isFalse(result, 'Comment with the text should be deleted');
+            assert.ok(result === false, 'Comment with the text should be deleted');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

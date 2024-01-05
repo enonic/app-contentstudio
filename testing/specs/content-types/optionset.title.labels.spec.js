@@ -1,8 +1,7 @@
 /**
  * Created on 22.01.2021.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -44,14 +43,14 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         async () => {
             let contentWizard = new ContentWizard();
             let optionSetForm2 = new OptionSetForm2View();
-            //1. Open the new wizard:
+            // 1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset2');
-            //2. Fill in the name input:
+            // 2. Fill in the name input:
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('optionset'));
             await contentWizard.waitAndClickOnSave();
-            //3. Verify that red border is displayed in Option Set Form
+            // 3. Verify that red border is displayed in Option Set Form
             await optionSetForm2.waitForOptionSetRedBorderDisplayed();
-            //4. Verify that content gets not valid
+            // 4. Verify that content gets not valid
             await contentWizard.waitUntilInvalidIconAppears();
             let validationRecording = await optionSetForm2.getOptionSetValidationRecording();
             assert.equal(validationRecording, 'At least one option must be selected', 'expected validation recording should appear');
@@ -63,19 +62,19 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         async () => {
             let contentWizard = new ContentWizard();
             let optionSetForm2 = new OptionSetForm2View();
-            //1. Open the new wizard:
+            // 1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset2');
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('optionset'));
-            //2. Select 'Text block' option
+            // 2. Select 'Text block' option
             await optionSetForm2.selectOption('Text block');
             await optionSetForm2.clickOnRadioButton('Full width');
-            //3. Reset just selected option:
+            // 3. Reset just selected option:
             await optionSetForm2.clickOnResetMenuItem();
-            //4. Save the content
+            // 4. Save the content
             await contentWizard.waitAndClickOnSave();
-            //5. Verify that red border is displayed in Option Set Form
+            // 5. Verify that red border is displayed in Option Set Form
             await optionSetForm2.waitForOptionSetRedBorderDisplayed();
-            //6. Verify that content gets not valid
+            // 6. Verify that content gets not valid
             await contentWizard.waitUntilInvalidIconAppears();
         });
 
@@ -86,22 +85,22 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         async () => {
             let contentWizard = new ContentWizard();
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
-            //1. Open the new wizard:
+            // 1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
             await contentWizard.typeDisplayName(OPTION_SET_NAME1);
-            //2. Verify tah 'Option 2' is selected by default:
+            // 2. Verify tah 'Option 2' is selected by default:
             let isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 2');
-            assert.isTrue(isSelected, "'Option 2' should be selected by default");
-            //3. Unselect the default 'option 2:
+            assert.ok(isSelected, "'Option 2' should be selected by default");
+            // 3. Unselect the default 'option 2:
             await multiSelectionOptionSet.clickOnOption('Option 2');
-            //4. Verify that 'Option 2' is not selected
-            isSelected = await multiSelectionOptionSet.isCheckboxSelected("Option 2");
-            assert.isFalse(isSelected, "'Option 2' should not be selected after unselecting the radio");
+            // 4. Verify that 'Option 2' is not selected
+            isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 2');
+            assert.ok(isSelected === false, "'Option 2' should not be selected after unselecting the radio");
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1000);
-            //5. Verify that 'Option 2' remains unselected after the saving:
-            isSelected = await multiSelectionOptionSet.isCheckboxSelected("Option 2");
-            assert.isFalse(isSelected, "'Option 2' should not be selected after the saving");
+            // 5. Verify that 'Option 2' remains unselected after the saving:
+            isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 2');
+            assert.ok(isSelected === false, "'Option 2' should not be selected after the saving");
         });
 
     it("GIVEN radio buttons were unselected in the previous test WHEN the content has been re-opened THEN all radio buttons should be unselected",
@@ -112,13 +111,13 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await studioUtils.saveScreenshot('optionset_all_radio_unselected');
             // 2. Verify that all radio buttons are unselected:
             let isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 1');
-            assert.isFalse(isSelected, "'Option 1' should not be selected");
+            assert.ok(isSelected === false, "'Option 1' should not be selected");
             isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 2');
-            assert.isFalse(isSelected, "'Option 2' should not be selected");
+            assert.ok(isSelected === false, "'Option 2' should not be selected");
             isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 3');
-            assert.isFalse(isSelected, "'Option 3' should not be selected");
+            assert.ok(isSelected === false, "'Option 3' should not be selected");
             isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 4');
-            assert.isFalse(isSelected, "'Option 4' should not be selected");
+            assert.ok(isSelected === false, "'Option 4' should not be selected");
             let message = await multiSelectionOptionSet.getValidationMessage();
             assert.equal(message, 'At least one option must be selected', 'expected validation message should be displayed');
         });
@@ -202,7 +201,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             title = await multiSelectionOptionSet.getMultiSelectionTitle();
             assert.equal(title, MULTI_SELECTION_TITLE2, "'Option 1 Option 2' should be displayed in multi selection subtitle");
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, 'Option Set content should be valid because required input are filled');
+            assert.ok(isInvalid === false, 'Option Set content should be valid because required input are filled');
         });
 
     it(`WHEN existing option set is opened THEN expected options should be selected in multi selection`,
@@ -214,14 +213,14 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await singleSelectionOptionSet.collapseForm();
             // 2. Verify selected checkboxes:
             let isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 1');
-            assert.isTrue(isSelected, "'Option 1' should be selected");
+            assert.ok(isSelected, "'Option 1' should be selected");
             isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 2');
-            assert.isTrue(isSelected, "'Option 2' should  be selected");
+            assert.ok(isSelected, "'Option 2' should  be selected");
             isSelected = await multiSelectionOptionSet.isCheckboxSelected('Option 3');
-            assert.isFalse(isSelected, "'Option 3' should not be selected");
+            assert.ok(isSelected === false, "'Option 3' should not be selected");
         });
 
-    it(`GIVEN existing option set is opened WHEN 'Option 3' checkbox has been clicked THEN this content gets not valid`,
+    it(`GIVEN existing option set is opened WHEN 'Option 3' checkbox has been unselected THEN this content gets invalid`,
         async () => {
             let contentWizard = new ContentWizard();
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
@@ -232,7 +231,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             // 2. Click on Option 3 checkbox:
             await multiSelectionOptionSet.clickOnOption('Option 3');
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, 'Option Set content should be not valid because required image is not selected');
+            assert.ok(isInvalid, 'Option Set content should be not valid because required image is not selected');
         });
 
     // Verifies - https://github.com/enonic/lib-admin-ui/issues/1811

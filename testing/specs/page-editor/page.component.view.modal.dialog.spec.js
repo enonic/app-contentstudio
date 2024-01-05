@@ -1,8 +1,7 @@
 /**
  * Created on 28.06.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -40,8 +39,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 4. Verify that the modal dialog is loaded:
             await pageComponentView.waitForLoaded();
             let result = await pageComponentView.getPageComponentsDisplayName();
-            assert.isTrue(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
+            assert.ok(result.includes('main'), 'main item should be displayed in the modal dialog');
         });
 
     it(`GIVEN existing site has been opened WHEN 'Save as Template' menu item has been clicked THEN new template page with 'Page Component View' step should be loaded `,
@@ -62,8 +61,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 6. Verify that 'Page Component wizard' step is present in the page-template wizard:
             await contentWizardPanel.waitForOpened();
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
-            assert.isTrue(result.includes('main region'), 'main region item should be displayed in the modal dialog');
-            assert.isTrue(result.includes('main'), 'main item should be displayed in the modal dialog');
+            assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
+            assert.ok(result.includes('main'), 'main item should be displayed in the modal dialog');
         });
 
     // Verify issue https://github.com/enonic/app-contentstudio/issues/6486

@@ -1,8 +1,7 @@
 /**
  * Created on 13.10.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -44,7 +43,7 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             assert.equal(recording, "", 'Validation recording should not be displayed');
             //3. Verify that the content gets valid:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, "Content should be valid");
+            assert.ok(isInvalid === false, "Content should be valid");
         });
 
     it(`GIVEN wizard for not required 'long' content is opened WHEN value is more than MAX_SAFE has been typed THEN red border should be present in the long input`,
@@ -61,7 +60,7 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Input validation recording should be displayed');
             //3. Verify that the content is valid, because the long input is not required
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, "Content should be valid");
+            assert.ok(isInvalid === false, "Content should be valid");
             //4. Verify thar red border appears in the long input:
             await longForm.waitForRedBorderInLongInput(0);
         });
@@ -80,7 +79,7 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             assert.equal(recording, "", 'Input validation recording should be empty');
             //3. Verify that the content is valid
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, "Content should be valid");
+            assert.ok(isInvalid === false, "Content should be valid");
             //4. Verify thar red border is not displayed in the long input:
             await longForm.waitForRedBorderNotDisplayedInLongInput(0);
         });
@@ -99,7 +98,7 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Input validation recording appears in the input');
             //3. Verify that the content is valid, the input is not required
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, "Content should be valid");
+            assert.ok(isInvalid === false, "Content should be valid");
             //4. Verify thar red border appears in the long input:
             await longForm.waitForRedBorderInLongInput(0);
         });
@@ -118,7 +117,7 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Input validation recording should be displayed');
             //3. Verify that the content is valid, because the long input is not required
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, "Content should be valid");
+            assert.ok(isInvalid === false, "Content should be valid");
             //4. Verify thar red border appears in the long input:
             await longForm.waitForRedBorderInLongInput(0);
         });
@@ -138,7 +137,7 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Input validation recording should be displayed');
             //3. Verify that the content is not valid, because Min 2 valid occurrence(s) required
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, "Content should be not valid");
+            assert.ok(isInvalid, "Content should be not valid");
             //4. Verify thar red border appears in the second long input:
             await longForm.waitForRedBorderInLongInput(1);
         });
@@ -147,7 +146,7 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

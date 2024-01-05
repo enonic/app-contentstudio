@@ -1,8 +1,7 @@
 /**
  * Created on 07.08.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -49,7 +48,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await studioUtils.saveScreenshot('site_is_inherited');
             // 2. Verify that inherited site should be present in the layer:
             let result = await contentBrowsePanel.isContentInherited(SITE_NAME);
-            assert.isTrue(result, 'site from parent project should be displayed with gray mask');
+            assert.ok(result, 'site from parent project should be displayed with gray mask');
         });
 
     it("GIVEN inherited site has been selected WHEN 'Sort' dialog has been opened THEN 'Inherited: Modified date' order should be selected in the modal dialog",
@@ -84,7 +83,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await sortContentDialog.clickOnSaveButton();
             // 5. Verify that site is displayed as 'inherited':
             let isInherited = await contentBrowsePanel.isContentInherited(SITE_NAME);
-            assert.isTrue(isInherited, "site remains 'inherited' after updating the sorting order");
+            assert.ok(isInherited, "site remains 'inherited' after updating the sorting order");
         });
 
     it("GIVEN layer's context is selected WHEN inherited site has been updated THEN the site gets localized",
@@ -103,7 +102,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await contentBrowsePanel.waitForGridLoaded(appConst.shortTimeout);
             // 4. Verify that site gets localized:
             let isInherited = await contentBrowsePanel.isContentInherited(SITE_NAME);
-            assert.isFalse(isInherited, 'Updated content gets localized');
+            assert.ok(isInherited === false, 'Updated content gets localized');
         });
 
     it("Post conditions - the layer should be deleted",

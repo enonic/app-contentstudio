@@ -1,8 +1,7 @@
 /**
  * Created on 02.05.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
@@ -56,7 +55,7 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             await filterPanel.clickOnCheckboxInLanguageBlock('Deutsch');
             // 5. Verify that one item should be present in the filtered grid:
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
-            assert.isTrue(result.length === 1, "One item should be filtered in the grid");
+            assert.ok(result.length === 1, "One item should be filtered in the grid");
             assert.equal(result[0], SHORTCUT_DE_NAME, "Expected display name should be present in Grid");
         });
 
@@ -130,7 +129,7 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             // 7. Verify that the number in 'work in progress' checkbox is increased:
             let numberAfter = await filterPanel.getNumberOfItemsInAggregationView(WORKFLOW_AGGREGATION,
                 appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
-            assert.isTrue(numberAfter - numberBefore === 1, "Number in 'work in progress' checkbox should be increased");
+            assert.ok(numberAfter - numberBefore === 1, "Number in 'work in progress' checkbox should be increased");
         });
 
     it(`WHEN existing 'Work in progress shortcut' has been marked as ready THEN the number in 'Work in progress' checkbox should decrease by 1`,
@@ -160,7 +159,7 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             let number2 = await filterPanel.getNumberOfItemsInAggregationView(WORKFLOW_AGGREGATION,
                 appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
             // 6. Verify that number in 'Work in progress' is reduced by 1
-            assert.isTrue(number1 - number2 === 1, "Number in 'Work in progress' checkbox should decrease");
+            assert.ok(number1 - number2 === 1, "Number in 'Work in progress' checkbox should decrease");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

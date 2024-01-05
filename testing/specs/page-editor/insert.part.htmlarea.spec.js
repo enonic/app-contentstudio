@@ -1,8 +1,7 @@
 /**
  * Created on 15.10.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -83,12 +82,12 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 4. Verify that the default icon should be replaced with a custom icon:
             let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 0);
             await studioUtils.saveScreenshot('verify_custom_icon');
-            assert.isFalse(isDefaultIcon, 'The initial part should be displayed with the custom icon');
+            assert.ok(isDefaultIcon === false, 'The initial part should be displayed with the custom icon');
             isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 1);
-            assert.isFalse(isDefaultIcon, 'The duplicated part should be displayed with the custom icon');
+            assert.ok(isDefaultIcon === false, 'The duplicated part should be displayed with the custom icon');
         });
 
-    //Verifies(Case 2) : https://github.com/enonic/app-contentstudio/issues/1487 Custom icon is overwritten with the default icon
+    // Verifies(Case 2) : https://github.com/enonic/app-contentstudio/issues/1487 Custom icon is overwritten with the default icon
     it(`WHEN existing content with 2 parts(custom icon) is opened THEN both parts should displayed with custom icon`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -99,12 +98,12 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Verify that the custom icon should be displayed in each component:
             let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon('Html Area Example', 0);
-            assert.isFalse(isDefaultIcon, 'The first part should be displayed with the custom icon');
+            assert.ok(isDefaultIcon === false, 'The first part should be displayed with the custom icon');
             isDefaultIcon = await pageComponentView.isItemWithDefaultIcon('Html Area Example', 1);
-            assert.isFalse(isDefaultIcon, 'The second part should be displayed with the custom icon');
+            assert.ok(isDefaultIcon === false, 'The second part should be displayed with the custom icon');
         });
 
-    //https://github.com/enonic/app-contentstudio/issues/1474  Part description is not shown when the part is included more than once
+    // https://github.com/enonic/app-contentstudio/issues/1474  Part description is not shown when the part is included more than once
     it(`GIVEN existing content with duplicated part WHEN Page Component View has been opened THEN description should be in both items in the dialog`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -120,7 +119,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             assert.equal(description2, PART_DESCRIPTION, 'Expected description should be present in the second item');
         });
 
-    //Verifies https://github.com/enonic/app-contentstudio/issues/1523 "Custom icon is overwritten with the default icon in Fragment wizard"
+    // Verifies https://github.com/enonic/app-contentstudio/issues/1523 "Custom icon is overwritten with the default icon in Fragment wizard"
     it(`GIVEN existing content is opened WHEN part with custom icon has been saved as fragment THEN custom icon should be present in fragment-wizard`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -130,17 +129,17 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            //3. Expand the menu and click on "Save as Fragment" menu item
+            // 3. Expand the menu and click on "Save as Fragment" menu item
             await pageComponentView.openMenu('Html Area Example');
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
-            //4. Go to Fragment Wizard (generated displayName is 'Html Area Example'")
+            // 4. Go to Fragment Wizard (generated displayName is 'Html Area Example'")
             await studioUtils.switchToContentTabWindow('Html Area Example');
             // pageComponentsWizard Step Form should be loaded by default in the fragment wizard
-            //6. Verify that custom icon should be present in Fragment Wizard:
+            // 6. Verify that custom icon should be present in Fragment Wizard:
             await pageComponentsWizardStepForm.waitForLoaded();
             await studioUtils.saveScreenshot('fragment_wizard_component_step');
             let isDefaultIcon = await pageComponentsWizardStepForm.isItemWithDefaultIcon('Html Area Example');
-            assert.isFalse(isDefaultIcon, 'The part should be displayed with the custom icon');
+            assert.ok(isDefaultIcon === false, 'The part should be displayed with the custom icon');
             //7. Verify that expected part-descriptions should be displayed in the dialog:
             let actualDescription = await pageComponentsWizardStepForm.getComponentDescription("Html Area Example");
             assert.equal(actualDescription, PART_DESCRIPTION, "Expected description should be present in the menu item");
@@ -151,7 +150,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            //1. Open existing content with fragment and part:
+            // 1. Open existing content with fragment and part:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
@@ -160,9 +159,9 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
             // 4. Verify that custom icon should be displayed after the part detached from fragment:
             let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 0);
-            assert.isFalse(isDefaultIcon, 'The part should be displayed with the custom icon');
+            assert.ok(isDefaultIcon === false, 'The part should be displayed with the custom icon');
             isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 1);
-            assert.isFalse(isDefaultIcon, 'The part should be displayed with the custom icon');
+            assert.ok(isDefaultIcon === false, 'The part should be displayed with the custom icon');
         });
 
     it(`GIVEN new page template with a text component is saved WHEN text component context menu has been opened THEN 'Save as fragment' menu item should not be present in the menu`,
@@ -170,7 +169,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
-            //1. Expand the site and add a template:
+            // 1. Expand the site and add a template:
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, 'Site', CONTROLLER_NAME);
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);

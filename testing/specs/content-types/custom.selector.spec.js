@@ -1,8 +1,7 @@
 /**
  * Created on 03.06.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -67,7 +66,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             await customSelectorForm.selectOption(OPTION_1);
             await contentWizard.waitAndClickOnSave();
             let isDisplayed = await customSelectorForm.isOptionFilterDisplayed();
-            assert.isTrue(isDisplayed, 'Option filter input should be displayed, because just one options is selected');
+            assert.ok(isDisplayed, 'Option filter input should be displayed, because just one options is selected');
             let options = await customSelectorForm.getSelectedOptions();
             await studioUtils.saveScreenshot('custom_selector_1_option');
             assert.equal(options[0], OPTION_1, 'Expected option should be selected');
@@ -83,7 +82,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             await contentWizard.waitAndClickOnSave();
             // 2. option filter input gets not visible:
             let isDisplayed = await customSelectorForm.isOptionFilterDisplayed();
-            assert.isFalse(isDisplayed, 'Option filter input gets not visible, because 2 options are selected');
+            assert.ok(isDisplayed === false, 'Option filter input gets not visible, because 2 options are selected');
             let selectedOptions = await customSelectorForm.getSelectedOptions();
             await studioUtils.saveScreenshot('custom_selector_2_options');
             assert.equal(selectedOptions[0], OPTION_1, 'expected option should be selected');
@@ -113,7 +112,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             await studioUtils.saveScreenshot('custom_selector_1_1');
             // 2. Verify that the content invalid
             let result = await contentWizard.isContentInvalid();
-            assert.isTrue(result, 'The content should be invalid');
+            assert.ok(result, 'The content should be invalid');
             // 3. Click on save button
             await contentWizard.waitAndClickOnSave();
             // 4. validation message should appear after clicking on Save button
@@ -129,7 +128,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             await customSelectorForm.removeSelectedOption(OPTION_2);
             // 2. option filter input gets visible again:
             let isDisplayed = await customSelectorForm.isOptionFilterDisplayed();
-            assert.isTrue(isDisplayed, 'Option filter input gets visible');
+            assert.ok(isDisplayed, 'Option filter input gets visible');
             let selectedOptions = await customSelectorForm.getSelectedOptions();
             await studioUtils.saveScreenshot('custom_selector_option_removed');
             assert.equal(selectedOptions[0], OPTION_1, 'expected option should be selected');

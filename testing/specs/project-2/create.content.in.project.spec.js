@@ -1,8 +1,7 @@
 /**
  * Created on 21.04.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -84,11 +83,11 @@ describe('create.content.in.project.spec - create new content in the selected co
             await editPermissionsDialog.waitForDialogLoaded();
             // 4. Open Edit Permissions Dialog
             let result = await editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
-            assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + ' - Owner'), 'Expected Acl should be present');
-            assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + ' - Editor'), 'Expected Acl should be present');
-            assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + ' - Author'), 'Expected Acl should be present');
-            assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + ' - Viewer'), 'Expected Acl should be present');
-            assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + ' - Contributor'), 'Expected Acl should be present');
+            assert.ok(result.includes(PROJECT_DISPLAY_NAME + ' - Owner'), 'Expected Acl should be present');
+            assert.ok(result.includes(PROJECT_DISPLAY_NAME + ' - Editor'), 'Expected Acl should be present');
+            assert.ok(result.includes(PROJECT_DISPLAY_NAME + ' - Author'), 'Expected Acl should be present');
+            assert.ok(result.includes(PROJECT_DISPLAY_NAME + ' - Viewer'), 'Expected Acl should be present');
+            assert.ok(result.includes(PROJECT_DISPLAY_NAME + ' - Contributor'), 'Expected Acl should be present');
             assert.equal(result.length, 7, 'Total number of ACL entries should be 7');
         });
 

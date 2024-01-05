@@ -1,8 +1,7 @@
 /**
  * Created on 02.11.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -39,7 +38,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             await studioUtils.saveScreenshot('itemset_0_0_no_set');
             // 2. Verify that the content gets valid after the filling the display name input:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, "the content with Item Set should be valid");
+            assert.ok(isInvalid === false, "the content with Item Set should be valid");
         });
 
     it("GIVEN wizard for ItemSet(0:0) is opened AND only the name input is filled in WHEN 'Add' button has been pressed THEN the content gets invalid",
@@ -54,7 +53,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             // 3. Verify that the content gets invalid after clicking on Add button, because there are required inputs in the form:
             await studioUtils.saveScreenshot('itemset_0_0_set_added');
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, "Item Set content should be invalid, required inputs are present in the set");
+            assert.ok(isInvalid, "Item Set content should be invalid, required inputs are present in the set");
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             // 5. Validation recording gets visible after clicking on 'Save' button:
@@ -68,13 +67,13 @@ describe('item.set.spec: tests for content with Item Set', function () {
             let contentWizard = new ContentWizard();
             // Open existing invalid content
             await studioUtils.selectContentAndOpenWizard(CONTENT_1);
-            //1. Type a text in htmlarea and text line;
+            // 1. Type a text in htmlarea and text line;
             await itemSetForm.typeTextInHtmlArea(0, "hello htmlarea");
             await itemSetForm.typeTextInTextLine(0, "hello text line");
             await studioUtils.saveScreenshot('itemset_0_0_filled');
-            //2. Verify that the content gets valid:
+            // 2. Verify that the content gets valid:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, "the content with Item Set should be valid now");
+            assert.ok(isInvalid === false, "the content with Item Set should be valid now");
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/3773
@@ -93,7 +92,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             await studioUtils.saveScreenshot('itemset_0_0_filled_2');
             // 4. Verify that the content gets invalid after adding the second level with required inputs:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, "the content should be invalid");
+            assert.ok(isInvalid, "the content should be invalid");
         });
 
     it("GIVEN existing content with single empty form is opened AND the second form has been added WHEN both forms have been filled THEN the content gets valid now",
@@ -113,7 +112,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
 
             // 4. Verify that the content gets valid:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, "the content with Item Set should be valid now");
+            assert.ok(isInvalid === false, "the content with Item Set should be valid now");
 
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -123,13 +122,13 @@ describe('item.set.spec: tests for content with Item Set', function () {
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
-            //1. Open existing content with two filled items:
+            // 1. Open existing content with two filled items:
             await studioUtils.selectContentAndOpenWizard(CONTENT_1);
             await studioUtils.saveScreenshot('itemset_before_swap');
-            //2. swap the items:
+            // 2. swap the items:
             await itemSetForm.swapItems(TEXT_LINE_TEXT_1, TEXT_LINE_TEXT_2);
             await studioUtils.saveScreenshot('itemset_swapped');
-            //3. Verify the items swapped places with each other:
+            // 3. Verify the items swapped places with each other:
             let title1 = await itemSetForm.getItemSetTitle(0);
             let title2 = await itemSetForm.getItemSetTitle(1);
             assert.equal(title1, TEXT_LINE_TEXT_2, 'form items should be swapped');

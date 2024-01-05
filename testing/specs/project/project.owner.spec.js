@@ -1,8 +1,7 @@
 /**
  * Created on 18.06.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const contentBuilder = require("../../libs/content.builder");
 const studioUtils = require('../../libs/studio.utils.js');
@@ -156,13 +155,13 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await projectWizard.waitForLoaded();
             // 4. Verify that all inputs in the project page are enabled for owner:
             let isPageDisabled = await projectWizard.isNoModify();
-            assert.isFalse(isPageDisabled, "Wizard page should be enabled for 'Owner' role");
+            assert.ok(isPageDisabled === false, "Wizard page should be enabled for 'Owner' role");
             let result = await projectWizard.isDescriptionInputClickable();
-            assert.isTrue(result, 'Description input should be clickable');
+            assert.ok(result, 'Description input should be clickable');
             result = await projectWizard.isLocaleOptionsFilterInputClickable();
-            assert.isTrue(result, 'Locale input should  be clickable');
+            assert.ok(result, 'Locale input should  be clickable');
             result = await projectWizard.isDisplayNameInputClickable();
-            assert.isTrue(result, 'Display Name input should be clickable');
+            assert.ok(result, 'Display Name input should be clickable');
         });
 
     it("GIVEN user with 'Owner' role is logged in WHEN existing project has been selected THEN New..., Delete buttons should be disabled Edit should be enabled",
@@ -196,9 +195,9 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.saveScreenshot('project_owner_3');
             //3. Verify that only 'Folders', 'Shortcut' 'Sites' are allowed for Owner role
             assert.equal(items.length, 3, 'Three items should be available for Owner');
-            assert.isTrue(items.includes("Folder"), 'Folder is allowed for creating');
-            assert.isTrue(items.includes("Shortcut"), 'Shortcut is allowed for creating');
-            assert.isTrue(items.includes('Site'), 'Site is allowed for creating');
+            assert.ok(items.includes("Folder"), 'Folder is allowed for creating');
+            assert.ok(items.includes("Shortcut"), 'Shortcut is allowed for creating');
+            assert.ok(items.includes('Site'), 'Site is allowed for creating');
         });
 
     // Verify that user with Owner role can not select a language or owner in Wizard, but can make a content ready for publishing( Mark as Ready)
@@ -217,7 +216,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await contentWizard.waitForMarkAsReadyButtonVisible();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             let isVisible = await editSettingsDialog.isLanguageOptionsFilterVisible();
-            assert.isTrue(isVisible, 'Language comboBox should be visible for Owner role');
+            assert.ok(isVisible, 'Language comboBox should be visible for Owner role');
             let actualOwner = await editSettingsDialog.getSelectedOwner();
             assert.equal(actualOwner, USER.displayName, 'Expected Owner should be selected in Settings form');
         });

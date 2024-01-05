@@ -1,8 +1,7 @@
 /**
  * Created on 03.05.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -105,19 +104,19 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await htmlAreaForm.waitForUnderlineButtonNotDisplayed();
 
             let result = await htmlAreaForm.isBulletedListButtonDisplayed();
-            assert.isTrue(result, 'Bulleted List button should be present');
+            assert.ok(result, 'Bulleted List button should be present');
             await htmlAreaForm.isAlignLeftButtonDisplayed();
-            assert.isTrue(result, 'Align Left button should be present');
+            assert.ok(result, 'Align Left button should be present');
             result = await htmlAreaForm.isNumberedListButtonDisplayed();
-            assert.isTrue(result, 'Numbered List button should be present');
+            assert.ok(result, 'Numbered List button should be present');
             result = await htmlAreaForm.isAlignRightButtonDisplayed();
-            assert.isTrue(result, 'Align Right button should be present');
+            assert.ok(result, 'Align Right button should be present');
             result = await htmlAreaForm.isCenterButtonDisplayed();
-            assert.isTrue(result, 'Center button should be present');
+            assert.ok(result, 'Center button should be present');
             result = await htmlAreaForm.isIncreaseIndentButtonDisplayed();
-            assert.isTrue(result, 'Center button should be present');
+            assert.ok(result, 'Increase Indent button should be present');
             result = await htmlAreaForm.isTableButtonDisplayed();
-            assert.isTrue(result, 'Table button should be present');
+            assert.ok(result, 'Table button should be present');
             // 'Decrease Indent button should be present'
             await htmlAreaForm.waitForDecreaseIndentDisplayed();
             await htmlAreaForm.waitForIncreaseIndentDisplayed();

@@ -1,8 +1,7 @@
 /**
  * Created on 27.12.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -13,7 +12,7 @@ const appConst = require('../../libs/app_const');
 
 describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const ENONIC_IFRAME = "<iframe src='http://www.enonic.com'> enonic</iframe>";
@@ -30,37 +29,37 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
             await studioUtils.doAddSite(SITE);
         });
 
-    //Verify Embed macro should not allow preview #4115
-    //https://github.com/enonic/app-contentstudio/issues/4115
+    // Verify Embed macro should not allow preview #4115
+    // https://github.com/enonic/app-contentstudio/issues/4115
     it(`GIVEN MacroModalDialog is opened WHEN 'Embed IFrame' option has been selected AND URL inserted THEN expected iframe should be present in htmlArea and in the preview tab`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             let insertMacroModalDialog = new InsertMacroModalDialog();
-            //1. Open wizard for new htmlArea content:
+            // 1. Open wizard for new htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
-            //2. Click on 'Insert Macro' button
+            // 2. Click on 'Insert Macro' button
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
             await insertMacroModalDialog.waitForDialogLoaded();
-            //3. Select the 'Embed IFrame' option:
+            // 3. Select the 'Embed IFrame' option:
             await insertMacroModalDialog.selectOption("Embed IFrame");
-            //4. Insert a text in the Configuration Text Area:
+            // 4. Insert a text in the Configuration Text Area:
             await insertMacroModalDialog.typeTextInConfigurationTextArea(ENONIC_IFRAME);
-            //5. Verify that expected iframe is present in the 'Preview Tab':
+            // 5. Verify that expected iframe is present in the 'Preview Tab':
             await insertMacroModalDialog.clickOnPreviewTabItem();
             await studioUtils.saveScreenshot("embed_iframe_is_completed");
-            //6. Verify that iframe element appears in the preview tab:
+            // 6. Verify that iframe element appears in the preview tab:
             let message = await insertMacroModalDialog.getTextInEmbedPreview();
             assert.equal(message, PREVIEW_MACRO_NOT_ALLOWED,
                 "'Preview of this macro is not allowed' this text should be displayed in the Preview tab");
-            //7. Click on Insert button:
+            // 7. Click on Insert button:
             await insertMacroModalDialog.clickOnInsertButton();
             await insertMacroModalDialog.pause(500);
-            //8. Verify the text in htmlArea:
+            // 8. Verify the text in htmlArea:
             let actualHtmlCode = await htmlAreaForm.getTextInHtmlArea(0);
-            assert.isTrue(actualHtmlCode.includes(ENONIC_URL), "Expected URL should be present in htmlArea");
-            assert.isTrue(actualHtmlCode.includes("[embed]"), "Expected text should be present in htmlArea");
+            assert.ok(actualHtmlCode.includes(ENONIC_URL), "Expected URL should be present in htmlArea");
+            assert.ok(actualHtmlCode.includes("[embed]"), "Expected text should be present in htmlArea");
 
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -71,23 +70,23 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             let insertMacroModalDialog = new InsertMacroModalDialog();
-            //1. Open wizard for new htmlArea content:
+            // 1. Open wizard for new htmlArea content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
-            //2. Click on 'Insert Macro' button
+            // 2. Click on 'Insert Macro' button
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
             await insertMacroModalDialog.waitForDialogLoaded();
-            //3. Select the 'Embed IFrame' option:
-            await insertMacroModalDialog.selectOption("Embed IFrame");
-            //4. Insert a text in the Configuration Text Area:
+            // 3. Select the 'Embed IFrame' option:
+            await insertMacroModalDialog.selectOption('Embed IFrame');
+            // 4. Insert a text in the Configuration Text Area:
             await insertMacroModalDialog.typeTextInConfigurationTextArea(ENONIC_IFRAME);
-            //5. Click on Insert button:
+            // 5. Click on Insert button:
             await insertMacroModalDialog.clickOnInsertButton();
             await htmlAreaForm.pause(1000);
-            //6. Do a double click on the text in htmlArea
+            // 6. Do a double click on the text in htmlArea
             await htmlAreaForm.doubleClickOnMacroTextInHtmlArea(ENONIC_URL);
-            await studioUtils.saveScreenshot("embed_iframe_double_click");
-            //7. Verify that 'Insert Macro' dialog is loaded:
+            await studioUtils.saveScreenshot('embed_iframe_double_click');
+            // 7. Verify that 'Insert Macro' dialog is loaded:
             await insertMacroModalDialog.waitForDialogLoaded();
             await insertMacroModalDialog.clickOnInsertButton();
             await insertMacroModalDialog.waitForDialogClosed();
@@ -96,7 +95,7 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

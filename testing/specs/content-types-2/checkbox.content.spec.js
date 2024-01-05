@@ -1,8 +1,7 @@
 /**
  * Created on 14.10.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -13,7 +12,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 
 describe('checkbox.content.spec: tests for content with checkbox', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
@@ -31,19 +30,19 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
         async () => {
             let checkBoxForm = new CheckBoxForm();
             let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
+            // 1. open new wizard and fill in the name input:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CHECKBOX_0_1);
             await contentWizard.typeDisplayName(CHECKBOX_NAME);
-            //2. Verify that the checkbox is not selected by default
+            // 2. Verify that the checkbox is not selected by default
             let isSelected = await checkBoxForm.isCheckBoxSelected();
             await studioUtils.saveScreenshot('checkbox_1');
-            assert.isFalse(isSelected, "CheckBox should not be selected by default");
-            //3. Click on the checkbox
+            assert.ok(isSelected === false, "CheckBox should not be selected by default");
+            // 3. Click on the checkbox
             await checkBoxForm.clickOnCheckbox();
             await studioUtils.saveScreenshot('checkbox_2');
-            //4. Verify that the checkbox gets selected:
+            // 4. Verify that the checkbox gets selected:
             isSelected = await checkBoxForm.isCheckBoxSelected();
-            assert.isTrue(isSelected, "Checkbox should be selected");
+            assert.ok(isSelected, "Checkbox should be selected");
 
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -52,12 +51,12 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
     it("WHEN existing 'checkbox' content is reopened THEN checkbox should be selected",
         async () => {
             let checkBoxForm = new CheckBoxForm();
-            //1. open existing checkbox content:
+            // 1. open existing checkbox content:
             await studioUtils.selectAndOpenContentInWizard(CHECKBOX_NAME);
-            //2. Verify that the checkbox is selected
+            // 2. Verify that the checkbox is selected
             await studioUtils.saveScreenshot('checkbox_3');
             let isSelected = await checkBoxForm.isCheckBoxSelected();
-            assert.isTrue(isSelected, "CheckBox should be selected");
+            assert.ok(isSelected, "CheckBox should be selected");
         });
 
     //https://github.com/enonic/lib-admin-ui/issues/2344
@@ -66,28 +65,28 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
         async () => {
             let checkBoxForm = new CheckBoxForm();
             let contentWizard = new ContentWizard();
-            //1. open new wizard and fill in the name input:
+            // 1. open new wizard and fill in the name input:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CHECKBOX_1_1);
             await contentWizard.typeDisplayName(CHECKBOX_NAME_2);
             await contentWizard.pause(1000);
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, "Content should be invalid");
-            //2. Click on Save button:
+            assert.ok(isInvalid, "Content should be invalid");
+            // 2. Click on Save button:
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('checkbox_required_1');
             await contentWizard.waitForNotificationMessage();
-            //3. Verify that the validation recording gets visible
+            // 3. Verify that the validation recording gets visible
             let recording = await checkBoxForm.getFormValidationRecording();
             assert.equal(recording, appConst.THIS_FIELD_IS_REQUIRED, "Expected validation message should be displayed");
 
-            //4. Select the checkbox:
+            // 4. Select the checkbox:
             await checkBoxForm.clickOnCheckbox();
             await studioUtils.saveScreenshot('checkbox_required_2');
-            //5. Verify that validation recording gets not visible
+            // 5. Verify that validation recording gets not visible
             await checkBoxForm.waitForFormValidationRecordingNotDisplayed();
-            //6. The content gets valid
+            // 6. The content gets valid
             isInvalid = await contentWizard.isContentInvalid();
-            assert.isFalse(isInvalid, "Content should be valid");
+            assert.ok(isInvalid === false, "Content should be valid");
             //7. Click on Save button:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -107,10 +106,10 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
             //3. Verify that the checkbox is not selected now:
             await studioUtils.saveScreenshot('checkbox_unselected_2');
             let isSelected = await checkBoxForm.isCheckBoxSelected();
-            assert.isFalse(isSelected, "CheckBox should be unselected");
+            assert.ok(isSelected === false, "CheckBox should be unselected");
             //4. The content gets invalid now:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.isTrue(isInvalid, "Content should be invalid");
+            assert.ok(isInvalid, "Content should be invalid");
             //5. Save the invalid content and close the wizard:
             await studioUtils.saveAndCloseWizard();
             //6. Verify that the content is invalid in the grid:
@@ -123,7 +122,7 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

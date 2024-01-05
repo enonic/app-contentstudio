@@ -1,8 +1,7 @@
 /**
  * Created on 05.06.2023
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -50,7 +49,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             await studioUtils.saveScreenshot('duplicated_content_is_not_present_in_options');
             // Only one item should be present in the list of options in Tree mode:
             assert.equal(items.length, 1, 'Only one item should be present in the list of options');
-            assert.isFalse(items.includes('/' + DUPLICATED_SITE_NAME), 'Duplicated site should not be present in the options');
+            assert.ok(items.includes('/' + DUPLICATED_SITE_NAME) === false, 'Duplicated site should not be present in the options');
         });
 
     it(`GIVEN Show content from entire project checkbox is selected WHEN current site's name has been typed in the options filter input THEN content name that starts the same as the current site should be present in the options`,
@@ -69,7 +68,7 @@ describe('htmlarea.insert.link.to.content.spec: tests for filtering in content s
             await studioUtils.saveScreenshot('duplicated_content_is_present_in_options');
             // 4. Verify - content name that starts the same as the current site(duplicated content) should be present in the options:
             let items = await insertLinkDialogContentPanel.getDropdownListOptionsName();
-            assert.isTrue(items.includes('/' + DUPLICATED_SITE_NAME), 'Duplicated site should be present in the options');
+            assert.ok(items.includes('/' + DUPLICATED_SITE_NAME), 'Duplicated site should be present in the options');
         });
 
 

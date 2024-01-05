@@ -1,8 +1,7 @@
 /**
  * Created on 12.12.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -34,7 +33,8 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             // 2. Create new 'Publish Request':
             await studioUtils.createPublishRequest(REQ_TITLE);
             let message = await browsePanel.waitForNotificationMessage();
-            assert.equal(message, appConst.NOTIFICATION_MESSAGES.REQUEST_CREATED_MESSAGE, "'New publish request created successfully' message should appear");
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.REQUEST_CREATED_MESSAGE,
+                "'New publish request created successfully' message should appear");
             // 3. Verify that Issue Details dialog closes after creating an issue:
             await publishRequestDetailsDialog.waitForClosed();
             await publishRequestDetailsDialog.pause(500);
@@ -64,7 +64,7 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             // 4. Click on Assignees dropdown handle:
             await createRequestPublishDialog.clickOnAssigneesDropDownHandle();
             let options = await createRequestPublishDialog.getAssigneesOptions();
-            assert.isFalse(options.includes('Authenticated'), 'Roles should not be present in the assignees options');
+            assert.ok(options.includes('Authenticated') === false, 'Roles should not be present in the assignees options');
         });
 
     it(`GIVEN existing Publish Request WHEN Request Details dialog is opened AND 'Publish Now' button has been pressed THEN modal dialog closes and this request closes`,
@@ -90,21 +90,21 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             let issueListDialog = new IssueListDialog();
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             await studioUtils.openIssuesListDialog();
-            //1. Click on the request and open Request Details dialog:
+            // 1. Click on the request and open Request Details dialog:
             await issueListDialog.clickOnClosedButton();
             await issueListDialog.clickOnIssue(REQ_TITLE);
             await publishRequestDetailsDialog.waitForTabLoaded();
-            //2. Click on 'Reopen Request' button:
+            // 2. Click on 'Reopen Request' button:
             await publishRequestDetailsDialog.clickOnReopenRequestButton();
             let expectedMsg1 = appConst.NOTIFICATION_MESSAGES.THIS_PUBLISH_REQUEST_OPEN;
             await browsePanel.waitForExpectedNotificationMessage(expectedMsg1);
             await studioUtils.saveScreenshot('request_reopened');
-            //3. 'Open' label should appear in the status selector:
+            // 3. 'Open' label should appear in the status selector:
             let actualStatus = await publishRequestDetailsDialog.getCurrentStatusInStatusSelector();
             assert.equal(actualStatus, 'Open', "'Open' status should be displayed in status selector button");
             let result = await publishRequestDetailsDialog.isNoActionLabelPresent();
-            //4. `No items to publish' should be displayed:
-            assert.isTrue(result, `No items to publish' should be displayed, because all items are published`);
+            // 4. `No items to publish' should be displayed:
+            assert.ok(result, `No items to publish' should be displayed, because all items are published`);
         });
 
     it(`GIVEN existing 'Open' request WHEN text in comments-area has been typed THEN 'Comment & Close Request' button gets visible`,
@@ -113,14 +113,14 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             let issueDetailsDialogCommentsTab = new IssueDetailsDialogCommentsTab();
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             await studioUtils.openIssuesListDialog();
-            //1. Click on the request and open 'Request Details' dialog:
+            // 1. Click on the request and open 'Request Details' dialog:
             await issueListDialog.clickOnOpenButton();
             await issueListDialog.clickOnIssue(REQ_TITLE);
             await publishRequestDetailsDialog.waitForTabLoaded();
-            //2. Click on 'Comments' tab:
+            // 2. Click on 'Comments' tab:
             await publishRequestDetailsDialog.clickOnCommentsTabBarItem();
             await issueDetailsDialogCommentsTab.typeComment('my comment');
-            //3. Comment & Close button should appear:
+            // 3. Comment & Close button should appear:
             await studioUtils.saveScreenshot('request_commented');
             await issueDetailsDialogCommentsTab.waitForCommentAndCloseRequestButtonDisplayed();
         });

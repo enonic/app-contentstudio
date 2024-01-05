@@ -18,8 +18,8 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
     let CHILD_FOLDER;
 
     let SITE;
-    //verifies https://github.com/enonic/app-contentstudio/issues/645
-    //Buttons on toolbar are not correctly updated after closing a content-wizard
+    // verifies https://github.com/enonic/app-contentstudio/issues/645
+    // Buttons on toolbar are not correctly updated after closing a content-wizard
     it(`GIVEN existing site is selected  AND 'New' button has been pressed WHEN new folder has been saved and the wizard closed THEN toolbar-buttons should be in expected state`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -41,11 +41,10 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await contentBrowsePanel.waitForMoveButtonEnabled();
         });
 
-    //Verify "Move" action is disabled in the search view #4035
+    // Verify "Move" action is disabled in the search view #4035
     it(`search for some content WHEN the content has been selected THEN Move button should be enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             await studioUtils.saveScreenshot("content_in_filtered_grid");
             //'Publish' button should be displayed on the toolbar after closing a wizard with child content
@@ -65,9 +64,9 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(SITE.displayName);
-            //do publish the site(children are not included)
+            // do publish the site(children are not included)
             await studioUtils.openDialogAndPublishSelectedContent();
-            //'Publish tree' button  gets visible
+            // 'Publish tree' button  gets visible
             await contentBrowsePanel.waitForPublishTreeButtonVisible();
         });
 
@@ -91,7 +90,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.HAND);
             await contentBrowsePanel.waitForEditButtonEnabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
-            //New button should be disabled, because children are not allowed for images.
+            // New button should be disabled, because children are not allowed for images.
             await contentBrowsePanel.waitForNewButtonDisabled();
             await contentBrowsePanel.waitForPreviewButtonDisabled();
         });
@@ -104,9 +103,9 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await studioUtils.doAddFolder(FOLDER);
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.waitForEditButtonEnabled();
-            //'Sort' button should be disabled, because this folder is empty!
+            // 'Sort' button should be disabled, because this folder is empty!
             await contentBrowsePanel.waitForSortButtonDisabled();
-            //'New' button should be enabled, because children are allowed for folder-content.
+            // 'New' button should be enabled, because children are allowed for folder-content.
             await contentBrowsePanel.waitForNewButtonEnabled();
         });
 
@@ -147,7 +146,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

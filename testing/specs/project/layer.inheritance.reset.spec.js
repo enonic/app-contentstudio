@@ -1,8 +1,7 @@
 /**
  * Created on 16.11.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -159,7 +158,6 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
             await projectUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
         });
-
 
     beforeEach(async () => {
         return await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();

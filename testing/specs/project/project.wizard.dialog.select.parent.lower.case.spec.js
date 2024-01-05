@@ -12,11 +12,11 @@ const ProjectWizardDialogParentProjectStep = require('../../page_objects/project
 
 describe('project.wizard.dialog.select.parent.lower.case.spec - check case sensitive in the first step', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const PARENT_IN_LOWER_CASE="default";
-    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
+    const PARENT_IN_LOWER_CASE = 'default';
+    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/2568
     //Layer wizard - options filter input for parent project is case sensitive
@@ -30,7 +30,7 @@ describe('project.wizard.dialog.select.parent.lower.case.spec - check case sensi
             await settingsBrowsePanel.openProjectWizardDialog();
             await parentProjectStep.clickOnLayerRadioButton();
             //2. Type 'default' in the options filter input then click on 'Default' option in the filtered dropdown list
-            await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(PARENT_IN_LOWER_CASE,"Default");
+            await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(PARENT_IN_LOWER_CASE, "Default");
             //3. Click on Next button:
             await parentProjectStep.clickOnNextButton();
             //4. Skip the language step
@@ -43,11 +43,11 @@ describe('project.wizard.dialog.select.parent.lower.case.spec - check case sensi
             //6. skip the permissions step:
             await permissionsStep.clickOnSkipButton();
             //7. Skip the applications step
-            if(await applicationsStep.isLoaded()){
+            if (await applicationsStep.isLoaded()) {
                 await applicationsStep.clickOnSkipButton();
             }
             //8. Fill in the name input
-            let summaryStep =  await projectUtils.fillNameAndDescriptionStep(LAYER_DISPLAY_NAME);
+            let summaryStep = await projectUtils.fillNameAndDescriptionStep(LAYER_DISPLAY_NAME);
             await summaryStep.waitForLoaded();
             //9. Click on 'Create Project' button and wait for the dialog is closed:
             await summaryStep.clickOnCreateProjectButton();
@@ -67,7 +67,7 @@ describe('project.wizard.dialog.select.parent.lower.case.spec - check case sensi
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

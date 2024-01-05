@@ -1,8 +1,7 @@
 /**
  * Created on 21.02.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
@@ -77,7 +76,7 @@ describe('publish.close.task.spec: publish a content and close the task.', funct
             await issueListDialog.clickOnClosedButton();
             await studioUtils.saveScreenshot('navigate_closed_issues');
             let result = await issueListDialog.isIssuePresent(ISSUE_TITLE);
-            assert.isTrue(result, 'required issue should be present in `closed issues`');
+            assert.ok(result, 'required issue should be present in `closed issues`');
         });
 
     it(`GIVEN issue is published and closed WHEN when content that is present in the task is selected in the grid THEN Published status should be displayed`,

@@ -1,8 +1,7 @@
 /**
  * Created on 23.08.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -14,11 +13,11 @@ const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wiz
 
 describe('Swap two Text Component - specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    let CONTROLLER_NAME = 'main region';
+    const CONTROLLER_NAME = 'main region';
 
 
     it(`Preconditions: new site should be created`,
@@ -44,14 +43,14 @@ describe('Swap two Text Component - specification', function () {
             let contentWizard = new ContentWizard();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let textComponentCke = new TextComponentCke();
-            //1. Open existing site:
+            // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             //await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert the first text component:
-            await pageComponentsWizardStepForm.openMenu("main");
+            await pageComponentsWizardStepForm.openMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem(["Insert", "Text"]);
-            await textComponentCke.typeTextInCkeEditor("component1");
+            await textComponentCke.typeTextInCkeEditor('component1');
             await contentWizard.switchToMainFrame();
             // 4. Insert the second text component:
             await pageComponentsWizardStepForm.openMenu("main");
@@ -69,7 +68,7 @@ describe('Swap two Text Component - specification', function () {
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

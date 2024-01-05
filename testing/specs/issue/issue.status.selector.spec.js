@@ -1,8 +1,7 @@
 /**
  * Created on 08.07.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
@@ -18,8 +17,8 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let ISSUE_TITLE = appConst.generateRandomName('issue');
-    let newTitle = "new title";
+    const ISSUE_TITLE = appConst.generateRandomName('issue');
+    const newTitle = 'new title';
 
     let TEST_FOLDER;
     it(`Precondition: create a folder and create new issue`, async () => {
@@ -73,17 +72,17 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             let taskDetailsDialog = new IssueDetailsDialog();
             let issueListDialog = new IssueListDialog();
             await studioUtils.openIssuesListDialog();
-            //1. Click on 'Closed' button in the Issues List dialog:
+            // 1. Click on 'Closed' button in the Issues List dialog:
             await issueListDialog.clickOnClosedButton();
-            //2. Click on the task:
+            // 2. Click on the task:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await taskDetailsDialog.waitForDialogLoaded();
-            //3. Click on 'Open' menu item:
+            // 3. Click on 'Open' menu item:
             await taskDetailsDialog.clickOnIssueStatusSelectorAndOpenIssue();
             await studioUtils.saveScreenshot('status_menu_task_reopened');
-            //4. 'The task is opened' - this message should appear:
+            // 4. 'The task is opened' - this message should appear:
             await taskDetailsDialog.waitForExpectedNotificationMessage(appConst.NOTIFICATION_MESSAGES.ISSUE_OPENED_MESSAGE);
-            //5. 'Open' text should appear in the status selector button:
+            // 5. 'Open' text should appear in the status selector button:
             let actualStatus = await taskDetailsDialog.getCurrentStatusInStatusSelector();
             assert.equal(actualStatus, 'Open', "'Open' status should be displayed in the status selector button");
         });

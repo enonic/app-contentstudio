@@ -1,8 +1,7 @@
 /**
  * Created on 17.09.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -66,13 +65,13 @@ describe('wizard.publish.menu.issue.item.spec - tests for Publish menu in wizard
             await taskDetailsDialog.pause(1000);
             // 4. Verify that Items tab remains active:
             let isActive = await taskDetailsDialog.isItemsTabBarItemActive();
-            assert.isTrue(isActive, 'Items tab remains active');
+            assert.ok(isActive, 'Items tab remains active');
             // 5. Close the modal dialog:
             await taskDetailsDialog.clickOnCancelTopButton();
             await studioUtils.saveScreenshot('publish_menu_item_hidden');
             // 6. Expand Publish Menu in wizard and verify that task-name is not present in the menu:
             let result = await contentWizard.isPublishMenuItemPresent(ISSUE_TITLE);
-            assert.isFalse(result, "'issue1' menu item should not be present in the Publish Menu");
+            assert.ok(result === false, "'issue1' menu item should not be present in the Publish Menu");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

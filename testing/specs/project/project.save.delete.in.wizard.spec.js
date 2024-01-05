@@ -1,8 +1,7 @@
 /**
  * Created on 24.03.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
@@ -103,7 +102,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             await confirmValueDialog.clickOnConfirmButton();
             //6. Verify the notification message:
             let actualMessage = await settingsBrowsePanel.waitForNotificationMessage();
-            studioUtils.saveScreenshot("project_deleted_2");
+            await studioUtils.saveScreenshot("project_deleted_2");
             assert.equal(actualMessage, appConst.projectDeletedMessage(PROJECT_DISPLAY_NAME))
         });
 
@@ -126,7 +125,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

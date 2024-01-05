@@ -1,8 +1,7 @@
 /**
  * Created on 23.07.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const projectUtils = require('../../libs/project.utils.js');
@@ -91,7 +90,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
             //3. Parent project should be with 'expander-icon'
             let result = await settingsBrowsePanel.isExpanderIconPresent(PROJECT_DISPLAY_NAME);
-            assert.isTrue(result, "Expander icon should be displayed in the parent project");
+            assert.ok(result, "Expander icon should be displayed in the parent project");
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/2105
@@ -128,7 +127,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             //2. Verify that 'Delete' button is disabled in browse-panel:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.waitForContextMenuDisplayed();
-            studioUtils.saveScreenshot("multiselect_layer_context_menu");
+            await studioUtils.saveScreenshot("multiselect_layer_context_menu");
             //Verify that New.. and Edit items are enabled:
             await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
@@ -146,7 +145,6 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
             let actualContextName1 = await contentBrowsePanel.getSelectedProjectDisplayName();
             await studioUtils.openSettingsPanel();
-
             //2. Switch to Settings and delete the layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnDeleteButton();
@@ -156,7 +154,6 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await confirmValueDialog.clickOnConfirmButton();
             await confirmValueDialog.waitForDialogClosed();
             let message = await settingsBrowsePanel.waitForNotificationMessage();
-
             //3. Switch to content mode and verify that parent project's context is loaded:
             await studioUtils.switchToContentMode();
             let expectedMessage = appConst.projectDeletedMessage(LAYER_DISPLAY_NAME);
@@ -177,7 +174,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

@@ -1,8 +1,7 @@
 /**
  * Created on 09.07.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -120,7 +119,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             // 6. Verify the image in fragment-component
             let srcAttr = await liveFormPanel.verifyImageElementsInFragmentComponent(0);
             await contentWizard.switchToParentFrame();
-            assert.isTrue(srcAttr.includes('/admin/rest'), "Image in the fragment - Attribute 'src' is not correct");
+            assert.ok(srcAttr.includes('/admin/rest'), "Image in the fragment - Attribute 'src' is not correct");
         });
 
 

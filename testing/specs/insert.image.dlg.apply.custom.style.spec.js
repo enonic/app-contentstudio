@@ -1,8 +1,7 @@
 /**
  * Created on 17.01.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
@@ -18,8 +17,8 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
     }
 
     let SITE;
-    let IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
-    let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
+    const IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
+    const HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -65,7 +64,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             await insertImageDialog.waitForCustomWidthCheckBoxEnabled();
             //checkbox should be unselected
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-            assert.isFalse(isChecked, 'Custom Width checkbox should be unchecked');
+            assert.ok(isChecked === false, 'Custom Width checkbox should be unchecked');
             // just save the changes and save the content
             await insertImageDialog.clickOnInsertButton();
             await contentWizard.waitAndClickOnSave();

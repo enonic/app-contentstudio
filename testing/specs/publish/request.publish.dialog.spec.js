@@ -1,8 +1,7 @@
 /**
  * Created on 07.08.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -36,13 +35,13 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await studioUtils.saveScreenshot("wizard_publish_dialog_single_folder");
             let status = await createRequestPublishDialog.getContentStatus(FOLDER1_NAME);
-
             assert.equal(status, appConst.CONTENT_STATUS.NEW, "'New' status should be displayed in the dialog");
+            // 4. Verify that Next button is displayed:
             let isPresent = await createRequestPublishDialog.waitForNextButtonDisplayed();
-            assert.isTrue(isPresent, "'Next' button should be displayed");
+            assert.ok(isPresent, "'Next' button should be displayed");
 
             let isRemovable = await createRequestPublishDialog.isItemRemovable(FOLDER1_NAME);
-            assert.isFalse(isRemovable, "One item should be displayed on the dialog and it should not be removable");
+            assert.ok(isRemovable === false, "One item should be displayed on the dialog and it should not be removable");
         });
 
     it(`GIVEN 'Request Publishing Wizard' is opened WHEN 'Include child' icon has been clicked THEN 'All' checkbox should appear`,
@@ -56,10 +55,10 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             // 3. click on 'Include children items'
             await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
             await studioUtils.saveScreenshot('request_publish_include_children');
-            //3. 'Show dependent items' link should appear, because all children are Ready for publishing
+            // 4. 'Show dependent items' link should appear, because all children are Ready for publishing
             await createRequestPublishDialog.waitForAllDependantsCheckboxDisplayed();
             let isSelected = await createRequestPublishDialog.isAllDependantsCheckboxSelected();
-            assert.isTrue(isSelected, 'All checkbox should be selected');
+            assert.ok(isSelected, 'All checkbox should be selected');
             let result = await createRequestPublishDialog.getDisplayNameInDependentItems();
             assert.equal(result.length, 10, '10 dependent items should be present in the dialog');
         });
@@ -107,7 +106,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             let result = await createRequestPublishDialog.getDisplayNameInDependentItems();
             assert.equal(result.length, 10, 'dependant items should be shown');
             let isSelected = await createRequestPublishDialog.isAllDependantsCheckboxSelected();
-            assert.isFalse(isSelected, "'All' checkbox should not be selected");
+            assert.ok(isSelected === false, "'All' checkbox should not be selected");
             // 8. Verify that 'Next' button is enabled:
             await createRequestPublishDialog.waitForNextButtonEnabled();
         });

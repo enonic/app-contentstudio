@@ -1,8 +1,7 @@
 /**
  * Created on 01.02.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
@@ -32,7 +31,7 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             await studioUtils.saveScreenshot('site_metadata1');
             //3. red icon should be displayed because the required input(meta-data) was not filled:
             let result = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
-            assert.isTrue(result, "'Red icon' should be displayed near the content, because the required input for metadata is empty");
+            assert.ok(result, "'Red icon' should be displayed near the content, because the required input for metadata is empty");
         });
 
     it(`WHEN existing site with application-metadata is opened THEN red icon should be displayed in the wizard`,
@@ -41,27 +40,27 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             let contentWizard = new ContentWizard();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             let isDisplayed = await metadataStepForm.isOverrideDescriptionTextAreaVisible();
-            assert.isTrue(isDisplayed, "'Override Description' text area should be displayed");
+            assert.ok(isDisplayed, "'Override Description' text area should be displayed");
             isDisplayed = await metadataStepForm.isOverrideTitleInputVisible();
-            assert.isTrue(isDisplayed, "'Override Title' input should be displayed");
+            assert.ok(isDisplayed, "'Override Title' input should be displayed");
             let validationRecording = await metadataStepForm.getDescriptionValidationRecording();
             assert.equal(validationRecording, 'This field is required',
                 "Expected recording should appear, the text area is empty in metadata form");
 
             let isRedIconPresent = await contentWizard.isContentInvalid();
             await studioUtils.saveScreenshot('site_metadata_wizard');
-            assert.isTrue(isRedIconPresent, 'red icon should be displayed in the wizard!');
+            assert.ok(isRedIconPresent, 'red icon should be displayed in the wizard!');
         });
 
-    it(`GIVEN site with application-metadata is opened WHEN the required description has been filled THEN the site gets valid`,
+    it(`WHEN required input in metadata has been filled THEN the site gets valid`,
         async () => {
             let contentWizard = new ContentWizard();
             let metadataStepForm = new MetadataStepForm();
-            //1. Open the site:
+            // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            //2. Fill the required input:
+            // 2. Fill the required input:
             await metadataStepForm.typeDescription('test description');
-            //3. Site gets valid:
+            // 3. Site gets valid:
             await contentWizard.waitUntilInvalidIconDisappears();
         });
 
@@ -73,15 +72,15 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site-meta');
             let testSite = contentBuilder.buildSite(displayName, 'test for metadata', [appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
-            //1. New site-wizard is opened:
+            // 1. New site-wizard is opened:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(testSite.displayName);
-            //2. Application with controllers has been selected:
+            // 2. Application with controllers has been selected:
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.APP_WITH_METADATA_MIXIN]);
-            //the site automatically saved:
-            //3. Description has been typed:
+            // the site automatically saved:
+            // 3. Description has been typed:
             await metadataStepForm.typeDescription('test description');
-            //'Save' button gets visible and enabled, because description is updated
+            // 'Save' button gets visible and enabled, because description is updated
             await contentWizard.waitForSaveButtonEnabled();
         });
 

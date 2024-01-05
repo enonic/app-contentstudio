@@ -1,8 +1,7 @@
 /**
  * Created on 15.01.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
@@ -53,7 +52,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             // 3. Get the number of items in the grid
             let items2 = await contentBrowsePanel.getDisplayNamesInGrid();
             // 4. the grid returns to the initial state
-            assert.isAbove(items2.length, items1.length, 'Grid should return to the initial state');
+            assert.ok(items2.length > items1.length, 'Grid should return to the initial state');
         });
 
     it(`WHEN new folder has been saved THEN number of folders should be increased in the Filter Panel`,
@@ -86,7 +85,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             await filterPanel.waitForOpened();
             // 2. Verify that more than one entry is present in the panel
             let contentTypes1 = await filterPanel.geContentTypes();
-            assert.isAbove(contentTypes1.length, 1, "More than one content type should be present in the Filter Panel");
+            assert.ok(contentTypes1.length > 1, "More than one content type should be present in the Filter Panel");
             // 3. Type the folder-name in Search Input
             await filterPanel.typeSearchText(FOLDER_NAME);
             await contentBrowsePanel.pause(2000);

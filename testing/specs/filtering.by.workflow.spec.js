@@ -1,8 +1,7 @@
 /**
  * Created on 27.04.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
@@ -17,7 +16,7 @@ describe('filtering.by.workflow.spec: tests for filter panel', function () {
         webDriverHelper.setupBrowser();
     }
 
-    let FOLDER_NAME_1 = contentBuilder.generateRandomName('folder');
+    const FOLDER_NAME_1 = contentBuilder.generateRandomName('folder');
 
     it(`WHEN existing 'work in progress' folder is filtered THEN The number of items in the grid and number in the 'work in progress' aggregation should be equal`,
         async () => {

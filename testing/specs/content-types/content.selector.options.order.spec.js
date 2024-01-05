@@ -1,8 +1,7 @@
 /**
  * Created on 09.07.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -49,7 +48,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentSelectorForm.clickOnApplyButton();
             // 5. Verify the selected option:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
-            assert.isTrue(selectedOptions.length === 2, '2 selected options should be displayed');
+            assert.ok(selectedOptions.length === 2, '2 selected options should be displayed');
             // 6. Verify that Add new button is not displayed now:
             await contentSelectorForm.waitForAddNewContentButtonNotDisplayed();
             await contentWizard.waitAndClickOnSave();
@@ -110,7 +109,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await studioUtils.saveScreenshot('selector_modetoggler_btn');
             // 3. Verify that tree mode is switched on:
             let options = await contentSelectorForm.getOptionsDisplayName();
-            assert.isTrue(options.includes(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME),
+            assert.ok(options.includes(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME),
                 'Expected display name should be present in the options list');
         });
 
@@ -132,7 +131,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentSelectorForm.clickOnApplyButton();
             // 5. Verify the selected option:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
-            assert.isTrue(selectedOptions.length === 1, 'Selected option should be displayed');
+            assert.ok(selectedOptions.length === 1, 'Selected option should be displayed');
             // 6. Verify that Save button gets enabled:
             await contentWizard.waitAndClickOnSave();
         });
@@ -150,7 +149,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentSelectorForm.clickOnApplyButton();
             // 4. Verify that selected option is cleared:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
-            assert.isTrue(selectedOptions.length === 0, 'There are no selected options in the selector');
+            assert.ok(selectedOptions.length === 0, 'There are no selected options in the selector');
         });
 
     it(`GIVEN content selector (1-2), dropdown has been expanded WHEN 2 options hav been selected AND 'Apply' button has been pressed THEN 'Add new' button gets not visible`,
@@ -173,7 +172,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentSelectorForm.clickOnApplyButton();
             // 5. Verify the selected option:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
-            assert.isTrue(selectedOptions.length === 2, '2 selected options should be displayed');
+            assert.ok(selectedOptions.length === 2, '2 selected options should be displayed');
             // 6. Verify that Add new button is not displayed now:
             await contentSelectorForm.waitForAddNewContentButtonNotDisplayed();
             await contentWizard.waitAndClickOnSave();

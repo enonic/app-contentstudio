@@ -1,8 +1,7 @@
 /**
  * Created on 27.04.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
@@ -11,7 +10,7 @@ const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
 
 describe('filter.by.modifier.spec: tests for filter panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
 
@@ -41,36 +40,36 @@ describe('filter.by.modifier.spec: tests for filter panel', function () {
     it(`WHEN just created folder is filtered THEN The number of items in the 'Last Modified By' aggregation checkbox should be 1`,
         async () => {
             let filterPanel = new FilterPanel();
-            //1. Type the name of folder in Filter Input:
+            // 1. Type the name of folder in Filter Input:
             await studioUtils.findAndSelectItem(FOLDER_NAME_1);
-            //2. Verify that "Me" checkbox is displayed in 'Last Modified By' block in 'Filter Panel'
+            // 2. Verify that "Me" checkbox is displayed in 'Last Modified By' block in 'Filter Panel'
             await filterPanel.waitForCheckboxDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY,
                 appConst.systemUsersDisplayName.ME);
-            //3. Verify that "Anonymous user" checkbox is not displayed in Workflow block in Filter Panel
+            // 3. Verify that "Anonymous user" checkbox is not displayed in Workflow block in Filter Panel
             await filterPanel.waitForCheckboxNotDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW,
                 appConst.systemUsersDisplayName.ANONYMOUS_USER);
-            //4. Get the number in the 'Me' checkbox:
+            // 4. Get the number in the 'Me' checkbox:
             let numberInCheckbox = await filterPanel.getNumberOfItemsInAggregationView(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY,
                 appConst.systemUsersDisplayName.ME);
-            //5. Verify that the numbers are equal:
+            // 5. Verify that the numbers are equal:
             assert.equal(numberInCheckbox, 1, "1 should be displayed in 'Last Modified By' checkbox");
         });
 
     it(`WHEN just created folder is filtered THEN The number of items in the 'Owner' aggregation checkbox should be 1`,
         async () => {
             let filterPanel = new FilterPanel();
-            //1. Type the name of folder in Filter Input:
+            // 1. Type the name of folder in Filter Input:
             await studioUtils.findAndSelectItem(FOLDER_NAME_1);
-            //2. Verify that "Me" checkbox is displayed in 'Last Modified By' block in Filter Panel
+            // 2. Verify that "Me" checkbox is displayed in 'Last Modified By' block in Filter Panel
             await filterPanel.waitForCheckboxDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY,
                 appConst.systemUsersDisplayName.ME);
-            //3. Verify that "Anonymous user" checkbox is not displayed in Workflow block in Filter Panel
+            // 3. Verify that "Anonymous user" checkbox is not displayed in Workflow block in Filter Panel
             await filterPanel.waitForCheckboxNotDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY,
                 appConst.systemUsersDisplayName.ANONYMOUS_USER);
-            //4. Get the number in the 'Me' checkbox:
+            // 4. Get the number in the 'Me' checkbox:
             let numberInCheckbox = await filterPanel.getNumberOfItemsInAggregationView("Owner",
                 appConst.systemUsersDisplayName.ME);
-            //5. Verify that the numbers are equal:
+            // 5. Verify that the numbers are equal:
             assert.equal(numberInCheckbox, 1, "1 should be displayed in 'Owner' checkbox");
         });
 
@@ -79,7 +78,7 @@ describe('filter.by.modifier.spec: tests for filter panel', function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

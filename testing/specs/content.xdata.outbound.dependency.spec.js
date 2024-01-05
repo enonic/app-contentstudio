@@ -1,8 +1,7 @@
 /**
  * Created on 20.11.2018.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
@@ -15,7 +14,7 @@ const appConst = require('../libs/app_const');
 
 describe('content.xdata.outbound.dependency.spec: checks outbound dependency for a content with x-data(image)', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let SITE;
@@ -60,10 +59,10 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             // 2. Dependencies widget is opened:
             await wizardDetailsPanel.openDependencies();
             await studioUtils.saveScreenshot('content_with_xdata_dependencies_widget');
-            //'Show outbound' button should be present in the widget, because the x-data contains an image:
+            // 'Show outbound' button should be present in the widget, because the x-data contains an image:
             await wizardDependenciesWidget.waitForOutboundButtonVisible();
             let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
-            assert.isFalse(isVisible, "'Show Inbound' button should not be present");
+            assert.ok(isVisible === false, "'Show Inbound' button should not be present");
         });
 
     // verifies https://github.com/enonic/app-contentstudio/issues/287
@@ -104,32 +103,32 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
         async () => {
             let contentWizard = new ContentWizard();
             let xDataContentSelector = new XDataContentSelector();
-            //1. Open new wizard with x-data (content selector):
+            // 1. Open new wizard with x-data (content selector):
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.COMBOBOX_0_0);
             await contentWizard.typeDisplayName(CONTENT_XDATA_CONTENT_SELECTOR);
-            //2. Click on '+' and enable the x-data
+            // 2. Click on '+' and enable the x-data
             await contentWizard.clickOnXdataToggler();
-            //3. Select an option in the x-data content selector(one not required):
+            // 3. Select an option in the x-data content selector(one not required):
             await xDataContentSelector.filterOptionsAndSelectContent(SITE.displayName);
             await contentWizard.waitAndClickOnSave();
-            await studioUtils.saveScreenshot("xdata_option_1");
-            //4. Remove the selected option in x-data:
+            await studioUtils.saveScreenshot('xdata_option_1');
+            // 4. Remove the selected option in x-data:
             await xDataContentSelector.removeSelectedOption(SITE.displayName);
-            //5. Verify that options filter input gets visible again:
+            // 5. Verify that options filter input gets visible again:
             await xDataContentSelector.waitForContentOptionsFilterInputDisplayed();
-            //6. Select another option in the x-data:
-            await xDataContentSelector.filterOptionsAndSelectContent("Templates");
-            await studioUtils.saveScreenshot("xdata_changed_option");
+            // 6. Select another option in the x-data:
+            await xDataContentSelector.filterOptionsAndSelectContent('Templates');
+            await studioUtils.saveScreenshot('xdata_changed_option');
             await contentWizard.waitAndClickOnSave();
-            //7. Verify that the selected option is updated:
-            let result = await xDataContentSelector.getSelectedOptions();
-            assert.isTrue(result[0].includes("Templates"), "Selected option should be updated");
+            // 7. Verify that the selected option is updated:
+            let options = await xDataContentSelector.getSelectedOptions();
+            assert.ok(options[0].includes('Templates'), "Selected option should be updated");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

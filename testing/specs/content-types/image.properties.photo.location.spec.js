@@ -1,8 +1,7 @@
 /**
  * Created on 21.09.2021
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -32,23 +31,23 @@ describe("image.properties.photo.spec: tests for focus button", function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
-            //1. Open an existing image:
+            // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
             await imageFormPanel.waitForCaptionTextAreaDisplayed();
             await imageFormPanel.waitForCopyrightInputDisplayed();
-            //2. Add tags in Artist and tags inputs
+            // 2. Add tags in Artist and tags inputs
             await imageFormPanel.addArtistsTag(ARTIST_TEXT);
             await imageFormPanel.addTag(TAGS_TEXT);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            //3. close the wizard
+            // 3. close the wizard
             await studioUtils.doCloseWizardAndSwitchToGrid();
-            //4. type the tag's text in Filter Panel
+            // 4. type the tag's text in Filter Panel
             await contentFilterPanel.typeSearchText(ARTIST_TEXT);
             await contentFilterPanel.pause(2000);
             await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
-            //5. Verify that the expected image is filtered:
+            // 5. Verify that the expected image is filtered:
             await studioUtils.saveScreenshot('image_tagged1');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             await studioUtils.saveScreenshot('image_tagged2');
@@ -59,14 +58,14 @@ describe("image.properties.photo.spec: tests for focus button", function () {
     it("WHEN image content with tags is opened THEN expected tags should be present",
         async () => {
             let imageFormPanel = new ImageFormPanel();
-            //1. Open an existing image:
+            // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Verify that expected tags should be displayed in the wizard form:
+            // 2. Verify that expected tags should be displayed in the wizard form:
             let artists = await imageFormPanel.getArtistsTagsText();
             let tags = await imageFormPanel.getTagsText();
-            assert.isTrue(artists.includes(ARTIST_TEXT), "Expected artists tags should be displayed");
-            assert.isTrue(tags.includes(TAGS_TEXT), "Expected tags should be displayed");
+            assert.ok(artists.includes(ARTIST_TEXT), "Expected artists tags should be displayed");
+            assert.ok(tags.includes(TAGS_TEXT), "Expected tags should be displayed");
         });
 
     it("WHEN image content is opened THEN expected inputs should be present in Properties form",
@@ -74,12 +73,12 @@ describe("image.properties.photo.spec: tests for focus button", function () {
             let imagePropertiesForm = new ImagePropertiesForm();
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
-            //1. Open an existing image:
+            // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Verify that Properties wizard's step is present:
-            await contentWizard.clickOnWizardStep("Properties");
-            //3. Verify that required inputs are displayed
+            // 2. Verify that Properties wizard's step is present:
+            await contentWizard.clickOnWizardStep('Properties');
+            // 3. Verify that required inputs are displayed
             await imagePropertiesForm.waitForByteSizeInputDisplayed();
             await imagePropertiesForm.waitForColorSpaceInputDisplayed();
             await imagePropertiesForm.waitForContentTypeInputDisplayed();
@@ -95,23 +94,23 @@ describe("image.properties.photo.spec: tests for focus button", function () {
             let imageLocationForm = new ImageLocationForm();
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
-            //1. Open an existing image:
+            // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Verify that Location step is present:
-            await contentWizard.clickOnWizardStep("Location");
-            //3. Fill in all inputs in location form:
+            // 2. Verify that Location step is present:
+            await contentWizard.clickOnWizardStep('Location');
+            // 3. Fill in all inputs in location form:
             await imageLocationForm.typeAltitude(ALTITUDE);
             await imageLocationForm.typeDirection(DIRECTION);
-            //type a valid geo point
+            // type a valid geo point
             await imageLocationForm.typeGeoPoint(GEO_POINT);
-            //4. Click on Save button:
+            // 4. Click on Save button:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             let actualAltitude = await imageLocationForm.getTextInAltitude();
             let actualDirection = await imageLocationForm.getTextInDirection();
             let actualGeoPoint = await imageLocationForm.getTextInGeoPoint();
-            //5. Verify saved values:
+            // 5. Verify saved values:
             assert.equal(actualAltitude, ALTITUDE, "Expected altitude should be present");
             assert.equal(actualDirection, DIRECTION, "Expected geo point should be present");
             assert.equal(actualGeoPoint, GEO_POINT, "Expected direction should be present");
@@ -122,14 +121,14 @@ describe("image.properties.photo.spec: tests for focus button", function () {
             let imageLocationForm = new ImageLocationForm();
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
-            //1. Open an existing image:
+            // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Verify that Location step is present:
-            await contentWizard.clickOnWizardStep("Location");
-            //3 type a not valid value in geo point
+            // 2. Verify that Location step is present:
+            await contentWizard.clickOnWizardStep('Location');
+            // 3 type a not valid value in geo point
             await imageLocationForm.typeGeoPoint(GEO_POINT_NOT_VALID);
-            //4. Verify the location validation recording
+            // 4. Verify the location validation recording
             let actualMessages = await imageLocationForm.getGeoPointValidationRecording();
             assert.equal(actualMessages[0], appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED,
                 "Expected validation message should be displayed");
@@ -140,12 +139,12 @@ describe("image.properties.photo.spec: tests for focus button", function () {
             let imagePhotoForm = new ImagePhotoForm();
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();
-            //1. Open an existing image:
+            // 1. Open an existing image:
             await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-            //2. Verify that 'Photo' wizard's step is present:
-            await contentWizard.clickOnWizardStep("Photo");
-            //3. Verify that required inputs are displayed
+            // 2. Verify that 'Photo' wizard's step is present:
+            await contentWizard.clickOnWizardStep('Photo');
+            // 3. Verify that required inputs are displayed
             await imagePhotoForm.waitForModelInputDisplayed();
             await imagePhotoForm.waitForMakeInputDisplayed();
             await imagePhotoForm.waitForApertureInputDisplayed();
@@ -163,7 +162,6 @@ describe("image.properties.photo.spec: tests for focus button", function () {
             await imagePhotoForm.waitForWhitBalanceInputDisplayed();
             await imagePhotoForm.waitForExposureModeInputDisplayed()
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

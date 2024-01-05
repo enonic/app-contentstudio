@@ -1,8 +1,7 @@
 /**
  * Created on 02.01.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
@@ -45,7 +44,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
 
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
             await studioUtils.saveScreenshot('image_dialog_custom_width_default_value');
-            assert.isFalse(isChecked, "'Custom width' checkbox should be unchecked by default");
+            assert.ok(isChecked === false, "'Custom width' checkbox should be unchecked by default");
             //4. Verify the alignment buttons:
             await insertImageDialog.waitForAlignRightButtonDisplayed();
             await insertImageDialog.waitForAlignLeftButtonDisplayed();
@@ -57,17 +56,17 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
         async () => {
             let insertImageDialog = new InsertImageDialog();
             let htmlAreaForm = new HtmlAreaForm();
-            //1. Open new wizard and open Insert Image dialog:
+            // 1. Open new wizard and open Insert Image dialog:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
-            //2. Select the image in the modal dialog:
+            // 2. Select the image in the modal dialog:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
-            //3. Click on the 'Custom Width' checkbox:
+            // 3. Click on the 'Custom Width' checkbox:
             await insertImageDialog.clickOnCustomWidthCheckBox();
-            //4. Verify -  range of the image should be 100% (default value)
+            // 4. Verify -  range of the image should be 100% (default value)
             let actualValue = await insertImageDialog.waitForImageRangeValue();
-            studioUtils.saveScreenshot('image_dialog_custom_width_clicked');
+            await studioUtils.saveScreenshot('image_dialog_custom_width_clicked');
             assert.equal(actualValue, '100%', "Range should be 100%");
         });
 
@@ -107,7 +106,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             assert.equal(rangeValue, '100%', "Expected range should be in the dialog");
             //3. 'Custom Width' checkbox should be checked:
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-            assert.isTrue(isChecked, "'Custom Width' Checkbox should be selected");
+            assert.ok(isChecked, "'Custom Width' Checkbox should be selected");
         });
 
     it(`GIVEN existing htmlarea-content with inserted image(custom width) is opened WHEN 'Custom Width' has been unselected THEN image-range gets hidden`,
@@ -127,7 +126,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             await insertImageDialog.waitForImageRangeNotVisible();
             //5. Verify that `Custom Width` checkbox is unchecked
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-            assert.isFalse(isChecked, "Custom Width should be unchecked");
+            assert.ok(isChecked === false, "Custom Width should be unchecked");
             // just save the changes and create new version
             await insertImageDialog.clickOnUpdateButton();
             await contentWizard.waitAndClickOnSave();
@@ -163,13 +162,13 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             //assert.equal(rangeValue, '100%', "Range should be reverted");
             //Verify that`Custom Width` checkbox gets checked:
             //let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-            //assert.isTrue(isChecked, "Custom Width should be checked");
+            //assert.ok(isChecked, "Custom Width should be checked");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

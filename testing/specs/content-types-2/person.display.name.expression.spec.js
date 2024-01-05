@@ -1,8 +1,7 @@
 /**
  * Created on 28.03.2022
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -55,11 +54,11 @@ describe('person.display.name-expression.spec: tests for Display name expression
 
     it("WHEN the content has been selected THEN expected title-expression should be displayed in the grid",
         async () => {
-            //1. find and select the person content:
+            // 1. find and select the person content:
             await studioUtils.findAndSelectItem(EXPECTED_CONTENT_NAME);
             await studioUtils.saveScreenshot('person_1_title_expression');
             let contentBrowsePanel = new ContentBrowsePanel();
-            //2. Verify that expected title-expression should be displayed in the grid
+            // 2. Verify that expected title-expression should be displayed in the grid
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result[0], "John O'Brien from Oslo", "Expected title-expression should be displayed");
         });

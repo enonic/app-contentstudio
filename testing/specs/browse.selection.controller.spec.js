@@ -1,8 +1,7 @@
 /**
  * Created on 15.05.2020.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
@@ -32,7 +31,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(displayNames.length, 2, '2 items should be present in the filtered grid');
             let result = await contentBrowsePanel.isSelectionControllerSelected();
-            assert.isTrue(result, 'Selection Controller checkBox should be selected');
+            assert.ok(result, 'Selection Controller checkBox should be selected');
             // 4. Verify that checkboxes are clickable: Unselect one item in the filtered grid:
             await contentBrowsePanel.clickOnCheckbox(appConst.TEST_FOLDER_2_NAME);
             await contentBrowsePanel.pause(1000);
@@ -58,7 +57,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(displayNames.length, 1, 'Only one item should be present in the filtered grid');
             let result = await contentBrowsePanel.isSelectionControllerSelected();
-            assert.isTrue(result, 'Selection Controller checkBox should be selected');
+            assert.ok(result, 'Selection Controller checkBox should be selected');
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/595
@@ -97,7 +96,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             // 4. Verify 'Selection Controller' checkBox is selected:
             await studioUtils.saveScreenshot('selection_toggle_clicked_checkbox_selected');
             let result = await contentBrowsePanel.isSelectionControllerSelected();
-            assert.isTrue(result, "'Selection Controller' checkBox should be selected");
+            assert.ok(result, "'Selection Controller' checkBox should be selected");
             // 5. Verify that two items should be present in the filtered grid;
             let items = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(items.length, 2, 'Two items should be in the filtered grid');
@@ -154,10 +153,10 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             // 7. Verify that initial grid is loaded:
             await studioUtils.saveScreenshot('selection_toggle_initial_grid_restored');
             let result2 = await contentBrowsePanel.getDisplayNamesInGrid();
-            assert.isAbove(result2.length, result1.length);
+            assert.ok(result2.length > result1.length);
             // 8. Verify that Selection Controller checkBox gets unselected:
             let isSelected = await contentBrowsePanel.isSelectionControllerSelected();
-            assert.isFalse(isSelected, "'Selection Controller' checkbox should be unselected");
+            assert.ok(isSelected === false, "'Selection Controller' checkbox should be unselected");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

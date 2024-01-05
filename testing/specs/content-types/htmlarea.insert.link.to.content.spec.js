@@ -1,8 +1,8 @@
 /**
  * Created on 11.01.2019.
  */
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert');
+;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -42,8 +42,8 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             // 4. Verify that folder from 'Default' project is present in the dropdown options:
             let items = await insertLinkDialogContentPanel.getDropdownListOptions();
             await studioUtils.saveScreenshot('content_link_entire_project_checked');
-            assert.isTrue(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Folder from Default project should be present in the options");
-            assert.isAbove(items.length, 3, 'Items from default project should be present in the options');
+            assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Folder from Default project should be present in the options");
+            assert.ok(items.length > 3, 'Items from default project should be present in the options');
         });
 
     it(`GIVEN insert link dialog is opened WHEN a folder from Default project has been selected in content selector THEN 'show content from entire project' checkbox gets hidden`,
@@ -66,7 +66,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await insertLinkDialogContentPanel.waitForOpenInNewTabCheckboxDisplayed();
             // 6. 'Open in new tab' checkbox is not selected by default:
             let isSelected = await insertLinkDialogContentPanel.isOpenInNewTabCheckboxSelected();
-            assert.isFalse(isSelected, "'Open in new tab' checkbox should not be selected");
+            assert.ok(isSelected === false, "'Open in new tab' checkbox should not be selected");
 
             let result = await insertLinkDialogContentPanel.getSelectedOptionDisplayName();
             assert.equal(result, appConst.TEST_FOLDER_WITH_IMAGES, 'Expected option should be selected');
@@ -82,13 +82,13 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 2. 'show content from entire project' checkbox is not selected by default:
             let isSelected = await insertLinkDialogContentPanel.isShowContentFromEntireProjectCheckboxSelected();
-            assert.isFalse(isSelected, 'Show content from entire project should not be selected by default');
+            assert.ok(isSelected === false, 'Show content from entire project should not be selected by default');
             // 3. Click on content-dropdown handler, expand the options:
             await insertLinkDialogContentPanel.clickOnContentDropdownHandle();
             let items = await insertLinkDialogContentPanel.getDropdownListOptions();
             // 4. Verify that items from Default project are not present in the options:
             await studioUtils.saveScreenshot('content_link_entire_project_not_checked');
-            assert.isFalse(items.includes(appConst.TEST_FOLDER_WITH_IMAGES),
+            assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES) === false,
                 "Folder from 'Default' project should not be present in the options");
             // 6. Switch to the flat mode:
             await insertLinkDialogContentPanel.clickOnContentSelectorModeTogglerButton();
@@ -116,7 +116,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             // 5. Verify that Content tab is active:
             await studioUtils.saveScreenshot('htmlarea_content_link_reopened');
             let isActive = await insertLinkDialog.isTabActive('Content');
-            assert.isTrue(isActive, "'Content' tab should be active");
+            assert.ok(isActive, "'Content' tab should be active");
             // 6. Verify that expected content is selected in the dropdown selector:
             let result = await insertLinkDialogContentPanel.getSelectedOptionDisplayName();
             assert.equal(result, TEST_CONTENT_DISPLAY_NAME, 'Expected content should be displayed in selected option');
@@ -146,7 +146,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await studioUtils.saveScreenshot('htmlarea_url_link_empty');
             // 6. URL tab remains active:
             let isActive = await insertLinkDialog.isTabActive('URL');
-            assert.isTrue(isActive, "'Url' tab should be active");
+            assert.ok(isActive, "'Url' tab should be active");
         });
 
     it("GIVEN 'Insert Link' dialog is opened WHEN required 'text' input is not filled in AND 'Insert' button has been pressed THEN required validation message gets visible",
