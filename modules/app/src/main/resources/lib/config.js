@@ -65,7 +65,11 @@ function getConfig() {
             }),
             exportServiceUrl: portal.apiUrl({
                 api: 'export'
-            })
+            }),
+            aiContentOperatorWsServiceUrl: portal.serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'websocket'}),
+            aiTranslatorRestServiceUrl: portal.serviceUrl({service: 'rest', application: 'com.enonic.app.ai.translator'}),
+            aiTranslatorWsServiceUrl: portal.serviceUrl(
+                {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
         },
         theme,
         widgetApiUrl: portal.apiUrl({

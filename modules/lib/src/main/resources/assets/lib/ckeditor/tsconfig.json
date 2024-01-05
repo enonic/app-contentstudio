@@ -1,6 +1,6 @@
 {
   "extends": "../../../../../../tsconfig.json",
   "include": [
-    "./plugins/findAndReplace/**/*.ts",
+      "./plugins/findAndReplace/**/*.ts"
   ]
 }

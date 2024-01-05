@@ -69,6 +69,8 @@ import {PageStateEvent} from './event/incoming/common/PageStateEvent';
 import {PageState} from '../app/wizard/page/PageState';
 import {PageBuilder} from '../app/page/Page';
 import {Messages} from '@enonic/lib-admin-ui/util/Messages';
+import {UpdateTextComponentViewEvent} from './event/incoming/manipulation/UpdateTextComponentViewEvent';
+import {SetComponentStateEvent} from './event/incoming/manipulation/SetComponentStateEvent';
 
 export class LiveEditPage {
 
@@ -98,6 +100,8 @@ export class LiveEditPage {
 
     private editTextComponentRequestedListener: (event: EditTextComponentViewEvent) => void;
 
+    private setComponentStateEventListener: (event: SetComponentStateEvent) => void;
+
     private addItemViewRequestListener: (event: AddComponentViewEvent) => void;
 
     private removeItemViewRequestListener: (event: RemoveComponentViewEvent) => void;
@@ -119,6 +123,8 @@ export class LiveEditPage {
     private resetComponentViewRequestListener: (event: ResetComponentViewEvent) => void;
 
     private pageStateListener: (event: PageStateEvent) => void;
+
+    private updateTextComponentViewListener: (event: UpdateTextComponentViewEvent) => void;
 
     private static debug: boolean = false;
 
@@ -296,6 +302,21 @@ export class LiveEditPage {
 
         EditTextComponentViewEvent.on(this.editTextComponentRequestedListener);
 
+        this.setComponentStateEventListener = (event: SetComponentStateEvent): void => {
+            const path: ComponentPath = event.getPath() ? ComponentPath.fromString(event.getPath()) : null;
+            const itemView: ItemView = path ? this.getItemViewByPath(path) : null;
+
+            if (itemView?.isText()) {
+                if (event.isProcessing()) {
+                    itemView.showLoadingSpinner();
+                } else {
+                    itemView.hideLoadingSpinner();
+                }
+            }
+        };
+
+        SetComponentStateEvent.on(this.setComponentStateEventListener);
+
         this.addItemViewRequestListener = (event: AddComponentViewEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
@@ -430,6 +451,17 @@ export class LiveEditPage {
         };
 
         PageStateEvent.on(this.pageStateListener);
+
+        this.updateTextComponentViewListener = (event: UpdateTextComponentViewEvent): void => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            const view: ItemView = this.getItemViewByPath(path);
+
+            if (view instanceof TextComponentView) {
+                view.setText(event.getText());
+            }
+        };
+
+        UpdateTextComponentViewEvent.on(this.updateTextComponentViewListener);
     }
 
     private getItemViewByPath(path: ComponentPath): ItemView {
@@ -456,6 +488,8 @@ export class LiveEditPage {
 
         EditTextComponentViewEvent.un(this.editTextComponentRequestedListener);
 
+        SetComponentStateEvent.un(this.setComponentStateEventListener);
+
         AddComponentViewEvent.un(this.addItemViewRequestListener);
 
         RemoveComponentViewEvent.un(this.removeItemViewRequestListener);
@@ -477,6 +511,8 @@ export class LiveEditPage {
         ResetComponentViewEvent.un(this.resetComponentViewRequestListener);
 
         PageStateEvent.un(this.pageStateListener);
+
+        UpdateTextComponentViewEvent.un(this.updateTextComponentViewListener);
     }
 
     public loadComponent(componentView: ComponentView, componentUrl: string,): Q.Promise<string> {

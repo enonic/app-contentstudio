@@ -96,6 +96,8 @@ export class PageEventsManager {
 
     private textComponentEditRequestedListeners: ((path: ComponentPath) => void)[] = [];
 
+    private setComponentStateListeners: ((path: ComponentPath, processing: boolean) => void)[] = [];
+
     private textComponentEditModeListeners: ((value: boolean) => void)[] = [];
 
     private constructor() {
@@ -478,6 +480,18 @@ export class PageEventsManager {
 
     notifyTextComponentUpdateRequested(path: ComponentPath, value: string): void {
         this.textComponentUpdateRequestedListeners.forEach((listener) => listener(path, value));
+    }
+
+    onSetComponentState(listener: ((path: ComponentPath, processing: boolean) => void)): void {
+        this.setComponentStateListeners.push(listener);
+    }
+
+    unSetComponentState(listener: ((path: ComponentPath, processing: boolean) => void)): void {
+        this.setComponentStateListeners = this.setComponentStateListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifySetComponentState(path: ComponentPath, processing: boolean): void {
+        this.setComponentStateListeners.forEach((listener) => listener(path, processing));
     }
 
     onTextComponentEditRequested(listener: ((path: ComponentPath) => void)): void {

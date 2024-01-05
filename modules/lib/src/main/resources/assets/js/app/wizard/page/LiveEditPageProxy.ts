@@ -88,6 +88,9 @@ import {TextComponent} from '../../page/region/TextComponent';
 import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
 import {ProjectContext} from '../../project/ProjectContext';
+import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
+import {UpdateTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
+import {SetComponentStateEvent} from '../../../page-editor/event/incoming/manipulation/SetComponentStateEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -761,6 +764,12 @@ export class LiveEditPageProxy
 
         PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
             new PageStateEvent(PageState.getState().toJson()).fire(this.liveEditWindow);
+
+            if (event instanceof ComponentTextUpdatedEvent && event.getText()) {
+                if (this.liveEditWindow) {
+                    new UpdateTextComponentViewEvent(event.getPath(), event.getText()).fire(this.liveEditWindow);
+                }
+            }
         });
 
         BeforeContentSavedEvent.on(() => {
@@ -772,6 +781,12 @@ export class LiveEditPageProxy
         PageEventsManager.get().onTextComponentEditRequested((path: ComponentPath) => {
             if (this.liveEditWindow) {
                 new EditTextComponentViewEvent(path.toString()).fire(this.liveEditWindow);
+            }
+        });
+
+        PageEventsManager.get().onSetComponentState((path: ComponentPath, processing: boolean) => {
+            if (this.liveEditWindow) {
+                new SetComponentStateEvent(path.toString(), processing).fire(this.liveEditWindow);
             }
         });
     }

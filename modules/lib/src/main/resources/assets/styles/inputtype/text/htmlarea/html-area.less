@@ -117,6 +117,21 @@
   .autosize-attendant {
     display: none;
   }
+
+  .text-area-wrapper {
+    &.ai-helper-mask {
+      iframe {
+        background-color: @admin-bg-light-gray;
+        pointer-events: none;
+      }
+    }
+  }
+
+  .input-occurrence-view.multiple-occurrence {
+    .ai-button-container {
+      right: -32px;
+    }
+  }
   // cke end
 }
 

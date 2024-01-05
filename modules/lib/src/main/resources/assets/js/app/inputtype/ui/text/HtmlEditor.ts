@@ -11,6 +11,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import * as Q from 'q';
 import {ContentPath} from '../../../content/ContentPath';
+import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
 import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
 import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
@@ -276,9 +277,9 @@ export class HtmlEditor {
                 const dataSrc: string = ImageUrlResolver.URL_PREFIX_RENDER + imageId;
 
                 this['replaceWith'](`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                                 `<img src="${upload.url}" data-src="${dataSrc}" style="width:100%">` +
-                                 '<figcaption> </figcaption>' +
-                                 '</figure>');
+                                    `<img src="${upload.url}" data-src="${dataSrc}" style="width:100%">` +
+                                    '<figcaption> </figcaption>' +
+                                    '</figure>');
 
                 editor.fire('change');
             };
@@ -644,6 +645,18 @@ export class HtmlEditor {
         });
     }
 
+    getName(): string {
+        return this.editor.name;
+    }
+
+    getHTMLElement(): HTMLElement {
+        return this.editor.element.$;
+    }
+
+    getContent(): ContentSummary {
+        return this.editorParams.getContent();
+    }
+
     getCursorPosition(): HtmlEditorCursorPosition {
         const selection: CKEDITOR.dom.selection = this.editor.getSelection();
         const range: CKEDITOR.dom.range = selection.getRanges()[0];
@@ -830,6 +843,10 @@ export class HtmlEditor {
         this.editor.setData(data);
     }
 
+    public insertData(data: string) {
+        this.editor.insertHtml(data);
+    }
+
     public fire(eventName: string) {
         this.editor.fire(eventName);
     }
@@ -852,6 +869,10 @@ export class HtmlEditor {
 
     public extractText(): string {
         return this.editor.element.getText().trim();
+    }
+
+    public getEditorId(): string {
+        return this.editor.id;
     }
 
     public isReady(): boolean {
@@ -879,8 +900,8 @@ export class HtmlEditor {
 
     public setSelectionByCursorPosition(cursorPosition: HtmlEditorCursorPosition) {
         let elementContainer: CKEDITOR.dom.element = this.editorParams.isInline() ?
-            this.editor.container :
-            this.editor.document.getBody();
+                                                     this.editor.container :
+                                                     this.editor.document.getBody();
 
         cursorPosition.selectionIndexes.forEach((index: number) => {
             elementContainer = elementContainer.getChild(index) as CKEDITOR.dom.element;
@@ -889,8 +910,8 @@ export class HtmlEditor {
         elementContainer.scrollIntoView();
 
         const selectedElement: CKEDITOR.dom.node = cursorPosition.indexOfSelectedElement > -1 ?
-            elementContainer.getChild(cursorPosition.indexOfSelectedElement) :
-            elementContainer;
+                                                   elementContainer.getChild(cursorPosition.indexOfSelectedElement) :
+                                                   elementContainer;
 
         const range: CKEDITOR.dom.range = this.editor.createRange();
         range.setStart(selectedElement, cursorPosition.startOffset || 0);
@@ -905,7 +926,7 @@ class HtmlEditorConfigBuilder {
     private disabledTools: string[] = [];
     private enabledTools: string[] = [];
 
-    private tools: string[][]  = [
+    private tools: string[][] = [
         ['Styles', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
@@ -956,7 +977,7 @@ class HtmlEditorConfigBuilder {
 
         if (this.enabledTools.length > 0) {
             this.enabledTools = this.enabledTools
-                .map((tool: string) => tool ==='Format' ? 'Styles' : tool.replace(/\|/g, '-'))
+                .map((tool: string) => tool === 'Format' ? 'Styles' : tool.replace(/\|/g, '-'))
                 .filter((tool: string) => !this.isDefaultTool(tool));
         }
     }

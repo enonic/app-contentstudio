@@ -1,10 +1,14 @@
 import {WebSocketConnection} from '@enonic/lib-admin-ui/connection/WebSocketConnection';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
+import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import * as Q from 'q';
+import {AI} from '../ai/AI';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ProjectContext} from '../project/ProjectContext';
@@ -20,8 +24,6 @@ import {CollaborationEl} from './CollaborationEl';
 import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
-import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
 export interface ContentWizardToolbarConfig extends ToolbarConfig {
     actions: ContentWizardActions;
@@ -40,7 +42,9 @@ export class ContentWizardToolbar
 
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
-    private collaborationBlock?: DivEl;
+    private collaborationBlock?: CollaborationEl;
+
+    private aiContentOperatorButtonContainer: DivEl;
 
     private stateIcon?: DivEl;
 
@@ -60,6 +64,7 @@ export class ContentWizardToolbar
         }
 
         this.addPublishMenuButton();
+        this.addEnonicAiContentOperatorButton();
         this.addTogglerButtons();
 
         this.fetchProjectInfo();
@@ -138,6 +143,23 @@ export class ContentWizardToolbar
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
         this.addElement(this.collaborationBlock, false);
         this.openCollaborationWSConnection();
+        this.addContentOperatorIntoCollaborationBlock();
+    }
+
+    private addEnonicAiContentOperatorButton(): void {
+        AI.get().whenReady(() => {
+            if (AI.get().has('contentOperator')) {
+                this.aiContentOperatorButtonContainer = new DivEl('ai-content-operator-button-container');
+                this.addElement(this.aiContentOperatorButtonContainer);
+                this.addContentOperatorIntoCollaborationBlock();
+
+                const aiContentOperatorDialogContainer = new DivEl('ai-content-operator-dialog-container');
+                Body.get().appendChild(aiContentOperatorDialogContainer);
+
+                AI.get().renderContentOperator(this.aiContentOperatorButtonContainer.getHTMLElement(),
+                    aiContentOperatorDialogContainer.getHTMLElement());
+            }
+        });
     }
 
     private fetchProjectInfo() {
@@ -250,6 +272,12 @@ export class ContentWizardToolbar
 
     getStateIcon(): DivEl {
         return this.stateIcon;
+    }
+
+    private addContentOperatorIntoCollaborationBlock(): void {
+        if (this.collaborationBlock && this.aiContentOperatorButtonContainer) {
+            this.collaborationBlock.prependChild(this.aiContentOperatorButtonContainer);
+        }
     }
 
     protected openShowPublishedVersionChangesDialog() {
