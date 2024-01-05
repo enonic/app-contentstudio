@@ -399,8 +399,7 @@ class ContentWizardPanel extends Page {
 
     async waitForOpened() {
         try {
-            await this.waitForElementDisplayed(this.thumbnailUploader, appConst.longTimeout);
-            await this.waitForSpinnerNotVisible(appConst.longTimeout);
+            await this.waitForElementDisplayed(this.displayNameInput, appConst.longTimeout);
             return await this.pause(200);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_open_wizard');

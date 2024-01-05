@@ -1,18 +1,18 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
-import {CollaborationServerEvent} from '../event/CollaborationServerEvent';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 import * as Q from 'q';
 import {ContentId} from '../content/ContentId';
+import {CollaborationServerEvent} from '../event/CollaborationServerEvent';
 import {ProjectContext} from '../project/ProjectContext';
+import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 
 export class CollaborationEl
     extends DivEl {
@@ -79,7 +79,9 @@ export class CollaborationEl
 
     private getVisibleCount(): number {
         const userElWidth: number = this.usersBlock.getChildren()[0].getEl().getWidthWithMargin();
-        const availableWidth: number = this.getEl().getWidth();
+        const nonOriginalElements = this.getChildren().filter((el: Element) => el !== this.usersBlock && el !== this.counterBlock);
+        const extras = nonOriginalElements.reduce((acc: number, el: Element) => acc + el.getEl().getWidthWithMargin(), 0);
+        const availableWidth: number = this.getEl().getWidth() - extras;
 
         return Math.floor(availableWidth / userElWidth);
     }

@@ -54,10 +54,6 @@ export class PageInspectionPanel
         this.inspectionHandler.refreshConfigForm();
     }
 
-    refreshInspectionHandler() {
-        this.inspectionHandler.refreshConfigView();
-    }
-
     getName(): string {
         return i18n('widget.components.insert.page');
     }
@@ -121,13 +117,5 @@ class BaseInspectionHandler {
 
             this.configForm.layout().catch(DefaultErrorHandler.handle);
         }).catch(DefaultErrorHandler.handle);
-    }
-
-    refreshConfigView() {
-        if (!this.liveEditModel.getContent().isPageTemplate()) {
-            if (PageState.getState()?.hasTemplate() || (!PageState.getState()) && this.liveEditModel.getDefaultModels()?.hasDefaultPageTemplate()) {
-                this.refreshConfigForm();
-            }
-        }
     }
 }

@@ -1,15 +1,15 @@
-import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {ContentInputTypeViewContext} from './inputtype/ContentInputTypeViewContext';
-import {Content} from './content/Content';
-import {Site} from './content/Site';
 import {FormContext, FormContextBuilder} from '@enonic/lib-admin-ui/form/FormContext';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {Content} from './content/Content';
 import {ContentId} from './content/ContentId';
 import {ContentPath} from './content/ContentPath';
+import {Site} from './content/Site';
+import {ContentInputTypeViewContext} from './inputtype/ContentInputTypeViewContext';
 import {Project} from './settings/data/project/Project';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
 
 export class ContentFormContext
     extends FormContext {
@@ -86,7 +86,8 @@ export class ContentFormContext
         return this.stoppedApplications?.find(app => app.getApplicationKey().equals(appKey));
     }
 
-    createInputTypeViewContext(inputTypeConfig: object, parentPropertyPath: PropertyPath, input: Input): ContentInputTypeViewContext {
+    createInputTypeViewContext(inputTypeConfig: ContentInputTypeViewContext['inputConfig'], parentPropertyPath: PropertyPath,
+                               input: Input): ContentInputTypeViewContext {
         const viewContext = {
             formContext: this,
             input: input,
@@ -96,7 +97,7 @@ export class ContentFormContext
             content: this.getPersistedContent(),
             project: this.getProject(),
             applicationKey: this.applicationKey
-        } as ContentInputTypeViewContext;
+        } satisfies ContentInputTypeViewContext;
 
         this.contentUpdatedListeners.push(content => {
             viewContext.content = content;
@@ -114,6 +115,8 @@ export class ContentFormContext
             .setApplicationKey(this.applicationKey)
             .setFormState(this.getFormState())
             .setShowEmptyFormItemSetOccurrences(this.getShowEmptyFormItemSetOccurrences())
+            .setName(this.getName())
+            .addAiTools(Array.from(this.getAiTools()))
             .setValidationErrors(this.getValidationErrors());
     }
 
