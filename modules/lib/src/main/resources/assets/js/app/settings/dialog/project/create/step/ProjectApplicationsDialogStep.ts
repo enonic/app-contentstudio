@@ -21,7 +21,9 @@ export class ProjectApplicationsDialogStep
     protected initEventListeners(): void {
         super.initEventListeners();
 
-        this.getProjectApplicationsComboBox().onValueChanged(() => this.notifyDataChanged());
+        this.getProjectApplicationsComboBox().onSelectionChanged(() => {
+            this.notifyDataChanged();
+        });
     }
 
     isOptional(): boolean {
@@ -33,7 +35,7 @@ export class ProjectApplicationsDialogStep
     }
 
     hasData(): boolean {
-        return this.getProjectApplicationsComboBox().hasDataChanged();
+        return this.getProjectApplicationsComboBox()?.getSelectedApplications().length > 0;
     }
 
     protected getFormClass(): string {
