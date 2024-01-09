@@ -1,8 +1,6 @@
-import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {ProjectApplicationsLoader} from '../../../../resource/applications/ProjectApplicationsLoader';
 import {ProjectApplicationsSelectedOptionsView} from './ProjectApplicationsSelectedOptionsView';
 import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
-import {ApplicationViewer} from '@enonic/lib-admin-ui/application/ApplicationViewer';
 import {ProjectViewItem} from '../../../../view/ProjectViewItem';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
@@ -11,17 +9,24 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {GetApplicationsRequest} from '../../../../../resource/GetApplicationsRequest';
 import {ProjectApplicationSelectedOptionView} from './ProjectApplicationSelectedOptionView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {ProjectApplication} from './ProjectApplication';
 import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
+import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
+import {ProjectApplicationsListBox} from './ProjectApplicationsListBox';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {Project} from '../../../../data/project/Project';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ProjectApplicationsComboBox
-    extends RichComboBox<Application> {
+    extends FilterableListBoxWrapperWithSelectedView<Application> {
 
-    private dataChangedListeners: (() => void)[] = [];
+    private loader: ProjectApplicationsLoader;
+
+    private dataChangedListeners: (() => void)[];
 
     private parentSiteConfigs: ApplicationConfig[] = [];
 
@@ -30,27 +35,65 @@ export class ProjectApplicationsComboBox
     private isLayoutInProgress: boolean = false;
 
     constructor(params?: ProjectApplicationsFormParams) {
-        super(new ProjectApplicationsComboBoxBuilder(params));
+        super(new ProjectApplicationsListBox(), {
+            selectedOptionsView: new ProjectApplicationsSelectedOptionsView(params),
+            className: 'project-applications-combobox',
+            filter: ProjectApplicationsComboBox.filter,
+            maxSelected: 0
+        });
 
         if (params.hasParentProjects()) {
             this.setParentProjects(params.getParentProjects());
         }
+    }
 
-        this.initListeners();
+    protected initElements(): void {
+        super.initElements();
+
+        this.loader = new ProjectApplicationsLoader();
+        this.dataChangedListeners = [];
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        this.listBox.whenShown(() => {
+            this.loader.load().catch(DefaultErrorHandler.handle);
+        });
+
+        this.loader.onLoadedData((event: LoadedDataEvent<Application>) => {
+            this.listBox.setItems(event.getData());
+
+            if (this.optionFilterInput.getValue()) { // triggering filtering if search string is present
+                this.optionFilterInput.forceChangedEvent();
+            }
+
+            this.getSelectedOptions().forEach((option: SelectedOption<Application>) => {
+                this.select(option.getOption().getDisplayValue(), true);
+            });
+
+            return null;
+        });
+
+        this.onSelectionChanged((selectionChange: SelectionChange<Application>) => {
+            selectionChange.selected?.forEach((item: Application) => {
+                setTimeout(() => { // to let layout finish, remove when layout is done in the parent class
+                    this.handleItemSelected(item);
+                }, 50);
+            });
+
+            if (selectionChange.deselected?.length > 0) {
+                this.handleItemDeselected();
+            }
+        });
+
+        this.selectedOptionsView.onOptionMoved(this.notifyDataChanged.bind(this));
     }
 
     setParentProjects(projects: Project[]): Q.Promise<void> {
         this.parentSiteConfigs = projects[0]?.getSiteConfigs() || [];
         this.inheritedParentSiteConfigs = this.getParentConfigsNotSelected();
         return this.layoutApplicationConfigs(this.getMergedConfigs());
-    }
-
-    hasDataChanged(): boolean {
-        if (this.isLayoutInProgress) {
-            return false;
-        }
-        const selectedDisplayValues: Application[] = this.getSelectedDisplayValues();
-        return this.parentSiteConfigs.length !== selectedDisplayValues.length;
     }
 
     layoutApplicationConfigs(applicationConfigs: ApplicationConfig[]): Q.Promise<void> {
@@ -62,23 +105,24 @@ export class ProjectApplicationsComboBox
         });
     }
 
-    private initListeners(): void {
-        this.onOptionSelected(this.handleOptionSelected.bind(this));
-        this.onOptionDeselected(this.handleOptionDeselected.bind(this));
-        this.onOptionMoved(this.notifyDataChanged.bind(this));
+    hasDataChanged(): boolean {
+        if (this.isLayoutInProgress) {
+            return false;
+        }
+        const selectedDisplayValues: Application[] = this.getSelectedDisplayValues();
+        return this.parentSiteConfigs.length !== selectedDisplayValues.length;
     }
 
-    private handleOptionSelected(option: SelectedOptionEvent<Application>): void {
-        const view: ProjectApplicationSelectedOptionView =
-            (option.getSelectedOption().getOptionView() as ProjectApplicationSelectedOptionView);
+    private handleItemSelected(item: Application): void {
+        const view = this.selectedOptionsView.getById(item.getId()).getOptionView() as ProjectApplicationSelectedOptionView;
 
-        view.layoutForm().finally(() => {
+        view?.layoutForm().finally(() => {
             this.notifyDataChanged();
             view.setDataChangedHandler(this.notifyDataChanged.bind(this));
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private handleOptionDeselected(option: SelectedOptionEvent<Application>): void {
+    private handleItemDeselected(): void {
         this.notifyDataChanged();
     }
 
@@ -107,7 +151,7 @@ export class ProjectApplicationsComboBox
     }
 
     private deselectNonSelectedApps(configs: ApplicationConfig[]): void {
-        this.getSelectedDisplayValues().forEach((app: Application) => {
+        this.getSelectedOptions().map(o => o.getOption().getDisplayValue()).forEach((app: Application) => {
             const appKey: ApplicationKey = app.getApplicationKey();
 
             if (!configs.some((config: ApplicationConfig) => config.getApplicationKey().equals(appKey))) {
@@ -188,8 +232,19 @@ export class ProjectApplicationsComboBox
         });
     }
 
-    getSelectedOptionView(): ProjectApplicationsSelectedOptionsView {
-        return super.getSelectedOptionView() as ProjectApplicationsSelectedOptionsView;
+    private static filter(item: Application, searchString: string): boolean {
+        const str: string = searchString.toLowerCase().trim();
+
+        return item.getDisplayName()?.toLowerCase().indexOf(str) > -1 ||
+               item.getDescription()?.toLowerCase().indexOf(str) > -1 ||
+               item.getName()?.toLowerCase().indexOf(str) > -1;
+    }
+
+    createSelectedOption(item: Application): Option<Application> {
+        return Option.create<Application>()
+            .setValue(item.getId())
+            .setDisplayValue(item)
+            .build();
     }
 
     private isReadonly(key: ApplicationKey): boolean {
@@ -217,25 +272,22 @@ export class ProjectApplicationsComboBox
 
 }
 
-export class ProjectApplicationsComboBoxBuilder extends RichComboBoxBuilder<Application> {
+export class ProjectApplicationsComboBoxWrapper extends FormInputEl {
 
-    identifierMethod: 'getApplicationKey';
+    private readonly selector: ProjectApplicationsComboBox;
 
-    comboBoxName: 'projectApplicationsSelector';
+    constructor(selector: ProjectApplicationsComboBox) {
+        super('div', 'locale-selector-wrapper');
 
-    loader: ProjectApplicationsLoader = new ProjectApplicationsLoader();
+        this.selector = selector;
+        this.appendChild(this.selector);
+    }
 
-    selectedOptionsView: ProjectApplicationsSelectedOptionsView;
+    getComboBox(): ProjectApplicationsComboBox {
+        return this.selector;
+    }
 
-    optionDisplayValueViewer: ApplicationViewer = new ApplicationViewer();
-
-    delayedInputValueChangedHandling: number = 500;
-
-    displayMissingSelectedOptions: boolean = true;
-
-    constructor(params?: ProjectApplicationsFormParams) {
-        super();
-
-        this.selectedOptionsView = new ProjectApplicationsSelectedOptionsView(params);
+    getValue(): string {
+        return this.selector.getSelectedOptions().length > 0 ? 'mock' : '';
     }
 }
