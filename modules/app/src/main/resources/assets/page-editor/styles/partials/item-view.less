@@ -15,6 +15,16 @@
   &.empty {
     .@{_CLS_PREFIX}item-placeholder {
       height: @placeholder-height;
+
+      .selectable-listbox-wrapper {
+        text-align: left;
+
+        .selectable-listbox {
+          margin: 0;
+          padding: 0;
+          z-index: @z-index-empty-component-options;
+        }
+      }
     }
   }
 
