@@ -17,9 +17,20 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      height: @placeholder-height;
 
       .empty-descriptor-block {
         position: relative; // works as setting the z-index to 1
+      }
+
+      .selectable-listbox-wrapper {
+        text-align: left;
+
+        .selectable-listbox {
+          margin: 0;
+          padding: 0;
+          z-index: @z-index-empty-component-options;
+        }
       }
     }
   }
