@@ -5,8 +5,9 @@ import {SagaPostRequest, SagaPostRequestConfig, SagaPostRequestResult} from './S
 export class SagaCommands {
     static expandText(html: string, selectedHtml?: string): Q.Promise<SagaGetRequestResult> {
         return SagaCommands.sendRunRequest(html, selectedHtml)
-            .then((runResult) => {
-                return SagaCommands.waitForSagaToFinish(runResult.thread_id, runResult.run_id);
+            .then((runResult: SagaPostRequestResult) => {
+                //return SagaCommands.waitForSagaToFinish(runResult.thread_id, runResult.run_id);
+                return runResult.data;
             })
             .catch((error) => {
                 console.error(error);

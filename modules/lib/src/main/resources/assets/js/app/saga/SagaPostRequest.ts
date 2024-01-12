@@ -16,6 +16,7 @@ export interface SagaPostRequestResult {
     thread_id: string;
     run_id: string;
     status: string;
+    data?: string;
 }
 
 export class SagaPostRequest
