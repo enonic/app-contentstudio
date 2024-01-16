@@ -6,9 +6,11 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 export type SagaPostRequestConfig = SagaPostRequestParams;
 
 interface SagaPostRequestParams {
-    html: string;
+    html?: string;
     // TODO: Send selection range in the future
-    selectedHtml: string;
+    selectedHtml?: string;
+
+    id?: string;
 }
 
 export interface SagaPostRequestResult {

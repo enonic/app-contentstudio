@@ -3,24 +3,39 @@ import {SagaGetRequest, SagaGetRequestResult} from './SagaGetRequest';
 import {SagaPostRequest, SagaPostRequestConfig, SagaPostRequestResult} from './SagaPostRequest';
 
 export class SagaCommands {
-    static expandText(html: string, selectedHtml?: string): Q.Promise<SagaGetRequestResult> {
-        return SagaCommands.sendRunRequest(html, selectedHtml)
-            .then((runResult: SagaPostRequestResult) => {
-                //return SagaCommands.waitForSagaToFinish(runResult.thread_id, runResult.run_id);
-                return runResult.data;
-            })
-            .catch((error) => {
-                console.error(error);
-                return {status: 'failed'};
-            });
+    static expandText(message: string, html: string): Q.Promise<SagaGetRequestResult> {
+
+          const defer = Q.defer<SagaGetRequestResult>();
+
+          setTimeout(() => {
+              defer.resolve({
+                  status: 'OK',
+                  data: html,
+              });
+          }, 2000);
+
+          return defer.promise;
+
+        /*
+                  return SagaCommands.sendRetrieveRequest('mockTID', 'mockRID', message)
+                      .then((runResult: SagaGetRequestResult) => {
+                          //return SagaCommands.waitForSagaToFinish(runResult.thread_id, runResult.run_id);
+                          return runResult.data;
+                      })
+                      .catch((error) => {
+                          console.error(error);
+                          return {status: 'failed'};
+                      });
+
+        */
     }
 
     private static sendRunRequest(html: string, selectedHtml?: string): Q.Promise<SagaPostRequestResult> {
         return new SagaPostRequest({html, selectedHtml} satisfies SagaPostRequestConfig).sendAndParse();
     }
 
-    private static sendRetrieveRequest(threadId: string, runId: string): Q.Promise<SagaGetRequestResult> {
-        return new SagaGetRequest({threadId, runId}).sendAndParse();
+    private static sendRetrieveRequest(threadId: string, runId: string, message?: string): Q.Promise<SagaGetRequestResult> {
+        return new SagaGetRequest({threadId, runId, message}).sendAndParse();
     }
 
     private static waitForSagaToFinish(threadId: string, runId: string,

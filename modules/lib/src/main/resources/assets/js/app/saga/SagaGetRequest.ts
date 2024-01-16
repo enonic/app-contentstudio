@@ -6,13 +6,15 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 export type SagaGetRequestConfig = SagaGetRequestParams;
 
 interface SagaGetRequestParams {
-    threadId: string;
-    runId: string;
+    threadId?: string;
+    runId?: string;
+    message?: string;
 }
 
 export interface SagaGetRequestResult {
     status: string;
     data?: string;
+    id?: string;
 }
 
 export class SagaGetRequest
@@ -30,6 +32,7 @@ export class SagaGetRequest
 
     getRequestPath(): Path {
         return Path.fromString(
-            `${CONFIG.getString('services.sagaServiceUrl')}?thread_id=${this.config.threadId}&run_id=${this.config.runId}`);
+            `${CONFIG.getString(
+                'services.sagaServiceUrl')}?thread_id=${this.config.threadId}&run_id=${this.config.runId}&message=${this.config.message}`);
     }
 }
