@@ -12,7 +12,7 @@ interface SagaGetRequestParams {
 
 export interface SagaGetRequestResult {
     status: string;
-    data?: string;
+    messages?: string[];
 }
 
 export class SagaGetRequest
@@ -30,6 +30,6 @@ export class SagaGetRequest
 
     getRequestPath(): Path {
         return Path.fromString(
-            `${CONFIG.getString('services.sagaServiceUrl')}?thread_id=${this.config.threadId}&run_id=${this.config.runId}`);
+            `${CONFIG.getString('services.sagaServiceUrl')}?threadId=${this.config.threadId}&runId=${this.config.runId}`);
     }
 }
