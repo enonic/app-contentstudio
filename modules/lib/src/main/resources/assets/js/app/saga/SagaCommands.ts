@@ -3,27 +3,19 @@ import {SagaGetRequest, SagaGetRequestResult} from './SagaGetRequest';
 import {SagaPostRequest, SagaPostRequestConfig, SagaPostRequestResult} from './SagaPostRequest';
 
 export class SagaCommands {
-    static expandText(html: string, selectedHtml?: string): Q.Promise<SagaGetRequestResult> {
-        return SagaCommands.sendRunRequest(html, selectedHtml)
-            .then((runResult: SagaPostRequestResult) => {
-                //return SagaCommands.waitForSagaToFinish(runResult.thread_id, runResult.run_id);
-                return runResult.data;
-            })
-            .catch((error) => {
-                console.error(error);
-                return {status: 'failed'};
-            });
+    static expandText(message: string): Q.Promise<SagaPostRequestResult> {
+        return SagaCommands.sendRunRequest(message);
     }
 
-    private static sendRunRequest(html: string, selectedHtml?: string): Q.Promise<SagaPostRequestResult> {
-        return new SagaPostRequest({html, selectedHtml} satisfies SagaPostRequestConfig).sendAndParse();
+    private static sendRunRequest(message: string): Q.Promise<SagaPostRequestResult> {
+        return new SagaPostRequest({message} satisfies SagaPostRequestConfig).sendAndParse();
     }
 
     private static sendRetrieveRequest(threadId: string, runId: string): Q.Promise<SagaGetRequestResult> {
         return new SagaGetRequest({threadId, runId}).sendAndParse();
     }
 
-    private static waitForSagaToFinish(threadId: string, runId: string,
+    static waitForSagaToFinish(threadId: string, runId: string,
                                        d?: Q.Deferred<SagaGetRequestResult>): Q.Promise<SagaGetRequestResult> {
         const defer = d ?? Q.defer<SagaGetRequestResult>();
         SagaCommands.sendRetrieveRequest(threadId, runId)
