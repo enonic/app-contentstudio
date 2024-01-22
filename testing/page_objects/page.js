@@ -99,7 +99,7 @@ class Page {
         for (const item of elements) {
             results.push(await item.getText());
         }
-        return results
+        return results;
     }
 
     async clearTextInput(locator) {
@@ -317,8 +317,7 @@ class Page {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_remove_notif_msg');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_remove_notif_msg');
             throw new Error('Error after removing the notification message, screenshot: ' + screenshot + '  ' + err);
         }
     }

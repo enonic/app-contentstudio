@@ -551,7 +551,7 @@ module.exports = {
             }
             await filterPanel.typeSearchText(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(500);
+            return await browsePanel.pause(1000);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_spinner'));
             throw new Error('Filter Panel-  error : ' + err);
