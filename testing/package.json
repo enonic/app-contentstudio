@@ -30,7 +30,7 @@
     "@wdio/mocha-framework": "^8.28.0",
     "allure-commandline": "^2.25.0",
     "properties-reader": "2.3.0",
-    "webdriverio": "8.28.0"
+    "webdriverio": "8.28.8"
   },
   "engines": {
     "node": ">= 20.10.0",
