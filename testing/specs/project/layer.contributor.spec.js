@@ -10,6 +10,7 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
 const appConst = require('../../libs/app_const');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('layer.contributor.spec - ui-tests for user with layer-contributor role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -63,7 +64,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             // 1. Do Log in with 'SU':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            await settingsBrowsePanel.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.openProjectWizardDialog();
             let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName, null,
                 LAYER_DISPLAY_NAME, null, null);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
@@ -73,11 +74,11 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             await studioUtils.doLogout();
         });
 
-    // Verifies https://github.com/enonic/app-contentstudio/issues/2328
-    // Localize button should be disabled when read-only content is selected
+
     it("GIVEN user with 'Contributor'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Open' button should be enabled in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizard();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             // Verify that Project Selection dialog is loaded, then close it
@@ -86,6 +87,11 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             await studioUtils.findAndSelectItem(SITE_NAME);
             // 3. Verify that 'Open' button gets visible and enabled :
             await contentBrowsePanel.waitForOpenButtonEnabled();
+            // 4. Verify the bug https://github.com/enonic/app-contentstudio/issues/6767
+            //    #6767 Layer-contributor user - error after clicking on Open button in Browse panel
+            await contentBrowsePanel.clickOnOpenButton();
+            //await studioUtils.doSwitchToNextTab();
+            //await contentWizard.waitForOpened();
         });
 
     it("GIVEN user with 'contributor'-layer role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
