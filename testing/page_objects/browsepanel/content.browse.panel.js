@@ -584,7 +584,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async getNameInHighlightedRow() {
         try {
-            return this.waitForElementDisplayed(XPATH.highlightedRow, appConst.shortTimeout);
+            await this.waitForElementDisplayed(XPATH.highlightedRow, appConst.shortTimeout);
             return await this.getText(XPATH.highlightedRow + lib.H6_DISPLAY_NAME);
         } catch (err) {
             throw new Error(`Error when getting name in the highlighted row ` + err);
