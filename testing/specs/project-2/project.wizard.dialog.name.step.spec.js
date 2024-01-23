@@ -128,8 +128,8 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //8. Verify that projects searchable by Identifier:
             await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(ID, NAME);
-            let actualName = await parentProjectStep.getSelectedProject();
-            assert.equal(actualName, NAME, "Expected parent project should be present in the selected option");
+            let names = await parentProjectStep.getSelectedProjects();
+            assert.equal(names[0], NAME, "Expected parent project should be present in the selected option");
         });
 
     it(`WHEN Parent project step has been opened THEN new created project should be searchable by Description`,
@@ -141,8 +141,8 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //2. Verify that projects searchable by Description:
             await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(TEST_DESCRIPTION, NAME);
-            let actualName = await parentProjectStep.getSelectedProject();
-            assert.equal(actualName, NAME, "Expected parent project should be present in the selected option");
+            let names = await parentProjectStep.getSelectedProjects();
+            assert.equal(names[0], NAME, "Expected parent project should be present in the selected option");
         });
 
     it(`GIVEN project is selected AND 'Delete' button has been pressed WHEN required Identifier has been typed in Confirmation dialog THEN Confirm button gets enabled`,

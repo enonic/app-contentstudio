@@ -110,7 +110,6 @@ class SettingsItemStatisticsPanel extends Page {
             await this.saveScreenshot(appConst.generateRandomName("settings_st_panel"));
             throw new Error("Settings item statistics panel: " + err);
         }
-
     }
 }
 

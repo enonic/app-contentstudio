@@ -142,11 +142,14 @@ class BaseBrowsePanel extends Page {
         })
     }
 
-    waitForNewButtonEnabled() {
-        return this.waitForElementEnabled(this.newButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_new_button');
-            throw new Error('New button is not enabled in : ' + err);
-        })
+    async waitForNewButtonEnabled() {
+        try {
+            await this.waitForElementEnabled(this.newButton, appConst.mediumTimeout);
+            await this.pause(400);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_new_button');
+            throw new Error('New button is not enabled , screenshot: ' + screenshot + ' ' + err);
+        }
     }
 
     waitForEditButtonDisabled() {
@@ -161,8 +164,7 @@ class BaseBrowsePanel extends Page {
             await this.waitForElementEnabled(this.editButton, appConst.longTimeout);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_edit_button');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_edit_button');
             throw Error('Edit button is not enabled, screenshot: ' + screenshot + " " + err);
         }
     }
@@ -183,7 +185,7 @@ class BaseBrowsePanel extends Page {
             await this.clickOnElement(this.editButton);
             return await this.pause(700);
         } catch (err) {
-            this.saveScreenshot('err_browse_panel_edit_button');
+            await this.saveScreenshot('err_browse_panel_edit_button');
             throw new Error('Browse Panel: Edit button is not enabled! ' + err);
         }
     }

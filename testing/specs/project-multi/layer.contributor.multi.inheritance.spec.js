@@ -1,5 +1,5 @@
 /**
- * Created on 29.09.2020.
+ * Created on 22.01.2024
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -12,7 +12,7 @@ const contentBuilder = require("../../libs/content.builder");
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-describe('layer.contributor.spec - ui-tests for user with layer-contributor role', function () {
+describe('layer.contributor.multi.inheritance.spec - ui-tests for user with layer-contributor role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -25,6 +25,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
     let SITE;
     let USER;
     const PASSWORD = appConst.PASSWORD.MEDIUM;
+    const MULTI_PROJECTS = [PROJECT_DISPLAY_NAME, 'Default'];
 
     it(`Precondition 1: new system user should be created`,
         async () => {
@@ -43,7 +44,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            // 2. Save new project (mode access is Private):
+            // 2. Save the new project (mode access is Private):
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, null, null, null, null, appConst.APP_CONTENT_TYPES);
         });
 
@@ -58,14 +59,14 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             await studioUtils.doAddSite(SITE);
         });
 
-    it('Precondition 4: new layer should be created in the existing project',
+    it("Precondition 4: new layer with 2 parent projects should be added, 'Default' is the secondary inherited project",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Do Log in with 'SU':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             await settingsBrowsePanel.openProjectWizardDialog();
-            let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName, null,
+            let layer = projectUtils.buildLayer(MULTI_PROJECTS, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName, null,
                 LAYER_DISPLAY_NAME, null, null);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();
@@ -74,41 +75,44 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             await studioUtils.doLogout();
         });
 
-
-    it("GIVEN user with 'Contributor'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Open' button should be enabled in the browse toolbar",
+    it("GIVEN user with 'Contributor'-layer role is logged in WHEN site that is 'inherited' from the primary project has been selected THEN 'Open' button should be enabled in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let contentWizard = new ContentWizard();
+            let contentWizard = new ContentWizard()
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             // Verify that Project Selection dialog is loaded, then close it
             await studioUtils.closeProjectSelectionDialog();
-            // 2. Select the site:
+            // 2. Select the site from the primary-inherited project:
             await studioUtils.findAndSelectItem(SITE_NAME);
             // 3. Verify that 'Open' button gets visible and enabled :
             await contentBrowsePanel.waitForOpenButtonEnabled();
-            // 4. Verify the bug https://github.com/enonic/app-contentstudio/issues/6767
-            //    #6767 Layer-contributor user - error after clicking on Open button in Browse panel
+            // 4. Verify the issue
+            // #6767 Layer-contributor user - error after clicking on Open button in Browse panel
             await contentBrowsePanel.clickOnOpenButton();
             //await studioUtils.doSwitchToNextTab();
             //await contentWizard.waitForOpened();
         });
 
-    it("GIVEN user with 'contributor'-layer role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
+    it("GIVEN user with 'Contributor'-layer role is logged in WHEN content that is 'inherited' from the secondary project has been selected THEN 'Open' button should be enabled in the browse toolbar",
         async () => {
-            // 1. Do Log in with the user:
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
-            // 2. load existing site from the current layer:
-            let url = 'http://localhost:8080/admin/site/preview' + `/${LAYER_DISPLAY_NAME}/draft/${SITE_NAME}`;
-            await studioUtils.getBrowser().url(url);
-            // 3. Verify that expected site is loaded:
-            let actualTitle = await studioUtils.getBrowser().getTitle();
-            assert.equal(actualTitle, SITE_NAME, 'Expected site should be loaded');
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizard()
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            // Verify that Project Selection dialog is loaded, then close it
+            //await studioUtils.closeProjectSelectionDialog();
+            // 2. Select the content from the secondary-inherited project:
+            await studioUtils.findAndSelectItem(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
+            // 3. Verify that 'Open' button gets visible and enabled :
+            await contentBrowsePanel.waitForOpenButtonEnabled();
+            // 4. Verify the issue
+            // #6767 Layer-contributor user - error after clicking on Open button in Browse panel
+            await contentBrowsePanel.clickOnOpenButton();
+            //await studioUtils.doSwitchToNextTab();
+            //await contentWizard.waitForOpened();
         });
 
-    // Verifies https://github.com/enonic/app-contentstudio/issues/2337
-    // User's Layer is not displayed in Project if the user does not have rights to the parent project
     it("WHEN user contributor navigated to 'Settings Panel' THEN parent project and its layer should be visible",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();

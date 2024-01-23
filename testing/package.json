@@ -20,6 +20,7 @@
     "test_publish_issues:wdio_chrome": "npx wdio ./wdio/wdio.publish.chrome.conf.js",
     "test_wizards_grid:wdio_chrome": "npx wdio ./wdio/wdio.wizards.grid.chrome.conf.js",
     "test_hide_default_project:wdio_chrome": "npx wdio ./wdio/wdio.hide.default.project.chrome.conf.js",
+    "test_project_multi:wdio_chrome": "npx wdio ./wdio/wdio.projects.multi.inheritance.chrome.conf.js",
     "allure-report": "allure generate ./build/reports/allure --output ./build/reports/allure-report --clean --single-file"
   },
   "devDependencies": {

@@ -36,15 +36,16 @@ module.exports = {
         await summaryStep.waitForDialogClosed();
         return await settingsBrowsePanel.pause(500);
     },
-    async fillParentNameStep(parentName) {
+    async fillParentNameStep(parents) {
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-        //check if parent project was selected in Grid:
-        if (await parentProjectStep.isSelectedParentProjectDisplayed()) {
-            await parentProjectStep.clickOnNextButton();
-        } else if (parentName) {
+        if (parents) {
+            parents = [].concat(parents)
             //click on 'Layer' radio, select a parent project then click on Next button:
             await parentProjectStep.clickOnLayerRadioButton();
-            await parentProjectStep.selectParentProject(parentName);
+            for(let name of parents){
+                await parentProjectStep.selectParentProject(name);
+            }
+
             await parentProjectStep.clickOnNextButton();
         } else {
             //click on 'Project' radio, select a parent project then click on Next button:
@@ -119,7 +120,7 @@ module.exports = {
     },
     async fillFormsWizard(project) {
         try {
-            let languageStep = await this.fillParentNameStep(project.parentName);
+            let languageStep = await this.fillParentNameStep(project.parents);
             await languageStep.waitForLoaded();
             let accessModeStep = await this.fillLanguageStep(project.language);
             await accessModeStep.waitForLoaded();
@@ -200,10 +201,10 @@ module.exports = {
             principalsToAccess: principalsToAccess
         };
     },
-    buildLayer(parentName, language, accessMode, principalsToAccess, applications, name, identifier, description) {
+    buildLayer(parents, language, accessMode, principalsToAccess, applications, name, identifier, description) {
         return {
             language: language,
-            parentName: parentName,
+            parents: parents,
             accessMode: accessMode,
             applications: applications,
             name: name,

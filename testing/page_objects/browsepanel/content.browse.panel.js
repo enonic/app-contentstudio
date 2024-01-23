@@ -560,8 +560,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnCheckbox(name);
             await this.waitForRowCheckboxSelected(name);
         } catch (err) {
-            await this.saveScreenshot('err_select_item');
-            throw Error('Row with the name ' + name + ' was not selected ' + err)
+            let screenshot = await this.saveScreenshotUniqueName('err_select_item');
+            throw Error('Row with the name ' + name + ' was not selected, screenshot: ' + screenshot + ' ' + err)
         }
     }
 
@@ -572,20 +572,23 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.pause(300);
     }
 
-    getNumberOfSelectedRows() {
-        return this.findElements(XPATH.highlightedRow).then(result => {
+    // One or zero highlighted rows:
+    async getNumberOfSelectedRows() {
+        try {
+            let result = await this.findElements(XPATH.highlightedRow);
             return result.length;
-        }).catch(err => {
+        } catch (err) {
             throw new Error(`Error when getting highlighted rows ` + err);
-        });
+        }
     }
 
-    getNameInHighlightedRow() {
-        return this.waitForElementDisplayed(XPATH.highlightedRow, appConst.shortTimeout).then(() => {
-            return this.getText(XPATH.highlightedRow + lib.H6_DISPLAY_NAME);
-        }).catch(err => {
+    async getNameInHighlightedRow() {
+        try {
+            await this.waitForElementDisplayed(XPATH.highlightedRow, appConst.shortTimeout);
+            return await this.getText(XPATH.highlightedRow + lib.H6_DISPLAY_NAME);
+        } catch (err) {
             throw new Error(`Error when getting name in the highlighted row ` + err);
-        });
+        }
     }
 
     async getSortingIcon(name) {
@@ -886,11 +889,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             let locator = XPATH.expanderIconByName(contentName);
             await this.waitForExpanderIconDisplayed(contentName);
-            let attr = await this.getAttribute(locator, "class");
-            return attr.includes("collapse");
+            let attr = await this.getAttribute(locator, 'class');
+            return attr.includes('collapse');
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_expander_icon'));
-            throw new Error("Toggle icon: " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_expander_icon');
+            throw new Error("Is expanded, expander icon, screenshot: " + screenshot + ' ' + err);
         }
     }
 
