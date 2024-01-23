@@ -51,6 +51,8 @@ class LoaderComboBox extends Page {
         await this.getBrowser().waitUntil(async () => {
             return await this.isElementDisplayed(optionSelector);
         }, {timeout: appConst.longTimeout, timeoutMsg: 'option was not found! ' + optionDisplayName});
+        // to avoid the stale element reference error:
+        await this.pause(400);
         let optionElement = await this.getDisplayedElements(optionSelector);
         await optionElement[0].click();
         return await this.pause(500);
