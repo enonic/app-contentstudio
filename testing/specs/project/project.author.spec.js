@@ -87,7 +87,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             await studioUtils.saveScreenshot('project_author_1');
-            // 12. Verify that expected user is present in selected options:
+            // 12. Verify that expected user is present in selected options (Roles dropdown selector):
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
             // Do log out:
@@ -140,15 +140,15 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
-            //1. Do log in with the user-author and navigate to Content Browse Panel:
+            // 1. Do log in with the user-author and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.waitForNewButtonEnabled();
-            //2. Click on 'New...' button
+            // 2. Click on 'New...' button
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
             let items = await newContentDialog.getItems();
             await studioUtils.saveScreenshot('project_author_3');
-            //3. Verify that only 'Folders' and 'Shortcut' are allowed for Author role
+            // 3. Verify that only 'Folders' and 'Shortcut' are allowed for Author role
             assert.equal(items.length, 2, 'Two items should be available for Author');
             assert.ok(items.includes('Folder'), 'Folder is allowed for creating');
             assert.ok(items.includes('Shortcut'), 'Shortcut is allowed for creating');

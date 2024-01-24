@@ -7,10 +7,9 @@ const XPATH = {
     settingsContainer: "//div[contains(@id,'ContentAppBar')]",
     container: `//div[contains(@id,'ProjectWizardPanel')]`,
     displayNameInput: `//input[contains(@name,'displayName')]`,
+    projectSelectedOptionViewDiv: "//div[contains(@id,'ProjectSelectedOptionView')]",
     tabTitle: "//li[contains(@id,'AppBarTabMenuItem')]",
     toolbar: `//div[contains(@id,'Toolbar')]`,
-    saveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Save']]`,
-    deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete']]`,
     selectedProjectAccessOptions: "//div[contains(@id,'ProjectACESelectedOptionsView')]",
     selectedReadAccessOptions: "//div[contains(@id,'PrincipalSelectedOptionsView')]",
     selectedReadAccessOption: "//div[contains(@id,'PrincipalSelectedOptionView')]",
@@ -32,12 +31,9 @@ const XPATH = {
 };
 
 class ProjectWizardPanel extends Page {
-    get projectIdentifierInput() {
-        return XPATH.container + lib.formItemByLabel("Identifier") + lib.TEXT_INPUT;
-    }
 
-    get projectIdentifierValidationMessage() {
-        return XPATH.container + lib.formItemByLabel("Identifier") + "//div[contains(@id,'ValidationRecordingViewer')]//li";
+    get projectIdentifierInput() {
+        return XPATH.container + lib.formItemByLabel('Identifier') + lib.TEXT_INPUT;
     }
 
     get displayNameInput() {
@@ -61,11 +57,11 @@ class ProjectWizardPanel extends Page {
     }
 
     get saveButton() {
-        return XPATH.container + XPATH.toolbar + XPATH.saveButton;
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Save');
     }
 
     get deleteButton() {
-        return XPATH.container + XPATH.toolbar + XPATH.deleteButton;
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Delete');
     }
 
     get descriptionInput() {
@@ -92,19 +88,16 @@ class ProjectWizardPanel extends Page {
         return this.isClickable(this.localeOptionsFilterInput);
     }
 
+    async getSelectedParentProjectsDisplayName() {
+        let locator = XPATH.container + XPATH.projectSelectedOptionViewDiv + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
     async waitAndClickOnSave() {
         await this.waitForSaveButtonEnabled();
         await this.clickOnElement(this.saveButton);
         return await this.pause(1000);
-    }
-
-    async getProjectIdentifierValidationMessage() {
-        await this.waitForElementDisplayed(this.projectIdentifierValidationMessage, appConst.shortTimeout);
-        return await this.getText(this.projectIdentifierValidationMessage);
-    }
-
-    async waitForProjectIdentifierValidationMessageNotVisible() {
-        return await this.waitForElementNotDisplayed(this.projectIdentifierValidationMessage, appConst.shortTimeout);
     }
 
     waitForLoaded() {
@@ -135,25 +128,21 @@ class ProjectWizardPanel extends Page {
             let result = await this.getDisplayedElements(this.saveButton);
             if (result.length === 0) {
                 await this.saveScreenshot('err_pr_wizard');
-                throw new Error('Save button is not disabled!');
+                throw new Error('Save button is not displayed!');
             }
             return await this.waitForElementDisabled(this.saveButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_pr_wizard_save_btn');
-            throw new Error("Save button is not disabled :" + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_pr_wizard_save_btn');
+            throw new Error("Project Wizard Panel - Save button, screenshot :" + screenshot + ' ' + err);
         }
     }
 
     async waitForDeleteButtonDisabled() {
         try {
-            let result = await this.getDisplayedElements(this.deleteButton);
-            if (result.length === 0) {
-                await this.saveScreenshot('err_pr_wizard_delete_btn');
-                throw new Error('Delete button is not disabled!');
-            }
             return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
         } catch (err) {
-            throw new Error('Delete button is not disabled :' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_pr_wizard_delete_btn');
+            throw new Error('Delete button is not disabled, screenshot :' + screenshot + ' ' + err);
         }
     }
 
@@ -161,7 +150,8 @@ class ProjectWizardPanel extends Page {
         try {
             return await this.waitForElementEnabled(this.deleteButton, appConst.longTimeout);
         } catch (err) {
-            throw new Error("Delete button is not enabled :" + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_pr_wizard_delete_btn');
+            throw new Error("Delete button is not enabled, screenshot:" + screenshot + ' ' + err);
         }
     }
 
@@ -188,24 +178,13 @@ class ProjectWizardPanel extends Page {
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             return await this.getText(selector);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_project_locale');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_project_locale');
             throw new Error('Selected language was not found, screenshot:  ' + screenshot + ' ' + err);
         }
     }
 
     waitForProjectIdentifierInputDisabled() {
         return this.waitForElementDisabled(this.projectIdentifierInput, appConst.mediumTimeout);
-    }
-
-    waitForProjectIdentifierInputEnabled() {
-        return this.waitForElementEnabled(this.projectIdentifierInput, appConst.shortTimeout);
-    }
-
-    async typeInProjectIdentifier(identifier) {
-        await this.waitForElementDisplayed(this.projectIdentifierInput);
-        await this.clearInputText(this.projectIdentifierInput);
-        return await this.typeTextInInput(this.projectIdentifierInput, identifier);
     }
 
     waitForDescriptionInputDisplayed() {
@@ -217,15 +196,11 @@ class ProjectWizardPanel extends Page {
         return result.includes('no-modify-permissions');
     }
 
-    waitForProjectIdentifierInputDisplayed() {
-        return this.waitForElementDisplayed(this.projectIdentifierInput, appConst.shortTimeout);
-    }
-
     waitForRolesComboboxDisplayed() {
         return this.waitForElementDisplayed(this.rolesComboBox);
     }
 
-    //Adds a user with the default role (Contributor) in Roles step form:
+    // Adds a user with the default role (Contributor) in Roles step form:
     async selectProjectAccessRoles(principalDisplayName) {
         let comboBox = new ComboBox();
         await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
@@ -249,6 +224,7 @@ class ProjectWizardPanel extends Page {
         return await this.pause(500);
     }
 
+    // Roles dropdown selector - gets all names in ACL-entries in selected options:
     async getSelectedProjectAccessItems() {
         let selector = XPATH.container + XPATH.selectedProjectAccessOptions + lib.H6_DISPLAY_NAME;
         let isDisplayed = await this.isElementDisplayed(XPATH.container + XPATH.selectedProjectAccessOptions);
@@ -259,6 +235,7 @@ class ProjectWizardPanel extends Page {
         }
     }
 
+    // Gets user's role(Owner, Contributor..) in selected option in Roles-dropdown
     async getSelectedProjectAccessRole(userName) {
         let selector = XPATH.container + XPATH.aclEntryByName(userName) + XPATH.projectAccessSelectorTabMenu;
         let isDisplayed = await this.isElementDisplayed(selector);
@@ -276,7 +253,7 @@ class ProjectWizardPanel extends Page {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            this.saveScreenshot('err_remove_access_entry');
+            await this.saveScreenshot('err_remove_access_entry');
             throw new Error('Error when trying to remove project Access Item ' + err);
         }
     }
@@ -313,7 +290,7 @@ class ProjectWizardPanel extends Page {
         return this.getBrowser().keys(['Alt', 'w']);
     }
 
-    //Click on radio button and selects 'Access mode'
+    // Click on radio button and selects 'Access mode'
     async clickOnAccessModeRadio(mode) {
         let selector = XPATH.radioButtonByDescription(mode) + "/input[@type='radio']";
         await this.waitForElementEnabled(XPATH.radioButtonByDescription(mode), appConst.shortTimeout);
@@ -389,17 +366,9 @@ class ProjectWizardPanel extends Page {
             await this.clickOnElement(this.removeLanguageButton);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_project_remove_icon');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_project_remove_icon');
             throw new Error(`Error during clicking on remove language icon, screenshot: ${screenshot}  ` + err);
         }
-    }
-
-    async waitForDisplayNameInputFocused() {
-        let message = 'Display Name input is not focused' + appConst.mediumTimeout;
-        await this.getBrowser().waitUntil(async () => {
-            return await this.isFocused(this.displayNameInput);
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
     }
 
     waitForProjectApplicationsOptionsFilterInputDisplayed() {
@@ -414,8 +383,7 @@ class ProjectWizardPanel extends Page {
             console.log('Project Wizard, application is selected: ' + appName);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_project_wizard');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_project_wizard');
             throw new Error(`Error during selecting application, screenshot: ${screenshot}  ` + err);
         }
     }
@@ -426,8 +394,7 @@ class ProjectWizardPanel extends Page {
             await this.waitForElementDisplayed(locator, appConst.shortTimeout);
             return await this.getTextInDisplayedElements(locator);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_project_apps');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_project_apps');
             throw new Error(`Project apps were not found, screenshot: ${screenshot}  ` + err);
         }
     }
@@ -439,8 +406,7 @@ class ProjectWizardPanel extends Page {
             await this.clickOnElement(locator);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_project_remove_icon');
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_project_remove_icon');
             throw new Error('Error during clicking on remove application icon, screenshot: ' + screenshot + "  " + err);
         }
     }

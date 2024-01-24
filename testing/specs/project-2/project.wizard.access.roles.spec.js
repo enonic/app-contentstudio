@@ -31,11 +31,11 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Click on the project and press 'Edit' button:
+            // 1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            //2. Verify that expected role is displayed in Roles step: SU should be with Contributor role by default
+            // 2. Verify that expected role is displayed in Roles step: SU should be with Contributor role by default
             let actualRole = await projectWizard.getSelectedRoleInProjectAccessControlEntry("su");
             assert.equal(actualRole, appConst.PROJECT_ROLES.CONTRIBUTOR, "Contributor role should be set by default");
         });
@@ -44,12 +44,12 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Click on the project and press 'Edit' button:
+            // 1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            let result = await projectWizard.getAvailableProjectAccessRoles("su");
-            //2. Verify that expected roles are displayed in the menu:
+            let result = await projectWizard.getAvailableProjectAccessRoles('su');
+            // 2. Verify that expected roles are displayed in the menu:
             assert.equal(result[0], appConst.PROJECT_ROLES.CONTRIBUTOR, "'Contributor' role should be in the options");
             assert.equal(result[1], appConst.PROJECT_ROLES.AUTHOR, "'Author' role should be in the options");
             assert.equal(result[2], appConst.PROJECT_ROLES.EDITOR, "'Editor' role should be in the options");

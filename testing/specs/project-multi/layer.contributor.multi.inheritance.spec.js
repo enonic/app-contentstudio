@@ -11,6 +11,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const contentBuilder = require("../../libs/content.builder");
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 
 describe('layer.contributor.multi.inheritance.spec - ui-tests for user with layer-contributor role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -129,11 +130,31 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
             await studioUtils.doLogout();
         });
 
+    it(`WHEN existing layer is opened THEN 2 parent projects should be displayed in the selected options`,
+        async () => {
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog('su', 'password');
+            await studioUtils.openSettingsPanel();
+
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let projectWizard = new ProjectWizard();
+            // 1. Click on the layer and press 'Edit' button:
+            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
+            let tabTitle = await projectWizard.getTabTitle();
+            assert.equal(tabTitle, LAYER_DISPLAY_NAME, "Layer's name should be displayed in the tab-title");
+            // 2. Verify selected parent projects:
+            let actualResult = await projectWizard.getSelectedParentProjectsDisplayName();
+            assert.equal(actualResult.length, 2, '2 parent projects should be displayed in the form');
+            assert.ok(actualResult.includes(PROJECT_DISPLAY_NAME), "Expected project should be displayed in the selected options");
+            assert.ok(actualResult.includes('Default'), "Default project should be displayed in the selected options");
+        });
+
     it('Post conditions: the layer should be deleted',
         async () => {
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog('su', 'password');
             await studioUtils.openSettingsPanel();
-            // 1.Select and delete the layer:
+            // 1. Select and delete the layer:
             await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME)
         });
 

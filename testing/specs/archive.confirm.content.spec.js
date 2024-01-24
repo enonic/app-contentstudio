@@ -10,7 +10,7 @@ const contentBuilder = require("../libs/content.builder");
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 
-describe('archive.content.dialog.spec:  tests for archiving content', function () {
+describe('archive.confirm.content.dialog.spec:  tests for archiving content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
 
     if (typeof browser === 'undefined') {
