@@ -93,7 +93,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             // 12. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, 'expected user should be selected in Project Roles form');
-            // 5. Verify that expected role is assigned to the user
+            // 5. Verify that 'Owner' role is assigned to the user
             let role = await projectWizard.getSelectedProjectAccessRole(USER.displayName);
             assert.equal(role[0], appConst.PROJECT_ROLES.OWNER, 'Owner role should be assigned to the user');
         });
@@ -204,15 +204,15 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
     it("GIVEN user with 'Owner' role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
-            //1. Do log in with the user-owner and navigate to Content Browse Panel:
+            // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            //2. Open folder-wizard and save new folder:
+            // 2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             await studioUtils.saveScreenshot('project_owner_4');
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('project_owner_5');
-            //3. Verify that 'Mark as Ready' button is available in the wizard:
+            // 3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             let isVisible = await editSettingsDialog.isLanguageOptionsFilterVisible();
@@ -306,7 +306,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
-        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
