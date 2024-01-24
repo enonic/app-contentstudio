@@ -47,14 +47,14 @@ describe('parent.project.step.multi.inheritance.spec - ui-tests for parent proje
             await parentProjectStep.waitForNextButtonEnabled();
             // 7. Verify two selected options:
             let projects = await parentProjectStep.getSelectedProjects();
-            assert.equal(projects[0], PROJECT_DISPLAY_NAME);
+            assert.equal(projects[0], PROJECT_DISPLAY_NAME + '(no)');
             assert.equal(projects[1], 'Default');
             // 8. Click on 'remove' icon:
             await parentProjectStep.clickOnRemoveSelectedProjectIcon('Default');
             await studioUtils.saveScreenshot('single_parent_project_step');
             // 9. Verify that one selected option remains in the step form:
             projects = await parentProjectStep.getSelectedProjects();
-            assert.equal(projects[0], PROJECT_DISPLAY_NAME, "Expected project's name should be displayed in the parent step");
+            assert.equal(projects[0], PROJECT_DISPLAY_NAME + '(no)', "Expected project's name should be displayed in the parent step");
             assert.equal(projects.length, 1, 'single selected option should be displayed');
         });
 
