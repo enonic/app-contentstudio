@@ -17,15 +17,13 @@ import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathR
 import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {UrlHelper} from '../../../util/UrlHelper';
-import {ContextPanelState} from '../../../view/context/ContextPanelState';
-import {ToggleContextPanelEvent} from '../../../view/context/ToggleContextPanelEvent';
-import {UpdateSagaWidgetItemView} from '../../../view/context/widget/saga/UpdateSagaWidgetItemView';
 import {CreateHtmlAreaDialogEventGenerator} from './CreateHtmlAreaDialogEventGenerator';
 import {HTMLAreaHelper} from './HTMLAreaHelper';
 import {HtmlEditorParams} from './HtmlEditorParams';
 import {StyleHelper} from './styles/StyleHelper';
 import {Styles} from './styles/Styles';
 import {StylesRequest} from './styles/StylesRequest';
+import {HtmlEditorSagaEventsOperator} from './HtmlEditorSagaEventsOperator';
 import editor = CKEDITOR.editor;
 import eventInfo = CKEDITOR.eventInfo;
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
@@ -92,6 +90,7 @@ export class HtmlEditor {
         this.handleFileUpload();
         this.handleNativeNotifications();
         this.handleTooltipForClickableElements();
+        this.setupAIAssistantEvents();
         this.setupDialogsToOpen();
         this.setupKeyboardShortcuts();
         this.addCustomLangEntries();
@@ -205,17 +204,15 @@ export class HtmlEditor {
             }
         });
 
-        this.editor.on('openSaga', (event: eventInfo) => {
-            const data = event.data satisfies SagaHtmlEditorEventData;
-            new ToggleContextPanelEvent(ContextPanelState.EXPANDED).fire();
-            new UpdateSagaWidgetItemView({...data, editor: this}).fire();
-        });
-
         this.handlePaste();
         this.handleFullScreenModeToggled();
         this.handleMouseEvents();
         this.handleElementSelection();
         this.handleImageAlignButtonPressed();
+    }
+
+    private setupAIAssistantEvents(): void {
+        new HtmlEditorSagaEventsOperator(this, this.editorParams, this.editor);
     }
 
     private handlePaste(): void {
@@ -297,9 +294,9 @@ export class HtmlEditor {
                 const dataSrc: string = ImageUrlResolver.URL_PREFIX_RENDER + imageId;
 
                 this['replaceWith'](`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                                 `<img src="${upload.url}" data-src="${dataSrc}" style="width:100%">` +
-                                 '<figcaption> </figcaption>' +
-                                 '</figure>');
+                                    `<img src="${upload.url}" data-src="${dataSrc}" style="width:100%">` +
+                                    '<figcaption> </figcaption>' +
+                                    '</figure>');
 
                 editor.fire('change');
             };
@@ -864,6 +861,10 @@ export class HtmlEditor {
         this.editor.setData(data);
     }
 
+    public insertData(data: string) {
+        this.editor.insertHtml(data);
+    }
+
     public fire(eventName: string) {
         this.editor.fire(eventName);
     }
@@ -886,6 +887,10 @@ export class HtmlEditor {
 
     public extractText(): string {
         return this.editor.element.getText().trim();
+    }
+
+    public getEditorId(): string {
+        return this.editor.id;
     }
 
     public isReady(): boolean {
@@ -913,8 +918,8 @@ export class HtmlEditor {
 
     public setSelectionByCursorPosition(cursorPosition: HtmlEditorCursorPosition) {
         let elementContainer: CKEDITOR.dom.element = this.editorParams.isInline() ?
-            this.editor.container :
-            this.editor.document.getBody();
+                                                     this.editor.container :
+                                                     this.editor.document.getBody();
 
         cursorPosition.selectionIndexes.forEach((index: number) => {
             elementContainer = elementContainer.getChild(index) as CKEDITOR.dom.element;
@@ -923,8 +928,8 @@ export class HtmlEditor {
         elementContainer.scrollIntoView();
 
         const selectedElement: CKEDITOR.dom.node = cursorPosition.indexOfSelectedElement > -1 ?
-            elementContainer.getChild(cursorPosition.indexOfSelectedElement) :
-            elementContainer;
+                                                   elementContainer.getChild(cursorPosition.indexOfSelectedElement) :
+                                                   elementContainer;
 
         const range: CKEDITOR.dom.range = this.editor.createRange();
         range.setStart(selectedElement, cursorPosition.startOffset || 0);
@@ -939,7 +944,7 @@ class HtmlEditorConfigBuilder {
     private disabledTools: string[] = [];
     private enabledTools: string[] = [];
 
-    private tools: string[][]  = [
+    private tools: string[][] = [
         ['Saga', 'Styles', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
@@ -990,7 +995,7 @@ class HtmlEditorConfigBuilder {
 
         if (this.enabledTools.length > 0) {
             this.enabledTools = this.enabledTools
-                .map((tool: string) => tool ==='Format' ? 'Styles' : tool.replace(/\|/g, '-'))
+                .map((tool: string) => tool === 'Format' ? 'Styles' : tool.replace(/\|/g, '-'))
                 .filter((tool: string) => !this.isDefaultTool(tool));
         }
     }
