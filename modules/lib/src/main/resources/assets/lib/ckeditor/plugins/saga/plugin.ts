@@ -4,35 +4,6 @@ import {SagaHtmlEditorEventData} from '../../../../js/app/inputtype/ui/text/Html
 let stylesLoaded = false;
 const getStylesUrl = (path: string) => CKEDITOR.getUrl(CKEDITOR.plugins.get('saga').path + `styles/${path}`);
 
-const getData = (editor: CKEDITOR.editor): SagaHtmlEditorEventData => {
-    const text = editor.document.getBody().getText();
-    const html = editor.getData();
-
-    const selection = editor.getSelection();
-    const ranges = selection?.getRanges();
-    const hasSelection = ranges?.length > 0;
-    if (!hasSelection) {
-        return {text, html};
-    }
-
-    const range = ranges[0];
-
-    const clonedSelection = range.cloneContents();
-    const div = new CKEDITOR.dom.element('div');
-    div.append(clonedSelection);
-
-    return {
-        text,
-        html,
-        selection: {
-            startOffset: range.startOffset,
-            endOffset: range.endOffset,
-            text: selection.getSelectedText(),
-            html: div.getHtml(),
-        }
-    };
-};
-
 CKEDITOR.plugins.add('saga', {
     requires: 'button',
     beforeInit: function () {
@@ -47,7 +18,7 @@ CKEDITOR.plugins.add('saga', {
         // Panel toggle command
         editor.addCommand('openSaga', new CKEDITOR.command(editor, {
             exec: (editor): boolean => {
-                editor.fire('openSaga', getData(editor), editor);
+                editor.fire('openSaga', null, editor);
                 return true;
             },
         }));

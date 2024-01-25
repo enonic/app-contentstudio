@@ -66,7 +66,7 @@ export class PageComponentsTreeGridHelper {
         const itemWrapper: ComponentsTreeItem = node.getData();
         viewer.setObject(itemWrapper);
 
-        if (itemWrapper.getType() !== 'page' ! && itemWrapper.getType() !== 'region' !) {
+        if (itemWrapper.getType() !== 'page' && itemWrapper.getType() !== 'region') {
             viewer.addClass('draggable');
         }
 

@@ -315,6 +315,7 @@ export class HtmlArea
             .setCustomStylesToBeUsed(true)
             .setLangDirection(this.getLangDirection())
             .setProject(this.context.project)
+            .setLabel(this.getInput().getLabel())
             .build();
 
         return HtmlEditor.create(htmlEditorParams);
