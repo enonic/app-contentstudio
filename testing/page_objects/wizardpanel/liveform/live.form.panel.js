@@ -174,11 +174,7 @@ class LiveFormPanel extends Page {
                 throw new Error("Error when clicking on Image Component  in Live Frame!")
             }
             let selector = xpath.textComponentByText(text);
-            if (this.getBrowser().capabilities.browserName === 'chrome') {
-                await this.doRightClickWithOffset(selector, liveFrameX + 35, liveFrameY + 15);
-            } else {
-                await this.doRightClickWithOffset(selector, liveFrameX + 15, liveFrameY - 15);
-            }
+            await this.doRightClickWithOffset(selector, liveFrameX + 35, liveFrameY + 15);
             return await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_live_frame_right_click');

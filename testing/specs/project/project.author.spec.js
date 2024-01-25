@@ -20,6 +20,8 @@ const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
+const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 
 describe('project.author.spec - ui-tests for user with Author role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -136,6 +138,22 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
         });
 
+    it("WHEN user with 'Author' role opened the site THEN applications selector should be disabled, PCV should not be locked",
+        async () => {
+            let siteFormPanel = new SiteFormPanel();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            // 1. Do log in with the user-author and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            // 2. Select the site and click on 'Edit' button
+            await studioUtils.selectAndOpenContentInWizard(SITE_NAME);
+            // 3. Verify that Site Configurator combobox is disabled
+            await siteFormPanel.waitForSiteConfiguratorSelectorDisabled();
+            await siteFormPanel.waitForSiteConfiguratorSelectorDisabled();
+            await siteFormPanel.waitForEditApplicationIconNotDisplayed(appConst.APP_CONTENT_TYPES);
+            // 4. PCV is not locked in the wizard step form:
+            await pageComponentsWizardStepForm.waitForNotLocked();
+        });
+
     it("GIVEN user with Author role is logged in WHEN New Content dialog is opened THEN creating of Folder and Shortcut are allowed for Author role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -171,7 +189,6 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await contentWizard.waitForMarkAsReadyButtonVisible();
             // Verify that 'Edit Settings' button is not visible for users with 'Author' role:
             await propertiesWidgetItemView.waitForEditSettingsButtonNotDisplayed();
-
         });
 
     // Verify that 'Author' can not publish content:
@@ -219,7 +236,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             // 6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
             // 7. Verify that 'Publish Now' button is disabled:
-            await studioUtils.saveScreenshot("project_author_8");
+            await studioUtils.saveScreenshot('project_author_8');
             await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
         });
 

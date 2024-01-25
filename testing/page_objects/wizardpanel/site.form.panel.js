@@ -12,7 +12,7 @@ const XPATH = {
     descriptionInput: `//textarea[contains(@name,'description')]`,
     applicationsSelectedOptions: "//div[contains(@id,'SiteConfiguratorSelectedOptionView')]",
     siteConfigComboboxDiv: "//div[contains(@id,'SiteConfiguratorComboBox')]",
-    selectedAppByDisplayName: function (displayName) {
+    selectedAppByDisplayName: (displayName) => {
         return `//div[contains(@id,'SiteConfiguratorSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]`
     },
 };
@@ -65,7 +65,6 @@ class SiteForm extends Page {
             throw new Error("Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
         }
     }
-
 
     addApplications(appDisplayNames) {
         let result = Promise.resolve();
@@ -121,7 +120,6 @@ class SiteForm extends Page {
         }
     }
 
-
     waitForEditApplicationIconNotDisplayed(displayName) {
         let locator = XPATH.selectedAppByDisplayName(displayName) + XPATH.editIcon;
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
@@ -176,6 +174,15 @@ class SiteForm extends Page {
 
     waitForHelpTextInApplicationsSelectorNotDisplayed() {
         return this.waitForElementNotDisplayed(this.helpTextInApplicationsSelector, appConst.mediumTimeout);
+    }
+
+    async waitForSiteConfiguratorSelectorDisabled() {
+        let locator = XPATH.wizardSteps + XPATH.siteConfigComboboxDiv;
+        //return await this.waitForElementDisabled(locator, appConst.mediumTimeout);
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getAttribute(locator, 'class');
+            return result.includes('disabled');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Site Configurator dropdown selector should be disabled!'});
     }
 }
 

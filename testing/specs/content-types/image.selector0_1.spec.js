@@ -10,6 +10,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const appConst = require('../../libs/app_const');
+const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
 describe('image.selector0_1.spec tests for not required image selector', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -26,6 +27,34 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
             await studioUtils.doAddSite(SITE);
+        });
+
+    it("GIVEN wizard for new Image Selector(0:1) has been opened WHEN image selector has been expanded and one option has been clicked THEN the image should be displayed in the selected options",
+        async () => {
+            let imageSelectorForm = new ImageSelectorForm();
+            let contentWizard = new ContentWizard();
+            let contentPublishDialog = new ContentPublishDialog();
+            // 1. Open new wizard
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_0_1);
+            await contentWizard.typeDisplayName(appConst.generateRandomName('selector'));
+            await imageSelectorForm.waitForOptionsFilterInputDisplayed();
+            // 2. Expand th selector and click on an image-item
+            await imageSelectorForm.expandDropdownClickOnImage(appConst.TEST_IMAGES.GEEK);
+            await contentWizard.pause(1000);
+            // 3. Verify the selected image
+            let result = await imageSelectorForm.getSelectedImages();
+            assert.equal(result[0], appConst.TEST_IMAGES.GEEK, "Expected image should be displayed in selected options");
+            // 4. Click on Mark as ready button in the wizard toolbar:
+            await contentWizard.clickOnMarkAsReadyButton();
+            await contentWizard.waitForOpened();
+            // 5. Verify that Show/Hide excluded items are not displayed
+            await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
+            await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
+            // 6. Verify that the selected image is displayed in the dependent items block:
+            let dependantItems = await contentPublishDialog.getDisplayNameInDependentItems();
+            let expectedItem = '/imagearchive/' + appConst.TEST_IMAGES.GEEK + '.png'
+            assert.ok(dependantItems.includes(expectedItem),
+                "Publish Wizard - The selected image should be displayed in Dependent Items block")
         });
 
     it("GIVEN wizard for new Image Selector(0:1) has been opened WHEN name has been typed THEN options filter input should be displayed AND uploader button should be enabled AND the content gets valid",
@@ -103,16 +132,16 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             let contentWizard = new ContentWizard();
             let wizardDetailsPanel = new WizardDetailsPanel();
             let versionsWidget = new VersionsWidget();
-            //1. Open existing image content(no selected images):
+            // 1. Open existing image content(no selected images):
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             await contentWizard.pause(1000);
-            //2. Open Version widget
+            // 2. Open Version widget
             await wizardDetailsPanel.openVersionHistory();
             await versionsWidget.waitForVersionsLoaded();
             await versionsWidget.clickAndExpandVersion(1);
-            //3. revert the version with single selected image:
+            // 3. revert the version with single selected image:
             await versionsWidget.clickOnRevertButton();
-            //4. Verify the selected image:
+            // 4. Verify the selected image:
             let result = await imageSelectorForm.getSelectedImages();
             assert.equal(result.length, 1, "One image should be present in the selected options");
         });
@@ -120,7 +149,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
-        if (typeof browser !== "undefined") {
+        if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);

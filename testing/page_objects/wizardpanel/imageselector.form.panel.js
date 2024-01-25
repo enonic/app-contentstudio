@@ -136,6 +136,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         return result;
     }
 
+    // Expand the dropdown then click on checkboxes in the dropdown-options:
     async clickOnDropDownHandleAndSelectImages(numberImages) {
         await this.clickOnDropdownHandle();
         await this.pause(700);
@@ -143,7 +144,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         let elems = await this.findElements(selector);
         let viewportElement = await this.findElements(
             lib.IMAGE_CONTENT_COMBOBOX.DIV + "//div[contains(@id,'OptionsTreeGrid')]" + "//div[contains(@class, 'slick-viewport')]");
-        //Scrolls and clicks on options in the dropdown:
+        // Scrolls and clicks on options in the dropdown:
         await this.clickOnOptions(elems.slice(0, numberImages), viewportElement[0]);
         await this.clickOnApplyButton();
         return await this.pause(1000);
@@ -160,11 +161,16 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.clickOnElement(selector);
     }
 
-    filterOptionsAndSelectImage(displayName) {
+    async filterOptionsAndSelectImage(displayName) {
         let loaderComboBox = new LoaderComboBox();
-        return this.typeTextInInput(this.optionsFilterInput, displayName).then(() => {
-            return loaderComboBox.selectOption(displayName);
-        });
+        await this.typeTextInInput(this.optionsFilterInput, displayName);
+        return await loaderComboBox.selectOption(displayName);
+    }
+
+    async expandDropdownClickOnImage(displayName) {
+        let loaderComboBox = new LoaderComboBox();
+        await this.clickOnDropdownHandle();
+        return await loaderComboBox.selectOption(displayName);
     }
 
     async doFilterOptions(displayName) {
@@ -232,7 +238,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.pause(300);
     }
 
-    //Edit image button
+    // Edit image button
     waitForEditButtonDisplayed() {
         return this.waitForElementDisplayed(this.editButton, appConst.mediumTimeout);
     }
