@@ -62,7 +62,8 @@ export class HtmlEditor {
 
     private editor: CKEDITOR.editor;
 
-    static SPECIAL_CHAR_NBSP = 'sp';
+    static SPECIAL_CHAR_NBSP= '(_)';
+    static SPECIAL_CHAR_SHY= '(-)';
 
     private constructor(config: CKEDITOR.config, htmlEditorParams: HtmlEditorParams) {
         this.editorParams = htmlEditorParams;
@@ -683,7 +684,7 @@ export class HtmlEditor {
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 55, 'p'); // apply the 'Normal' format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 56, 'div'); // apply the 'Normal (DIV)' format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 57, 'address'); // apply the 'Address' format
-            this.editor.setKeystroke(CKEDITOR.CTRL + 32, 'insertNbsp');
+            this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 32, 'insertNbsp');
             this.editor.setKeystroke(CKEDITOR.CTRL + 83, 'saveHandler');
         });
 
@@ -962,7 +963,8 @@ class HtmlEditorConfigBuilder {
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false,
             contentsLangDirection: this.editorParams.getLangDirection(),
-            specialChars: (CKEDITOR.config.specialChars || []).concat(this.getExtraSpecialChars())
+            specialChars: (CKEDITOR.config.specialChars || []).concat(this.getExtraSpecialChars()),
+            protectedSource: (CKEDITOR.config.protectedSource || []).concat(new Array(/&shy;/g))
         };
 
         config['qtRows'] = 10; // Count of rows
@@ -1018,7 +1020,7 @@ class HtmlEditorConfigBuilder {
     }
 
     private getExtraAllowedContent(): string {
-        return 'strong em u code address dl dt dd blockquote;*(*);td{*};*[data-*]';
+        return 'strong em u code address dl dt dd blockquote span(!shy);*(*);td{*};*[data-*]';
     }
 
     private getExtraSpecialChars(): (string | [string, string])[] {
@@ -1047,7 +1049,8 @@ class HtmlEditorConfigBuilder {
             ['&chi;', 'chi'],
             ['&psi;', 'psi'],
             ['&omega;', 'omega'],
-            [HtmlEditor.SPECIAL_CHAR_NBSP, 'Non-breaking space']
+            [HtmlEditor.SPECIAL_CHAR_NBSP, i18n('text.htmlEditor.specialchars.nbsp')],
+            [HtmlEditor.SPECIAL_CHAR_SHY, i18n('text.htmlEditor.specialchars.shy')]
         ];
     }
 

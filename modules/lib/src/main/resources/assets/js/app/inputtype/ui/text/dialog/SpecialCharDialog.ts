@@ -29,6 +29,8 @@ export class SpecialCharDialog
                 const char: string = (event.target as Node).textContent;
                 if (char === HtmlEditor.SPECIAL_CHAR_NBSP) {
                     this.getEditor().insertHtml('&nbsp;', 'text');
+                } else if (char === HtmlEditor.SPECIAL_CHAR_SHY) {
+                    this.getEditor().insertHtml(`<span class="shy" title="${i18n('text.htmlEditor.specialchars.shy')}">&shy;</span>`, 'text');
                 } else {
                     this.getEditor().insertText(char);
                 }
