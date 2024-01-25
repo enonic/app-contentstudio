@@ -1,15 +1,13 @@
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {HtmlEditor, SagaHtmlEditorEventData} from '../../../../inputtype/ui/text/HtmlEditor';
 import {SagaCommands} from '../../../../saga/SagaCommands';
 import {WidgetItemView} from '../../WidgetItemView';
-import {UpdateSagaWidgetItemView} from './UpdateSagaWidgetItemView';
+import {UpdateSagaWidgetEvent} from './event/UpdateSagaWidgetEvent';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {SagaGetRequestResult} from '../../../../saga/SagaGetRequest';
-import {CommandDescriptionEl} from './CommandDescriptionEl';
+import {SessionContextEl} from './SessionContextEl';
 import {InteractionEl} from './InteractionEl';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
@@ -18,36 +16,50 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {SagaCommandProcessor} from './SagaCommandProcessor';
 import {SagaPostRequestResult} from '../../../../saga/SagaPostRequest';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {ContentSummary} from '../../../../content/ContentSummary';
+import {PlaceholderGenerator} from './PlaceholderGenerator';
 
 export interface SagaWidgetItemViewData
     extends SagaHtmlEditorEventData {
     editor: HtmlEditor;
+    label?: string;
+    content?: ContentSummary;
 }
 
-enum State {
+enum AssistantState {
     INITIAL = 'initial',
     LOADING = 'loading',
     READY = 'ready',
 }
 
+enum WidgetState {
+    ACTIVE = 'active',
+    INACTIVE = 'inactive',
+}
+
 export class SagaWidgetItemView
     extends WidgetItemView {
 
-    private state: State = State.INITIAL;
+    private widgetState: WidgetState = WidgetState.INACTIVE;
+
+    private assistantState: AssistantState = AssistantState.INITIAL;
 
     private data: SagaWidgetItemViewData;
 
-    private actionButtons: ActionButton[] = [];
+    private sessionContextElement: SessionContextEl;
 
-    private commandDescription: CommandDescriptionEl;
+    private activeInteractionContainer: DivEl;
 
-    private interactionContainer: DivEl;
+    private activeEditorId: string;
 
     private chatInput: TextArea;
 
     private sendButton: ButtonEl;
 
     private user: Principal;
+
+    private interactionHistory: Map<string, Element> = new Map<string, Element>();
 
     constructor() {
         super('saga-widget-item-view');
@@ -56,16 +68,21 @@ export class SagaWidgetItemView
         this.initEventListeners();
     }
 
+    setActive(): void {
+        this.widgetState = WidgetState.ACTIVE;
+        console.log('active');
+    }
+
+    reset(): void {
+        super.reset();
+        this.widgetState = WidgetState.INACTIVE;
+        console.log('inactive');
+    }
+
     protected initElements() {
         this.chatInput = this.createChatInput();
         this.sendButton = this.createSendButton();
-        this.commandDescription = new CommandDescriptionEl();
-        this.interactionContainer = new DivEl('chat-interaction-container');
-        this.interactionContainer.hide();
-
-        const actionsContainer = new DivEl('command-shortcuts');
-        this.actionButtons = this.createActionButtons();
-        actionsContainer.appendChildren(...this.actionButtons);
+        this.sessionContextElement = new SessionContextEl();
 
         const chatInputContainer = new DivEl('chat-input-container');
         chatInputContainer.appendChildren(this.chatInput, this.sendButton as Element);
@@ -74,47 +91,21 @@ export class SagaWidgetItemView
             this.user = result.getUser();
         }).catch(DefaultErrorHandler.handle);
 
-        this.appendChildren(this.commandDescription, this.interactionContainer, actionsContainer, chatInputContainer);
-    }
-
-    protected createActionButtons(): ActionButton[] {
-        return [this.createExpandButton(), this.createCheckButton(), this.createNewButton()];
-    }
-
-    private createExpandButton(): ActionButton {
-        return this.createButton('Expand', 'Please expand the text provided');
-    }
-
-    private createCheckButton(): ActionButton {
-        return this.createButton('Check', 'Please fix errors in the text provided');
-    }
-
-    private createNewButton(): ActionButton {
-        return this.createButton('Create', 'Please create a new text on the basis of the text provided');
-    }
-
-    private createButton(label: string, command: string): ActionButton {
-        const action = new Action(label);
-
-        action.onExecuted(() => {
-            this.askAssistant(command);
-        });
-
-        const button = new ActionButton(action);
-        button.addClass('command-button blue').setTitle('Click to ask Enonic Assistant');
-
-        return button;
+        this.appendChildren(this.sessionContextElement, chatInputContainer);
     }
 
     private createChatInput(): TextArea {
         const input = new TextArea('chat-input').addClass('chat-input') as TextArea;
-        input.getEl().setAttribute('placeholder', 'Message Enonic Assistant...');
 
-        input.onValueChanged((event) => {
+        input.onValueChanged((event: ValueChangedEvent) => {
             this.sendButton.setEnabled(!StringHelper.isBlank(event.getNewValue()));
         });
 
         return input;
+    }
+
+    private updatePlaceholder(): void {
+        this.chatInput.getEl().setAttribute('placeholder', PlaceholderGenerator.generate(this.data));
     }
 
     private createSendButton(): ButtonEl {
@@ -129,11 +120,12 @@ export class SagaWidgetItemView
         return button;
     }
 
-    protected initEventListeners() {
-        UpdateSagaWidgetItemView.on((event: UpdateSagaWidgetItemView) => {
-            this.updateState(State.READY);
-            this.data = event.getData();
-            this.commandDescription.setLinkText(this.data.editor.getName());
+    protected initEventListeners(): void {
+        UpdateSagaWidgetEvent.on((event: UpdateSagaWidgetEvent) => {
+            if (this.isActive()) {
+                this.handleUpdateEvent(event);
+            }
+
             // Can pass additional data from content: event.getData().editor.editorParams.content
             // Name can be taken from event.getData().editor.getId()
             // Name must be clickable in navigate to the Editor
@@ -142,40 +134,61 @@ export class SagaWidgetItemView
         });
     }
 
-    private updateState(state: State): void {
-        if (this.state === state) {
+    private isActive(): boolean {
+        return this.widgetState === WidgetState.ACTIVE;
+    }
+
+    private handleUpdateEvent(event: UpdateSagaWidgetEvent): void {
+        this.updateState(AssistantState.READY);
+        this.data = event.getData();
+        this.sessionContextElement.update(this.data);
+        this.updatePlaceholder();
+
+        if (this.activeEditorId !== this.data.editor.getEditorId()) {
+            this.activeInteractionContainer?.remove();
+            this.activeEditorId = this.data.editor.getEditorId();
+
+            const interactionContainer = this.interactionHistory.get(this.activeEditorId) || new DivEl('chat-interaction-container');
+            this.activeInteractionContainer = interactionContainer;
+            this.interactionHistory.set(this.activeEditorId, interactionContainer);
+
+            if (interactionContainer.getChildren().length === 0) {
+                interactionContainer.hide();
+            }
+
+            interactionContainer.insertAfterEl(this.sessionContextElement);
+        }
+    }
+
+    private updateState(state: AssistantState): void {
+        if (this.assistantState === state) {
             return;
         }
 
-        if (state === State.LOADING) {
+        if (state === AssistantState.LOADING) {
             this.toggleLoadLock(true);
-        } else if (this.state === State.LOADING) {
+        } else if (this.assistantState === AssistantState.LOADING) {
             this.toggleLoadLock(false);
         }
 
-        this.removeClass(this.state);
-        this.state = state;
-        this.addClass(this.state);
+        this.removeClass(this.assistantState);
+        this.assistantState = state;
+        this.addClass(this.assistantState);
     }
 
     private toggleLoadLock(lock: boolean): void {
-        this.actionButtons.forEach((button) => {
-            button.setEnabled(!lock);
-            button.toggleClass('icon-spinner', lock);
-        });
-
         this.chatInput.setEnabled(!lock);
     }
 
     private askAssistant(command?: string): void {
-        if (this.state !== State.READY) {
+        if (this.assistantState !== AssistantState.READY) {
             return;
         }
 
-        this.updateState(State.LOADING);
-        this.interactionContainer.show();
+        this.updateState(AssistantState.LOADING);
+        this.activeInteractionContainer.show();
         const interaction = new InteractionEl(this.user);
-        this.interactionContainer.appendChild(interaction);
+        this.activeInteractionContainer.appendChild(interaction);
         const commandText = command || this.chatInput.getValue();
         interaction.addUserMessage(commandText).startWaiting();
 
@@ -192,12 +205,12 @@ export class SagaWidgetItemView
             .finally(() => {
                 interaction.stopWaiting();
                 interaction.getHTMLElement().scrollIntoView({block: 'start', behavior: 'smooth'});
-                this.updateState(State.READY);
+                this.updateState(AssistantState.READY);
                 this.chatInput.setValue('');
             });
     }
 
     private applyAssistantMessage(message: string): void {
-        this.data.editor.setData(message);
+        this.data.editor.insertData(message);
     }
 }

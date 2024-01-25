@@ -44,12 +44,12 @@ import {EmulatorDevice} from './widget/emulator/EmulatorDevice';
 import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
 import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
 import {SagaWidgetItemView} from './widget/saga/SagaWidgetItemView';
-import {UpdateSagaWidgetItemView} from './widget/saga/UpdateSagaWidgetItemView';
 import {VersionContext} from './widget/version/VersionContext';
 import {VersionHistoryView} from './widget/version/VersionHistoryView';
 import {WidgetItemView} from './WidgetItemView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {InternalWidgetType, WidgetView} from './WidgetView';
+import {StartSagaWidgetEvent} from './widget/saga/event/StartSagaWidgetEvent';
 
 export class ContextView
     extends DivEl {
@@ -162,7 +162,7 @@ export class ContextView
             }
         });
 
-        UpdateSagaWidgetItemView.on(() => {
+        StartSagaWidgetEvent.on(() => {
             this.sagaWidgetView.setActive();
         });
     }
@@ -385,6 +385,7 @@ export class ContextView
             .setContextView(this)
             .addWidgetItemView(new EmulatorWidgetItemView()).build();
 
+        const widgetItemView = new SagaWidgetItemView();
         this.sagaWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.saga'))
             .setDescription(i18n('field.contextPanel.saga.description'))
@@ -392,7 +393,9 @@ export class ContextView
             .setIconClass('icon-sparkling')
             .setType(InternalWidgetType.SAGA)
             .setContextView(this)
-            .addWidgetItemView(new SagaWidgetItemView()).build();
+            .addWidgetItemView(widgetItemView).build();
+
+        this.sagaWidgetView.onActivated(() => widgetItemView.setActive());
 
         this.versionsWidgetView = this.createVersionsWidgetView();
 
