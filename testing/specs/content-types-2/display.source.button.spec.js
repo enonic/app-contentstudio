@@ -79,10 +79,12 @@ describe('display.source.button.spec - tests for Display Source button in html a
             // 1. Open existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await studioUtils.saveScreenshot('cm_expert_edit_remove_icons_hidden');
-            // 2. 'Edit' icon should be hidden
-            await siteFormPanel.waitForEditApplicationIconNotDisplayed();
+            // 2. 'Edit' icon should be hidden in Site Configurator
+            await siteFormPanel.waitForEditApplicationIconNotDisplayed(appConst.APP_CONTENT_TYPES);
             // 3. 'Remove' icon should be hidden
-            await siteFormPanel.waitForRemoveApplicationIconNotDisplayed();
+            await siteFormPanel.waitForRemoveApplicationIconNotDisplayed(appConst.APP_CONTENT_TYPES);
+            // 4. Verify that the selector is disabled:
+            await siteFormPanel.waitForSiteConfiguratorSelectorDisabled();
         });
 
     afterEach(async () => {

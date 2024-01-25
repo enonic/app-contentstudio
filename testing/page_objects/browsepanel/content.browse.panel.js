@@ -843,9 +843,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async clickOnLocalizeButton() {
-        await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.localizeButton);
-        return await this.pause(1000);
+        try {
+            await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.localizeButton);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_localize_btn');
+            throw new Error('Content Browse Panel, Localize button, screenshot: ' + screenshot + ' ' + err);
+        }
     }
 
     async rightClickOnItemByDisplayName(displayName) {
