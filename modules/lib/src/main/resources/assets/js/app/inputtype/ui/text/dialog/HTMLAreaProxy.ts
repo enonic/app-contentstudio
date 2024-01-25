@@ -20,67 +20,67 @@ export class HTMLAreaProxy {
     static createAndOpenDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
         switch (event.getType()) {
         case HtmlAreaDialogType.ANCHOR:
-            return this.openAnchorDialog(event);
+            return HTMLAreaProxy.openAnchorDialog(event);
         case HtmlAreaDialogType.IMAGE:
-            return this.openImageDialog(event as CreateHtmlAreaContentDialogEvent);
+            return HTMLAreaProxy.openImageDialog(event as CreateHtmlAreaContentDialogEvent);
         case HtmlAreaDialogType.LINK:
-            return this.openLinkDialog(event as CreateHtmlAreaContentDialogEvent);
+            return HTMLAreaProxy.openLinkDialog(event as CreateHtmlAreaContentDialogEvent);
         case HtmlAreaDialogType.MACRO:
-            return this.openMacroDialog(event as CreateHtmlAreaMacroDialogEvent);
+            return HTMLAreaProxy.openMacroDialog(event as CreateHtmlAreaMacroDialogEvent);
         case HtmlAreaDialogType.CODE:
-            return this.openCodeDialog(event);
+            return HTMLAreaProxy.openCodeDialog(event);
         case HtmlAreaDialogType.SPECIALCHAR:
-            return this.openSpecialCharDialog(event);
+            return HTMLAreaProxy.openSpecialCharDialog(event);
         case HtmlAreaDialogType.FULLSCREEN:
-            return this.openFullscreenDialog(event);
+            return HTMLAreaProxy.openFullscreenDialog(event);
         case HtmlAreaDialogType.TABLE:
-            return this.openTableDialog(event);
+            return HTMLAreaProxy.openTableDialog(event);
         case HtmlAreaDialogType.NUMBERED_LIST:
-            return this.openNumberedListDialog(event);
+            return HTMLAreaProxy.openNumberedListDialog(event);
         case HtmlAreaDialogType.BULLETED_LIST:
-            return this.openBulletedListDialog(event);
+            return HTMLAreaProxy.openBulletedListDialog(event);
         }
     }
 
     private static openLinkDialog(event: CreateHtmlAreaContentDialogEvent): ModalDialog {
-        return this.openDialog(new LinkModalDialog(event.getConfig() as eventInfo, event.getContent(), event.getProject()));
+        return HTMLAreaProxy.openDialog(new LinkModalDialog(event.getConfig() as eventInfo, event.getContent(), event.getProject()));
     }
 
     private static openImageDialog(event: CreateHtmlAreaContentDialogEvent): ModalDialog {
-        return this.openDialog(new ImageModalDialog(event.getConfig() as eventInfo, event.getContent(), event.getProject()));
+        return HTMLAreaProxy.openDialog(new ImageModalDialog(event.getConfig() as eventInfo, event.getContent(), event.getProject()));
     }
 
     private static openAnchorDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return this.openDialog(new AnchorModalDialog(event.getConfig() as eventInfo));
+        return HTMLAreaProxy.openDialog(new AnchorModalDialog(event.getConfig() as eventInfo));
     }
 
     private static openMacroDialog(event: CreateHtmlAreaMacroDialogEvent): ModalDialog {
-        return this.openDialog(
+        return HTMLAreaProxy.openDialog(
             new MacroModalDialog(event.getConfig() as MacroDialogParams, event.getContent(), event.getApplicationKeys()));
     }
 
     private static openCodeDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return this.openDialog(new CodeDialog(event.getConfig() as eventInfo));
+        return HTMLAreaProxy.openDialog(new CodeDialog(event.getConfig() as eventInfo));
     }
 
     private static openSpecialCharDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return this.openDialog(new SpecialCharDialog(event.getConfig() as eventInfo));
+        return HTMLAreaProxy.openDialog(new SpecialCharDialog(event.getConfig() as eventInfo));
     }
 
     private static openFullscreenDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return this.openDialog(new FullscreenDialog(event.getConfig() as FullScreenDialogParams));
+        return HTMLAreaProxy.openDialog(new FullscreenDialog(event.getConfig() as FullScreenDialogParams));
     }
 
     private static openTableDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return this.openDialog(new TableDialog(event.getConfig() as eventInfo));
+        return HTMLAreaProxy.openDialog(new TableDialog(event.getConfig() as eventInfo));
     }
 
     private static openNumberedListDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return this.openDialog(new NumberedListModalDialog(event.getConfig() as eventInfo));
+        return HTMLAreaProxy.openDialog(new NumberedListModalDialog(event.getConfig() as eventInfo));
     }
 
     private static openBulletedListDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return this.openDialog(new BulletedListModalDialog(event.getConfig() as eventInfo));
+        return HTMLAreaProxy.openDialog(new BulletedListModalDialog(event.getConfig() as eventInfo));
     }
 
     private static openDialog(dialog: ModalDialog): ModalDialog {
