@@ -78,7 +78,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
         });
 
     // xp-apps#737: Page Editor panel for a site is not correctly refreshed when a page template was added or removed
-    it(`GIVEN site is opened AND page-template is opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
+    it(`GIVEN site and its page-template are opened WHEN the 'site' has been selected in supports (in template) THEN template should be applied in the site-wizard`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageTemplateForm = new PageTemplateForm();

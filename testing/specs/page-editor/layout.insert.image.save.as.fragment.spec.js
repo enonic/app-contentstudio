@@ -32,7 +32,7 @@ describe('layot.insert.save.as.fragment.spec - tests for inserting a fragment wi
             await studioUtils.doAddSite(SITE);
         });
 
-    // verifies task: Images inside Text component failed to render after saving as fragmen… #7083
+    // verifies task: Images inside Text component failed to render after saving as fragment… #7082
     it(`GIVEN text has been inserted in left region in 3-column layout WHEN the layout has been saved as fragment THEN the image should be displayed in the LiveEdit`,
         async () => {
             let contentWizard = new ContentWizard();
