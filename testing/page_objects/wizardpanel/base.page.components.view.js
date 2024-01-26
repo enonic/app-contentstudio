@@ -142,7 +142,7 @@ class BasePageComponentView extends Page {
             let selector = xpath.contextMenuItemByName(menuItem);
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
-            return await this.pause(500);
+            return await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
             throw new Error("Error - Page Component View: Menu Item, screenshot " + screenshot + ' ' + err);
