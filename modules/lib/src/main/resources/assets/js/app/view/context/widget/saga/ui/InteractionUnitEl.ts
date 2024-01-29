@@ -5,10 +5,12 @@ import * as Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 
-export class InteractionEl
+export class InteractionUnitEl
     extends DivEl {
 
     private readonly user: Principal;
+
+    private sagaEntry?: AssistantInteractionEntry;
 
     constructor(user: Principal) {
         super('chat-interaction');
@@ -42,9 +44,14 @@ export class InteractionEl
         return this;
     }
 
-    addAssistantMessage(message: string, applyHandler: (message) => void): this {
-        this.appendChild(new AssistantInteractionEntry(message, this.user, applyHandler));
+    addAssistantMessage(message: string): this {
+        this.sagaEntry = new AssistantInteractionEntry(message, this.user);
+        this.appendChild(this.sagaEntry);
         return this;
+    }
+
+    getSagaMessage(): string {
+        return this.sagaEntry?.getMessage();
     }
 }
 
@@ -102,6 +109,10 @@ abstract class InteractionEntry extends DivEl {
 
     abstract makeIconTooltip(): string;
 
+    getMessage(): string {
+        return this.message;
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addClass(this.makeClassName());
@@ -145,27 +156,27 @@ class AssistantInteractionEntry
 
     private applyButton: ButtonEl;
 
-    private applyHandler: (message) => void;
-
-    constructor(message: string, user: Principal, applyHandler: (message) => void) {
+    constructor(message: string, user: Principal) {
         super(message, user);
-
-        this.applyHandler = applyHandler;
     }
 
     protected initElements(): void {
         super.initElements();
 
-        this.applyButton = new ButtonEl().setHtml('Apply') as ButtonEl;
+        this.applyButton = new ButtonEl().setTitle('Copy').addClass('icon-copy') as ButtonEl;
     }
 
     protected initListeners(): void {
         super.initListeners();
 
         this.applyButton.onClicked(() => {
-            this.applyHandler(this.message);
-            this.applyButton.setHtml('Applied');
-            this.applyButton.setEnabled(false);
+            navigator.clipboard.writeText(this.message);
+
+            this.applyButton.setTitle('Copied!');
+
+            setTimeout(() => {
+                this.applyButton.setTitle('Copy');
+            }, 2000);
         });
     }
 
