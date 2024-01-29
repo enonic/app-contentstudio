@@ -1,13 +1,5 @@
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-
-export type SagaPostRequestConfig = SagaPostRequestParams;
-
-interface SagaPostRequestParams {
-    message: string;
-}
+import {SagaRequest} from './SagaRequest';
 
 export interface SagaPostRequestResult {
     assistantId: string;
@@ -15,26 +7,13 @@ export interface SagaPostRequestResult {
     runId: string;
 }
 
-export class SagaPostRequest
-    extends ResourceRequest<SagaPostRequestResult> {
+export class SagaPostRequest<T>
+    extends SagaRequest<T> {
 
-    private readonly config: SagaPostRequestConfig;
-
-    constructor(config: SagaPostRequestConfig) {
+    constructor() {
         super();
-
-        this.config = config;
 
         this.setMethod(HttpMethod.POST);
     }
 
-    getRequestPath(): Path {
-        return Path.fromString(CONFIG.getString('services.sagaServiceUrl'));
-    }
-
-    getParams(): SagaPostRequestParams {
-        return {
-            message: this.config.message,
-        };
-    }
 }
