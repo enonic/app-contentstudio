@@ -1,24 +1,33 @@
 import * as Q from 'q';
 import {SagaGetRequest, SagaGetRequestResult} from './SagaGetRequest';
-import {SagaPostRequest, SagaPostRequestConfig, SagaPostRequestResult} from './SagaPostRequest';
+import {SagaStartRequest, SagaStartRequestResult} from './SagaStartRequest';
+import {SagaRunRequest, SagaRunRequestResult} from './SagaRunRequest';
 
 export class SagaCommands {
-    static expandText(message: string): Q.Promise<SagaPostRequestResult> {
-        return SagaCommands.sendRunRequest(message);
+    static expandText(message: string, chatId?: string): Q.Promise<string> {
+        const chatIdPromise = chatId ? Q.resolve(chatId) : SagaCommands.sendStartRequest().then((startResult) => startResult.chatId);
+
+        return chatIdPromise.then((chatId: string) => {
+            return SagaCommands.sendRunRequest(chatId, message).then(() => chatId);
+        });
     }
 
-    private static sendRunRequest(message: string): Q.Promise<SagaPostRequestResult> {
-        return new SagaPostRequest({message} satisfies SagaPostRequestConfig).sendAndParse();
+    private static sendStartRequest(): Q.Promise<SagaStartRequestResult> {
+        return new SagaStartRequest().sendAndParse();
     }
 
-    private static sendRetrieveRequest(threadId: string, runId: string): Q.Promise<SagaGetRequestResult> {
-        return new SagaGetRequest({threadId, runId}).sendAndParse();
+    private static sendRunRequest(chatId: string, message: string): Q.Promise<SagaRunRequestResult> {
+        return new SagaRunRequest({chatId, message}).sendAndParse();
     }
 
-    static waitForSagaToFinish(threadId: string, runId: string,
+    private static sendRetrieveRequest(chatId: string): Q.Promise<SagaGetRequestResult> {
+        return new SagaGetRequest(chatId).sendAndParse();
+    }
+
+    static waitForSagaToFinish(chatId: string,
                                        d?: Q.Deferred<SagaGetRequestResult>): Q.Promise<SagaGetRequestResult> {
         const defer = d ?? Q.defer<SagaGetRequestResult>();
-        SagaCommands.sendRetrieveRequest(threadId, runId)
+        SagaCommands.sendRetrieveRequest(chatId)
             .then((retrieveResult) => {
                 const status = retrieveResult.status;
                 switch (status) {
@@ -35,7 +44,7 @@ export class SagaCommands {
                 case 'in_progress':
                     setTimeout(() => {
                         if (defer.promise.isPending()) {
-                            SagaCommands.waitForSagaToFinish(threadId, runId, defer);
+                            SagaCommands.waitForSagaToFinish(chatId, defer);
                         }
                     }, 3000);
                     break;
