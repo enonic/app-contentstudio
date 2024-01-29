@@ -55,7 +55,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             assert.ok(actualText.includes(EXPECTED_DATA_CKE), 'expected text should be in CKE');
         });
 
-    //verifies XP-4949 HTML Area - Modal dialogs must handle close on Esc
+    // verifies XP-4949 HTML Area - Modal dialogs must handle close on Esc
     it(`GIVEN 'Insert Anchor' dialog is opened WHEN ESC key has been pressed THEN dialog should be closed`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -96,8 +96,9 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await insertAnchorDialog.clickOnInsertButton();
             // Verify the validation message:
             await studioUtils.saveScreenshot('invalid_text_in_anchor');
-            let isDisplayed = await insertAnchorDialog.waitForValidationMessage();
-            assert.ok(isDisplayed, 'Validation message should be present in the modal dialog');
+            let msg = await insertAnchorDialog.getValidationMessage();
+            assert.equal(msg, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED,
+                "'Invalid value entered' should be displayed in the modal dialog");
         });
 
     // Verify  the issue - Page Component View - incorrect component name for the duplicated text component #3160
