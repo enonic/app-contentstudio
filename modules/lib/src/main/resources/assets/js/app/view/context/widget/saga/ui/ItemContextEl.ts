@@ -2,11 +2,11 @@ import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import * as Q from 'q';
-import {SagaWidgetItemViewData} from './SagaWidgetItemView';
+import {SagaWidgetItemViewData} from '../SagaWidgetItemView';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
-export class SessionContextEl
+export class ItemContextEl
     extends PEl {
 
     private editorLink: ButtonEl;
@@ -21,12 +21,20 @@ export class SessionContextEl
         super('session-context');
 
         this.initElements();
+        this.initListeners();
     }
 
     protected initElements(): void {
         this.editorLink = new ButtonEl('command-editor-link').setHtml('@') as ButtonEl;
         this.selectedTextIntro = new DivEl('selected-text-intro').setHtml('with selected text');
         this.selectedTextSection = new DivEl('selected-text-section');
+    }
+
+    protected initListeners(): void {
+        this.editorLink.onClicked(() => {
+            this.data.editor.focus();
+            this.data.editor.getHTMLElement().parentElement.scrollIntoView();
+        });
     }
 
     update(data: SagaWidgetItemViewData): void {
