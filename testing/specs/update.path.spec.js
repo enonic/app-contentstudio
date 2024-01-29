@@ -13,13 +13,13 @@ describe('update.path.spec: tests for updating a content path', function () {
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const PATH_1 = contentBuilder.generateRandomName('folder');
+    const PATH_1 = contentBuilder.generateRandomName('1-folder');
     const PATH_2 = contentBuilder.generateRandomName('folder');
 
     let FOLDER;
     it(`Precondition: test folder should be added`,
         async () => {
-            let displayName = appConst.generateRandomName('folder');
+            let displayName = appConst.generateRandomName('1-folder');
             FOLDER = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddFolder(FOLDER);
         });
