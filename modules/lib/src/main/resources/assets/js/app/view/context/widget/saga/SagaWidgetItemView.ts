@@ -3,22 +3,20 @@ import {HtmlEditor, SagaHtmlEditorEventData} from '../../../../inputtype/ui/text
 import {SagaCommands} from '../../../../saga/SagaCommands';
 import {WidgetItemView} from '../../WidgetItemView';
 import {UpdateSagaWidgetEvent} from './event/UpdateSagaWidgetEvent';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {SagaGetRequestResult} from '../../../../saga/SagaGetRequest';
-import {SessionContextEl} from './SessionContextEl';
-import {InteractionEl} from './InteractionEl';
+import {ItemContextEl} from './ui/ItemContextEl';
+import {InteractionUnitEl} from './ui/InteractionUnitEl';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {SagaCommandProcessor} from './SagaCommandProcessor';
-import {SagaPostRequestResult} from '../../../../saga/SagaPostRequest';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {PlaceholderGenerator} from './PlaceholderGenerator';
+import {InteractionContainer} from './ui/InteractionContainer';
+import {ChatInputEl} from './ui/ChatInputEl';
 
 export interface SagaWidgetItemViewData
     extends SagaHtmlEditorEventData {
@@ -38,6 +36,15 @@ enum WidgetState {
     INACTIVE = 'inactive',
 }
 
+export interface ItemInteraction {
+    chatId?: string;
+    container: InteractionContainer;
+}
+
+export type ItemID = string;
+
+export type ItemInteractions = Map<ItemID, ItemInteraction>;
+
 export class SagaWidgetItemView
     extends WidgetItemView {
 
@@ -47,19 +54,19 @@ export class SagaWidgetItemView
 
     private data: SagaWidgetItemViewData;
 
-    private sessionContextElement: SessionContextEl;
+    private sessionContextElement: ItemContextEl;
 
-    private activeInteractionContainer: DivEl;
+    private chatInputContainer: ChatInputEl;
 
-    private activeEditorId: string;
+    private activeItemInteraction: ItemInteraction;
 
-    private chatInput: TextArea;
+    private activeItemId: ItemID;
 
-    private sendButton: ButtonEl;
+    private applyButton: ButtonEl;
 
     private user: Principal;
 
-    private interactionHistory: Map<string, Element> = new Map<string, Element>();
+    private itemsInteractions: ItemInteractions = new Map<string, ItemInteraction>();
 
     constructor() {
         super('saga-widget-item-view');
@@ -70,57 +77,42 @@ export class SagaWidgetItemView
 
     setActive(): void {
         this.widgetState = WidgetState.ACTIVE;
-        console.log('active');
     }
 
     reset(): void {
         super.reset();
         this.widgetState = WidgetState.INACTIVE;
-        console.log('inactive');
     }
 
-    protected initElements() {
-        this.chatInput = this.createChatInput();
-        this.sendButton = this.createSendButton();
-        this.sessionContextElement = new SessionContextEl();
-
-        const chatInputContainer = new DivEl('chat-input-container');
-        chatInputContainer.appendChildren(this.chatInput, this.sendButton as Element);
+    protected initElements(): void {
+        this.chatInputContainer = new ChatInputEl();
+        this.applyButton = this.createApplyButton();
+        this.sessionContextElement = new ItemContextEl();
 
         new IsAuthenticatedRequest().sendAndParse().then((result: LoginResult) => {
             this.user = result.getUser();
         }).catch(DefaultErrorHandler.handle);
 
-        this.appendChildren(this.sessionContextElement, chatInputContainer);
+        this.appendChildren(this.sessionContextElement, this.applyButton as Element, this.chatInputContainer);
     }
 
-    private createChatInput(): TextArea {
-        const input = new TextArea('chat-input').addClass('chat-input') as TextArea;
-
-        input.onValueChanged((event: ValueChangedEvent) => {
-            this.sendButton.setEnabled(!StringHelper.isBlank(event.getNewValue()));
-        });
-
-        return input;
-    }
-
-    private updatePlaceholder(): void {
-        this.chatInput.getEl().setAttribute('placeholder', PlaceholderGenerator.generate(this.data));
-    }
-
-    private createSendButton(): ButtonEl {
+    private createApplyButton(): ButtonEl {
         const button = new ButtonEl();
-        button.addClass('send-button icon-arrow-left2');
-        button.setEnabled(false);
+        button.setHtml('Apply').addClass('apply-button');
+        button.setEnabled(false).hide();
 
         button.onClicked(() => {
-            this.askAssistant();
+            this.applyAssistantMessage();
         });
 
         return button;
     }
 
     protected initEventListeners(): void {
+        this.chatInputContainer.onSendClicked(() => {
+            this.askAssistant();
+        });
+
         UpdateSagaWidgetEvent.on((event: UpdateSagaWidgetEvent) => {
             if (this.isActive()) {
                 this.handleUpdateEvent(event);
@@ -139,25 +131,43 @@ export class SagaWidgetItemView
     }
 
     private handleUpdateEvent(event: UpdateSagaWidgetEvent): void {
-        this.updateState(AssistantState.READY);
         this.data = event.getData();
+        this.updateState(AssistantState.READY);
         this.sessionContextElement.update(this.data);
-        this.updatePlaceholder();
+        this.updateApplyButtonText();
+        this.chatInputContainer.updatePlaceholder(PlaceholderGenerator.generate(this.data));
 
-        if (this.activeEditorId !== this.data.editor.getEditorId()) {
-            this.activeInteractionContainer?.remove();
-            this.activeEditorId = this.data.editor.getEditorId();
-
-            const interactionContainer = this.interactionHistory.get(this.activeEditorId) || new DivEl('chat-interaction-container');
-            this.activeInteractionContainer = interactionContainer;
-            this.interactionHistory.set(this.activeEditorId, interactionContainer);
-
-            if (interactionContainer.getChildren().length === 0) {
-                interactionContainer.hide();
-            }
-
-            interactionContainer.insertAfterEl(this.sessionContextElement);
+        if (this.activeItemId !== this.data.editor.getEditorId()) {
+            this.updateActiveChatContainer();
         }
+    }
+
+    private updateApplyButtonText(): void {
+        if (this.isEditorWithSelection()) {
+            this.applyButton.setHtml('Replace selection');
+        } else {
+            this.applyButton.setHtml('Insert');
+        }
+    }
+
+    private updateActiveChatContainer(): void {
+        this.activeItemInteraction?.container.remove();
+        this.activeItemId = this.data.editor.getEditorId();
+        this.activeItemInteraction = this.getOrCreateItemInteraction(this.activeItemId);
+        this.activeItemInteraction.container.insertAfterEl(this.sessionContextElement);
+        this.applyButton.setVisible(!this.activeItemInteraction.container.isEmpty());
+    }
+
+    private getOrCreateItemInteraction(itemId: ItemID): ItemInteraction {
+        if (this.itemsInteractions.has(this.activeItemId)) {
+            return this.itemsInteractions.get(this.activeItemId);
+        }
+
+        const container = new InteractionContainer().setVisible(false) as InteractionContainer;
+        const itemInteraction = {container};
+        this.itemsInteractions.set(itemId, itemInteraction);
+
+        return itemInteraction;
     }
 
     private updateState(state: AssistantState): void {
@@ -177,25 +187,30 @@ export class SagaWidgetItemView
     }
 
     private toggleLoadLock(lock: boolean): void {
-        this.chatInput.setEnabled(!lock);
+        this.chatInputContainer.setEnabled(!lock);
+        this.applyButton.setEnabled(!lock);
     }
 
-    private askAssistant(command?: string): void {
+    private askAssistant(): void {
         if (this.assistantState !== AssistantState.READY) {
             return;
         }
 
         this.updateState(AssistantState.LOADING);
-        this.activeInteractionContainer.show();
-        const interaction = new InteractionEl(this.user);
-        this.activeInteractionContainer.appendChild(interaction);
-        const commandText = command || this.chatInput.getValue();
-        interaction.addUserMessage(commandText).startWaiting();
+        this.activeItemInteraction.container.show();
+        const interaction = new InteractionUnitEl(this.user);
+        this.activeItemInteraction.container.addInteraction(interaction);
+        const userInput = this.chatInputContainer.getValue();
+        this.chatInputContainer.setValue('');
+        interaction.addUserMessage(userInput).startWaiting();
+        const messageToAssistant = SagaCommandProcessor.convertToAssistantMessage(userInput, this.data.html);
 
-        SagaCommands.expandText(SagaCommandProcessor.convertToAssistantMessage(commandText, this.data.html))
-            .then((result: SagaPostRequestResult) => {
-                return SagaCommands.waitForSagaToFinish(result.threadId, result.runId).then((result: SagaGetRequestResult) => {
-                    interaction.addAssistantMessage(result.messages.pop(), this.applyAssistantMessage.bind(this));
+        SagaCommands.expandText(messageToAssistant, this.activeItemInteraction.chatId)
+            .then((chatId: string) => {
+                this.itemsInteractions.get(this.activeItemId).chatId = chatId;
+
+                return SagaCommands.waitForSagaToFinish(chatId).then((result: SagaGetRequestResult) => {
+                    interaction.addAssistantMessage(result.messages.pop());
                 });
             })
             .catch((e) => {
@@ -206,11 +221,16 @@ export class SagaWidgetItemView
                 interaction.stopWaiting();
                 interaction.getHTMLElement().scrollIntoView({block: 'start', behavior: 'smooth'});
                 this.updateState(AssistantState.READY);
-                this.chatInput.setValue('');
+                this.applyButton.show();
             });
     }
 
-    private applyAssistantMessage(message: string): void {
+    private applyAssistantMessage(): void {
+        const message = this.activeItemInteraction.container.getLastSagaResponseHtml();
         this.data.editor.insertData(message);
+    }
+
+    private isEditorWithSelection(): boolean {
+        return !StringHelper.isBlank(this.data.selection?.text);
     }
 }
