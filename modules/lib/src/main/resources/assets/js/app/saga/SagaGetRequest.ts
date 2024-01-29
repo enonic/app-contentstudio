@@ -1,14 +1,6 @@
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-
-export type SagaGetRequestConfig = SagaGetRequestParams;
-
-interface SagaGetRequestParams {
-    threadId: string;
-    runId: string;
-}
+import {SagaRequest} from './SagaRequest';
 
 export interface SagaGetRequestResult {
     status: string;
@@ -16,20 +8,19 @@ export interface SagaGetRequestResult {
 }
 
 export class SagaGetRequest
-    extends ResourceRequest<SagaGetRequestResult> {
+    extends SagaRequest<SagaGetRequestResult> {
 
-    private readonly config: SagaGetRequestConfig;
+    private readonly chatId: string;
 
-    constructor(config: SagaGetRequestConfig) {
+    constructor(chatId: string) {
         super();
 
-        this.config = config;
+        this.chatId = chatId;
 
         this.setMethod(HttpMethod.GET);
     }
 
     getRequestPath(): Path {
-        return Path.fromString(
-            `${CONFIG.getString('services.sagaServiceUrl')}?threadId=${this.config.threadId}&runId=${this.config.runId}`);
+        return Path.create().setElements([super.getRequestPath().toString(), this.chatId]).build();
     }
 }
