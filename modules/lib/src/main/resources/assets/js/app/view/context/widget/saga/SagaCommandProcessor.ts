@@ -1,11 +1,12 @@
+import {SagaResponse} from '../../../../saga/SagaResponse';
 
 export class SagaCommandProcessor {
 
     public static convertToAssistantMessage(command, html: string): string {
-        return `${command} : \`\`\`${html}\`\`\``;
+        return `${command} : """${html}"""`;
     }
 
-    public static extractTextFromAssistantMessage(message: string): string {
-        return message.substring(message.indexOf('"""') + 1, message.lastIndexOf('"""'));
+    public static extractResponse(message: string): SagaResponse {
+        return JSON.parse(message);
     }
 }

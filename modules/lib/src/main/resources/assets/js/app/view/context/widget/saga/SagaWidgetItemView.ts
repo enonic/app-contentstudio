@@ -66,7 +66,7 @@ export class SagaWidgetItemView
 
     private user: Principal;
 
-    private itemsInteractions: ItemInteractions = new Map<string, ItemInteraction>();
+    private itemsInteractions: ItemInteractions = new Map<ItemID, ItemInteraction>();
 
     constructor() {
         super('saga-widget-item-view');
@@ -146,7 +146,7 @@ export class SagaWidgetItemView
         if (this.isEditorWithSelection()) {
             this.applyButton.setHtml('Replace selection');
         } else {
-            this.applyButton.setHtml('Insert');
+            this.applyButton.setHtml('Insert at cursor');
         }
     }
 
@@ -203,14 +203,17 @@ export class SagaWidgetItemView
         const userInput = this.chatInputContainer.getValue();
         this.chatInputContainer.setValue('');
         interaction.addUserMessage(userInput).startWaiting();
-        const messageToAssistant = SagaCommandProcessor.convertToAssistantMessage(userInput, this.data.html);
+        interaction.scrollIntoView();
+
+        const textToSend = this.isEditorWithSelection() ? this.data.selection.html : this.data.html;
+        const messageToAssistant = SagaCommandProcessor.convertToAssistantMessage(userInput, textToSend);
 
         SagaCommands.expandText(messageToAssistant, this.activeItemInteraction.chatId)
             .then((chatId: string) => {
                 this.itemsInteractions.get(this.activeItemId).chatId = chatId;
 
                 return SagaCommands.waitForSagaToFinish(chatId).then((result: SagaGetRequestResult) => {
-                    interaction.addAssistantMessage(result.messages.pop());
+                    this.handleSagaResponse(result, interaction);
                 });
             })
             .catch((e) => {
@@ -219,7 +222,7 @@ export class SagaWidgetItemView
             })
             .finally(() => {
                 interaction.stopWaiting();
-                interaction.getHTMLElement().scrollIntoView({block: 'start', behavior: 'smooth'});
+                interaction.scrollIntoView({block: 'start', behavior: 'smooth'});
                 this.updateState(AssistantState.READY);
                 this.applyButton.show();
             });
@@ -232,5 +235,15 @@ export class SagaWidgetItemView
 
     private isEditorWithSelection(): boolean {
         return !StringHelper.isBlank(this.data.selection?.text);
+    }
+
+    private handleSagaResponse(result: SagaGetRequestResult, interaction: InteractionUnitEl): void {
+        const sagaResponse = SagaCommandProcessor.extractResponse(result.messages.pop());
+
+        if (sagaResponse.status === 'OK') {
+            interaction.addAssistantSuccessMessage(sagaResponse.message);
+        } else {
+            interaction.addAssistantFailMessage(sagaResponse.message);
+        }
     }
 }
