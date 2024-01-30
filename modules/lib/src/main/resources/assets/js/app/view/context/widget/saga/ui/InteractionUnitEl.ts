@@ -44,14 +44,24 @@ export class InteractionUnitEl
         return this;
     }
 
-    addAssistantMessage(message: string): this {
-        this.sagaEntry = new AssistantInteractionEntry(message, this.user);
+    addAssistantSuccessMessage(message: string): this {
+        this.sagaEntry = new AssistantSuccessInteractionEntry(message, this.user);
+        this.appendChild(this.sagaEntry);
+        return this;
+    }
+
+    addAssistantFailMessage(message: string): this {
+        this.sagaEntry = new AssistantFailInteractionEntry(message, this.user);
         this.appendChild(this.sagaEntry);
         return this;
     }
 
     getSagaMessage(): string {
         return this.sagaEntry?.getMessage();
+    }
+
+    scrollIntoView(options?: ScrollIntoViewOptions): void {
+        this.getHTMLElement().scrollIntoView(options || {block: 'end', behavior: 'smooth'});
     }
 }
 
@@ -151,33 +161,12 @@ class UserInteractionEntry
     }
 }
 
-class AssistantInteractionEntry
+abstract class AssistantInteractionEntry
     extends InteractionEntry {
 
-    private applyButton: ButtonEl;
 
     constructor(message: string, user: Principal) {
         super(message, user);
-    }
-
-    protected initElements(): void {
-        super.initElements();
-
-        this.applyButton = new ButtonEl().setTitle('Copy').addClass('icon-copy') as ButtonEl;
-    }
-
-    protected initListeners(): void {
-        super.initListeners();
-
-        this.applyButton.onClicked(() => {
-            navigator.clipboard.writeText(this.message);
-
-            this.applyButton.setTitle('Copied!');
-
-            setTimeout(() => {
-                this.applyButton.setTitle('Copy');
-            }, 2000);
-        });
     }
 
     makeNameAbbreviation(): string {
@@ -195,14 +184,46 @@ class AssistantInteractionEntry
     makeIconTooltip(): string {
         return 'Enonic Saga Assistant';
     }
+}
+
+class AssistantSuccessInteractionEntry extends AssistantInteractionEntry {
+
+    private copyButton: ButtonEl;
+
+    protected initElements(): void {
+        super.initElements();
+
+        this.copyButton = new ButtonEl().setTitle('Copy').addClass('icon-copy') as ButtonEl;
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        this.copyButton.onClicked(() => {
+            navigator.clipboard.writeText(this.message);
+
+            this.copyButton.setTitle('Copied!');
+
+            setTimeout(() => {
+                this.copyButton.setTitle('Copy');
+            }, 2000);
+        });
+    }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.applyButton.addClass('chat-interaction-apply');
-            this.titleAndTextEl.insertChild(this.applyButton, 1);
+            this.copyButton.addClass('chat-interaction-apply');
+            this.titleAndTextEl.insertChild(this.copyButton, 1);
 
             return rendered;
         });
+    }
+}
+
+class AssistantFailInteractionEntry extends AssistantInteractionEntry {
+
+    makeClassName(): string {
+        return `${super.makeClassName()} chat-interaction-entry-assistant-fail`;
     }
 }
 
