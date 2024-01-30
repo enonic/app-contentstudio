@@ -222,13 +222,19 @@
     outline: none;
     border-radius: 14px;
     align-self: center;
+    cursor: pointer;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background-color: #5a94ee;
     }
 
     &:focus {
       outline: 1px solid @admin-black;
+    }
+
+    &:disabled {
+      opacity: 0.75;
+      cursor: default;
     }
   }
 
