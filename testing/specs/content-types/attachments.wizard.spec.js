@@ -31,6 +31,7 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
 
     // https://github.com/enonic/app-contentstudio/issues/7152
     // AttachmentUploader: error in console on removing an attachment #7152
+    // https://github.com/enonic/app-contentstudio/issues/7063
     it("GIVEN existing attachment content is opened WHEN attachment binary has been removed THEN the content should be automatically saved",
         async () => {
             let attachmentsForm = new AttachmentsForm();

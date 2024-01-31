@@ -76,10 +76,26 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
             await studioUtils.doLogout();
         });
 
+    // Settings Panel - layers are not shown to users who have access to these layers #7225
+    // https://github.com/enonic/app-contentstudio/issues/7225
+    it("GIVEN user with 'Contributor'-layer role is logged in WHEN navigated to 'Settings' panel AND click on the layer THEN 'Edit' button should be disabled in the browse toolbar",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.closeProjectSelectionDialog();
+            // 2. Go to Settings Browse Panel:
+            await studioUtils.openSettingsPanel();
+            // 3. Select the user's layer:
+            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
+            // 4. Verify that 'Edit' button is disabled, because the user has contributor role
+            await settingsBrowsePanel.waitForEditButtonDisabled();
+        });
+
     it("GIVEN user with 'Contributor'-layer role is logged in WHEN site that is 'inherited' from the primary project has been selected THEN 'Open' button should be enabled in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let contentWizard = new ContentWizard()
+            let contentWizard = new ContentWizard();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             // Verify that Project Selection dialog is loaded, then close it
@@ -114,7 +130,7 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
             //await contentWizard.waitForOpened();
         });
 
-    it("WHEN user contributor navigated to 'Settings Panel' THEN parent project and its layer should be visible",
+    it("WHEN user-contributor navigated to 'Settings Panel' THEN parent project and its layer should be visible",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
@@ -147,7 +163,7 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
             let actualResult = await projectWizard.getSelectedParentProjectsDisplayName();
             assert.equal(actualResult.length, 2, '2 parent projects should be displayed in the form');
             assert.ok(actualResult.includes(PROJECT_DISPLAY_NAME), "Expected project should be displayed in the selected options");
-            assert.ok(actualResult.includes('Default'), "Default project should be displayed in the selected options");
+            assert.ok(actualResult.includes('Default'), "'Default' project should be displayed in the selected options");
         });
 
     it('Post conditions: the layer should be deleted',
