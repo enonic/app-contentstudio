@@ -493,7 +493,11 @@ export class LiveEditPage {
                     createViewConfig) as ComponentView;
 
                 componentView.replaceWith(newComponentView);
-                newComponentView.getParentItemView().registerComponentViewListeners(newComponentView);
+                const parentItemView = newComponentView.getParentItemView();
+
+                if (parentItemView instanceof RegionView) { // PageView for a fragment|
+                    newComponentView.getParentItemView().registerComponentViewListeners(newComponentView);
+                }
 
                 const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
                 event.fire();
