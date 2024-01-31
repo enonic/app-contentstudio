@@ -32,7 +32,7 @@ describe('htmlarea.updated.on.server.event.spec: tests for updating html area on
 
     // HtmlArea is not updated on server event #7132
     // https://github.com/enonic/app-contentstudio/issues/7132
-    it(`GIVEN Open a same content item with HtmlArea in two browser tabs WHEN  update the text one of area THEN the text should ve updated in the second area as well`,
+    it(`GIVEN Open a same content item with HtmlArea in two browser tabs WHEN  update the text one of area THEN the text should ve updated in the second browser tab`,
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
@@ -65,7 +65,7 @@ describe('htmlarea.updated.on.server.event.spec: tests for updating html area on
             // 6. switch to another tab with the same html-area content
             await studioUtils.doSwitchToTabByIndex(1);
             await studioUtils.saveScreenshot('check_updated_text_in_second_tab');
-            // 7. Verify that the text is updated in this browser-tab as well
+            // 7. Verify that the text should be updated in the second browser tab
             let textActual = await htmlAreaForm.getTextInHtmlArea(0);
             assert.ok(textActual.includes(TEXT2), "Text in shtmlArea should include the expected text");
         });
