@@ -167,8 +167,18 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    async waitForLocalizeButtonEnabled() {
+        try {
+            await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_localize_enabled_button');
+            throw Error('Localize button should be enabled, screenshot: ' + screenshot + ' ' + err);
+        }
+    }
+
     async clickOnLocalizeButton() {
-        await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
+        await this.waitForLocalizeButtonEnabled();
         await this.clickOnElement(this.localizeButton);
     }
 
@@ -1011,8 +1021,8 @@ class ContentWizardPanel extends Page {
     }
 
     async waitForModifyPathTooltipDisplayed() {
-        try{
-            let locator =  XPATH.wizardHeader+"//span[contains(@class,'path')]";
+        try {
+            let locator = XPATH.wizardHeader + "//span[contains(@class,'path')]";
             await this.getBrowser().waitUntil(async () => {
                 let text = await this.getAttribute(locator, 'class');
                 return text.includes('tooltip_ON');
@@ -1022,6 +1032,7 @@ class ContentWizardPanel extends Page {
             throw new Error("Path input, tooltip should be displayed, screenshot:" + screenshot + ' ' + err);
         }
     }
+
     async waitForModifyPathSpanDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.modifyPathSpan, appConst.mediumTimeout);
