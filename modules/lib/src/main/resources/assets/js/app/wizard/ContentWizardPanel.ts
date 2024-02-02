@@ -446,6 +446,10 @@ export class ContentWizardPanel
             saveAction.setEnabled(true);
             saveAction.execute();
         });
+
+        this.onPageStateChanged(() => {
+            this.livePanel?.setSaveEnabled(!ObjectHelper.equals(PageState.getState(), this.getPersistedItem().getPage()));
+        });
     }
 
     toggleMinimize(navigationIndex: number = -1) {
