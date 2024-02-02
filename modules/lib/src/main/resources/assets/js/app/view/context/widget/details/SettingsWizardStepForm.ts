@@ -1,16 +1,16 @@
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {PrincipalComboBox, PrincipalComboBoxWrapper} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {LocaleComboBox, LocaleFormInputElWrapper} from '../../../../locale/LocaleComboBox';
-import {PrincipalLoader} from '../../../../security/PrincipalLoader';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
 import {UpdateContentRequest} from '../../../../resource/UpdateContentRequest';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {CSPrincipalCombobox} from '../../../../security/CSPrincipalCombobox';
 
 export class SettingsWizardStepForm
     extends PropertiesWizardStepForm {
@@ -33,8 +33,7 @@ export class SettingsWizardStepForm
 
         const listener: () => void = () => this.changeListener?.();
 
-        this.ownerCombo.onOptionSelected(listener);
-        this.ownerCombo.onOptionDeselected(listener);
+        this.ownerCombo.onSelectionChanged(listener);
         this.localeCombo.onSelectionChanged(listener);
     }
 
@@ -45,8 +44,7 @@ export class SettingsWizardStepForm
         this.localeCombo.openForTyping();
         this.localeCombo.setEnabled(true);
         this.localeCombo.setSelectedLocale(this.content.getLanguage() || '');
-
-        this.ownerCombo.setValue(this.content.getOwner()?.toString() || '', true);
+        this.ownerCombo.setSelectedItems([this.content.getOwner()]);
     }
 
     protected getHeaderText(): string {
@@ -77,15 +75,12 @@ export class SettingsWizardStepForm
     }
 
     private addOwnerFormItem(): FormItem {
-        const loader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]);
+        this.ownerCombo = new CSPrincipalCombobox({
+           maxSelected: 1,
+           allowedTypes: [PrincipalType.USER],
+        });
 
-        this.ownerCombo = PrincipalComboBox.create()
-            .setLoader(loader)
-            .setMaximumOccurrences(1)
-            .setDisplayMissingSelectedOptions(true)
-            .build() as PrincipalComboBox;
-
-        return new FormItemBuilder(this.ownerCombo).setLabel(i18n('field.owner')).build();
+        return new FormItemBuilder(new PrincipalComboBoxWrapper(this.ownerCombo)).setLabel(i18n('field.owner')).build();
     }
 
     giveFocus(): boolean {
@@ -112,6 +107,6 @@ export class SettingsWizardStepForm
     }
 
     private getSelectedOwner(): PrincipalKey {
-        return this.ownerCombo.getSelectedDisplayValues()[0]?.getKey();
+        return this.ownerCombo.getSelectedOptions()[0]?.getOption()?.getDisplayValue().getKey();
     }
 }
