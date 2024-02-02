@@ -177,6 +177,8 @@ export class LiveFormPanel
 
     private lastInspectedItemPath: ComponentPath;
 
+    private saveAction: Action;
+
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
@@ -421,28 +423,20 @@ export class LiveFormPanel
     }
 
     private createInspectionsPanel(): InspectionsPanel {
-        const saveAction: Action = new Action(i18n('action.apply'));
+        this.saveAction = new Action(i18n('action.apply')).setEnabled(false);
 
-        saveAction.onExecuted(() => {
+        this.saveAction.onExecuted(() => {
             const selectedItem = this.lastInspectedItemPath ? PageState.getComponentByPath(this.lastInspectedItemPath) : null;
 
             if (selectedItem instanceof Component) {
-                const persistedContent = this.contentWizardPanel.getPersistedItem();
-                const viewedPage: Page = PageState.getState();
-                const savedPage: Page = persistedContent.getPage()?.clone();
-
-                if (!ObjectHelper.equals(viewedPage, savedPage)) {
-                    this.contentWizardPanel.setMarkedAsReady(false);
-                }
-
-                this.saveAndReloadOnlyComponent(selectedItem.getPath());
+                this.contentWizardPanel.setMarkedAsReady(false);
+                this.saveAndReloadOnlyComponent(selectedItem.getPath())
+                    .then(() => this.saveAction.setEnabled(false))
+                    .catch(DefaultErrorHandler.handle);
                 return;
             }
 
-
-            this.contentWizardPanel.saveChanges().catch((error) => {
-                DefaultErrorHandler.handle(error);
-            });
+            this.contentWizardPanel.saveChanges().then(() => this.saveAction.setEnabled(false)).catch(DefaultErrorHandler.handle);
         });
 
         this.contentInspectionPanel = new ContentInspectionPanel();
@@ -465,7 +459,7 @@ export class LiveFormPanel
             layoutInspectionPanel: this.layoutInspectionPanel,
             fragmentInspectionPanel: this.fragmentInspectionPanel,
             textInspectionPanel: this.textInspectionPanel,
-            saveAction: saveAction
+            saveAction: this.saveAction
         } as InspectionsPanelConfig);
     }
 
@@ -641,11 +635,11 @@ export class LiveFormPanel
         }
     }
 
-    private saveAndReloadOnlyComponent(path: ComponentPath) {
+    private saveAndReloadOnlyComponent(path: ComponentPath): Q.Promise<void> {
         assertNotNull(path, 'component path cannot be null');
         this.pageSkipReload = true;
 
-        this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
+        return this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
             this.pageSkipReload = false;
             this.reloadComponent(path);
 
@@ -988,5 +982,9 @@ export class LiveFormPanel
 
     private isContextPanelDocked(): boolean {
         return this.contextPanelMode === ContextPanelMode.DOCKED;
+    }
+
+    setSaveEnabled(enabled: boolean): void {
+        this.saveAction.setEnabled(enabled);
     }
 }
