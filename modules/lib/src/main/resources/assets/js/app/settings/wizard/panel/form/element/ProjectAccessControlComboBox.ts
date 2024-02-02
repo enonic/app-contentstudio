@@ -4,7 +4,9 @@ import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalContainerSelectedOptionsView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ProjectAccessControlEntryView} from './ProjectAccessControlEntryView';
-import {PrincipalLoader} from '../../../../../security/PrincipalLoader';
+import {PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
+import {UrlHelper} from '../../../../../util/UrlHelper';
+import {CSPrincipalLoader} from '../../../../../security/CSPrincipalLoader';
 
 export class ProjectAccessControlComboBox
     extends PrincipalContainerCombobox<ProjectAccessControlEntry> {
@@ -33,7 +35,7 @@ export class ProjectAccessControlComboBoxBuilder
 
     selectedOptionsView: ProjectACESelectedOptionsView = new ProjectACESelectedOptionsView();
 
-    loader: PrincipalLoader = new PrincipalLoader();
+    loader: PrincipalLoader = new CSPrincipalLoader();
 
     build(): ProjectAccessControlComboBox {
         return new ProjectAccessControlComboBox(this);

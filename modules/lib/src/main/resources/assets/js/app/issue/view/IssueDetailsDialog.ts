@@ -18,7 +18,6 @@ import {ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
-import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
 import {TabBar} from '@enonic/lib-admin-ui/ui/tab/TabBar';
 import {TabBarItem, TabBarItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
@@ -43,7 +42,6 @@ import {PublishScheduleForm} from '../../publish/PublishScheduleForm';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {PublishContentRequest} from '../../resource/PublishContentRequest';
 import {Router} from '../../Router';
-import {PrincipalLoader} from '../../security/PrincipalLoader';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {Issue} from '../Issue';
 import {IssueComment} from '../IssueComment';
@@ -63,6 +61,7 @@ import {ContentSummaryOptionDataLoader} from '../../inputtype/ui/selector/Conten
 import {ContentListBox} from '../../inputtype/selector/ContentListBox';
 import {ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSelectorDropdown';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {CSPrincipalCombobox} from '../../security/CSPrincipalCombobox';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -213,10 +212,10 @@ export class IssueDetailsDialog
     }
 
     protected initTabs(): void {
-        const userLoader = new PrincipalLoader()
-            .setAllowedTypes([PrincipalType.USER])
-            .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
-        this.assigneesCombobox = PrincipalComboBox.create().setLoader(userLoader).build() as PrincipalComboBox;
+        this.assigneesCombobox = new CSPrincipalCombobox({
+           allowedTypes: [PrincipalType.USER],
+              skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()],
+        });
         this.commentsList = new IssueCommentsList();
 
         this.assigneesTab = IssueDetailsDialog.createTabBar('assignees');
@@ -310,7 +309,7 @@ export class IssueDetailsDialog
             let count = 0;
             const loader = this.assigneesCombobox.getLoader();
             if (loader.isPreLoaded() || loader.isLoaded()) {
-                count = this.assigneesCombobox.getSelectedValues().length;
+                count = this.assigneesCombobox.getSelectedOptions().length;
             }
             this.updateTabLabel(2, i18n('field.assignees'), count);
             if (save) {
@@ -318,9 +317,12 @@ export class IssueDetailsDialog
             }
         };
 
-        this.assigneesCombobox.onValueLoaded(() => updateTabCount(false));
-        this.assigneesCombobox.onOptionSelected(() => updateTabCount(true));
-        this.assigneesCombobox.onOptionDeselected(() => updateTabCount(true));
+        // this.assigneesCombobox.onValueLoaded(() => updateTabCount(false));
+        this.assigneesCombobox.onSelectionChanged((selectionChange: SelectionChange<Principal>) => {
+            if (selectionChange.selected?.length > 0 || selectionChange.deselected?.length > 0) {
+                updateTabCount(true);
+            }
+        });
 
         const updateCommentsCount = () => {
             const count = this.commentsList.getItemCount();
@@ -735,7 +737,7 @@ export class IssueDetailsDialog
         this.loadAndSetComments();
 
         // force reload value in case some users have been deleted
-        this.assigneesCombobox.setValue(this.getIssueApprovers(), false, true);
+        this.assigneesCombobox.setSelectedItems(this.getIssueApprovers());
         this.commentTextArea.setValue('', true);
         this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
         this.updatePublishScheduleForm();
@@ -809,8 +811,8 @@ export class IssueDetailsDialog
         });
     }
 
-    private getIssueApprovers(): string {
-        return this.issue.getApprovers().join(ComboBox.VALUE_SEPARATOR);
+    private getIssueApprovers(): PrincipalKey[] {
+        return this.issue.getApprovers();
     }
 
     private updateActionLabels() {
@@ -1026,7 +1028,7 @@ export class IssueDetailsDialog
             .setTitle(this.header.getHeading().trim())
             .setIssueStatus(status)
             .setAutoSave(!statusChanged)
-            .setApprovers(this.assigneesCombobox.getSelectedDisplayValues().map(o => o.getKey()))
+            .setApprovers(this.assigneesCombobox.getSelectedItems().map(item => item.getKey()))
             .setPublishRequest(publishRequest);
 
         return this.populateSchedule(updateIssueRequest).sendAndParse()

@@ -156,7 +156,7 @@ export class ProjectReadAccessWizardStepForm
             }
         });
 
-        this.readAccessFormItem.getPrincipalComboBox().onValueChanged(() => {
+        this.readAccessFormItem.getPrincipalComboBox().onSelectionChanged(() => {
             this.notifyDataChanged();
         });
     }
