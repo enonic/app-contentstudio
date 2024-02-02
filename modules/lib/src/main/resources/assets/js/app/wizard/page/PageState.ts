@@ -57,6 +57,8 @@ export class PageState {
 
     private componentUpdatedNotifier: ComponentUpdatedEventHandler;
 
+    private pageConfigUpdatedNotifier: () => void;
+
     private constructor() {
         this.pageEventsHolder = new PageEventsHolder();
         this.pageStateEventHandler = new PageStateEventHandler(this.pageEventsHolder);
@@ -67,6 +69,7 @@ export class PageState {
         this.componentAddedNotifier = (event: ComponentAddedEvent) => this.pageEventsHolder.notifyComponentAdded(event);
         this.componentRemovedNotifier = (event: ComponentRemovedEvent) => this.pageEventsHolder.notifyComponentRemoved(event);
         this.componentUpdatedNotifier = (event: ComponentRemovedEvent) => this.pageEventsHolder.notifyComponentUpdated(event);
+        this.pageConfigUpdatedNotifier = () => this.pageEventsHolder.notifyPageConfigUpdated();
     }
 
     private static get(): PageState {
@@ -87,8 +90,10 @@ export class PageState {
 
     private setPage(page: Page): void {
         this.unListenPageComponentsEvents();
+        this.unListenPageEvents();
         this.state = page;
         this.listenPageComponentsEvents();
+        this.listenPageEvents();
     }
 
     static getEvents(): PageEventsWrapper {
@@ -109,6 +114,14 @@ export class PageState {
         this.state?.unComponentAdded(this.componentAddedNotifier);
         this.state?.unComponentRemoved(this.componentRemovedNotifier);
         this.state?.unComponentUpdated(this.componentUpdatedNotifier);
+    }
+
+    private listenPageEvents(): void {
+        this.state?.getConfig()?.onChanged(this.pageConfigUpdatedNotifier);
+    }
+
+    private unListenPageEvents(): void {
+        this.state?.getConfig()?.unChanged(this.pageConfigUpdatedNotifier);
     }
 }
 
