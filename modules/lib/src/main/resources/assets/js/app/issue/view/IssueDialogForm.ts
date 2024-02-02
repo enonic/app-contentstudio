@@ -1,6 +1,6 @@
 import * as Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {PrincipalComboBox, PrincipalComboBoxWrapper} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
@@ -16,13 +16,13 @@ import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentId} from '../../content/ContentId';
-import {PrincipalLoader} from '../../security/PrincipalLoader';
 import {ContentTreeSelectorDropdown} from '../../inputtype/selector/ContentTreeSelectorDropdown';
 import {ContentSummaryOptionDataLoader} from '../../inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {ContentListBox} from '../../inputtype/selector/ContentListBox';
 import {ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSelectorDropdown';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {CSPrincipalCombobox} from '../../security/CSPrincipalCombobox';
 
 export class IssueDialogForm
     extends Form {
@@ -63,17 +63,16 @@ export class IssueDialogForm
     }
 
     private initElements() {
-
         this.title = new TextInput('title');
 
         this.description = new TextArea('description');
         this.description.addClass('description');
 
-        const principalLoader = new PrincipalLoader()
-            .setAllowedTypes([PrincipalType.USER])
-            .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
-
-        this.approversSelector = PrincipalComboBox.create().setLoader(principalLoader).setMaximumOccurrences(0).build() as PrincipalComboBox;
+        this.approversSelector = new CSPrincipalCombobox({
+            maxSelected: 0,
+            allowedTypes: [PrincipalType.USER],
+            skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()],
+        });
 
         this.contentItemsSelector = this.createContentSelector();
         this.contentItemsSelector.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>): void => {
@@ -111,7 +110,8 @@ export class IssueDialogForm
         const descriptionFormItem = new FormItemBuilder(this.description).setLabel(i18n('field.description')).build();
         fieldSet.add(descriptionFormItem);
 
-        const selectorFormItem = new FormItemBuilder(this.approversSelector).setLabel(i18n('field.assignees')).build();
+        const selectorFormItem =
+            new FormItemBuilder(new PrincipalComboBoxWrapper(this.approversSelector)).setLabel(i18n('field.assignees')).build();
         selectorFormItem.addClass('issue-approver-selector');
         fieldSet.add(selectorFormItem);
 
@@ -129,7 +129,7 @@ export class IssueDialogForm
             this.validate(true);
         });
 
-        this.approversSelector.onValueChanged(() => {
+        this.approversSelector.onSelectionChanged(() => {
             this.validate(true);
         });
 
@@ -201,7 +201,7 @@ export class IssueDialogForm
     }
 
     public getApprovers(): PrincipalKey[] {
-        return this.approversSelector.getSelectedValues().map(value => PrincipalKey.fromString(value));
+        return this.approversSelector.getSelectedOptions().map(value => value.getOption().getDisplayValue().getKey());
     }
 
     public giveFocus(): boolean {
@@ -214,8 +214,7 @@ export class IssueDialogForm
     public reset() {
         this.title.setValue('');
         this.description.setValue('');
-        this.approversSelector.clearCombobox();
-        this.approversSelector.setValue('');
+        this.approversSelector.setSelectedItems([]);
 
         this.contentItemsSelector.clear();
         this.contentItemsSelector.deselectAll();
@@ -255,9 +254,8 @@ export class IssueDialogForm
     }
 
     private setApprovers(approvers: PrincipalKey[]) {
-
         if (approvers) {
-            this.approversSelector.setValue(approvers.map(key => key.toString()).join(';'));
+            this.approversSelector.setSelectedItems(approvers);
         }
     }
 

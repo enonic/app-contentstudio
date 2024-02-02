@@ -1,15 +1,15 @@
 import {PrincipalSelector as BasePrincipalSelector} from '@enonic/lib-admin-ui/form/inputtype/principal/PrincipalSelector';
-import {PrincipalLoader as BasePrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
-import {PrincipalLoader} from '../../security/PrincipalLoader';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
 import {InputTypeName} from '@enonic/lib-admin-ui/form/InputTypeName';
+import {PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
+import {CSPrincipalLoader} from '../../security/CSPrincipalLoader';
 
 export class PrincipalSelector
     extends BasePrincipalSelector {
 
-    protected createLoader(): BasePrincipalLoader {
-        return new PrincipalLoader();
+    protected createLoader(): PrincipalLoader {
+        return new CSPrincipalLoader();
     }
 
     static getName(): InputTypeName {

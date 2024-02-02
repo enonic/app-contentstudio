@@ -23,7 +23,7 @@ export class ProjectAccessDialogStep
             this.notifyDataChanged();
         });
 
-        this.getFormItem().getPrincipalComboBox().onValueChanged(() => {
+        this.getFormItem().getPrincipalComboBox().onSelectionChanged(() => {
             this.notifyDataChanged();
         });
     }
@@ -42,7 +42,7 @@ export class ProjectAccessDialogStep
 
         if (readAccessString === ProjectReadAccessType.CUSTOM.toString()) {
             const principals: Principal[] =
-                this.getFormItem().getPrincipalComboBox().getSelectedDisplayValues();
+                this.getFormItem().getPrincipalComboBox().getSelectedOptions().map(option => option.getOption().getDisplayValue());
 
             if (principals.length === 0) {
                 return data.setAccess(ProjectReadAccessType.PRIVATE);
