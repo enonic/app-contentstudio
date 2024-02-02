@@ -655,6 +655,7 @@ export class LiveFormPanel
 
             if (changedComponent instanceof DescriptorBasedComponent && persistedComponent instanceof DescriptorBasedComponent) {
                 changedComponent.setConfig(persistedComponent.getConfig().copy());
+                this.inspectComponentOnDemand(changedComponent);
             }
         });
     }

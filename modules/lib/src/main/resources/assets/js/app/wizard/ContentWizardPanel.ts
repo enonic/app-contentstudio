@@ -1284,7 +1284,13 @@ export class ContentWizardPanel
     }
 
     private createFragmentSteps(): ContentWizardStep[] {
-        return [this.initPageComponentsWizardStep()];
+        const steps = [this.initPageComponentsWizardStep()];
+
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
+            steps.push(new XDataWizardStep(form));
+        });
+
+        return steps;
     }
 
     private createPageTemplateSteps(): ContentWizardStep[] {
