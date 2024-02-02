@@ -2530,6 +2530,7 @@ export class ContentWizardPanel
     onPageStateChanged(listener: () => void) {
         PageState.getEvents().onPageReset(listener);
         PageState.getEvents().onPageUpdated(listener);
+        PageState.getEvents().onPageConfigUpdated(listener);
         PageState.getEvents().onComponentUpdated(listener);
         PageState.getEvents().onComponentAdded(listener);
         PageState.getEvents().onComponentRemoved(listener);

@@ -1,6 +1,6 @@
 import {ComponentEventsWrapper} from './ComponentEventsWrapper';
 import {PageEventsHolder} from './PageEventsHolder';
-import {PageResetHandler, PageUpdatedEventHandler} from '../../page/Page';
+import {PageConfigUpdateHandler, PageResetHandler, PageUpdatedEventHandler} from '../../page/Page';
 
 export class PageEventsWrapper extends ComponentEventsWrapper {
 
@@ -24,6 +24,14 @@ export class PageEventsWrapper extends ComponentEventsWrapper {
 
     unPageReset(listener: PageResetHandler): void {
         this.eventsHolder.unPageReset(listener);
+    }
+
+    onPageConfigUpdated(listener: PageConfigUpdateHandler): void {
+        this.eventsHolder.onPageConfigUpdated(listener);
+    }
+
+    unPageConfigUpdated(listener: PageConfigUpdateHandler): void {
+        this.eventsHolder.unPageConfigUpdated(listener);
     }
 
 }

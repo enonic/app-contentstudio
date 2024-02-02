@@ -30,6 +30,7 @@ export type PageUpdatedEventHandler = (event: PageUpdatedEvent) => void;
 export type PageTemplateSetHandler = (template: PageTemplateKey) => void;
 export type PageControllerSetHandler = (controller: DescriptorKey) => void;
 export type PageResetHandler = () => void;
+export type PageConfigUpdateHandler = () => void;
 
 export class Page
     implements Equitable, Cloneable, PageItem {

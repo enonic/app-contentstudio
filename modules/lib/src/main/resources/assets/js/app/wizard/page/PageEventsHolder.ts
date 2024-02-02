@@ -1,5 +1,5 @@
 import {ComponentEventsHolder} from './ComponentEventsHolder';
-import {PageResetHandler, PageUpdatedEventHandler} from '../../page/Page';
+import {PageConfigUpdateHandler, PageResetHandler, PageUpdatedEventHandler} from '../../page/Page';
 import {PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
 
 export class PageEventsHolder extends ComponentEventsHolder {
@@ -7,6 +7,8 @@ export class PageEventsHolder extends ComponentEventsHolder {
     private pageUpdatedListeners: PageUpdatedEventHandler[] = [];
 
     private pageResetListeners: PageResetHandler[] = [];
+
+    private pageConfigUpdatedListeners: PageConfigUpdateHandler[] = [];
 
     onPageUpdated(listener: PageUpdatedEventHandler): void {
         this.pageUpdatedListeners.push(listener);
@@ -30,5 +32,17 @@ export class PageEventsHolder extends ComponentEventsHolder {
 
     notifyPageReset(): void {
         this.pageResetListeners.forEach(listener => listener());
+    }
+
+    onPageConfigUpdated(listener: PageConfigUpdateHandler): void {
+        this.pageConfigUpdatedListeners.push(listener);
+    }
+
+    unPageConfigUpdated(listener: PageConfigUpdateHandler): void {
+        this.pageConfigUpdatedListeners = this.pageConfigUpdatedListeners.filter(l => l !== listener);
+    }
+
+    notifyPageConfigUpdated(): void {
+        this.pageConfigUpdatedListeners.forEach(listener => listener());
     }
 }
