@@ -7,17 +7,100 @@ import {ProjectAccessControlEntryView} from './ProjectAccessControlEntryView';
 import {PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
 import {UrlHelper} from '../../../../../util/UrlHelper';
 import {CSPrincipalLoader} from '../../../../../security/CSPrincipalLoader';
+import {
+    FilterableListBoxWrapperWithSelectedView,
+    ListBoxInputOptions
+} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
+import {AccessControlEntry} from '../../../../../access/AccessControlEntry';
+import {AccessControlListBox} from '../../../../../wizard/AccessControlListBox';
+import {ProjectAccessControlListBox} from './ProjectAccessControlListBox';
+import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import * as Q from 'q';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {ProjectApplicationsComboBox} from './ProjectApplicationsComboBox';
+
+interface ProjectAccessControlComboBoxOptions extends ListBoxInputOptions<ProjectAccessControlEntry> {
+    loader: CSPrincipalLoader;
+}
 
 export class ProjectAccessControlComboBox
-    extends PrincipalContainerCombobox<ProjectAccessControlEntry> {
+    extends FilterableListBoxWrapperWithSelectedView<ProjectAccessControlEntry> {
 
-    constructor(builder: ProjectAccessControlComboBoxBuilder) {
-        super(builder);
-        this.addClass('project-access-combobox');
+    options: ProjectAccessControlComboBoxOptions;
+
+    constructor() {
+        const loader = new CSPrincipalLoader();
+
+        super(new ProjectAccessControlListBox(loader), {
+            maxSelected:  0,
+            selectedOptionsView: new ProjectACESelectedOptionsView(),
+            className: 'project-access-combobox',
+            loader: loader,
+        } as ProjectAccessControlComboBoxOptions);
     }
 
-    protected loadedItemToDisplayValue(value: Principal): ProjectAccessControlEntry {
-        return new ProjectAccessControlEntry(value);
+    protected initListeners(): void {
+        super.initListeners();
+
+        this.options.loader.onLoadedData((event: LoadedDataEvent<Principal>) => {
+            const entries = this.convertPrincipalsToEntries(event.getData());
+
+            if (event.isPostLoad()) {
+                this.listBox.addItems(entries);
+            } else {
+                this.listBox.setItems(entries);
+            }
+            return Q.resolve(null);
+        });
+
+        this.listBox.whenShown(() => {
+            // if not empty then search will be performed after finished typing
+            if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
+                this.search(this.optionFilterInput.getValue());
+            }
+        });
+
+        let searchValue = '';
+
+        const debouncedSearch = AppHelper.debounce(() => {
+            this.search(searchValue);
+        }, 300);
+
+        this.optionFilterInput.onValueChanged((event: ValueChangedEvent) => {
+            searchValue = event.getNewValue();
+            debouncedSearch();
+        });
+    }
+
+    protected search(value?: string): void {
+        this.options.loader.search(value).catch(DefaultErrorHandler.handle);
+    }
+
+    createSelectedOption(item: ProjectAccessControlEntry): Option<ProjectAccessControlEntry> {
+        return Option.create<ProjectAccessControlEntry>()
+            .setValue(item.getPrincipalKey().toString())
+            .setDisplayValue(item)
+            .build();
+    }
+
+    onOptionValueChanged(listener: (item: ProjectAccessControlEntry) => void) {
+        (this.selectedOptionsView as ProjectACESelectedOptionsView).onItemValueChanged(listener);
+    }
+
+    private convertPrincipalsToEntries(principals: Principal[]): ProjectAccessControlEntry[] {
+        return principals.map(this.convertPrincipalToEntry);
+    }
+
+    private convertPrincipalToEntry(principal: Principal): ProjectAccessControlEntry {
+        return new ProjectAccessControlEntry(principal);
+    }
+
+    getLoader(): CSPrincipalLoader {
+        return this.options.loader;
     }
 }
 
@@ -30,14 +113,18 @@ export class ProjectACESelectedOptionsView
 
 }
 
-export class ProjectAccessControlComboBoxBuilder
-    extends PrincipalContainerComboboxBuilder<ProjectAccessControlEntry> {
+export class ProjectAccessControlComboBoxWrapper extends FormInputEl {
 
-    selectedOptionsView: ProjectACESelectedOptionsView = new ProjectACESelectedOptionsView();
+    private readonly selector: ProjectAccessControlComboBox;
 
-    loader: PrincipalLoader = new CSPrincipalLoader();
+    constructor(selector: ProjectAccessControlComboBox) {
+        super('div', 'locale-selector-wrapper');
 
-    build(): ProjectAccessControlComboBox {
-        return new ProjectAccessControlComboBox(this);
+        this.selector = selector;
+        this.appendChild(this.selector);
+    }
+
+    getComboBox(): ProjectAccessControlComboBox {
+        return this.selector;
     }
 }

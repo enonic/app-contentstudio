@@ -30,11 +30,17 @@ export class ProjectPermissionsDialogStep
     protected initEventListeners(): void {
         super.initEventListeners();
 
-        this.getAccessComboBox().onValueChanged(() => this.notifyDataChanged());
+        this.getAccessComboBox().onOptionValueChanged(() => {
+            this.notifyDataChanged();
+        });
+
+        this.getAccessComboBox().onSelectionChanged(() => {
+            this.notifyDataChanged();
+        });
     }
 
     getData(): ProjectPermissionsDialogStepData {
-        const selectedAccessEntries: ProjectAccessControlEntry[] = this.getAccessComboBox()?.getSelectedDisplayValues() || [];
+        const selectedAccessEntries: ProjectAccessControlEntry[] = this.getAccessComboBox()?.getSelectedItems() || [];
         const items: Map<ProjectAccess, Principal[]> = new Map<ProjectAccess, Principal[]>;
 
         selectedAccessEntries.forEach((entry: ProjectAccessControlEntry) => {
@@ -51,7 +57,7 @@ export class ProjectPermissionsDialogStep
     }
 
     hasData(): boolean {
-        return !!this.getAccessComboBox()?.getValue();
+        return this.getAccessComboBox()?.getSelectedItems()?.length > 0;
     }
 
     getName(): string {
