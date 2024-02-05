@@ -44,7 +44,7 @@ export class SettingsWizardStepForm
         this.localeCombo.openForTyping();
         this.localeCombo.setEnabled(true);
         this.localeCombo.setSelectedLocale(this.content.getLanguage() || '');
-        this.ownerCombo.setSelectedItems([this.content.getOwner()]);
+        this.ownerCombo.setSelectedItems(this.content.getOwner() ? [this.content.getOwner()] : []);
     }
 
     protected getHeaderText(): string {
