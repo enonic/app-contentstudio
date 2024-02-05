@@ -65,7 +65,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             await studioUtils.doLogout();
         });
 
-    it("GIVEN SU is logged in WHEN Filter Panel has been opened THEN owner selector should be present in aggregations view",
+    it("GIVEN SU is logged in WHEN Filter Panel has been opened THEN owner-selector should be present in aggregations view",
         async () => {
             let filterPanel = new FilterPanel();
             // 1. SU is logged in:
@@ -82,7 +82,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("WHEN existing user has been selected in Owner selector THEN only content created by the user should be present in the grid",
+    it("WHEN existing user has been selected in 'Owner' selector in Filter Panel THEN only content that were created by this user should be present in the grid",
         async () => {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();

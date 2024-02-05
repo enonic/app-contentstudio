@@ -168,9 +168,14 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async expandDropdownClickOnImage(displayName) {
-        let loaderComboBox = new LoaderComboBox();
-        await this.clickOnDropdownHandle();
-        return await loaderComboBox.selectOption(displayName);
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            await this.clickOnDropdownHandle();
+            return await loaderComboBox.selectOption(displayName);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('img_selector_option');
+            throw new Error('Image -Selector , error during selecting the option: screenshot ' + screenshot + ' ' + err);
+        }
     }
 
     async doFilterOptions(displayName) {
