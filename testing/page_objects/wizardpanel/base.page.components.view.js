@@ -46,6 +46,11 @@ class BasePageComponentView extends Page {
 
     }
 
+    async waitForComponentItemDisplayed(displayName) {
+        let selector = this.container + lib.itemByDisplayName(displayName);
+        return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+    }
+
     async clickOnComponentByDisplayName(displayName) {
         try {
             let selector = this.container + lib.itemByDisplayName(displayName);
