@@ -35,13 +35,13 @@ export class ProjectsSelector
 
     private readonly loader: ProjectOptionDataLoader;
 
-    constructor(builder: ProjectsDropdownBuilder = new ProjectsDropdownBuilder()) {
+    constructor(maximumOccurrences?: number) {
         const loader = new ProjectOptionDataLoader();
         const helper = new ProjectOptionDataHelper();
         const dropdownOptions: ProjectsComboBoxOptions = {
             loader: loader,
-            maxSelected: builder.maximumOccurrences,
-            className: builder.maximumOccurrences === 1 ? 'single-occurrence' : 'multiple-occurrence',
+            maxSelected: maximumOccurrences,
+            className: maximumOccurrences === 1 ? 'single-occurrence' : 'multiple-occurrence',
             selectedOptionsView: new ProjectSelectedOptionsView(),
         };
 
@@ -201,22 +201,6 @@ class ProjectSelectedOptionsView
         const optionView: ProjectSelectedOptionView = new ProjectSelectedOptionView(option);
         return new SelectedOption<Project>(optionView, this.count());
     }
-}
-
-export class ProjectsDropdownBuilder
-    extends RichComboBoxBuilder<Project> {
-
-    comboBoxName: string = 'projectSelector';
-
-    optionDisplayValueViewer: ProjectViewer = new ProjectViewer();
-
-    optionDataHelper: ProjectOptionDataHelper = new ProjectOptionDataHelper();
-
-    loader: ProjectOptionDataLoader = new ProjectOptionDataLoader();
-
-    selectedOptionsView: ProjectSelectedOptionsView = new ProjectSelectedOptionsView();
-
-    maximumOccurrences: number = 1;
 }
 
 export class ParentProjectFormInputWrapper
