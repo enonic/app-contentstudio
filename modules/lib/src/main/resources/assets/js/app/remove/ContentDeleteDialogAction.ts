@@ -4,7 +4,7 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 export class ContentDeleteDialogAction
     extends Action {
     constructor() {
-        super(i18n('dialog.delete'));
+        super(i18n('action.delete'));
         this.setIconClass('delete-action');
     }
 }

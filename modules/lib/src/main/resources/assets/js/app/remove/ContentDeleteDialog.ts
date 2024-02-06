@@ -371,7 +371,11 @@ export class ContentDeleteDialog
 
         new ContentTreeGridDeselectAllEvent().fire();
 
-        this.progressManager.setSuppressNotifications(this.actionInProgressType === ActionType.ARCHIVE);
+        const isArchiveAction = this.actionInProgressType === ActionType.ARCHIVE;
+        this.progressManager.setSuppressNotifications(isArchiveAction);
+
+        this.setHeading(i18n(isArchiveAction ? 'dialog.archive' : 'dialog.delete'));
+        this.setSubTitle(i18n(isArchiveAction ? 'dialog.archiving' : 'dialog.deleting', this.countTotal()));
 
         this.updateProgressLabel();
 
@@ -392,9 +396,9 @@ export class ContentDeleteDialog
 
         this.totalItemsToDelete = this.countTotal();
         this.updateButtonCount(i18n('dialog.archive.action'), this.totalItemsToDelete);
-        this.deleteNowAction.setLabel(this.totalItemsToDelete > 1 ?
-                                      i18n('dialog.delete') + ' (' + this.totalItemsToDelete + ')' :
-                                      i18n('dialog.delete'));
+        this.deleteNowAction.setLabel(
+            `${i18n('action.delete')} ${this.totalItemsToDelete > 1 ? '(' + this.totalItemsToDelete + ')' : ''}`
+        );
     }
 
     private createExecutionRequest(): ResourceRequest<TaskId> {
@@ -426,18 +430,6 @@ export class ContentDeleteDialog
     private doAnyHaveChildren(items: ContentSummaryAndCompareStatus[]): boolean {
         return items.some((item: ContentSummaryAndCompareStatus) => {
             return item.getContentSummary().hasChildren();
-        });
-    }
-
-    private isEveryOffline(items: ContentSummaryAndCompareStatus[]): boolean {
-        return items.every((item: ContentSummaryAndCompareStatus) => {
-            return item.getCompareStatus() === CompareStatus.NEW;
-        });
-    }
-
-    private isEveryPendingDelete(items: ContentSummaryAndCompareStatus[]): boolean {
-        return items.every((item: ContentSummaryAndCompareStatus) => {
-            return item.getCompareStatus() === CompareStatus.PENDING_DELETE;
         });
     }
 
