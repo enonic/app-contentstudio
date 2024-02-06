@@ -1,21 +1,15 @@
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {MacrosLoader} from './resource/MacrosLoader';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
-import {MacroViewer} from './MacroViewer';
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
-import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {MacroListBox} from './MacroListBox';
 import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {LocaleComboBox} from '../locale/LocaleComboBox';
 
 export class MacroComboBox
     extends FilterableListBoxWrapperWithSelectedView<MacroDescriptor> {
