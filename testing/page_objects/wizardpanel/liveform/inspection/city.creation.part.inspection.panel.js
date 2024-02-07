@@ -41,7 +41,7 @@ class CityCreationPartInspectionPanel extends BaseComponentInspectionPanel {
         return await this.getTextInDisplayedElements(options);
     }
 
-    async selectImageInSelector(displayName) {
+    async filterOptionsAndSelectImage(displayName) {
         try {
             let loaderComboBox = new LoaderComboBox();
             return await loaderComboBox.typeTextAndSelectOption(displayName, xpath.container);

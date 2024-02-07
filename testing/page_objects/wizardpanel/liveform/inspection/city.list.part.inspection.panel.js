@@ -7,6 +7,7 @@ const appConst = require('../../../../libs/app_const');
 const LoaderComboBox = require('../../../components/loader.combobox');
 const xpath = {
     container: `//div[contains(@id,'PartInspectionPanel')]`,
+    zoomLevelViewDiv: "//div[contains(@id,'InputView') and descendant::div[text()='Zoom level 1-15']]",
 };
 
 // Context Window, Inspect tab for City List Part Component
@@ -18,6 +19,18 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
 
     get contentDropdownHandle() {
         return xpath.container + lib.CONTENT_SELECTOR.DIV + lib.DROP_DOWN_HANDLE;
+    }
+
+    get zoomLevelTextInput() {
+        return xpath.container + xpath.zoomLevelViewDiv + lib.TEXT_INPUT;
+    }
+
+    typeTextInZoomLevelInput(text) {
+        return this.typeTextInInput(this.zoomLevelTextInput, text);
+    }
+
+    getTextInZoomLevelInput() {
+        return this.getTextInInput(this.zoomLevelTextInput);
     }
 
     async selectContentInSelector(displayName) {
