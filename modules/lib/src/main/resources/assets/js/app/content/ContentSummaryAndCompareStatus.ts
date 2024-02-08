@@ -23,8 +23,6 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 
     private publishStatus: PublishStatus;
 
-    private readOnly: boolean;
-
     private renderable: boolean = false;
 
     public static fromContentSummary(contentSummary: ContentSummary) {
@@ -276,11 +274,11 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     setReadOnly(value: boolean) {
-        this.readOnly = value;
+        this.contentSummary?.setReadOnly(value);
     }
 
     isReadOnly(): boolean {
-        return !!this.readOnly;
+        return !!this.contentSummary ? this.contentSummary.isReadOnly() : false;
     }
 
     isPendingDelete(): boolean {
@@ -326,7 +324,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     canBeMarkedAsReady(): boolean {
         const contentSummary = this.getContentSummary();
 
-        return !this.isOnline() && !this.isPendingDelete() && contentSummary.isValid() && !contentSummary.isReady();
+        return !this.isOnline() && contentSummary.isValid() && !contentSummary.isReady();
     }
 
     clone(): ContentSummaryAndCompareStatus {
@@ -336,7 +334,6 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
             this.compareStatus,
             this.publishStatus
         );
-        clone.setReadOnly(this.readOnly);
         clone.setRenderable(this.renderable);
         return clone;
     }

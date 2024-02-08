@@ -50,7 +50,16 @@
       z-index: 1;
     }
 
-    .names-and-icon-viewer.data-inherited {
+    &.readonly {
+      > * {
+        opacity: 0.25;
+      }
+      .display-name {
+        font-style: italic;
+      }
+    }
+
+    &:not(.readonly) .names-and-icon-viewer.data-inherited {
       opacity: 0.5;
     }
 
