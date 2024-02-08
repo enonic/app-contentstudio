@@ -688,16 +688,9 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async getPublishMenuItems() {
-        //await this.openPublishMenu();
         let locator = "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem')]";
         return await this.getTextInDisplayedElements(locator);
 
-    }
-
-    async openPublishMenuAndClickOnCreateTask() {
-        await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.CREATE_TASK);
-        let createTaskDialog = new CreateTaskDialog();
-        return await createTaskDialog.waitForDialogLoaded();
     }
 
     async openPublishMenuAndClickOnRequestPublish() {

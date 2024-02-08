@@ -2,7 +2,6 @@
  * Created on 20.05.2021.
  */
 const Page = require('../../page');
-const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const XPATH = {
     formOptionSetOccurrenceView: "//div[contains(@id,'FormOptionSetOccurrenceView')]"
@@ -43,8 +42,8 @@ class BaseOptionSetFormView extends Page {
             }
             return await elements[index].getText();
         } catch (err) {
-            await this.saveScreenshot('err_option_set_validation_recording');
-            throw new Error('getting Validation text: ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_option_set_validation_recording');
+            throw new Error('Option Set form error during getting Validation text, screenshot: ' + screenshot + ' ' + err);
         }
     }
 }

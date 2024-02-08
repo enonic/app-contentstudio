@@ -27,7 +27,7 @@ class BaseLayersWidget extends Page {
 
     waitForWidgetLoaded() {
         return this.waitForElementDisplayed(this.layersWidget, appConst.shortTimeout).catch(err => {
-            throw new Error('Browse Panel: Layers Widget is not loaded in ' + appConst.shortTimeout);
+            throw new Error('Browse Panel: Layers Widget is not loaded in ' + appConst.shortTimeout + ' ' + err);
         });
     }
 

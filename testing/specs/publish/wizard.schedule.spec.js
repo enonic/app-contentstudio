@@ -79,14 +79,14 @@ describe('Wizard page - verify schedule form', function () {
             assert.equal(recordingActual, appConst.VALIDATION_MESSAGE.SCHEDULE_FORM_ONLINE_PAST);
         });
 
-    it("GIVEN existing published folder is opened WHEN 'Online from' has been cleared and 'Online to' has been set THEN 'Invalid value entered' message appears",
+    it("GIVEN existing published folder is opened WHEN 'Online from' input has been cleared and 'Online to' has been set THEN 'Invalid value entered' message appears",
         async () => {
             let contentWizard = new ContentWizard();
             // 1. Open the 'published' folder
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             // 2. Open Edit Schedule modal dialog:
             let editScheduleDialog = await studioUtils.openEditScheduleDialog();
-            // 3. 'Online from' has been cleared and 'Online to' has been set in future
+            // 3. 'Online from' input has been cleared and 'Online to' has been set in future
             await editScheduleDialog.typeOnlineFrom('  ');
             await editScheduleDialog.typeOnlineTo(DATE_TIME_IN_FUTURE);
             await studioUtils.saveScreenshot('online_to_cleared');
@@ -124,12 +124,12 @@ describe('Wizard page - verify schedule form', function () {
             let wizardVersionsWidget = new WizardVersionsWidget();
             // 1. Select and open the unpublished folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            // 2. Expand the publish menu then click on 'Publish...'
+            // 2. Expand the publish-menu then click on 'Publish...' menu item:
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
-            // 3. Click on Add Schedule (calendar icon):
+            // 3. Click on 'Add Schedule' (calendar icon):
             await contentPublishDialog.clickOnAddScheduleIcon();
-            // 4. Type dateTime in future
+            // 4. Type a dateTime in future
             await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_FUTURE);
             await contentPublishDialog.typeInOnlineTo(DATE_TIME_TO);
             await studioUtils.saveScreenshot('online_to_set');
@@ -168,7 +168,7 @@ describe('Wizard page - verify schedule form', function () {
             await contentPublishDialog.typeInOnlineTo(DATE_TIME_TO);
             await studioUtils.saveScreenshot('online_to_set_2');
             await contentPublishDialog.clickOnOkButton();
-            // 6. Press  'Schedule' button
+            // 6. Press 'Schedule' button
             await contentPublishDialog.clickOnScheduleButton();
             // 7. Verify that status is 'Publishing Scheduled''
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHED);
@@ -179,7 +179,6 @@ describe('Wizard page - verify schedule form', function () {
             assert.ok(status.includes('Published until'), "'Published until' should be present in the versions widget");
             assert.ok(status.includes(DATE_TIME_TO), 'Expected date time in future should be displayed');
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

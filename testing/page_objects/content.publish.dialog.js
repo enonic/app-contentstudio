@@ -302,7 +302,7 @@ class ContentPublishDialog extends Page {
             await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error('Error when clicking on Show Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
+            throw new Error('Error after clicking on Show Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
         }
     }
 
@@ -313,7 +313,7 @@ class ContentPublishDialog extends Page {
             return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error('Error when clicking on Hide Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
+            throw new Error('Error after clicking on Hide Excluded dependent items, screenshot  ' + screenshot + ' ' + err);
         }
     }
 
@@ -472,11 +472,11 @@ class ContentPublishDialog extends Page {
         let selector = XPATH.container + `//button[contains(@id,'ActionButton')]/span[contains(.,'Publish Now')]`;
         let number = await this.getText(selector);
         let startIndex = number.indexOf('(');
-        if (startIndex == -1) {
+        if (startIndex === -1) {
             throw new Error("Content Publish Dialog - error when get a number in  'Publish now' button  ");
         }
         let endIndex = number.indexOf(')');
-        if (endIndex == -1) {
+        if (endIndex === -1) {
             throw new Error("Content Publish Dialog - error when get a number in  'Publish now' button ");
         }
         return number.substring(startIndex + 1, endIndex);
@@ -564,12 +564,6 @@ class ContentPublishDialog extends Page {
         let locator = XPATH.container + XPATH.excludedItemsNote;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return this.getText(locator);
-    }
-
-    async clickOnShowExcludedItemsButton() {
-        await this.waitForShowExcludedItemsButtonDisplayed()
-        await this.clickOnElement(this.showExcludedItemsButton);
-        return await this.pause(1000);
     }
 
     async getNumberInAllCheckbox() {

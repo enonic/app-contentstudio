@@ -1,7 +1,6 @@
 /**
  * Created on 05/08/2020.
  */
-const appConst = require('../../../libs/app_const');
 const BaseLayersWidget = require('../../details_panel/base.layers.widget')
 
 const xpath = {

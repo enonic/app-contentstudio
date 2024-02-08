@@ -30,7 +30,7 @@ class BrowseDependenciesWidget extends BaseDependenciesWidget {
 
     waitForWidgetLoaded() {
         return this.waitForElementDisplayed(this.dependenciesWidget, appConst.shortTimeout).catch(err => {
-            throw new Error('Content Wizard: Dependencies Widget was not loaded in ' + appConst.shortTimeout);
+            throw new Error('Content Wizard: Dependencies Widget was not loaded in ' + appConst.shortTimeout + ' ' + err);
         });
     }
 }

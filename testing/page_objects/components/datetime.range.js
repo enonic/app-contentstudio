@@ -13,7 +13,7 @@ const XPATH = {
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 
-//ScheduleWizardStepForm, DateTimeRange
+// ScheduleWizardStepForm, DateTimeRange form
 class DateTimeRange extends Page {
 
     get onlineFromDateTimeInput() {
@@ -69,14 +69,14 @@ class DateTimeRange extends Page {
         if (xpath === undefined) {
             xpath = '';
         }
-        return this.getTextInInput(this.onlineToDateTimeInput);
+        return this.getTextInInput(xpath + this.onlineToDateTimeInput);
     }
 
     typeOnlineTo(value, xpath) {
         if (xpath === undefined) {
             xpath = '';
         }
-        return this.typeTextInInput(this.onlineToDateTimeInput, value);
+        return this.typeTextInInput(xpath + this.onlineToDateTimeInput, value);
     }
 
 
@@ -137,7 +137,6 @@ class DateTimeRange extends Page {
         await elems[0].click();
         return await this.pause(300);
     }
-
 }
 
 module.exports = DateTimeRange;

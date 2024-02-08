@@ -28,8 +28,7 @@ class LocaleCodeCustomValidationForm extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            let screenshotName = appConst.generateRandomName("err_custom_validation");
-            await this.saveScreenshot(screenshotName);
+            let screenshotName = await this.saveScreenshotUniqueName('err_custom_validation');
             throw new Error("Custom validation in combobox, screenshot:  " + screenshotName + "  " + err);
         }
     }
@@ -52,13 +51,12 @@ class LocaleCodeCustomValidationForm extends Page {
             await this.typeTextInInput(XPATH.localeInput, text);
             return await this.pause(300);
         } catch (err) {
-            let screenshotName = appConst.generateRandomName("err_custom_validation");
-            await this.saveScreenshot(screenshotName);
+            let screenshotName = await this.saveScreenshotUniqueName('err_custom_validation');
             throw new Error("Custom validation in text input, screenshot:  " + screenshotName + "  " + err);
         }
     }
 
-    //Select a option in filtered/expanded combobox
+    // Select an option in filtered/expanded combobox
     async selectOption(optionDisplayName) {
         let optionSelector = XPATH.comboboxOptionByName(optionDisplayName);
         await this.getBrowser().waitUntil(async () => {
