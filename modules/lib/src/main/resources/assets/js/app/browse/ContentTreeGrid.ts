@@ -292,16 +292,10 @@ export class ContentTreeGrid
     private processContentQueryResponse(node: TreeNode<ContentSummaryAndCompareStatus>,
                                         data: ContentQueryResult<ContentSummary, ContentSummaryJson>,
                                         from: number): Q.Promise<ContentSummaryAndCompareStatus[]> {
-        const contentSummaries: ContentSummary[] = data.getContents();
-        const compareRequest: CompareContentRequest = CompareContentRequest.fromContentSummaries(contentSummaries);
 
-        return compareRequest.sendAndParse().then((compareResults: CompareContentResults) => {
-            const contents: ContentSummaryAndCompareStatus[] = node.getChildren().map((el) => {
-                return el.getData();
-            }).slice(0, from).concat(this.contentFetcher.updateCompareStatus(contentSummaries,
-                compareResults));
-
-            return this.contentFetcher.updateReadOnly(contents).then(() => {
+        return this.contentFetcher
+            .updateReadonlyAndCompareStatus(data.getContents())
+            .then((contents: ContentSummaryAndCompareStatus[]) => {
                 const meta: ResultMetadata = data.getMetadata();
                 if (this.isEmptyNodeNeeded(meta, from)) {
                     contents.push(new ContentSummaryAndCompareStatus());
@@ -309,8 +303,6 @@ export class ContentTreeGrid
                 node.setMaxChildren(meta.getTotalHits());
                 return contents;
             });
-
-        });
     }
 
     private doFetchChildren(parentNode: TreeNode<ContentSummaryAndCompareStatus>): Q.Promise<ContentSummaryAndCompareStatus[]> {
@@ -561,19 +553,19 @@ export class ContentTreeGrid
 
         let cssClasses: string = '';
 
-        if (!!node.getData().getContentSummary() && node.getData().getContentSummary().isDataInherited()) {
+        if (node.getData().getContentSummary()?.isDataInherited()) {
             cssClasses += 'data-inherited';
         }
 
-        if (!!node.getData().getContentSummary() && node.getData().getContentSummary().isSortInherited()) {
+        if (node.getData().getContentSummary()?.isSortInherited()) {
             cssClasses += ' sort-inherited';
         }
 
         if (node.getData().isReadOnly()) {
-            cssClasses += `readonly' title='${i18n('field.readOnly')}'`;
+            cssClasses += ' readonly';
         }
 
-        return {cssClasses: cssClasses};
+        return {cssClasses: cssClasses.trim()};
     }
 
     getSelectedOrHighlightedItems(): ContentSummaryAndCompareStatus[] {
