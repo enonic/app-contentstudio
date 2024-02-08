@@ -126,7 +126,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
 
     async getStatusInfo() {
         await this.waitForElementDisplayed(this.issueStatusSelector, appConst.mediumTimeout);
-        let titleAttr = this.getAttribute(this.issueStatusSelector, 'title');
+        let titleAttr = await this.getAttribute(this.issueStatusSelector, 'title');
         return titleAttr;
     }
 }

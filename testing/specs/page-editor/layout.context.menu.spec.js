@@ -19,6 +19,7 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
     }
     let SITE;
     const MAIN_REGION = 'main';
+    const TEXT_AREA_X_DATA_NAME = 'Text Area x-data';
 
     // Verifies Layout dropdown should appear in Live Edit after resetting the layout-component #6713
     // https://github.com/enonic/app-contentstudio/issues/6713
@@ -117,6 +118,31 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             // 10. Verify that layout-combobox gets visible in Live Edit:
             await contentWizard.switchToLiveEditFrame();
             await liveFormPanel.waitForLayoutComboBoxOptionFilterDisplayed();
+        });
+
+    // Verify X-data is not shown for fragments #7284
+    // https://github.com/enonic/app-contentstudio/issues/7284
+    it("WHEN fragment-layout has been opened THEN expected x-data should be displayed",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. Expand the site:
+            await studioUtils.typeNameInFilterPanel(SITE.displayName);
+            await contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
+            await contentBrowsePanel.pause(300);
+            await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName);
+            // 2. Select the fragment:
+            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.LAYOUT_NAME.COL_3);
+            // 3. Click on 'Edit' button
+            await contentBrowsePanel.clickOnEditButton();
+            // 4. Switch to the next browser tab:
+            await studioUtils.doSwitchToNewWizard();
+            await contentWizard.waitForOpened();
+            // 5.Verify that x-data toggler is displayed in the wizard:
+            await contentWizard.waitForXdataTogglerVisible();
+            // 6. Verify the title of x-data :
+            let result = await contentWizard.getXdataTitles();
+            assert.ok(result.includes(TEXT_AREA_X_DATA_NAME), 'Text Area x-data should be present');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

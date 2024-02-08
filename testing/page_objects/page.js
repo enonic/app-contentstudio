@@ -113,7 +113,7 @@ class Page {
             await inputElement.setValue(text);
             let value = await inputElement.getValue();
             // workaround for issue in WebdriverIO
-            if (value == "") {
+            if (value === "") {
                 await inputElement.setValue(text);
             }
             return await this.pause(200);
@@ -302,7 +302,7 @@ class Page {
 
     isElementNotDisplayed(selector) {
         return this.getDisplayedElements(selector).then(result => {
-            return result.length == 0;
+            return result.length === 0;
         })
     }
 

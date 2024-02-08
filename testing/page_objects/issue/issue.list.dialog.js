@@ -268,11 +268,11 @@ class IssuesListDialog extends Page {
         try {
             let buttonText = await this.getText(this.closedButton);
             let startIndex = buttonText.indexOf('(');
-            if (startIndex == -1) {
+            if (startIndex === -1) {
                 return '0'
             }
             let endIndex = buttonText.indexOf(')');
-            if (endIndex == -1) {
+            if (endIndex === -1) {
                 throw new Error("Issue List Dialog, Closed button - incorrect text in the label, ')' was not found");
             }
             return buttonText.substring(startIndex + 1, endIndex);
@@ -285,11 +285,11 @@ class IssuesListDialog extends Page {
         try {
             let buttonText = await this.getText(this.openButton);
             let startIndex = buttonText.indexOf('(');
-            if (startIndex == -1) {
+            if (startIndex === -1) {
                 return '0';
             }
             let endIndex = buttonText.indexOf(')');
-            if (endIndex == -1) {
+            if (endIndex === -1) {
                 throw new Error("Issue List Dialog, Open button - incorrect text in the label, '}' was not found");
             }
             return buttonText.substring(startIndex + 1, endIndex);
@@ -303,11 +303,11 @@ class IssuesListDialog extends Page {
             let selector = xpath.container + xpath.typeFilter + "//button/span";
             let textInSelectedOption = await this.getText(selector);
             let startIndex = textInSelectedOption.indexOf('(');
-            if (startIndex == -1) {
+            if (startIndex === -1) {
                 throw new Error("Issue List Dialog, Selected option - incorrect text in the label, '(' was not found");
             }
             let endIndex = textInSelectedOption.indexOf(')');
-            if (endIndex == -1) {
+            if (endIndex === -1) {
                 throw new Error("Issue List Dialog, Selected option - incorrect text in the label, '}' was not found");
             }
             return textInSelectedOption.substring(startIndex + 1, endIndex);

@@ -2,8 +2,6 @@
  * Created on 28/02/2020.
  */
 const BaseVersionsWidget = require('../../details_panel/base.versions.widget');
-const lib = require('../../../libs/elements');
-const appConst = require('../../../libs/app_const');
 
 const XPATH = {
     widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'VersionHistoryView')]",

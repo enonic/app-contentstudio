@@ -17,10 +17,6 @@ class DependantsControls extends Page {
         this.container = container;
     }
 
-    get allDependantsCheckbox() {
-        return this.container + lib.checkBoxDiv('All');
-    }
-
     get applySelectionButton() {
         return this.container + lib.DEPENDANTS.EDIT_ENTRY + lib.actionButton('Apply');
     }
@@ -202,7 +198,6 @@ class DependantsControls extends Page {
     async isDependantCheckboxSelected(displayName) {
         try {
             let checkBoxInputLocator = this.container + xpath.dependentItemDiv(displayName) + lib.CHECKBOX_INPUT;
-            //await this.waitForElementDisplayed(this.container + xpath.dependentItemDiv(displayName), appConst.mediumTimeout);
             return await this.isSelected(checkBoxInputLocator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_checkbox_selected');
