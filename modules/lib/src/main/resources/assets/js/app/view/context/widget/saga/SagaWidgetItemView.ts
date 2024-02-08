@@ -14,6 +14,7 @@ import {PlaceholderGenerator} from './PlaceholderGenerator';
 import {ItemInteractionEl} from './ui/ItemInteractionEl';
 import {ChatInputEl} from './ui/ChatInputEl';
 import * as Q from 'q';
+import {AssistantCommandParams} from './data/AssistantCommandParams';
 
 export interface SagaWidgetItemViewData
     extends SagaHtmlEditorEventData {
@@ -210,10 +211,28 @@ export class SagaWidgetItemView
     }
 
     private doAskAssistant(): Q.Promise<void> {
-        const userInput = this.chatInputContainer.getValue();
-        const htmlToSend = this.isEditorWithSelection() ? this.data.selection.html : this.data.html;
+        const assistantParams = this.makeAssistantParams();
         this.chatInputContainer.setValue('');
 
-        return this.activeItemInteraction.askAssistant(userInput, htmlToSend);
+        return this.activeItemInteraction.askAssistant(assistantParams);
+    }
+
+    private makeAssistantParams(): AssistantCommandParams {
+        return {
+            command: this.chatInputContainer.getValue(),
+            context: {
+              topic: this.data.content.getDisplayName(),
+              type: this.data.content.getType().toString(),
+              language: this.data.content.getLanguage()?.toString(),
+            },
+            source: {
+                label: this.data.label,
+                type: 'html',
+                data: {
+                    selection: this.data.selection?.html,
+                    content: this.data.html,
+                }
+            }
+        };
     }
 }
