@@ -5,6 +5,8 @@ import {SagaCommands} from '../../../../../saga/SagaCommands';
 import {SagaGetRequestResult} from '../../../../../saga/SagaGetRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {AssistantCommandParams} from '../data/AssistantCommandParams';
+import {AskAssistantEvent} from '../event/AskAssistantEvent';
 
 export class ItemInteractionEl
     extends DivEl {
@@ -34,14 +36,17 @@ export class ItemInteractionEl
         return this.lastInteraction?.getSagaMessage();
     }
 
-    askAssistant(userInput: string, html: string): Q.Promise<void> {
+    askAssistant(assistantParams: AssistantCommandParams): Q.Promise<void> {
         this.show();
         this.lastInteraction = new InteractionUnitEl(this.user);
         this.addInteraction(this.lastInteraction);
-        this.lastInteraction.addUserMessage(userInput).startWaiting();
+        this.lastInteraction.addUserMessage(assistantParams.command).startWaiting();
         this.lastInteraction.scrollIntoView();
+        const text = assistantParams.source.data.selection || assistantParams.source.data.content;
 
-        const messageToAssistant = SagaCommandProcessor.convertToAssistantMessage(userInput, html);
+        const messageToAssistant = SagaCommandProcessor.convertToAssistantMessage(assistantParams.command, text);
+
+        new AskAssistantEvent(assistantParams).fire(); // to be used by Assistant later
 
         return SagaCommands.expandText(messageToAssistant, this.chatId)
             .then((chatId: string) => {
