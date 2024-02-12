@@ -146,6 +146,7 @@ import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel
 import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
 import {ContentDiffHelper} from '../util/ContentDiffHelper';
 import {ContentDiff} from '../content/ContentDiff';
+import {SagaInputEventsListener} from '../saga/SagaInputEventsListener';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1240,6 +1241,8 @@ export class ContentWizardPanel
                 this.toggleMinimize();
             }
         });
+
+        SagaInputEventsListener.get().start();
     }
 
     private onFileUploaded(event: UploadedEvent<Content>) {
@@ -2584,6 +2587,7 @@ export class ContentWizardPanel
         this.contentAfterLayout = this.getPersistedItem();
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
+        SagaInputEventsListener.get().setContentContext(newPersistedItem);
     }
 
     isHeaderValidForSaving(): boolean {
