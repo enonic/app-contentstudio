@@ -342,7 +342,7 @@ export class IssueDetailsDialog
             this.saveOnLoaded = true;
             this.isUpdatePending = true;
             const ids = [option.getSelectedOption().getOption().getDisplayValue().getContentId()];
-            this.contentFetcher.fetchByIds(ids).then((result: ContentSummaryAndCompareStatus[]) => {
+            this.contentFetcher.fetchAndCompareStatus(ids).then((result: ContentSummaryAndCompareStatus[]) => {
                 this.addListItems(result);
             }).catch(DefaultErrorHandler.handle);
         });
@@ -561,7 +561,7 @@ export class IssueDetailsDialog
     }
 
     public reloadItemList() {
-        this.contentFetcher.fetchByIds(this.getItemList().getItemsIds()).then(items => {
+        this.contentFetcher.fetchAndCompareStatus(this.getItemList().getItemsIds()).then(items => {
             this.getItemList().replaceItems(items);
             this.getItemList().refreshList();
 
@@ -739,7 +739,7 @@ export class IssueDetailsDialog
         this.itemSelector.setValue(ids.map(id => id.toString()).join(';'));
         this.showLoadMask();
 
-        this.contentFetcher.fetchByIds(ids).then((items: ContentSummaryAndCompareStatus[]) => {
+        this.contentFetcher.fetchAndCompareStatus(ids).then((items: ContentSummaryAndCompareStatus[]) => {
             this.clearListItems(true);
             this.setListItems(items);
         }).catch(

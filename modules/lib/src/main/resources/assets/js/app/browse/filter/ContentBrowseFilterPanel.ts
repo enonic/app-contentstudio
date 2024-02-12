@@ -94,22 +94,17 @@ export class ContentBrowseFilterPanel
             }
         });
 
-        const permissionsUpdatedHandler = (contentIds: ContentIds) => {
+        const permissionsUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             if (!this.dependenciesSection.isActive()) {
                 return;
             }
 
-            const dependencyItemId: ContentId = this.dependenciesSection.getDependencyId();
-            const isDependencyItemUpdated: boolean = contentIds.contains(dependencyItemId);
-
-            if (isDependencyItemUpdated) {
+            if (ContentSummaryAndCompareStatus.isInArray(this.dependenciesSection.getDependencyId(), data)) {
                 this.search();
             }
         };
 
-        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            permissionsUpdatedHandler(ContentIds.from(data.map((item: ContentSummaryAndCompareStatus) => item.getContentId())));
-        };
+        const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => permissionsUpdatedHandler(data);
 
         handler.onContentUpdated(updatedHandler);
         handler.onContentPermissionsUpdated(permissionsUpdatedHandler);

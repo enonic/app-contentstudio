@@ -22,7 +22,6 @@ import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {RepositoryEvent} from '@enonic/lib-admin-ui/content/event/RepositoryEvent';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContentIds} from '../content/ContentIds';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {UrlAction} from '../UrlAction';
 import {ProjectContext} from '../project/ProjectContext';
@@ -278,7 +277,7 @@ export class ContentBrowsePanel
 
         handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
 
-        handler.onContentPermissionsUpdated((contentIds: ContentIds) => this.handleContentPermissionsUpdated(contentIds));
+        handler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentPermissionsUpdated(data));
 
         handler.onContentRenamed((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             this.handleContentRenamed(data, oldPaths);
@@ -337,25 +336,18 @@ export class ContentBrowsePanel
         this.doHandleContentUpdate(data);
     }
 
-    private handleContentPermissionsUpdated(contentIds: ContentIds) {
+    private handleContentPermissionsUpdated(data: ContentSummaryAndCompareStatus[]) {
         if (ContentBrowsePanel.debug) {
-            console.debug('ContentBrowsePanel: permissions updated', contentIds);
+            console.debug('ContentBrowsePanel: permissions updated', data);
         }
 
-        const contentsToUpdateIds: ContentId[] = [];
-        contentIds.map((contentId: ContentId) => {
-            if (this.treeGrid.hasItemWithDataId(contentId.toString())) {
-                contentsToUpdateIds.push(contentId);
-            }
-        });
-
-        if (contentsToUpdateIds.length === 0) {
+        if (!data || data.length === 0 ||
+            !data.some((summary: ContentSummaryAndCompareStatus) => this.treeGrid.hasItemWithDataId(summary.getId()))) {
             return;
         }
 
-        this.contentFetcher.fetchByIds(contentsToUpdateIds)
-            .then(this.handleContentUpdated.bind(this))
-            .catch(DefaultErrorHandler.handle);
+        this.treeGrid.copyStatusFromExistingNodes(data);
+        this.treeGrid.updateNodes(data);
     }
 
     private handleContentDeleted(items: DeletedContentItem[]) {
@@ -411,7 +403,8 @@ export class ContentBrowsePanel
     private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]) {
         this.handleCUD();
         this.updateContextPanel(data);
-        this.treeGrid.updateNodesWithSortChangedCheck(data);
+        this.treeGrid.copyPermissionsFromExistingNodes(data);
+        this.treeGrid.updateNodes(data);
         this.refreshFilterWithDelay();
     }
 

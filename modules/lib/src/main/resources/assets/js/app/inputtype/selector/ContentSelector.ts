@@ -471,7 +471,7 @@ export class ContentSelector
     }
 
     private static doFetchSummaries() {
-        new ContentSummaryAndCompareStatusFetcher().fetchByIds(ContentSelector.contentIdBatch).then(
+        new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(ContentSelector.contentIdBatch).then(
             (result: ContentSummaryAndCompareStatus[]) => {
 
                 ContentSelector.contentIdBatch = []; // empty batch of ids after loading

@@ -18,6 +18,7 @@ import {ContentPath} from '../content/ContentPath';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {MovedContentItem} from '../browse/MovedContentItem';
+import {ContentSummary} from '../content/ContentSummary';
 
 export const CONTENT_SERVER_EVENTS_HANDLER_KEY: string = 'ContentServerEventsHandler';
 
@@ -50,15 +51,11 @@ export class ContentServerEventsHandler {
 
     private contentSortListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
-    private contentPermissionsUpdatedListeners: ((contentIds: ContentIds) => void)[] = [];
+    private contentPermissionsUpdatedListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher = new ContentSummaryAndCompareStatusFetcher();
 
     private static debug: boolean = false;
-
-    constructor() {
-        //
-    }
 
     static getInstance(): ContentServerEventsHandler {
         let instance: ContentServerEventsHandler = Store.instance().get(CONTENT_SERVER_EVENTS_HANDLER_KEY);
@@ -92,7 +89,7 @@ export class ContentServerEventsHandler {
         }
     }
 
-    onContentPermissionsUpdated(listener: (contentIds: ContentIds) => void) {
+    onContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
         this.contentPermissionsUpdatedListeners.push(listener);
     }
 
@@ -191,9 +188,9 @@ export class ContentServerEventsHandler {
         this.notifyContentSorted(data);
     }
 
-    unContentPermissionsUpdated(listener: (contentIds: ContentIds) => void) {
+    unContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
         this.contentPermissionsUpdatedListeners =
-            this.contentPermissionsUpdatedListeners.filter((currentListener: (contentIds: ContentIds) => void) => {
+            this.contentPermissionsUpdatedListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
                 return currentListener !== listener;
             });
     }
@@ -444,7 +441,7 @@ export class ContentServerEventsHandler {
                 d.getContentId())));
 
         if (unpublishedItems.length) {
-            this.contentFetcher.fetchByIds(this.extractContentIds(unpublishedItems))
+            this.contentFetcher.fetchAndCompareStatus(this.extractContentIds(unpublishedItems))
                 .then((summaries) => {
                     this.handleContentUnpublished(summaries);
                 });
@@ -463,7 +460,7 @@ export class ContentServerEventsHandler {
         }
 
         if (movedItems.length > 0) {
-            this.contentFetcher.fetchByIds(this.extractContentIds(movedItems))
+            this.contentFetcher.fetchAndCompareStatus(this.extractContentIds(movedItems))
                 .then((summaries: ContentSummaryAndCompareStatus[]) => {
                     this.handleContentMoved(this.createMovedItems(summaries, movedItems));
                 });
@@ -486,7 +483,7 @@ export class ContentServerEventsHandler {
     }
 
     private handleEventByType(changeItems: ContentServerChangeItem[], type: NodeServerChangeType) {
-        this.contentFetcher.fetchByIds(this.extractContentIds(changeItems))
+        this.contentFetcher.fetchAndCompareStatus(this.extractContentIds(changeItems))
             .then((summaries: ContentSummaryAndCompareStatus[]) => {
                 switch (type) {
                 case NodeServerChangeType.CREATE:
@@ -525,12 +522,14 @@ export class ContentServerEventsHandler {
         if (ContentServerEventsHandler.debug) {
             console.debug('ContentServerEventsHandler: permissions updated', contentIds);
         }
-        this.notifyContentPermissionsUpdated(ContentIds.from(contentIds));
+        this.contentFetcher.fetchAndUpdateReadonly(contentIds).then((summaries: ContentSummaryAndCompareStatus[]) =>
+            this.notifyContentPermissionsUpdated(summaries)
+        );
     }
 
-    private notifyContentPermissionsUpdated(contentIds: ContentIds) {
-        this.contentPermissionsUpdatedListeners.forEach((listener: (contentIds: ContentIds) => void) => {
-            listener(contentIds);
+    private notifyContentPermissionsUpdated(contentSummaries: ContentSummaryAndCompareStatus[]) {
+        this.contentPermissionsUpdatedListeners.forEach((listener: (contentSummaries: ContentSummaryAndCompareStatus[]) => void) => {
+            listener(contentSummaries);
         });
     }
 
@@ -542,7 +541,7 @@ export class ContentServerEventsHandler {
     }
 
     private handleContentRestored(changeItems: ContentServerChangeItem[]) {
-        this.contentFetcher.fetchByIds(this.extractContentIds(changeItems))
+        this.contentFetcher.fetchAndCompareStatus(this.extractContentIds(changeItems))
             .then((data: ContentSummaryAndCompareStatus[]) => {
                 this.notifyContentCreated(data);
             }).catch(DefaultErrorHandler.handle);
