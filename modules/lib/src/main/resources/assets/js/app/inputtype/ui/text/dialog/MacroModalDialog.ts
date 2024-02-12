@@ -187,6 +187,7 @@ export class MacroModalDialog
 
         if (macroName === 'SYSTEM:EMBED') {
             config.ADD_TAGS = ['iframe'];
+            config.ADD_ATTR = ['allow', 'allowfullscreen'];
         }
 
         return DOMPurify.sanitize(value, config) as string;
