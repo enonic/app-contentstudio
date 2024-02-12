@@ -8,14 +8,11 @@ import {ContentTreeGridToolbar} from './ContentTreeGridToolbar';
 import {ContentTreeGridLoadedEvent} from './ContentTreeGridLoadedEvent';
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
-import {CompareContentResults} from '../resource/CompareContentResults';
-import {CompareContentRequest} from '../resource/CompareContentRequest';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentResponse} from '../resource/ContentResponse';
 import {ContentRowFormatter} from './ContentRowFormatter';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {CompareStatus} from '../content/CompareStatus';
 import {ContentQuery} from '../content/ContentQuery';
 import {ResultMetadata} from '../resource/ResultMetadata';
 import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
@@ -501,7 +498,7 @@ export class ContentTreeGrid
         }
     }
 
-    updateNodesWithSortChangedCheck(data: ContentSummaryAndCompareStatus[]): void {
+    updateNodes(data: ContentSummaryAndCompareStatus[]): void {
         // when items sorting was changed from manual to inherited manual we have to trigger sort ourselves since no sort event coming
         const isSortingChangedToManualInheritance: ContentSummaryAndCompareStatus = data.find(
             (item: ContentSummaryAndCompareStatus) => this.isSortingChangedToManualInheritance(item));
@@ -810,4 +807,21 @@ export class ContentTreeGrid
         this.doubleClickListeners.forEach((listener: () => void) => listener());
     }
 
+    copyStatusFromExistingNodes(data: ContentSummaryAndCompareStatus[]) {
+        data.forEach((newItem: ContentSummaryAndCompareStatus) => {
+            const existingItem: ContentSummaryAndCompareStatus = this.getRoot().getNodeByDataIdFromCurrent(newItem.getId())?.getData();
+            if (existingItem) {
+                newItem.setCompareStatus(existingItem.getCompareStatus());
+            }
+        });
+    }
+
+    copyPermissionsFromExistingNodes(data: ContentSummaryAndCompareStatus[]) {
+        data.forEach((newItem: ContentSummaryAndCompareStatus) => {
+            const existingItem: ContentSummaryAndCompareStatus = this.getRoot().getNodeByDataIdFromCurrent(newItem.getId())?.getData();
+            if (existingItem) {
+                newItem.setReadOnly(existingItem.isReadOnly());
+            }
+        });
+    }
 }

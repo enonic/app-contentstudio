@@ -49,6 +49,10 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
         return new ContentSummaryAndCompareStatus().setUploadItem(item);
     }
 
+    public static isInArray(contentId: ContentId, array: ContentSummaryAndCompareStatus[]): boolean {
+        return array.some((c) => c.getContentId().equals(contentId));
+    }
+
     hasContentSummary(): boolean {
         return !!this.contentSummary;
     }

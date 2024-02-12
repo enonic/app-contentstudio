@@ -345,7 +345,7 @@ export abstract class DependantItemsDialog
 
     private loadDescendants(from: number, size = GetDescendantsOfContentsRequest.LOAD_SIZE): Q.Promise<ContentSummaryAndCompareStatus[]> {
         const ids = this.getDependantIdsToLoad(from, from + size);
-        return new ContentSummaryAndCompareStatusFetcher().fetchByIds(ids);
+        return new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(ids);
     }
 
     protected getDependantIdsToLoad(from: number, to: number): ContentId[] {

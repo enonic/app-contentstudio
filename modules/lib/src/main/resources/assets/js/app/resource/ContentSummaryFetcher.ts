@@ -35,7 +35,7 @@ export class ContentSummaryFetcher {
         return deferred.promise;
     }
 
-    static fetchByIds(ids: ContentId[]): Q.Promise<ContentSummary[]> {
+    static fetchAndCompareStatus(ids: ContentId[]): Q.Promise<ContentSummary[]> {
 
         let deferred = Q.defer<ContentSummary[]>();
 
