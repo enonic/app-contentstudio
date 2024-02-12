@@ -1,34 +1,108 @@
-/*global Q*/
-import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
-import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
-import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
+import {
+    FilterableListBoxWrapperWithSelectedView,
+    ListBoxInputOptions
+} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
+import {CustomSelectorLoader} from './CustomSelectorLoader';
+import {CustomSelectorListBox} from './CustomSelectorListBox';
+import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import * as Q from 'q';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+
+interface CustomSelectorComboBoxOptions extends ListBoxInputOptions<CustomSelectorItem> {
+    loader: CustomSelectorLoader;
+}
+
+export interface CustomSelectorBuilderOptions {
+    maxSelected: number;
+}
 
 export class CustomSelectorComboBox
-    extends RichComboBox<CustomSelectorItem> {
+    extends FilterableListBoxWrapperWithSelectedView<CustomSelectorItem> {
 
-    constructor(builder: CustomSelectorComboBoxBuilder) {
-        super(builder);
+    protected options: CustomSelectorComboBoxOptions;
+
+    constructor(options: CustomSelectorBuilderOptions) {
+        const loader = new CustomSelectorLoader();
+
+        super(new CustomSelectorListBox(loader), {
+            selectedOptionsView: new CustomSelectorSelectedOptionsView(),
+            className: 'custom-selector-combobox',
+            loader: loader,
+            maxSelected: options.maxSelected,
+        } as CustomSelectorComboBoxOptions);
     }
 
-    protected reload(inputValue: string): Q.Promise<CustomSelectorItem[]> {
-        const loader: BaseLoader<CustomSelectorItem> = this.getLoader();
+    protected initListeners(): void {
+        super.initListeners();
 
-        if (loader.isLoaded() && loader.getSearchString() === inputValue) {
-            return loader.search(inputValue);
-        }
+        this.options.loader.onLoadedData((event: LoadedDataEvent<CustomSelectorItem>) => {
+            const entries = event.getData();
 
-        return super.reload(inputValue, true);
+            if (event.isPostLoad()) {
+                this.listBox.addItems(entries.slice(this.listBox.getItemCount()));
+            } else {
+                this.listBox.setItems(entries);
+            }
+            return Q.resolve(null);
+        });
+
+        this.listBox.whenShown(() => {
+            // if not empty then search will be performed after finished typing
+            if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
+                this.search(this.optionFilterInput.getValue());
+            }
+        });
+
+        let searchValue = '';
+
+        const debouncedSearch = AppHelper.debounce(() => {
+            this.search(searchValue);
+        }, 300);
+
+        this.optionFilterInput.onValueChanged((event: ValueChangedEvent) => {
+            searchValue = event.getNewValue();
+            debouncedSearch();
+        });
     }
 
-    static create(): CustomSelectorComboBoxBuilder {
-        return new CustomSelectorComboBoxBuilder();
+    protected search(value?: string): void {
+        this.options.loader.search(value).catch(DefaultErrorHandler.handle);
+    }
+
+    createSelectedOption(item: CustomSelectorItem): Option<CustomSelectorItem> {
+        return Option.create<CustomSelectorItem>()
+            .setValue(item.getId())
+            .setDisplayValue(item)
+            .build();
+    }
+
+    onOptionMoved(handler: (selectedOption: SelectedOption<CustomSelectorItem>, fromIndex: number) => void): void {
+        this.selectedOptionsView.onOptionMoved(handler);
+    }
+
+    getLoader(): CustomSelectorLoader {
+        return this.options.loader;
+    }
+
+    getSelectedOptionView(): CustomSelectorSelectedOptionsView {
+        return this.selectedOptionsView;
+    }
+
+    setSelectedItems(selectedIds: string[]): void {
+        this.getLoader().sendPreLoadRequest(selectedIds).then((items: CustomSelectorItem[]) => {
+            this.deselectAll(true);
+            items.sort((a, b) => selectedIds.indexOf(a.getId().toString()) - selectedIds.indexOf(b.getId().toString()));
+            this.select(items, true);
+        }).catch(DefaultErrorHandler.handle);
     }
 }
 
@@ -55,20 +129,5 @@ export class CustomSelectorSelectedOptionView
         viewer.setObject(this.getOption().getDisplayValue());
 
         return viewer;
-    }
-
-}
-
-export class CustomSelectorComboBoxBuilder
-    extends RichComboBoxBuilder<CustomSelectorItem> {
-
-    optionDisplayValueViewer: Viewer<CustomSelectorItem> = new CustomSelectorItemViewer();
-
-    delayedInputValueChangedHandling: number = 300;
-
-    selectedOptionsView: SelectedOptionsView<CustomSelectorItem> = new CustomSelectorSelectedOptionsView();
-
-    build(): CustomSelectorComboBox {
-        return new CustomSelectorComboBox(this);
     }
 }

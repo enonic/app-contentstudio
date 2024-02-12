@@ -29,25 +29,19 @@ export class SiteConfiguratorComboBox
 
     protected options: SiteConfiguratorComboBoxOptions;
 
-    private readonly siteConfiguratorSelectedOptionsView: SiteConfiguratorSelectedOptionsView;
+    protected selectedOptionsView: SiteConfiguratorSelectedOptionsView;
 
     constructor(maxOccurrences: number, siteConfigProvider: ApplicationConfigProvider,
                 formContext: ContentFormContext, value?: string) {
 
-        const filterObject = {
-            state: Application.STATE_STARTED
-        };
-        const loader = new SiteApplicationLoader(filterObject);
-        const selectedOptionsView = new SiteConfiguratorSelectedOptionsView(siteConfigProvider, formContext);
-
         super(new SiteConfiguratorListBox(), {
-            maxSelected:  0,
-            selectedOptionsView: selectedOptionsView,
+            maxSelected:  maxOccurrences,
+            selectedOptionsView: new SiteConfiguratorSelectedOptionsView(siteConfigProvider, formContext),
             className: 'site-configurator-combobox',
-            loader: loader,
+            loader: new SiteApplicationLoader({
+                state: Application.STATE_STARTED
+            }),
         } as SiteConfiguratorComboBoxOptions);
-
-        this.siteConfiguratorSelectedOptionsView = selectedOptionsView;
     }
 
     protected initListeners(): void {
@@ -103,15 +97,15 @@ export class SiteConfiguratorComboBox
     }
 
     getSelectedOptionsView(): SiteConfiguratorSelectedOptionsView {
-        return this.siteConfiguratorSelectedOptionsView;
+        return this.selectedOptionsView;
     }
 
     onSiteConfigFormDisplayed(listener: (applicationKey: ApplicationKey, formView: FormView) => void) {
-        this.siteConfiguratorSelectedOptionsView.onSiteConfigFormDisplayed(listener);
+        this.selectedOptionsView.onSiteConfigFormDisplayed(listener);
     }
 
     unSiteConfigFormDisplayed(listener: (applicationKey: ApplicationKey, formView: FormView) => void) {
-        this.siteConfiguratorSelectedOptionsView.unSiteConfigFormDisplayed(listener);
+        this.selectedOptionsView.unSiteConfigFormDisplayed(listener);
     }
 
     onOptionMoved(handler: (selectedOption: SelectedOption<Application>, fromIndex: number) => void): void {
@@ -123,11 +117,11 @@ export class SiteConfiguratorComboBox
     }
 
     getSelectedOption(item: Application): SelectedOption<Application> {
-        return this.siteConfiguratorSelectedOptionsView.getById(item.getApplicationKey().toString());
+        return this.selectedOptionsView.getById(item.getApplicationKey().toString());
     }
 
     getSelectedOptionByKey(key: string): SelectedOption<Application> {
-        return this.siteConfiguratorSelectedOptionsView.getById(key);
+        return this.selectedOptionsView.getById(key);
     }
 
     getListSize(): number {

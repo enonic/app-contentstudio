@@ -4,9 +4,7 @@ import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {RichComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorComboBox, CustomSelectorSelectedOptionsView} from './CustomSelectorComboBox';
@@ -17,12 +15,13 @@ import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
 import {UrlAction} from '../../UrlAction';
-import {CustomSelectorLoader} from './CustomSelectorLoader';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ProjectContext} from '../../project/ProjectContext';
 import {Branch} from '../../versioning/Branch';
 import {ContentSummary} from '../../content/ContentSummary';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class CustomSelector
     extends BaseInputTypeManagingAdd {
@@ -35,7 +34,9 @@ export class CustomSelector
 
     private content?: ContentSummary;
 
-    private comboBox: RichComboBox<CustomSelectorItem>;
+    private comboBox: CustomSelectorComboBox;
+
+    private initiallySelectedItems: string[];
 
     private static serviceUrlPrefix: string;
 
@@ -102,6 +103,7 @@ export class CustomSelector
         }
 
         return super.layout(input, propertyArray).then(() => {
+            this.initiallySelectedItems = this.getSelectedItemsIds();
             this.comboBox = this.createComboBox(input, propertyArray);
             this.appendChild(this.comboBox);
 
@@ -113,23 +115,19 @@ export class CustomSelector
     }
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
-        const superPromise = super.update(propertyArray, unchangedOnly);
+        const isDirty = this.isDirty();
 
-        if (!unchangedOnly || !this.comboBox.isDirty()) {
-            return superPromise.then(() => {
-                this.comboBox.setValue(this.getValueFromPropertyArray(propertyArray));
-            });
-        } else if (this.comboBox.isDirty()) {
-            this.comboBox.forceChangedEvent();
-        }
-        return superPromise;
+        return super.update(propertyArray, unchangedOnly).then(() => {
+            this.initiallySelectedItems = this.getSelectedItemsIds();
+
+            if (!unchangedOnly || !isDirty) {
+                this.comboBox.setSelectedItems(this.initiallySelectedItems);
+            }
+        });
     }
 
     reset() {
         // value is not set yet if not rendered, resetting will overwrite original value with empty value
-        if (this.comboBox.isRendered()) {
-            this.comboBox.resetBaseValues();
-        }
     }
 
     private getRequestPath(): string {
@@ -138,57 +136,56 @@ export class CustomSelector
         return StringHelper.format(this.requestPath, projectId, contentId);
     }
 
-    private createLoader(): CustomSelectorLoader {
-        const loader: CustomSelectorLoader = new CustomSelectorLoader();
-        loader.onLoadingData(() => {
-            loader.setRequestPath(this.getRequestPath());
-        });
-
-        return loader;
+    private isDirty(): boolean {
+        return !ObjectHelper.stringArrayEquals(this.initiallySelectedItems, this.getSelectedItemsIds());
     }
 
-    createComboBox(input: Input, propertyArray: PropertyArray): RichComboBox<CustomSelectorItem> {
-
-        const comboBox: CustomSelectorComboBox = CustomSelectorComboBox.create()
-            .setComboBoxName(input.getName())
-            .setMaximumOccurrences(input.getOccurrences().getMaximum())
-            .setValue(this.getValueFromPropertyArray(propertyArray))
-            .setLoader(this.createLoader())
-            .build() as CustomSelectorComboBox;
-
-        comboBox.onOptionSelected((event: SelectedOptionEvent<CustomSelectorItem>) => {
-            this.ignorePropertyChange(true);
-
-            const option = event.getSelectedOption();
-            let value = new Value(String(option.getOption().getValue()), ValueTypes.STRING);
-            if (option.getIndex() >= 0) {
-                this.getPropertyArray().set(option.getIndex(), value);
-            } else {
-                this.getPropertyArray().add(value);
-            }
-            this.refreshSortable();
-
-            this.ignorePropertyChange(false);
-
-            this.handleValueChanged(false);
-            this.fireFocusSwitchEvent(event);
+    private createComboBox(input: Input, propertyArray: PropertyArray): CustomSelectorComboBox {
+        const comboBox: CustomSelectorComboBox = new CustomSelectorComboBox({
+            maxSelected: input.getOccurrences().getMaximum(),
         });
 
-        comboBox.onOptionDeselected((event: SelectedOptionEvent<CustomSelectorItem>) => {
+        comboBox.getLoader().setRequestPath(this.getRequestPath());
+        comboBox.setSelectedItems(this.initiallySelectedItems);
+
+        comboBox.onSelectionChanged((selectionChange: SelectionChange<CustomSelectorItem>) => {
             this.ignorePropertyChange(true);
 
-            this.getPropertyArray().remove(event.getSelectedOption().getIndex());
+            selectionChange.selected?.forEach((item: CustomSelectorItem) => {
+                const value = new Value(item.getId().toString(), ValueTypes.STRING);
+
+                if (this.comboBox.countSelected() === 1) { // overwrite initial value
+                    this.getPropertyArray().set(0, value);
+                } else {
+                    this.getPropertyArray().add(value);
+                }
+            });
+
+            selectionChange.deselected?.forEach((item: CustomSelectorItem) => {
+                const property = this.getPropertyArray().getProperties().find((property) => {
+                    const propertyValue = property.hasNonNullValue() ? property.getString() : '';
+                    return propertyValue === item.getId().toString();
+                });
+
+                if (property) {
+                    this.getPropertyArray().remove(property.getIndex());
+                }
+
+            });
 
             this.refreshSortable();
             this.ignorePropertyChange(false);
             this.handleValueChanged(false);
+            this.validate(false);
         });
 
         comboBox.onOptionMoved((moved: SelectedOption<CustomSelectorItem>, fromIndex: number) => this.handleMove(moved, fromIndex));
 
-        comboBox.onValueLoaded(() => this.handleValueChanged(false));
-
         return comboBox;
+    }
+
+    private getSelectedItemsIds(): string[] {
+        return this.getValueFromPropertyArray(this.getPropertyArray()).split(';').filter((id) => !StringHelper.isBlank(id));
     }
 
     protected getNumberOfValids(): number {
@@ -234,7 +231,7 @@ export class CustomSelector
 
     private getSelectedOptionsView(): CustomSelectorSelectedOptionsView {
         this.updateSelectedOptionStyle();
-        return this.comboBox.getSelectedOptionView() as CustomSelectorSelectedOptionsView;
+        return this.comboBox.getSelectedOptionView();
     }
 
     private updateSelectedOptionStyle() {
