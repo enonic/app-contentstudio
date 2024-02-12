@@ -142,6 +142,7 @@ import {PageTemplate} from '../content/PageTemplate';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {InspectEvent} from '../event/InspectEvent';
 import {PageNavigationEventSource} from './PageNavigationEventData';
+import {SagaInputEventsListener} from '../saga/SagaInputEventsListener';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1225,6 +1226,8 @@ export class ContentWizardPanel
                 this.toggleMinimize();
             }
         });
+
+        SagaInputEventsListener.get().start();
     }
 
     private onFileUploaded(event: UploadedEvent<Content>) {
@@ -2556,6 +2559,7 @@ export class ContentWizardPanel
         super.setPersistedItem(newPersistedItem);
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
+        SagaInputEventsListener.get().setContentContext(newPersistedItem);
     }
 
     isHeaderValidForSaving(): boolean {
