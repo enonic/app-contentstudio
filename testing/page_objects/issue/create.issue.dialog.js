@@ -4,7 +4,8 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
-const LoaderComboBox = require('../components/loader.combobox');
+const PrincipalComboBox = require('../components/principal.combobox.dropdon');
+const ContentTreeSelectorDropdown = require('../components/content.selctor.dropdown');
 const DependantsControls = require('./dependant.controls');
 
 const XPATH = {
@@ -184,8 +185,8 @@ class CreateIssueDialog extends Page {
 
     async selectUserInAssignees(userName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(userName, XPATH.assigneesComboboxDiv);
+            let principalComboBox = new PrincipalComboBox();
+            return await principalComboBox.selectFilteredUserAndClickOnOk(userName, this.container);
         } catch (err) {
             throw new Error("Create issue Dialog  " + err);
         }
@@ -193,11 +194,11 @@ class CreateIssueDialog extends Page {
 
     async selectItemsInContentCombobox(contentName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(contentName, lib.CONTENT_COMBOBOX);
+            let contentTreeSelectorDropdown = new ContentTreeSelectorDropdown();
+            return await contentTreeSelectorDropdown.selectFilteredContentAndClickOnOk(contentName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_items_combo');
-            throw new Error("Create issue Dialog, items combobox, screenshot:  " + screenshot + ' ' + err);
+            throw new Error("Error in Create issue Dialog, items combobox, screenshot:  " + screenshot + ' ' + err);
         }
     }
 

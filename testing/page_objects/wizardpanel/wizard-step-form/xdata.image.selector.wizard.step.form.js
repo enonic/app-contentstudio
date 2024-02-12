@@ -4,7 +4,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const LoaderComboBox = require('../../components/loader.combobox');
+const ImageSelectorDropdown = require('../../components/image.selector.dropdown');
 
 const XPATH = {
     container: `//div[contains(@id,'XDataWizardStepForm')]`,
@@ -13,14 +13,17 @@ const XPATH = {
 class XDataImageSelector extends Page {
 
     get imageOptionsFilterInput() {
-        return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container + "//div[contains(@id,'ImageSelectorDropdown')]" + lib.OPTION_FILTER_INPUT;
     }
 
-    filterOptionsAndSelectImage(displayName) {
-        let loaderComboBox = new LoaderComboBox();
-        return this.typeTextInInput(this.imageOptionsFilterInput, displayName).then(() => {
-            return loaderComboBox.selectOption(displayName);
-        });
+    async filterOptionsAndSelectImage(displayName) {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.selectFilteredImageInTreeMode(displayName);
+    }
+
+    async clickOnImageSelectorModeTogglerButton() {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        await imageSelectorDropdown.clickOnModeTogglerButton();
     }
 
     async waitForImageSelected() {
