@@ -4,7 +4,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const LoaderComboBox = require('../../components/loader.combobox');
+const ContentTreeSelectorDropdown = require('../../components/content.selctor.dropdown');
 
 const XPATH = {
     container: `//div[contains(@id,'XDataWizardStepForm')]`,
@@ -16,14 +16,13 @@ const XPATH = {
 class XDataContentSelector extends Page {
 
     get contentOptionsFilterInput() {
-        return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container +  "//div[contains(@id,'ContentTreeSelectorDropdown')]" + lib.OPTION_FILTER_INPUT;
     }
 
     async filterOptionsAndSelectContent(displayName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            await this.typeTextInInput(this.contentOptionsFilterInput, displayName);
-            await loaderComboBox.selectOption(displayName);
+            let contentTreeSelectorDropdown = new ContentTreeSelectorDropdown();
+            await contentTreeSelectorDropdown.selectFilteredContentAndClickOnOk(displayName);
             return await this.pause(500);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_xdata_content_selector"));

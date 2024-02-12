@@ -39,6 +39,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             await contentWizard.typeDisplayName(CONTENT_WITH_XDATA);
             // 2. Enable the x-data and select an image::
             await contentWizard.clickOnXdataToggler();
+            await xDataImageSelector.clickOnImageSelectorModeTogglerButton();
             await xDataImageSelector.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('xdata_image_selector_saved');
