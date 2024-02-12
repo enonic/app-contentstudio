@@ -4,7 +4,7 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
-const LoaderComboBox = require('../components/loader.combobox');
+const LocaleSelectorDropdown = require('../components/locale.selector.dropdown');
 
 const xpath = {
     container: `//div[contains(@id,'EditPropertiesDialog')]`,
@@ -35,7 +35,7 @@ class EditSettingDialog extends Page {
 
 
     get languageFilterInput() {
-        return xpath.container + xpath.localeCombobox + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return xpath.container + xpath.localeCombobox + lib.OPTION_FILTER_INPUT;
     }
 
     get ownerFilterInput() {
@@ -89,8 +89,8 @@ class EditSettingDialog extends Page {
         try {
             await this.typeTextInInput(this.languageFilterInput, language);
             await this.pause(300);
-            let loaderComboBox = new LoaderComboBox();
-            await loaderComboBox.selectOption(language);
+            let localeSelectorDropdown = new LocaleSelectorDropdown();
+            await localeSelectorDropdown.selectFilteredLanguageAndClickOnOk(language);
             await this.pause(300);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_option'));

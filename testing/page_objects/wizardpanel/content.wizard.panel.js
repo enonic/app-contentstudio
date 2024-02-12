@@ -17,6 +17,7 @@ const ContentUnpublishDialog = require('../content.unpublish.dialog');
 const WizardDependenciesWidget = require('./details/wizard.dependencies.widget');
 const PropertiesWidget = require('../browsepanel/detailspanel/properties.widget.itemview');
 const EditSettingsDialog = require('../details_panel/edit.settings.dialog');
+const PageDescriptorDropdown = require('../components/page.descriptor.dropdown');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -39,7 +40,6 @@ const XPATH = {
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
     liveEditFrame: "//iframe[contains(@class,'live-edit-frame')]",
-    pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
@@ -148,7 +148,7 @@ class ContentWizardPanel extends Page {
     }
 
     get controllerOptionFilterInput() {
-        return "//div[contains(@id,'PagePlaceholder')]" + lib.DROPDOWN_OPTION_FILTER_INPUT;
+        return "//div[contains(@id,'PageDescriptorDropdown')]" + lib.OPTION_FILTER_INPUT;
     }
 
     get wizardToolbarHelpButton() {
@@ -639,27 +639,14 @@ class ContentWizardPanel extends Page {
         return await this.pause(1000);
     }
 
-    async doFilterControllersAndClickOnOption(pageControllerDisplayName) {
-        try {
-            let optionSelector = lib.slickRowByDisplayName(`//div[contains(@id,'PageDescriptorDropdown')]`, pageControllerDisplayName);
-            await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
-            await this.typeTextInInput(this.controllerOptionFilterInput, pageControllerDisplayName);
-            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-            await this.clickOnElement(optionSelector);
-            return await this.pause(500);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_select_controller');
-            throw new Error('Controller selector - Error when selecting the option, screenshot: ' + screenshot + ' ' + err);
-        }
-    }
-
     isPageControllerFilterInputClickable() {
         return this.isClickable(this.controllerOptionFilterInput);
     }
 
     // Select a page descriptor and wait for Context Window is loaded
     async selectPageDescriptor(pageControllerDisplayName, checkContextPanel) {
-        await this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
+        let pageDescriptorDropdown = new PageDescriptorDropdown();
+        await pageDescriptorDropdown.selectFilteredControllerAndClickOnOk(pageControllerDisplayName)
         if (typeof checkContextPanel === 'undefined' || checkContextPanel) {
             await this.waitForContextWindowVisible();
         }

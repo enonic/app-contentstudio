@@ -5,7 +5,7 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 const ContentWizard = require('../content.wizard.panel');
-const LoaderComboBox = require('../../../page_objects/components/loader.combobox');
+const ComponentDescriptorsDropdown = require('../../../page_objects/components/component.descriptors.dropdown');
 const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
@@ -40,9 +40,9 @@ class LiveFormPanel extends Page {
         try {
             let parentForComboBox = `//div[contains(@id,'LayoutPlaceholder')]`;
             let contentWizard = new ContentWizard();
-            let loaderComboBox = new LoaderComboBox();
+            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
+            await componentDescriptorsDropdown.selectFilteredContentAndClickOnOk(displayName, parentForComboBox);
             await contentWizard.switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {
@@ -55,7 +55,7 @@ class LiveFormPanel extends Page {
         try {
             let parentForComboBox = `//div[contains(@id,'PartPlaceholder')]`;
             let contentWizard = new ContentWizard();
-            let loaderComboBox = new LoaderComboBox();
+            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
             await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
             return await this.pause(1000);
