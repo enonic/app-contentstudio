@@ -4,6 +4,9 @@
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const Page = require('../page');
+const XPATH = {
+    rightCheckBoxDiv:"//li[contains(@class,'checkbox-right')]//div[contains(@id,'Checkbox')]"
+}
 
 class BasDropdown extends Page {
 
@@ -55,9 +58,20 @@ class BasDropdown extends Page {
         await this.filterItem(optionDisplayName);
         // 2. Wait for the required option is displayed:
         await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-        // 3. Click on the element:
+        // 3. Click on the row:
         await this.clickOnElement(optionSelector);
         return await this.clickOnApplySelectionButton();
+    }
+
+    async clickOnCheckboxInDropdown(index, parentXpath) {
+        if (parentXpath === undefined) {
+            parentXpath = '';
+        }
+        let locator = parentXpath + XPATH.rightCheckBoxDiv;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let result = await this.findElements(locator);
+        await result[index].click();
+        return await this.pause(300);
     }
 
 }

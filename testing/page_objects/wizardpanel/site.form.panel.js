@@ -4,7 +4,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const LoaderComboBox = require('../components/loader.combobox');
+const SiteConfiguratorComboBox = require('../components/site.configurator.comboBox');
 const SiteConfigDialog = require('./site.configurator.dialog');
 const XPATH = {
     wizardSteps: `//div[contains(@id,'WizardStepsPanel')]`,
@@ -52,7 +52,7 @@ class SiteForm extends Page {
             return await this.typeTextInInput(this.descriptionInput, description);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_site_description');
-            throw new Error("Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
+            throw new Error("Error occured in Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
         }
     }
 
@@ -62,7 +62,7 @@ class SiteForm extends Page {
             return await this.getTextInInput(this.descriptionInput);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_site_description');
-            throw new Error("Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
+            throw new Error("Error occured in Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
         }
     }
 
@@ -84,23 +84,23 @@ class SiteForm extends Page {
     }
 
     async clickOnCheckboxInDropdown(index) {
-        let loaderComboBox = new LoaderComboBox();
-        await loaderComboBox.clickOnCheckboxInDropdown(index, XPATH.siteConfigComboboxDiv);
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
+        await siteConfiguratorComboBox.clickOnCheckboxInDropdown(index, XPATH.siteConfigComboboxDiv);
     }
 
     async clickOnApplySelectionButtonInApplications() {
-        let loaderComboBox = new LoaderComboBox();
-        await loaderComboBox.clickOnApplyButton();
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
+        await siteConfiguratorComboBox.clickOnApplySelectionButton();
     }
 
     async filterOptionsAndSelectApplication(displayName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            await loaderComboBox.typeTextAndSelectOption(displayName, "//div[contains(@id,'SiteConfiguratorComboBox')]");
+            let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
+            await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnOk(displayName,XPATH.wizardSteps );
             await this.pause(700);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_app_option');
-            throw new Error('Site wizard, application selector, screenshot :' + screenshot + "  " + err);
+            throw new Error('Error occured in Site wizard, application selector, screenshot :' + screenshot + "  " + err);
         }
     }
 
