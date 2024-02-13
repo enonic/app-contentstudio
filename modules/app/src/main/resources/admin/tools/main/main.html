@@ -33,6 +33,12 @@
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/admin/common/styles/lib.css">
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/contentlib.css">
     <script type="text/javascript" src="{{assetsUri}}/admin/common/js/lib.js"></script>
+
+    {{#hasSaga}}
+    <!-- Append the Saga -->
+    <link rel="stylesheet" type="text/css" href="{{sagaAssetUrl}}/style.css">
+    <script type="text/javascript" src="{{sagaAssetUrl}}/index.js" async></script>
+    {{/hasSaga}}
 </head>
 <body>
 
