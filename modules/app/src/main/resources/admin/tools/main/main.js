@@ -1,17 +1,20 @@
 /*global app, resolve*/
 
 const admin = require('/lib/xp/admin');
+const appLib = require('/lib/xp/app');
 const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
 const i18n = require('/lib/xp/i18n');
 
+const SAGA_APP_KEY = 'com.enonic.app.saga';
+
 exports.renderTemplate = function (path, params) {
     const view = resolve('./main.html');
     const toolUri = admin.getToolUrl(app.name, 'main');
-    const isBrowseMode = path === toolUri;
     const enableSecurityPolicy = app.config['contentSecurityPolicy.enabled'] !== 'false';
 
-    params.isBrowseMode = isBrowseMode;
+    params.isBrowseMode = path === toolUri;
+    params.hasSaga = appLib.get({key: SAGA_APP_KEY}) != null;
 
     const response = {
         contentType: 'text/html',
@@ -44,6 +47,7 @@ exports.getParams = function () {
             bundles: ['i18n/phrases'],
             locale: admin.getLocales()
         }),
+        sagaAssetUrl: portal.assetUrl({application: SAGA_APP_KEY}),
         launcherPath: admin.getLauncherPath(),
         configServiceUrl: portal.apiUrl({
             application: app.name,
