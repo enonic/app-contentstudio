@@ -21,6 +21,10 @@ import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
 
+interface Saga {
+    renderLaunchButton(container: HTMLElement): void;
+}
+
 export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateManager;
@@ -54,6 +58,7 @@ export class ContentWizardToolbar
         this.addHomeButton();
         this.addActionButtons();
         this.addPublishMenuButton();
+        this.addSagaButton();
         this.addTogglerButtons();
 
         if (!this.isCollaborationEnabled()) {
@@ -125,6 +130,17 @@ export class ContentWizardToolbar
         this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
         this.addElement(this.collaborationBlock);
         this.openCollaborationWSConnection();
+    }
+
+    private addSagaButton(): void {
+        const SAGA = window['Saga'] as Saga;
+        if (!SAGA) {
+            return;
+        }
+
+        const sagaContainer = new DivEl('saga-container');
+        this.addElement(sagaContainer);
+        SAGA.renderLaunchButton(sagaContainer.getHTMLElement());
     }
 
     private addHomeButton(): void {
