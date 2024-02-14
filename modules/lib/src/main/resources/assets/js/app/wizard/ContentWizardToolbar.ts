@@ -21,7 +21,7 @@ import {ContentActionCycleButton} from './ContentActionCycleButton';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
 
-interface Saga {
+interface AIAssistant {
     renderLaunchButton(container: HTMLElement): void;
 }
 
@@ -58,7 +58,7 @@ export class ContentWizardToolbar
         this.addHomeButton();
         this.addActionButtons();
         this.addPublishMenuButton();
-        this.addSagaButton();
+        this.addAIAssistantButton();
         this.addTogglerButtons();
 
         if (!this.isCollaborationEnabled()) {
@@ -132,15 +132,15 @@ export class ContentWizardToolbar
         this.openCollaborationWSConnection();
     }
 
-    private addSagaButton(): void {
-        const SAGA = window['Saga'] as Saga;
-        if (!SAGA) {
+    private addAIAssistantButton(): void {
+        const AI = window['Enonic_AI'] as AIAssistant;
+        if (!AI) {
             return;
         }
 
-        const sagaContainer = new DivEl('saga-container');
-        this.addElement(sagaContainer);
-        SAGA.renderLaunchButton(sagaContainer.getHTMLElement());
+        const aiAssistantContainer = new DivEl('ai-assistant-container');
+        this.addElement(aiAssistantContainer);
+        AI.renderLaunchButton(aiAssistantContainer.getHTMLElement());
     }
 
     private addHomeButton(): void {
