@@ -23,7 +23,7 @@ import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager'
 import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
-interface Saga {
+interface AIAssistant {
     renderLaunchButton(container: HTMLElement): void;
 }
 
@@ -64,7 +64,7 @@ export class ContentWizardToolbar
         }
 
         this.addPublishMenuButton();
-        this.addSagaButton();
+        this.addAIAssistantButton();
         this.addTogglerButtons();
 
         this.fetchProjectInfo();
@@ -145,15 +145,15 @@ export class ContentWizardToolbar
         this.openCollaborationWSConnection();
     }
 
-    private addSagaButton(): void {
-        const SAGA = window['Saga'] as Saga;
-        if (!SAGA) {
+    private addAIAssistantButton(): void {
+        const AI = window['Enonic_AI'] as AIAssistant;
+        if (!AI) {
             return;
         }
 
-        const sagaContainer = new DivEl('saga-container');
-        this.addElement(sagaContainer);
-        SAGA.renderLaunchButton(sagaContainer.getHTMLElement());
+        const aiAssistantContainer = new DivEl('ai-assistant-container');
+        this.addElement(aiAssistantContainer);
+        AI.renderLaunchButton(aiAssistantContainer.getHTMLElement());
     }
 
     private fetchProjectInfo() {
