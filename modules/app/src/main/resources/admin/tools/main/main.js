@@ -6,7 +6,7 @@ const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
 const i18n = require('/lib/xp/i18n');
 
-const SAGA_APP_KEY = 'com.enonic.app.saga';
+const AI_ASSISTANT_APP_KEY = 'com.enonic.app.saga';
 
 exports.renderTemplate = function (path, params) {
     const view = resolve('./main.html');
@@ -14,7 +14,7 @@ exports.renderTemplate = function (path, params) {
     const enableSecurityPolicy = app.config['contentSecurityPolicy.enabled'] !== 'false';
 
     params.isBrowseMode = path === toolUri;
-    params.hasSaga = appLib.get({key: SAGA_APP_KEY}) != null;
+    params.aiAssistantEnabled = appLib.get({key: AI_ASSISTANT_APP_KEY}) != null;
 
     const response = {
         contentType: 'text/html',
@@ -47,7 +47,7 @@ exports.getParams = function () {
             bundles: ['i18n/phrases'],
             locale: admin.getLocales()
         }),
-        sagaAssetUrl: portal.assetUrl({application: SAGA_APP_KEY}),
+        aiAssistantAssetUrl: portal.assetUrl({application: AI_ASSISTANT_APP_KEY}),
         launcherPath: admin.getLauncherPath(),
         configServiceUrl: portal.apiUrl({
             application: app.name,
