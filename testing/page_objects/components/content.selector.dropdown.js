@@ -3,10 +3,10 @@
  */
 const BasDropdown = require('./base.dropdown');
 const XPATH = {
-    container: "//div[contains(@id,'ContentTreeSelectorDropdown')]",
+    container: "//div[contains(@id,'ContentSelector')]",
 };
 
-class ContentTreeSelectorDropdown extends BasDropdown {
+class ContentSelectorDropdown extends BasDropdown {
 
     get container() {
         return XPATH.container;
@@ -22,4 +22,4 @@ class ContentTreeSelectorDropdown extends BasDropdown {
     }
 }
 
-module.exports = ContentTreeSelectorDropdown;
+module.exports = ContentSelectorDropdown;

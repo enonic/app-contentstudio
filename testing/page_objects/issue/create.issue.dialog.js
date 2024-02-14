@@ -5,7 +5,7 @@ const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
 const PrincipalComboBox = require('../components/principal.combobox.dropdon');
-const ContentTreeSelectorDropdown = require('../components/content.selctor.dropdown');
+const ContentSelectorDropdown = require('../components/content.selector.dropdown');
 const DependantsControls = require('./dependant.controls');
 
 const XPATH = {
@@ -194,8 +194,8 @@ class CreateIssueDialog extends Page {
 
     async selectItemsInContentCombobox(contentName) {
         try {
-            let contentTreeSelectorDropdown = new ContentTreeSelectorDropdown();
-            return await contentTreeSelectorDropdown.selectFilteredContentAndClickOnOk(contentName);
+            let contentSelector = new ContentSelectorDropdown();
+            return await contentSelector.selectFilteredContentAndClickOnOk(contentName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_items_combo');
             throw new Error("Error in Create issue Dialog, items combobox, screenshot:  " + screenshot + ' ' + err);
