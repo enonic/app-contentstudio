@@ -64,7 +64,8 @@ export class PublishScheduleForm
             .setOccurrences(new OccurrencesBuilder().setMinimum(1).setMaximum(1).build())
             .setInputTypeConfig({
                 labelStart: i18n('field.onlineFrom'),
-                labelEnd: i18n('field.onlineTo')
+                labelEnd: i18n('field.onlineTo'),
+                defaultStartTime: '08:00'
             })
             .setMaximizeUIInputWidth(true)
             .build();
