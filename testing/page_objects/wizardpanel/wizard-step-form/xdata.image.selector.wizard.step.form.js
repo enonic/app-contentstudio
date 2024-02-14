@@ -18,7 +18,7 @@ class XDataImageSelector extends Page {
 
     async filterOptionsAndSelectImage(displayName) {
         let imageSelectorDropdown = new ImageSelectorDropdown();
-        await imageSelectorDropdown.selectFilteredImageInTreeMode(displayName);
+        await imageSelectorDropdown.selectFilteredImageInFlatMode(displayName);
     }
 
     async clickOnImageSelectorModeTogglerButton() {

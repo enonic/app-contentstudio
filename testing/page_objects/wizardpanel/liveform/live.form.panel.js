@@ -245,8 +245,13 @@ class LiveFormPanel extends Page {
     }
 
     async waitForCaptionDisplayed(text) {
-        let locator = xpath.captionByText(text);
-        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        try {
+            let locator = xpath.captionByText(text);
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_img_caption_live_edit');
+            throw new Error("Expected caption is not displayed in LiveEdit frame. screenshot:" + screenshot + ' ' + err);
+        }
     }
 
     async getFragmentsNumber() {

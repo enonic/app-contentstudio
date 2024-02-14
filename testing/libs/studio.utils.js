@@ -726,7 +726,7 @@ module.exports = {
     async saveAndCloseWizard() {
         let contentWizardPanel = new ContentWizardPanel();
         await contentWizardPanel.waitAndClickOnSave();
-        await contentWizardPanel.pause(300);
+        await contentWizardPanel.pause(1000);
         return await this.doCloseWindowTabAndSwitchToBrowsePanel();
     },
 
