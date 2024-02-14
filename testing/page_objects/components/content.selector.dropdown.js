@@ -12,9 +12,9 @@ class ContentSelectorDropdown extends BasDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredContentAndClickOnOk(displayName) {
+    async selectFilteredContentAndClickOnOk(displayName, parent) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(displayName);
+            await this.clickOnFilteredItemAndClickOnOk(displayName, parent);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('Content selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
