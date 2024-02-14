@@ -2,6 +2,7 @@ const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const LoaderComboBox = require('../../components/loader.combobox');
+const ContentSelectorDropdown = require('../../components/content.selector.dropdown');
 
 const XPATH = {
     container: `//div[contains(@id,'LinkModalDialog')]`,
@@ -161,8 +162,8 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async selectTargetInContentSelector(targetDisplayName) {
-        let loaderComboBox = new LoaderComboBox();
-        return await loaderComboBox.typeTextAndSelectOption(targetDisplayName, lib.CONTENT_COMBOBOX);
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.selectFilteredContentAndClickOnOk(targetDisplayName, XPATH.container);
     }
 
     getSelectedOptionDisplayName() {
