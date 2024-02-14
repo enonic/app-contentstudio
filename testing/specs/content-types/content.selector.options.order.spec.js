@@ -76,8 +76,8 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await studioUtils.saveScreenshot('selector_dropdown_1_option');
             await contentSelectorForm.clickOnCheckboxInDropdown(1);
             await studioUtils.saveScreenshot('selector_dropdown_2_option');
-            // 4. Verify that 'Apply' button gets visible then click on it:
-            await contentSelectorForm.clickOnApplyButton();
+            // 4. Verify that 'Ok' button gets visible then click on it:
+            await contentSelectorForm.clickOnApplySelectionButton();
             // 5. Verify the selected option:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
             assert.ok(selectedOptions.length === 2, '2 selected options should be displayed');
@@ -160,7 +160,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentSelectorForm.clickOnCheckboxInDropdown(1);
             await studioUtils.saveScreenshot('selector_apply_btn');
             // 4. Verify that Apply button gets visible then click on it:
-            await contentSelectorForm.clickOnApplyButton();
+            await contentSelectorForm.clickOnApplySelectionButton();
             // 5. Verify the selected option:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
             assert.ok(selectedOptions.length === 1, 'Selected option should be displayed');
@@ -178,7 +178,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             // 3. Unselect the option then click on Apply button:
             await contentSelectorForm.clickOnCheckboxInDropdown(1);
             await studioUtils.saveScreenshot('selector_option_unselected');
-            await contentSelectorForm.clickOnApplyButton();
+            await contentSelectorForm.clickOnApplySelectionButton();
             // 4. Verify that selected option is cleared:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
             assert.ok(selectedOptions.length === 0, 'There are no selected options in the selector');
@@ -201,7 +201,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             await contentSelectorForm.clickOnCheckboxInDropdown(1);
             await studioUtils.saveScreenshot('dropdown_apply_btn__opt_2');
             // 4. Verify that 'Apply' button gets visible then click on it:
-            await contentSelectorForm.clickOnApplyButton();
+            await contentSelectorForm.clickOnApplySelectionButton();
             // 5. Verify the selected option:
             let selectedOptions = await contentSelectorForm.getSelectedOptions();
             assert.ok(selectedOptions.length === 2, '2 selected options should be displayed');

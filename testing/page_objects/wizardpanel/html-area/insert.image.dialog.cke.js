@@ -1,7 +1,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const ComboBox = require('../../components/loader.combobox');
+const ImageSelectorDropdown = require('../../components/image.selector.dropdown');
 
 const XPATH = {
     container: `//div[contains(@id,'ImageModalDialog')]`,
@@ -51,7 +51,7 @@ class InsertImageDialog extends Page {
     }
 
     get imageOptionsFilterInput() {
-        return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return XPATH.container + lib.OPTION_FILTER_INPUT;
     }
 
     get styleSelector() {
@@ -304,18 +304,19 @@ class InsertImageDialog extends Page {
         return this.waitForElementNotDisplayed(XPATH.imageRangeValue, appConst.mediumTimeout);
     }
 
+    // Insert a displayName in Options Filter input then click on the filtered option(Flat mode):
     async filterAndSelectImage(imageDisplayName) {
-        let comboBox = new ComboBox();
-        await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.mediumTimeout);
-        await comboBox.typeTextAndSelectOption(imageDisplayName, XPATH.container);
+        let imageSelectorDropdown = new ImageSelectorDropdown();
+        // parent locator = ImageModalDialog
+        await imageSelectorDropdown.selectFilteredImageInFlatMode(imageDisplayName, XPATH.container);
         return await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
     }
 
-    async filterAndSelectImageByPath(imageName) {
-        let comboBox = new ComboBox();
+    async filterAndSelectImageByPath(path) {
+        let imageSelectorDropdown = new ImageSelectorDropdown();
         await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.mediumTimeout);
-        await this.typeTextInInput(this.imageOptionsFilterInput, imageName);
-        await comboBox.selectOptionByName(imageName, XPATH.container);
+        await this.typeTextInInput(this.imageOptionsFilterInput, path);
+        await imageSelectorDropdown.clickOnFilteredItemAndClickOnOk(path, XPATH.container);
         return await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
     }
 
