@@ -6,8 +6,6 @@ import {ToggleContextPanelEvent} from '../../../view/context/ToggleContextPanelE
 import {ContextPanelState} from '../../../view/context/ContextPanelState';
 import {HtmlEditorParams} from './HtmlEditorParams';
 import {StartSagaWidgetEvent} from '../../../view/context/widget/saga/event/StartSagaWidgetEvent';
-import {InputInteractionEventType} from '@enonic/lib-admin-ui/form/InputInteractionData';
-import {InputInteractionEvent} from '@enonic/lib-admin-ui/form/InputInteractionEvent';
 
 export class HtmlEditorSagaEventsOperator {
 
@@ -18,8 +16,6 @@ export class HtmlEditorSagaEventsOperator {
     private readonly htmlEditorParams: HtmlEditorParams;
 
     private previousSelection: CKEDITOR.dom.selection;
-
-    private eventType: InputInteractionEventType = 'focus';
 
     private debouncedUpdateSaga: () => void;
 
@@ -42,8 +38,6 @@ export class HtmlEditorSagaEventsOperator {
                     label: this.htmlEditorParams.getLabel(),
                     content: this.htmlEditorParams.getContent()
                 }).fire();
-
-            this.fireInputInteractionEvent();
         }, 200);
     }
 
@@ -59,21 +53,13 @@ export class HtmlEditorSagaEventsOperator {
         });
 
         this.editor.on('focus', () => {
-            this.eventType = 'focus';
             this.debouncedUpdateSaga();
             intervalNumber = setInterval(intervalFunction, 100);
         });
 
         this.editor.on('blur', () => {
-            this.eventType = 'blur';
-            this.fireInputInteractionEvent();
             clearInterval(intervalNumber);
             this.previousSelection = null;
-        });
-
-        this.editor.on('change', () => {
-            this.eventType = 'change';
-            this.fireInputInteractionEvent();
         });
     }
 
@@ -83,7 +69,6 @@ export class HtmlEditorSagaEventsOperator {
             this.previousSelection?.getSelectedText() || null);
 
         if (isSelectionChanged) {
-            this.eventType = 'selection';
             this.debouncedUpdateSaga();
         }
 
@@ -118,13 +103,4 @@ export class HtmlEditorSagaEventsOperator {
             }
         };
     };
-
-    private fireInputInteractionEvent(): void {
-        new InputInteractionEvent({
-            input: this.htmlEditor,
-            eventType: this.eventType,
-            inputDataType: 'html',
-            inputLabel: this.htmlEditorParams.getLabel()
-        }).fire();
-    }
 }
