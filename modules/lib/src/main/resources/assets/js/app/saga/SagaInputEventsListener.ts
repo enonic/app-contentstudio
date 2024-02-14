@@ -1,4 +1,3 @@
-import {InputInteractionEvent} from '@enonic/lib-admin-ui/form/InputInteractionEvent';
 import {ContentSummary} from '../content/ContentSummary';
 
 export class SagaInputEventsListener {
@@ -6,8 +5,6 @@ export class SagaInputEventsListener {
     private static instance: SagaInputEventsListener;
 
     private content: ContentSummary;
-
-    private inputInteractionEventListener: (event: InputInteractionEvent) => void;
 
     private constructor() {
         this.initElements();
@@ -22,11 +19,9 @@ export class SagaInputEventsListener {
     }
 
     start(): void {
-        InputInteractionEvent.on(this.inputInteractionEventListener);
     }
 
     stop(): void {
-        InputInteractionEvent.un(this.inputInteractionEventListener);
     }
 
     setContentContext(content: ContentSummary): void {
@@ -34,8 +29,6 @@ export class SagaInputEventsListener {
     }
 
     private initElements(): void {
-        this.inputInteractionEventListener = (event: InputInteractionEvent) => {
-            console.log(event);
-        };
+ //
     }
 }
