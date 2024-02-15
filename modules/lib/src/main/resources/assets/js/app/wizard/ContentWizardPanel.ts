@@ -142,7 +142,8 @@ import {PageTemplate} from '../content/PageTemplate';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {InspectEvent} from '../event/InspectEvent';
 import {PageNavigationEventSource} from './PageNavigationEventData';
-import {SagaInputEventsListener} from '../saga/SagaInputEventsListener';
+import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
+import {DataChangedEvent} from '../saga/event/internal/DataChangedEvent';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -315,6 +316,8 @@ export class ContentWizardPanel
 
             this.updatePublishStatusOnDataChange();
             this.notifyDataChanged();
+
+            new DataChangedEvent(this.contentWizardStepForm.getData().toJson()).fire();
         }, 100);
 
         let applicationKeys: ApplicationKey[] = [];
@@ -553,6 +556,8 @@ export class ContentWizardPanel
                     this.wizardHeader.setDisplayName(existing.getDisplayName());
                     this.wizardHeader.setName(existing.getName().toString());
                 }
+
+                AIAssistantEventsMediator.get().setContentTypeContext(this.contentType);
 
                 return this.loadAndSetPageState(loader.content?.getPage()?.clone());
             }).then(() => super.doLoadData());
@@ -1226,8 +1231,6 @@ export class ContentWizardPanel
                 this.toggleMinimize();
             }
         });
-
-        SagaInputEventsListener.get().start();
     }
 
     private onFileUploaded(event: UploadedEvent<Content>) {
@@ -2559,7 +2562,7 @@ export class ContentWizardPanel
         super.setPersistedItem(newPersistedItem);
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
-        SagaInputEventsListener.get().setContentContext(newPersistedItem);
+        AIAssistantEventsMediator.get().setContentContext(newPersistedItem);
     }
 
     isHeaderValidForSaving(): boolean {

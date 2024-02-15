@@ -14,7 +14,7 @@ import {PlaceholderGenerator} from './PlaceholderGenerator';
 import {ItemInteractionEl} from './ui/ItemInteractionEl';
 import {ChatInputEl} from './ui/ChatInputEl';
 import * as Q from 'q';
-import {AssistantCommandParams} from './data/AssistantCommandParams';
+import {AssistantCommandParams} from '../../../../saga/event/data/AssistantCommandParams';
 
 export interface SagaWidgetItemViewData
     extends SagaHtmlEditorEventData {
