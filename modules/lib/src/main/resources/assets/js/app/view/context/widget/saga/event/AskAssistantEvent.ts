@@ -1,6 +1,6 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {AssistantCommandParams} from '../data/AssistantCommandParams';
+import {AssistantCommandParams} from '../../../../../saga/event/data/AssistantCommandParams';
 
 export class AskAssistantEvent
     extends Event {
