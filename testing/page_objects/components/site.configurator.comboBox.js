@@ -17,7 +17,7 @@ class SiteConfiguratorComboBox extends BasDropdown {
             await this.clickOnFilteredItemAndClickOnOk(appDisplayName, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Principal Comboboox selector - Error occurred during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            throw new Error('SiteConfigurator  - Error occurred during selecting the option, screenshot: ' + screenshot + ' ' + err);
         }
     }
 }

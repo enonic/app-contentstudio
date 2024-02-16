@@ -85,6 +85,42 @@ module.exports = Object.freeze({
         MORE_BUTTON: "//button[contains(@id,'MoreButton')]",
         ADD_BUTTON: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add']]",
     },
+    CONTENT_SELECTOR: {
+        DIV: "//div[contains(@id,'ContentSelector')]",
+        selectedOptionByName: option => {
+            return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
+        }
+    },
+    DROPDOWN_SELECTOR: {
+        contentListElementByDisplayName: (container, displayName) => {
+            return container +
+                   `//li[contains(@id,'ContentListElement') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
+        },
+        // non-clickable li element in options dropdown list, it is for checking read-only status
+        contentListElementByName: (container, name) => {
+            return container +
+                   `//li[contains(@id,'ContentListElement') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`;
+        },
+        // clickable option in dropdown options list
+        dropdownListItemByDisplayName: (container, displayName) => {
+            return container +
+                   `//li[contains(@class,'item-view-wrapper')]//h6[contains(@class,'main-name') and contains(.,'${displayName}')]`;
+        },
+        dropdownListItemByName: (container, name) => {
+            return container +
+                   `//li[contains(@class,'item-view-wrapper')]//p[contains(@class,'sub-name') and contains(.,'${name}')]`;
+        },
+        flatModeDropdownImgItemByDisplayName: (container, displayName) => {
+            return container +
+                   `//li[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//img`;
+        },
+        OPTIONS_LI_DISPLAY_NAME: "//li[contains(@id,'ContentListElement')]",
+        DROPDOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
+        OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
+        MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
+        APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
+        CONTENT_TREE_SELECTOR:"//div[contains(@id,'ContentTreeSelectorDropdown')]",
+    },
 
     DEPENDANTS: {
         EDIT_ENTRY: "//div[contains(@id,'DialogStateEntry') and contains(@class,'edit-entry')]",
@@ -101,12 +137,7 @@ module.exports = Object.freeze({
         return container +
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
     },
-    dropdownListItemByDisplayName: (container, displayName) => {
-        return container + `//li[contains(@class,'item-view-wrapper')]//h6[contains(@class,'main-name') and contains(.,'${displayName}')]`;
-    },
-    flatModeDropdownImgItemByDisplayName: (container, displayName) => {
-        return container + `//li[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//img`;
-    },
+
     checkBoxDiv: label => `//div[contains(@id,'Checkbox') and child::label[contains(.,'${label}')]]`,
     actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
     actionButtonStrict: (label) => `//button[contains(@id,'ActionButton') and child::span[text()='${label}']]`,

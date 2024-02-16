@@ -30,7 +30,7 @@ class ImageSelectorDropdown extends BasDropdown {
             parentLocator = '';
         }
         let containerUL = parentLocator + XPATH.flatModeListBoxUL;
-        return lib.flatModeDropdownImgItemByDisplayName(containerUL, optionDisplayName);
+        return lib.DROPDOWN_SELECTOR.flatModeDropdownImgItemByDisplayName(containerUL, optionDisplayName);
     }
 
     // Click on images and select options in the expanded dropdown
