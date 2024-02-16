@@ -72,23 +72,6 @@ class BaseSelectorForm extends Page {
             throw new Error("Empty options text is not visible, screenshot: " + screenshot + ' ' + err);
         }
     }
-
-    async getOptionsDisplayName() {
-        let loaderComboBox = new LoaderComboBox();
-        let optionsLocator = "//div[contains(@id,'Grid') and contains(@class,'options-container')]" + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        await loaderComboBox.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
-        return await loaderComboBox.getOptionDisplayNames();
-    }
-
-    // async clickOnApplyButton() {
-    //     try {
-    //         let loaderComboBox = new LoaderComboBox();
-    //         await loaderComboBox.clickOnApplyButton();
-    //     } catch (err) {
-    //         let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-    //         throw new Error("Loader combobobox, Apply button, screenshot: " + screenshot + ' ' + err);
-    //     }
-    // }
 }
 
 module.exports = BaseSelectorForm;

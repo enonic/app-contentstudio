@@ -85,7 +85,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             assert.ok(isSelected === false, 'Show content from entire project should not be selected by default');
             // 3. Click on content-dropdown handler, expand the options:
             await insertLinkDialogContentPanel.clickOnContentDropdownHandle();
-            let items = await insertLinkDialogContentPanel.getDropdownListOptions();
+            let items = await insertLinkDialogContentPanel.getContentSelectorOptionsDisplayName();
             // 4. Verify that items from Default project are not present in the options:
             await studioUtils.saveScreenshot('content_link_entire_project_not_checked');
             assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES) === false,

@@ -82,6 +82,7 @@ class ContentSelectorForm extends BaseSelectorForm {
         await this.waitForAddNewContentButtonDisplayed();
         return await this.clickOnElement(this.addNewContentButton);
     }
+
     //Selects an option by the display name then click on OK:
     async selectOption(optionDisplayName) {
         try {
@@ -94,6 +95,7 @@ class ContentSelectorForm extends BaseSelectorForm {
             throw new Error("Error occurred in content combobox, screenshot:" + screenshot + " " + err)
         }
     }
+
     async clickOnApplySelectionButton() {
         try {
             let contentSelector = new ContentSelectorDropdown();
@@ -102,6 +104,11 @@ class ContentSelectorForm extends BaseSelectorForm {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
             throw new Error("Error occurred in Content combobobox, OK button, screenshot: " + screenshot + ' ' + err);
         }
+    }
+
+    async getOptionsDisplayNameInTreeMode() {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.getOptionsDisplayNameInTreeMode(XPATH.container);
     }
 }
 

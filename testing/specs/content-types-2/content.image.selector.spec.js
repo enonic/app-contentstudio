@@ -56,7 +56,7 @@ describe('content.image.selector: Image content specification', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
             // 2. Switch the selector to Tree-mode:
             await imageSelectorForm.clickOnModeTogglerButton();
-            let options = await imageSelectorForm.getTreeModeOptionDisplayNames();
+            let options = await imageSelectorForm.getOptionsDisplayNameInTreeMode();
             await studioUtils.saveScreenshot('img_sel_tree_mode');
             assert.strictEqual(options[0], appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME,
                 'Expected folder should be present in expanded tree mode options');

@@ -7,7 +7,7 @@ const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const ContentSelector = require('../../page_objects/components/content.selector');
+const ContentSelector = require('../../page_objects/components/content.selector.dropdown');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ArticleForm = require('../../page_objects/wizardpanel/article.form.panel');
 const CustomRelationshipForm = require('../../page_objects/wizardpanel/custom.relationship.form.panel');
@@ -110,7 +110,7 @@ describe('content.selector.spec: content-selector specification', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
             // 2. Mode toggler has been clicked(switches to tree mode):
             await contentSelector.clickOnModeTogglerButton();
-            let options = await contentSelector.getTreeModeOptionDisplayNames();
+            let options = await contentSelector.getOptionsDisplayNameInTreeMode();
             // 3. Only the parent site should be present in the options
             await studioUtils.saveScreenshot('content_sel_tree_mode_option');
             assert.strictEqual(options[0], SITE.displayName);

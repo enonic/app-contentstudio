@@ -14,7 +14,6 @@ class ContentTypeFilterDropdown extends BasDropdown {
         return XPATH.container;
     }
 
-
     async selectFilteredContentTypeAndClickOnOk(item) {
         try {
             await this.clickOnFilteredItemAndClickOnOk( item);
@@ -23,7 +22,6 @@ class ContentTypeFilterDropdown extends BasDropdown {
             throw new Error('Content type selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
         }
     }
-
 }
 
 module.exports = ContentTypeFilterDropdown;

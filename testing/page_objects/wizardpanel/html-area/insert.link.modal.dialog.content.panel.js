@@ -27,11 +27,11 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     get contentDropDownHandler() {
-        return XPATH.contentPanel + lib.CONTENT_COMBOBOX + lib.DROP_DOWN_HANDLE;
+        return XPATH.contentPanel + lib.DROPDOWN_SELECTOR.CONTENT_TREE_SELECTOR + lib.DROPDOWN_SELECTOR.DROPDOWN_HANDLE;
     }
 
     get contentSelectorModeTogglerButton() {
-        return XPATH.contentPanel + lib.CONTENT_COMBOBOX + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
+        return XPATH.contentPanel + lib.CONTENT_COMBOBOX + lib.DROPDOWN_SELECTOR.MODE_TOGGLER_BUTTON;
     }
 
     get addAnchorButton() {
@@ -55,7 +55,7 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async typeTextInContentOptionsFilterInput(text) {
-        let locator = XPATH.container + lib.CONTENT_COMBOBOX + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        let locator = XPATH.container + lib.DROPDOWN_SELECTOR.CONTENT_TREE_SELECTOR + lib.OPTION_FILTER_INPUT;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.typeTextInInput(locator, text);
         return await this.pause(1000);
@@ -73,25 +73,21 @@ class InsertLinkDialogContentPanel extends Page {
         await this.pause(700);
     }
 
-    // returns the list of options display name:
-    async getDropdownListOptions() {
-        let loaderComboBox = new LoaderComboBox();
-        let optionsLocator = XPATH.container + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        await loaderComboBox.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
-        return await loaderComboBox.getOptionDisplayNames(XPATH.container);
+    // returns the list of options name:
+    async getContentSelectorOptionsName() {
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        return await contentSelectorDropdown.getOptionsName(XPATH.container);
     }
 
-    // returns the list of options name:
-    async getDropdownListOptionsName() {
-        let loaderComboBox = new LoaderComboBox();
-        let optionsLocator = XPATH.container + lib.SLICK_ROW + lib.P_SUB_NAME;
-        await loaderComboBox.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
-        return await loaderComboBox.getOptionsName(XPATH.container);
+    // returns the list of options display-name:
+    async getContentSelectorOptionsDisplayName() {
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        return await contentSelectorDropdown.getOptionsDisplayName(XPATH.container);
     }
 
     async getOptionsMode() {
-        let loaderComboBox = new LoaderComboBox();
-        return await loaderComboBox.getMode(XPATH.container);
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.getMode(XPATH.container);
     }
 
     waitForShowContentFromEntireProjectCheckboxDisplayed() {
