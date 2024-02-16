@@ -147,7 +147,7 @@ import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
 import {ContentDiffHelper} from '../util/ContentDiffHelper';
 import {ContentDiff} from '../content/ContentDiff';
 import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
-import {DataChangedEvent} from '../saga/event/internal/DataChangedEvent';
+import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -269,6 +269,8 @@ export class ContentWizardPanel
 
     private debouncedAppsChangeHandler: () => void;
 
+    private debouncedAIAssistantDataChangedHandler: () => void;
+
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
     private workflowStateManager: WorkflowStateManager;
@@ -307,6 +309,7 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
         this.workflowStateManager = new WorkflowStateManager(this);
+        this.debouncedAIAssistantDataChangedHandler = AppHelper.debounce(this.notifyChangesToAssistant.bind(this), 300);
 
         this.debouncedEditorReload = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
@@ -326,8 +329,6 @@ export class ContentWizardPanel
 
             this.updatePublishStatusOnDataChange();
             this.notifyDataChanged();
-
-            new DataChangedEvent(this.contentWizardStepForm.getData().toJson()).fire();
         }, 100);
 
         let applicationKeys: ApplicationKey[] = [];
@@ -1986,6 +1987,7 @@ export class ContentWizardPanel
     private layoutWizardStepForms(content: Content): Q.Promise<void> {
         const contentData = content.getContentData();
         contentData.onChanged(this.dataChangedHandler);
+        contentData.onChanged(this.debouncedAIAssistantDataChangedHandler);
 
         const formViewLayoutPromises: Q.Promise<void>[] = [];
         formViewLayoutPromises.push(
@@ -2478,8 +2480,10 @@ export class ContentWizardPanel
 
     private updateWizardStepForms(content: Content, unchangedOnly: boolean = true) {
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
+        this.contentWizardStepForm.getData().unChanged(this.debouncedAIAssistantDataChangedHandler);
 
         content.getContentData().onChanged(this.dataChangedHandler);
+        content.getContentData().onChanged(this.debouncedAIAssistantDataChangedHandler);
 
         this.contentWizardStepForm.update(content.getContentData(), unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
@@ -2778,5 +2782,13 @@ export class ContentWizardPanel
 
     private isReloadLiveEditRequired(diff: ContentDiff): boolean {
         return !!diff.data || !!diff.pageObj || !!diff.extraData || !!diff.path || !!diff.displayName || !!diff.name || !!diff.inherit;
+    }
+
+    private notifyChangesToAssistant(): void {
+        AIAssistantEventsMediator.get().setCurrentData({
+            fields: this.contentWizardStepForm.getData().toJson(),
+            topic: this.getWizardHeader().getDisplayName(),
+            language: this.persistedContent.getLanguage(),
+        });
     }
 }
