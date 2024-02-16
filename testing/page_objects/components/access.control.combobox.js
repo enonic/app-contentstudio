@@ -6,7 +6,7 @@ const XPATH = {
     container: "//div[contains(@id,'AccessControlComboBox')]",
 };
 
-class AccessControlComboBox extends BasDropdown {
+class AccessControlCombobox extends BasDropdown {
 
     get container() {
         return XPATH.container;
@@ -22,4 +22,4 @@ class AccessControlComboBox extends BasDropdown {
     }
 }
 
-module.exports = AccessControlComboBox;
+module.exports = AccessControlCombobox;

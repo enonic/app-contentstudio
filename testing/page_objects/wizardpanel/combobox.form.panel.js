@@ -4,20 +4,18 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const ComboBoxListInput = require('../components/combobox.list.input');
 
 const XPATH = {
     container: "//div[contains(@id,'ComboBox')]",
-    InputViewValidationDiv: "//div[contains(@id,'InputViewValidationViewer')]",
-    optionByName: option => {
-        return `//div[contains(@class,'slick-viewport')]//div[contains(@id,'ComboBoxDisplayValueViewer') and text()='${option}']`
-
-    },
+    comboboxUL:"//ul[contains(@id,'ComboBoxList')]",
+    inputViewValidationDiv: "//div[contains(@id,'InputViewValidationViewer')]",
 };
 
 class ComboBoxFormPanel extends Page {
 
     get optionFilterInput() {
-        return lib.CONTENT_WIZARD_STEP_FORM + XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return lib.CONTENT_WIZARD_STEP_FORM + XPATH.container + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get removeOptionIcon() {
@@ -25,11 +23,8 @@ class ComboBoxFormPanel extends Page {
     }
 
     async typeInFilterAndClickOnOption(option) {
-        let optionLocator = XPATH.optionByName(option);
-        await this.typeTextInInput(this.optionFilterInput, option);
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        await this.clickOnElement(optionLocator);
-        return await this.pause(200);
+        let comboBoxListInput = new ComboBoxListInput();
+        await comboBoxListInput.selectFilteredOptionAndClickOnOk(option);
     }
 
     async clickOnRemoveSelectedOptionButton(index) {

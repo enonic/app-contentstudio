@@ -5,25 +5,25 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const Page = require('../page');
 const XPATH = {
-    rightCheckBoxDiv: "//li[contains(@class,'checkbox-right')]//div[contains(@id,'Checkbox')]"
+    rightCheckBoxDiv: "//li[contains(@class,'checkbox-right')]//div[contains(@id,'Checkbox')]",
 }
 
-class BasDropdown extends Page {
+class BaseDropdown extends Page {
 
     get modeTogglerButton() {
-        return this.container + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
+        return this.container + lib.DROPDOWN_SELECTOR.MODE_TOGGLER_BUTTON;
     }
 
     get dropdownHandle() {
-        return this.container + lib.DROP_DOWN_HANDLE;
+        return this.container + lib.DROPDOWN_SELECTOR.DROPDOWN_HANDLE;
     }
 
     get applySelectionButton() {
-        return this.container + lib.COMBOBOX.APPLY_SELECTION_BUTTON;
+        return this.container + lib.DROPDOWN_SELECTOR.APPLY_SELECTION_BUTTON;
     }
 
     get optionsFilterInput() {
-        return this.container + lib.OPTION_FILTER_INPUT;
+        return this.container + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     waitForOptionFilterInputDisplayed() {
@@ -58,57 +58,64 @@ class BasDropdown extends Page {
         await this.typeTextInInput(parentLocator + this.optionsFilterInput, optionDisplayName);
     }
 
+    // 1. Insert a text in Filter input
+    // 2. Click on the filtered by displayName item (h6[contains(@class,'main-name'))
+    // 3. Click on OK button and apply the selection.
     async clickOnFilteredItemAndClickOnOk(optionDisplayName, parentLocator) {
-        try {
-            // parentLocator - modal dialog or wizard panel
-            // 1. type the text in Options Filter Input:
-            await this.filterItem(optionDisplayName, parentLocator);
-            // 2. Wait for the required option is displayed then click on it:
-            await this.clickOnFilteredItem(optionDisplayName, parentLocator);
-            // 3. Click on 'OK' button:
-            return await this.clickOnApplySelectionButton(parentLocator);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_combobox');
-            throw new Error("Error occurred in Combobox, screenshot: " + screenshot + '  ' + err);
-        }
+        // parentLocator - modal dialog or wizard panel
+        // 1. Insert the text in Options Filter Input:
+        await this.filterItem(optionDisplayName, parentLocator);
+        // 2. Wait for the required option is displayed then click on it:
+        await this.clickOnOptionByDisplayName(optionDisplayName, parentLocator);
+        // 3. Click on 'OK' button:
+        return await this.clickOnApplySelectionButton(parentLocator);
     }
 
+    async clickOnOptionByDisplayName(optionDisplayName, parentLocator) {
+        let optionLocator = this.buildLocatorForOptionByDisplayName(optionDisplayName, parentLocator);
+        //  Wait for the required option is displayed:
+        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+        // Click on the item:
+        await this.clickOnElement(optionLocator);
+    }
+
+    // 1. Insert a text in Filter input
+    // 2. Click on the filtered by name item (p[contains(@class,'sub-name'))
+    // 3. Click on OK button and apply the selection.
+    async clickOnFilteredByNameItemAndClickOnOk(optionName, parentLocator) {
+        // parent locator - it is locator for parent modal dialog or wizard form,
+        // 1. type the text in Options Filter Input:
+        await this.filterItem(optionName, parentLocator);
+        // 3. Click on the row with the item:
+        await this.clickOnOptionByName(optionName, parentLocator);
+        // 4. Click on 'OK' button:
+        return await this.clickOnApplySelectionButton(parentLocator);
+    }
+
+    async clickOnOptionByName(name, parentLocator) {
+        let optionLocator = this.buildLocatorForOptionByName(name, parentLocator);
+        //  Wait for the required option is displayed:
+        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+        // Click on the item:
+        await this.clickOnElement(optionLocator);
+    }
+
+    // builds a locator for clickable option in Dropdown List options:
     buildLocatorForOptionByDisplayName(optionDisplayName, parentLocator) {
         if (parentLocator === undefined) {
             parentLocator = '';
         }
         let locator = parentLocator + this.container;
-        return lib.dropdownListItemByDisplayName(locator, optionDisplayName);
+        return lib.DROPDOWN_SELECTOR.dropdownListItemByDisplayName(locator, optionDisplayName);
     }
 
-    async clickOnFilteredItem(optionDisplayName, parentLocator) {
-        try {
-            let optionLocator = this.buildLocatorForOptionByDisplayName(optionDisplayName, parentLocator);
-            //  Wait for the required option is displayed:
-            let res = await this.getDisplayedElements(optionLocator);
-            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-            // Click on the item:
-            await this.clickOnElement(optionLocator);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_combo');
-            throw new Error("Error occurred in Combobox, screenshot:" + screenshot + ' ' + err)
-        }
-    }
-
-    async clickOnFilteredByNameItemAndClickOnOk(optionName, parentLocator) {
-        // parent locator - it is locator for parent modal dialog or wizard form,
+    // builds a locator for clickable option in Dropdown List options:
+    buildLocatorForOptionByName(name, parentLocator) {
         if (parentLocator === undefined) {
             parentLocator = '';
         }
         let locator = parentLocator + this.container;
-        let optionSelector = lib.dropdownListItemRowByName(locator, optionName);
-        // 1. type the text in Options Filter Input:
-        await this.filterItem(optionName);
-        // 2. Wait for the required option is displayed:
-        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-        // 3. Click on the row:
-        await this.clickOnElement(optionSelector);
-        return await this.clickOnApplySelectionButton();
+        return lib.DROPDOWN_SELECTOR.dropdownListItemByName(locator, name);
     }
 
     async clickOnCheckboxInDropdown(index, parentXpath) {
@@ -121,6 +128,11 @@ class BasDropdown extends Page {
         await result[index].click();
         return await this.pause(300);
     }
+    // tree mode if 'active' is present in @class attribute
+    async getMode(xpath) {
+        let attr = await this.getAttribute(xpath + this.modeTogglerButton, 'class');
+        return attr.includes('active') ? 'tree' : 'flat';
+    }
 }
 
-module.exports = BasDropdown;
+module.exports = BaseDropdown;
