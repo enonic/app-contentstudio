@@ -1,28 +1,20 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
-import {FormJson} from '@enonic/lib-admin-ui/form/json/FormJson';
+import {EnonicAiAssistantData} from '../data/EnonicAiAssistantData';
 
 export class EnonicAiDataSentEvent
     extends Event {
 
-    private readonly data: PropertyArrayJson[];
+    private readonly payload: EnonicAiAssistantData;
 
-    private readonly schema: FormJson;
-
-    constructor(data: PropertyArrayJson[], schema: FormJson) {
+    constructor(data: EnonicAiAssistantData) {
         super();
 
-        this.data = data;
-        this.schema = schema;
+        this.payload = data;
     }
 
-    getData(): PropertyArrayJson[] {
-        return this.data;
-    }
-
-    getSchema(): FormJson {
-        return this.schema;
+    getData(): EnonicAiAssistantData {
+        return this.payload;
     }
 
     static on(handler: (event: EnonicAiDataSentEvent) => void) {
