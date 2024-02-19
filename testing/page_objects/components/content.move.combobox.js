@@ -1,12 +1,12 @@
 /**
  * Created on 08.01.2024
  */
-const BasDropdown = require('./base.dropdown');
+const BaseDropdown = require('./base.dropdown');
 const XPATH = {
     container: "//div[contains(@id,'ContentMoveComboBox')]",
 };
 
-class ContentMoveComboBox extends BasDropdown {
+class ContentMoveComboBox extends BaseDropdown {
 
     get container() {
         return XPATH.container;

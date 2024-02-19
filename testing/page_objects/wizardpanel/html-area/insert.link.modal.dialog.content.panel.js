@@ -1,7 +1,6 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const LoaderComboBox = require('../../components/loader.combobox');
 const ContentSelectorDropdown = require('../../components/content.selector.dropdown');
 
 const XPATH = {
@@ -62,14 +61,14 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async clickOnContentDropdownHandle() {
-        await this.waitForElementDisplayed(this.contentDropDownHandler, appConst.mediumTimeout);
-        await this.clickOnElement(this.contentDropDownHandler);
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        await contentSelectorDropdown.clickOnDropdownHandle(XPATH.container);
         await this.pause(700);
     }
 
     async clickOnContentSelectorModeTogglerButton() {
-        await this.waitForElementDisplayed(this.contentSelectorModeTogglerButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.contentSelectorModeTogglerButton);
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        await contentSelectorDropdown.clickOnModeTogglerButton(XPATH.container);
         await this.pause(700);
     }
 
@@ -79,10 +78,15 @@ class InsertLinkDialogContentPanel extends Page {
         return await contentSelectorDropdown.getOptionsName(XPATH.container);
     }
 
-    // returns the list of options display-name:
-    async getContentSelectorOptionsDisplayName() {
+    // returns the list of options display-name(flat mode):
+    async getContentSelectorOptionsDisplayNameInFlatMode() {
         let contentSelectorDropdown = new ContentSelectorDropdown();
-        return await contentSelectorDropdown.getOptionsDisplayName(XPATH.container);
+        return await contentSelectorDropdown.getOptionsDisplayNameInFlatMode(XPATH.container);
+    }
+
+    async getContentSelectorOptionsDisplayNameInTreeMode() {
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        return await contentSelectorDropdown.getOptionsDisplayNameInTreeMode(XPATH.container);
     }
 
     async getOptionsMode() {

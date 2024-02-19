@@ -30,15 +30,25 @@ class BaseDropdown extends Page {
         return this.waitForElementDisplayed(appConst.mediumTimeout);
     }
 
-    clickOnModeTogglerButton() {
-        return this.clickOnElement(this.modeTogglerButton);
+    async clickOnModeTogglerButton(parentElement) {
+        await this.waitForElementDisplayed(parentElement + this.modeTogglerButton);
+        return await this.clickOnElement(parentElement + this.modeTogglerButton);
     }
+
+    clickOnDropdownHandle(parentLocator) {
+        if (parentLocator === undefined) {
+            parentLocator = '';
+        }
+        return this.clickOnElement(parentLocator + this.dropdownHandle);
+    }
+
 
     async waitForApplySelectionButtonDisplayed(parentLocator) {
         if (parentLocator === undefined) {
             parentLocator = '';
         }
-        return await this.waitForElementDisplayed(parentLocator + this.applySelectionButton, appConst.mediumTimeout);
+        await this.waitUntilDisplayed(parentLocator + this.applySelectionButton, appConst.mediumTimeout);
+        await this.pause(200);
     }
 
     async clickOnApplySelectionButton(parentLocator) {
@@ -46,7 +56,8 @@ class BaseDropdown extends Page {
             parentLocator = '';
         }
         await this.waitForApplySelectionButtonDisplayed(parentLocator);
-        await this.clickOnElement(parentLocator + this.applySelectionButton);
+        let elements = await this.getDisplayedElements(parentLocator + this.applySelectionButton);
+        await elements[0].click();
         await this.pause(300);
     }
 
@@ -54,8 +65,9 @@ class BaseDropdown extends Page {
         if (parentLocator === undefined) {
             parentLocator = '';
         }
-        await this.waitForElementDisplayed(parentLocator + this.optionsFilterInput, appConst.longTimeout);
-        await this.typeTextInInput(parentLocator + this.optionsFilterInput, optionDisplayName);
+        await this.waitUntilDisplayed(parentLocator + this.optionsFilterInput, appConst.longTimeout);
+        let elements = await this.getDisplayedElements(parentLocator + this.optionsFilterInput);
+        await elements[0].setValue(optionDisplayName);
     }
 
     // 1. Insert a text in Filter input
@@ -128,11 +140,23 @@ class BaseDropdown extends Page {
         await result[index].click();
         return await this.pause(300);
     }
+
     // tree mode if 'active' is present in @class attribute
     async getMode(xpath) {
         let attr = await this.getAttribute(xpath + this.modeTogglerButton, 'class');
-        return attr.includes('active') ? 'tree' : 'flat';
+        //return attr.includes('active') ? 'tree' : 'flat';
+        return attr.includes('folder-closed') ? 'flat' : 'tree';
     }
+
+    // async getOptionsDisplayNameInTreeMode(parentXpath) {
+    //     if (parentXpath === undefined) {
+    //         parentXpath = '';
+    //     }
+    //     let locator = parentXpath + XPATH.contentsTreeListUL + XPATH.contentListItemLI + lib.H6_DISPLAY_NAME;
+    //     await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    //     await this.pause(500);
+    //     return await this.getTextInDisplayedElements(locator);
+    // }
 }
 
 module.exports = BaseDropdown;

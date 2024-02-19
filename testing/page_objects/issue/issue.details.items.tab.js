@@ -4,6 +4,7 @@ const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const LoaderComboBox = require('../components/loader.combobox');
 const DependantsControls = require('./dependant.controls');
+const ContentSelectorDropdown = require('../components/content.selector.dropdown');
 
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
@@ -32,7 +33,7 @@ class IssueDetailsDialogItemsTab extends Page {
     }
 
     get dropdownHandle() {
-        return xpath.container + lib.CONTENT_COMBOBOX + lib.DROP_DOWN_HANDLE;
+        return xpath.container + lib.DROPDOWN_SELECTOR.CONTENT_TREE_SELECTOR + lib.DROP_DOWN_HANDLE;
     }
 
     get applySelectionButton() {
@@ -94,19 +95,19 @@ class IssueDetailsDialogItemsTab extends Page {
     }
 
     async clickOnDropdownHandle() {
-        await this.waitForElementDisplayed(this.dropdownHandle, appConst.mediumTimeout);
-        await this.clickOnElement(this.dropdownHandle);
-        await this.pause(1000);
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        await contentSelectorDropdown.clickOnDropdownHandle(xpath.container);
+        await this.pause(700);
     }
 
     async clickOnCheckboxInDropdown(index) {
-        let loaderComboBox = new LoaderComboBox();
-        await loaderComboBox.clickOnCheckboxInDropdown(index, lib.CONTENT_COMBOBOX);
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        await contentSelectorDropdown.clickOnCheckboxInDropdown(index, xpath.container);
     }
 
     async clickOnApplyButtonInCombobox() {
-        let loaderComboBox = new LoaderComboBox();
-        await loaderComboBox.clickOnApplyButton();
+        let contentSelectorDropdown = new ContentSelectorDropdown();
+        await contentSelectorDropdown.clickOnApplySelectionButton(xpath.container);
     }
 
     async waitForPublishButtonEnabled() {

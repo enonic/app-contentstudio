@@ -57,7 +57,7 @@ class LiveFormPanel extends Page {
             let contentWizard = new ContentWizard();
             let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
+            await componentDescriptorsDropdown.selectFilteredComponentAndClickOnOk(displayName, parentForComboBox);
             return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_layout');
