@@ -138,7 +138,7 @@ class MoveContentDialog extends Page {
     }
 
     async getOptionsName() {
-        let locator = XPATH.container + lib.DROPDOWN_SELECTOR.OPTIONS_LI_DISPLAY_NAME + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.container + lib.DROPDOWN_SELECTOR.OPTIONS_LI_ELEMENT + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
