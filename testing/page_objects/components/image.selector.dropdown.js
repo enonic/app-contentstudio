@@ -3,22 +3,22 @@
  */
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const BasDropdown = require('./base.dropdown');
+const BaseDropdown = require('./base.dropdown');
 const XPATH = {
     container: "//div[contains(@id,'ImageSelectorDropdown')]",
-    flatModeListBoxUL:"//ul[contains(@id,'ImageContentListBox')]",
+    imageContentListBoxUL: "//ul[contains(@id,'ImageContentListBox')]",
 };
 
-class ImageSelectorDropdown extends BasDropdown {
+class ImageSelectorDropdown extends BaseDropdown {
 
-    get container(){
+    get container() {
         return XPATH.container;
     }
 
     async selectFilteredImageInFlatMode(item, parentLocator) {
         try {
             // parentLocator = modal dialog or wizard panel...
-            await this.clickOnFilteredItemAndClickOnOk( item, parentLocator);
+            await this.clickOnFilteredItemAndClickOnOk(item, parentLocator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_img_selector_flat');
             throw new Error('Image selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
@@ -29,18 +29,39 @@ class ImageSelectorDropdown extends BasDropdown {
         if (parentLocator === undefined) {
             parentLocator = '';
         }
-        let containerUL = parentLocator + XPATH.flatModeListBoxUL;
+        let containerUL = parentLocator + XPATH.imageContentListBoxUL;
         return lib.DROPDOWN_SELECTOR.flatModeDropdownImgItemByDisplayName(containerUL, optionDisplayName);
     }
 
     // Click on images and select options in the expanded dropdown
-    async clickOnImagesInDropdownList(numberOfImages){
+    async clickOnImagesInDropdownList(numberOfImages) {
         let locator = `//li[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name')]]//img`
         let elements = await this.findElements(locator).slice(0, numberOfImages);
         for (const el of elements) {
             await el.click();
             await this.pause(500);
         }
+    }
+
+    async getOptionsDisplayNameInFlatMode(parentXpath) {
+        if (parentXpath === undefined) {
+            parentXpath = '';
+        }
+        let locator = parentXpath + XPATH.imageContentListBoxUL + lib.DROPDOWN_SELECTOR.IMG_DROPDOWN_OPT_DISPLAY_NAME_FLAT_MODE;
+        await this.waitForElementDisplayed(parentXpath + XPATH.imageContentListBoxUL, appConst.mediumTimeout);
+        await this.pause(500);
+        return await this.getTextInElements(locator);
+    }
+
+    async getOptionsDisplayNameInTreeMode(parentXpath) {
+        if (parentXpath === undefined) {
+            parentXpath = '';
+        }
+        let locator = parentXpath + lib.DROPDOWN_SELECTOR.CONTENTS_TREE_LIST_UL + lib.DROPDOWN_SELECTOR.OPTIONS_LI_ELEMENT +
+                      lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(500);
+        return await this.getTextInDisplayedElements(locator);
     }
 
     // async selectFilteredImageInTreeMode(item) {

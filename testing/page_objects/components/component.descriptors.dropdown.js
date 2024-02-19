@@ -3,7 +3,7 @@
  */
 const BasDropdown = require('./base.dropdown');
 const XPATH = {
-    container: "//div[contains(@id,'ContentTreeSelectorDropdown')]",
+    container: "//div[contains(@id,'ComponentDescriptorsDropdown')]",
 };
 
 class ComponentDescriptorsDropdown extends BasDropdown {
@@ -12,12 +12,12 @@ class ComponentDescriptorsDropdown extends BasDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredContentAndClickOnOk(displayName) {
+    async selectFilteredComponentAndClickOnOk(displayName, parentElement) {
         try {
-            await this.clickOnFilteredItemAndClickOnOk(displayName);
+            await this.clickOnFilteredItemAndClickOnOk(displayName, parentElement);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Content selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            throw new Error('Component Descriptors Dropdown - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
         }
     }
 }

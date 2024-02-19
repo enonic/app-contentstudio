@@ -4,7 +4,7 @@
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
-const LoaderComboBox = require('../../../components/loader.combobox');
+const ContentSelectorDropdown = require('../../../components/content.selector.dropdown');
 const xpath = {
     container: `//div[contains(@id,'PartInspectionPanel')]`,
     zoomLevelViewDiv: "//div[contains(@id,'InputView') and descendant::div[text()='Zoom level 1-15']]",
@@ -35,8 +35,8 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
 
     async selectContentInSelector(displayName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(displayName, xpath.container);
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            return await contentSelectorDropdown.selectFilteredContentAndClickOnOk(displayName, xpath.container);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_part_inspection');
             throw new Error("Part Inspection Panel - Error during selecting an option, screenshot: " + screenshot + "  " + err);

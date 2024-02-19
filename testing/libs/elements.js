@@ -114,12 +114,15 @@ module.exports = Object.freeze({
             return container +
                    `//li[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//img`;
         },
-        OPTIONS_LI_DISPLAY_NAME: "//li[contains(@id,'ContentListElement')]",
+        IMG_DROPDOWN_OPT_DISPLAY_NAME_FLAT_MODE: "//li[contains(@class,'item-view-wrapper')]" +
+                                                 "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
+        OPTIONS_LI_ELEMENT: "//li[contains(@id,'ContentListElement')]",
         DROPDOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
         OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
         MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
         APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
-        CONTENT_TREE_SELECTOR:"//div[contains(@id,'ContentTreeSelectorDropdown')]",
+        CONTENT_TREE_SELECTOR: "//div[contains(@id,'ContentTreeSelectorDropdown')]",
+        CONTENTS_TREE_LIST_UL: "//ul[contains(@id,'ContentsTreeList')]",
     },
 
     DEPENDANTS: {

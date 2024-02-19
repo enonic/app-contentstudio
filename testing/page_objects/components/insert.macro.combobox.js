@@ -1,7 +1,7 @@
 /**
  * Created on 16.02.2024
  */
-const BasDropdown = require('./base.dropdown');
+const BaseDropdown = require('./base.dropdown');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
@@ -10,7 +10,7 @@ const XPATH = {
     contentListItemLI: "//li[contains(@class,'item-view-wrapper')]",
 };
 
-class MacroComboBox extends BasDropdown {
+class MacroComboBox extends BaseDropdown {
 
     get container() {
         return XPATH.container;

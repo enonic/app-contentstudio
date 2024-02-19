@@ -1,17 +1,17 @@
 /**
  * Created on 08.01.2024
  */
-const BasDropdown = require('./base.dropdown');
+const BaseDropdown = require('./base.dropdown');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
-    container: "//div[contains(@id,'ContentSelector')]",
+    container: "//div[contains(@id,'ContentTreeSelectorDropdown')]",
     contentListBoxUL: "//ul[contains(@id,'ContentListBox')]",
-    contentsTreeListUL:"//ul[contains(@id,'ContentsTreeList')]",
+    contentsTreeListUL: "//ul[contains(@id,'ContentsTreeList')]",
     contentListItemLI: "//li[contains(@class,'item-view-wrapper')]",
 };
 
-class ContentSelectorDropdown extends BasDropdown {
+class ContentSelectorDropdown extends BaseDropdown {
 
     get container() {
         return XPATH.container;
@@ -35,7 +35,7 @@ class ContentSelectorDropdown extends BasDropdown {
         return await this.getTextInDisplayedElements(locator);
     }
 
-    async getOptionsDisplayName(parentXpath) {
+    async getOptionsDisplayNameInFlatMode(parentXpath) {
         if (parentXpath === undefined) {
             parentXpath = '';
         }
