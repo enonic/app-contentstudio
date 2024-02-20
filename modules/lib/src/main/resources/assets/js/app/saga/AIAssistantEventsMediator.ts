@@ -4,6 +4,8 @@ import {Content} from '../content/Content';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {EnonicAiStopEvent} from './event/incoming/EnonicAiStopEvent';
 import {ContentData} from './event/data/EnonicAiAssistantData';
+import {EnonicAIApplyEvent} from './event/incoming/EnonicAIApplyEvent';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 
 // Serves as middleman between AI Assistant events and Studio events
 export class AIAssistantEventsMediator {
@@ -21,6 +23,10 @@ export class AIAssistantEventsMediator {
     private startAssistantEventListener: (event: EnonicAiStartEvent) => void;
 
     private stopAssistantEventListener: (event: EnonicAiStopEvent) => void;
+
+    private applyAssistantEventListener: (event: EnonicAIApplyEvent) => void;
+
+    private resultReceivedListeners: ((result: PropertyTree) => void)[] = [];
 
     private constructor() {
         this.initElements();
@@ -85,6 +91,13 @@ export class AIAssistantEventsMediator {
         this.stopAssistantEventListener = (event: EnonicAiStopEvent) => {
             this.stop();
         };
+
+        this.applyAssistantEventListener = (event: EnonicAIApplyEvent) => {
+            console.log(event.result);
+
+            const propertyTree = PropertyTree.fromJson(event.result.fields);
+            this.notifyResultReceived(propertyTree);
+        };
     }
 
     private fireDataChangedEvent(): void {
@@ -96,5 +109,18 @@ export class AIAssistantEventsMediator {
     private initListeners(): void {
         EnonicAiStartEvent.on(this.startAssistantEventListener);
         EnonicAiStopEvent.on(this.stopAssistantEventListener);
+        EnonicAIApplyEvent.on(this.applyAssistantEventListener);
+    }
+
+    onResultReceived(listener: (result: PropertyTree) => void): void {
+        this.resultReceivedListeners.push(listener);
+    }
+
+    unResultReceived(listener: (result: PropertyTree) => void): void {
+        this.resultReceivedListeners = this.resultReceivedListeners.filter(l => l !== listener);
+    }
+
+    notifyResultReceived(result: PropertyTree): void {
+        this.resultReceivedListeners.forEach(l => l(result));
     }
 }
