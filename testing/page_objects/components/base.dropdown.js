@@ -35,11 +35,12 @@ class BaseDropdown extends Page {
         return await this.clickOnElement(parentElement + this.modeTogglerButton);
     }
 
-    clickOnDropdownHandle(parentLocator) {
+    async clickOnDropdownHandle(parentLocator) {
         if (parentLocator === undefined) {
             parentLocator = '';
         }
-        return this.clickOnElement(parentLocator + this.dropdownHandle);
+        await this.waitForElementDisplayed(parentLocator + this.dropdownHandle, appConst.mediumTimeout);
+        return await this.clickOnElement(parentLocator + this.dropdownHandle);
     }
 
 
@@ -61,13 +62,25 @@ class BaseDropdown extends Page {
         await this.pause(300);
     }
 
-    async filterItem(optionDisplayName, parentLocator) {
+    async filterItem(text, parentLocator) {
         if (parentLocator === undefined) {
             parentLocator = '';
         }
-        await this.waitUntilDisplayed(parentLocator + this.optionsFilterInput, appConst.longTimeout);
+        await this.waitUntilDisplayed(parentLocator + this.optionsFilterInput, appConst.mediumTimeout);
         let elements = await this.getDisplayedElements(parentLocator + this.optionsFilterInput);
-        await elements[0].setValue(optionDisplayName);
+        await elements[0].setValue(text);
+        return await this.pause(200);
+    }
+
+    async isOptionsFilterInputDisplayed(parentLocator) {
+        if (parentLocator === undefined) {
+            parentLocator = '';
+        }
+        try {
+            return await this.waitForElementDisplayed(parentLocator + this.optionsFilterInput, appConst.shortTimeout);
+        } catch (err) {
+            return false;
+        }
     }
 
     // 1. Insert a text in Filter input
