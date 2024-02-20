@@ -2,7 +2,6 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
-const LoaderComboBox = require('../components/loader.combobox');
 const DependantsControls = require('./dependant.controls');
 const ContentSelectorDropdown = require('../components/content.selector.dropdown');
 
@@ -174,8 +173,8 @@ class IssueDetailsDialogItemsTab extends Page {
 
     async addItem(itemDisplayName) {
         try {
-            let loaderComboBox = new LoaderComboBox();
-            return await loaderComboBox.typeTextAndSelectOption(itemDisplayName, xpath.container);
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            return await contentSelectorDropdown.selectFilteredContentAndClickOnOk(itemDisplayName, xpath.container);
         } catch (err) {
             throw new Error("Issue Details dialog -  " + err);
         }
