@@ -14,3 +14,7 @@ export interface ContentData {
     topic: string;
     language: string;
 }
+
+export interface ResultData {
+    fields: PropertyArrayJson[]; // can be anything, so will need to add a class to validate it and process if needed
+}
