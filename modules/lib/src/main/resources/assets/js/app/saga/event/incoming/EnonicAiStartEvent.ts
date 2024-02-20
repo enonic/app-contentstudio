@@ -4,7 +4,7 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 export class EnonicAiStartEvent
     extends Event {
 
-    constructor() {
+    private constructor() { // event is just to be received
         super();
     }
 
