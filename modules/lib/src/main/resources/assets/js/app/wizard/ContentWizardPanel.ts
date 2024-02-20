@@ -148,7 +148,8 @@ import {ContentDiffHelper} from '../util/ContentDiffHelper';
 import {ContentDiff} from '../content/ContentDiff';
 import {SagaInputEventsListener} from '../saga/SagaInputEventsListener';
 import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
-import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
+import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -456,6 +457,10 @@ export class ContentWizardPanel
 
         this.onPageStateChanged(() => {
             this.livePanel?.setSaveEnabled(!ObjectHelper.equals(PageState.getState(), this.getPersistedItem().getPage()));
+        });
+
+        AIAssistantEventsMediator.get().onResultReceived((propertyTree: PropertyTree) => {
+            this.updateWizardStepForms(propertyTree);
         });
     }
 
@@ -1262,7 +1267,7 @@ export class ContentWizardPanel
     private updateWizard(content: Content, unchangedOnly: boolean = true) {
         this.updateThumbnailWithContent(content);
         this.getWizardHeader().updateByContent(content);
-        this.updateWizardStepForms(content, unchangedOnly);
+        this.updateWizardStepForms(content.getContentData(), unchangedOnly);
         this.updateXDataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
     }
@@ -2479,14 +2484,14 @@ export class ContentWizardPanel
         });
     }
 
-    private updateWizardStepForms(content: Content, unchangedOnly: boolean = true) {
+    private updateWizardStepForms(propertyTree: PropertyTree, unchangedOnly: boolean = true) {
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
         this.contentWizardStepForm.getData().unChanged(this.debouncedAIAssistantDataChangedHandler);
 
-        content.getContentData().onChanged(this.dataChangedHandler);
-        content.getContentData().onChanged(this.debouncedAIAssistantDataChangedHandler);
+        propertyTree.onChanged(this.dataChangedHandler);
+        propertyTree.onChanged(this.debouncedAIAssistantDataChangedHandler);
 
-        this.contentWizardStepForm.update(content.getContentData(), unchangedOnly).then(() => {
+        this.contentWizardStepForm.update(propertyTree, unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
         });
     }
