@@ -66,7 +66,7 @@ class SiteForm extends Page {
             return await this.getTextInInput(this.descriptionInput);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_site_description');
-            throw new Error("Error occured in Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
+            throw new Error("Error occurred in Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
         }
     }
 
