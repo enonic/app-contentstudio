@@ -53,6 +53,11 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
 
             result = await createIssueDialog.isItemsOptionFilterDisplayed();
             assert.ok(result === false, "'Items' option filter input should not be present");
+
+            await createIssueDialog.clickOnAddItemsButton();
+            result = await createIssueDialog.isItemsOptionFilterDisplayed();
+            assert.ok(result, 'Items option filter input gets visible now');
+            await createIssueDialog.waitForAddItemsButtonNotDisplayed();
         });
 
     it(`GIVEN 'Create Issue' dialog is opened all inputs are empty WHEN 'Create Issue' button has been pressed THEN validation message should appear`,

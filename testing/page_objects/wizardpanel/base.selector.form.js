@@ -13,9 +13,14 @@ class BaseSelectorForm extends Page {
     }
 
     async getSelectorValidationMessage() {
-        let locator = lib.CONTENT_WIZARD_STEP_FORM + this.selectorValidationRecording;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
+        try {
+            let locator = lib.CONTENT_WIZARD_STEP_FORM + this.selectorValidationRecording;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_validation_message');
+            throw new Error("Validation message should be displayed in the form, screenshot:" + screenshot + ' ' + err);
+        }
     }
 
     async waitForSelectorValidationMessageNotDisplayed() {
