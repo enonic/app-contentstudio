@@ -10,6 +10,7 @@ const XPATH = {
     container: "//div[contains(@id,'ComboBox')]",
     comboboxUL:"//ul[contains(@id,'ComboBoxList')]",
     inputViewValidationDiv: "//div[contains(@id,'InputViewValidationViewer')]",
+    comboBoxSelectedOptionViewDiv: "//div[contains(@id,'ComboBoxSelectedOptionView')]"
 };
 
 class ComboBoxFormPanel extends Page {
@@ -19,7 +20,7 @@ class ComboBoxFormPanel extends Page {
     }
 
     get removeOptionIcon() {
-        return lib.CONTENT_WIZARD_STEP_FORM + XPATH.container + lib.BASE_SELECTED_OPTION + lib.REMOVE_ICON;
+        return lib.CONTENT_WIZARD_STEP_FORM + XPATH.container + XPATH.comboBoxSelectedOptionViewDiv + lib.REMOVE_ICON;
     }
 
     async typeInFilterAndClickOnOption(option) {
@@ -45,7 +46,7 @@ class ComboBoxFormPanel extends Page {
     }
 
     async getComboBoxValidationMessage() {
-        let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.FORM_VIEW + XPATH.InputViewValidationDiv;
+        let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }

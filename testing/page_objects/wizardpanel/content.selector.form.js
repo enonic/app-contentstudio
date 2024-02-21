@@ -8,6 +8,9 @@ const ContentSelectorDropdown = require('../components/content.selector.dropdown
 
 const XPATH = {
     container: lib.FORM_VIEW + "//div[contains(@id,'ContentSelector')]",
+    selectedOptionByName: option => {
+        return `//div[contains(@id,'ContentSelector') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
+    },
 };
 
 class ContentSelectorForm extends BaseSelectorForm {
@@ -107,6 +110,18 @@ class ContentSelectorForm extends BaseSelectorForm {
     async getOptionsDisplayNameInTreeMode() {
         let contentSelector = new ContentSelectorDropdown();
         return await contentSelector.getOptionsDisplayNameInTreeMode(XPATH.container);
+    }
+
+    async removeSelectedOption(option) {
+        let locator = XPATH.selectedOptionByName(option) + lib.REMOVE_ICON;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(500);
+    }
+
+    async getOptionsMode() {
+        let contentSelector = new ContentSelectorDropdown();
+        return await contentSelector.getMode(XPATH.container);
     }
 }
 
