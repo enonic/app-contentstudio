@@ -3,9 +3,8 @@
  */
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const ComboBox = require('../../components/loader.combobox');
 const ProjectWizardDialog = require('./project.wizard.dialog');
-const ProjectApplicationsComboBox = require('../../components/projects/project.applications.comboBox');
+const ProjectApplicationsComboBox = require('../../components/projects/project.applications.combobox');
 
 const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
