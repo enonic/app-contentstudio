@@ -89,11 +89,10 @@ class EditSettingDialog extends Page {
     async filterOptionsAndSelectLanguage(language) {
         try {
             let localeSelectorDropdown = new LocaleSelectorDropdown();
-            await localeSelectorDropdown.selectFilteredLanguageAndClickOnOk(language);
-            await this.pause(300);
+            await localeSelectorDropdown.clickOnFilteredLanguageAndClickOnOk(language);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_option'));
-            throw new Error('Edit Setting dialog, language selector :' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_option');
+            throw new Error('Error occurred in Edit Setting dialog, language selector , screenshot:' + screenshot + ' ' + err);
         }
     }
 
@@ -115,7 +114,7 @@ class EditSettingDialog extends Page {
             return await this.getText(selector);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_lang');
-            throw new Error('Error occured in Edit Setting dialog, the selected language. screenshot: ' + screenshot + ' ' + err);
+            throw new Error('Error occurred in Edit Setting dialog, the selected language. screenshot: ' + screenshot + ' ' + err);
         }
     }
 
