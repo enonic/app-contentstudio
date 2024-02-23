@@ -12,7 +12,7 @@ class LocaleSelectorDropdown extends BasDropdown {
         return XPATH.container;
     }
 
-    async selectFilteredLanguageAndClickOnOk(language) {
+    async clickOnFilteredLanguageAndClickOnOk(language) {
         try {
             await this.clickOnFilteredItemAndClickOnOk(language);
         } catch (err) {

@@ -21,7 +21,7 @@ exports.config = {
         browserVersion: browser_version,
         'goog:chromeOptions': {
             "args": [
-                "--headless", "--disable-gpu", "--no-sandbox",
+                 "--disable-gpu", "--no-sandbox",
                 "--lang=en",
                 '--disable-extensions',
                 'window-size=1970,1000'
