@@ -67,7 +67,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             //4. Context Window loads automatically, click on 'Page' tab:
             await contextWindow.clickOnTabBarItem('Page');
             //5. Click on dropdown handle and expand options:
-            let actualOptions = await pageInspectionPanel.getPageTemplateDropdownOptions();
+            let actualOptions = await pageInspectionPanel.getOptionsDescriptionInPageTemplateDropdown();
             //6. Verify actual options:
             await studioUtils.saveScreenshot('site_inspect_panel_template_dropdown');
             let expectedOption = `( no default template found )`;
