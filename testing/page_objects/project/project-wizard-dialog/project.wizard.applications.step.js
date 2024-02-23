@@ -5,6 +5,7 @@ const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ComboBox = require('../../components/loader.combobox');
 const ProjectWizardDialog = require('./project.wizard.dialog');
+const ProjectApplicationsComboBox = require('../../components/projects/project.applications.comboBox');
 
 const XPATH = {
     container: "//div[contains(@id,'ProjectWizardDialog')]",
@@ -22,8 +23,8 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
 
     //types an application name and click on the filtered option
     async selectApplication(appName) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(appName, XPATH.container + XPATH.projectApplicationsComboBox);
+        let projectApplicationsComboBox = new ProjectApplicationsComboBox();
+        await projectApplicationsComboBox.clickFilteredByAppNameItemAndClickOnOk(appName, XPATH.container);
         return await this.pause(500);
     }
 
