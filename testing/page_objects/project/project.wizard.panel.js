@@ -1,7 +1,8 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const ComboBox = require('../components/loader.combobox');
+const ProjectApplicationsComboBox = require('../components/projects/project.applications.comboBox');
+const ProjectAccessControlComboBox = require('../components/projects/project.access.control.combobox');
 
 const XPATH = {
     settingsContainer: "//div[contains(@id,'ContentAppBar')]",
@@ -203,8 +204,8 @@ class ProjectWizardPanel extends Page {
 
     // Adds a user with the default role (Contributor) in Roles step form:
     async selectProjectAccessRoles(principalDisplayName) {
-        let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
+        let projectAccessControlComboBox = new ProjectAccessControlComboBox();
+        await projectAccessControlComboBox.clickOnFilteredByDisplayNamePrincipalAndClickOnOk(principalDisplayName, XPATH.container);
         console.log('Project Wizard, principal is selected: ' + principalDisplayName);
         return await this.pause(1000);
     }
@@ -378,9 +379,9 @@ class ProjectWizardPanel extends Page {
 
     async selectApplication(appName) {
         try {
-            let comboBox = new ComboBox();
-            await this.waitForProjectApplicationsOptionsFilterInputDisplayed();
-            await comboBox.typeTextAndSelectOption(appName, XPATH.projectApplicationsComboboxDiv);
+            let projectApplicationsComboBox = new ProjectApplicationsComboBox();
+            //await this.waitForProjectApplicationsOptionsFilterInputDisplayed();
+            await projectApplicationsComboBox.clickFilteredByAppNameItemAndClickOnOk(appName, XPATH.container);
             console.log('Project Wizard, application is selected: ' + appName);
             return await this.pause(300);
         } catch (err) {
