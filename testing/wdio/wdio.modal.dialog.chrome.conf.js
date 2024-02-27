@@ -22,7 +22,7 @@ exports.config = {
         "wdio:enforceWebDriverClassic": true,
         'goog:chromeOptions': {
             "args": [
-                 "--disable-gpu", "--no-sandbox",
+                "--headless", "--disable-gpu", "--no-sandbox",
                 "--lang=en",
                 '--disable-extensions',
                 'window-size=1970,1000'
