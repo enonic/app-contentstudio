@@ -7,12 +7,25 @@ const BaseDropdown = require('./base.dropdown');
 const XPATH = {
     container: "//div[contains(@id,'ImageSelectorDropdown')]",
     imageContentListBoxUL: "//ul[contains(@id,'ImageContentListBox')]",
+    contentListElement: "//li[contains(@id,'ContentListElement')]",
+    expanderIconByName: name => {
+        return `//div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'${name}')]]` +
+               `//ancestor::li[contains(@id,'ContentListElement')]//div[contains(@class,'toggle icon-arrow_drop_up')]`;
+    },
+    expanderIconByDisplayName: displayName => {
+        return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]` +
+               `//ancestor::li[contains(@id,'ContentListElement')]/div[contains(@class,'toggle icon-arrow_drop_up')]`;
+    },
 };
 
 class ImageSelectorDropdown extends BaseDropdown {
 
     get container() {
         return XPATH.container;
+    }
+
+    async insertTextInOptionsFilterInput(text, parentLocator) {
+        await this.filterItem(text, parentLocator);
     }
 
     async selectFilteredImageInFlatMode(item, parentLocator) {
@@ -41,6 +54,19 @@ class ImageSelectorDropdown extends BaseDropdown {
             await el.click();
             await this.pause(500);
         }
+    }
+
+    async clickOnOptionExpanderIcon(optionDisplayName) {
+        let locator = XPATH.expanderIconByName(optionDisplayName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(300);
+    }
+
+    async getImagesStatusInOptions() {
+        let statusEl = XPATH.contentListElement + "//div[contains(@class,'status')]";
+        await this.waitForElementDisplayed(statusEl, appConst.mediumTimeout);
+        return await this.getTextInElements(statusEl);
     }
 
     async getOptionsDisplayNameInFlatMode(parentXpath) {
