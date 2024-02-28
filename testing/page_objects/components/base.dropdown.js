@@ -69,7 +69,7 @@ class BaseDropdown extends Page {
         await this.waitUntilDisplayed(parentLocator + this.optionsFilterInput, appConst.mediumTimeout);
         let elements = await this.getDisplayedElements(parentLocator + this.optionsFilterInput);
         await elements[0].setValue(text);
-        return await this.pause(200);
+        return await this.pause(300);
     }
 
     async isOptionsFilterInputDisplayed(parentLocator) {
