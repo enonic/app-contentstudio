@@ -67,6 +67,27 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             await pageComponentsWizardStepForm.waitForComponentItemDisplayed(CONTROLLER_APP_2);
         });
 
+    // Verifies https://github.com/enonic/app-contentstudio/issues/7390
+    // Site Wizard - PCV overlaps applications dropdown list #7390
+    it(`GIVEN app selector has been expanded WHEN checkbox for the selected app has been unchecked THEN the selected option should not be displayed in the form`,
+        async () => {
+            let siteFormPanel = new SiteFormPanel();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            // 1. Existing site is opened:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            // 2. click on dropdown handle in app-selector:
+            await siteFormPanel.clickOnDropdownHandle()
+            // 3. unselect the checkbox in dropdown-list another application:
+            await siteFormPanel.clickOnCheckboxInDropdownByDisplayName(APP_2);
+            // 4. Verify that OK(apply selection) gets visible
+            await siteFormPanel.waitForApplyAppSelectionButtonDisplayed();
+            // 5. Click on the OK button
+            await siteFormPanel.clickOnApplyAppSelectionButton();
+            // 6. Verify that the selected option is removed in the form:
+            let selectedApps = await siteFormPanel.getSelectedAppDisplayNames();
+            assert.equal(selectedApps.length, 0, "App selected options view should be empty");
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
