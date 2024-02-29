@@ -5,7 +5,7 @@ import {SagaCommands} from '../../../../../saga/SagaCommands';
 import {SagaGetRequestResult} from '../../../../../saga/SagaGetRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {AssistantCommandParams} from '../data/AssistantCommandParams';
+import {AssistantCommandParams} from '../../../../../saga/event/data/AssistantCommandParams';
 import {AskAssistantEvent} from '../event/AskAssistantEvent';
 
 export class ItemInteractionEl

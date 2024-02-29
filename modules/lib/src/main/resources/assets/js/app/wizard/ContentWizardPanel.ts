@@ -142,7 +142,9 @@ import {PageTemplate} from '../content/PageTemplate';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {InspectEvent} from '../event/InspectEvent';
 import {PageNavigationEventSource} from './PageNavigationEventData';
-import {SagaInputEventsListener} from '../saga/SagaInputEventsListener';
+import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
+import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -258,6 +260,8 @@ export class ContentWizardPanel
 
     private debouncedAppsChangeHandler: () => void;
 
+    private debouncedAIAssistantDataChangedHandler: () => void;
+
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
     private workflowStateManager: WorkflowStateManager;
@@ -296,6 +300,7 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
         this.workflowStateManager = new WorkflowStateManager(this);
+        this.debouncedAIAssistantDataChangedHandler = AppHelper.debounce(this.notifyChangesToAssistant.bind(this), 300);
 
         this.debouncedEditorReload = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
@@ -447,6 +452,10 @@ export class ContentWizardPanel
             saveAction.setEnabled(true);
             saveAction.execute();
         });
+
+        AIAssistantEventsMediator.get().onResultReceived((propertyTree: PropertyTree) => {
+            this.updateWizardStepForms(propertyTree);
+        });
     }
 
     toggleMinimize(navigationIndex: number = -1) {
@@ -553,6 +562,8 @@ export class ContentWizardPanel
                     this.wizardHeader.setDisplayName(existing.getDisplayName());
                     this.wizardHeader.setName(existing.getName().toString());
                 }
+
+                AIAssistantEventsMediator.get().setContentTypeContext(this.contentType);
 
                 return this.loadAndSetPageState(loader.content?.getPage()?.clone());
             }).then(() => super.doLoadData());
@@ -1226,8 +1237,6 @@ export class ContentWizardPanel
                 this.toggleMinimize();
             }
         });
-
-        SagaInputEventsListener.get().start();
     }
 
     private onFileUploaded(event: UploadedEvent<Content>) {
@@ -1242,7 +1251,7 @@ export class ContentWizardPanel
     private updateWizard(content: Content, unchangedOnly: boolean = true) {
         this.updateThumbnailWithContent(content);
         this.getWizardHeader().updateByContent(content);
-        this.updateWizardStepForms(content, unchangedOnly);
+        this.updateWizardStepForms(content.getContentData(), unchangedOnly);
         this.updateXDataStepForms(content, unchangedOnly);
         this.resetLastFocusedElement();
     }
@@ -1956,6 +1965,7 @@ export class ContentWizardPanel
     private layoutWizardStepForms(content: Content): Q.Promise<void> {
         const contentData = content.getContentData();
         contentData.onChanged(this.dataChangedHandler);
+        contentData.onChanged(this.debouncedAIAssistantDataChangedHandler);
 
         const formViewLayoutPromises: Q.Promise<void>[] = [];
         formViewLayoutPromises.push(
@@ -2446,12 +2456,14 @@ export class ContentWizardPanel
         });
     }
 
-    private updateWizardStepForms(content: Content, unchangedOnly: boolean = true) {
+    private updateWizardStepForms(propertyTree: PropertyTree, unchangedOnly: boolean = true) {
         this.contentWizardStepForm.getData().unChanged(this.dataChangedHandler);
+        this.contentWizardStepForm.getData().unChanged(this.debouncedAIAssistantDataChangedHandler);
 
-        content.getContentData().onChanged(this.dataChangedHandler);
+        propertyTree.onChanged(this.dataChangedHandler);
+        propertyTree.onChanged(this.debouncedAIAssistantDataChangedHandler);
 
-        this.contentWizardStepForm.update(content.getContentData(), unchangedOnly).then(() => {
+        this.contentWizardStepForm.update(propertyTree, unchangedOnly).then(() => {
             setTimeout(this.contentWizardStepForm.validate.bind(this.contentWizardStepForm), 100);
         });
     }
@@ -2559,7 +2571,7 @@ export class ContentWizardPanel
         super.setPersistedItem(newPersistedItem);
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
-        SagaInputEventsListener.get().setContentContext(newPersistedItem);
+        AIAssistantEventsMediator.get().setContentContext(newPersistedItem);
     }
 
     isHeaderValidForSaving(): boolean {
@@ -2719,4 +2731,13 @@ export class ContentWizardPanel
 
         return Q.resolve(this.defaultModels.getDefaultPageTemplate());
     }
+
+    private notifyChangesToAssistant(): void {
+        AIAssistantEventsMediator.get().setCurrentData({
+            fields: this.contentWizardStepForm.getData().toJson(),
+            topic: this.getWizardHeader().getDisplayName(),
+            language: this.persistedContent.getLanguage(),
+        });
+    }
+
 }
