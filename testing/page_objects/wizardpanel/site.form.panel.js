@@ -92,7 +92,17 @@ class SiteForm extends Page {
         await siteConfiguratorComboBox.clickOnCheckboxInDropdown(index, XPATH.siteConfigComboboxDiv);
     }
 
-    async clickOnApplySelectionButtonInApplications() {
+    async clickOnCheckboxInDropdownByDisplayName(displayName) {
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
+        await siteConfiguratorComboBox.clickOnCheckboxInDropdownByDisplayName(displayName, XPATH.siteConfigComboboxDiv);
+    }
+
+    async waitForApplyAppSelectionButtonDisplayed() {
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
+        await siteConfiguratorComboBox.waitForApplySelectionButtonDisplayed(XPATH.wizardSteps);
+    }
+
+    async clickOnApplyAppSelectionButton() {
         let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
         await siteConfiguratorComboBox.clickOnApplySelectionButton();
     }
@@ -110,7 +120,7 @@ class SiteForm extends Page {
 
     getSelectedAppDisplayNames() {
         let selector = XPATH.applicationsSelectedOptions + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements(selector);
+        return this.getTextInDisplayedElements(selector);
     }
 
     async removeApplication(displayName) {
