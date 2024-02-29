@@ -27,6 +27,24 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             await studioUtils.doAddSite(SITE);
         });
 
+    // Verify https://github.com/enonic/app-contentstudio/issues/7362
+    it(`WHEN content link is inserted in a htmlarea THEN 'remove' selected option icon should be displayed`,
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await htmlAreaForm.pause(1000);
+            let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
+            // 1. Open Insert Link dialog:
+            let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            // 2. insert a content-link and close the modal dialog
+            await insertLinkDialog.typeInLinkTextInput('test-content-link');
+            await insertLinkDialog.typeInLinkTooltip(TEST_TOOLTIP);
+            await insertLinkDialogContentPanel.selectTargetInContentSelector(TEST_CONTENT_DISPLAY_NAME);
+            // 3. Click on 'remove' icon in the modal dialog:
+            await insertLinkDialogContentPanel.clickOnRemoveSelectedOptionIcon(TEST_CONTENT_DISPLAY_NAME);
+            await insertLinkDialogContentPanel.waitForUploadContentButtonDisplayed();
+        });
+
     it(`GIVEN insert link dialog is opened WHEN 'Show content from entire project' checkbox has been clicked THEN content from entire project should be present in dropdown options`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();

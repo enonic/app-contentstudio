@@ -6,6 +6,7 @@ const appConst = require('../../libs/app_const');
 const Page = require('../page');
 const XPATH = {
     rightCheckBoxDiv: "//li[contains(@class,'checkbox-right')]//div[contains(@id,'Checkbox')]",
+    rightCheckboxByDisplayName: displayName => `//li[contains(@class,'checkbox-right') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]//div[contains(@id,'Checkbox')]`,
 }
 
 class BaseDropdown extends Page {
@@ -151,6 +152,17 @@ class BaseDropdown extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let result = await this.findElements(locator);
         await result[index].click();
+        return await this.pause(300);
+    }
+
+    async clickOnCheckboxInDropdownByDisplayName(displayName, parentXpath) {
+        if (parentXpath === undefined) {
+            parentXpath = '';
+        }
+        let locator = parentXpath + XPATH.rightCheckboxByDisplayName(displayName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let result = await this.findElements(locator);
+        await result[0].click();
         return await this.pause(300);
     }
 
