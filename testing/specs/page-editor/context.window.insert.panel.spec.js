@@ -36,7 +36,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             await siteFormPanel.clickOnCheckboxInDropdown(1);
             await studioUtils.saveScreenshot('site_2_apps_checked');
             // 4. Click on 'OK' and apply selections:
-            await siteFormPanel.clickOnApplySelectionButtonInApplications();
+            await siteFormPanel.clickOnApplyAppSelectionButton();
             await studioUtils.saveScreenshot('site_2_apps_applied');
             // 5. Verify that site is automatically saved:
             await contentWizard.waitForNotificationMessage();
