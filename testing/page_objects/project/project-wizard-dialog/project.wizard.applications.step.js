@@ -29,11 +29,10 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
 
     //expand the dropdown and click on an option
     async expandDropdownListAndSelectApplication(appName) {
-        await this.waitForElementDisplayed(this.appSelectorDropDownHandler, appConst.shortTimeout);
-        await this.clickOnElement(this.appSelectorDropDownHandler);
-        let optionXpath = lib.slickRowByDisplayName(XPATH.container, appName);
-        await this.waitForElementDisplayed(optionXpath, appConst.shortTimeout);
-        await this.clickOnElement(optionXpath);
+        let projectApplicationsComboBox = new ProjectApplicationsComboBox();
+        await projectApplicationsComboBox.clickOnDropdownHandle(XPATH.container);
+        await projectApplicationsComboBox.clickOnOptionByDisplayName(appName, XPATH.container);
+        await projectApplicationsComboBox.clickOnApplySelectionButton(XPATH.container);
         return await this.pause(500);
     }
 
@@ -65,8 +64,7 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.clickOnElement(locator);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_remove_app");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_remove_app');
             throw new Error("error after pressing the remove button, screenshot: " + screenshot + "  " + err);
         }
     }

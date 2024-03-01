@@ -120,7 +120,7 @@ class InsertImageDialog extends Page {
         })
     }
 
-    //Image style selector:
+    //Image style selector:(TODO remove slick-grid)
     async doFilterStyleAndClickOnOption(styleOption) {
         let optionSelector = lib.slickRowByDisplayName(XPATH.container, styleOption);
         try {

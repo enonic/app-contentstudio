@@ -27,7 +27,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            // 1. Select 'Default' project and open wizard for new layer:
+            // 1. Open wizard for new layer:
             await settingsBrowsePanel.openProjectWizardDialog();
             let layer = projectUtils.buildLayer(appConst.PROJECTS.DEFAULT_PROJECT_NAME, null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
                 appConst.APP_CONTENT_TYPES, LAYER_DISPLAY_NAME);
@@ -126,9 +126,9 @@ async function doAddArticleContent(article) {
     let newContentDialog = new NewContentDialog();
     await contentBrowsePanel.clickOnNewButton();
     await newContentDialog.waitForOpened();
-    //2. Open article-wizard:
+    // 2. Open article-wizard:
     await studioUtils.clickOnItemInNewContentDialog(article.contentType);
-    //3.Type the data and save all
+    // 3.Type the data and save all
     await contentWizardPanel.typeData(article);
     await contentWizardPanel.waitAndClickOnSave();
     await studioUtils.doCloseCurrentBrowserTab();
