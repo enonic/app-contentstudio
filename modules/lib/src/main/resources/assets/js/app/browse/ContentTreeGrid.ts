@@ -289,10 +289,16 @@ export class ContentTreeGrid
     private processContentQueryResponse(node: TreeNode<ContentSummaryAndCompareStatus>,
                                         data: ContentQueryResult<ContentSummary, ContentSummaryJson>,
                                         from: number): Q.Promise<ContentSummaryAndCompareStatus[]> {
-
         return this.contentFetcher
             .updateReadonlyAndCompareStatus(data.getContents())
-            .then((contents: ContentSummaryAndCompareStatus[]) => {
+            .then((processedContents: ContentSummaryAndCompareStatus[]) => {
+
+                const contents: ContentSummaryAndCompareStatus[] =
+                    node.getChildren()
+                        .map((el: TreeNode<ContentSummaryAndCompareStatus>) => el.getData())
+                        .slice(0, from)
+                        .concat(processedContents);
+
                 const meta: ResultMetadata = data.getMetadata();
                 if (this.isEmptyNodeNeeded(meta, from)) {
                     contents.push(new ContentSummaryAndCompareStatus());
