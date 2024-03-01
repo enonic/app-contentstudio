@@ -150,10 +150,14 @@ module.exports = {
             await projectWizardDialogSummaryStep.pause(1000);
             await projectWizardDialogSummaryStep.waitForLoaded();
         } catch (err) {
-            let screenshot = appConst.generateRandomName('err_save_proj');
-            await this.saveScreenshot(screenshot);
-            throw new Error("Error when saving a project, screenshot:" + screenshot + "  " + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_save_proj');
+            throw new Error("Error during creating the project, screenshot:" + screenshot + "  " + err);
         }
+    },
+    async saveScreenshotUniqueName(namePart) {
+        let screenshotName = appConst.generateRandomName(namePart);
+        await this.saveScreenshot(screenshotName);
+        return screenshotName;
     },
     async waitForElementDisplayed(locator, ms) {
         let element = await this.getBrowser().$(locator);
