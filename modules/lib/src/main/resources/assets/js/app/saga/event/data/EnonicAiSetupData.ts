@@ -1,5 +1,3 @@
 export interface EnonicAiSetupData {
-    config: {
-        serviceUrl: string;
-    }
+    serviceUrl: string;
 }
