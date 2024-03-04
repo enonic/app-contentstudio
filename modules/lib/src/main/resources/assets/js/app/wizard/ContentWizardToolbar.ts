@@ -8,6 +8,7 @@ import * as Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentStatusToolbar, ContentStatusToolbarConfig} from '../ContentStatusToolbar';
 import {ProjectContext} from '../project/ProjectContext';
+import {EnonicAiSetupData} from '../saga/event/data/EnonicAiSetupData';
 import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
@@ -22,7 +23,7 @@ import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublish
 import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
 
 interface AIAssistant {
-    renderLaunchButton(container: HTMLElement): void;
+    renderAiAssistant(container: HTMLElement, setupData: EnonicAiSetupData): void;
 }
 
 export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
@@ -140,7 +141,12 @@ export class ContentWizardToolbar
 
         const aiAssistantContainer = new DivEl('ai-assistant-container');
         this.addElement(aiAssistantContainer);
-        AI.renderLaunchButton(aiAssistantContainer.getHTMLElement());
+
+        const setupData: EnonicAiSetupData = {
+            serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
+        };
+
+        AI.renderAiAssistant(aiAssistantContainer.getHTMLElement(), setupData);
     }
 
     private addHomeButton(): void {
