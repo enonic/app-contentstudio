@@ -1,13 +1,14 @@
-import {EnonicAiStartEvent} from './event/incoming/EnonicAiStartEvent';
-import {EnonicAiDataSentEvent} from './event/outgoing/EnonicAiDataSentEvent';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Content} from '../content/Content';
 import {ContentType} from '../inputtype/schema/ContentType';
-import {EnonicAiStopEvent} from './event/incoming/EnonicAiStopEvent';
 import {ContentData} from './event/data/EnonicAiAssistantData';
 import {EnonicAIApplyEvent} from './event/incoming/EnonicAIApplyEvent';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {EnonicAiSetupEvent} from './event/outgoing/EnonicAiSetupEvent';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {EnonicAiStartEvent} from './event/incoming/EnonicAiStartEvent';
+import {EnonicAiStopEvent} from './event/incoming/EnonicAiStopEvent';
+import {EnonicAiConfigEvent} from './event/outgoing/EnonicAiConfigEvent';
+import {EnonicAiDataSentEvent} from './event/outgoing/EnonicAiDataSentEvent';
 
 // Serves as middleman between AI Assistant events and Studio events
 export class AIAssistantEventsMediator {
@@ -22,16 +23,9 @@ export class AIAssistantEventsMediator {
 
     private contentType: ContentType;
 
-    private startAssistantEventListener: (event: EnonicAiStartEvent) => void;
-
-    private stopAssistantEventListener: (event: EnonicAiStopEvent) => void;
-
-    private applyAssistantEventListener: (event: EnonicAIApplyEvent) => void;
-
     private resultReceivedListeners: ((result: PropertyTree) => void)[] = [];
 
     private constructor() {
-        this.initElements();
         this.initListeners();
     }
 
@@ -69,44 +63,50 @@ export class AIAssistantEventsMediator {
         }
     }
 
-    private initElements(): void {
-        this.startAssistantEventListener = (event: EnonicAiStartEvent) => {
-            this.start();
+    private startAssistantEventListener = (event: EnonicAiStartEvent) => {
+        this.start();
 
-            new EnonicAiSetupEvent({
-                config: {
-                    serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
+        void new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            const currentUser = loginResult.getUser();
+            const fullName = currentUser.getDisplayName();
+            const names = fullName.split(' ').map(word => word.substring(0, 1));
+            const shortName = (names.length >= 2 ? names.join('') : fullName).substring(0, 2).toUpperCase();
+
+            new EnonicAiConfigEvent({
+                user: {
+                    fullName,
+                    shortName,
                 }
             }).fire();
+        });
 
-            new EnonicAiDataSentEvent({
-                data: {
-                    fields: this.content.getContentData().toJson(),
-                    topic: this.content.getDisplayName(),
-                    language: this.content.getLanguage(),
-                },
-                schema: {
-                    form: this.contentType.getForm().toJson(),
-                    name: this.contentType.getDisplayName()
-                },
-            }).fire();
+        new EnonicAiDataSentEvent({
+            data: {
+                fields: this.content.getContentData().toJson(),
+                topic: this.content.getDisplayName(),
+                language: this.content.getLanguage(),
+            },
+            schema: {
+                form: this.contentType.getForm().toJson(),
+                name: this.contentType.getDisplayName()
+            },
+        }).fire();
 
-            if (this.currentData) {
-                this.fireDataChangedEvent();
-            }
-        };
+        if (this.currentData) {
+            this.fireDataChangedEvent();
+        }
+    };
 
-        this.stopAssistantEventListener = (event: EnonicAiStopEvent) => {
-            this.stop();
-        };
+    private stopAssistantEventListener = (event: EnonicAiStopEvent) => {
+        this.stop();
+    };
 
-        this.applyAssistantEventListener = (event: EnonicAIApplyEvent) => {
-            console.log(event.result);
+    private applyAssistantEventListener = (event: EnonicAIApplyEvent) => {
+        console.log(event.result);
 
-            const propertyTree = PropertyTree.fromJson(event.result.fields);
-            this.notifyResultReceived(propertyTree);
-        };
-    }
+        const propertyTree = PropertyTree.fromJson(event.result.fields);
+        this.notifyResultReceived(propertyTree);
+    };
 
     private fireDataChangedEvent(): void {
         new EnonicAiDataSentEvent({
