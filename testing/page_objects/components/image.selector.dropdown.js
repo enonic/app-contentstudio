@@ -16,6 +16,10 @@ const XPATH = {
         return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]` +
                `//ancestor::li[contains(@id,'ContentListElement')]/div[contains(@class,'toggle icon-arrow_drop_up')]`;
     },
+    imageByDisplayNameInTreeMode: displayName => {
+        return lib.DROPDOWN_SELECTOR.CONTENTS_TREE_LIST_UL + lib.DROPDOWN_SELECTOR.OPTIONS_LI_ELEMENT +
+               `//h6[contains(@class,'main-name') and contains(text(),'${displayName}')]`;
+    }
 };
 
 class ImageSelectorDropdown extends BaseDropdown {
@@ -46,7 +50,7 @@ class ImageSelectorDropdown extends BaseDropdown {
         return lib.DROPDOWN_SELECTOR.flatModeDropdownImgItemByDisplayName(containerUL, optionDisplayName);
     }
 
-    // Click on images and select options in the expanded dropdown
+    // Click on images and select options in the expanded dropdown(Flat-mode)
     async clickOnImagesInDropdownList(numberOfImages) {
         let locator = `//li[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name')]]//img`
         let elements = await this.findElements(locator).slice(0, numberOfImages);
@@ -54,6 +58,12 @@ class ImageSelectorDropdown extends BaseDropdown {
             await el.click();
             await this.pause(500);
         }
+    }
+
+    async clickOnImageInDropdownListTreeMode(imageDisplayName, parentLocator) {
+        let locator = parentLocator + XPATH.imageByDisplayNameInTreeMode(imageDisplayName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
     }
 
     async clickOnOptionExpanderIcon(optionDisplayName) {
@@ -89,15 +99,6 @@ class ImageSelectorDropdown extends BaseDropdown {
         await this.pause(500);
         return await this.getTextInDisplayedElements(locator);
     }
-
-    // async selectFilteredImageInTreeMode(item) {
-    //     try {
-    //         await this.clickOnFilteredItemAndClickOnOk( item);
-    //     } catch (err) {
-    //         let screenshot = await this.saveScreenshotUniqueName('err_img_selector_tree');
-    //         throw new Error('Image selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
-    //     }
-    // }
 }
 
 module.exports = ImageSelectorDropdown;

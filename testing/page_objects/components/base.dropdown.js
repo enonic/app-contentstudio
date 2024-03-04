@@ -60,7 +60,7 @@ class BaseDropdown extends Page {
         await this.waitForApplySelectionButtonDisplayed(parentLocator);
         let elements = await this.getDisplayedElements(parentLocator + this.applySelectionButton);
         await elements[0].click();
-        await this.pause(300);
+        await this.pause(400);
     }
 
     async filterItem(text, parentLocator) {
