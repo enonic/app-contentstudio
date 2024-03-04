@@ -24,6 +24,25 @@ describe('content.image.selector: Image selector dropdown specification', functi
             await studioUtils.doAddSite(SITE);
         });
 
+    it(`GIVEN display name if an image has been typed in option filter input (tree mode) WHEN the image has been clicked THEN then the option should be selected after clicking on OK button`,
+        async () => {
+            let imageSelectorForm = new ImageSelectorForm();
+            // 1. Open wizard with Image Selector:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
+            // 2. switch the selector to tree mode:
+            await imageSelectorForm.clickOnModeTogglerButton();
+            // 3. Type the image display-name in the filter input:
+            await imageSelectorForm.doFilterOptions(appConst.TEST_IMAGES.KOTEY);
+            // 4. Click on the filtered image:
+            // TODO - check it : Click on the expander-icon for the folder-item in the dropdown-list and expand the folder:
+            await imageSelectorForm.clickOnExpanderIcon(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
+            await imageSelectorForm.clickOnImageOptionInTreeMode(appConst.TEST_IMAGES.KOTEY);
+            await imageSelectorForm.clickOnOkAndApplySelectionButton();
+            // 5. Verify that the selected image is displayed in the selected options:
+            let result = await imageSelectorForm.getSelectedImages();
+            assert.equal(result[0], appConst.TEST_IMAGES.KOTEY, "Expected image should be displayed in the selected options");
+        });
+
     it(`GIVEN wizard for image-selector is opened WHEN 'zzzzzz' typed in the filter input THEN 'No matching items' should appear`,
         async () => {
             let imageSelectorForm = new ImageSelectorForm();

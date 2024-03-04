@@ -8,7 +8,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 const studioUtils = require('../../libs/studio.utils.js');
 
-describe('sort.content.dialog.spec, tests for sort content dialog', function () {
+describe('sort.dialog.spec, tests for sort content dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
