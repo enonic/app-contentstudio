@@ -6,6 +6,8 @@ import {EnonicAiStopEvent} from './event/incoming/EnonicAiStopEvent';
 import {ContentData} from './event/data/EnonicAiAssistantData';
 import {EnonicAIApplyEvent} from './event/incoming/EnonicAIApplyEvent';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {EnonicAiSetupEvent} from './event/outgoing/EnonicAiSetupEvent';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 // Serves as middleman between AI Assistant events and Studio events
 export class AIAssistantEventsMediator {
@@ -70,6 +72,12 @@ export class AIAssistantEventsMediator {
     private initElements(): void {
         this.startAssistantEventListener = (event: EnonicAiStartEvent) => {
             this.start();
+
+            new EnonicAiSetupEvent({
+                config: {
+                    serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
+                }
+            }).fire();
 
             new EnonicAiDataSentEvent({
                 data: {
