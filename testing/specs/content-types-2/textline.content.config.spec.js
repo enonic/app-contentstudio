@@ -49,16 +49,16 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
     it(`GIVEN wizard for 'TextLine(max-length is 11)' is opened WHEN 5 chars has been typed THEN validation message should not be present`,
         async () => {
             let textLine = new TextLine();
-            //1. open new wizard:
+            // 1. open new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TEXTLINE_MAX_LENGTH);
-            //2. Type the text(less than MAX LENGTH)
+            // 2. Type the text(less than MAX LENGTH)
             await textLine.typeText('hello');
             await textLine.pause(1000);
-            //3. Verify that Input Validation recording is not visible:
+            // 3. Verify that Input Validation recording is not visible:
             let result = await textLine.getOccurrenceValidationRecording(0);
-            studioUtils.saveScreenshot('textline_max_length_1');
+            await studioUtils.saveScreenshot('textline_max_length_1');
             assert.equal(result, "", 'Input Validation recording should not be displayed');
-            //4. Verify total-counter and left-counter
+            // 4. Verify total-counter and left-counter
             let totalCounter = await textLine.getTotalCounter(0);
             assert.equal(totalCounter, "5 character(s)", "Expected message should be displayed");
             let leftCounter = await textLine.getRemaining(0);

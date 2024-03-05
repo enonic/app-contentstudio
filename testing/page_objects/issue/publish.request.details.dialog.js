@@ -26,10 +26,6 @@ const xpath = {
 // 2. after clicking on a request in Issues List dialog
 class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
-    get contentOptionsFilterInput() {
-        return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-    }
-
     get publishNowButton() {
         return xpath.container + xpath.buttonRow + lib.dialogButton('Publish Now');
     }
@@ -92,10 +88,13 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         return this.waitForElementDisabled(this.publishNowButton, appConst.mediumTimeout);
     }
 
-    waitContentOptionsFilterInputDisplayed() {
-        return this.waitForElementDisplayed(this.contentOptionsFilterInput, appConst.mediumTimeout).catch(err => {
-            throw new Error('Error when checking the `Options filter input` in Issue Details ' + err)
-        })
+    async waitForContentOptionsFilterInputDisplayed() {
+        try {
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            await contentSelectorDropdown.waitForOptionFilterInputDisplayed(xpath.container);
+        } catch (err) {
+            throw new Error('`Options filter input` should be displayed in Issue Details ' + err);
+        }
     }
 
     getItemDisplayNames() {
