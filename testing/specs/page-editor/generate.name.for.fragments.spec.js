@@ -139,6 +139,7 @@ describe('Generate name for fragments specification', function () {
             await contentWizard.waitForNotificationMessage();
             let result = await pageComponentView.getFragmentsDisplayName();
             assert.equal(result.length, 1, 'single Fragment should be present in Page Component View');
+            assert.equal(result[0], 'Text', 'Text Fragment should be present in Page Component View');
         });
 
     //Verifies -  xp/issues/7831, Component Names - generate proper names for Fragment component #7831

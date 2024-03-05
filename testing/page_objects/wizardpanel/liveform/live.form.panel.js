@@ -224,7 +224,7 @@ class LiveFormPanel extends Page {
     }
 
     async clickOnOptionInFragmentDropdown(option) {
-        let fragmentDropdown = new FragmentDropdown()
+        let fragmentDropdown = new FragmentDropdown();
         await fragmentDropdown.clickOnDropdownHandle(xpath.fragmentPlaceHolderDiv);
         await fragmentDropdown.selectFilteredFragmentAndClickOnOk(option);
         return await this.pause(1000);
@@ -233,7 +233,7 @@ class LiveFormPanel extends Page {
     async selectFragmentByDisplayName(displayName) {
         try {
             let contentWizard = new ContentWizard();
-            let fragmentDropdown = new FragmentDropdown()
+            let fragmentDropdown = new FragmentDropdown();
             await contentWizard.switchToLiveEditFrame();
             await fragmentDropdown.selectFilteredFragmentAndClickOnOk(displayName);
         } catch (err) {

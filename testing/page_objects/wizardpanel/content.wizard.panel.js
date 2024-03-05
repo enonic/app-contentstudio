@@ -256,7 +256,7 @@ class ContentWizardPanel extends Page {
             let wizardDependenciesWidget = new WizardDependenciesWidget();
             let wizardDetailsPanel = new DetailsPanel();
             await wizardDetailsPanel.openDependencies();
-            await wizardDependenciesWidget.waitForWidgetLoaded();
+            return await wizardDependenciesWidget.waitForWidgetLoaded();
         }
     }
 

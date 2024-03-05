@@ -334,6 +334,7 @@ class InsertImageDialog extends Page {
         return this.waitForElementDisplayed(this.styleSelector, appConst.mediumTimeout);
     }
 
+    // TODO remove slick-grid
     async getStyleSelectorOptions() {
         await this.clickOnStyleSelectorDropDownHandle();
         await this.pause(1000);

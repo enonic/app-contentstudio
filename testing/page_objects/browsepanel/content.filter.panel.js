@@ -188,7 +188,6 @@ class BrowseFilterPanel extends Page {
     async waitForCloseDependenciesSectionButtonDisplayed() {
         try {
             let el = await this.findElements(this.closeDependenciesSectionButtonLocator);
-            // let label = await el[0].getComputedLabel();
             return await this.waitForElementDisplayed(this.closeDependenciesSectionButtonLocator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_close_dependencies_section_btn');
