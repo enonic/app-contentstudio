@@ -1,6 +1,5 @@
 const BaseSiteConfiguratorDialog = require('./base.site.configurator.dialog');
 const MultiSelectionOptionSet = require('../optionset/multi.selection.set.view');
-const XPATH = {};
 
 class SiteConfiguratorWitOptionSetDialog extends BaseSiteConfiguratorDialog {
 

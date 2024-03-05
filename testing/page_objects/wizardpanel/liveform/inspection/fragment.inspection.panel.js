@@ -4,6 +4,7 @@
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
+const FragmentDropdown = require('../../../components/selectors/fragment.dropdown');
 const xpath = {
     container: `//div[contains(@id,'FragmentInspectionPanel')]`,
     selectedOptionView: `//div[contains(@id,'SelectedOptionView')]`,
@@ -46,7 +47,7 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
             return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_fragment_inspect');
-            throw new Error("Frgament dropdown handle, screenshot:" + screenshot + ' ' + err);
+            throw new Error("Fragment dropdown handle, screenshot:" + screenshot + ' ' + err);
         }
     }
 
@@ -57,9 +58,8 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async typeNameAndSelectFragment(displayName) {
-        await this.waitForElementDisplayed(this.fragmentDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, appConst.TIMEOUT_5);
-        await this.typeTextInInput(this.fragmentDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, displayName);
-        return await this.clickOnOptionInFragmentDropdown(displayName);
+        let fragmentDropdown = new FragmentDropdown();
+        await fragmentDropdown.selectFilteredFragmentAndClickOnOk(displayName, xpath.container);
     }
 
     async clickOnOptionInFragmentDropdown(option) {
@@ -78,8 +78,8 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async getSelectedOptionPath() {
-        let selector = xpath.container + "//form[contains(@id,'FragmentSelectorForm')]" + xpath.selectedOptionView + lib.P_SUB_NAME;
-        return await this.getText(selector);
+        let fragmentDropdown = new FragmentDropdown();
+        return await fragmentDropdown.getSelectedOptionPath(xpath.container)
     }
 
     async waitForEmptyOptionsMessage() {

@@ -10,7 +10,7 @@ const xpath = {
     selectionMenuButton: "//button[contains(@id,'MoreButton')]",
     option1_NameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='option-1-name']]" + lib.TEXT_INPUT,
     option2_OptionsFilterInput: "//div[contains(@id,'InputView') and descendant::div[text()='option-2-image-selector']]" +
-                                lib.COMBO_BOX_OPTION_FILTER_INPUT,
+                                lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT,
     option1_NameTextInputLabel: "//div[contains(@id,'InputView')]//div[text()='option-1-name']]",
     option2_ImageSelectorLabel: "//div[contains(@id,'InputView')]//div[text()='option-2-image-selector']]",
     resetMenuItem: "//div[contains(@id,'FormOptionSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Reset']",

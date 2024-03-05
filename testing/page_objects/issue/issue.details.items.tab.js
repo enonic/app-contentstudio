@@ -43,10 +43,6 @@ class IssueDetailsDialogItemsTab extends Page {
         return xpath.container + lib.togglerButton('Show excluded');
     }
 
-    get contentOptionsFilterInput() {
-        return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-    }
-
     get reopenIssueButton() {
         return xpath.container + lib.dialogButton('Reopen Issue');
     }
@@ -122,10 +118,22 @@ class IssueDetailsDialogItemsTab extends Page {
         }
     }
 
-    waitForContentOptionsFilterInputDisplayed() {
-        return this.isElementDisplayed(this.contentOptionsFilterInput).catch(err => {
-            throw new Error('Error when checking the `Options filter input` in Issue Details ' + err)
-        })
+    async waitForContentOptionsFilterInputDisplayed() {
+        try {
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            await contentSelectorDropdown.waitForOptionFilterInputDisplayed(xpath.container);
+        } catch (err) {
+            throw new Error('`Options filter input` should be displayed in Issue Details ' + err);
+        }
+    }
+
+    async waitForContentOptionsFilterInputDisabled() {
+        try {
+            let contentSelectorDropdown = new ContentSelectorDropdown();
+            await contentSelectorDropdown.waitForOptionFilterInputDisabled(xpath.container);
+        } catch (err) {
+            throw new Error(' `Options filter input` should be disabled in Issue Details ' + err)
+        }
     }
 
     getItemDisplayNames() {

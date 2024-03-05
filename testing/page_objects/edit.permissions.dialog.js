@@ -23,10 +23,6 @@ const xpath = {
 
 class EditPermissionsDialog extends Page {
 
-    get principalsOptionFilterInput() {
-        return xpath.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-    }
-
     get cancelButton() {
         return xpath.container + xpath.cancelButton;
     }
@@ -162,7 +158,7 @@ class EditPermissionsDialog extends Page {
             await this.clickOnElement(this.inheritPermissionsCheckbox + '/label');
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_click_on_inherit_permis_dialog');
+            await this.saveScreenshot('err_click_on_inherit_permis_dialog');
             throw new Error('Error when clicking on Inherit permissions ' + err);
         }
     }

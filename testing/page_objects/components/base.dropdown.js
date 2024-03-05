@@ -27,8 +27,21 @@ class BaseDropdown extends Page {
         return this.container + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
-    waitForOptionFilterInputDisplayed() {
-        return this.waitForElementDisplayed(appConst.mediumTimeout);
+    waitForOptionFilterInputDisplayed(parentLocator) {
+        if (parentLocator === undefined) {
+            parentLocator = '';
+        }
+        return this.waitForElementDisplayed(this.optionsFilterInput, appConst.mediumTimeout);
+    }
+
+    async waitForOptionFilterInputDisabled(parentLocator) {
+        if (parentLocator === undefined) {
+            parentLocator = '';
+        }
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getAttribute(parentLocator + this.optionsFilterInput, 'class');
+            return result.includes('disabled');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Options Filter input should be disabled'});
     }
 
     async clickOnModeTogglerButton(parentElement) {

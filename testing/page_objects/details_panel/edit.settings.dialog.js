@@ -39,10 +39,6 @@ class EditSettingDialog extends Page {
         return xpath.container + xpath.localeCombobox + lib.OPTION_FILTER_INPUT;
     }
 
-    get ownerFilterInput() {
-        return xpath.container + xpath.ownerCombobox + lib.COMBO_BOX_OPTION_FILTER_INPUT;
-    }
-
     get removeLanguageButton() {
         return xpath.container + xpath.languageSelectedOption + lib.REMOVE_ICON;
     }

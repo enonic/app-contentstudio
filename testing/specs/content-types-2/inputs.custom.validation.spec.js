@@ -36,7 +36,7 @@ describe('inputs.custom.validation.spec: tests for content with custom validatio
             // 2. Fill in the first text input with valid value
             await localeCodeCustomValidationForm.typeTextInTextInput('en-En');
             // 3. Select a not allowed option:
-            await localeCodeCustomValidationForm.typeTextAndSelectOption(NOT_ALLOWED_OPTION);
+            await localeCodeCustomValidationForm.typeInFilterAndClickOnOption(NOT_ALLOWED_OPTION);
             // 4. Click on 'Save' button
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -58,7 +58,7 @@ describe('inputs.custom.validation.spec: tests for content with custom validatio
             // 2. Remove the invalid selected option:
             await localeCodeCustomValidationForm.removeSelectedOption(NOT_ALLOWED_OPTION);
             // 3. Select the valid option:
-            await localeCodeCustomValidationForm.typeTextAndSelectOption(ALLOWED_OPTION);
+            await localeCodeCustomValidationForm.typeInFilterAndClickOnOption(ALLOWED_OPTION);
             // 4. Click on 'Save' button
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
