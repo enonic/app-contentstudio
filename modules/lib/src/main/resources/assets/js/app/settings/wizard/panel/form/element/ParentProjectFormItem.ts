@@ -9,10 +9,11 @@ export class ParentProjectFormItem
 
     constructor() {
         const builder = new ProjectsDropdownBuilder().setMaximumOccurrences(0) as ProjectsDropdownBuilder;
+        const isMultiInheritance: boolean = ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance();
 
         super(new ProjectFormItemBuilder(new ProjectsSelector(builder))
             .setHelpText(i18n('settings.projects.parent.helptext'))
-            .setLabel(i18n('settings.field.project.parent'))
+            .setLabel(i18n(isMultiInheritance ? 'settings.field.project.parents' : 'settings.field.project.parent'))
             .setValidator(Validators.required) as ProjectFormItemBuilder);
 
         this.addClass('parent-project-form-item');
