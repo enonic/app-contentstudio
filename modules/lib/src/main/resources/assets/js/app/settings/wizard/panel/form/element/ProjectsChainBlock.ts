@@ -3,6 +3,7 @@ import {Project} from '../../../../data/project/Project';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {ProjectConfigContext} from '../../../../data/project/ProjectConfigContext';
 
 export class ProjectsChainBlock
     extends H6El {
@@ -55,7 +56,8 @@ export class ProjectsChainBlock
     }
 
     private createEmptyChainEntry(): SpanEl {
-        return this.doCreateChainEntry(i18n('settings.field.project.parent.none'));
+        const isMultiInheritance: boolean = ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance();
+        return this.doCreateChainEntry(i18n(isMultiInheritance ? 'settings.field.project.parents' : 'settings.field.project.parent'));
     }
 
     public static buildProjectsChain(parentName: string, allProjects: Project[]): Project[] {

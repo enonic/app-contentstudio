@@ -144,7 +144,7 @@ export class ProjectSummaryStep
     private createAndAddParentProjectContainer(): void {
         const isMultiInheritance: boolean = ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance();
         const parentNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
-            isMultiInheritance ? i18n('dialog.project.wizard.summary.parents.title') : i18n('dialog.project.wizard.summary.parent.title')
+            isMultiInheritance ? i18n('settings.field.project.parents') : i18n('settings.field.project.parent')
         );
         this.parentProjectsContainer = new ProjectsValueContainer();
         this.dataContainer.prependChild(this.parentProjectsContainer);

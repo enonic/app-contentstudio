@@ -18,7 +18,7 @@ export class ProjectTypeFormItem
 
         const projectFormItemBuilder = new ProjectFormItemBuilder(projectSelector)
             .setHelpText(i18n('settings.projects.parent.helptext'))
-            .setLabel(i18n(isMultiInheritance ? 'dialog.project.wizard.summary.parents.title' : 'dialog.project.wizard.summary.parent.title'));
+            .setLabel(i18n(isMultiInheritance ? 'settings.field.project.parents' : 'settings.field.project.parent'));
 
         super(projectFormItemBuilder as ProjectFormItemBuilder);
 
