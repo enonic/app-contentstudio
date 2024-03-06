@@ -14,6 +14,7 @@ import {ApplicationsValueContainer} from './ApplicationsValueContainer';
 import {AccessValueContainer} from './AccessValueContainer';
 import {PermissionsValueContainer} from './PermissionsValueContainer';
 import {ProjectsValueContainer} from './ProjectsValueContainer';
+import {ProjectConfigContext} from '../../../../../data/project/ProjectConfigContext';
 
 export class ProjectSummaryStep
     extends DialogStep {
@@ -103,10 +104,19 @@ export class ProjectSummaryStep
             }
 
             this.descriptionContainer.updateValue(this.data.description);
-            this.descriptionContainer.show();
+            this.setContainerVisible(this.descriptionContainer, true);
         } else {
-            this.descriptionContainer?.getPreviousElement()?.hide();
-            this.descriptionContainer?.hide();
+            this.setContainerVisible(this.descriptionContainer, false);
+        }
+    }
+
+    private setContainerVisible(container: SummaryValueContainer, show: boolean): void {
+        if (show) {
+            container?.getPreviousElement()?.show();
+            container?.show();
+        } else {
+            container?.getPreviousElement()?.hide();
+            container?.hide();
         }
     }
 
@@ -119,26 +129,26 @@ export class ProjectSummaryStep
     }
 
     private updateParentProjectBlock(): void {
-        if (this.data.parents) {
+        if (this.data.parents?.length) {
             if (!this.parentProjectsContainer) {
                 this.createAndAddParentProjectContainer();
             }
 
             this.parentProjectsContainer.updateValue(this.data.parents);
-            this.parentProjectsContainer.show();
+            this.setContainerVisible(this.parentProjectsContainer, true);
         } else {
-            this.parentProjectsContainer?.getPreviousElement()?.hide();
-            this.parentProjectsContainer?.hide();
+            this.setContainerVisible(this.parentProjectsContainer, false);
         }
     }
 
     private createAndAddParentProjectContainer(): void {
+        const isMultiInheritance: boolean = ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance();
         const parentNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
-            i18n('dialog.project.wizard.summary.parent.title'));
+            isMultiInheritance ? i18n('dialog.project.wizard.summary.parents.title') : i18n('dialog.project.wizard.summary.parent.title')
+        );
         this.parentProjectsContainer = new ProjectsValueContainer();
-        const insertAfterEl: Element = this.descriptionContainer || this.idContainer || this.dataContainer;
-        parentNameContainer.insertAfterEl(insertAfterEl);
-        this.parentProjectsContainer.insertAfterEl(parentNameContainer);
+        this.dataContainer.prependChild(this.parentProjectsContainer);
+        this.dataContainer.prependChild(parentNameContainer);
     }
 
     private updateLanguageBlock(): void {
@@ -148,10 +158,9 @@ export class ProjectSummaryStep
             }
 
             this.languageContainer.updateValue(this.data.locale);
-            this.languageContainer.show();
+            this.setContainerVisible(this.languageContainer, true);
         } else {
-            this.languageContainer?.getPreviousElement()?.hide();
-            this.languageContainer?.hide();
+            this.setContainerVisible(this.languageContainer, false);
         }
     }
 
@@ -159,7 +168,7 @@ export class ProjectSummaryStep
         const languageNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
             i18n('dialog.project.wizard.summary.language.title'));
         this.languageContainer = new LanguageValueContainer();
-        const insertAfterEl: Element = this.parentProjectsContainer || this.descriptionContainer || this.idContainer || this.dataContainer;
+        const insertAfterEl: Element = this.descriptionContainer || this.idContainer;
         languageNameContainer.insertAfterEl(insertAfterEl);
         this.languageContainer.insertAfterEl(languageNameContainer);
     }
@@ -172,10 +181,9 @@ export class ProjectSummaryStep
 
             this.accessContainer.updateValue(i18n(`settings.items.wizard.readaccess.${this.data.access.getAccess()}`));
             this.accessContainer.setPrincipals(this.data.access.getPrincipals());
-            this.accessContainer.show();
+            this.setContainerVisible(this.accessContainer, true);
         } else {
-            this.accessContainer?.getPreviousElement()?.hide();
-            this.accessContainer?.hide();
+            this.setContainerVisible(this.accessContainer, false);
         }
     }
 
@@ -183,8 +191,7 @@ export class ProjectSummaryStep
         const accessNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
             i18n('dialog.project.wizard.summary.access.title'));
         this.accessContainer = new AccessValueContainer(this.currentUser);
-        const insertAfterEl: Element = this.languageContainer || this.parentProjectsContainer || this.descriptionContainer ||
-                                       this.idContainer || this.dataContainer;
+        const insertAfterEl: Element = this.languageContainer || this.descriptionContainer || this.idContainer;
         accessNameContainer.insertAfterEl(insertAfterEl);
         this.accessContainer.insertAfterEl(accessNameContainer);
     }
@@ -196,9 +203,9 @@ export class ProjectSummaryStep
             }
 
             this.permissionsContainer.updateValue(this.data.permissions);
-            this.permissionsContainer.show();
+            this.setContainerVisible(this.permissionsContainer, true);
         } else {
-            this.permissionsContainer?.hide();
+            this.setContainerVisible(this.permissionsContainer, false);
         }
     }
 
@@ -206,8 +213,8 @@ export class ProjectSummaryStep
         const permissionsNameContainer: SummaryNameContainer = new SummaryNameContainer().updateName(
             i18n('dialog.project.wizard.summary.permissions.title'));
         this.permissionsContainer = new PermissionsValueContainer(this.currentUser);
-        const insertAfterEl: Element = this.accessContainer || this.languageContainer || this.parentProjectsContainer ||
-                                       this.descriptionContainer || this.idContainer || this.dataContainer;
+        const insertAfterEl: Element = this.accessContainer || this.languageContainer ||
+                                        this.descriptionContainer || this.idContainer;
         permissionsNameContainer.insertAfterEl(insertAfterEl);
         this.permissionsContainer.insertAfterEl(permissionsNameContainer);
     }
@@ -219,9 +226,9 @@ export class ProjectSummaryStep
             }
 
             this.applicationsContainer.updateValue(this.data.applications);
-            this.applicationsContainer.show();
+            this.setContainerVisible(this.applicationsContainer, true);
         } else {
-            this.applicationsContainer?.hide();
+            this.setContainerVisible(this.applicationsContainer, false);
         }
     }
 
@@ -230,7 +237,7 @@ export class ProjectSummaryStep
             i18n('dialog.project.wizard.summary.applications.title'));
         this.applicationsContainer = new ApplicationsValueContainer();
         const insertAfterEl: Element = this.permissionsContainer || this.accessContainer || this.languageContainer ||
-                                       this.parentProjectsContainer || this.descriptionContainer || this.idContainer || this.dataContainer;
+                                       this.descriptionContainer || this.idContainer;
         applicationsNameContainer.insertAfterEl(insertAfterEl);
         this.applicationsContainer.insertAfterEl(applicationsNameContainer);
     }
