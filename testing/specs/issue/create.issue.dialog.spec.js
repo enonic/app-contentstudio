@@ -18,10 +18,11 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
         async () => {
             let issueListDialog = new IssueListDialog();
             let createIssueDialog = new CreateIssueDialog();
+            // 1. Click on 'Open Issues' button in the toolbar:
             await studioUtils.openIssuesListDialog();
-            // Click on 'New Task...' button
+            // 2. Click on 'New Issue...' button
             await issueListDialog.clickOnNewIssueButton();
-            // modal dialog should be loaded:
+            // 3. Create Issue modal dialog should be loaded:
             await createIssueDialog.waitForDialogLoaded();
         });
 
@@ -76,7 +77,7 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
             let createIssueDialog = new CreateIssueDialog();
             // 1. Open Issues List Dialog:
             await studioUtils.openCreateIssueDialog();
-            await createIssueDialog.pause(300);
+            await createIssueDialog.pause(700);
             // 2. Click on Esc:
             await createIssueDialog.pressEscKey();
             await createIssueDialog.waitForDialogClosed();

@@ -72,7 +72,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             await studioUtils.navigateToContentStudioApp('su', 'password');
             // 2. Open Filter Panel
             await studioUtils.openFilterPanel();
-            // 3. Click on expand Owner selector in the Filter Panel:
+            // 3. Click on dropdown handle for 'Owner selector' in the Filter Panel:
             await filterPanel.clickOnOwnerDropdownHandle();
             await studioUtils.saveScreenshot('owner_selector_expanded');
             // 4. Verify that expected options should be present in the options:
@@ -82,7 +82,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("WHEN existing user has been selected in 'Owner' selector in Filter Panel THEN only content that were created by this user should be present in the grid",
+    it("WHEN existing user has been selected in 'Owner' selector in Filter Panel THEN only the content that were created by this user should be present in the grid",
         async () => {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -91,7 +91,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             // 2. Open Filter Panel
             await studioUtils.openFilterPanel();
             // 3. Select the existing user in Owner selector:
-            await filterPanel.expandOwnerOptionsAndSelectItem(USER.displayName);
+            await filterPanel.filterAndSelectOwnerOption(USER.displayName);
             await filterPanel.pause(2000);
             await studioUtils.saveScreenshot('owner_selected_in_selector');
             // 4. Verify that only content that were created by the user are displayed in Grid
@@ -99,6 +99,25 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             assert.ok(contentNames.includes(FOLDER.displayName));
             assert.equal(contentNames.length, 3, 'Only three items should be present in the grid');
         });
+
+    it("WHEN existing user has been selected in 'Modified by' selector THEN only the content that were modified by this user should be present in the grid",
+        async () => {
+            let filterPanel = new FilterPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            // 1. SU is logged in:
+            await studioUtils.navigateToContentStudioApp('su', 'password');
+            // 2. Open 'Filter Panel'
+            await studioUtils.openFilterPanel();
+            // 3. Select the existing user in 'Modified by' selector:
+            await filterPanel.filterAndSelectLastModifiedByOption(USER.displayName);
+            await filterPanel.pause(2000);
+            await studioUtils.saveScreenshot('modified_by_selected_in_selector');
+            // 4. Verify that content modified by the user are displayed in Browse panel
+            let contentNames = await contentBrowsePanel.getDisplayNamesInGrid();
+            assert.ok(contentNames.includes(FOLDER.displayName));
+            assert.equal(contentNames.length, 3, 'Only three items should be present in the grid');
+        });
+
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
