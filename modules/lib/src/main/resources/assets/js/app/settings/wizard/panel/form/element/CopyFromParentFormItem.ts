@@ -18,7 +18,7 @@ export abstract class CopyFromParentFormItem
 
         this.parentProjects = value;
 
-        if (value) {
+        if (value.length > 0) {
             this.appendCopyButton();
         } else {
             this.removeCopyButton();

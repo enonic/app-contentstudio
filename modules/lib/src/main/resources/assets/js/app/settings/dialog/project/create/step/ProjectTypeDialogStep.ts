@@ -15,11 +15,11 @@ export class ProjectTypeDialogStep
 
     protected initEventListeners(): void {
         super.initEventListeners();
-
+/*
         this.getFormItem().onRadioValueChanged(() => {
             this.notifyDataChanged();
         });
-
+*/
         this.getFormItem().onProjectValueChanged(() => {
             this.notifyDataChanged();
         });
@@ -29,20 +29,12 @@ export class ProjectTypeDialogStep
         return 'project-type-step';
     }
 
-    isOptional(): boolean {
-        return false;
-    }
-
     getData(): ProjectParentDialogStepData {
         return new ProjectParentDialogStepData().setParentProjects(this.getFormItem()?.getSelectedProjects());
     }
 
     hasData(): boolean {
         return this.getFormItem()?.hasData();
-    }
-
-    isValid(): Q.Promise<boolean> {
-        return Q.resolve(this.hasData());
     }
 
     getName(): string {
@@ -54,6 +46,6 @@ export class ProjectTypeDialogStep
     }
 
     private getFormItem(): ProjectTypeFormItem {
-        return this.formItems && this.formItems[0] as ProjectTypeFormItem;
+        return this.formItems?.[0] as ProjectTypeFormItem;
     }
 }
