@@ -89,7 +89,7 @@ image::pubwiz-mark-as-ready.png[Mark as ready action in the Publishing Wizard, 4
 To add another level of restriction and prevent accidental publishing of items that are not ready for publishing, the "*Mark as ready*" bulk action
 can be disabled by adding the following parameter to the config file:
 
-.Enable Mark as Ready button in the Publishing Wizard
+.Hide Mark as Ready action in the Publishing Wizard
 [source,properties]
 ----
 publishingWizard.allowContentUpdate = false
