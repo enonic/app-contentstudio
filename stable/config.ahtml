@@ -597,7 +597,7 @@ this by clicking the "<strong>Mark as ready</strong>" link on top of the dialog,
 can be disabled by adding the following parameter to the config file:</p>
 </div>
 <div class="listingblock">
-<div class="title">Enable Mark as Ready button in the Publishing Wizard</div>
+<div class="title">Hide Mark as Ready action in the Publishing Wizard</div>
 <div class="content">
 <pre class="highlight"><code class="language-properties" data-lang="properties">publishingWizard.allowContentUpdate = false</code></pre>
 </div>
@@ -655,7 +655,7 @@ Use this flag with caution. It makes it very simple to publish a content without
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-07 12:57:31 UTC
+Last updated 2024-03-07 13:05:14 UTC
 </div>
 </div>
 </body>
