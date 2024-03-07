@@ -4,20 +4,13 @@ import {ProjectDialogStep} from './ProjectDialogStep';
 import {ProjectApplicationsFormItem} from '../../../../wizard/panel/form/element/ProjectApplicationsFormItem';
 import {ProjectApplicationsComboBox} from '../../../../wizard/panel/form/element/ProjectApplicationsComboBox';
 import {ProjectApplicationsDialogStepData} from '../data/ProjectApplicationsDialogStepData';
+import {Project} from '../../../../data/project/Project';
 
 export class ProjectApplicationsDialogStep
     extends ProjectDialogStep {
 
     protected createFormItems(): FormItem[] {
         return [new ProjectApplicationsFormItem()];
-    }
-
-    protected initEventListeners(): void {
-        super.initEventListeners();
-
-        this.getProjectApplicationsComboBox().onValueChanged(() => {
-            this.notifyDataChanged();
-        });
     }
 
     isOptional(): boolean {
@@ -50,5 +43,9 @@ export class ProjectApplicationsDialogStep
 
     private getFormItem(): ProjectApplicationsFormItem {
         return this.formItems && this.formItems[0] as ProjectApplicationsFormItem;
+    }
+
+    setParentProjects(_projects: Project[]) {
+        return;
     }
 }

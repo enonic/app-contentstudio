@@ -15,11 +15,7 @@ export class ProjectTypeDialogStep
 
     protected initEventListeners(): void {
         super.initEventListeners();
-/*
-        this.getFormItem().onRadioValueChanged(() => {
-            this.notifyDataChanged();
-        });
-*/
+
         this.getFormItem().onProjectValueChanged(() => {
             this.notifyDataChanged();
         });
@@ -45,7 +41,15 @@ export class ProjectTypeDialogStep
         return i18n('dialog.project.wizard.parent.description');
     }
 
+    setSelectedProjects(projects: Project[]): void {
+        this.getFormItem().setSelectedProjects(projects);
+    }
+
     private getFormItem(): ProjectTypeFormItem {
         return this.formItems?.[0] as ProjectTypeFormItem;
+    }
+
+    setParentProjects(_projects: Project[]) {
+        return;
     }
 }

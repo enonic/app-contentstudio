@@ -2,8 +2,8 @@ import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
 import {ProjectApplicationsComboBox} from './ProjectApplicationsComboBox';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectViewItem} from '../../../../view/ProjectViewItem';
-import * as Q from 'q';
 import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
+import Q from 'q';
 
 export class ProjectApplicationsFormItem
     extends ProjectFormItem {

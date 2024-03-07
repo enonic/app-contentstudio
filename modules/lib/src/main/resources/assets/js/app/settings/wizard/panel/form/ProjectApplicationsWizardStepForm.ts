@@ -43,8 +43,8 @@ export class ProjectApplicationsWizardStepForm
 
     getApplicationConfigs(): ApplicationConfig[] {
         return this.applicationsFormItem?.getComboBox()
-                   .getSelectedApplications()
-                   .map((app: ProjectApplication) => app.getConfig()?.clone()) || [];
+            .getSelectedApplications()
+            .map((app: ProjectApplication) => app.getConfig()?.clone()) || [];
     }
 
 }

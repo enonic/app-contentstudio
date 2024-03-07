@@ -137,4 +137,8 @@ export class ProjectIdDialogStep
     getDescription(): string {
         return i18n('dialog.project.wizard.name.description');
     }
+
+    setParentProjects(_projects: Project[]) {
+        return;
+    }
 }
