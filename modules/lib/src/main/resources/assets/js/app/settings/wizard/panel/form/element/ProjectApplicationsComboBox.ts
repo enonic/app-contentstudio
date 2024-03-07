@@ -53,13 +53,13 @@ export class ProjectApplicationsComboBox
     }
 
     layout(item: ProjectViewItem): Q.Promise<void> {
-        if (!item || item.getSiteConfigs().length === 0) {
+        const siteConfigs = item.getSiteConfigs();
+        if (!item || siteConfigs.length === 0) {
             return Q(null);
         }
+        this.deselectNonSelectedApps(siteConfigs);
 
-        this.deselectNonSelectedApps(item.getSiteConfigs());
-
-        return this.layoutSelectedApps(item.getSiteConfigs()).catch(DefaultErrorHandler.handle);
+        return this.layoutSelectedApps(siteConfigs).catch(DefaultErrorHandler.handle);
     }
 
     private deselectNonSelectedApps(configs: ApplicationConfig[]): void {

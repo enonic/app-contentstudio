@@ -7,6 +7,7 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ProjectWizardDialog} from '../../dialog/project/create/ProjectWizardDialog';
 import {ProjectSteps} from '../../dialog/project/create/ProjectSteps';
+import {ProjectConfigContext} from '../../data/project/ProjectConfigContext';
 
 export class NewSettingsItemAction
     extends Action {
@@ -21,8 +22,27 @@ export class NewSettingsItemAction
         this.onExecuted(() => {
             new ProjectWizardDialog({
                 steps: ProjectSteps.create(),
-                title: i18n('dialog.project.wizard.title')
+                title: i18n('dialog.project.wizard.title'),
+                parentProjects: this.getSelectedProjects()
             }).open();
         });
+    }
+
+    private getSelectedProjects(): Project[] {
+        const isMultiInheritance: boolean = ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance();
+        const selectedItems: SettingsViewItem[] = this.grid.getSelectedDataList();
+        const selectedProjects = selectedItems
+            .filter((item: SettingsViewItem) => ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem))
+            .map((item: ProjectViewItem) => item.getData());
+
+        if (!selectedProjects.length) {
+            return null;
+        }
+
+        if (isMultiInheritance) {
+            return selectedProjects;
+        }
+
+        return selectedProjects.slice(-1);
     }
 }

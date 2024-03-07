@@ -5,6 +5,7 @@ import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {ProjectDialogStepData} from '../data/ProjectDialogStepData';
+import {Project} from '../../../../data/project/Project';
 
 export abstract class ProjectDialogStep
     extends DialogStep {
@@ -57,4 +58,6 @@ export abstract class ProjectDialogStep
     }
 
     abstract getData(): ProjectDialogStepData;
+
+    abstract setParentProjects(projects: Project[]): void;
 }
