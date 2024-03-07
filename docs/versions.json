@@ -14,7 +14,7 @@
     },
     {
       "label": "stable",
-      "checkout": "5.1",
+      "checkout": "master",
       "latest": true
     }
   ]
