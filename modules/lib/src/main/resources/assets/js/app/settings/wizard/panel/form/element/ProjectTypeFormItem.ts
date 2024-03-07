@@ -23,8 +23,6 @@ export class ProjectTypeFormItem
         super(projectFormItemBuilder as ProjectFormItemBuilder);
 
         this.projectsSelector = this.getInput() as ProjectsSelector;
-
-        this.addClass('project-type-form-item');
     }
 
     hasData(): boolean {
@@ -37,5 +35,11 @@ export class ProjectTypeFormItem
 
     onProjectValueChanged(listener: () => void): void {
         this.projectsSelector.onValueChanged(listener);
+    }
+
+    setSelectedProjects(projects: Project[]): void {
+        if (projects.length) {
+            this.projectsSelector.updateAndSelectProjects(projects);
+        }
     }
 }
