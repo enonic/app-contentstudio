@@ -39,9 +39,8 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
             // 1.'Open new wizard dialog:
             let parentProjectStep = await settingsBrowsePanel.openProjectWizardDialog();
-            // 2. Select Project-radio then click on Next button:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            // 2. click on Skip button:
+            await parentProjectStep.clickOnSkipButton();
             // 3. Skip the language step:
             await languageStep.clickOnSkipButton();
             // 4. Select Private access mode:

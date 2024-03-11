@@ -45,9 +45,8 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
             let projectWizard = new ProjectWizard();
             // 1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            // 2. Select Project-radio then click on Next button:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            // 2. click on Skip button:
+            await parentProjectStep.clickOnSkipButton();
             // 3. Skip the language step:
             await languageStep.clickOnSkipButton();
             // 4. Select Custom access mode:

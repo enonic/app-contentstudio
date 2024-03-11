@@ -115,10 +115,14 @@ class ProjectWizardDialog extends Page {
     }
 
     async clickOnSkipButton() {
-        await this.waitForSkipButtonDisplayed();
-        await this.waitForSkipButtonEnabled();
-        await this.clickOnElement(this.skipButton);
-        return await this.pause(300);
+        try {
+            await this.waitForSkipButtonDisplayed();
+            await this.waitForSkipButtonEnabled();
+            await this.clickOnElement(this.skipButton);
+            return await this.pause(300);
+        } catch (err) {
+            throw new Error("Error occurred during clicking on Skip button: " + err);
+        }
     }
 
     async waitForNextButtonDisplayed() {
@@ -149,11 +153,15 @@ class ProjectWizardDialog extends Page {
     }
 
     async clickOnNextButton() {
-        await this.waitForNextButtonDisplayed();
-        await this.waitForNextButtonEnabled();
-        await this.pause(500);
-        await this.clickOnElement(this.nextButton);
-        return await this.pause(300);
+        try {
+            await this.waitForNextButtonDisplayed();
+            await this.waitForNextButtonEnabled();
+            await this.pause(500);
+            await this.clickOnElement(this.nextButton);
+            return await this.pause(300);
+        } catch (err) {
+            throw new Error("Error occurred during clicking on Next button: " + err);
+        }
     }
 
     async waitForBackButtonDisplayed() {
@@ -197,6 +205,7 @@ class ProjectWizardDialog extends Page {
     }
 
     async getStepDescription() {
+        await this.waitForElementDisplayed(XPATH.container + XPATH.stepDescription, appConst.mediumTimeout);
         return await this.getText(XPATH.container + XPATH.stepDescription);
     }
 

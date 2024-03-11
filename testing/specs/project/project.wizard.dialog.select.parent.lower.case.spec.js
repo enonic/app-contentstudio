@@ -26,9 +26,8 @@ describe('project.wizard.dialog.select.parent.lower.case.spec - check case sensi
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
             let languageStep = new ProjectWizardDialogLanguageStep();
             let applicationsStep = new ProjectWizardDialogApplicationsStep();
-            // 1. Open project wizard dialog and click on Layer radio:
-            await settingsBrowsePanel.openProjectWizardDialog();
-            await parentProjectStep.clickOnLayerRadioButton();
+            // 1. Open project wizard dialog:
+            await settingsBrowsePanel.clickOnNewButton();
             // 2. Type 'default' in the options filter input then click on 'Default' option in the filtered dropdown list
             await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(PARENT_IN_LOWER_CASE, 'Default');
             // 3. Click on Next button:

@@ -47,10 +47,16 @@ class ProjectWizardDialogLanguageStep extends ProjectWizardDialog {
     }
 
     async waitForLoaded() {
-        await this.getBrowser().waitUntil(async () => {
-            let actualDescription = await this.getStepDescription();
-            return actualDescription.includes(DESCRIPTION);
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 2 is not loaded"});
+        try {
+            await this.getBrowser().waitUntil(async () => {
+                let actualDescription = await this.getStepDescription();
+                return actualDescription.includes(DESCRIPTION);
+            }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 2 is not loaded"});
+
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_language_step');
+            throw new Error("Error occurred in Project wizard language step, screenshot:" + screenshot + ' ' + err);
+        }
     }
 }
 

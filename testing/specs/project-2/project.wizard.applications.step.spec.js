@@ -30,6 +30,41 @@ describe('project.wizard.dialog.applications.step.spec - ui-tests for Applicatio
         assert.equal(actualDescription, DESCRIPTION_7_STEPS, "Description should contain 7 steps");
     });
 
+    // Verifies https://github.com/enonic/app-contentstudio/issues/7430
+    //  Project Applications step is not correctly updated after pressing on Copy from parent button #7430
+    it(`GIVEN Default project is selected in parent step WHEN an app has been selected in Applications step THEN 'Copy from default' button should be enabled`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            // 1. Open new project wizard:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            // 2. Select 'Default' project and go to 'Applications' step
+            await parentProjectStep.selectParentProject(appConst.PROJECTS.DEFAULT_PROJECT_NAME);
+            await parentProjectStep.clickOnNextButton();
+            await languageStep.clickOnSkipButton();
+            await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
+            await accessModeStep.clickOnNextButton();
+            await permissionsStep.clickOnSkipButton();
+            // 3. Verify that 'Skip' button is enabled in 'Applications step'
+            await applicationsStep.waitForSkipButtonEnabled();
+            // 4. Select an application:
+            await applicationsStep.selectApplication(appConst.APP_CONTENT_TYPES);
+            await studioUtils.saveScreenshot('proj_wizard_app_selected');
+            // 5. Verify that 'Next' button gets visible:
+            await applicationsStep.waitForNextButtonEnabled();
+            // 6. Verify that Copy from Default button is enabled now
+            await applicationsStep.waitForCopyFromParentButtonEnabled('Default');
+            // 6. Click on remove icon:
+            await applicationsStep.removeApplication(appConst.APP_CONTENT_TYPES);
+            // 7. Verify that 'Skip' button appears again:
+            await applicationsStep.waitForSkipButtonEnabled();
+            await applicationsStep.waitForCopyFromParentButtonDisabled('Default');
+        });
+
     it(`GIVEN project wizard dialog is opened WHEN navigated to Applications wizard step THEN 'Skip' button should be enabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -41,7 +76,6 @@ describe('project.wizard.dialog.applications.step.spec - ui-tests for Applicatio
             // 1. Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select 'Default' project and go to 'Applications' step
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject(appConst.PROJECTS.DEFAULT_PROJECT_NAME);
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
@@ -73,7 +107,6 @@ describe('project.wizard.dialog.applications.step.spec - ui-tests for Applicatio
             // 1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select 'Default' project and go to 'Applications' step
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject(appConst.PROJECTS.DEFAULT_PROJECT_NAME);
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();

@@ -38,20 +38,14 @@ module.exports = {
     },
     async fillParentNameStep(parents) {
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-        if (parents) {
-            parents = [].concat(parents)
-            //click on 'Layer' radio, select a parent project then click on Next button:
-            await parentProjectStep.clickOnLayerRadioButton();
-            for(let name of parents){
+        if (Array.isArray(parents)) {
+            //parents = [].concat(parents);
+            //let multiParents = parents.slice(1);
+            for (let name of parents) {
                 await parentProjectStep.selectParentProject(name);
             }
-
-            await parentProjectStep.clickOnNextButton();
-        } else {
-            //click on 'Project' radio, select a parent project then click on Next button:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
         }
+        await parentProjectStep.clickOnNextButton();
         return new ProjectWizardDialogLanguageStep();
     },
     async fillLanguageStep(language) {
@@ -120,8 +114,13 @@ module.exports = {
     },
     async fillFormsWizard(project) {
         try {
-            let languageStep = await this.fillParentNameStep(project.parents);
-            await languageStep.waitForLoaded();
+            if (!project.parents) {
+                let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+                await parentProjectStep.clickOnSkipButton();
+            } else {
+                let languageStep = await this.fillParentNameStep(project.parents);
+                await languageStep.waitForLoaded();
+            }
             let accessModeStep = await this.fillLanguageStep(project.language);
             await accessModeStep.waitForLoaded();
             let permissionsStep = await this.fillAccessModeStep(project.accessMode);
@@ -179,6 +178,15 @@ module.exports = {
         await confirmValueDialog.waitForDialogClosed();
         return await settingsBrowsePanel.waitForNotificationMessage();
     },
+    async selectParentAndOpenProjectWizardDialog(parentName) {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        await settingsBrowsePanel.clickOnRowByDisplayName(parentName);
+        await settingsBrowsePanel.clickOnNewButton();
+        let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+        await parentProjectStep.waitForLoaded();
+        return parentProjectStep;
+    },
+
     saveScreenshot(name, that) {
         let screenshotsDir = path.join(__dirname, '/../build/reports/screenshots/');
         if (!fs.existsSync(screenshotsDir)) {

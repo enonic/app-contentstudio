@@ -61,9 +61,8 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.openSettingsPanel();
             // 2.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            // 3. Select Project-radio then click on Next button:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            // 3.  click on Skip button:
+            await parentProjectStep.clickOnSkipButton();
             // 4. Skip the language step:
             await languageStep.clickOnSkipButton();
             // 5. Select 'Private' access mode in the fours step:
