@@ -83,6 +83,8 @@ export class ContentSummary {
 
     private readonly variantOf: string;
 
+    private readOnly: boolean;
+
     constructor(builder: ContentSummaryBuilder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
@@ -118,6 +120,7 @@ export class ContentSummary {
         this.originalParentPath = builder.originalParentPath;
         this.originalName = builder.originalName;
         this.variantOf = builder.variantOf;
+        this.readOnly = builder.readOnly;
     }
 
     static fromJson(json: ContentSummaryJson): ContentSummary {
@@ -312,6 +315,14 @@ export class ContentSummary {
         return !!this.variantOf;
     }
 
+    setReadOnly(value: boolean) {
+        this.readOnly = value;
+    }
+
+    isReadOnly(): boolean {
+        return !!this.readOnly;
+    }
+
     private isInheritedByType(type: ContentInheritType): boolean {
         return this.isInherited() && this.inherit.some((inheritType: ContentInheritType) => inheritType === type);
     }
@@ -490,6 +501,8 @@ export class ContentSummaryBuilder {
 
     variantOf: string;
 
+    readOnly: boolean;
+
     constructor(source?: ContentSummary) {
         if (source) {
             this.id = source.getId();
@@ -525,6 +538,7 @@ export class ContentSummaryBuilder {
             this.originalParentPath = source.getOriginalParentPath();
             this.originalName = source.getOriginalName();
             this.variantOf = source.getVariantOf();
+            this.readOnly = source.isReadOnly();
         }
     }
 

@@ -111,7 +111,7 @@ export abstract class IssueDialog
         this.closeIcon.onClicked(() => this.opener ? this.opener.close() : true);
 
         this.debouncedAddItems = AppHelper.debounce(() => {
-            new ContentSummaryAndCompareStatusFetcher().fetchByIds(
+            new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(
                 this.newItems.map(summary => summary.getContentId())).then((result) => {
 
                 this.addListItems(result);

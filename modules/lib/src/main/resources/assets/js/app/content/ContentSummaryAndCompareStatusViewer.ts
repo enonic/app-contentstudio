@@ -73,11 +73,13 @@ export class ContentSummaryAndCompareStatusViewer
         const invalid: boolean = !contentSummary.isValid() || !contentSummary.getDisplayName() || contentSummary.getName().isUnnamed();
         const isPendingDelete: boolean = contentSummary.getContentState().isPendingDelete();
         this.toggleClass('invalid', invalid);
-        this.toggleClass('pending-delete', isPendingDelete);
-        this.toggleClass('readonly', object.isReadOnly());
         this.toggleClass('has-origin-project', object.hasOriginProject());
         this.toggleClass('data-inherited', object.isDataInherited());
         this.toggleClass('icon-variant', object.isVariant());
+
+        if (object.isReadOnly()) {
+            this.setTitle(i18n('field.readOnly'));
+        }
 
         if (!invalid && !object.isOnline() && !object.isPendingDelete()) {
             const workflowState = this.resolveWorkflowState(object);

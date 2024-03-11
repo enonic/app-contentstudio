@@ -76,15 +76,15 @@ export class PageTemplateWidgetItemView
 
     private initListeners() {
 
-        const onContentPermissionsUpdated = (contentIds: ContentIds) => {
+        const onContentPermissionsUpdated = (contents: ContentSummaryAndCompareStatus[]) => {
             const thisContentId: ContentId = this.content.getContentId();
-            const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
 
-            if (!isThisContentUpdated) {
+            if (!ContentSummaryAndCompareStatus.isInArray(thisContentId, contents)) {
                 return;
             }
 
-            new ContentSummaryAndCompareStatusFetcher().fetch(this.content.getContentId())
+            new ContentSummaryAndCompareStatusFetcher()
+                .fetch(thisContentId)
                 .then(this.setContentAndUpdateView.bind(this))
                 .catch(DefaultErrorHandler.handle);
 

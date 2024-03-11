@@ -1414,15 +1414,14 @@ export class ContentWizardPanel
             }
         };
 
-        const contentPermissionsUpdatedHandler = (contentIds: ContentIds) => {
+        const contentPermissionsUpdatedHandler = (contents: ContentSummaryAndCompareStatus[]) => {
             if (this.contentUpdateDisabled || !this.getPersistedItem()) {
                 return;
             }
 
             const thisContentId: ContentId = this.getPersistedItem().getContentId();
-            const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
 
-            if (!isThisContentUpdated) {
+            if (!ContentSummaryAndCompareStatus.isInArray(thisContentId, contents)) {
                 return;
             }
 

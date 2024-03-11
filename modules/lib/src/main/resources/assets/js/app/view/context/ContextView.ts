@@ -114,16 +114,13 @@ export class ContextView
 
         const contentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
-        contentServerEventsHandler.onContentPermissionsUpdated((contentIds: ContentIds) => {
+        contentServerEventsHandler.onContentPermissionsUpdated((contents: ContentSummaryAndCompareStatus[]) => {
             const itemSelected: boolean = this.item != null;
             const activeWidgetVisible: boolean = this.activeWidget != null && this.isVisible();
 
-            if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected) {
-                const selectedItemContentId: ContentId = this.item.getContentId();
-                const isSelectedItemPermissionsUpdated: boolean = contentIds.contains(selectedItemContentId);
-                if (isSelectedItemPermissionsUpdated) {
+            if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected &&
+                ContentSummaryAndCompareStatus.isInArray(this.item.getContentId(), contents)) {
                     this.updateActiveWidget();
-                }
             }
         });
 
