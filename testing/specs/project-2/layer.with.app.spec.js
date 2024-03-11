@@ -28,7 +28,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             // 1. Select 'Default' project and open wizard for new layer:
-            await settingsBrowsePanel.openProjectWizardDialog();
+            await projectUtils.selectParentAndOpenProjectWizardDialog(appConst.PROJECTS.DEFAULT_PROJECT_NAME);
             let layer = projectUtils.buildLayer(appConst.PROJECTS.DEFAULT_PROJECT_NAME, null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
                 appConst.APP_CONTENT_TYPES, LAYER_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);

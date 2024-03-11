@@ -10,6 +10,7 @@ const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.di
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils');
+const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 
 describe('settings.item.statistics.panel.spec - verify an info in item statistics panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -65,6 +66,23 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             // 6. Verify the language:
             let actualLanguage = await settingsItemStatisticsPanel.getLanguage();
             assert.equal(actualLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed in Statistics panel.");
+        });
+
+    it(`GIVEN 2 projects have been checked in Settings panel WHEN new project wizard modal dialog has been opened THEN only the second selected project should be displayed in the dialog`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            // 1. Select 2 checkboxes in Settings browse panel:
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName('Default');
+            // 2. Press 'New' button in the toolbar:
+            await settingsBrowsePanel.clickOnNewButton();
+            await parentProjectStep.waitForLoaded();
+            // 3. Verify that only the second selected project is displayed in the Step:
+            await studioUtils.saveScreenshot('project_apps_step_selected_app');
+            let selectedProjects = await parentProjectStep.getSelectedProjects();
+            assert.equal(selectedProjects[0], 'Default', 'Default project should be selected in the parent step');
         });
 
     it("GIVEN user-contributor is added in Roles WHEN the project has been selected THEN this user should appear in statistics panel",

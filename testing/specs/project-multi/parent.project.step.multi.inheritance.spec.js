@@ -10,6 +10,7 @@ const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
+const SettingsItemStatisticsPanel = require('../../page_objects/project/settings.item.statistics.panel');
 
 describe('parent.project.step.multi.inheritance.spec - ui-tests for parent project wizard step', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -28,6 +29,25 @@ describe('parent.project.step.multi.inheritance.spec - ui-tests for parent proje
             await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, null, appConst.LANGUAGES.NORSK_NO, null, null);
         });
 
+    it(`GIVEN 2 checkboxes for projects have been selected in Settings panel WHEN new project wizard modal dialog has been opened THEN 2 parent project should be displayed in the dialog`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            // 1. Select 2 checkboxes in Settings browse panel:
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName('Default');
+            // 2. Press 'New' button in the toolbar:
+            await settingsBrowsePanel.clickOnNewButton();
+            await parentProjectStep.waitForLoaded();
+            // 3. Verify that both projects are displayed in the Parent step:
+            await studioUtils.saveScreenshot('project_apps_step_selected_app');
+            let selectedProjects = await parentProjectStep.getSelectedProjects();
+            assert.equal(selectedProjects[0], PROJECT_DISPLAY_NAME + '(no)', 'Just created project should be selected in the parent step');
+            assert.equal(selectedProjects[1], 'Default', 'Default project should be selected in the parent step');
+            assert.equal(selectedProjects.length, 2, '2 project should be selected in the parent step');
+        });
+
     it("GIVEN Layer Wizard - modal dialog is opened WHEN 'Default' and just created project have been selected in the dropdown THEN 2 selected options should be visible",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -36,8 +56,6 @@ describe('parent.project.step.multi.inheritance.spec - ui-tests for parent proje
             await settingsBrowsePanel.clickOnNewButton();
             // 2. 'parent Project Step' dialog should be loaded:
             await parentProjectStep.waitForLoaded();
-            // 3. 'Layer' button has been clicked:
-            await parentProjectStep.clickOnLayerRadioButton();
             // 4. Two parents have been selected:
             await parentProjectStep.selectParentParentProjects(MULTI_PROJECTS);
             await studioUtils.saveScreenshot('two_parent_project_step');
@@ -67,14 +85,12 @@ describe('parent.project.step.multi.inheritance.spec - ui-tests for parent proje
             await settingsBrowsePanel.clickOnNewButton();
             // 2. 'parent Project Step' dialog should be loaded:
             await parentProjectStep.waitForLoaded();
-            // 3. 'Layer' button has been clicked:
-            await parentProjectStep.clickOnLayerRadioButton();
-            // 4. Two parents projects have been selected:
+            // 3. Two parents projects have been selected:
             await parentProjectStep.selectParentParentProjects(MULTI_PROJECTS);
-            // 5. Click on 'Next' button:
+            // 4. Click on 'Next' button:
             await parentProjectStep.clickOnNextButton();
             await studioUtils.saveScreenshot('two_proj_language_step');
-            // 6. Expect project name should be displayed in the 'copy from' button:
+            // 5. Expect project name should be displayed in the 'copy from' button:
             await languageStep.waitForCopyFromParentButtonEnabled(PROJECT_DISPLAY_NAME);
         });
 

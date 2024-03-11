@@ -26,7 +26,7 @@ describe('layer.in.default.spec - ui-tests for creating a layer in Default proje
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let layerWizard = new LayerWizardPanel();
             // 1.Create new layer in the Default project:
-            await settingsBrowsePanel.openProjectWizardDialog();
+            await projectUtils.selectParentAndOpenProjectWizardDialog('Default');
             let layer = projectUtils.buildLayer('Default', null, appConst.PROJECT_ACCESS_MODE.PRIVATE, null, null, LAYER_DISPLAY_NAME, null,
                 null);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);

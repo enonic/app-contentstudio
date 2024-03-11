@@ -87,6 +87,9 @@ module.exports = Object.freeze({
         TWO_ITEMS_PUBLISHED: '2 items are published.',
         TWO_ITEMS_UNPUBLISHED: '2 items are unpublished',
         CONTENT_REVERTED: 'The content was reverted to the version from',
+        applicationsCopiedFromParent: (name) => {
+            return `Applications successfully copied from \"${name}\"`
+        },
     },
     TEST_DATA: {
         TEST_FOLDER_IMAGES_1_DISPLAY_NAME: 'All Content types images',

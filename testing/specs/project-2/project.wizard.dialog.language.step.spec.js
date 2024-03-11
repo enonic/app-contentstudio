@@ -24,7 +24,6 @@ describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizar
             // 1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select Default project:
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject(PARENT_DEFAULT);
             await parentProjectStep.clickOnNextButton();
             // 3. Verify that 'Copy from parent' button is disabled:
@@ -51,7 +50,6 @@ describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizar
             // 1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select Default project:
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject(PARENT_DEFAULT);
             await parentProjectStep.clickOnNextButton();
             // 3. Select a language:
