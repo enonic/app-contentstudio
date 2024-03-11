@@ -32,7 +32,6 @@ describe('project.wizard.dialog.summary.step.spec - ui-tests for Summary wizard 
             // 1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select Default project:
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject("Default");
             await parentProjectStep.clickOnNextButton();
             // 3. Select the language:

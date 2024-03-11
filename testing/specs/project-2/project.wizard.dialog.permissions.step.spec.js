@@ -28,7 +28,6 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             // 1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select 'Default' project and go to 'Permissions' step
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject(PARENT_DEFAULT);
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
@@ -64,7 +63,6 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             // 1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select 'Default' project and go to 'Permissions' step
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject(PARENT_DEFAULT);
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
@@ -94,9 +92,8 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             let permissionsStep = new ProjectWizardDialogPermissionsStep();
             // 1.Open new project wizard and go to Access Mode step:
             await settingsBrowsePanel.openProjectWizardDialog();
-            // Select Project-radio then click on Next button:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            // click on Skip button:
+            await parentProjectStep.clickOnSkipButton();
             await languageStep.clickOnSkipButton();
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();

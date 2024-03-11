@@ -33,6 +33,7 @@ describe("project.not.available.dialog.spec - clicking on 'Start Wizard' button"
             await projectUtils.saveScreenshot('not_available_modal_dialog');
             // 2. Click on Start button in the modal dialog:
             await projectNotAvailableDialog.clickOnStartWizardButton();
+            await projectNotAvailableDialog.waitForDialogClosed();
             // 3. Skip the language step
             await languageStep.waitForLoaded();
             await languageStep.clickOnSkipButton();

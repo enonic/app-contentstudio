@@ -64,16 +64,15 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             // 1. Do Log in with 'SU':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            await settingsBrowsePanel.openProjectWizardDialog();
             let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName, null,
                 LAYER_DISPLAY_NAME, null, null);
+            await projectUtils.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();
             // Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
-
 
     it("GIVEN user with 'Contributor'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Open' button should be enabled in the browse toolbar",
         async () => {

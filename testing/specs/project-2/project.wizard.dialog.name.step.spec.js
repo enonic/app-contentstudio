@@ -37,7 +37,6 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Select 'Default' project and go to 'Name/ID' step
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.selectParentProject('Default');
             await parentProjectStep.clickOnNextButton();
             await languageStep.clickOnSkipButton();
@@ -70,8 +69,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Go to 'Name/ID' step:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            await parentProjectStep.clickOnSkipButton();
             await languageStep.clickOnSkipButton();
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();
@@ -103,8 +101,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Go to 'Name/ID' step:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            await parentProjectStep.clickOnSkipButton();
             await languageStep.clickOnSkipButton();
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();
@@ -126,7 +123,6 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //7. Open project wizard dialog again
             await settingsBrowsePanel.openProjectWizardDialog();
             //8. Verify that projects searchable by Identifier:
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(ID, NAME);
             let names = await parentProjectStep.getSelectedProjects();
             assert.equal(names[0], NAME, "Expected parent project should be present in the selected option");
@@ -139,7 +135,6 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             //1. Open project wizard dialog:
             await settingsBrowsePanel.openProjectWizardDialog();
             //2. Verify that projects searchable by Description:
-            await parentProjectStep.clickOnLayerRadioButton();
             await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(TEST_DESCRIPTION, NAME);
             let names = await parentProjectStep.getSelectedProjects();
             assert.equal(names[0], NAME, "Expected parent project should be present in the selected option");
