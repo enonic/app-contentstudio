@@ -459,7 +459,7 @@ export class ContentWizardPanel
         });
 
         AIAssistantEventsMediator.get().onResultReceived((propertyTree: PropertyTree) => {
-            this.updateWizardStepForms(propertyTree);
+            this.updateWizardStepForms(propertyTree, false);
         });
     }
 
