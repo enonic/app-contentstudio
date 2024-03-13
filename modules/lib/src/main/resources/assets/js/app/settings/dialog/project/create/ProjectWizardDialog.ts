@@ -98,7 +98,7 @@ export class ProjectWizardDialog
     }
 
     private getParentProjects(): Project[] | undefined {
-        return this.getParentProjectStep()?.getData().getParentProjects();
+        return this.getParentProjectStep()?.getData().getParentProjects() || [];
     }
 
     private getParentProjectStep(): ProjectTypeDialogStep {
