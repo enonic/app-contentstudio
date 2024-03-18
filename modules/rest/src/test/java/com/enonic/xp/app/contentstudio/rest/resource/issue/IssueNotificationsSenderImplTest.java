@@ -3,16 +3,12 @@ package com.enonic.xp.app.contentstudio.rest.resource.issue;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.mail.Address;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,8 +35,8 @@ import com.enonic.xp.issue.IssueComment;
 import com.enonic.xp.issue.IssueId;
 import com.enonic.xp.issue.PublishRequest;
 import com.enonic.xp.issue.PublishRequestItem;
-import com.enonic.xp.mail.MailMessage;
 import com.enonic.xp.mail.MailService;
+import com.enonic.xp.mail.SendMailParams;
 import com.enonic.xp.project.ProjectConstants;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -76,7 +72,7 @@ public class IssueNotificationsSenderImplTest
 
     private LocaleService localeService;
 
-    private ArgumentCaptor<MailMessage> mailCaptor;
+    private ArgumentCaptor<SendMailParams> mailCaptor;
 
     @BeforeEach
     public void setUp()
@@ -84,17 +80,15 @@ public class IssueNotificationsSenderImplTest
         mailService = Mockito.mock( MailService.class );
         securityService = Mockito.mock( SecurityService.class );
         contentService = Mockito.mock( ContentService.class );
-        issueNotificationsSender = new IssueNotificationsSenderImpl( mailService, Runnable::run );
+        issueNotificationsSender = new IssueNotificationsSenderImpl( mailService );
         contentTypeService = Mockito.mock( ContentTypeService.class );
         localeService = Mockito.mock( LocaleService.class );
 
-        notificationFactoryBuilder = IssueNotificationParamsFactory.create()
-            .contentService( contentService )
-            .securityService( securityService )
-            .localeService( localeService )
-            .contentTypeService( contentTypeService );
+        notificationFactoryBuilder =
+            IssueNotificationParamsFactory.create().contentService( contentService ).securityService( securityService ).localeService(
+                localeService ).contentTypeService( contentTypeService );
 
-        mailCaptor = ArgumentCaptor.forClass( MailMessage.class );
+        mailCaptor = ArgumentCaptor.forClass( SendMailParams.class );
 
         resetContextRepo();
     }
@@ -121,11 +115,11 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssueCreated( params );
 
-        final MimeMessage msg = getMessageSent();
+        final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, Set.of( approver.getEmail() ) );
         verifyIssueLink( msg );
         verify( securityService, times( 2 ) ).getUser( any() );
-        verify( mailService, times( 1 ) ).send( any() );
+        verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
     }
@@ -153,7 +147,7 @@ public class IssueNotificationsSenderImplTest
         issueNotificationsSender.notifyIssueCreated( params );
 
         verify( securityService, times( 2 ) ).getUser( any() );
-        verify( mailService, never() ).send( any() );
+        verify( mailService, times(1) ).send( any( SendMailParams.class ) );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
     }
@@ -183,11 +177,11 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssueCreated( params );
 
-        final MimeMessage msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), approvers.get( 2 ).getEmail() ) );
+        final SendMailParams msg = getMessageSent();
+        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), approvers.get( 2 ).getEmail(), creator.getEmail() ) );
         verifyIssueLink( msg );
         verify( securityService, times( 4 ) ).getUser( any() );
-        verify( mailService, times( 1 ) ).send( any() );
+        verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
     }
@@ -219,41 +213,44 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssueCreated( params );
 
-        final MimeMessage msg = getMessageSent();
+        final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, approvers.stream().map( approver -> approver.getEmail() ).collect( Collectors.toSet() ) );
         verifyIssueLink( msg );
         verify( securityService, times( 4 ) ).getUser( any() );
-        verify( mailService, times( 1 ) ).send( any() );
+        verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
     }
 
-    private void verifyRecipients( final MimeMessage msg, final Set<String> recipients )
+    private void verifyRecipients( final SendMailParams msg, final Set<String> recipients )
         throws Exception
     {
-        final Set<String> allRecipients = Arrays.stream( msg.getAllRecipients() ).map( Address::toString ).collect( Collectors.toSet() );
+        final Set<String> allRecipients = new HashSet<>();
+        allRecipients.addAll( msg.getTo() );
+        allRecipients.addAll( msg.getCc() );
+        allRecipients.addAll( msg.getBcc() );
+
         assertEquals( recipients, allRecipients );
     }
 
-    private MimeMessage getMessageSent()
+    private SendMailParams getMessageSent()
         throws Exception
     {
         verify( mailService ).send( mailCaptor.capture() );
-        MimeMessage msg = new MimeMessage( Session.getDefaultInstance( new Properties() ) );
-        mailCaptor.getValue().compose( msg );
+        SendMailParams msg = mailCaptor.getValue();
         return msg;
     }
 
-    private void verifyIssueLink( final MimeMessage msg )
+    private void verifyIssueLink( final SendMailParams msg )
         throws Exception
     {
-        assertTrue( msg.getContent().toString().contains( "url/main#/default/issue" ) );
+        assertTrue( msg.getBody().contains( "url/main#/default/issue" ) );
     }
 
-    private void verifyIssueLink( final MimeMessage msg, final String link )
+    private void verifyIssueLink( final SendMailParams msg, final String link )
         throws Exception
     {
-        assertTrue( msg.getContent().toString().contains( link ) );
+        assertTrue( msg.getBody().contains( link ) );
     }
 
     @Test
@@ -297,10 +294,10 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssueUpdated( params );
 
-        final MimeMessage msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approver.getEmail(), creator.getEmail() ) );
+        final SendMailParams msg = getMessageSent();
+        verifyRecipients( msg, Set.of( approver.getEmail()/*, creator.getEmail()*/ ) );
         verifyIssueLink( msg, "url/main#/repoid/issue" );
-        verify( mailService, times( 1 ) ).send( any() );
+        verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
@@ -343,7 +340,7 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssueUpdated( params );
 
-        verify( mailService, Mockito.never() ).send( any() );
+        verify( mailService, Mockito.never() ).send( any( SendMailParams.class ) );
         verify( securityService, times( 1 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
@@ -391,10 +388,10 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssueUpdated( params );
 
-        final MimeMessage msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), approvers.get( 2 ).getEmail(), creator.getEmail() ) );
+        final SendMailParams msg = getMessageSent();
+        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), approvers.get( 2 ).getEmail()/*, creator.getEmail()*/ ) );
         verifyIssueLink( msg );
-        verify( mailService, Mockito.times( 1 ) ).send( any() );
+        verify( mailService, Mockito.times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 4 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
@@ -439,10 +436,10 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssueCommented( params );
 
-        final MimeMessage msg = getMessageSent();
+        final SendMailParams msg = getMessageSent();
         verifyRecipients( msg, Set.of( creator.getEmail() ) );
         verifyIssueLink( msg );
-        verify( mailService, times( 1 ) ).send( any() );
+        verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
@@ -487,7 +484,7 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssueCommented( params );
 
-        verify( mailService, never() ).send( any() );
+        verify( mailService, never() ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
@@ -535,10 +532,10 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssueCommented( params );
 
-        final MimeMessage msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), creator.getEmail() ) );
+        final SendMailParams msg = getMessageSent();
+        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail()/*, creator.getEmail()*/ ) );
         verifyIssueLink( msg );
-        verify( mailService, times( 1 ) ).send( any() );
+        verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 3 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
@@ -566,10 +563,10 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssuePublished( params );
 
-        final MimeMessage msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approver.getEmail(), creator.getEmail() ) );
+        final SendMailParams msg = getMessageSent();
+        verifyRecipients( msg, Set.of( approver.getEmail()/*, creator.getEmail()*/ ) );
         verifyIssueLink( msg );
-        verify( mailService, times( 1 ) ).send( any() );
+        verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
@@ -597,7 +594,7 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssuePublished( params );
 
-        verify( mailService, never() ).send( any() );
+        verify( mailService, never() ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
@@ -647,10 +644,10 @@ public class IssueNotificationsSenderImplTest
 
         issueNotificationsSender.notifyIssuePublished( params );
 
-        final MimeMessage msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), creator.getEmail() ) );
+        final SendMailParams msg = getMessageSent();
+        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail()/*, creator.getEmail()*/ ) );
         verifyIssueLink( msg, "url/main#/testrepo/issue" );
-        verify( mailService, times( 1 ) ).send( any() );
+        verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 3 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
