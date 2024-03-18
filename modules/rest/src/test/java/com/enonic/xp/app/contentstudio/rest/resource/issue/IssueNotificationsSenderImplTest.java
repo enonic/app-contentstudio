@@ -147,7 +147,7 @@ public class IssueNotificationsSenderImplTest
         issueNotificationsSender.notifyIssueCreated( params );
 
         verify( securityService, times( 2 ) ).getUser( any() );
-        verify( mailService, times(1) ).send( any( SendMailParams.class ) );
+        verify( mailService, never() ).send( any( SendMailParams.class ) );
         verify( contentService, times( 1 ) ).getByIds( any() );
         verify( contentService, times( 1 ) ).compare( Mockito.any( CompareContentsParams.class ) );
     }
@@ -178,7 +178,7 @@ public class IssueNotificationsSenderImplTest
         issueNotificationsSender.notifyIssueCreated( params );
 
         final SendMailParams msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), approvers.get( 2 ).getEmail(), creator.getEmail() ) );
+        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), approvers.get( 2 ).getEmail() ) );
         verifyIssueLink( msg );
         verify( securityService, times( 4 ) ).getUser( any() );
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
@@ -295,7 +295,7 @@ public class IssueNotificationsSenderImplTest
         issueNotificationsSender.notifyIssueUpdated( params );
 
         final SendMailParams msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approver.getEmail()/*, creator.getEmail()*/ ) );
+        verifyRecipients( msg, Set.of( approver.getEmail(), creator.getEmail() ) );
         verifyIssueLink( msg, "url/main#/repoid/issue" );
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
@@ -389,7 +389,7 @@ public class IssueNotificationsSenderImplTest
         issueNotificationsSender.notifyIssueUpdated( params );
 
         final SendMailParams msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), approvers.get( 2 ).getEmail()/*, creator.getEmail()*/ ) );
+        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), approvers.get( 2 ).getEmail(), creator.getEmail() ) );
         verifyIssueLink( msg );
         verify( mailService, Mockito.times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 4 ) ).getUser( any() );
@@ -533,7 +533,7 @@ public class IssueNotificationsSenderImplTest
         issueNotificationsSender.notifyIssueCommented( params );
 
         final SendMailParams msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail()/*, creator.getEmail()*/ ) );
+        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), creator.getEmail() ) );
         verifyIssueLink( msg );
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 3 ) ).getUser( any() );
@@ -564,7 +564,7 @@ public class IssueNotificationsSenderImplTest
         issueNotificationsSender.notifyIssuePublished( params );
 
         final SendMailParams msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approver.getEmail()/*, creator.getEmail()*/ ) );
+        verifyRecipients( msg, Set.of( approver.getEmail(), creator.getEmail() ) );
         verifyIssueLink( msg );
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 2 ) ).getUser( any() );
@@ -645,7 +645,7 @@ public class IssueNotificationsSenderImplTest
         issueNotificationsSender.notifyIssuePublished( params );
 
         final SendMailParams msg = getMessageSent();
-        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail()/*, creator.getEmail()*/ ) );
+        verifyRecipients( msg, Set.of( approvers.get( 1 ).getEmail(), creator.getEmail() ) );
         verifyIssueLink( msg, "url/main#/testrepo/issue" );
         verify( mailService, times( 1 ) ).send( any( SendMailParams.class ) );
         verify( securityService, times( 3 ) ).getUser( any() );

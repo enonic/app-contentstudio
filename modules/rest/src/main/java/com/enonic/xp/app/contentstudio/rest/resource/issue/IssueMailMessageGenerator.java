@@ -40,7 +40,7 @@ public abstract class IssueMailMessageGenerator<P extends IssueNotificationParam
         final String sender = getSender();
         final String messageSubject = generateMessageSubject();
         final String messageBody = generateMessageBody();
-        final Set<String> recipients = getApproverEmails();
+        final Set<String> recipients = generateRecipients();
 
         if ( recipients.isEmpty() )
         {
@@ -62,9 +62,9 @@ public abstract class IssueMailMessageGenerator<P extends IssueNotificationParam
 
     protected abstract String getSender();
 
-    protected String generateRecipients()
+    protected Set<String> generateRecipients()
     {
-        return String.join( ",", this.getApproverEmails() );
+        return this.getApproverEmails();
     }
 
     protected boolean shouldShowComments()
