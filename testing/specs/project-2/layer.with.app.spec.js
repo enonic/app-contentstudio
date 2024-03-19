@@ -12,7 +12,7 @@ const appConst = require('../../libs/app_const');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const XDataImageSelector = require('../../page_objects/wizardpanel/wizard-step-form/xdata.image.selector.wizard.step.form');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
-const CustomRelationshipForm = require('../../page_objects/wizardpanel/custom.relationship.form.panel');
+const ContentSelectorForm = require('../../page_objects/wizardpanel/content.selector.form');
 
 describe('layer.with.app.spec - tests for layer with applications', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -27,7 +27,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            // 1. Select 'Default' project and open wizard for new layer:
+            // 1. Open wizard for new layer:
             await settingsBrowsePanel.openProjectWizardDialog();
             let layer = projectUtils.buildLayer(appConst.PROJECTS.DEFAULT_PROJECT_NAME, null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
                 appConst.APP_CONTENT_TYPES, LAYER_DISPLAY_NAME);
@@ -46,7 +46,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             await doAddArticleContent(articleContent);
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
-            let customRelationshipForm = new CustomRelationshipForm();
+            let customRelationshipForm = new ContentSelectorForm();
             // 3. Open new wizard with Custom relationship
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
@@ -126,9 +126,9 @@ async function doAddArticleContent(article) {
     let newContentDialog = new NewContentDialog();
     await contentBrowsePanel.clickOnNewButton();
     await newContentDialog.waitForOpened();
-    //2. Open article-wizard:
+    // 2. Open article-wizard:
     await studioUtils.clickOnItemInNewContentDialog(article.contentType);
-    //3.Type the data and save all
+    // 3.Type the data and save all
     await contentWizardPanel.typeData(article);
     await contentWizardPanel.waitAndClickOnSave();
     await studioUtils.doCloseCurrentBrowserTab();

@@ -5,7 +5,8 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 const ContentWizard = require('../content.wizard.panel');
-const LoaderComboBox = require('../../../page_objects/components/loader.combobox');
+const FragmentDropdown = require('../../../page_objects/components/selectors/fragment.dropdown');
+const ComponentDescriptorsDropdown = require('../../../page_objects/components/component.descriptors.dropdown');
 const xpath = {
     container: "//div[contains(@id,'LiveFormPanel')]",
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
@@ -40,9 +41,9 @@ class LiveFormPanel extends Page {
         try {
             let parentForComboBox = `//div[contains(@id,'LayoutPlaceholder')]`;
             let contentWizard = new ContentWizard();
-            let loaderComboBox = new LoaderComboBox();
+            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
+            await componentDescriptorsDropdown.selectFilteredContentAndClickOnOk(displayName, parentForComboBox);
             await contentWizard.switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {
@@ -55,9 +56,9 @@ class LiveFormPanel extends Page {
         try {
             let parentForComboBox = `//div[contains(@id,'PartPlaceholder')]`;
             let contentWizard = new ContentWizard();
-            let loaderComboBox = new LoaderComboBox();
+            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
+            await componentDescriptorsDropdown.selectFilteredComponentAndClickOnOk(displayName, parentForComboBox);
             return await this.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_layout');
@@ -210,21 +211,18 @@ class LiveFormPanel extends Page {
     }
 
     async clickOnOptionInFragmentDropdown(option) {
-        let optionSelector = lib.slickRowByDisplayName(xpath.fragmentPlaceHolderDiv + lib.DIV.FRAGMENT_DROPDOWN_DIV, option);
-        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-        await this.clickOnElement(optionSelector);
-        await this.waitForSpinnerNotVisible();
-        return await this.pause(2000);
+        let fragmentDropdown = new FragmentDropdown();
+        await fragmentDropdown.clickOnDropdownHandle(xpath.fragmentPlaceHolderDiv);
+        await fragmentDropdown.selectFilteredFragmentAndClickOnOk(option);
+        return await this.pause(1000);
     }
 
     async selectFragmentByDisplayName(displayName) {
         try {
             let contentWizard = new ContentWizard();
-            let locatorFilterInput = xpath.fragmentPlaceHolderDiv + lib.DIV.FRAGMENT_DROPDOWN_DIV + lib.DROPDOWN_OPTION_FILTER_INPUT
+            let fragmentDropdown = new FragmentDropdown();
             await contentWizard.switchToLiveEditFrame();
-            await this.waitForElementDisplayed(locatorFilterInput, appConst.mediumTimeout);
-            await this.typeTextInInput(locatorFilterInput, displayName);
-            await this.clickOnOptionInFragmentDropdown(displayName);
+            await fragmentDropdown.selectFilteredFragmentAndClickOnOk(displayName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_fragment_selector');
             throw new Error('Error after selecting the fragment in Live Edit -screenshot ' + screenshot + ' ' + err);
@@ -232,8 +230,13 @@ class LiveFormPanel extends Page {
     }
 
     async waitForCaptionDisplayed(text) {
-        let locator = xpath.captionByText(text);
-        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        try {
+            let locator = xpath.captionByText(text);
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_img_caption_live_edit');
+            throw new Error("Expected caption is not displayed in LiveEdit frame. screenshot:" + screenshot + ' ' + err);
+        }
     }
 
     async getFragmentsNumber() {

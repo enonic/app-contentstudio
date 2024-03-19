@@ -20,7 +20,7 @@ export class ProjectLocaleDialogStep
     protected initEventListeners(): void {
         super.initEventListeners();
 
-        this.getLocaleCombobox().onValueChanged(() => {
+        this.getLocaleCombobox().onSelectionChanged(() => {
             this.notifyDataChanged();
         });
     }
@@ -30,7 +30,7 @@ export class ProjectLocaleDialogStep
     }
 
     getData(): ProjectLocaleDialogStepData {
-        return new ProjectLocaleDialogStepData().setLocale(this.getLocaleCombobox()?.getSelectedDisplayValues()[0]);
+        return new ProjectLocaleDialogStepData().setLocale(this.getLocaleCombobox()?.getSelectedLocate());
     }
 
     hasData(): boolean {

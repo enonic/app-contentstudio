@@ -52,7 +52,8 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
         this.fakeRoot = builder?.fakeRoot;
 
-        this.flatRequest = new ContentSelectorQueryRequest().setRequestProject(this.project);
+        this.flatRequest =
+            new ContentSelectorQueryRequest().setAppendLoadResults(builder?.appendLoadResults).setRequestProject(this.project);
         this.treeRequest = this.smartTreeMode ? new ContentTreeSelectorQueryRequest<DATA>().setRequestProject(this.project) :
                            new ListByIdSelectorRequest<DATA>().setRequestProject(this.project);
 
@@ -161,7 +162,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
         this.treeRequest.setSearchString(this.treeFilterValue);
 
-        const hasFakeRoot = this.fakeRoot && parentNode.getDataId() == null && !this.treeFilterValue;
+        const needsFakeRoot = this.fakeRoot && parentNode.getDataId() == null && !this.treeFilterValue && from === 0;
 
         return this.loadItems().then((result: DATA[]) => {
             result = result.filter(this.postFilterFn);
@@ -169,11 +170,16 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
             this.notifyLoadedData([], postLoad, true);
 
             return this.createOptionData(
-                hasFakeRoot ? [new ContentTreeSelectorItem(this.fakeRoot, true, false) as DATA, ...result] : result,
+                needsFakeRoot ? [this.wrapFakeRoot(), ...result] : result,
                 this.treeRequest.getMetadata().getHits(),
                 this.treeRequest.getMetadata().getTotalHits(),
             );
         });
+    }
+
+    protected wrapFakeRoot(): DATA {
+        const item = ContentSummaryAndCompareStatus.fromContentSummary(this.fakeRoot);
+        return new ContentAndStatusTreeSelectorItem(item, true, false) as ContentTreeSelectorItem as DATA;
     }
 
     protected createRequest(): ContentSelectorRequest<DATA> {
@@ -253,6 +259,14 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     isPartiallyLoaded(): boolean {
         return this.isTreeLoadMode ? this.treeRequest.isPartiallyLoaded() : this.flatRequest.isPartiallyLoaded();
     }
+
+    setTreeLoadMode(value: boolean): void {
+        this.isTreeLoadMode = !!value;
+    }
+
+    isSmartTreeMode(): boolean {
+        return this.smartTreeMode;
+    }
 }
 
 export class ContentSummaryOptionDataLoaderBuilder {
@@ -273,50 +287,57 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     applicationKey: ApplicationKey;
 
+    appendLoadResults: boolean = true;
+
     postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean = () => true;
 
-    setContentTypeNames(contentTypeNames: string[]): ContentSummaryOptionDataLoaderBuilder {
+    setContentTypeNames(contentTypeNames: string[]): this {
         this.contentTypeNames = contentTypeNames;
         return this;
     }
 
-    setAllowedContentPaths(allowedContentPaths: string[]): ContentSummaryOptionDataLoaderBuilder {
+    setAllowedContentPaths(allowedContentPaths: string[]): this {
         this.allowedContentPaths = allowedContentPaths;
         return this;
     }
 
-    setRelationshipType(relationshipType: string): ContentSummaryOptionDataLoaderBuilder {
+    setRelationshipType(relationshipType: string): this {
         this.relationshipType = relationshipType;
         return this;
     }
 
-    setContent(content: ContentSummary): ContentSummaryOptionDataLoaderBuilder {
+    setContent(content: ContentSummary): this {
         this.content = content;
         return this;
     }
 
-    setSmartTreeMode(smartTreeMode: boolean): ContentSummaryOptionDataLoaderBuilder {
+    setSmartTreeMode(smartTreeMode: boolean): this {
         this.smartTreeMode = smartTreeMode;
         return this;
     }
 
-    setFakeRoot(fakeRoot: ContentSummary): ContentSummaryOptionDataLoaderBuilder {
+    setFakeRoot(fakeRoot: ContentSummary): this {
         this.fakeRoot = fakeRoot;
         return this;
     }
 
-    setProject(project: Project): ContentSummaryOptionDataLoaderBuilder {
+    setProject(project: Project): this {
         this.project = project;
         return this;
     }
 
-    setApplicationKey(key: ApplicationKey): ContentSummaryOptionDataLoaderBuilder {
+    setApplicationKey(key: ApplicationKey): this {
         this.applicationKey = key;
         return this;
     }
 
-    setPostFilterFn(postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean): ContentSummaryOptionDataLoaderBuilder {
+    setPostFilterFn(postFilterFn: (contentItem: ContentSummary | ContentTreeSelectorItem) => boolean): this {
         this.postFilterFn = postFilterFn;
+        return this;
+    }
+
+    setAppendLoadResults(appendLoadResults: boolean): this {
+        this.appendLoadResults = appendLoadResults;
         return this;
     }
 

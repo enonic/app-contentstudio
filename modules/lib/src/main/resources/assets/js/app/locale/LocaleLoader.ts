@@ -10,7 +10,6 @@ export class LocaleLoader
     private preservedSearchString: string;
 
     search(searchString: string): Q.Promise<Locale[]> {
-
         this.getRequest().setSearchQuery(searchString);
 
         return this.load();
@@ -22,13 +21,13 @@ export class LocaleLoader
     }
 
     load(): Q.Promise<Locale[]> {
-
         this.notifyLoadingData();
 
         return this.sendRequest()
             .then((locales: Locale[]) => {
-
+                this.setResults(locales);
                 this.notifyLoadedData(locales);
+
                 if (this.preservedSearchString) {
                     this.search(this.preservedSearchString);
                     this.preservedSearchString = null;

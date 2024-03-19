@@ -31,5 +31,37 @@
         opacity: 0.8;
       }
     }
+
+    .projects-tree-list {
+      width: calc(100% - 23px);
+
+      .item-view-wrapper {
+        &.selected {
+          .names-and-icon-view {
+            .@{_COMMON_PREFIX}names-view {
+              .@{_COMMON_PREFIX}main-name {
+                color: @admin-white;
+              }
+
+              .@{_COMMON_PREFIX}sub-name {
+                color: @admin-white;
+              }
+            }
+          }
+
+          .status {
+            span {
+              color: @admin-white !important;
+            }
+          }
+        }
+      }
+
+      .selected-options {
+        .selected-option {
+          height: 45px;
+        }
+      }
+    }
   }
 }

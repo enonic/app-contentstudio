@@ -13,15 +13,15 @@ const xpath = {
 class CityCreationPartInspectionPanel extends BaseComponentInspectionPanel {
 
     get imageComboBoxDropdownHandle() {
-        return xpath.container + lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.DROP_DOWN_HANDLE;
+        return xpath.container + lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.DROPDOWN_SELECTOR.DROPDOWN_HANDLE;
     }
 
     get imageSelectorModeTogglerButton() {
-        return xpath.container + lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.COMBOBOX.MODE_TOGGLER_BUTTON;
+        return xpath.container + lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.DROPDOWN_SELECTOR.MODE_TOGGLER_BUTTON;
     }
 
     get imageSelectorOptionsFilterInput() {
-        return xpath.container + lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return xpath.container + lib.IMAGE_CONTENT_COMBOBOX.DIV + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     async clickOnImageSelectorModeTogglerButton() {

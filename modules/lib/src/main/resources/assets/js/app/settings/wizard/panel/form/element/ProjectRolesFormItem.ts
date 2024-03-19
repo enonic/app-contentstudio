@@ -1,5 +1,5 @@
 import {ProjectFormItemBuilder} from './ProjectFormItem';
-import {ProjectAccessControlComboBox, ProjectAccessControlComboBoxBuilder} from './ProjectAccessControlComboBox';
+import {ProjectAccessControlComboBox, ProjectAccessControlComboBoxWrapper} from './ProjectAccessControlComboBox';
 import {PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
@@ -18,18 +18,22 @@ import {CopyFromParentFormItem} from './CopyFromParentFormItem';
 export class ProjectRolesFormItem
     extends CopyFromParentFormItem {
 
+    private readonly accessComboBox: ProjectAccessControlComboBox;
+
     constructor() {
-        const accessCombobox: ProjectAccessControlComboBox = new ProjectAccessControlComboBoxBuilder().build();
+        const accessCombobox: ProjectAccessControlComboBox = new ProjectAccessControlComboBox();
 
         const loader: PrincipalLoader = accessCombobox.getLoader() as PrincipalLoader;
         loader.setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
         loader.skipPrincipal(PrincipalKey.ofAnonymous());
 
         super(
-            new ProjectFormItemBuilder(accessCombobox)
+            new ProjectFormItemBuilder(new ProjectAccessControlComboBoxWrapper(accessCombobox))
             .setHelpText(i18n('settings.projects.roles.helptext'))
             .setLabel(i18n('settings.items.wizard.step.roles')) as ProjectFormItemBuilder
         );
+
+        this.accessComboBox = accessCombobox;
 
         this.addClass('project-roles-form-item');
 
@@ -37,25 +41,24 @@ export class ProjectRolesFormItem
     }
 
     protected initListeners() {
-        this.getAccessComboBox().onValueChanged(() => {
+        this.accessComboBox.onSelectionChanged(() => {
             this.updateCopyButtonState();
         });
 
-        this.getAccessComboBox().onOptionValueChanged(() => {
+        this.accessComboBox.onOptionValueChanged(() => {
             this.updateCopyButtonState();
         });
     }
 
     layoutAccessCombobox(permissions: ProjectPermissions, silent: boolean = true): Q.Promise<void> {
         return this.getPrincipalsFromPermissions(permissions).then((principals: Principal[]) => {
-            this.getAccessComboBox().clearSelection(true, false, false, false);
+            this.accessComboBox.deselectAll(true);
 
             const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(permissions, principals);
 
             if (itemsToSelect.length > 0) {
                 itemsToSelect.forEach((selectedItem: ProjectAccessControlEntry) => {
-                    this.getAccessComboBox().select(selectedItem, false, silent);
-                    this.getAccessComboBox().resetBaseValues();
+                    this.accessComboBox.select(selectedItem, silent);
                 });
             } else {
                 this.updateCopyButtonState();
@@ -111,7 +114,7 @@ export class ProjectRolesFormItem
     }
 
     getPermissions(): ProjectPermissions {
-        const selectedAccessEntries: ProjectAccessControlEntry[] = this.getAccessComboBox().getSelectedDisplayValues();
+        const selectedAccessEntries: ProjectAccessControlEntry[] = this.accessComboBox.getSelectedItems();
 
         const owners: PrincipalKey[] = selectedAccessEntries
             .filter((entry: ProjectAccessControlEntry) => entry.getAccess() === ProjectAccess.OWNER)
@@ -135,7 +138,7 @@ export class ProjectRolesFormItem
     }
 
     getAccessComboBox(): ProjectAccessControlComboBox {
-        return this.getInput() as ProjectAccessControlComboBox;
+        return this.accessComboBox;
     }
 
     protected doCopyFromParent(): void {

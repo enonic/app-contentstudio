@@ -26,6 +26,7 @@ module.exports = Object.freeze({
     SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
     TEXT_INPUT: "//input[@type='text']",
     DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
+    OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
     VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
     CONTENT_SUMMARY_AND_STATUS_VIEWER: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
     OPTION_SET_MENU_BUTTON: "//button[contains(@id,'MoreButton')]",
@@ -36,21 +37,12 @@ module.exports = Object.freeze({
     OCCURRENCE_VIEW: "//div[contains(@id,'InputOccurrenceView')]",
     ADD_NEW_CONTENT_BUTTON: "//button[contains(@id,'NewContentButton')]",
     EDIT_ICON: "//a[@class='edit']",
-    CONTENT_SELECTOR: {
-        DIV: "//div[contains(@id,'ContentSelector')]",
-        selectedOptionByName: option => {
-            return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
-        }
-    },
-    COMBOBOX: {
-        MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
-    },
     INPUTS: {
         TEXT_INPUT: "//input[@type='text']",
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
     },
-    DIV:{
+    DIV: {
         FRAGMENT_DROPDOWN_DIV: `//div[contains(@id,'FragmentDropdown')]`,
         CHECKBOX_DIV: "//div[contains(@id,'Checkbox')]",
         DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
@@ -71,6 +63,45 @@ module.exports = Object.freeze({
         dialogButtonStrict: label => `//button[contains(@id,'DialogButton') and child::span[text()='${label}']]`,
         togglerButton: (label) => `//button[contains(@id,'TogglerButton') and child::span[text()='${label}']]`,
     },
+    CONTENT_SELECTOR: {
+        DIV: "//div[contains(@id,'ContentSelector')]",
+        selectedOptionByName: option => {
+            return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
+        }
+    },
+    DROPDOWN_SELECTOR: {
+        contentListElementByDisplayName: (container, displayName) => {
+            return container +
+                   `//li[contains(@id,'ContentListElement') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
+        },
+        // non-clickable li element in options dropdown list, it is for checking read-only status
+        contentListElementByName: (container, name) => {
+            return container +
+                   `//li[contains(@id,'ContentListElement') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`;
+        },
+        // clickable option in dropdown options list
+        dropdownListItemByDisplayName: (container, displayName) => {
+            return container +
+                   `//li[contains(@class,'item-view-wrapper')]//h6[contains(@class,'main-name') and contains(.,'${displayName}')]`;
+        },
+        dropdownListItemByName: (container, name) => {
+            return container +
+                   `//li[contains(@class,'item-view-wrapper')]//p[contains(@class,'sub-name') and contains(.,'${name}')]`;
+        },
+        flatModeDropdownImgItemByDisplayName: (container, displayName) => {
+            return container +
+                   `//li[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//img`;
+        },
+        IMG_DROPDOWN_OPT_DISPLAY_NAME_FLAT_MODE: "//li[contains(@class,'item-view-wrapper')]" +
+                                                 "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
+        OPTIONS_LI_ELEMENT: "//li[contains(@id,'ContentListElement')]",
+        DROPDOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
+        OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
+        MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
+        APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
+        CONTENT_TREE_SELECTOR: "//div[contains(@id,'ContentTreeSelectorDropdown')]",
+        CONTENTS_TREE_LIST_UL: "//ul[contains(@id,'ContentsTreeList')]",
+    },
 
     DEPENDANTS: {
         EDIT_ENTRY: "//div[contains(@id,'DialogStateEntry') and contains(@class,'edit-entry')]",
@@ -86,6 +117,7 @@ module.exports = Object.freeze({
         return container +
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
     },
+
     checkBoxDiv: label => `//div[contains(@id,'Checkbox') and child::label[contains(.,'${label}')]]`,
     actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
     actionButtonStrict: (label) => `//button[contains(@id,'ActionButton') and child::span[text()='${label}']]`,
@@ -122,10 +154,7 @@ module.exports = Object.freeze({
     formItemByLabel: (label) => {
         return `//div[contains(@id,'FormItem') and descendant::label[contains(.,'${label}')]]`
     },
-    expanderIconByName: name => {
-        return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]` +
-               `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
-    },
+
     EMPTY_OPTIONS_DIV: "//div[contains(@class,'empty-options') and text()='No matching items']",
     radioButtonByLabel: label => {
         return `//span[contains(@class,'radio-button') and child::label[text()='${label}']]//input`
@@ -160,9 +189,7 @@ module.exports = Object.freeze({
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
     SETTINGS_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Settings']",
     MODE_CONTENT_BUTTON: "//button[contains(@id,'WidgetButton') and @title='Content']",
-    IMAGE_CONTENT_COMBOBOX:{
-        DIV: "//div[contains(@id,'ImageContentComboBox')]",
-    },
+
     PUBLISH_DIALOG: {
         EXCLUDE_BTN: "//button[child::span[contains(.,'Exclude')]]",
     },

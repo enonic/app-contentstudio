@@ -84,6 +84,17 @@ class PageComponentView extends BasePageComponentView {
         }
     }
 
+    async clickOnShowPageComponentDialogButton() {
+        try {
+            await this.waitForShowPcvDialogButtonDisplayed();
+            await this.clickOnElement(this.showPcvDialogButton);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot('err_show_component_view_btn');
+            throw new Error("Error when clicking on 'Show Component View' button " + err);
+        }
+    }
+
     waitForPcvDialogMinimizerDisplayed() {
         return this.waitForElementDisplayed(this.pcvDialogMinimizer, appConst.mediumTimeout);
     }

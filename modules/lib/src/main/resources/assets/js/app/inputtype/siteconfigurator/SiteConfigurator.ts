@@ -12,7 +12,6 @@ import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ApplicationConfigProvider} from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
@@ -24,6 +23,9 @@ import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/supp
 import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {GetApplicationsRequest} from '../../resource/GetApplicationsRequest';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class SiteConfigurator
     extends BaseInputTypeManagingAdd {
@@ -75,6 +77,8 @@ export class SiteConfigurator
                 this.comboBox.setEnabled(!readonly);
             });
 
+            this.layoutApps(propertyArray).catch(DefaultErrorHandler.handle);
+
             this.appendChild(this.comboBox);
 
             this.comboBox.render().then(() => {
@@ -85,9 +89,21 @@ export class SiteConfigurator
         });
     }
 
+    private layoutApps(propertyArray: PropertyArray): Q.Promise<void> {
+        const appKeys = this.getKeysFromPropertyArray(propertyArray);
+
+        if (!appKeys?.length) {
+            return Q.resolve();
+        }
+
+        return new GetApplicationsRequest(appKeys).sendAndParse().then((apps: Application[]) => {
+            this.comboBox.select(apps, true);
+        });
+    }
+
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
         return super.update(propertyArray, unchangedOnly).then(() => {
-            const optionsMissing = !!propertyArray && propertyArray.getSize() > 0 && this.comboBox.getOptions().length === 0;
+            const optionsMissing = !!propertyArray && propertyArray.getSize() > 0 && this.comboBox.getListSize() === 0;
             return optionsMissing ? this.comboBox.getLoader().preLoad() : null;
         }).then(() => {
             const ignorePropertyChange = this.isPropertyChangeIgnored();
@@ -107,17 +123,12 @@ export class SiteConfigurator
 
             return Q.all(updatePromises).then(() => {
                 this.ignorePropertyChange(ignorePropertyChange);
-                if (!unchangedOnly || !this.comboBox.isDirty()) {
-                    this.comboBox.setValue(this.getValueFromPropertyArray(propertyArray));
-                } else if (this.comboBox.isDirty()) {
-                    this.comboBox.forceChangedEvent();
-                }
             });
         });
     }
 
     reset() {
-        this.comboBox.resetBaseValues();
+        //this.comboBox.resetBaseValues();
     }
 
     private static optionViewToKey(option: SiteConfiguratorSelectedOptionView): string {
@@ -143,9 +154,9 @@ export class SiteConfigurator
         const selectedOptions: SiteConfiguratorSelectedOptionView[] = this.comboBox.getSelectedOptionViews();
         const alreadySelected = selectedOptions.some(option => SiteConfigurator.optionViewToKey(option) === key);
         if (!alreadySelected) {
-            this.comboBox.selectOptionByValue(key);
+            this.comboBox.selectByKey(key, true);
         }
-        return this.comboBox.getSelectedOptionByValue(key);
+        return this.comboBox.getSelectedOptionByKey(key);
     }
 
     private saveToSet(siteConfig: ApplicationConfig, index: number) {
@@ -171,6 +182,16 @@ export class SiteConfigurator
         }).join(';');
     }
 
+    private getKeysFromPropertyArray(propertyArray: PropertyArray): ApplicationKey[] {
+        return propertyArray.getProperties()
+            .filter(p => p.hasNonNullValue())
+            .map((property) => this.makeSiteConfigFromProperty(property).getApplicationKey());
+    }
+
+    private makeSiteConfigFromProperty(property: Property): ApplicationConfig {
+        return ApplicationConfig.create().fromData(property.getPropertySet()).build();
+    }
+
     private createComboBox(input: Input, siteConfigProvider: ApplicationConfigProvider): SiteConfiguratorComboBox {
 
         const value = this.getValueFromPropertyArray(this.getPropertyArray());
@@ -188,32 +209,46 @@ export class SiteConfigurator
             forcedValidate();
         };
 
-        comboBox.onOptionDeselected((event: SelectedOptionEvent<Application>) => {
-            this.ignorePropertyChange(true);
+        comboBox.onSelectionChanged((selectionChange: SelectionChange<Application>) => {
+            if (selectionChange.selected?.length > 0) {
+                this.ignorePropertyChange(true);
 
-            this.getPropertyArray().remove(event.getSelectedOption().getIndex());
+                selectionChange.selected.forEach((selected: Application) => {
+                    const selectedOption: SelectedOption<Application> = comboBox.getSelectedOption(selected);
+                    const view: SiteConfiguratorSelectedOptionView = selectedOption.getOptionView() as SiteConfiguratorSelectedOptionView;
 
-            forcedValidate();
-        });
+                    const propertyArray: PropertyArray = this.getPropertyArray();
+                    const configSet: PropertySet = propertyArray.get(selectedOption.getIndex()).getPropertySet().getProperty(
+                        ApplicationConfig.PROPERTY_CONFIG).getPropertySet();
 
-        comboBox.onOptionSelected((event: SelectedOptionEvent<Application>) => {
-            this.fireFocusSwitchEvent(event);
-            this.ignorePropertyChange(true);
+                    view.whenRendered(() => {
+                        view.getFormView().update(configSet, false);
+                    });
 
-            const selectedOption: SelectedOption<Application> = event.getSelectedOption();
-            const view: SiteConfiguratorSelectedOptionView = selectedOption.getOptionView() as SiteConfiguratorSelectedOptionView;
+                    const key = selectedOption.getOption().getDisplayValue().getApplicationKey();
+                    if (key) {
+                        saveAndForceValidate(selectedOption);
+                    }
+                });
+            }
 
-            const propertyArray: PropertyArray = this.getPropertyArray();
-            const configSet: PropertySet = propertyArray.get(selectedOption.getIndex()).getPropertySet().getProperty(
-                ApplicationConfig.PROPERTY_CONFIG).getPropertySet();
+            if (selectionChange.deselected?.length > 0) {
+                this.ignorePropertyChange(true);
 
-            view.whenRendered(() => {
-                view.getFormView().update(configSet, false);
-            });
+                selectionChange.deselected.forEach((deselected: Application) => {
+                    const property = this.getPropertyArray().getProperties()
+                        .filter(p => p.hasNonNullValue())
+                        .find((property) => {
+                        const config = this.makeSiteConfigFromProperty(property);
+                        return deselected.getApplicationKey().equals(config.getApplicationKey());
+                    });
 
-            const key = selectedOption.getOption().getDisplayValue().getApplicationKey();
-            if (key) {
-                saveAndForceValidate(selectedOption);
+                    if (property) {
+                        this.getPropertyArray().remove(property.getIndex());
+                    }
+                });
+
+                forcedValidate();
             }
         });
 

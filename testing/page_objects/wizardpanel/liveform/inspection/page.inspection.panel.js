@@ -4,6 +4,7 @@
 const Page = require('../../../page');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
+const InspectPanelControllerSelector = require('../../../../page_objects/components/selectors/inspect.panel.controller.selector');
 
 const xpath = {
     container: "//div[contains(@id,'InspectionsPanel')]",
@@ -44,10 +45,16 @@ class PageInspectionPanel extends Page {
         }
     }
 
-    async getPageTemplateDropdownOptions() {
-        await this.clickOnPageControllerDropdownHandle();
-        let selector = lib.SLICK_ROW + "//div[contains(@id,'PageTemplateAndSelectorViewer')]" + lib.P_SUB_NAME;
-        return await this.getTextInElements(selector);
+    async getOptionsNameInPageTemplateDropdown() {
+        let inspectPanelControllerSelector = new InspectPanelControllerSelector();
+        await inspectPanelControllerSelector.clickOnDropdownHandle(xpath.container);
+        return await inspectPanelControllerSelector.getOptionsName(xpath.container);
+    }
+
+    async getOptionsDescriptionInPageTemplateDropdown() {
+        let inspectPanelControllerSelector = new InspectPanelControllerSelector();
+        await inspectPanelControllerSelector.clickOnDropdownHandle(xpath.container);
+        return await inspectPanelControllerSelector.getOptionsDescription(xpath.container);
     }
 
     // clicks on dropdown handle and select an option

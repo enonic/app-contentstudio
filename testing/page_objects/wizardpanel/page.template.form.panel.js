@@ -4,7 +4,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const LoaderComboBox = require('../components/loader.combobox');
+const ContentTypeFilterDropdown = require('../components/content.type.filter.dropdown');
 
 const XPATH = {
     wizardStep: `//div[contains(@id,'ContentWizardStepForm')]`,
@@ -28,12 +28,10 @@ class PageTemplateForm extends Page {
     }
 
     async filterOptionsAndSelectSupport(contentTypeDisplayName) {
-        await this.typeTextInInput(this.supportOptionsFilterInput, contentTypeDisplayName);
-        let loaderComboBox = new LoaderComboBox();
-        await loaderComboBox.selectOption(contentTypeDisplayName);
+        let contentTypeFilterDropdown = new ContentTypeFilterDropdown();
+        await contentTypeFilterDropdown.selectFilteredContentTypeAndClickOnOk(contentTypeDisplayName);
         return await this.pause(500);
     }
-
     async clickOnRemoveSupportIcon(displayName) {
         try {
             let selector = XPATH.contentTypeSelectedOptionsView(displayName) + lib.REMOVE_ICON;

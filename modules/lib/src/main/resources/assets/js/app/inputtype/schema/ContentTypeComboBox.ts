@@ -1,26 +1,9 @@
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {ContentTypeSummaryViewer} from '../ui/schema/ContentTypeSummaryViewer';
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
-import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {SchemaBuilder} from '@enonic/lib-admin-ui/schema/Schema';
-
-export class ContentTypeComboBox
-    extends RichComboBox<ContentTypeSummary> {
-
-    constructor(builder: ContentTypeComboBoxBuilder) {
-        super(builder);
-    }
-
-    static create(): ContentTypeComboBoxBuilder {
-        return new ContentTypeComboBoxBuilder();
-    }
-
-}
 
 export class ContentTypeSelectedOptionsView
     extends BaseSelectedOptionsView<ContentTypeSummary> {
@@ -63,19 +46,6 @@ export class ContentTypeSelectedOptionView
 
     protected isEditButtonNeeded(): boolean {
         return false;
-    }
-
-}
-
-export class ContentTypeComboBoxBuilder
-    extends RichComboBoxBuilder<ContentTypeSummary> {
-
-    optionDisplayValueViewer: Viewer<ContentTypeSummary> = new ContentTypeSummaryViewer();
-
-    selectedOptionsView: SelectedOptionsView<ContentTypeSummary> = new ContentTypeSelectedOptionsView();
-
-    build(): ContentTypeComboBox {
-        return new ContentTypeComboBox(this);
     }
 
 }

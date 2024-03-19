@@ -1,19 +1,16 @@
 import * as Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ContentComboBox, ContentComboBoxBuilder, ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
+import {ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
 import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagingAdd';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ui/selector/ContentSummaryOptionDataLoader';
@@ -32,36 +29,36 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {NewContentButton} from './ui/NewContentButton';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentAndStatusTreeSelectorItem} from '../../item/ContentAndStatusTreeSelectorItem';
-import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {CompareStatus} from '../../content/CompareStatus';
 import {MovedContentItem} from '../../browse/MovedContentItem';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
+import {ContentSelectorDropdown, ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {ContentListBox} from './ContentListBox';
+import {ContentTreeSelectorDropdown} from './ContentTreeSelectorDropdown';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
 
-    protected contentComboBox: ContentComboBox<ContentTreeSelectorItem>;
+    protected contentSelectorDropdown: ContentSelectorDropdown;
 
-    protected comboBoxWrapper: DivEl;
+    protected contentSelectedOptionsView: ContentSelectedOptionsView;
 
     protected newContentButton: NewContentButton;
 
     protected treeMode: boolean;
 
+    protected initiallySelectedItems: string[];
+
     protected hideToggleIcon: boolean;
 
     protected contentDeletedListener: (paths: ContentServerChangeItem[], pending?: boolean) => void;
 
-    protected static contentIdBatch: ContentId[] = [];
-
-    protected static loadSummariesResult: Q.Deferred<ContentSummaryAndCompareStatus[]>;
-
     public static debug: boolean = false;
-
-    protected static loadSummaries: () => void = AppHelper.debounce(ContentSelector.doFetchSummaries, 10, false);
 
     constructor(config: ContentInputTypeViewContext) {
         super(config, 'content-selector');
+
         this.initEventsListeners();
     }
 
@@ -82,19 +79,12 @@ export class ContentSelector
 
         this.handleContentDeletedEvent();
         this.handleContentUpdatedEvent();
+
+        // remove missing options via removePropertyWithId
     }
 
     protected handleContentRenamed() {
-        const selectedIds: ContentId[] = this.getSelectedOptions().map(
-            (option: SelectedOption<ContentTreeSelectorItem>) => option.getOption().getDisplayValue().getContentId());
-
-        this.doLoadContent(selectedIds).then((contents: ContentSummaryAndCompareStatus[]) => {
-            this.contentComboBox.clearSelection(true, false);
-
-            contents.forEach((content: ContentSummaryAndCompareStatus) => {
-                this.contentComboBox.select(this.createSelectorItem(content));
-            });
-        });
+        // handle content renamed
     }
 
     private handleContentUpdatedEvent() {
@@ -103,17 +93,8 @@ export class ContentSelector
                 return;
             }
 
-            statuses.forEach((status: ContentSummaryAndCompareStatus, index: number) => {
-                let selectedOption: SelectedOption<ContentTreeSelectorItem>;
-
-                if (oldPaths) {
-                    selectedOption = this.findSelectedOptionByContentPath(oldPaths[index]);
-                } else {
-                    selectedOption = this.getSelectedOptionsView().getById(status.getContentId().toString());
-                }
-                if (selectedOption) {
-                    this.getContentComboBox().updateOption(selectedOption.getOption(), status);
-                }
+            statuses.forEach((status: ContentSummaryAndCompareStatus) => {
+                this.contentSelectorDropdown.updateItem(this.createSelectorItem(status));
             });
         };
 
@@ -123,11 +104,7 @@ export class ContentSelector
             }
 
             movedItems.forEach((movedItem: MovedContentItem) => {
-                const selectedOption: SelectedOption<ContentTreeSelectorItem> = this.findSelectedOptionByContentPath(movedItem.oldPath);
-
-                if (selectedOption) {
-                    this.getContentComboBox().updateOption(selectedOption.getOption(), movedItem.item);
-                }
+                this.contentSelectorDropdown.updateItem(this.createSelectorItem(movedItem.item));
             });
         };
 
@@ -141,16 +118,6 @@ export class ContentSelector
             handler.unContentRenamed(contentUpdatedListener);
             handler.unContentMoved(contentMovedListener);
         });
-    }
-
-    private findSelectedOptionByContentPath(contentPath: ContentPath): SelectedOption<ContentTreeSelectorItem> {
-        const selectedOptions = this.getSelectedOptions();
-        for (const selectedOption of selectedOptions) {
-            if (contentPath.equals(this.getContentPath(selectedOption.getOption().getDisplayValue()))) {
-                return selectedOption;
-            }
-        }
-        return null;
     }
 
     private handleContentDeletedEvent() {
@@ -184,7 +151,7 @@ export class ContentSelector
     }
 
     protected createSelectorItem(content: ContentSummary | ContentSummaryAndCompareStatus): ContentTreeSelectorItem {
-        if (content instanceof  ContentSummaryAndCompareStatus) {
+        if (content instanceof ContentSummaryAndCompareStatus) {
             return new ContentAndStatusTreeSelectorItem(content);
         }
 
@@ -207,12 +174,8 @@ export class ContentSelector
         return '${site}';
     }
 
-    public getContentComboBox(): ContentComboBox<ContentTreeSelectorItem> {
-        return this.contentComboBox;
-    }
-
     protected getSelectedOptionsView(): ContentSelectedOptionsView {
-        return this.contentComboBox.getSelectedOptionView() as ContentSelectedOptionsView;
+        return this.contentSelectedOptionsView;
     }
 
     protected getContentPath(raw: ContentTreeSelectorItem): ContentPath {
@@ -239,16 +202,78 @@ export class ContentSelector
         }
 
         return super.layout(input, propertyArray).then(() => {
-            this.addContentComboBox(input, propertyArray);
+            this.initiallySelectedItems = this.getSelectedItemsIds();
+                this.contentSelectorDropdown = this.createSelectorDropdown(input);
+            this.appendChild(this.contentSelectorDropdown);
             return this.addExtraElementsOnLayout(input, propertyArray).then(() => this.doLayout(propertyArray));
         });
     }
 
-    private addContentComboBox(input: Input, propertyArray: PropertyArray): void {
-        this.contentComboBox = this.createContentComboBox(input, propertyArray);
-        this.comboBoxWrapper = new DivEl('combobox-wrapper');
-        this.comboBoxWrapper.appendChild(this.contentComboBox);
-        this.appendChild(this.comboBoxWrapper);
+    protected createSelectorDropdown(input: Input): ContentSelectorDropdown {
+        this.contentSelectedOptionsView = this.createSelectedOptionsView().setContextContent(this.context.content);
+        const loader = this.createLoader();
+        const listBox = this.createContentListBox(loader);
+        const dropdownOptions = {
+            loader: loader,
+            className: this.getDropdownClassName(),
+            maxSelected: input.getOccurrences().getMaximum(),
+            selectedOptionsView: this.contentSelectedOptionsView,
+            getSelectedItems: this.getSelectedItemsIds.bind(this),
+        };
+
+        const contentSelectorDropdown = this.doCreateSelectorDropdown(listBox, dropdownOptions);
+
+        this.contentSelectedOptionsView.onOptionMoved(this.handleMoved.bind(this));
+
+        contentSelectorDropdown.onSelectionChanged((selectionChange: SelectionChange<ContentTreeSelectorItem>) => {
+            selectionChange.selected?.forEach((item: ContentTreeSelectorItem) => {
+                const contentId: ContentId = item.getContentId();
+
+                if (contentId) {
+                    this.setContentIdProperty(contentId);
+
+                    this.getSelectedOptionsView().refreshSortable();
+                    this.updateSelectedOptionStyle();
+                    this.handleValueChanged(false);
+                }
+            });
+
+            selectionChange.deselected?.forEach((item: ContentTreeSelectorItem) => {
+                const property = this.getPropertyArray().getProperties().find((property) => {
+                    const propertyValue = property.hasNonNullValue() ? property.getString() : '';
+                    return propertyValue === item.getId();
+                });
+
+                if (property) {
+                    this.handleDeselected(property.getIndex());
+                    this.updateSelectedOptionStyle();
+                    this.handleValueChanged(false);
+                }
+            });
+        });
+
+        return contentSelectorDropdown;
+    }
+
+    protected doCreateSelectorDropdown(listBox: ContentListBox<ContentTreeSelectorItem>,
+                                       dropdownOptions: ContentSelectorDropdownOptions): ContentSelectorDropdown {
+        return new ContentTreeSelectorDropdown(listBox, dropdownOptions);
+    }
+
+    protected getDropdownClassName(): string {
+        return '';
+    }
+
+    protected getSelectedItemsIds(): string[] {
+        return this.getValueFromPropertyArray(this.getPropertyArray()).split(';');
+    }
+
+    protected createSelectedOptionsView(): ContentSelectedOptionsView {
+        return new ContentSelectedOptionsView();
+    }
+
+    protected createContentListBox(loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>): ContentListBox<ContentTreeSelectorItem> {
+        return new ContentListBox({loader: loader});
     }
 
     protected addExtraElementsOnLayout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
@@ -272,128 +297,42 @@ export class ContentSelector
     }
 
     private addNewContentButton(): void {
-        this.comboBoxWrapper.addClass('new-content');
-
         this.newContentButton = new NewContentButton(
             {content: this.context.content, allowedContentTypes: this.allowedContentTypes, project: this.context.project});
         this.newContentButton.setTitle(i18n('action.addNew'));
         this.newContentButton.onContentAdded((content: ContentSummary) =>  {
             const item = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(content, CompareStatus.NEW);
-            this.contentComboBox.select(this.createSelectorItem(item));
+            this.contentSelectorDropdown.select(this.createSelectorItem(item));
         });
 
-        this.comboBoxWrapper.appendChild(this.newContentButton);
+        this.contentSelectorDropdown.whenRendered(() => {
+            this.contentSelectorDropdown.appendChild(this.newContentButton);
+            this.newContentButton.addClass('extra-button');
+            this.contentSelectorDropdown.addClass('has-extra-button');
+        });
     }
 
     protected doLayout(propertyArray: PropertyArray): Q.Promise<void> {
-        const contentIds: ContentId[] = [];
+        this.setLayoutInProgress(false);
+        this.setupSortable();
 
-        propertyArray.forEach((property: Property) => {
-            if (property.hasNonNullValue()) {
-                const referenceValue: Reference = property.getReference();
-
-                if (ObjectHelper.iFrameSafeInstanceOf(referenceValue, Reference)) {
-                    contentIds.push(ContentId.fromReference(referenceValue));
-                }
-            }
-        });
-
-        return this.doLoadContent(contentIds).then((contents: ContentSummaryAndCompareStatus[]) => {
-            this.setupSortable();
-
-            //TODO: original value doesn't work because of additional request, so have to select manually
-            contents.forEach((content: ContentSummaryAndCompareStatus) => {
-                this.contentComboBox.select(new ContentAndStatusTreeSelectorItem(content));
-            });
-
-            this.contentComboBox.getSelectedOptions().forEach((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
-                this.updateSelectedOptionIsEditable(selectedOption);
-            });
-
-            this.setLayoutInProgress(false);
-        });
+        return Q.resolve();
     }
 
     protected createOptionDataLoaderBuilder(): ContentSummaryOptionDataLoaderBuilder {
-        return ContentSummaryOptionDataLoader.create()
+        return ContentSummaryOptionDataLoader.create();
+    }
+
+    protected createLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
+        return this.createOptionDataLoaderBuilder()
             .setAllowedContentPaths(this.allowedContentPaths)
             .setContentTypeNames(this.allowedContentTypes)
             .setRelationshipType(this.relationshipType)
             .setContent(this.context.content)
             .setProject(this.context.project)
-            .setApplicationKey(this.context.applicationKey);
-    }
-
-    protected doCreateContentComboBoxBuilder(): ContentComboBoxBuilder<ContentTreeSelectorItem> {
-        return ContentComboBox.create().setProject(this.context.project);
-    }
-
-    protected createOptionDataLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
-        return this.createOptionDataLoaderBuilder().build();
-    }
-
-    protected createContentComboBoxBuilder(input: Input, propertyArray: PropertyArray): ContentComboBoxBuilder<ContentTreeSelectorItem> {
-        const optionDataLoader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem> = this.createOptionDataLoader();
-        const comboboxValue: string = this.getValueFromPropertyArray(propertyArray);
-
-        return this.doCreateContentComboBoxBuilder()
-            .setComboBoxName(input.getName())
-            .setLoader(optionDataLoader)
-            .setMaximumOccurrences(input.getOccurrences().getMaximum())
-            .setRemoveMissingSelectedOptions(true)
-            .setTreegridDropdownEnabled(this.treeMode)
-            .setTreeModeTogglerAllowed(!this.hideToggleIcon)
-            .setValue(comboboxValue);
-    }
-
-    protected doCreateContentComboBox(input: Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
-        return this.createContentComboBoxBuilder(input, propertyArray).build();
-    }
-
-    protected initEvents(contentComboBox: ContentComboBox<ContentTreeSelectorItem>) {
-        contentComboBox.getComboBox().onContentMissing((ids: string[]) => {
-            ids.forEach(id => this.removePropertyWithId(id));
-            this.handleValueChanged(false);
-        });
-
-        contentComboBox.onOptionSelected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
-            this.fireFocusSwitchEvent(event);
-            this.updateNewContentButton();
-
-            const contentId: ContentId = event.getSelectedOption().getOption().getDisplayValue().getContentId();
-
-            if (contentId) {
-                this.setContentIdProperty(contentId);
-
-                this.updateSelectedOptionIsEditable(event.getSelectedOption());
-                this.getSelectedOptionsView().refreshSortable();
-                this.updateSelectedOptionStyle();
-                this.handleValueChanged(false);
-                this.contentComboBox.getComboBox().setIgnoreNextFocus(true);
-            }
-
-        });
-
-        contentComboBox.onOptionDeselected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
-            this.handleDeselected(event.getSelectedOption().getIndex());
-            this.updateSelectedOptionStyle();
-            this.updateNewContentButton();
-            this.handleValueChanged(false);
-        });
-
-        contentComboBox.onOptionMoved(this.handleMoved.bind(this));
-
-        contentComboBox.onValueLoaded(() => {
-            this.updateNewContentButton();
-        });
-    }
-
-    protected createContentComboBox(input: Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
-        const contentComboBox: ContentComboBox<ContentTreeSelectorItem> = this.doCreateContentComboBox(input, propertyArray);
-
-        this.initEvents(contentComboBox);
-
-        return contentComboBox;
+            .setApplicationKey(this.context.applicationKey)
+            .setAppendLoadResults(false)
+            .build();
     }
 
     protected removePropertyWithId(id: string) {
@@ -414,87 +353,52 @@ export class ContentSelector
             console.log('update(' + JSON.stringify(propertyArray.toJson()) + ')');
         }
 
+        const isDirty = this.isDirty();
+
         return super.update(propertyArray, unchangedOnly).then(() => {
-            if (!unchangedOnly || !this.contentComboBox.isDirty() && this.contentComboBox.isRendered()) {
-                let value = this.getValueFromPropertyArray(propertyArray);
-                this.contentComboBox.setValue(value);
-            } else if (this.contentComboBox.isDirty()) {
-                this.resetPropertyValues();
+            this.initiallySelectedItems = this.getSelectedItemsIds();
+
+            if (!unchangedOnly || !isDirty) {
+                this.contentSelectorDropdown.updateSelectedItems();
+            } else if (isDirty) {
+                this.updateDirty();
             }
         });
     }
 
+    private isDirty(): boolean {
+        return !ObjectHelper.stringArrayEquals(this.initiallySelectedItems, this.getSelectedItemsIds());
+    }
+
     reset() {
-        this.contentComboBox.resetBaseValues();
+        //this.contentComboBox.resetBaseValues();
     }
 
     clear() {
-        this.contentComboBox.clearCombobox();
+        // this.contentComboBox.clearCombobox();
     }
 
     setEnabled(enable: boolean): void {
         super.setEnabled(enable);
-        this.contentComboBox.setEnabled(enable);
+        this.contentSelectorDropdown.setEnabled(enable);
     }
 
-    private isResetRequired(): boolean {
-        const values: ContentTreeSelectorItem[] = this.contentComboBox.getSelectedDisplayValues();
-
-        if (this.getPropertyArray().getSize() !== values.length) {
-            return true;
-        }
-
-        return !values.every((value: ContentTreeSelectorItem, index: number) => {
-            const property: Property = this.getPropertyArray().get(index);
-            return property?.getString() === value.getId();
-        });
-    }
-
-    resetPropertyValues() {
+    updateDirty() {
         if (ContentSelector.debug) {
             console.log('resetPropertyValues()');
         }
 
-        if (!this.isResetRequired()) {
-            return;
-        }
-
-        const values: ContentTreeSelectorItem[] = this.contentComboBox.getSelectedDisplayValues();
-
         this.ignorePropertyChange(true);
-
         this.getPropertyArray().removeAll(true);
-        values.forEach(value => this.contentComboBox.deselect(value, true));
-        values.forEach(value => this.contentComboBox.select(value));
+
+        this.contentSelectorDropdown.getSelectedOptions().filter((option: SelectedOption<ContentTreeSelectorItem>) => {
+            const contentId = option.getOption().getDisplayValue().getContentId();
+            const reference: Reference = new Reference(contentId.toString());
+            const value: Value = new Value(reference, ValueTypes.REFERENCE);
+            this.getPropertyArray().add(value);
+        });
 
         this.ignorePropertyChange(false);
-    }
-
-    private static doFetchSummaries() {
-        new ContentSummaryAndCompareStatusFetcher().fetchByIds(ContentSelector.contentIdBatch).then(
-            (result: ContentSummaryAndCompareStatus[]) => {
-
-                ContentSelector.contentIdBatch = []; // empty batch of ids after loading
-
-                ContentSelector.loadSummariesResult.resolve(result);
-
-                ContentSelector.loadSummariesResult = null; // empty loading result after resolving
-            });
-    }
-
-    protected doLoadContent(contentIds: ContentId[]): Q.Promise<ContentSummaryAndCompareStatus[]> {
-        ContentSelector.contentIdBatch = ContentSelector.contentIdBatch.concat(contentIds);
-
-        if (!ContentSelector.loadSummariesResult) {
-            ContentSelector.loadSummariesResult = Q.defer<ContentSummaryAndCompareStatus[]>();
-        }
-
-        ContentSelector.loadSummaries();
-
-        return ContentSelector.loadSummariesResult.promise.then((result: ContentSummaryAndCompareStatus[]) => {
-            const contentIdsStr: string[] = contentIds.map((id: ContentId) => id.toString());
-            return result.filter(content => contentIdsStr.indexOf(content.getId()) >= 0);
-        });
     }
 
     protected setContentIdProperty(contentId: ContentId) {
@@ -503,7 +407,7 @@ export class ContentSelector
 
         if (!this.getPropertyArray().containsValue(value)) {
             this.ignorePropertyChange(true);
-            if (this.contentComboBox.countSelected() === 1) { // overwrite initial value
+            if (this.contentSelectorDropdown.countSelected() === 1) { // overwrite initial value
                 this.getPropertyArray().set(0, value);
             } else {
                 this.getPropertyArray().add(value);
@@ -532,46 +436,38 @@ export class ContentSelector
     protected updateSelectedOptionStyle() {
         if (this.getPropertyArray().getSize() > 1) {
             this.addClass('multiple-occurrence').removeClass('single-occurrence');
+            this.contentSelectorDropdown.addClass('multiple-occurrence').removeClass('single-occurrence');
         } else {
             this.addClass('single-occurrence').removeClass('multiple-occurrence');
+            this.contentSelectorDropdown.addClass('single-occurrence').removeClass('multiple-occurrence');
         }
-    }
-
-    protected updateSelectedOptionIsEditable(selectedOption: SelectedOption<ContentTreeSelectorItem>) {
-        const selectedContentId: ContentId = selectedOption.getOption().getDisplayValue().getContentId();
-        const refersToItself: boolean = selectedContentId.toString() === this.context.content?.getId();
-        selectedOption.getOptionView().toggleClass('non-editable', refersToItself);
     }
 
     protected getNumberOfValids(): number {
         return this.getPropertyArray().getSize();
     }
 
-    private updateNewContentButton(): void {
-        this.newContentButton?.setVisible(!this.contentComboBox.maximumOccurrencesReached());
-    }
-
     giveFocus(): boolean {
-        if (this.contentComboBox.maximumOccurrencesReached()) {
+        if (this.contentSelectorDropdown.maximumOccurrencesReached()) {
             return false;
         }
-        return this.contentComboBox.giveFocus();
+        return this.contentSelectorDropdown.giveFocus();
     }
 
     onFocus(listener: (event: FocusEvent) => void) {
-        this.contentComboBox.onFocus(listener);
+        this.contentSelectorDropdown.onFocus(listener);
     }
 
     unFocus(listener: (event: FocusEvent) => void) {
-        this.contentComboBox.unFocus(listener);
+        this.contentSelectorDropdown.unFocus(listener);
     }
 
     onBlur(listener: (event: FocusEvent) => void) {
-        this.contentComboBox.onBlur(listener);
+        this.contentSelectorDropdown.onBlur(listener);
     }
 
     unBlur(listener: (event: FocusEvent) => void) {
-        this.contentComboBox.unBlur(listener);
+        this.contentSelectorDropdown.unBlur(listener);
     }
 }
 

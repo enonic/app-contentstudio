@@ -1,7 +1,7 @@
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
-import {ProjectsDropdownBuilder, ProjectsSelector} from './ProjectsSelector';
+import {ProjectsSelector} from './ProjectsSelector';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {Project} from '../../../../data/project/Project';
@@ -38,8 +38,7 @@ export class ProjectTypeFormItem
         readAccessRadioGroup.addOption(PARENT_TYPE.LAYER, i18n('settings.items.type.layer'));
 
         const maxParents: number = ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance() ? 0 : 1;
-        const builder = new ProjectsDropdownBuilder().setMaximumOccurrences(maxParents) as ProjectsDropdownBuilder;
-        this.projectsSelector = new ProjectsSelector(builder);
+        this.projectsSelector = new ProjectsSelector(maxParents);
         this.projectsSelector.insertAfterEl(this.getRadioGroup());
         this.projectsSelector.setEnabled(false);
         this.projectsSelector.hide();
@@ -52,7 +51,7 @@ export class ProjectTypeFormItem
         this.getRadioGroup().onValueChanged((event: ValueChangedEvent) => {
             const newValue: string = event.getNewValue();
             const isLayer: boolean = newValue === PARENT_TYPE.LAYER.toString();
-            const isToBeVisible: boolean = isLayer || !!this.projectsSelector.getValue();
+            const isToBeVisible: boolean = isLayer || this.projectsSelector.getSelectedOptions().length > 0;
 
             this.projectsSelector.setEnabled(isLayer);
             this.projectsSelector.setVisible(isToBeVisible);
@@ -66,11 +65,13 @@ export class ProjectTypeFormItem
 
     hasData(): boolean {
         const selectedType: string = this.getRadioGroup().getValue();
-        return selectedType === PARENT_TYPE.PROJECT.toString() || (selectedType === PARENT_TYPE.LAYER.toString() && !!this.projectsSelector.getValue());
+        return selectedType === PARENT_TYPE.PROJECT.toString() || (selectedType === PARENT_TYPE.LAYER.toString() && this.projectsSelector.getSelectedOptions().length > 0);
     }
 
     getSelectedProjects(): Project[] {
-        return this.getRadioGroup().getValue() === PARENT_TYPE.LAYER.toString() ? this.projectsSelector.getSelectedDisplayValues() : null;
+        return this.getRadioGroup().getValue() === PARENT_TYPE.LAYER.toString()
+               ? this.projectsSelector.getSelectedItems()
+               : null;
     }
 
     onRadioValueChanged(listener: () => void): void {
@@ -78,6 +79,6 @@ export class ProjectTypeFormItem
     }
 
     onProjectValueChanged(listener: () => void): void {
-        this.projectsSelector.onValueChanged(listener);
+        this.projectsSelector.onSelectionChanged(listener);
     }
 }

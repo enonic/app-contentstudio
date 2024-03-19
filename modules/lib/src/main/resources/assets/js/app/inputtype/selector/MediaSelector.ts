@@ -32,9 +32,15 @@ export class MediaSelector
 
     protected addExtraElementsOnLayout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         return this.createUploader().then((mediaUploader: MediaUploaderEl) => {
-            this.comboBoxWrapper.appendChild(this.uploader = mediaUploader);
+            this.uploader = mediaUploader;
 
-            if (!this.contentComboBox.getComboBox().isVisible()) {
+            this.contentSelectorDropdown.whenRendered(() => {
+               this.contentSelectorDropdown.appendChild(this.uploader);
+               this.uploader.addClass('extra-button');
+               this.contentSelectorDropdown.addClass('has-extra-button');
+            });
+
+            if (!this.contentSelectorDropdown.isVisible()) {
                 this.uploader.hide();
             }
         });
@@ -98,12 +104,7 @@ export class MediaSelector
             const createdContent = event.getUploadItem().getModel();
             const item = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(createdContent, CompareStatus.NEW);
 
-            const option = Option.create<ContentTreeSelectorItem>()
-                    .setValue(createdContent.getContentId().toString())
-                    .setDisplayValue(this.createSelectorItem(item))
-                    .build();
-
-            this.contentComboBox.selectOption(option);
+            this.contentSelectorDropdown.select(this.createSelectorItem(item));
             const selectedOption = this.getSelectedOptionsView().getById(createdContent.getContentId().toString());
 
             this.selectedOptionHandler(selectedOption);
@@ -129,15 +130,13 @@ export class MediaSelector
             uploader.setDefaultDropzoneVisible(false);
         });
 
-        const comboBox: ComboBox<ContentTreeSelectorItem> = this.contentComboBox.getComboBox();
-
-        comboBox.onHidden(() => {
+        this.contentSelectorDropdown.onHidden(() => {
             // hidden on max occurrences reached
             if (uploader) {
                 uploader.hide();
             }
         });
-        comboBox.onShown(() => {
+        this.contentSelectorDropdown.onShown(() => {
             // shown on occurrences between min and max
             if (uploader) {
                 uploader.show();

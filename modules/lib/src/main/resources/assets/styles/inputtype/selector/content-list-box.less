@@ -1,0 +1,41 @@
+.content-list-box {
+  .item-view-wrapper {
+    .content-tree-selector-item-viewer {
+      display: grid;
+      grid-template-columns: 1fr 90px;
+
+      .names-and-icon-view {
+        .@{_COMMON_PREFIX}wrapper {
+          height: 26px;
+          width: 26px;
+          margin-right: 10px;
+        }
+
+        .@{_COMMON_PREFIX}names-view {
+          .@{_COMMON_PREFIX}main-name {
+            font-size: 13px;
+          }
+
+          .@{_COMMON_PREFIX}sub-name {
+            font-size: 11px;
+          }
+        }
+      }
+
+      .status {
+        text-align: center;
+        .content-status-mixin();
+      }
+    }
+
+    .viewer-selected();
+
+    &.selected {
+      .status {
+        span {
+          color: @admin-white !important;
+        }
+      }
+    }
+  }
+}
