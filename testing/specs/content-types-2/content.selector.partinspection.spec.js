@@ -19,7 +19,6 @@ describe('my.first.site.country.spec - Create a site with country content', func
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const IMAGE_DISPLAY_NAME1 = appConst.TEST_IMAGES.PES;
 
     it(`Precondition: new site with 'main region' controller should be added`,
         async () => {
