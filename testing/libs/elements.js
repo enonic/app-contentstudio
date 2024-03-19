@@ -115,6 +115,9 @@ module.exports = Object.freeze({
     projectByName: name => {
         return `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'name') and contains(.,'${name}')]]`
     },
+    projectByIdentifier: id => {
+        return `//div[contains(@id,'NamesView') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]`
+    },
     selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
     formItemByLabel: (label) => {
         return `//div[contains(@id,'FormItem') and descendant::label[contains(.,'${label}')]]`

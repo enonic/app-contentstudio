@@ -21,16 +21,28 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
     const NEW_DISPLAY_NAME = studioUtils.generateRandomName('project');
     const DESCRIPTION = 'Test description';
 
-    it(`WHEN existing 'Projects' folder has been highlighted THEN graphic element for Default project should be displayed in statistics panel`,
+    it(`WHEN existing 'Projects' folder has been highlighted THEN 'Projects Graph' should be loaded AND graphic element for 'Default' project should be displayed in statistics panel`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
             // 1. Click on the row. This row should be highlighted:
             await settingsBrowsePanel.clickOnRowByDisplayName('Projects');
-            // 2. Wait for the graphic element for Default project is displayed in statistics panel:
+            // 2. Wait for the graphic element for 'Default' project is displayed in Projects Graph:
             await studioUtils.saveScreenshot('project_item_statistics');
-            await settingsItemStatisticsPanel.waitForGraphicElementDisplayed("Default");
+            await settingsItemStatisticsPanel.waitForGraphicElementDisplayed('Default');
+        });
 
+    // https://github.com/enonic/app-contentstudio/issues/7432
+    // Project Graph is not shown after selecting Projects-checkbox #7432
+    it(`WHEN the the checkbox for row with 'Projects' folder has been clicked THEN 'Projects Graph' should be loaded AND graphic element for 'Default' project should be displayed in statistics panel`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
+            // 1. Click on the Projects-checkbox:
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByIdentifier('Manage projects and layers');
+            // 2. Wait for the graphic element for 'Default' project is displayed in 'Projects Graph':
+            await studioUtils.saveScreenshot('project_item_statistics');
+            await settingsItemStatisticsPanel.waitForGraphicElementDisplayed('Default');
         });
 
     it(`GIVEN new project is saved WHEN the project has been selected THEN expected description should appear in statistics panel`,

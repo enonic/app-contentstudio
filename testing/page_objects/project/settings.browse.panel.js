@@ -35,6 +35,11 @@ const XPATH = {
         return `${lib.projectByName(name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
 
+    projectCheckboxByIdentifier: id => {
+        return `${lib.projectByIdentifier(
+            id)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
+    },
+
     projectItemByName: function (name) {
         return `//div[contains(@id,'NamesView') and descendant::span[@class='display-name' and contains(.,'${name}')]]`
     },
@@ -187,6 +192,18 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     async clickOnCheckboxAndSelectRowByName(name) {
         try {
             let nameXpath = XPATH.projectCheckboxByName(name);
+            await this.waitForElementDisplayed(nameXpath, appConst.shortTimeout);
+            await this.clickOnElement(nameXpath);
+            return await this.pause(300);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_checkbox_proj');
+            throw Error("Project's checkbox was not found Screenshot:" + screenshot + "  " + err);
+        }
+    }
+
+    async clickOnCheckboxAndSelectRowByIdentifier(id) {
+        try {
+            let nameXpath = XPATH.projectCheckboxByIdentifier(id);
             await this.waitForElementDisplayed(nameXpath, appConst.shortTimeout);
             await this.clickOnElement(nameXpath);
             return await this.pause(300);

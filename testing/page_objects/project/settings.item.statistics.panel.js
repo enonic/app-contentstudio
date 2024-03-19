@@ -12,7 +12,7 @@ const XPATH = {
     folderStatisticsViewer: "//div[contains(@id,'FolderStatisticsViewer')]",
     projectMetaStatisticsDiv: "//div[contains(@id,'ProjectMetaStatisticsBlock')]",
     projectRolesStatisticsBlockDiv: "//div[contains(@id,'ProjectRolesStatisticsBlock')]",
-    svgDiv: "//div[contains(@id,'svg-container')]",
+    svgDiv: "//div[contains(@id,'ProjectDAGVisualization')]//div[contains(@id,'svg-container')]",
 };
 
 class SettingsItemStatisticsPanel extends Page {
