@@ -54,22 +54,22 @@ export class ProjectItemNameWizardStepForm
     }
 
     getParentProjectsNames(): string[] {
-        return this.parentProjectsFormItem ? this.getProjectsComboBox().getSelectedValues() : undefined;
+        return this.getParentProjects()?.map((project: Project) => project.getName());
     }
 
-    getParentProjects(): Project[] {
-        return this.parentProjectsFormItem ? this.getProjectsComboBox().getSelectedDisplayValues() : undefined;
+    getParentProjects(): Project[] | undefined {
+        return this.parentProjectsFormItem ? this.getProjectsComboBox().getSelector().getSelectedItems() : undefined;
     }
 
     setParentProjects(projects: Project[]) {
         super.setParentProjects(projects);
 
         this.appendParentProjectDropdown();
-        this.getProjectComboBox().getSelector().selectProject(project);
+        this.getProjectsComboBox().getSelector().updateAndSelectProjects(projects);
     }
 
     onParentProjectChanged(callback: (project: Project) => void) {
-        this.getProjectComboBox().getSelector().onSelectionChanged((selectionChange: SelectionChange<Project>) => {
+        this.getProjectsComboBox().getSelector().onSelectionChanged((selectionChange: SelectionChange<Project>) => {
             if (selectionChange.selected?.length > 0) {
                 callback(selectionChange.selected[0]);
             }
@@ -151,7 +151,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     private isParentProjectsSet(): boolean {
-        return !this.parentProjectsFormItem || this.getProjectsComboBox().getSelectedValues()?.length > 0;
+        return !this.parentProjectsFormItem || this.getProjectsComboBox().getSelector().getSelectedItems()?.length > 0;
     }
 
     private getProjectsComboBox() {

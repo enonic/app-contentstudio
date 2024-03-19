@@ -40,11 +40,11 @@ export class ProjectOptionDataHelper
     }
 
     getProjectsPyParent(parentName: string): Project[] {
-        return this.projects.filter((project: Project) => project.getParent() === parentName);
+        return this.projects.filter((project: Project) => project.getParents().some((p) => p === parentName));
     }
 
     getRootProjects(): Project[] {
-        return this.projects.filter((project: Project) => !project.getParent());
+        return this.projects.filter((project: Project) => project.getParents().length === 0);
     }
 
     filter(searchString: string): Project[] {
