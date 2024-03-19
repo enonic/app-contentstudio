@@ -5,7 +5,6 @@ import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ProjectsChainBlock} from './ProjectsChainBlock';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectOptionDataHelper} from './ProjectOptionDataHelper';
-import {RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
@@ -18,6 +17,7 @@ import {ProjectsTreeList} from './ProjectsTreeList';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export interface ProjectsComboBoxOptions
     extends ListBoxInputOptions<Project> {
@@ -86,57 +86,6 @@ export class ProjectsSelector
         });
     }
 
-    private updateProject(project: Project) {
-        if (!project) {
-            return;
-        }
-
-        const newOption: Option<Project> = this.createOption(project);
-        const existingOption: Option<Project> = this.getOptionByValue(project.getName());
-
-        const wasChanged = !project.equals(existingOption?.getDisplayValue());
-        if (!wasChanged) {
-            return;
-        }
-
-        if (existingOption) {
-            this.updateOption(existingOption, project);
-        } else {
-            this.addOption(newOption);
-        }
-
-        this.getSelectedOptions().forEach((selectedOption: SelectedOption<Project>) => {
-            if (selectedOption.getOption().getValue() === project.getName()) {
-                selectedOption.getOptionView().setOption(newOption);
-            }
-        });
-    }
-
-    updateAndSelectProjects(projects: Project[]) {
-        if (!projects) {
-            return;
-        }
-
-        const projectValues = projects.map(p => p.getName());
-
-        projects.forEach(p => this.updateProject(p));
-
-        this.getOptions().forEach(option => {
-            const value = option.getValue();
-
-            const mustSelect = projectValues.indexOf(value) >= 0 && !this.isSelected(option.getDisplayValue());
-            if (mustSelect) {
-                this.selectOption(option);
-                return;
-            }
-
-            const mustDeselect = projectValues.indexOf(value) < 0 && this.isSelected(option.getDisplayValue());
-            if (mustDeselect) {
-                this.deselect(option.getDisplayValue());
-            }
-        });
-    }
-
     private getAllProjects(): Q.Promise<Project[]> {
         if (this.options.loader.isLoaded()) {
             return Q(this.getLoadedResults());
@@ -202,16 +151,16 @@ class ProjectSelectedOptionsView
 export class ParentProjectFormInputWrapper
     extends FormInputEl {
 
-    private readonly projectSelector: ProjectsComboBox;
+    private readonly projectSelector: ProjectsSelector;
 
-    constructor(projectSelector: ProjectsComboBox) {
+    constructor(projectSelector: ProjectsSelector) {
         super('div', 'content-selector-wrapper');
 
         this.projectSelector = projectSelector;
         this.appendChild(projectSelector);
     }
 
-    getSelector(): ProjectsComboBox {
+    getSelector(): ProjectsSelector {
         return this.projectSelector;
     }
 
