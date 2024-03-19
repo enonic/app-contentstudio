@@ -1,5 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
+import {ParentProjectFormInputWrapper, ProjectsSelector} from './ProjectsSelector';
 import {ProjectsDropdownBuilder, ProjectsSelector} from './ProjectsSelector';
 import {Project} from '../../../../data/project/Project';
 import {ProjectConfigContext} from '../../../../data/project/ProjectConfigContext';
@@ -17,7 +18,7 @@ export class ParentProjectFormItem
 
         const projectSelector = new ProjectsSelector(inputBuilder);
 
-        const projectFormItemBuilder = new ProjectFormItemBuilder(new ParentProjectFormInputWrapper(new ProjectsComboBox()))
+        super(new ProjectFormItemBuilder(new ParentProjectFormInputWrapper(projectSelector))
             .setHelpText(i18n('settings.projects.parent.helptext'))
             .setLabel(i18n(isMultiInheritance ? 'settings.field.project.parents' : 'settings.field.project.parent'));
 

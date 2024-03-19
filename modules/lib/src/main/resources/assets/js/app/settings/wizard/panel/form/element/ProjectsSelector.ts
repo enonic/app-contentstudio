@@ -5,7 +5,6 @@ import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ProjectsChainBlock} from './ProjectsChainBlock';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectOptionDataHelper} from './ProjectOptionDataHelper';
-import {RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
@@ -18,6 +17,7 @@ import {ProjectsTreeList} from './ProjectsTreeList';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export interface ProjectsComboBoxOptions
     extends ListBoxInputOptions<Project> {
@@ -206,16 +206,16 @@ class ProjectSelectedOptionsView
 export class ParentProjectFormInputWrapper
     extends FormInputEl {
 
-    private readonly projectSelector: ProjectsComboBox;
+    private readonly projectSelector: ProjectsSelector;
 
-    constructor(projectSelector: ProjectsComboBox) {
+    constructor(projectSelector: ProjectsSelector) {
         super('div', 'content-selector-wrapper');
 
         this.projectSelector = projectSelector;
         this.appendChild(projectSelector);
     }
 
-    getSelector(): ProjectsComboBox {
+    getSelector(): ProjectsSelector {
         return this.projectSelector;
     }
 
