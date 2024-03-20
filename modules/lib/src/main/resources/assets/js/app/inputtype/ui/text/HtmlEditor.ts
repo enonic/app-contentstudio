@@ -23,7 +23,6 @@ import {HtmlEditorParams} from './HtmlEditorParams';
 import {StyleHelper} from './styles/StyleHelper';
 import {Styles} from './styles/Styles';
 import {StylesRequest} from './styles/StylesRequest';
-import {HtmlEditorSagaEventsOperator} from './HtmlEditorSagaEventsOperator';
 import editor = CKEDITOR.editor;
 import eventInfo = CKEDITOR.eventInfo;
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
@@ -90,7 +89,6 @@ export class HtmlEditor {
         this.handleFileUpload();
         this.handleNativeNotifications();
         this.handleTooltipForClickableElements();
-        this.setupAIAssistantEvents();
         this.setupDialogsToOpen();
         this.setupKeyboardShortcuts();
         this.addCustomLangEntries();
@@ -215,10 +213,6 @@ export class HtmlEditor {
         this.handleMouseEvents();
         this.handleElementSelection();
         this.handleImageAlignButtonPressed();
-    }
-
-    private setupAIAssistantEvents(): void {
-        new HtmlEditorSagaEventsOperator(this, this.editorParams, this.editor);
     }
 
     private handlePaste(): void {
