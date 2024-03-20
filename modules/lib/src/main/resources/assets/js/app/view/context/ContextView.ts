@@ -33,13 +33,11 @@ import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
 import {EmulatorDevice} from './widget/emulator/EmulatorDevice';
 import {EmulatorWidgetItemView} from './widget/emulator/EmulatorWidgetItemView';
 import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
-import {SagaWidgetItemView} from './widget/saga/SagaWidgetItemView';
 import {VersionContext} from './widget/version/VersionContext';
 import {VersionHistoryView} from './widget/version/VersionHistoryView';
 import {WidgetItemView} from './WidgetItemView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {InternalWidgetType, WidgetView} from './WidgetView';
-import {StartSagaWidgetEvent} from './widget/saga/event/StartSagaWidgetEvent';
 
 export class ContextView
     extends DivEl {
@@ -61,7 +59,6 @@ export class ContextView
     protected propertiesWidgetView: WidgetView;
     protected versionsWidgetView: WidgetView;
     protected emulatorWidgetView?: WidgetView;
-    protected sagaWidgetView?: WidgetView;
 
     protected contextWindow?: ContextWindow;
     protected alreadyFetchedCustomWidgets: boolean;
@@ -153,10 +150,6 @@ export class ContextView
             if (this.activeWidget) {
                 this.activeWidget.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
             }
-        });
-
-        StartSagaWidgetEvent.on(() => {
-            this.sagaWidgetView.setActive();
         });
     }
 
@@ -382,18 +375,6 @@ export class ContextView
             .setContextView(this)
             .addWidgetItemView(new EmulatorWidgetItemView({})).build();
 
-        const widgetItemView = new SagaWidgetItemView();
-        this.sagaWidgetView = WidgetView.create()
-            .setName(i18n('field.contextPanel.saga'))
-            .setDescription(i18n('field.contextPanel.saga.description'))
-            .setWidgetClass('saga-widget')
-            .setIconClass('icon-sparkling')
-            .setType(InternalWidgetType.SAGA)
-            .setContextView(this)
-            .addWidgetItemView(widgetItemView).build();
-
-        this.sagaWidgetView.onActivated(() => widgetItemView.setActive());
-
         this.versionsWidgetView = this.createVersionsWidgetView();
 
         this.defaultWidgetView = this.propertiesWidgetView;
@@ -426,7 +407,7 @@ export class ContextView
     }
 
     protected getInitialWidgets(): WidgetView[] {
-        return [this.propertiesWidgetView, this.sagaWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
+        return [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
     }
 
     protected createVersionsWidgetView(): WidgetView {
