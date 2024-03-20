@@ -210,6 +210,8 @@ export class ContentWizardPanel
 
     private persistedContent: ContentSummaryAndCompareStatus;
 
+    private contentAfterLayout: Content;
+
     private splitPanelThreshold: number = 960;
 
     private minimized: boolean = false;
@@ -1893,6 +1895,8 @@ export class ContentWizardPanel
                             this.onRendered(() => NotifyManager.get().showFeedback(i18n('notify.content.localized')));
                         }
 
+                        this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
+
                         this.xDataWizardStepForms.resetState();
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
@@ -2305,9 +2309,8 @@ export class ContentWizardPanel
     hasContentChanged(): boolean {
         const contentBuilder: ContentBuilder = this.getPersistedItem().newBuilderWithoutProperties();
         const viewedContent = this.assembleViewedContent(contentBuilder).build();
-        const isNew = ObjectHelper.dateEquals(this.getPersistedItem().getCreatedTime(), this.getPersistedItem().getModifiedTime());
 
-        return !viewedContent.equals(this.getPersistedItem(), isNew);
+        return !viewedContent.equals(this.contentAfterLayout);
     }
 
     assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false,
@@ -2332,12 +2335,12 @@ export class ContentWizardPanel
         const extraData: ExtraData[] = [];
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
-            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData()));
+            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
         });
 
         viewedContentBuilder.setExtraData(extraData);
 
-        viewedContentBuilder.setPage(this.assembleViewedPage());
+        viewedContentBuilder.setPage(this.assembleViewedPage()?.clone());
 
         return viewedContentBuilder;
     }
@@ -2568,6 +2571,7 @@ export class ContentWizardPanel
 
     protected setPersistedItem(newPersistedItem: Content): void {
         super.setPersistedItem(newPersistedItem);
+        this.contentAfterLayout = this.getPersistedItem();
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
     }
