@@ -59,10 +59,13 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForDialogOpened();
-            // 2. Click on Mark as ready button:
+            // 2. Click on 'Mark as ready' button:
             await contentPublishDialog.clickOnMarkAsReadyButton();
-            // 3. Publish the site:
+            // 3. Publish the site - click on 'Publish Now' button in the dialog:
             await contentPublishDialog.clickOnPublishNowButton();
+            // wait for 'PublishDialog' dialog is closed:
+            await contentPublishDialog.waitForDialogClosed();
+            await contentWizard.waitForNotificationMessage();
             // 4. Open Unpublish modal dialog:
             let unpublishDialog = await contentWizard.clickOnUnpublishButton();
             await unpublishDialog.clickOnUnpublishButton();
