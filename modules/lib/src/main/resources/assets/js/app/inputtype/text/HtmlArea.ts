@@ -207,6 +207,7 @@ export class HtmlArea
             this.notifyFocused(e);
             this.scrollToSelected(textAreaWrapper, e);
 
+            textAreaWrapper.getHTMLElement().dispatchEvent(new CustomEvent('focus')); // for AI Assistant
             AppHelper.dispatchCustomEvent('focusin', this);
         };
 
