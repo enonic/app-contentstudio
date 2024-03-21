@@ -19,7 +19,7 @@ export class HtmlEditorParams {
     private readonly keydownHandler: (e: KeyboardEvent) => void;
     private readonly nodeChangeHandler: () => void;
     private readonly editorLoadedHandler: () => void;
-    private readonly editorReadyHandler: () => void;
+    private readonly editorReadyHandler: (eventInfo: CKEDITOR.eventInfo) => void;
     private readonly saveHandler?: () => void;
     private readonly createDialogHandler: (event: CreateHtmlAreaDialogEvent) => void;
     private readonly inline: boolean = false;
@@ -133,7 +133,7 @@ export class HtmlEditorParams {
         return !!this.editorReadyHandler;
     }
 
-    getEditorReadyHandler(): () => void {
+    getEditorReadyHandler(): (eventInfo: CKEDITOR.eventInfo) => void {
         return this.editorReadyHandler;
     }
 
@@ -220,7 +220,7 @@ export class HtmlEditorParamsBuilder {
 
     editorLoadedHandler: () => void;
 
-    editorReadyHandler: () => void;
+    editorReadyHandler: (eventInfo: CKEDITOR.eventInfo) => void;
 
     saveHandler: () => void;
 
@@ -304,7 +304,7 @@ export class HtmlEditorParamsBuilder {
         return this;
     }
 
-    setEditorReadyHandler(editorReadyHandler: () => void): HtmlEditorParamsBuilder {
+    setEditorReadyHandler(editorReadyHandler: (eventInfo: CKEDITOR.eventInfo) => void): HtmlEditorParamsBuilder {
         this.editorReadyHandler = editorReadyHandler;
         return this;
     }
