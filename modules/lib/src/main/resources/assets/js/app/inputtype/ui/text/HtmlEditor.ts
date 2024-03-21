@@ -25,6 +25,7 @@ import {Styles} from './styles/Styles';
 import {StylesRequest} from './styles/StylesRequest';
 import editor = CKEDITOR.editor;
 import eventInfo = CKEDITOR.eventInfo;
+import {EnonicAiToggleDialogEvent} from '../../../saga/event/outgoing/EnonicAiToggleDialogEvent';
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];

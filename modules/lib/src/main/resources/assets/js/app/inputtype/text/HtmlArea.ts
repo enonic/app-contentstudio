@@ -34,6 +34,7 @@ import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
 import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
+import {EnonicAiToggleDialogEvent} from '../../saga/event/outgoing/EnonicAiToggleDialogEvent';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
@@ -279,13 +280,18 @@ export class HtmlArea
             this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__sourcedialog');
         };
 
-        const editorReadyHandler = () => {
+        const editorReadyHandler = (eventInfo: CKEDITOR.eventInfo) => {
             this.setEditorContent(textAreaWrapper.findChildById(id) as TextArea, property);
             const editor = this.editors.find((editor: HtmlAreaOccurrenceInfo) => editor.id === id);
 
             if (editor && !this.enabled) {
                 this.setEditorEnabled(editor, false);
             }
+
+            eventInfo.editor.on('openSaga', () => {
+                const dataPath = textAreaWrapper.getEl().getAttribute('data-path');
+                new EnonicAiToggleDialogEvent(dataPath).fire();
+            });
         };
 
         const saveHandler = () => {
