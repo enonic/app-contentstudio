@@ -24,7 +24,8 @@ public class IssueNotificationsSenderImpl
     {
         if ( isRecipientsPresent( params ) )
         {
-            final SendMailParams mailMessage = new IssueCreatedMailMessageGenerator( params ).generateMessage();
+            final SendMailParams mailMessage =
+                new IssueCreatedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
             if ( mailMessage != null )
             {
                 mailService.send( mailMessage );
@@ -37,7 +38,8 @@ public class IssueNotificationsSenderImpl
     {
         if ( isRecipientsPresent( params ) )
         {
-            final SendMailParams mailMessage = new IssuePublishedMailMessageGenerator( params ).generateMessage();
+            final SendMailParams mailMessage =
+                new IssuePublishedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
             if ( mailMessage != null )
             {
                 mailService.send( mailMessage );
@@ -50,7 +52,8 @@ public class IssueNotificationsSenderImpl
     {
         if ( isRecipientsPresent( params ) )
         {
-            final SendMailParams mailMessage = new IssueUpdatedMailMessageGenerator( params ).generateMessage();
+            final SendMailParams mailMessage =
+                new IssueUpdatedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
             if ( mailMessage != null )
             {
                 mailService.send( mailMessage );
@@ -63,7 +66,8 @@ public class IssueNotificationsSenderImpl
     {
         if ( isRecipientsPresent( params ) )
         {
-            final SendMailParams mailMessage = new IssueCommentedMailMessageGenerator( params ).generateMessage();
+            final SendMailParams mailMessage =
+                new IssueCommentedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
             if ( mailMessage != null )
             {
                 mailService.send( mailMessage );
