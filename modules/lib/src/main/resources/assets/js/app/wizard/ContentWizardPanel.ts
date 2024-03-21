@@ -145,6 +145,8 @@ import {PageNavigationEventSource} from './PageNavigationEventData';
 import {AIAssistantEventsMediator} from '../saga/AIAssistantEventsMediator';
 import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import {EnonicAiSetupData} from '../saga/event/data/EnonicAiSetupData';
+import {AIAssistant} from './AIAssistant';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -413,6 +415,8 @@ export class ContentWizardPanel
         };
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
+
+        this.addAIAssistantButton();
     }
 
     private initBindings() {
@@ -2738,6 +2742,22 @@ export class ContentWizardPanel
             topic: this.getWizardHeader().getDisplayName(),
             language: this.persistedContent.getLanguage(),
         });
+    }
+
+    private addAIAssistantButton(): void {
+        const AI = window['Enonic_AI'] as AIAssistant;
+        if (!AI) {
+            return;
+        }
+
+        const aiAssistantContainer = new DivEl('ai-assistant-container');
+        this.appendChild(aiAssistantContainer);
+
+        const setupData: EnonicAiSetupData = {
+            serviceUrl: CONFIG.getString('services.sagaServiceUrl'),
+        };
+
+        AI.renderAiAssistant(aiAssistantContainer.getHTMLElement(), setupData);
     }
 
 }
