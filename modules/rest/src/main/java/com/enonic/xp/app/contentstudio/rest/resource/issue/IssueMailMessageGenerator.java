@@ -35,9 +35,9 @@ public abstract class IssueMailMessageGenerator<P extends IssueNotificationParam
         this.params = params;
     }
 
-    public SendMailParams generateMessage()
+    public SendMailParams generateMessage(final String defaultFromEmail)
     {
-        final String sender = getSender();
+        final String sender = defaultFromEmail != null ? defaultFromEmail : getSender();
         final String messageSubject = generateMessageSubject();
         final String messageBody = generateMessageBody();
         final Set<String> recipients = generateRecipients();
