@@ -29,7 +29,7 @@ public class IssueCommentedMailMessageGenerator
     }
 
     @Override
-    protected String generateRecipients()
+    protected Set<String> generateRecipients()
     {
         final String creatorEmail = super.getCreatorEmail();
         final String modifierEmail = params.getModifier().getEmail();
@@ -37,6 +37,6 @@ public class IssueCommentedMailMessageGenerator
         emails.add( creatorEmail );
         filterEmail( emails, modifierEmail );
 
-        return String.join( ",", emails );
+        return emails;
     }
 }

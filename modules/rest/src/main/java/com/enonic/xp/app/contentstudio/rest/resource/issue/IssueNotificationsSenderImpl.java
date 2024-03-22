@@ -1,13 +1,11 @@
 package com.enonic.xp.app.contentstudio.rest.resource.issue;
 
-import java.util.concurrent.Executor;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.enonic.xp.mail.MailMessage;
 import com.enonic.xp.mail.MailService;
+import com.enonic.xp.mail.SendMailParams;
 
 @Component
 public class IssueNotificationsSenderImpl
@@ -15,14 +13,10 @@ public class IssueNotificationsSenderImpl
 {
     private final MailService mailService;
 
-    private final Executor executor;
-
     @Activate
-    public IssueNotificationsSenderImpl( @Reference final MailService mailService,
-                                         @Reference(service = IssueMailSendExecutor.class) final Executor executor )
+    public IssueNotificationsSenderImpl( @Reference final MailService mailService )
     {
         this.mailService = mailService;
-        this.executor = executor;
     }
 
     @Override
@@ -30,10 +24,11 @@ public class IssueNotificationsSenderImpl
     {
         if ( isRecipientsPresent( params ) )
         {
-            final MailMessage mailMessage = new IssueCreatedMailMessageGenerator( params ).generateMessage();
+            final SendMailParams mailMessage =
+                new IssueCreatedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
             if ( mailMessage != null )
             {
-                executor.execute( () -> mailService.send( mailMessage ) );
+                mailService.send( mailMessage );
             }
         }
     }
@@ -43,10 +38,11 @@ public class IssueNotificationsSenderImpl
     {
         if ( isRecipientsPresent( params ) )
         {
-            final MailMessage mailMessage = new IssuePublishedMailMessageGenerator( params ).generateMessage();
+            final SendMailParams mailMessage =
+                new IssuePublishedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
             if ( mailMessage != null )
             {
-                executor.execute( () -> mailService.send( mailMessage ) );
+                mailService.send( mailMessage );
             }
         }
     }
@@ -56,10 +52,11 @@ public class IssueNotificationsSenderImpl
     {
         if ( isRecipientsPresent( params ) )
         {
-            final MailMessage mailMessage = new IssueUpdatedMailMessageGenerator( params ).generateMessage();
+            final SendMailParams mailMessage =
+                new IssueUpdatedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
             if ( mailMessage != null )
             {
-                executor.execute( () -> mailService.send( mailMessage ) );
+                mailService.send( mailMessage );
             }
         }
     }
@@ -69,10 +66,11 @@ public class IssueNotificationsSenderImpl
     {
         if ( isRecipientsPresent( params ) )
         {
-            final MailMessage mailMessage = new IssueCommentedMailMessageGenerator( params ).generateMessage();
+            final SendMailParams mailMessage =
+                new IssueCommentedMailMessageGenerator( params ).generateMessage( mailService.getDefaultFromEmail() );
             if ( mailMessage != null )
             {
-                executor.execute( () -> mailService.send( mailMessage ) );
+                mailService.send( mailMessage );
             }
         }
     }

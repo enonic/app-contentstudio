@@ -41,7 +41,7 @@ public class IssueUpdatedMailMessageGenerator
     }
 
     @Override
-    protected String generateRecipients()
+    protected Set<String> generateRecipients()
     {
         final String creatorEmail = super.getCreatorEmail();
         final String modifierEmail = params.getModifier().getEmail();
@@ -49,6 +49,6 @@ public class IssueUpdatedMailMessageGenerator
         emails.add( creatorEmail );
         filterEmail( emails, modifierEmail );
 
-        return String.join( ",", emails );
+        return emails;
     }
 }
