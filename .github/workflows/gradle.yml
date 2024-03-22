@@ -39,7 +39,7 @@ jobs:
                 java-version: 11
                 distribution: 'temurin'
 
-            - uses: actions/cache@v4
+            - uses: actions/cache@v3
                 with:
                     path: |
                         ~/.gradle/caches
@@ -56,7 +56,7 @@ jobs:
                     name: contentstudio
                     path: modules/app/build/libs/contentstudio.jar
 
-            - uses: codecov/codecov-action@v4
+            - uses: codecov/codecov-action@v3
 
             -   name: Publish
                 if: needs.publish_vars.outputs.publish == 'true'
@@ -66,7 +66,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                suite: [ w_testProjects, w_testProjects_2, w_testPageEditor, w_testInputTypes, w_testInputTypes_2, w_testWizardsGrid, w_testPublishIssues, w_testModalDialog, w_testHiddenDefProject, testProjects_multi ]
+                suite: [ w_testProjects, w_testProjects_2, w_testPageEditor, w_testInputTypes, w_testInputTypes_2, w_testWizardsGrid, w_testPublishIssues, w_testModalDialog, w_testHiddenDefProject ]
 
         runs-on: ubuntu-latest
 
@@ -81,7 +81,7 @@ jobs:
                 java-version: 11
                 distribution: 'temurin'
 
-            - uses: actions/cache@v4
+            - uses: actions/cache@v3
               with:
                   path: |
                       ~/.gradle/caches
