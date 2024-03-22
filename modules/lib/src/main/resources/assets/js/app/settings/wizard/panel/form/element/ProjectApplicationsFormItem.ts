@@ -4,6 +4,8 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectViewItem} from '../../../../view/ProjectViewItem';
 import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
 import Q from 'q';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {ProjectApplication} from './ProjectApplication';
 
 export class ProjectApplicationsFormItem
     extends ProjectFormItem {
@@ -16,6 +18,10 @@ export class ProjectApplicationsFormItem
         );
 
         this.addClass('project-applications-form-item');
+    }
+
+    getSiteConfigs(): ApplicationConfig[] {
+        return this.getComboBox().getSelectedApplications().map((app: ProjectApplication) => app.getConfig()?.clone());
     }
 
     getComboBox(): ProjectApplicationsComboBox {

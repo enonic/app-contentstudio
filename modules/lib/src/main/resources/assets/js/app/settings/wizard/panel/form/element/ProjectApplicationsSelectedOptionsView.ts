@@ -24,7 +24,7 @@ export class ProjectApplicationsSelectedOptionsView
             .setProject(this.params?.getProject())
             .setOption(option)
             .setEditable(this.params?.isConfigEditable() && option.getDisplayValue().getForm()?.getFormItems().length > 0)
-            .setRemovable(true) as ProjectApplicationSelectedOptionViewBuilder;
+            .setRemovable(!option.isReadOnly()) as ProjectApplicationSelectedOptionViewBuilder;
 
         return new SelectedOption<Application>(new ProjectApplicationSelectedOptionView(builder), this.count());
     }

@@ -20,10 +20,21 @@ export class ProjectApplicationsComboBox
 
     private dataChangedListeners: (() => void)[] = [];
 
+    private parentSiteConfigs: ApplicationConfig[] = [];
+
     constructor(params?: ProjectApplicationsFormParams) {
         super(new ProjectApplicationsComboBoxBuilder(params));
 
+        this.layoutParentConfigs(params);
+
         this.initListeners();
+    }
+
+    layoutParentConfigs(params?: ProjectApplicationsFormParams) {
+        if (params.hasParentProjects()) {
+            this.parentSiteConfigs = params.getParentProjects()[0]?.getSiteConfigs() ?? [];
+            this.layoutSiteConfigs(this.parentSiteConfigs);
+        }
     }
 
     private initListeners(): void {
@@ -57,9 +68,14 @@ export class ProjectApplicationsComboBox
         if (!item || siteConfigs.length === 0) {
             return Q(null);
         }
-        this.deselectNonSelectedApps(siteConfigs);
 
-        return this.layoutSelectedApps(siteConfigs).catch(DefaultErrorHandler.handle);
+        return this.layoutSiteConfigs(siteConfigs);
+    }
+
+    private layoutSiteConfigs(configs: ApplicationConfig[]): Q.Promise<void> {
+        this.deselectNonSelectedApps(configs);
+
+        return this.layoutSelectedApps(configs).catch(DefaultErrorHandler.handle);
     }
 
     private deselectNonSelectedApps(configs: ApplicationConfig[]): void {
@@ -72,13 +88,17 @@ export class ProjectApplicationsComboBox
         });
     }
 
-    private layoutSelectedApps(configs: ApplicationConfig[]): Q.Promise<void> {
+    private layoutSelectedApps(configs: ApplicationConfig[], isReadonly: boolean = false): Q.Promise<void> {
         return this.fetchSelectedApps(configs).then((selectedApps: Application[]) => {
             const layoutPromises: Q.Promise<void>[] = [];
+            const hasParentConfigs: boolean = this.parentSiteConfigs !== undefined && this.parentSiteConfigs?.length > 0;
+            const parentAppKeys: ApplicationKey[] = hasParentConfigs ? this.parentSiteConfigs.map((config: ApplicationConfig) => config.getApplicationKey()) : [];
 
             configs.forEach((config: ApplicationConfig) => {
                 const appToSelect: Application = this.getOrGenerateAppByKey(selectedApps, config.getApplicationKey());
-                this.select(appToSelect, false, true);
+                const isReadonly: boolean = hasParentConfigs ? !!parentAppKeys.find((appKey: ApplicationKey) => appKey.equals(config.getApplicationKey())) : false;
+
+                this.select(appToSelect, isReadonly, true);
 
                 layoutPromises.push(this.layoutSelectedApp(config));
             });
@@ -88,6 +108,8 @@ export class ProjectApplicationsComboBox
     }
 
     private layoutSelectedApp(appConfig: ApplicationConfig): Q.Promise<void> {
+        const view = this.getSelectedOptionViewByKey(appConfig.getApplicationKey());
+        view.getEl().setClass('selected-option');
         return this.getSelectedOptionViewByKey(appConfig.getApplicationKey())
             ?.setDataChangedHandler(this.notifyDataChanged.bind(this))
             .setConfig(appConfig.getConfig())
