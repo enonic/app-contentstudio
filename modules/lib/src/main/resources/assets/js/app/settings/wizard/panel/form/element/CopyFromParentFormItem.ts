@@ -11,14 +11,14 @@ export abstract class CopyFromParentFormItem
 
     protected parentProjects?: Project[];
 
-    setParentProjects(value: Project[]) {
-        if (!ObjectHelper.arrayEquals(this.parentProjects, value)) {
+    setParentProjects(projects: Project[]) {
+        if (!ObjectHelper.arrayEquals(this.parentProjects, projects)) {
             this.removeCopyButton();
         }
 
-        this.parentProjects = value;
+        this.parentProjects = projects;
 
-        if (value.length > 0) {
+        if (projects.length > 0) {
             this.appendCopyButton();
         } else {
             this.removeCopyButton();
