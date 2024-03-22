@@ -7,13 +7,16 @@ import {ProjectAccess} from '../../../../access/ProjectAccess';
 import {ProjectPermissionsDataBuilder, ProjectPermissionsDialogStepData} from '../data/ProjectPermissionsDialogStepData';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectRolesFormItem} from '../../../../wizard/panel/form/element/ProjectRolesFormItem';
-import {Project} from '../../../../data/project/Project';
 
 export class ProjectPermissionsDialogStep
     extends ProjectDialogStep {
 
-    protected createFormItems(): FormItem[] {
-        return [new ProjectRolesFormItem()];
+    private projectRolesFormFormItem: ProjectRolesFormItem;
+
+    createFormItems(): FormItem[] {
+        this.projectRolesFormFormItem = new ProjectRolesFormItem();
+        this.hasParentProjects() && this.projectRolesFormFormItem.setParentProjects(this.getParentProjects());
+        return [this.projectRolesFormFormItem];
     }
 
     protected getFormClass(): string {
@@ -24,16 +27,10 @@ export class ProjectPermissionsDialogStep
         return true;
     }
 
-    setParentProjects(value: Project[]) {
-        this.getFormItem().setParentProjects(value);
-    }
-
     protected initEventListeners(): void {
         super.initEventListeners();
 
-        this.getAccessComboBox().onValueChanged(() => {
-            this.notifyDataChanged();
-        });
+        this.getAccessComboBox().onValueChanged(() => this.notifyDataChanged());
     }
 
     getData(): ProjectPermissionsDialogStepData {
@@ -66,10 +63,6 @@ export class ProjectPermissionsDialogStep
     }
 
     private getAccessComboBox(): ProjectAccessControlComboBox {
-        return this.getFormItem()?.getAccessComboBox();
-    }
-
-    private getFormItem(): ProjectRolesFormItem {
-        return this.formItems && this.formItems[0] as ProjectRolesFormItem;
+        return this.projectRolesFormFormItem?.getAccessComboBox();
     }
 }
