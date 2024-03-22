@@ -39,7 +39,7 @@ jobs:
                 java-version: 11
                 distribution: 'temurin'
 
-            - uses: actions/cache@v3
+            -   uses: actions/cache@v3
                 with:
                     path: |
                         ~/.gradle/caches
@@ -56,7 +56,7 @@ jobs:
                     name: contentstudio
                     path: modules/app/build/libs/contentstudio.jar
 
-            - uses: codecov/codecov-action@v3
+            -   uses: codecov/codecov-action@v3
 
             -   name: Publish
                 if: needs.publish_vars.outputs.publish == 'true'
@@ -112,9 +112,9 @@ jobs:
                   SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
                   SLACK_COLOR: ${{ job.status }}
 
-            - uses: actions/upload-artifact@v4
-              if: always()
-              with:
-                  name: 'ui-test-report-${{ matrix.suite }}'
-                  path: |
-                      testing/build/reports
+            -   uses: actions/upload-artifact@v4
+                if: always()
+                with:
+                    name: 'ui-test-report-${{ matrix.suite }}'
+                    path: |
+                        testing/build/reports
