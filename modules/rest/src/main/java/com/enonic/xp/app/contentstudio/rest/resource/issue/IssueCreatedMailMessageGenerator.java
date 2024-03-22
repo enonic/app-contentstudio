@@ -33,7 +33,7 @@ public class IssueCreatedMailMessageGenerator
 
 
     @Override
-    protected String generateRecipients()
+    protected Set<String> generateRecipients()
     {
         final Issue issue = params.getIssue();
         final boolean isNew = issue.getModifiedTime() == null || issue.getModifiedTime().equals( issue.getCreatedTime() );
@@ -44,6 +44,6 @@ public class IssueCreatedMailMessageGenerator
         {
             filterEmail( emails, creatorEmail );
         }
-        return String.join( ",", emails );
+        return emails;
     }
 }

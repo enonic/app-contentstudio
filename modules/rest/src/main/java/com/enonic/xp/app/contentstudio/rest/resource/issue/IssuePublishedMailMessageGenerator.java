@@ -37,7 +37,7 @@ public class IssuePublishedMailMessageGenerator
     }
 
     @Override
-    protected String generateRecipients()
+    protected Set<String> generateRecipients()
     {
         final String creatorEmail = super.getCreatorEmail();
         final String publisherEmail = params.getPublisher().getEmail();
@@ -45,6 +45,6 @@ public class IssuePublishedMailMessageGenerator
         emails.add( creatorEmail );
         filterEmail( emails, publisherEmail );
 
-        return String.join( ",", emails );
+        return emails;
     }
 }

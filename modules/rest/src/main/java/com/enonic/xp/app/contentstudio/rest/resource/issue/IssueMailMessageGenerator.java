@@ -15,9 +15,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.mail.Message;
-import javax.mail.internet.InternetAddress;
-
 import com.google.common.html.HtmlEscapers;
 
 import com.enonic.xp.context.ContextAccessor;
@@ -25,7 +22,7 @@ import com.enonic.xp.core.internal.Interpolator;
 import com.enonic.xp.issue.IssueComment;
 import com.enonic.xp.issue.IssueStatus;
 import com.enonic.xp.issue.IssueType;
-import com.enonic.xp.mail.MailMessage;
+import com.enonic.xp.mail.SendMailParams;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.security.User;
 
@@ -38,24 +35,25 @@ public abstract class IssueMailMessageGenerator<P extends IssueNotificationParam
         this.params = params;
     }
 
-    public MailMessage generateMessage()
+    public SendMailParams generateMessage(final String defaultFromEmail)
     {
-        final String sender = getSender();
+        final String sender = defaultFromEmail != null ? defaultFromEmail : getSender();
         final String messageSubject = generateMessageSubject();
         final String messageBody = generateMessageBody();
-        final String recipients = generateRecipients();
+        final Set<String> recipients = generateRecipients();
 
-        if ( recipients.isBlank() )
+        if ( recipients.isEmpty() )
         {
             return null;
         }
 
-        return msg -> {
-            msg.setFrom( new InternetAddress( sender, "Content Studio" ) );
-            msg.addRecipients( Message.RecipientType.TO, recipients );
-            msg.setSubject( messageSubject );
-            msg.setContent( messageBody, "text/html; charset=UTF-8" );
-        };
+        return SendMailParams.create()
+            .from( String.format( "Content Studio <%s>", sender ) )
+            .to( recipients )
+            .subject( messageSubject )
+            .body( messageBody )
+            .contentType( "text/html; charset=UTF-8" )
+            .build();
     }
 
     protected abstract String generateMessageSubject();
@@ -64,9 +62,9 @@ public abstract class IssueMailMessageGenerator<P extends IssueNotificationParam
 
     protected abstract String getSender();
 
-    protected String generateRecipients()
+    protected Set<String> generateRecipients()
     {
-        return String.join( ",", this.getApproverEmails() );
+        return this.getApproverEmails();
     }
 
     protected boolean shouldShowComments()
