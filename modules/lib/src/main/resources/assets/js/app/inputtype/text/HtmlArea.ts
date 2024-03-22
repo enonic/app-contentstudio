@@ -34,7 +34,7 @@ import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
 import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
-import {EnonicAiToggleDialogEvent} from '../../saga/event/outgoing/EnonicAiToggleDialogEvent';
+import {EnonicAiOpenDialogEvent} from '../../saga/event/outgoing/EnonicAiOpenDialogEvent';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
@@ -291,7 +291,7 @@ export class HtmlArea
 
             eventInfo.editor.on('openSaga', () => {
                 const dataPath = textAreaWrapper.getEl().getAttribute('data-path');
-                new EnonicAiToggleDialogEvent(dataPath).fire();
+                new EnonicAiOpenDialogEvent(dataPath).fire();
             });
         };
 

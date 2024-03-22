@@ -1,7 +1,7 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 
-export class EnonicAiToggleDialogEvent
+export class EnonicAiOpenDialogEvent
     extends Event {
 
     private readonly sourceDataPath?: string;
@@ -16,11 +16,11 @@ export class EnonicAiToggleDialogEvent
         return this.sourceDataPath;
     }
 
-    static on(handler: (event: EnonicAiToggleDialogEvent) => void) {
+    static on(handler: (event: EnonicAiOpenDialogEvent) => void) {
         Event.bind(ClassHelper.getFullName(this), handler);
     }
 
-    static un(handler?: (event: EnonicAiToggleDialogEvent) => void) {
+    static un(handler?: (event: EnonicAiOpenDialogEvent) => void) {
         Event.unbind(ClassHelper.getFullName(this), handler);
     }
 
