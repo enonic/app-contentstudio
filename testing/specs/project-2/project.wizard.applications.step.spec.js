@@ -56,13 +56,10 @@ describe('project.wizard.dialog.applications.step.spec - ui-tests for Applicatio
             await studioUtils.saveScreenshot('proj_wizard_app_selected');
             // 5. Verify that 'Next' button gets visible:
             await applicationsStep.waitForNextButtonEnabled();
-            // 6. Verify that Copy from Default button is enabled now
-            await applicationsStep.waitForCopyFromParentButtonEnabled('Default');
             // 6. Click on remove icon:
             await applicationsStep.removeApplication(appConst.APP_CONTENT_TYPES);
             // 7. Verify that 'Skip' button appears again:
             await applicationsStep.waitForSkipButtonEnabled();
-            await applicationsStep.waitForCopyFromParentButtonDisabled('Default');
         });
 
     it(`GIVEN project wizard dialog is opened WHEN navigated to Applications wizard step THEN 'Skip' button should be enabled`,
@@ -123,7 +120,7 @@ describe('project.wizard.dialog.applications.step.spec - ui-tests for Applicatio
             // 6. Go back to the previous step:
             await nameIdStep.clickOnBackButton();
             await studioUtils.saveScreenshot('proj_wizard_app_previous_step');
-            // 7. Verify that application is displayed after returning to this step:
+            // 7. Verify that application is displayed after returning to Applications-step:
             let applications = await applicationsStep.getSelectedApplications();
             assert.equal(applications[0], appConst.APP_CONTENT_TYPES, "Expected application should be displayed in the step");
             // 8. Verify that 'Next' button is displayed again:

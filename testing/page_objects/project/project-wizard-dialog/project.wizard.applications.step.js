@@ -59,14 +59,23 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
         return result;
     }
 
+    async waitForRemoveAppIconNotDisplayed(appName) {
+        let removeIconLocator = XPATH.container + XPATH.selectedProjectView(appName) + lib.REMOVE_ICON;
+        await this.waitForElementNotDisplayed(removeIconLocator, appConst.mediumTimeout);
+    }
+
+    async waitForRemoveAppIconDisplayed(appName) {
+        let removeIconLocator = XPATH.container + XPATH.selectedProjectView(appName) + lib.REMOVE_ICON;
+        await this.waitForElementDisplayed(removeIconLocator, appConst.mediumTimeout);
+    }
+
     async removeApplication(appName) {
         try {
-            let locator = XPATH.container + XPATH.selectedProjectView(appName) + lib.REMOVE_ICON;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            return await this.clickOnElement(locator);
+            let removeIconLocator = XPATH.container + XPATH.selectedProjectView(appName) + lib.REMOVE_ICON;
+            await this.waitForRemoveAppIconDisplayed(appName);
+            return await this.clickOnElement(removeIconLocator);
         } catch (err) {
-            let screenshot = appConst.generateRandomName("err_remove_app");
-            await this.saveScreenshot(screenshot);
+            let screenshot = await this.saveScreenshotUniqueName('err_remove_app');
             throw new Error("error after pressing the remove button, screenshot: " + screenshot + "  " + err);
         }
     }
