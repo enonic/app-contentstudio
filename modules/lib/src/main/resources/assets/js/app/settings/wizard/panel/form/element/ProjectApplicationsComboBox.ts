@@ -14,6 +14,7 @@ import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/Selected
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {ProjectApplication} from './ProjectApplication';
 import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
+import {Project} from '../../../../data/project/Project';
 
 export class ProjectApplicationsComboBox
     extends RichComboBox<Application> {
@@ -27,9 +28,25 @@ export class ProjectApplicationsComboBox
     constructor(params?: ProjectApplicationsFormParams) {
         super(new ProjectApplicationsComboBoxBuilder(params));
 
-        this.layoutParentConfigs(params);
+        if (params.hasParentProjects()) {
+            this.setParentProjects(params.getParentProjects());
+        }
 
         this.initListeners();
+    }
+
+    setParentProjects(projects: Project[]): void {
+        this.parentSiteConfigs = projects[0]?.getSiteConfigs() || [];
+        this.layoutApplicationConfigs(this.getMergedConfigs());
+    }
+
+    private getMergedConfigs(): ApplicationConfig[] {
+        const selectedConfigs = this.getSelectedApplicationConfigs();
+
+        return [
+            ...this.parentSiteConfigs || [],
+            ...selectedConfigs.filter(sp => !this.parentSiteConfigs.some(pp => pp.getApplicationKey().equals(sp.getApplicationKey())))
+        ];
     }
 
     hasDataChanged(): boolean {
@@ -40,15 +57,13 @@ export class ProjectApplicationsComboBox
         return this.parentSiteConfigs.length !== selectedDisplayValues.length;
     }
 
-    layoutParentConfigs(params?: ProjectApplicationsFormParams): Q.Promise<void> {
-        if (params.hasParentProjects()) {
-            this.isLayoutInProgress = true;
-            this.parentSiteConfigs = params.getParentProjects()[0]?.getSiteConfigs() ?? [];
-            return this.layoutSiteConfigs(this.parentSiteConfigs).then(() => {
-                this.isLayoutInProgress = false;
-            });
-        }
-        return Q(null);
+    layoutApplicationConfigs(applicationConfigs: ApplicationConfig[]): Q.Promise<void> {
+        this.isLayoutInProgress = true;
+        this.clearCombobox();
+
+        return this.layoutSelectedApps(applicationConfigs).then(() => {
+            this.isLayoutInProgress = false;
+        });
     }
 
     private initListeners(): void {
@@ -154,6 +169,10 @@ export class ProjectApplicationsComboBox
         return this.getSelectedOptions().slice()
             .map((o: SelectedOption<Application>) => o.getOptionView() as ProjectApplicationSelectedOptionView)
             .map((selected: ProjectApplicationSelectedOptionView) => selected.getCurrentConfig());
+    }
+
+    getSelectedApplicationConfigs(): ApplicationConfig[] {
+        return this.getSelectedApplications().map((app: ProjectApplication) => app.getConfig().clone());
     }
 
     onDataChanged(listener: () => void) {

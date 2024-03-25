@@ -50,7 +50,7 @@ export class ProjectApplicationsDialogStep
     setParentProjects(projects: Project[]) {
         super.setParentProjects(projects);
 
-        this.getProjectApplicationsComboBox()?.layoutParentConfigs(this.getConfigForProjectApplicationsFormItem());
+        this.getProjectApplicationsComboBox()?.setParentProjects(projects);
     }
 
     private getConfigForProjectApplicationsFormItem(): ProjectApplicationsFormParams {
