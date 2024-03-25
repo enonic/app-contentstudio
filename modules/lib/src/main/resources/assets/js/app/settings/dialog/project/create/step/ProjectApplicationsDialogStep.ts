@@ -32,7 +32,7 @@ export class ProjectApplicationsDialogStep
     }
 
     hasData(): boolean {
-        return !!this.getProjectApplicationsComboBox()?.getValue();
+        return this.getProjectApplicationsComboBox().hasDataChanged();
     }
 
     protected getFormClass(): string {
