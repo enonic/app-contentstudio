@@ -10,9 +10,6 @@ const XPATH = {
     title: "//h6[@class='xp-admin-common-main-name']",
     stepDescription: "//p[@class='xp-admin-common-sub-name']",
     buttonRow: "//div[contains(@class,'button-container')]",
-    nextButton: "//button[contains(@id,'DialogButton') and child::span[text()='Next']]",
-    backButton: "//button[contains(@id,'DialogButton') and child::span[text()='Back']]",
-    skipButton: "//button[contains(@id,'DialogButton') and child::span[text()='Skip']]",
     copyFromParentButton: parent => `//button[contains(@id,'Button') and child::span[text()='Copy from ${parent}']]`,
 };
 
@@ -22,20 +19,16 @@ class ProjectWizardDialog extends Page {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
 
-    get copyFromParentButton() {
-        return XPATH.container + XPATH.copyFromParentButton;
-    }
-
     get nextButton() {
-        return XPATH.container + XPATH.nextButton;
+        return XPATH.container + lib.dialogButton('Next');
     }
 
     get backButton() {
-        return XPATH.container + XPATH.backButton;
+        return XPATH.container + lib.dialogButton('Back');
     }
 
     get skipButton() {
-        return XPATH.container + XPATH.skipButton;
+        return XPATH.container + lib.dialogButton('Skip');
     }
 
     async waitForSkipButtonDisplayed() {
@@ -47,9 +40,10 @@ class ProjectWizardDialog extends Page {
         }
     }
 
-    async waitForCopyFromParentButtonNotDisplayed() {
+    async waitForCopyFromParentButtonNotDisplayed(parent) {
         try {
-            return await this.waitForElementNotDisplayed(this.copyFromParentButton, appConst.mediumTimeout);
+            let locator = XPATH.container + XPATH.copyFromParentButton(parent)
+            return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
             throw new Error('Copy from parent button is displayed: screenshot ' + screenshot + "  " + err);
