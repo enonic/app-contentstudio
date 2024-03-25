@@ -22,6 +22,8 @@ export class ProjectApplicationsComboBox
 
     private parentSiteConfigs: ApplicationConfig[] = [];
 
+    private isLayoutInProgress: boolean = false;
+
     constructor(params?: ProjectApplicationsFormParams) {
         super(new ProjectApplicationsComboBoxBuilder(params));
 
@@ -30,11 +32,23 @@ export class ProjectApplicationsComboBox
         this.initListeners();
     }
 
-    layoutParentConfigs(params?: ProjectApplicationsFormParams) {
-        if (params.hasParentProjects()) {
-            this.parentSiteConfigs = params.getParentProjects()[0]?.getSiteConfigs() ?? [];
-            this.layoutSiteConfigs(this.parentSiteConfigs);
+    hasDataChanged(): boolean {
+        if (this.isLayoutInProgress) {
+            return false;
         }
+        const selectedDisplayValues: Application[] = this.getSelectedDisplayValues();
+        return this.parentSiteConfigs.length !== selectedDisplayValues.length;
+    }
+
+    layoutParentConfigs(params?: ProjectApplicationsFormParams): Q.Promise<void> {
+        if (params.hasParentProjects()) {
+            this.isLayoutInProgress = true;
+            this.parentSiteConfigs = params.getParentProjects()[0]?.getSiteConfigs() ?? [];
+            return this.layoutSiteConfigs(this.parentSiteConfigs).then(() => {
+                this.isLayoutInProgress = false;
+            });
+        }
+        return Q(null);
     }
 
     private initListeners(): void {
@@ -58,9 +72,7 @@ export class ProjectApplicationsComboBox
     }
 
     private notifyDataChanged() {
-        this.dataChangedListeners.forEach((listener: () => void) => {
-            listener();
-        });
+        this.dataChangedListeners.forEach((listener: () => void) => listener());
     }
 
     layout(item: ProjectViewItem): Q.Promise<void> {
@@ -88,7 +100,7 @@ export class ProjectApplicationsComboBox
         });
     }
 
-    private layoutSelectedApps(configs: ApplicationConfig[], isReadonly: boolean = false): Q.Promise<void> {
+    private layoutSelectedApps(configs: ApplicationConfig[]): Q.Promise<void> {
         return this.fetchSelectedApps(configs).then((selectedApps: Application[]) => {
             const layoutPromises: Q.Promise<void>[] = [];
             const hasParentConfigs: boolean = this.parentSiteConfigs !== undefined && this.parentSiteConfigs?.length > 0;
