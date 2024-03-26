@@ -18,6 +18,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
         webDriverHelper.setupBrowser();
     }
     const TEST_NUMBER = '12345';
+    const PROJECT_APP = appConst.APP_CONTENT_TYPES;
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
 
@@ -36,7 +37,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             // 4. Verify that Applications-step is present in the wizard:
             await projectWizard.clickOnWizardStep('Applications');
             // 5. Select the application:
-            await projectWizard.selectApplication(appConst.TEST_APPS_NAME.APP_CONTENT_TYPES);
+            await projectWizard.selectApplication(PROJECT_APP);
             await projectWizard.waitAndClickOnSave();
             await projectWizard.waitForNotificationMessages();
             await studioUtils.saveScreenshot('proj_wizard_selected_app');
@@ -61,7 +62,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await projectWizard.waitForLoaded();
             // 3. Click on Applications-step in the wizard then click on 'Edit' button:
             await projectWizard.clickOnWizardStep('Applications');
-            await projectWizard.clickOnEditProjectConfig(appConst.APP_CONTENT_TYPES);
+            await projectWizard.clickOnEditProjectConfig(PROJECT_APP);
             // 4. Verify that site configurator dialog is loaded:
             await siteConfiguratorDialog.waitForDialogOpened();
             // 5. Verify elements on the dialog:
@@ -81,7 +82,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await projectWizard.waitForLoaded();
             // 3. Click on Applications-step in the wizard then click on 'Edit' button:
             await projectWizard.clickOnWizardStep('Applications');
-            await projectWizard.clickOnEditProjectConfig(appConst.APP_CONTENT_TYPES);
+            await projectWizard.clickOnEditProjectConfig(PROJECT_APP);
             // 4. Verify that site configurator dialog is loaded:
             await siteConfiguratorDialog.waitForDialogOpened();
             // 5. there are no changes in the dialog, click on 'Apply' button:
@@ -104,7 +105,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await projectWizard.waitForLoaded();
             // 3. Click on Applications-step in the wizard then click on 'Edit' button:
             await projectWizard.clickOnWizardStep('Applications');
-            await projectWizard.clickOnEditProjectConfig(appConst.APP_CONTENT_TYPES);
+            await projectWizard.clickOnEditProjectConfig(PROJECT_APP);
             await siteConfiguratorDialog.waitForDialogOpened();
             // 4. Insert a text in the text-input then click on 'Apply' button:
             await siteConfiguratorDialog.typeTextInNumPostsInput(TEST_NUMBER);
@@ -113,7 +114,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             // 5. Verify that Save button gets enabled:
             await projectWizard.waitForSaveButtonEnabled();
             // 6. Reopen the configurator:
-            await projectWizard.clickOnEditProjectConfig(appConst.APP_CONTENT_TYPES);
+            await projectWizard.clickOnEditProjectConfig(PROJECT_APP);
             await siteConfiguratorDialog.waitForDialogOpened();
             // 7. Verify that 'Max posts per page' is correctly saved:
             let actualNumber = await siteConfiguratorDialog.getTextInNumPostsInput();
@@ -152,7 +153,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             // 2. Click on Applications step
             await projectWizard.clickOnWizardStep('Applications');
             // 3. Click on Remove application icon
-            await projectWizard.clickOnRemoveApplicationIcon();
+            await projectWizard.clickOnRemoveApplicationIcon(PROJECT_APP);
             // 4. Save the project:
             await projectWizard.waitAndClickOnSave();
             // 5. Switch to the content grid panel

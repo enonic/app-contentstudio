@@ -57,6 +57,28 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             assert.ok(whitespace === false, "White spaces should be trimmed in the input");
         });
 
+    // If parent project is not selected on the first step, no apps should be preselected on the "Applications" step
+    //https://github.com/enonic/app-contentstudio/issues/7461
+    it(`GIVEN parent project is not selected on the first step WHEN navigated to Applications wizard step THEN  no apps should be preselected on the 'Applications' step`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            // 1. Open new project wizard, parent project is not selected on the first step:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            await parentProjectStep.clickOnSkipButton();
+            await languageStep.clickOnSkipButton();
+            await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
+            await accessModeStep.clickOnNextButton();
+            await permissionsStep.clickOnSkipButton();
+            // 2. Go to 'Applications' step:
+            let actualApps = await applicationsStep.getSelectedApplications();
+            assert.ok(actualApps.length === 0, "Applications should not be displayed on the step")
+        });
+
     it(`GIVEN navigated to Name/Id wizard step WHEN identifier input has been cleared THEN 'This field is required' should be displayed`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
