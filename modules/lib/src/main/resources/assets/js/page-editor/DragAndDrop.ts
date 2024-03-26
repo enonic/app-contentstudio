@@ -293,22 +293,16 @@ export class DragAndDrop {
 
             if (this.isDraggingFromContextWindow()) {
                 // Create component and view if we drag from context window
-                let componentType: ComponentItemType = this.newItemItemType as ComponentItemType;
-
-                this.draggedComponentView = this.pageView.createView(componentType,
-                    new CreateItemViewConfig<RegionView>()
-                        .setParentView(regionView)
-                        .setLiveEditParams(this.pageView.getLiveEditParams())
-                        .setParentElement(regionView)) as ComponentView;
-
-                new AddComponentEvent(new ComponentPath(componentIndex, regionView.getPath()), componentType.toComponentType()).fire();
+                const componentType: ComponentItemType = this.newItemItemType as ComponentItemType;
+                const path = new ComponentPath(componentIndex, regionView.getPath());
+                new AddComponentEvent(path, componentType.toComponentType()).fire();
+                this.notifyDropped(path, regionView);
             } else {
                 const from: ComponentPath = this.draggedComponentView.getPath();
                 const to: ComponentPath = new ComponentPath(componentIndex, regionView.getPath());
-                new MoveComponentEvent(from ,to).fire();
+                new MoveComponentEvent(from, to).fire();
+                this.notifyDropped(this.draggedComponentView.getPath(), regionView);
             }
-
-            this.notifyDropped(this.draggedComponentView, regionView);
         }
 
         if (!this.isDraggingFromContextWindow()) {
@@ -525,17 +519,13 @@ export class DragAndDrop {
         });
     }
 
-    private notifyDropped(componentView: ComponentView, regionView: RegionView) {
+    private notifyDropped(componentPath: ComponentPath, regionView: RegionView) {
         if (DragAndDrop.debug) {
-            console.log('DragAndDrop.notifyDropped', componentView, regionView);
+            console.log('DragAndDrop.notifyDropped', componentPath, regionView);
         }
 
-        this.droppedListeners.forEach((curr) => {
-            curr(componentView, regionView);
-        });
-
         this.wasDropped = true;
-        new ComponentViewDragDroppedEvent(componentView.getPath()).fire();
+        new ComponentViewDragDroppedEvent(componentPath).fire();
     }
 
     onCanceled(listener: (componentView: ComponentView) => void) {
