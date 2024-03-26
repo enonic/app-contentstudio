@@ -21,7 +21,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
     const TEST_FOLDER_NAME = studioUtils.generateRandomName('folder');
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
 
-    it(`Preconditions: new projects with 'Private' access mode should be added`,
+    it(`Preconditions: new project with 'Private' access mode should be added`,
         async () => {
             // 1. Navigate to Settings Panel:
             await studioUtils.openSettingsPanel();

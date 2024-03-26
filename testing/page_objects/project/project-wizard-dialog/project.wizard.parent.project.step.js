@@ -19,43 +19,6 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
-    get projectRadioButton() {
-        return XPATH.container + lib.radioButtonByLabel("Project");
-    }
-
-    get layerRadioButton() {
-        return XPATH.container + lib.radioButtonByLabel("Layer");
-    }
-
-    async clickOnProjectRadioButton() {
-        try {
-            await this.waitForElementDisplayed(this.projectRadioButton, appConst.mediumTimeout);
-            await this.clickOnElement(this.projectRadioButton);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_project_radio');
-            throw new Error("Error after clicking on project radio. screenshot: " + screenshot + "  " + err);
-        }
-    }
-
-    waitForLayerRadioButtonDisplayed() {
-        return this.waitForElementDisplayed(this.layerRadioButton, appConst.mediumTimeout);
-    }
-
-    waitForProjectRadioButtonDisplayed() {
-        return this.waitForElementDisplayed(this.projectRadioButton, appConst.mediumTimeout);
-    }
-
-    async clickOnLayerRadioButton() {
-        try {
-            await this.waitForLayerRadioButtonDisplayed();
-            await this.clickOnElement(this.layerRadioButton);
-            await this.pause(400);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_layer_radio');
-            throw new Error("Error after clicking on layer radio. screenshot: " + screenshot + "  " + err);
-        }
-    }
-
     waitForProjectOptionsFilterInputDisplayed() {
         return this.waitForElementDisplayed(this.projectOptionsFilterInput, appConst.mediumTimeout);
     }

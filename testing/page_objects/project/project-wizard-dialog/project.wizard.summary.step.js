@@ -10,7 +10,7 @@ const XPATH = {
     createProjectButton: "//button[contains(@id,'DialogButton') and child::span[text()='Create Project']]",
     projectNameXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Project name/id']]/following-sibling::div[contains(@id,'SummaryValueContainer')]/h6",
     accessModeValueXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Access mode']]/following-sibling::div[contains(@id,'AccessValueContainer')]/h6",
-    parentProjectNameXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Parent Projects']]/following-sibling::div[contains(@id,'ProjectsValueContainer')]/h6",
+    parentProjectNameXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Parent project']]/following-sibling::div[contains(@id,'ProjectsValueContainer')]/h6",
     defaultLanguageXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Default language']]/following-sibling::div[contains(@id,'LanguageValueContainer')]//h6[contains(@class,'main-name')]",
 };
 const DESCRIPTION = 'View summary of a new project';

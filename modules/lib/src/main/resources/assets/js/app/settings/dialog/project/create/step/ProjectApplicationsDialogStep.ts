@@ -4,20 +4,23 @@ import {ProjectDialogStep} from './ProjectDialogStep';
 import {ProjectApplicationsFormItem} from '../../../../wizard/panel/form/element/ProjectApplicationsFormItem';
 import {ProjectApplicationsComboBox} from '../../../../wizard/panel/form/element/ProjectApplicationsComboBox';
 import {ProjectApplicationsDialogStepData} from '../data/ProjectApplicationsDialogStepData';
+import {ProjectApplicationsFormParams} from '../../../../wizard/panel/form/element/ProjectApplicationsFormParams';
+import {Project} from '../../../../data/project/Project';
 
 export class ProjectApplicationsDialogStep
     extends ProjectDialogStep {
 
-    protected createFormItems(): FormItem[] {
-        return [new ProjectApplicationsFormItem()];
+    private projectApplicationsFormItem: ProjectApplicationsFormItem;
+
+    createFormItems(): FormItem[] {
+        this.projectApplicationsFormItem = new ProjectApplicationsFormItem(this.getConfigForProjectApplicationsFormItem());
+        return [this.projectApplicationsFormItem];
     }
 
     protected initEventListeners(): void {
         super.initEventListeners();
 
-        this.getProjectApplicationsComboBox().onValueChanged(() => {
-            this.notifyDataChanged();
-        });
+        this.getProjectApplicationsComboBox().onValueChanged(() => this.notifyDataChanged());
     }
 
     isOptional(): boolean {
@@ -29,7 +32,7 @@ export class ProjectApplicationsDialogStep
     }
 
     hasData(): boolean {
-        return !!this.getProjectApplicationsComboBox()?.getValue();
+        return this.getProjectApplicationsComboBox().hasDataChanged();
     }
 
     protected getFormClass(): string {
@@ -44,11 +47,19 @@ export class ProjectApplicationsDialogStep
         return i18n('dialog.project.wizard.applications.description');
     }
 
-    private getProjectApplicationsComboBox(): ProjectApplicationsComboBox {
-        return this.getFormItem()?.getComboBox();
+    setParentProjects(projects: Project[]) {
+        super.setParentProjects(projects);
+
+        this.getProjectApplicationsComboBox()?.setParentProjects(projects);
     }
 
-    private getFormItem(): ProjectApplicationsFormItem {
-        return this.formItems && this.formItems[0] as ProjectApplicationsFormItem;
+    private getConfigForProjectApplicationsFormItem(): ProjectApplicationsFormParams {
+        return new ProjectApplicationsFormParams()
+            .setConfigEditable(false)
+            .setParentProjects(this.getParentProjects());
+    }
+
+    private getProjectApplicationsComboBox(): ProjectApplicationsComboBox {
+        return this.projectApplicationsFormItem?.getComboBox();
     }
 }

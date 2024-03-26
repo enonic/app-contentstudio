@@ -55,7 +55,7 @@ class ProjectNotAvailableDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_project_not_available_closed');
+            let screenshot = await this.saveScreenshotUniqueName('err_project_not_available');
             throw new Error("Project not available dialog should be closed, screenshot: " + screenshot + ' ' + err);
         }
     }

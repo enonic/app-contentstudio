@@ -27,29 +27,13 @@ describe('parent.project.dialog.step.spec - ui-tests for Parent Project step in 
             //3. Expected title should be loaded:
             let actualDescription = await parentProjectStep.getStepDescription();
             assert.equal(actualDescription, DESCRIPTION, "Expected description should be displayed");
-            //4. Next button should be disabled:
-            await parentProjectStep.waitForNextButtonDisabled();
+            //4. Skip button should be enabled:
+            await parentProjectStep.waitForSkipButtonEnabled();
             await parentProjectStep.waitForCancelButtonTopDisplayed();
             //5. Verify that Project options filter input is displayed:
-            await parentProjectStep.waitForProjectOptionsFilterInputNotDisplayed();
-            await parentProjectStep.waitForProjectRadioButtonDisplayed();
-            await parentProjectStep.waitForLayerRadioButtonDisplayed();
-        });
-
-    it(`GIVEN Project Wizard modal dialog is opened WHEN Layer radio button has been selected THEN options filter input gets visible`,
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-            //1.'New...' button has been clicked:
-            await settingsBrowsePanel.clickOnNewButton();
-            //2. 'parent Project Step' dialog should be loaded:
-            await parentProjectStep.waitForLoaded();
-            //3. 'Layer' button has been clicked
-            await parentProjectStep.clickOnLayerRadioButton();
-            await studioUtils.saveScreenshot("parent_project_step_layer_radio");
-            //4. Verify that options filter input gets visible
             await parentProjectStep.waitForProjectOptionsFilterInputDisplayed();
         });
+
 
     it(`GIVEN Project Wizard modal dialog is opened WHEN 'Cancel Top' button has been pressed THEN the dialog should be closed`,
         async () => {

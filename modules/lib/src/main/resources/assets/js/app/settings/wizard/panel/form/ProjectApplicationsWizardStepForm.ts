@@ -6,7 +6,6 @@ import {SettingsType} from '../../../data/type/SettingsType';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectApplicationsFormItem} from './element/ProjectApplicationsFormItem';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ProjectApplication} from './element/ProjectApplication';
 import {ProjectApplicationsFormParams} from './element/ProjectApplicationsFormParams';
 
 export class ProjectApplicationsWizardStepForm
@@ -42,9 +41,7 @@ export class ProjectApplicationsWizardStepForm
     }
 
     getApplicationConfigs(): ApplicationConfig[] {
-        return this.applicationsFormItem?.getComboBox()
-                   .getSelectedApplications()
-                   .map((app: ProjectApplication) => app.getConfig()?.clone()) || [];
+        return this.applicationsFormItem?.getSiteConfigs() || [];
     }
 
 }

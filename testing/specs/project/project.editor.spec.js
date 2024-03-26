@@ -47,11 +47,10 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             // 1. Do Log in with 'SU' and navigate to 'Settings':
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            // 2.Open new project wizard:
+            // 2. Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
-            // 3. Select Project-radio then click on Next button:
-            await parentProjectStep.clickOnProjectRadioButton();
-            await parentProjectStep.clickOnNextButton();
+            // 3. click on Skip button:
+            await parentProjectStep.clickOnSkipButton();
             // 4. Skip the language step:
             await languageStep.clickOnSkipButton();
             // 5. Select 'Private' access mode in the fours step:

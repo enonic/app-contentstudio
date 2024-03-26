@@ -2,11 +2,13 @@ import {Project} from '../../../../data/project/Project';
 
 export class ProjectApplicationsFormParams {
 
-    private readonly project: Project;
+    private project: Project;
 
-    private readonly configEditable: boolean;
+    private parentProjects: Project[];
 
-    constructor(project: Project, configEditable: boolean) {
+    private configEditable: boolean;
+
+    constructor(project?: Project, configEditable: boolean = true) {
         this.project = project;
         this.configEditable = configEditable;
     }
@@ -15,7 +17,30 @@ export class ProjectApplicationsFormParams {
         return this.project;
     }
 
+    setProject(project: Project) {
+        this.project = project;
+        return this;
+    }
+
     isConfigEditable(): boolean {
         return this.configEditable;
+    }
+
+    setConfigEditable(value: boolean) {
+        this.configEditable = value;
+        return this;
+    }
+
+    setParentProjects(projects: Project[]) {
+        this.parentProjects = projects;
+        return this;
+    }
+
+    getParentProjects(): Project[] {
+        return this.parentProjects;
+    }
+
+    hasParentProjects(): boolean {
+        return this.parentProjects !== undefined && this.parentProjects.length > 0;
     }
 }

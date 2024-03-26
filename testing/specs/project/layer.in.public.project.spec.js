@@ -31,7 +31,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
     it("GIVEN Buttons: 'Copy language from parent' has been clicked and 'Save' pressed WHEN layer's context has been switched THEN expected language should be displayed in the project context",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            await settingsBrowsePanel.openProjectWizardDialog();
+            await projectUtils.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
             let layerWizard = new LayerWizardPanel();
             // 1. Create new layer (private access mode):
             let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, null, null,

@@ -5,6 +5,8 @@ import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {ProjectDialogStepData} from '../data/ProjectDialogStepData';
+import {Project} from '../../../../data/project/Project';
+import {CopyFromParentFormItem} from '../../../../wizard/panel/form/element/CopyFromParentFormItem';
 
 export abstract class ProjectDialogStep
     extends DialogStep {
@@ -12,6 +14,8 @@ export abstract class ProjectDialogStep
     protected formItems: FormItem[];
 
     protected form: Form;
+
+    protected parentProjects: Project[];
 
     getHtmlEl(): DivEl {
         if (!this.form) {
@@ -30,10 +34,6 @@ export abstract class ProjectDialogStep
 
     protected getFormClass(): string {
         return '';
-    }
-
-    protected createFormItems(): FormItem[] {
-        return [];
     }
 
     private createForm(): void {
@@ -56,5 +56,34 @@ export abstract class ProjectDialogStep
         //
     }
 
+    protected getParentProjects(): Project[] {
+        return this.parentProjects;
+    }
+
+    protected hasParentProjects(): boolean {
+        return this.parentProjects !== undefined && this.parentProjects.length > 0;
+    }
+
+    setParentProjects(projects: Project[]) {
+        this.parentProjects = projects;
+        if (this.getFormItem()) {
+            this.getFormItem().setParentProjects(projects);
+        }
+    }
+
+    private getFormItem(): CopyFromParentFormItem {
+        if (!this.formItems?.length) {
+            return null;
+        }
+
+        if (!(this.formItems[0] instanceof CopyFromParentFormItem)) {
+            return null;
+        }
+
+        return this.formItems[0];
+    }
+
     abstract getData(): ProjectDialogStepData;
+
+    abstract createFormItems(): FormItem[];
 }

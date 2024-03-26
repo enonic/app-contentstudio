@@ -175,11 +175,7 @@ export class ProjectReadAccessFormItem
             return true;
         }
 
-        if (!parentProject.getReadAccess().equals(this.getReadAccess())) {
-            return true;
-        }
-
-        return false;
+        return !parentProject.getReadAccess().equals(this.getReadAccess());
     }
 
     clean(): void {

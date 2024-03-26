@@ -141,14 +141,6 @@ export class ProjectsSelector
         return value.getName();
     }
 
-    private getAllProjects(): Q.Promise<Project[]> {
-        if (this.getLoader().isLoaded()) {
-            return Q(this.getLoadedResults());
-        }
-
-        return this.getLoader().load();
-    }
-
     private getLoadedResults(): Project[] {
         return this.getLoader().getResults();
     }

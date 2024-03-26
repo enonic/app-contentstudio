@@ -68,10 +68,10 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await studioUtils.navigateToContentStudioApp();
             await studioUtils.openSettingsPanel();
             // 2. Open Project Wizard Dialog:
-            await settingsBrowsePanel.openProjectWizardDialog();
+            await projectUtils.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
             // 3. Select the parent project in the first step:
-            let projectWizardDialogStep2 = await projectUtils.fillParentNameStep(PROJECT_DISPLAY_NAME);
-            await projectWizardDialogStep2.waitForLoaded();
+            let languageStep = await projectUtils.fillParentNameStep(PROJECT_DISPLAY_NAME);
+            await languageStep.waitForLoaded();
             // 4. Click on Skip button in the second step:
             let accessModeStep = await projectUtils.fillLanguageStep(null);
             await accessModeStep.waitForLoaded();

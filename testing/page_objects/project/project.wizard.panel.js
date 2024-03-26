@@ -27,7 +27,8 @@ const XPATH = {
                                        `//span[contains(@id,'RadioButton') and descendant::label[contains(.,'${descr}')]]`,
     wizardStepByTitle:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[contains(@id,'TabBarItem') and @title='${name}']`,
-    aclEntryByName: name => `//div[contains(@id,ProjectAccessControlEntryView) and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`
+    aclEntryByName: name => `//div[contains(@id,ProjectAccessControlEntryView) and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`,
+    projectApplicationSelectedOptionByName: appName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[contains(@class,'main-name') and contains(.,'${appName}')] ]`,
 };
 
 class ProjectWizardPanel extends Page {
@@ -399,11 +400,31 @@ class ProjectWizardPanel extends Page {
         }
     }
 
-    async clickOnRemoveApplicationIcon() {
+    async waitForRemoveAppIconNotDisplayed(appName) {
         try {
-            let locator = XPATH.container + "//div[contains(@id,'ProjectApplicationSelectedOptionView')]" + lib.REMOVE_ICON
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            await this.clickOnElement(locator);
+            let removeIconLocator = XPATH.container + XPATH.projectApplicationSelectedOptionByName(appName) + lib.REMOVE_ICON;
+            await this.waitForElementNotDisplayed(removeIconLocator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_proj_wizard_page_remove_icon');
+            throw new Error("Project wizard page - 'remove app' icon should not be displayed, screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
+    async waitForRemoveAppIconDisplayed(appName) {
+        try {
+            let removeIconLocator = XPATH.container + XPATH.projectApplicationSelectedOptionByName(appName) + lib.REMOVE_ICON;
+            await this.waitForElementDisplayed(removeIconLocator, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_proj_wizard_page_remove_icon');
+            throw new Error("Project wizard page - 'remove app' icon should be displayed, screenshot: " + screenshot + ' ' + err);
+        }
+    }
+
+    async clickOnRemoveApplicationIcon(appName) {
+        try {
+            let removeIcon = XPATH.container + XPATH.projectApplicationSelectedOptionByName(appName) + lib.REMOVE_ICON;
+            await this.waitForElementDisplayed(removeIcon, appConst.mediumTimeout);
+            await this.clickOnElement(removeIcon);
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_project_remove_icon');
