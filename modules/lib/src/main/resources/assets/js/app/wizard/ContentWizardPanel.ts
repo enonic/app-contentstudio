@@ -142,6 +142,8 @@ import {PageTemplate} from '../content/PageTemplate';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {InspectEvent} from '../event/InspectEvent';
 import {PageNavigationEventSource} from './PageNavigationEventData';
+import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
+import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -2736,5 +2738,9 @@ export class ContentWizardPanel
         }
 
         return Q.resolve(this.defaultModels.getDefaultPageTemplate());
+    }
+
+    protected createWizardStepsPanel(): WizardStepsPanel {
+        return new ContentWizardStepsPanel(this.stepNavigator, this.formPanel);
     }
 }
