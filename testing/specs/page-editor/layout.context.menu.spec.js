@@ -138,8 +138,8 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             // 4. Switch to the next browser tab:
             await studioUtils.doSwitchToNewWizard();
             await contentWizard.waitForOpened();
-            // 5.Verify that x-data toggler is displayed in the wizard:
-            await contentWizard.waitForXdataTogglerVisible();
+            // 5. Verify that x-data toggler is displayed in the wizard:
+            await contentWizard.waitForXdataTogglerVisible(TEXT_AREA_X_DATA_NAME);
             // 6. Verify the title of x-data :
             let result = await contentWizard.getXdataTitles();
             assert.ok(result.includes(TEXT_AREA_X_DATA_NAME), 'Text Area x-data should be present');

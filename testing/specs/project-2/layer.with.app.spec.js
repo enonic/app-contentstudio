@@ -92,7 +92,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             // 3. Select the item with x-data:
             let contentWizard = await studioUtils.clickOnItemInNewContentDialog(appConst.contentTypes.DOUBLE_1_1_X_DATA);
             // 4. Click on x-data toggler:
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName('X-data (image selector)');
             // 5. Select an image in x-data
             await xDataImageSelector.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();

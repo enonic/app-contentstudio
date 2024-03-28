@@ -18,7 +18,8 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const contentName = contentBuilder.generateRandomName('test');
+    const DOUBLE_0_1_CONTENT = contentBuilder.generateRandomName('double');
+    const DOUBLE_0_0_CONTENT = contentBuilder.generateRandomName('double');
     const TEST_TEXT = 'test text';
     const HTML_AREA_X_DATA_NAME = 'Html Area x-data';
     const TEXT_AREA_X_DATA_NAME = 'Text Area x-data';
@@ -51,7 +52,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let xDataHtmlArea = new XDataHtmlArea();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // Click on '+' icon and enable the x-data:
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName('Html Area x-data');
             let isDisplayed = await contentWizard.isWizardStepPresent(HTML_AREA_X_DATA_NAME);
             assert.ok(isDisplayed, 'optional x-data should be visible in the Content Wizard navigation bar');
             // Verify that 'This field is required' is not displayed before saving this content:
@@ -67,7 +68,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let xDataHtmlArea = new XDataHtmlArea();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // Click on '+' icon and enable the x-data:
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName('Html Area x-data');
             // site has been saved:
             await contentWizard.waitAndClickOnSave();
             // Red icon appears in the site-wizard, because required html-area in x-data is empty
@@ -117,8 +118,8 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let contentWizard = new ContentWizard();
             // 1. Content with optional two x-data is opened
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_1');
-            await contentWizard.typeDisplayName(contentName);
-            await contentWizard.waitForXdataTogglerVisible();
+            await contentWizard.typeDisplayName(DOUBLE_0_1_CONTENT);
+            await contentWizard.waitForXdataTogglerVisible(TEXT_AREA_X_DATA_NAME);
             // 2. Verify the order of titles:
             let result = await contentWizard.getXdataTitles();
             assert.ok(result.includes(TEXT_AREA_X_DATA_NAME), 'Text Area x-data should be present');
@@ -132,10 +133,9 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let xDataTextArea = new XDataTextArea();
             // 1. Open the wizard and type a name:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_0');
-            await contentWizard.typeDisplayName(contentName);
+            await contentWizard.typeDisplayName(DOUBLE_0_0_CONTENT);
             // 2. Do enable the x-data:
-            await contentWizard.waitForXdataTogglerVisible();
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName('Text Area x-data');
             // 3. Save the content:
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('xdata_enabled_textarea');
@@ -150,10 +150,10 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let contentWizard = new ContentWizard();
             let xDataTextArea = new XDataTextArea();
             // 1. Open existing content with enabled x-data:
-            await studioUtils.selectContentAndOpenWizard(contentName);
+            await studioUtils.selectContentAndOpenWizard(DOUBLE_0_0_CONTENT);
             await studioUtils.saveScreenshot('xdata-before-disabling');
             // 2. Disable the x-data and save the content:
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName(TEXT_AREA_X_DATA_NAME);
             await studioUtils.saveScreenshot('xdata-after-disabling');
             await contentWizard.waitAndClickOnSave();
             // 3. 'text area' gets hidden
@@ -166,9 +166,9 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
         async () => {
             let contentWizard = new ContentWizard();
             let xDataTextArea = new XDataTextArea();
-            await studioUtils.selectContentAndOpenWizard(contentName);
+            await studioUtils.selectContentAndOpenWizard(DOUBLE_0_0_CONTENT);
             // 1. Enable x-data:
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName(TEXT_AREA_X_DATA_NAME);
             // 2. Type the text in x-data:
             await xDataTextArea.typeText(TEST_TEXT);
             await contentWizard.waitAndClickOnSave();
@@ -181,12 +181,12 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
         async () => {
             let contentWizard = new ContentWizard();
             let xDataTextArea = new XDataTextArea();
-            await studioUtils.selectContentAndOpenWizard(contentName);
+            await studioUtils.selectContentAndOpenWizard(DOUBLE_0_0_CONTENT);
             // 1. x-data form has been disabled:
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName(TEXT_AREA_X_DATA_NAME);
             await contentWizard.waitAndClickOnSave();
             // 2. x-data form has been enabled again
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName(TEXT_AREA_X_DATA_NAME);
             let result = await xDataTextArea.getTextInTextArea();
             await studioUtils.saveScreenshot('xdata_textarea_should_be_cleared');
             assert.ok(result == '', 'text-area in the x-data should be cleared');
@@ -201,7 +201,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let versionsWidget = new WizardVersionsWidget();
             let xDataTextArea = new XDataTextArea();
             let detailsPanel = new WizardDetailsPanel();
-            await studioUtils.selectContentAndOpenWizard(contentName);
+            await studioUtils.selectContentAndOpenWizard(DOUBLE_0_0_CONTENT);
             // 1. Open details panel:
             await contentWizard.openDetailsPanel();
             // 2. Open versions widget:

@@ -18,10 +18,12 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
         webDriverHelper.setupBrowser();
     }
     let SITE;
-    const CONTENT_WITH_XDATA = contentBuilder.generateRandomName('test');
-    const CONTENT_WITH_XDATA_2 = contentBuilder.generateRandomName('test');
+    const CONTENT_WITH_XDATA = contentBuilder.generateRandomName('double');
+    const DOUBLE_CONTENT_WITH_XDATA = contentBuilder.generateRandomName('double');
     const CONTENT_XDATA_CONTENT_SELECTOR = contentBuilder.generateRandomName('xdata');
     const IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.KOTEY;
+    const X_DATA_IMG_SEL = 'X-data (image selector)';
+    const X_DATA_CONTENT_SEL = 'X-data (content selector)';
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -38,7 +40,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_1_1_X_DATA);
             await contentWizard.typeDisplayName(CONTENT_WITH_XDATA);
             // 2. Enable the x-data and select an image::
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName(X_DATA_IMG_SEL);
             await xDataImageSelector.filterOptionsAndSelectImage(IMAGE_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('xdata_image_selector_saved');
@@ -72,12 +74,12 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             let xDataImageSelector = new XDataImageSelector();
             // 1. Open new wizard and save the content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double1_1');
-            await contentWizard.typeDisplayName(CONTENT_WITH_XDATA_2);
+            await contentWizard.typeDisplayName(DOUBLE_CONTENT_WITH_XDATA);
             // click on '+' and enable the x-data
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName(X_DATA_IMG_SEL);
             await studioUtils.saveAndCloseWizard();
             // 2. Reopen the content:
-            await studioUtils.selectContentAndOpenWizard(CONTENT_WITH_XDATA_2);
+            await studioUtils.selectContentAndOpenWizard(DOUBLE_CONTENT_WITH_XDATA);
             // 3. Verify that, x-data with image-selector should be enabled and image selector should be visible
             await xDataImageSelector.waitForImageOptionsFilterInputVisible();
         });
@@ -88,11 +90,11 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             let xDataImageSelector = new XDataImageSelector();
             let contentWizard = new ContentWizard();
             // 1. Open existing content with enabled x-data:
-            await studioUtils.selectContentAndOpenWizard(CONTENT_WITH_XDATA_2);
+            await studioUtils.selectContentAndOpenWizard(DOUBLE_CONTENT_WITH_XDATA);
             // x-data with image-selector should be present:
             await xDataImageSelector.waitForImageOptionsFilterInputVisible();
             // 2. Click on toggler and disable the x-data:
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName(X_DATA_IMG_SEL);
             // 3. Verify that 'Save' button gets visible and enabled
             await contentWizard.waitForSaveButtonVisible();
         });
@@ -107,7 +109,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.COMBOBOX_0_0);
             await contentWizard.typeDisplayName(CONTENT_XDATA_CONTENT_SELECTOR);
             // 2. Click on '+' and enable the x-data
-            await contentWizard.clickOnXdataToggler();
+            await contentWizard.clickOnXdataTogglerByName(X_DATA_CONTENT_SEL);
             // 3. Select an option in the x-data content selector(one not required):
             await xDataContentSelector.filterOptionsAndSelectContent(SITE.displayName);
             await contentWizard.waitAndClickOnSave();
