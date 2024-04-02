@@ -471,7 +471,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="paragraph">
 <p>Defines matching mode for content type patterns. Can be <code>MATCH</code> or <code>LEGACY</code>. Default: <code>MATCH</code>.
-See <a href="https://developer.enonic.com/docs/xp/stable/cms/input-types#allowContentType">description</a>.</p>
+See <a href="https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/contentselector#allowContentType">description</a>.</p>
 </div>
 <div class="listingblock">
 <div class="title">Set matching mode</div>
@@ -571,7 +571,7 @@ upgrading to Content Studio 5), enable it by setting <code>settings.hideDefaultP
 </td>
 <td class="content">
 If the Default project is hidden (default behaviour) and a logged-in user doesn&#8217;t have access to any projects and has necessary permissions,
-he/she will be asked to create a new content project using <a href="storage/projects.ahtml#new_project_wizard">multistep wizard</a>.
+he/she will be asked to create a new content project using <a href="settings.ahtml#new_project_wizard">multistep wizard</a>.
 </td>
 </tr>
 </table>
@@ -655,7 +655,7 @@ Use this flag with caution. It makes it very simple to publish a content without
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-02 13:17:18 UTC
+Last updated 2024-04-02 15:26:21 UTC
 </div>
 </div>
 </body>

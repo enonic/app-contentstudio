@@ -843,7 +843,7 @@ Default project doesn&#8217;t support project roles or customization of read per
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-You can enable the Default Project in Content Studio via <a href="config.ahtml#enable_default_content_project#">configuration file</a>.
+You can enable the Default Project in Content Studio via a <a href="config.ahtml#enable_default_content_project">configuration file</a>.
 </td>
 </tr>
 </table>
@@ -853,7 +853,7 @@ You can enable the Default Project in Content Studio via <a href="config.ahtml#e
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-02 13:17:18 UTC
+Last updated 2024-04-02 15:26:21 UTC
 </div>
 </div>
 </body>

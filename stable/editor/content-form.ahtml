@@ -491,8 +491,8 @@ Value of the Path field must be unique and will be validated against existing co
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-For a new content Path will be auto-generated as you type into the Display Name field. International letters will be automatically
-transliterated into their english equivalents. It&#8217;s possible to turn off this behaviour in the Content Studio&#8217;s <a href="configuration_file.ahtml">config file</a>.
+For a new content, Path will be auto-generated as you type into the Display Name field. International letters will be automatically
+transliterated into their english equivalents. It&#8217;s possible to turn off this behaviour in the Content Studio&#8217;s <a href="../config.ahtml#content_path_transliteration">config file</a>.
 </td>
 </tr>
 </table>
@@ -573,7 +573,7 @@ For fragments and page templates the Page Components tree will be inside the fir
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-02 13:17:18 UTC
+Last updated 2024-04-02 15:26:21 UTC
 </div>
 </div>
 </body>

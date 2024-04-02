@@ -630,7 +630,7 @@ Just as with parts, you can limit a layout to be used only on specific content t
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Documentation on Rich Text Editor used by Text component can be found <a href="editor/rich-text-editor.ahtml">here</a>
+Documentation on Rich Text Editor used by Text component can be found <a href="rich-text-editor.ahtml">here</a>
 </td>
 </tr>
 </table>
@@ -670,7 +670,7 @@ Documentation on Rich Text Editor used by Text component can be found <a href="e
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-02 13:17:18 UTC
+Last updated 2024-04-02 15:26:21 UTC
 </div>
 </div>
 </body>
