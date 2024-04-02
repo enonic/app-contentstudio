@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.21">
+<meta name="generator" content="Asciidoctor 2.0.22">
 <title>Rich text editor</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -469,7 +469,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Rich Text Editor is used by <a href="https://developer.enonic.com/docs/xp/stable/cms/input-types#htmlarea">HTMLArea input type</a>
+<p>Rich Text Editor is used by <a href="https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea">HTMLArea input type</a>
 and for editing <a href="component-types.ahtml#text_component">text component</a> inside the Page Editor.
 It&#8217;s capable of formatting the text in many ways, pasting from Word and Google Docs, using macros to insert code snippets
 and iFrames, inserting tables, images and content links etc.</p>
@@ -570,7 +570,7 @@ This dialog can also be opened using the <code>Ctrl</code>/<code>Cmd</code>+<cod
 <p>This button opens the Insert Image dialog. An existing image content can be selected from the “Image” selector, or a new image can be uploaded using the upload button.
 Once an image is selected, additional formatting options will appear. The image can be floated to the left or right so that text wraps around it.
 The image can also be centered or set to full width. By checking off “Custom width” you will have an option to set relative width of the image.
-Additionally, there&#8217;s an option to apply <a href="editor/rich-text-editor.ahtml#custom_image_styles">custom image styles</a>.
+Additionally, there&#8217;s an option to apply <a href="#custom_image_styles">custom image styles</a>.
 A caption and alt text can be entered at the bottom of the modal dialog. A double click on an image inside the Editor will open the modal dialog for editing properties of the image.</p>
 </div>
 </div>
@@ -657,7 +657,7 @@ that the image won&#8217;t undergo any processing on the server and will be rend
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-07 13:05:14 UTC
+Last updated 2024-04-02 13:17:18 UTC
 </div>
 </div>
 </body>
