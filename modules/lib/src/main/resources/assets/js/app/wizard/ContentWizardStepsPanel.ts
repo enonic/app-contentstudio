@@ -10,8 +10,8 @@ export class ContentWizardStepsPanel
     extends WizardStepsPanel {
 
     protected createHeader(header: string, wizardStepForm: WizardStepForm): PanelStripHeader {
-        const isPanelOptional = this.isWizardStepFormOptional(wizardStepForm);
-        const panelStripHeader = new ContentPanelStripHeader({text: header, isOptional: isPanelOptional});
+        const isPanelOptional = this.isXDataStepFormOptional(wizardStepForm);
+        const panelStripHeader = new ContentPanelStripHeader({text: header, optional: isPanelOptional});
 
         if (isPanelOptional) {
             panelStripHeader.onEnableChanged((state) => {
@@ -23,7 +23,7 @@ export class ContentWizardStepsPanel
     }
 
     insertNavigablePanel(item: TabBarItem, wizardStepForm: WizardStepForm, header: string, index: number, select?: boolean): number {
-        if (this.isWizardStepFormOptional(wizardStepForm)) {
+        if (this.isXDataStepFormOptional(wizardStepForm)) {
             wizardStepForm.onHidden(() => {
                 item.hide();
             });
@@ -46,7 +46,7 @@ export class ContentWizardStepsPanel
         });
     }
 
-    private isWizardStepFormOptional(wizardStepForm: WizardStepForm): boolean {
+    private isXDataStepFormOptional(wizardStepForm: WizardStepForm): boolean {
         return wizardStepForm instanceof XDataWizardStepForm && wizardStepForm.isExpandable();
     }
 }

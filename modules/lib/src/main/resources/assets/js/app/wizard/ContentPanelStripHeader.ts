@@ -1,15 +1,15 @@
-import {PanelStripHeader, PanelStripHeaderOptions} from '@enonic/lib-admin-ui/ui/panel/PanelStripHeader';
+import {PanelStripHeader, PanelStripHeaderConfig} from '@enonic/lib-admin-ui/ui/panel/PanelStripHeader';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 
-export interface ContentPanelStripHeaderOptions extends PanelStripHeaderOptions {
-    isOptional?: boolean;
+export interface ContentPanelStripHeaderConfig extends PanelStripHeaderConfig {
+    optional?: boolean;
 }
 
 export class ContentPanelStripHeader extends PanelStripHeader {
 
-    protected options: ContentPanelStripHeaderOptions;
+    protected config: ContentPanelStripHeaderConfig;
 
     private toggler: ButtonEl;
 
@@ -17,14 +17,14 @@ export class ContentPanelStripHeader extends PanelStripHeader {
 
     private enableChangedListeners: ((value: boolean) => void)[] = [];
 
-    constructor(options: ContentPanelStripHeaderOptions) {
-        super(options);
+    constructor(config: ContentPanelStripHeaderConfig) {
+        super(config);
     }
 
     protected initElements(): void {
         super.initElements();
 
-        if (this.options.isOptional) {
+        if (this.config.optional) {
             this.toggler = new ButtonEl();
             this.tooltip = new Tooltip(this.toggler, '', 200).setMode(Tooltip.MODE_GLOBAL_STATIC);
 
@@ -35,7 +35,7 @@ export class ContentPanelStripHeader extends PanelStripHeader {
     protected initListeners(): void {
         super.initListeners();
 
-        if (this.options.isOptional) {
+        if (this.config.optional) {
             this.toggler.onClicked((e) => this.toggleState(e));
             this.onClicked((e) => this.hasClass('enabled') || this.toggleState(e));
         }

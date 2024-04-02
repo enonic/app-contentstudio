@@ -1,23 +1,5 @@
 .content-wizard-steps-panel {
-  .x-data-wizard-step-form + .panel-strip-panel-header.enabled {
-    padding-top: 10px;
-  }
-
   .content-panel-strip-header {
-    &:not(.disabled) + .x-data-wizard-step-form {
-      padding-bottom: 50px;
-    }
-
-    &.enabled {
-      + .x-data-wizard-step-form + .panel-strip-panel-header:not(.enabled):not(.disabled) {
-        padding-top: 10px;
-      }
-
-      > .panel {
-        padding-bottom: 50px;
-      }
-    }
-
     .toggler-button {
       cursor: pointer;
       float: right;
@@ -44,23 +26,15 @@
     &.disabled {
       background-color: @admin-bg-light-gray;
       cursor: pointer;
-      margin-bottom: 50px;
       border-bottom: none;
-      box-shadow: 0 -5px #f7f7f7, 0 15px #f7f7f7;
+      padding-top: 15px !important;
+      padding-bottom: 15px !important;
 
       .toggler-button {
         &::before {
           transform: rotate(45deg);
         }
       }
-
-      + .x-data-wizard-step-form + .panel-strip-panel-header.enabled {
-        padding-top: 60px;
-      }
-    }
-
-    .wizard-step-form:not(.x-data-wizard-step-form) + .panel-strip-panel-header.disabled {
-      margin-top: 60px;
     }
   }
 }
