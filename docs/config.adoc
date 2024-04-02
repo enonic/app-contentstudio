@@ -9,7 +9,7 @@ The file should be called `com.enonic.app.contentstudio.cfg` and placed into the
 == Matching mode for content type patterns
 
 Defines matching mode for content type patterns. Can be `MATCH` or `LEGACY`. Default: `MATCH`.
-See https://developer.enonic.com/docs/xp/stable/cms/input-types#allowContentType[description].
+See https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/contentselector#allowContentType[description].
 
 .Set matching mode
 [source,properties]
@@ -75,7 +75,7 @@ settings.hideDefaultProject=false
 ----
 
 IMPORTANT: If the Default project is hidden (default behaviour) and a logged-in user doesn't have access to any projects and has necessary permissions,
-he/she will be asked to create a new content project using <<storage/projects#new_project_wizard,multistep wizard>>.
+he/she will be asked to create a new content project using <<settings#new_project_wizard,multistep wizard>>.
 
 == Publishing Wizard
 

@@ -127,10 +127,10 @@ NOTE: If you have created a new layer, the synchronisation job will kick in and 
 
 == The default Project
 
-NOTE: The `default` project is a legacy project structure which does not support modern features such as project roles and layering. 
+NOTE: The `default` project is a legacy project structure which does not support modern features such as project roles and layering.
 
 This project cannot be deleted and is by default hidden
-in Content Studio. 
+in Content Studio.
 
 You can modify its display name and description, set default language
 for a new content which will be created in this repository and replace the icon in the "Settings" section.
@@ -139,4 +139,4 @@ NOTE: Default project doesn't support project roles or customization of read per
 
 image::default-project.png[Default project, 825]
 
-TIP: You can enable the Default Project in Content Studio via <<config#enable_default_content_project#,configuration file>>.
+TIP: You can enable the Default Project in Content Studio via a <<config#enable_default_content_project,configuration file>>.

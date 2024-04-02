@@ -98,7 +98,7 @@ The Text component allows content editors to place and format text into any regi
 
 In the <<page-editor#,Page Editor>>, drag a Text component from the <<../widgets#insert-tab,Insert tab>> of the components widget to the desired region on the page. A cursor will appear inside the text component and editing can begin. If another component is selected, the text component will need to be double-clicked to resume editing.
 
-TIP: Documentation on Rich Text Editor used by Text component can be found <<editor/rich-text-editor#,here>>
+TIP: Documentation on Rich Text Editor used by Text component can be found <<rich-text-editor#,here>>
 
 image::component-types-text-insert.png[]
 
