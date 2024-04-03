@@ -12,6 +12,7 @@ import {DateTimeRange} from '@enonic/lib-admin-ui/form/inputtype/time/DateTimeRa
 import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class PublishScheduleForm
     extends DivEl {
@@ -56,6 +57,8 @@ export class PublishScheduleForm
     }
 
     private createRangeFormItem(): FormItem {
+        const fromTime = CONFIG.has('defaultPublishFromTime') ? CONFIG.getString('defaultPublishFromTime') : '12:00';
+
         return new InputBuilder()
             .setName('publish')
             .setLabel(i18n('field.scheduledPublishing'))
@@ -65,7 +68,7 @@ export class PublishScheduleForm
             .setInputTypeConfig({
                 labelStart: i18n('field.onlineFrom'),
                 labelEnd: i18n('field.onlineTo'),
-                defaultStartTime: '08:00'
+                defaultStartTime: fromTime,
             })
             .setMaximizeUIInputWidth(true)
             .build();
