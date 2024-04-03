@@ -58,7 +58,7 @@ const XPATH = {
     wizardStepByTitle:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
     xDataTogglerByName:
-        name => `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler' and preceding-sibling::span[contains(.,'${name}')]]`,
+        name => `//div[contains(@id,'WizardStepsPanel')]//div[contains(@id,'ContentPanelStripHeader') and child::span[contains(.,'${name}')]]//button[contains(@class,'toggler-button')]`,
     publishMenuItemByName(name) {
         return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
@@ -259,9 +259,9 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async waitForXdataTogglerVisible() {
+    async waitForXdataTogglerVisible(name) {
         try {
-            return this.waitForElementDisplayed(XPATH.xDataToggler, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(XPATH.xDataTogglerByName(name), appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_x_data_toggler');
             throw new Error("x-data toggler is not visible on the wizard page, screenshot: " + screenshot + ' ' + err);
@@ -308,16 +308,6 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async clickOnXdataToggler() {
-        try {
-            await this.clickOnElement(XPATH.xDataToggler);
-            return await this.pause(500);
-        } catch (err) {
-            await this.saveScreenshot('err_click_on_xdata_toggler');
-            throw new Error("Error when clicking on x-data toggler " + err);
-        }
-    }
-
     async clickOnXdataTogglerByName(name) {
         try {
             await this.waitForElementDisplayed(XPATH.xDataTogglerByName(name), appConst.mediumTimeout);
@@ -325,18 +315,19 @@ class ContentWizardPanel extends Page {
             return await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_x_data_toggler');
-            throw new Error("Error during clicking on X-data toggler, screenshot: " + screenshot + "  " + err);
+            throw new Error("Error occurred during clicking on X-data toggler, screenshot: " + screenshot + "  " + err);
         }
     }
 
     // Gets titles of all x-data forms
     async getXdataTitles() {
         try {
-            let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span";
+            let selector = "//div[contains(@id,'ContentPanelStripHeader')]/span";
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInElements(selector);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_x_data');
-            throw new Error("Error when getting title from x-data, screenshot:" + screenshot + ' ' + err);
+            throw new Error("Error occurred after getting the title from x-data, screenshot:" + screenshot + ' ' + err);
         }
     }
 
@@ -635,7 +626,7 @@ class ContentWizardPanel extends Page {
             return await this.pause(300);
         } catch (err) {
             await this.saveScreenshot('err_customize_menu_item');
-            throw  new Error(`'Customize Page' menu item is not displayed` + err);
+            throw new Error(`'Customize Page' menu item is not displayed` + err);
         }
     }
 
