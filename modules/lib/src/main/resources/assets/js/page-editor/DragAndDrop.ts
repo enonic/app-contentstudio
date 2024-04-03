@@ -15,7 +15,6 @@ import {ComponentViewDragCanceledEvent} from './ComponentViewDragCanceledEvent';
 import {ComponentViewDragDroppedEvent} from './ComponentViewDragDroppedEventEvent';
 import {ComponentViewDragStoppedEvent} from './ComponentViewDraggingStoppedEvent';
 import {ComponentViewDragStartedEvent} from './ComponentViewDragStartedEvent';
-import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {ComponentItemType} from './ComponentItemType';
 import {RegionItemType} from './RegionItemType';
 import {ItemView} from './ItemView';
@@ -583,21 +582,16 @@ export class DragAndDrop {
     }
 
     private isDraggingLayoutOverLayout(regionView: RegionView, draggingItemType: ItemType): boolean {
-        let isLayout = regionView.hasParentLayoutComponentView() && draggingItemType.equals(LayoutItemType.get());
-        if (!isLayout) {
-            let itemType = this.getItemType();
-            if (FragmentItemType.get().equals(itemType)) {
-                let fragment = this.draggedComponentView as FragmentComponentView;
-                isLayout = fragment && fragment.containsLayout();
-                if (isLayout && DragAndDrop.debug) {
-                    console.log('DragAndDrop.isDraggingLayoutOverLayout - Fragment contains layout');
-                }
+        const isFragment = FragmentItemType.get().equals(draggingItemType);
+        const isLayout = !isFragment && LayoutItemType.get().equals(draggingItemType);
+
+        if (isFragment || isLayout) {
+            if (regionView.hasParentLayoutComponentView() && (isLayout || (this.draggedComponentView as FragmentComponentView).containsLayout())) {
+                return true;
             }
         }
-        if (DragAndDrop.debug) {
-            console.log('DragAndDrop.isDraggingLayoutOverLayout = ' + isLayout);
-        }
-        return isLayout;
+
+        return false;
     }
 
     private getComponentView(jq: JQuery): ComponentView {
