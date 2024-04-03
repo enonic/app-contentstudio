@@ -47,6 +47,6 @@ export class ContentWizardStepsPanel
     }
 
     private isXDataStepFormOptional(wizardStepForm: WizardStepForm): boolean {
-        return wizardStepForm instanceof XDataWizardStepForm && wizardStepForm.isExpandable();
+        return wizardStepForm instanceof XDataWizardStepForm && wizardStepForm.isOptional();
     }
 }
