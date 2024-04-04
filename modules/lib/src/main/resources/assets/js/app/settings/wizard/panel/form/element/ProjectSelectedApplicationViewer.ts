@@ -6,24 +6,23 @@ import {Application} from '@enonic/lib-admin-ui/application/Application';
 export class ProjectSelectedApplicationViewer
     extends ProjectApplicationViewer {
 
-    constructor() {
-        super();
-    }
-
     resolveSubName(application: Application): string {
         if (ObjectHelper.isDefined(application.getState())) {
-            return super.resolveSubName(application) + (application.isStarted() ? '' :
-                   ` (${i18n('settings.items.wizard.application.stopped')})`);
+            if (application.isStopped()) {
+                return i18n('text.application.is.stopped', application.getApplicationKey().toString());
+            }
+            return super.resolveSubName(application);
         }
 
-        return i18n('settings.items.wizard.application.not.available', application.getApplicationKey().toString());
+        return i18n('text.application.not.available', application.getApplicationKey().toString());
     }
 
-    doLayout(item: Application) {
-        super.doLayout(item);
+    doLayout(application: Application) {
+        super.doLayout(application);
 
-        if (item && !item.isStarted()) {
-            this.addClass('not-available');
+        if (application) {
+            this.toggleClass('uninstalled', !ObjectHelper.isDefined(application.getState()));
+            this.toggleClass('stopped', application.isStopped());
         }
     }
 

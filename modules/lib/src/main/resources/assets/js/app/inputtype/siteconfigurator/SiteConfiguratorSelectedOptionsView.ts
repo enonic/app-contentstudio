@@ -42,11 +42,7 @@ export class SiteConfiguratorSelectedOptionsView
     }
 
     protected getEmptyDisplayValue(id: string): Application {
-        const emptyApp: ApplicationBuilder = new ApplicationBuilder();
-        emptyApp.applicationKey = ApplicationKey.fromString(id);
-        emptyApp.displayName = id;
-
-        return emptyApp.build();
+        return SiteConfiguratorSelectedOptionView.getEmptyDisplayValue(id);
     }
 
     createSelectedOption(option: Option<Application>): SelectedOption<Application> {

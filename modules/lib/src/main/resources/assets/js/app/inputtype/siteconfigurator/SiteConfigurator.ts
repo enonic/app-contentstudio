@@ -240,12 +240,7 @@ export class SiteConfigurator
                 return;
             }
             const selectedOptionView: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
-            if (!selectedOptionView) {
-                return;
-            }
-            selectedOptionView.toggleClass('stopped', ApplicationEventType.STOPPED === event.getEventType());
-            selectedOptionView.toggleClass('uninstalled', ApplicationEventType.UNINSTALLED === event.getEventType());
-            selectedOptionView.update();
+            selectedOptionView?.update();
         };
 
         ApplicationEvent.on((event: ApplicationEvent) => handleAppEvent(event));
