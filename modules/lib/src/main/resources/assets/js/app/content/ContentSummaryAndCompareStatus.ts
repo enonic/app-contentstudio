@@ -13,6 +13,7 @@ import {ContentInheritType} from './ContentInheritType';
 import {ContentId} from './ContentId';
 import {ContentPath} from './ContentPath';
 import {ContentSummaryAndCompareStatusDiffHelper} from './ContentSummaryAndCompareStatusDiffHelper';
+import {isEqual} from '../Diff';
 
 export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 
@@ -260,7 +261,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 
         const other = o as ContentSummaryAndCompareStatus;
         const diff = ContentSummaryAndCompareStatusDiffHelper.diff(this, other);
-        return ContentSummaryAndCompareStatusDiffHelper.isEqual(diff);
+        return isEqual(diff);
     }
 
     setReadOnly(value: boolean) {

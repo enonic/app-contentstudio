@@ -5,7 +5,12 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 export class ContentSummaryAndCompareStatusDiffHelper {
 
     public static diff(item1: ContentSummaryAndCompareStatus, item2: ContentSummaryAndCompareStatus): ContentSummaryAndCompareStatusDiff {
-        const diff = new ContentSummaryAndCompareStatusDiff();
+        const diff: ContentSummaryAndCompareStatusDiff = {
+            uploadItem: false,
+            contentSummary: false,
+            compareStatus: false,
+            renderable: false
+        };
 
         if (!ObjectHelper.equals(item1.getUploadItem(), item2.getUploadItem())) {
             diff.uploadItem = true;
@@ -24,10 +29,6 @@ export class ContentSummaryAndCompareStatusDiffHelper {
         }
 
         return diff;
-    }
-
-    public static isEqual(diff: ContentSummaryAndCompareStatusDiff): boolean {
-        return Object.keys(diff).every((key) => !diff[key]);
     }
 
 }

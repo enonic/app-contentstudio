@@ -1,7 +1,8 @@
+import {Diff} from '../Diff';
 
-export class ContentSummaryAndCompareStatusDiff {
-    uploadItem: boolean = false;
-    contentSummary: boolean = false;
-    compareStatus: boolean = false;
-    renderable: boolean = false;
+export interface ContentSummaryAndCompareStatusDiff extends Diff {
+    uploadItem: boolean;
+    contentSummary: boolean;
+    compareStatus: boolean;
+    renderable: boolean;
 }
