@@ -43,7 +43,7 @@ describe('Wizard page - verify schedule form', function () {
             await wizardDetailsPanel.waitForScheduleWidgetItemNotDisplayed();
         });
 
-    it(`GIVEN existing content is opened WHEN content has been published THEN 'Schedule' form should appear in Edit Properties modal dialog`,
+    it(`GIVEN existing content is opened WHEN content has been published THEN 'Schedule' form should appear in 'Edit Properties' modal dialog`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardDetailsPanel = new WizardDetailsPanel();
@@ -133,7 +133,7 @@ describe('Wizard page - verify schedule form', function () {
             await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_FUTURE);
             await contentPublishDialog.typeInOnlineTo(DATE_TIME_TO);
             await studioUtils.saveScreenshot('online_to_set');
-            await contentPublishDialog.clickOnOkButton();
+            await contentPublishDialog.clickOnOkInPickerPopup();
             // 5. Press the Schedule button
             await contentPublishDialog.clickOnScheduleButton();
             // 6. Verify that status is 'Publishing Scheduled''
@@ -162,12 +162,12 @@ describe('Wizard page - verify schedule form', function () {
             await contentPublishDialog.waitForDialogOpened();
             // 3. Click on Add Schedule (calendar icon):
             await contentPublishDialog.clickOnAddScheduleIcon();
-            // 4. Type dateTime in past:
+            // 4. Type a date-Time 'in past':
             await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_PAST);
             // 5. Insert dateTime in future:
             await contentPublishDialog.typeInOnlineTo(DATE_TIME_TO);
             await studioUtils.saveScreenshot('online_to_set_2');
-            await contentPublishDialog.clickOnOkButton();
+            await contentPublishDialog.clickOnOkInPickerPopup();
             // 6. Press 'Schedule' button
             await contentPublishDialog.clickOnScheduleButton();
             // 7. Verify that status is 'Publishing Scheduled''

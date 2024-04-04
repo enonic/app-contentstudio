@@ -66,25 +66,24 @@ class EditScheduleDialog extends Page {
     }
 
     typeOnlineFrom(value) {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.typeOnlineFrom(value, xpath.container);
+        let dateTimeRange = new DateTimeRange(xpath.container);
+        return dateTimeRange.typeOnlineFrom(value);
     }
 
     async getOnlineFrom() {
-        let dateTimeRange = new DateTimeRange();
-        return await dateTimeRange.getOnlineFrom(xpath.scheduleStepFormDiv);
+        let dateTimeRange = new DateTimeRange(xpath.scheduleStepFormDiv);
+        return await dateTimeRange.getOnlineFrom();
     }
 
     getOnlineTo() {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.getOnlineTo(xpath.scheduleStepFormDiv);
+        let dateTimeRange = new DateTimeRange(xpath.scheduleStepFormDiv);
+        return dateTimeRange.getOnlineTo();
     }
 
     typeOnlineTo(value) {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.typeOnlineTo(value, xpath.scheduleStepFormDiv);
+        let dateTimeRange = new DateTimeRange(xpath.scheduleStepFormDiv);
+        return dateTimeRange.typeOnlineTo(value);
     }
-
 
     waitForValidationRecording() {
         let dateTimeRange = new DateTimeRange();
@@ -92,8 +91,8 @@ class EditScheduleDialog extends Page {
     }
 
     getScheduleValidationRecord() {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.getValidationRecord(xpath.scheduleStepFormDiv);
+        let dateTimeRange = new DateTimeRange(xpath.scheduleStepFormDiv);
+        return dateTimeRange.getValidationRecord();
     }
 
     waitForScheduleFormDisplayed() {
@@ -111,15 +110,14 @@ class EditScheduleDialog extends Page {
     }
 
     waitForOnlineToInputDisplayed() {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.waitForOnlineToInputDisplayed(xpath.scheduleStepFormDiv);
+        let dateTimeRange = new DateTimeRange(xpath.scheduleStepFormDiv);
+        return dateTimeRange.waitForOnlineToInputDisplayed();
     }
 
     waitForOnlineFromInputDisplayed() {
-        let dateTimeRange = new DateTimeRange();
-        return dateTimeRange.waitForOnlineFromInputDisplayed(xpath.scheduleStepFormDiv);
+        let dateTimeRange = new DateTimeRange(xpath.scheduleStepFormDiv);
+        return dateTimeRange.waitForOnlineFromInputDisplayed();
     }
-
 }
 
 module.exports = EditScheduleDialog;
