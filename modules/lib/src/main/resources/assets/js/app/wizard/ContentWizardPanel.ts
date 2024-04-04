@@ -364,17 +364,18 @@ export class ContentWizardPanel
             if (!this.isAppUsedByContent(event.getApplicationKey())) {
                 return;
             }
-            this.missingOrStoppedAppKeys.push(event.getApplicationKey());
-            this.debouncedAppsChangeHandler();
+
+            this.updateMissingOrStoppedApplications();
         };
 
         this.applicationStoppedListener = (event: ApplicationEvent) => {
             if (!this.isAppUsedByContent(event.getApplicationKey())) {
                 return;
             }
-            this.missingOrStoppedAppKeys.push(event.getApplicationKey());
 
-            let message = i18n('notify.app.missing', event.getApplicationKey().toString());
+            this.updateMissingOrStoppedApplications();
+
+            let message = i18n('text.application.not.available', event.getApplicationKey().toString());
 
             if (this.isVisible()) {
                 showWarning(message);
@@ -396,22 +397,13 @@ export class ContentWizardPanel
 
                 this.onShown(shownHandler);
             }
-            this.debouncedAppsChangeHandler();
         };
 
         this.applicationStartedListener = (event: ApplicationEvent) => {
             if (!this.isAppUsedByContent(event.getApplicationKey())) {
                 return;
             }
-            let indexToRemove = -1;
-            this.missingOrStoppedAppKeys.some((applicationKey: ApplicationKey, index) => {
-                indexToRemove = index;
-                return event.getApplicationKey().equals(applicationKey);
-            });
-            if (indexToRemove > -1) {
-                this.missingOrStoppedAppKeys.splice(indexToRemove, 1);
-            }
-            this.debouncedAppsChangeHandler();
+            this.updateMissingOrStoppedApplications();
         };
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
@@ -1878,13 +1870,7 @@ export class ContentWizardPanel
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(content).then(() => {
                 this.contextView.updateWidgetsVisibility();
-                this.fetchMissingOrStoppedAppKeys().then((missingApps: ApplicationKey[]) => {
-                    this.missingOrStoppedAppKeys = missingApps;
-
-                    if (missingApps.length > 0) {
-                        this.debouncedAppsChangeHandler();
-                    }
-                }).catch(DefaultErrorHandler.handle);
+                this.updateMissingOrStoppedApplications();
 
                 return this.createWizardStepForms().then(() => {
                     const steps: ContentWizardStep[] = this.createSteps();
@@ -1965,10 +1951,16 @@ export class ContentWizardPanel
         }
 
         return new GetApplicationsRequest(applicationKeys).sendAndParse().then((applications: Application[]) => {
-            return applicationKeys.filter((key: ApplicationKey) => {
+            const stoppedApps: Application[] = [];
+            const missingOrStoppedAppKeys: ApplicationKey[] = applicationKeys.filter((key: ApplicationKey) => {
                 const app: Application = applications.find((a: Application) => a.getApplicationKey().equals(key));
+                app?.isStopped() && stoppedApps.push(app);
                 return !app || app.getState() === Application.STATE_STOPPED;
             });
+
+            this.formContext.setStoppedApplications(stoppedApps);
+
+            return missingOrStoppedAppKeys;
         });
     }
 
@@ -2741,5 +2733,15 @@ export class ContentWizardPanel
 
     protected createWizardStepsPanel(): WizardStepsPanel {
         return new ContentWizardStepsPanel(this.stepNavigator, this.formPanel);
+    }
+
+    private updateMissingOrStoppedApplications() {
+        this.fetchMissingOrStoppedAppKeys().then((missingApps: ApplicationKey[]) => {
+            this.missingOrStoppedAppKeys = missingApps;
+
+            if (missingApps.length > 0) {
+                this.debouncedAppsChangeHandler();
+            }
+        }).catch(DefaultErrorHandler.handle);
     }
 }
