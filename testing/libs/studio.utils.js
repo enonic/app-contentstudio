@@ -1007,11 +1007,11 @@ module.exports = {
     },
     async scheduleContent(contentName, date) {
         let contentBrowsePanel = new ContentBrowsePanel();
-        let dateTimeRange = new DateTimeRange();
+        let dateTimeRange = new DateTimeRange("//div[contains(@id,'ContentPublishDialog')]");
         await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
         let contentPublishDialog = new ContentPublishDialog();
         await contentPublishDialog.clickOnAddScheduleIcon();
-        await dateTimeRange.typeOnlineFrom(date, "//div[contains(@id,'ContentPublishDialog')]");
+        await dateTimeRange.typeOnlineFrom(date);
         await contentPublishDialog.clickOnScheduleButton();
         return await contentPublishDialog.waitForDialogClosed();
     },
