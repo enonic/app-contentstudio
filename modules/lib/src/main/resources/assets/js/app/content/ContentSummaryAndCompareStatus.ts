@@ -12,6 +12,7 @@ import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
 import {ContentInheritType} from './ContentInheritType';
 import {ContentId} from './ContentId';
 import {ContentPath} from './ContentPath';
+import {ContentSummaryAndCompareStatusDiffHelper} from './ContentSummaryAndCompareStatusDiffHelper';
 
 export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 
@@ -253,26 +254,13 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentSummaryAndCompareStatus)) {
             return false;
         }
 
-        let other = o as ContentSummaryAndCompareStatus;
-
-        if (!ObjectHelper.equals(this.uploadItem, other.getUploadItem())) {
-            return false;
-        }
-
-        if (!ObjectHelper.equals(this.contentSummary, other.getContentSummary())) {
-            return false;
-        }
-
-        if (this.compareStatus !== other.getCompareStatus()) {
-            return false;
-        }
-
-        return this.renderable === other.isRenderable();
+        const other = o as ContentSummaryAndCompareStatus;
+        const diff = ContentSummaryAndCompareStatusDiffHelper.diff(this, other);
+        return ContentSummaryAndCompareStatusDiffHelper.isEqual(diff);
     }
 
     setReadOnly(value: boolean) {
