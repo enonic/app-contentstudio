@@ -108,7 +108,7 @@ describe('tests for Sorted versions item', function () {
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             // 2. open Versions Panel
             await contentBrowseDetailsPanel.openVersionHistory();
-            // 3. Expand and revert the second 'Sorted' version item - displayname ASC:
+            // 3. Expand and revert the second 'Sorted' version item - display name ASC:
             await browseVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.SORTED, 1);
             await browseVersionsWidget.clickOnRevertButton();
             await browseVersionsWidget.waitForNotificationMessage();

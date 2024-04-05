@@ -29,6 +29,7 @@ const XPATH = {
     contentStatus: displayName => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
     removeItemIconByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]//div[@class='icon remove']`,
     excludedItemsNote: "//span[@class='excluded-items-note']",
+    publishChangeLogInput: "//input[contains(@placeholder,'Describe changes that will')]",
 };
 
 class ContentPublishDialog extends Page {
@@ -106,6 +107,16 @@ class ContentPublishDialog extends Page {
 
     get allDependantsCheckbox() {
         return XPATH.container + lib.checkBoxDiv('All');
+    }
+
+    async clickOnLogMessageLink() {
+        await this.waitForElementDisplayed(this.logMessageLink, appConst.mediumTimeout);
+        return await this.clickOnElement(this.logMessageLink);
+    }
+
+    typeTextInLogMessageInput(text) {
+        let locator = XPATH.container + XPATH.publishChangeLogInput;
+        return this.typeTextInInput(locator, text);
     }
 
     async waitForDependantsBlockDisplayed() {
