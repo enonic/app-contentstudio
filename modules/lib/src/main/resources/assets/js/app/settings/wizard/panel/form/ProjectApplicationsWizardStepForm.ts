@@ -7,6 +7,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectApplicationsFormItem} from './element/ProjectApplicationsFormItem';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ProjectApplicationsFormParams} from './element/ProjectApplicationsFormParams';
+import {Project} from '../../../data/project/Project';
 
 export class ProjectApplicationsWizardStepForm
     extends ProjectWizardStepForm {
@@ -27,9 +28,7 @@ export class ProjectApplicationsWizardStepForm
     }
 
     protected initListeners() {
-        this.applicationsFormItem.getComboBox().onDataChanged(() => {
-            this.notifyDataChanged();
-        });
+        this.applicationsFormItem.getComboBox().onDataChanged(() => this.notifyDataChanged());
     }
 
     layout(item: ProjectViewItem): Q.Promise<void> {
@@ -44,4 +43,8 @@ export class ProjectApplicationsWizardStepForm
         return this.applicationsFormItem?.getSiteConfigs() || [];
     }
 
+    setParentProjects(projects: Project[]) {
+        super.setParentProjects(projects);
+        this.applicationsFormItem.getComboBox().setParentProjects(projects);
+    }
 }

@@ -137,21 +137,6 @@ export class ProjectWizardPanel
         throw new Error('Project creation is done via Project Wizard Dialog');
     }
 
-    postPersistNewItem2(item: ProjectViewItem): Q.Promise<ProjectViewItem> {
-        return super.postPersistNewItem(item).then(() => {
-            this.projectWizardStepForm.disableProjectNameHelpText();
-            const hasParents = item.getData().hasParents();
-            if (hasParents) {
-                this.projectWizardStepForm.disableParentProjectHelpText();
-                this.projectWizardStepForm.disableParentProjectsInput();
-            }
-
-            this.projectWizardStepForm.disableProjectNameInput();
-
-            return Q(item);
-        });
-    }
-
     persistNewItem(): Q.Promise<ProjectViewItem> {
         throw new Error('Project creation is done via Project Wizard Dialog');
     }
@@ -391,6 +376,7 @@ export class ProjectWizardPanel
 
             this.readAccessWizardStepForm.setParentProjects(projects);
             this.rolesWizardStepForm.setParentProjects(projects);
+            this.applicationsWizardStepForm.setParentProjects(projects);
 
             this.projectWizardStepForm.onParentProjectChanged((p: Project[]) => {
                 this.readAccessWizardStepForm.setParentProjects(p);
