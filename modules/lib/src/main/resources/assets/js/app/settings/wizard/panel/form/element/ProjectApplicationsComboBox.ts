@@ -135,8 +135,6 @@ export class ProjectApplicationsComboBox
     }
 
     private layoutSelectedApp(appConfig: ApplicationConfig): Q.Promise<void> {
-        const view = this.getSelectedOptionViewByKey(appConfig.getApplicationKey());
-        view.getEl().setClass('selected-option');
         return this.getSelectedOptionViewByKey(appConfig.getApplicationKey())
             ?.setDataChangedHandler(this.notifyDataChanged.bind(this))
             .setConfig(appConfig.getConfig())

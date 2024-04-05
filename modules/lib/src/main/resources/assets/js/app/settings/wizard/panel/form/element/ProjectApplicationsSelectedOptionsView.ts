@@ -20,12 +20,19 @@ export class ProjectApplicationsSelectedOptionsView
 
 
     createSelectedOption(option: Option<Application>): SelectedOption<Application> {
+        const isEditable = this.params?.isConfigEditable() && option.getDisplayValue().getForm()?.getFormItems().length > 0;
+        const isRemovable = !option.isReadOnly();
+
         const builder: ProjectApplicationSelectedOptionViewBuilder = new ProjectApplicationSelectedOptionViewBuilder()
             .setProject(this.params?.getProject())
             .setOption(option)
-            .setEditable(this.params?.isConfigEditable() && option.getDisplayValue().getForm()?.getFormItems().length > 0)
-            .setRemovable(!option.isReadOnly()) as ProjectApplicationSelectedOptionViewBuilder;
+            .setEditable(isEditable)
+            .setRemovable(isRemovable) as ProjectApplicationSelectedOptionViewBuilder;
 
-        return new SelectedOption<Application>(new ProjectApplicationSelectedOptionView(builder), this.count());
+        const selectedOption = new SelectedOption<Application>(new ProjectApplicationSelectedOptionView(builder), this.count());
+        selectedOption.getOptionView().toggleClass('non-editable', !isEditable);
+        selectedOption.getOptionView().toggleClass('non-removable', !isRemovable);
+
+        return selectedOption;
     }
 }
