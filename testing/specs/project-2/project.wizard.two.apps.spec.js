@@ -47,59 +47,59 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
             assert.ok(actualApplications.includes(PARENT_APPS[1]), 'Expected application should be present in the form');
         });
 
-        ///If parent project is changed or unselected (user goes from the Applications back to the first step), Applications step should be refreshed accordingly.
-        it(`GIVEN select a parent with applications WHEN parent project has been changed THEN 'Applications' step should be refreshed accordingly`,
-            async () => {
-                    let settingsBrowsePanel = new SettingsBrowsePanel();
-                    let languageStep = new ProjectWizardDialogLanguageStep();
-                    let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-                    let accessModeStep = new ProjectWizardDialogAccessModeStep();
-                    let permissionsStep = new ProjectWizardDialogPermissionsStep();
-                    let applicationsStep = new ProjectWizardDialogApplicationsStep();
-                    let nameIdStep = new ProjectWizardDialogNameAndIdStep();
-                    // 1. Open new project wizard:
-                    await settingsBrowsePanel.openProjectWizardDialog();
-                    // 2. Select the parent - the project with 2 apps
-                    await parentProjectStep.selectParentProject(PROJECT_DISPLAY_NAME);
-                    await parentProjectStep.clickOnNextButton();
-                    await languageStep.clickOnSkipButton();
-                    await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
-                    await accessModeStep.clickOnNextButton();
-                    await permissionsStep.clickOnSkipButton();
-                    // 3. Go to application step:
-                    let apps = await applicationsStep.getSelectedApplications();
-                    // 4. Verify the apps:
-                    assert.ok(apps[0] === PARENT_APPS[0], '');
-                    assert.ok(apps[1] === PARENT_APPS[1], '');
-                    // 5. Go to 'Parent' step again:
-                    await applicationsStep.clickOnBackButton();
-                    await permissionsStep.waitForLoaded();
-                    await permissionsStep.clickOnBackButton();
-                    await accessModeStep.waitForLoaded();
-                    await accessModeStep.clickOnBackButton();
-                    await languageStep.waitForLoaded();
-                    await languageStep.clickOnBackButton();
-                    await parentProjectStep.waitForLoaded();
-                    // 6. Change the parent project:
-                    await parentProjectStep.clickOnRemoveSelectedProjectIcon(PROJECT_DISPLAY_NAME);
-                    await parentProjectStep.selectParentProject('Default');
-                    // 7. Go to pplications step:
-                    await parentProjectStep.clickOnNextButton();
-                    await languageStep.clickOnSkipButton();
-                    await accessModeStep.clickOnNextButton();
-                    await permissionsStep.clickOnSkipButton();
-                    // 8. Verify the selected applications and 'remove' icons should be displayed for each app:
-                    apps = await applicationsStep.getSelectedApplications();
-                    assert.ok(apps[0] === PARENT_APPS[0], '');
-                    assert.ok(apps[1] === PARENT_APPS[1], '');
-                    await applicationsStep.waitForRemoveAppIconDisplayed(apps[0]);
-                    await applicationsStep.waitForRemoveAppIconDisplayed(apps[1]);
-                    assert.equal(apps.length, 2, 'Two items should be displayed in the applications step');
-            });
+    ///If parent project is changed or unselected (user goes from the Applications back to the first step), Applications step should be refreshed accordingly.
+    it(`GIVEN select a parent with applications WHEN parent project has been changed THEN 'Applications' step should be refreshed accordingly`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let languageStep = new ProjectWizardDialogLanguageStep();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            let nameIdStep = new ProjectWizardDialogNameAndIdStep();
+            // 1. Open new project wizard:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            // 2. Select the parent - the project with 2 apps
+            await parentProjectStep.selectParentProject(PROJECT_DISPLAY_NAME);
+            await parentProjectStep.clickOnNextButton();
+            await languageStep.clickOnSkipButton();
+            await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
+            await accessModeStep.clickOnNextButton();
+            await permissionsStep.clickOnSkipButton();
+            // 3. Go to application step:
+            let apps = await applicationsStep.getSelectedApplications();
+            // 4. Verify the apps:
+            assert.ok(apps[0] === PARENT_APPS[0], '');
+            assert.ok(apps[1] === PARENT_APPS[1], '');
+            // 5. Go to 'Parent' step again:
+            await applicationsStep.clickOnBackButton();
+            await permissionsStep.waitForLoaded();
+            await permissionsStep.clickOnBackButton();
+            await accessModeStep.waitForLoaded();
+            await accessModeStep.clickOnBackButton();
+            await languageStep.waitForLoaded();
+            await languageStep.clickOnBackButton();
+            await parentProjectStep.waitForLoaded();
+            // 6. Change the parent project:
+            await parentProjectStep.clickOnRemoveSelectedProjectIcon(PROJECT_DISPLAY_NAME);
+            await parentProjectStep.selectParentProject('Default');
+            // 7. Go to pplications step:
+            await parentProjectStep.clickOnNextButton();
+            await languageStep.clickOnSkipButton();
+            await accessModeStep.clickOnNextButton();
+            await permissionsStep.clickOnSkipButton();
+            // 8. Verify the selected applications and 'remove' icons should be displayed for each app:
+            apps = await applicationsStep.getSelectedApplications();
+            assert.ok(apps[0] === PARENT_APPS[0], '');
+            assert.ok(apps[1] === PARENT_APPS[1], '');
+            await applicationsStep.waitForRemoveAppIconDisplayed(apps[0]);
+            await applicationsStep.waitForRemoveAppIconDisplayed(apps[1]);
+            assert.equal(apps.length, 2, 'Two items should be displayed in the applications step');
+        });
 
-        // If parent project is selected on the first step, all of its apps (if any) should be preselected on the "Applications" step
-        // Add tests for testing parent project's apps on the Applications step of the Project Wizard #7461
-        it(`GIVEN parent project with 2 apps has been selected in the grid WHEN navigated to 'App-step' in layer-wizard THEN both apps should be preselected on the 'Applications' step`,
+    // If parent project is selected on the first step, all of its apps (if any) should be preselected on the "Applications" step
+    // Add tests for testing parent project's apps on the Applications step of the Project Wizard #7461
+    it(`GIVEN parent project with 2 apps has been selected in the grid WHEN navigated to 'App-step' in layer-wizard THEN both apps should be preselected on the 'Applications' step`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let languageStep = new ProjectWizardDialogLanguageStep();
@@ -118,14 +118,14 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
             await permissionsStep.clickOnSkipButton();
             // 3. Verify that 'Skip' button is enabled in 'Applications step'
             await applicationsStep.waitForSkipButtonEnabled();
-                // 4. 'Remove' icon should not be displayed for both preselected applications:
+            // 4. 'Remove' icon should not be displayed for both preselected applications:
             await applicationsStep.waitForRemoveAppIconNotDisplayed(PARENT_APPS[0]);
             await applicationsStep.waitForRemoveAppIconNotDisplayed(PARENT_APPS[1]);
             // 5. Verify that 'Copy apps from parent' button should not be displayed:
             await applicationsStep.waitForCopyFromParentButtonNotDisplayed(PROJECT_DISPLAY_NAME);
             // 6. Select one more application:
             await applicationsStep.selectApplication(appConst.TEST_APPS_NAME.SIMPLE_SITE_APP);
-                // 7. Verify that 'Remove' icon is displayed for the new selected application:
+            // 7. Verify that 'Remove' icon is displayed for the new selected application:
             await applicationsStep.waitForRemoveAppIconDisplayed(appConst.TEST_APPS_NAME.SIMPLE_SITE_APP);
             let apps = await applicationsStep.getSelectedApplications();
             assert.ok(apps.length === 3, 'Three apps should be displayed in the step');
@@ -196,18 +196,18 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
             await summaryStep.clickOnCreateProjectButton();
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
-                let layerWizardPanel = new LayerWizardPanel();
+            let layerWizardPanel = new LayerWizardPanel();
             // 4. Open the just created layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
-                await layerWizardPanel.waitForLoaded();
-                await layerWizardPanel.clickOnWizardStep('Applications');
+            await layerWizardPanel.waitForLoaded();
+            await layerWizardPanel.clickOnWizardStep('Applications');
             // 5. Verify that 2 expected applications are displayed in the layer's wizard-form:
-                let actualApplications = await layerWizardPanel.getSelectedApplications();
+            let actualApplications = await layerWizardPanel.getSelectedApplications();
             assert.equal(actualApplications.length, 2, "Two applications should be displayed in the wizard panel");
-                // 6. Verify that Remove-icon is not displayed for both application-items (we can not delete apps that were preselected from a parent project: )
-                await layerWizardPanel.waitForRemoveAppIconNotDisplayed(PARENT_APPS[0]);
-                await layerWizardPanel.waitForRemoveAppIconNotDisplayed(PARENT_APPS[1]);
+            // 6. Verify that Remove-icon is not displayed for both application-items (we can not delete apps that were preselected from a parent project: )
+            await layerWizardPanel.waitForRemoveAppIconNotDisplayed(PARENT_APPS[0]);
+            await layerWizardPanel.waitForRemoveAppIconNotDisplayed(PARENT_APPS[1]);
         });
 
     it('Post conditions: the layer should be deleted',

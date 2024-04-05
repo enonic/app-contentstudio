@@ -85,6 +85,11 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
+
+    async waitForSelectedApplicationsNotDisplayed() {
+        let locator = XPATH.container + XPATH.selectedApplications + lib.H6_DISPLAY_NAME;
+        return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+    }
 }
 
 module.exports = ProjectWizardDialogApplicationsStep;
