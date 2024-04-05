@@ -15,6 +15,8 @@ import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/Sel
 import {ProjectApplication} from './ProjectApplication';
 import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
 import {Project} from '../../../../data/project/Project';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ProjectApplicationsComboBox
     extends RichComboBox<Application> {
@@ -99,6 +101,11 @@ export class ProjectApplicationsComboBox
         return this.layoutSiteConfigs(siteConfigs);
     }
 
+    protected createOption(application: Application, readOnly?: boolean): Option<Application> {
+        const isReadonly = ObjectHelper.isDefined(readOnly) ? readOnly : this.isReadonly(application.getApplicationKey());
+        return super.createOption(application, isReadonly);
+    }
+
     private layoutSiteConfigs(configs: ApplicationConfig[]): Q.Promise<void> {
         this.deselectNonSelectedApps(configs);
 
@@ -118,15 +125,10 @@ export class ProjectApplicationsComboBox
     private layoutSelectedApps(configs: ApplicationConfig[]): Q.Promise<void> {
         return this.fetchSelectedApps(configs).then((selectedApps: Application[]) => {
             const layoutPromises: Q.Promise<void>[] = [];
-            const hasParentConfigs: boolean = this.parentSiteConfigs !== undefined && this.parentSiteConfigs?.length > 0;
-            const parentAppKeys: ApplicationKey[] = hasParentConfigs ? this.parentSiteConfigs.map((config: ApplicationConfig) => config.getApplicationKey()) : [];
 
             configs.forEach((config: ApplicationConfig) => {
                 const appToSelect: Application = this.getOrGenerateAppByKey(selectedApps, config.getApplicationKey());
-                const isReadonly: boolean = hasParentConfigs ? !!parentAppKeys.find((appKey: ApplicationKey) => appKey.equals(config.getApplicationKey())) : false;
-
-                this.select(appToSelect, isReadonly, true);
-
+                this.select(appToSelect, this.isReadonly(config.getApplicationKey()), true);
                 layoutPromises.push(this.layoutSelectedApp(config));
             });
 
@@ -185,6 +187,13 @@ export class ProjectApplicationsComboBox
 
     getSelectedOptionView(): ProjectApplicationsSelectedOptionsView {
         return super.getSelectedOptionView() as ProjectApplicationsSelectedOptionsView;
+    }
+
+    private isReadonly(key: ApplicationKey): boolean {
+        const hasParentConfigs: boolean = this.parentSiteConfigs !== undefined && this.parentSiteConfigs?.length > 0;
+        const parentAppKeys: ApplicationKey[] = hasParentConfigs ? this.parentSiteConfigs.map(
+            (config: ApplicationConfig) => config.getApplicationKey()) : [];
+        return hasParentConfigs ? !!parentAppKeys.find((appKey: ApplicationKey) => appKey.equals(key)) : false;
     }
 
 }
