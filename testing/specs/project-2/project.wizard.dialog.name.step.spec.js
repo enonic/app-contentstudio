@@ -59,7 +59,7 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
 
     // If parent project is not selected on the first step, no apps should be preselected on the "Applications" step
     //https://github.com/enonic/app-contentstudio/issues/7461
-    it(`GIVEN parent project is not selected on the first step WHEN navigated to Applications wizard step THEN  no apps should be preselected on the 'Applications' step`,
+    it(`GIVEN parent project is not selected on the first step WHEN navigated to Applications wizard step THEN no apps should be preselected on the 'Applications' step`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let languageStep = new ProjectWizardDialogLanguageStep();
@@ -74,9 +74,8 @@ describe('project.wizard.dialog.name.step.spec - ui-tests for Name/Id wizard ste
             await accessModeStep.clickOnAccessModeRadio(appConst.PROJECT_ACCESS_MODE.PUBLIC);
             await accessModeStep.clickOnNextButton();
             await permissionsStep.clickOnSkipButton();
-            // 2. Go to 'Applications' step:
-            let actualApps = await applicationsStep.getSelectedApplications();
-            assert.ok(actualApps.length === 0, "Applications should not be displayed on the step")
+            // 2. Go to 'Applications' step: no apps should be preselected on the 'Applications' step
+            await applicationsStep.waitForSelectedApplicationsNotDisplayed();
         });
 
     it(`GIVEN navigated to Name/Id wizard step WHEN identifier input has been cleared THEN 'This field is required' should be displayed`,
