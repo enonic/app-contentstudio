@@ -18,8 +18,6 @@ export class ProjectNotAvailableDialog
 
     private openProjectWizardAction: Action;
 
-    private projectWizardDialog?: ProjectWizardDialog;
-
     constructor() {
         super({
             title: i18n('dialog.project.wizard.noProjects.title'),
@@ -46,14 +44,10 @@ export class ProjectNotAvailableDialog
         this.openProjectWizardAction.onExecuted(() => {
             this.close();
 
-            if (!this.projectWizardDialog) {
-                this.projectWizardDialog = new ProjectWizardDialog({
-                    steps: ProjectSteps.create(),
-                    title: i18n('dialog.project.wizard.title')
-                });
-            }
-
-            this.projectWizardDialog.open();
+            new ProjectWizardDialog({
+                steps: ProjectSteps.create(),
+                title: i18n('dialog.project.wizard.title')
+            }).open();
         });
     }
 

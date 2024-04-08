@@ -37,9 +37,9 @@ export class ProjectApplicationsComboBox
         this.initListeners();
     }
 
-    setParentProjects(projects: Project[]): void {
+    setParentProjects(projects: Project[]): Q.Promise<void> {
         this.parentSiteConfigs = projects[0]?.getSiteConfigs() || [];
-        this.layoutApplicationConfigs(this.getMergedConfigs());
+        return this.layoutApplicationConfigs(this.getMergedConfigs());
     }
 
     private getMergedConfigs(): ApplicationConfig[] {

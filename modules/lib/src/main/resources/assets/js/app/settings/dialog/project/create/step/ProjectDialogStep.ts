@@ -7,6 +7,7 @@ import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {ProjectDialogStepData} from '../data/ProjectDialogStepData';
 import {Project} from '../../../../data/project/Project';
 import {CopyFromParentFormItem} from '../../../../wizard/panel/form/element/CopyFromParentFormItem';
+import * as Q from 'q';
 
 export abstract class ProjectDialogStep
     extends DialogStep {
@@ -64,7 +65,7 @@ export abstract class ProjectDialogStep
         return this.parentProjects !== undefined && this.parentProjects.length > 0;
     }
 
-    setParentProjects(projects: Project[]) {
+    setParentProjects(projects: Project[]): Q.Promise<void> | void {
         this.parentProjects = projects;
         if (this.getFormItem()) {
             this.getFormItem().setParentProjects(projects);
