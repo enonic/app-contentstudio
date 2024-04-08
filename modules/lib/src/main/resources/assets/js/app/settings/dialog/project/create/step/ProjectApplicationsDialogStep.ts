@@ -6,6 +6,7 @@ import {ProjectApplicationsComboBox} from '../../../../wizard/panel/form/element
 import {ProjectApplicationsDialogStepData} from '../data/ProjectApplicationsDialogStepData';
 import {ProjectApplicationsFormParams} from '../../../../wizard/panel/form/element/ProjectApplicationsFormParams';
 import {Project} from '../../../../data/project/Project';
+import * as Q from 'q';
 
 export class ProjectApplicationsDialogStep
     extends ProjectDialogStep {
@@ -47,10 +48,14 @@ export class ProjectApplicationsDialogStep
         return i18n('dialog.project.wizard.applications.description');
     }
 
-    setParentProjects(projects: Project[]) {
+    setParentProjects(projects: Project[]): Q.Promise<void> {
         super.setParentProjects(projects);
 
-        this.getProjectApplicationsComboBox()?.setParentProjects(projects);
+        if (!this.getProjectApplicationsComboBox()) {
+            return Q(null);
+        }
+
+        return this.getProjectApplicationsComboBox().setParentProjects(projects);
     }
 
     private getConfigForProjectApplicationsFormItem(): ProjectApplicationsFormParams {
