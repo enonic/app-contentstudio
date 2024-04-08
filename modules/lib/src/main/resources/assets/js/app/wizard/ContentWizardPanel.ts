@@ -2757,6 +2757,6 @@ export class ContentWizardPanel
     }
 
     private isReloadLiveEditRequired(diff: ContentDiff): boolean {
-        return !!diff.data || !!diff.pageObj || !!diff.xData || !!diff.path || !!diff.displayName || !!diff.name;
+        return !!diff.data || !!diff.pageObj || !!diff.xData || !!diff.path || !!diff.displayName || !!diff.name || !!diff.inherit;
     }
 }
