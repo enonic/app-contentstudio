@@ -21,7 +21,11 @@ export class ProjectApplicationsFormItem
     }
 
     getSiteConfigs(): ApplicationConfig[] {
-        return this.getComboBox().getSelectedApplications().map((app: ProjectApplication) => app.getConfig()?.clone());
+        return this.getComboBox().getSelectedApplicationConfigs();
+    }
+
+    getNonInheritedApplicationConfigs(): ApplicationConfig[] {
+        return this.getComboBox().getNonInheritedApplicationConfigs();
     }
 
     getComboBox(): ProjectApplicationsComboBox {

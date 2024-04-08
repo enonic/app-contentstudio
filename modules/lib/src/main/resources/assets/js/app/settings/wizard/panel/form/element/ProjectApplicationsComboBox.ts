@@ -25,6 +25,8 @@ export class ProjectApplicationsComboBox
 
     private parentSiteConfigs: ApplicationConfig[] = [];
 
+    private inheritedParentSiteConfigs: ApplicationConfig[] = [];
+
     private isLayoutInProgress: boolean = false;
 
     constructor(params?: ProjectApplicationsFormParams) {
@@ -39,16 +41,8 @@ export class ProjectApplicationsComboBox
 
     setParentProjects(projects: Project[]): Q.Promise<void> {
         this.parentSiteConfigs = projects[0]?.getSiteConfigs() || [];
+        this.inheritedParentSiteConfigs = this.getParentConfigsNotSelected();
         return this.layoutApplicationConfigs(this.getMergedConfigs());
-    }
-
-    private getMergedConfigs(): ApplicationConfig[] {
-        const selectedConfigs = this.getSelectedApplicationConfigs();
-
-        return [
-            ...this.parentSiteConfigs || [],
-            ...selectedConfigs.filter(sp => !this.parentSiteConfigs.some(pp => pp.getApplicationKey().equals(sp.getApplicationKey())))
-        ];
     }
 
     hasDataChanged(): boolean {
@@ -175,6 +169,15 @@ export class ProjectApplicationsComboBox
         return this.getSelectedApplications().map((app: ProjectApplication) => app.getConfig().clone());
     }
 
+    getNonInheritedApplicationConfigs(): ApplicationConfig[] {
+        if (this.inheritedParentSiteConfigs.length === 0) {
+            return this.getSelectedApplicationConfigs();
+        }
+        return this.getSelectedApplicationConfigs().filter((config: ApplicationConfig) =>
+            this.inheritedParentSiteConfigs.findIndex((parentConfig: ApplicationConfig) => parentConfig.getApplicationKey().equals(config.getApplicationKey())) === - 1
+        );
+    }
+
     onDataChanged(listener: () => void) {
         this.dataChangedListeners.push(listener);
     }
@@ -194,6 +197,22 @@ export class ProjectApplicationsComboBox
         const parentAppKeys: ApplicationKey[] = hasParentConfigs ? this.parentSiteConfigs.map(
             (config: ApplicationConfig) => config.getApplicationKey()) : [];
         return hasParentConfigs ? !!parentAppKeys.find((appKey: ApplicationKey) => appKey.equals(key)) : false;
+    }
+
+    private getParentConfigsNotSelected(): ApplicationConfig[] {
+        const selectedConfigs = this.getSelectedApplicationConfigs();
+
+        return this.parentSiteConfigs.filter((config: ApplicationConfig) =>
+            selectedConfigs.findIndex((selected: ApplicationConfig) => selected.getApplicationKey().equals(config.getApplicationKey())) === -1);
+    }
+
+    private getMergedConfigs(): ApplicationConfig[] {
+        const selectedConfigs = this.getSelectedApplicationConfigs();
+
+        return [
+            ...selectedConfigs,
+            ...this.parentSiteConfigs.filter((pc) => selectedConfigs.findIndex(sc => pc.getApplicationKey().equals(sc.getApplicationKey())) === -1),
+        ];
     }
 
 }
