@@ -2,15 +2,10 @@ import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusDiff} from './ContentSummaryAndCompareStatusDiff';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
-export class ContentSummaryAndCompareStatusDiffHelper {
+export class ContentSummaryAndCompareStatusHelper {
 
     public static diff(item1: ContentSummaryAndCompareStatus, item2: ContentSummaryAndCompareStatus): ContentSummaryAndCompareStatusDiff {
-        const diff: ContentSummaryAndCompareStatusDiff = {
-            uploadItem: false,
-            contentSummary: false,
-            compareStatus: false,
-            renderable: false
-        };
+        const diff: ContentSummaryAndCompareStatusDiff = {};
 
         if (!ObjectHelper.equals(item1.getUploadItem(), item2.getUploadItem())) {
             diff.uploadItem = true;

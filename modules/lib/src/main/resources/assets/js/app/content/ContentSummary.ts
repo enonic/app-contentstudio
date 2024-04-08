@@ -14,6 +14,8 @@ import {ChildOrder} from '../resource/order/ChildOrder';
 import {ContentState} from './ContentState';
 import {WorkflowState} from './WorkflowState';
 import {Workflow} from './Workflow';
+import {ContentSummaryHelper} from './ContentSummaryHelper';
+import {isEqual} from '../Diff';
 
 export class ContentSummary {
 
@@ -317,108 +319,12 @@ export class ContentSummary {
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentSummary)) {
             return false;
         }
 
-        let other = o as ContentSummary;
-
-        if (!ObjectHelper.stringEquals(this.id, other.getId())) {
-            return false;
-        }
-        if (!ObjectHelper.equals(this.contentId, other.contentId)) {
-            return false;
-        }
-        if (!ObjectHelper.equals(this.name, other.getName())) {
-            return false;
-        }
-        if (!ObjectHelper.stringEquals(this.displayName, other.getDisplayName())) {
-            return false;
-        }
-        if (!ObjectHelper.anyEquals(this.inherit, other.getInherit())) {
-            return false;
-        }
-        if (!ObjectHelper.equals(this.path, other.getPath())) {
-            return false;
-        }
-        if (!ObjectHelper.booleanEquals(this.children, other.hasChildren())) {
-            return false;
-        }
-        if (!ObjectHelper.equals(this.type, other.getType())) {
-            return false;
-        }
-        if (!ObjectHelper.stringEquals(this.iconUrl, other.getIconUrl())) {
-            return false;
-        }
-        if (!ObjectHelper.equals(this.thumbnail, other.getThumbnail())) {
-            return false;
-        }
-        if (!ObjectHelper.stringEquals(this.modifier, other.getModifier())) {
-            return false;
-        }
-        if (!ObjectHelper.objectEquals(this.owner, other.getOwner())) {
-            return false;
-        }
-        if (!ObjectHelper.booleanEquals(this.page, other.isPage())) {
-            return false;
-        }
-        if (!ObjectHelper.booleanEquals(this.valid, other.isValid())) {
-            return false;
-        }
-        if (!ObjectHelper.booleanEquals(this.requireValid, other.isRequireValid())) {
-            return false;
-        }
-        if (!ObjectHelper.dateEquals(this.createdTime, other.getCreatedTime())) {
-            return false;
-        }
-        if (!ObjectHelper.dateEquals(this.modifiedTime, other.getModifiedTime())) {
-            return false;
-        }
-        if (!ObjectHelper.dateEquals(this.archivedTime, other.getArchivedTime())) {
-            return false;
-        }
-        if (!ObjectHelper.objectEquals(this.archivedBy, other.getArchivedBy())) {
-            return false;
-        }
-        if (!ObjectHelper.dateEqualsUpToMinutes(this.publishFromTime, other.getPublishFromTime())) {
-            return false;
-        }
-        if (!ObjectHelper.dateEqualsUpToMinutes(this.publishToTime, other.getPublishToTime())) {
-            return false;
-        }
-        if (!ObjectHelper.dateEqualsUpToMinutes(this.publishFirstTime, other.getPublishFirstTime())) {
-            return false;
-        }
-        if (!ObjectHelper.booleanEquals(this.deletable, other.isDeletable())) {
-            return false;
-        }
-        if (!ObjectHelper.booleanEquals(this.editable, other.isEditable())) {
-            return false;
-        }
-        if (!ObjectHelper.equals(this.childOrder, other.getChildOrder())) {
-            return false;
-        }
-        if (!ObjectHelper.stringEquals(this.language, other.getLanguage())) {
-            return false;
-        }
-        if (!ObjectHelper.objectEquals(this.contentState, other.getContentState())) {
-            return false;
-        }
-        if (!ObjectHelper.equals(this.workflow, other.getWorkflow())) {
-            return false;
-        }
-        if (!ObjectHelper.stringEquals(this.originalParentPath, other.getOriginalParentPath())) {
-            return false;
-        }
-        if (!ObjectHelper.stringEquals(this.getOriginalName(), other.getOriginalName())) {
-            return false;
-        }
-        if (!ObjectHelper.stringEquals(this.variantOf, other.getVariantOf())) {
-            return false;
-        }
-
-        return true;
+        const diff = ContentSummaryHelper.diff(this, o as ContentSummary);
+        return isEqual(diff);
     }
 }
 

@@ -22,6 +22,7 @@ import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthe
 import {ContentId} from '../content/ContentId';
 import {PrincipalServerEvent} from '../event/PrincipalServerEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {ContentHelper} from '../util/ContentHelper';
 
 export class UserAccessWidgetItemView
     extends WidgetItemView {
@@ -78,7 +79,7 @@ export class UserAccessWidgetItemView
             this.removeChild(this.bottomEl);
         }
 
-        if (!content.isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS)) {
+        if (!ContentHelper.isAnyPrincipalAllowed(content.getPermissions(), loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS)) {
             return;
         }
 
