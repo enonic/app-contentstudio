@@ -45,6 +45,8 @@ export class VersionHistoryItem implements Cloneable {
 
     private readonly alias: VersionHistoryItemAlias;
 
+    private readonly secondaryId?: string;
+
     private static statusClassMap: Map<VersionItemStatus, string> = VersionHistoryItem.initStatusClassMap();
 
     constructor(builder: VersionHistoryItemBuilder) {
@@ -60,6 +62,7 @@ export class VersionHistoryItem implements Cloneable {
         this.republished = builder.republished;
         this.version = builder.version;
         this.alias = builder.alias;
+        this.secondaryId = builder.secondaryId;
     }
 
     private static initStatusClassMap(): Map<VersionItemStatus, string> {
@@ -198,12 +201,12 @@ export class VersionHistoryItem implements Cloneable {
         return this.getAlias().getDisplayName();
     }
 
-    createAlias(displayName: string, type: AliasType): VersionHistoryItem {
-        const versionAliasBuilder: VersionHistoryItemBuilder = this.clone();
-        const alias = new VersionHistoryItemAlias(displayName, type);
-        versionAliasBuilder.alias = alias;
+    createAlias(displayName: string, type: AliasType, id: string): VersionHistoryItem {
+        return this.clone().setAlias(new VersionHistoryItemAlias(displayName, type)).setSecondaryId(id).build();
+    }
 
-        return versionAliasBuilder.build();
+    getSecondaryId(): string {
+        return this.secondaryId || `${this.getId()}:${this.getStatus()}`;
     }
 
     clone(): VersionHistoryItemBuilder {
@@ -236,6 +239,8 @@ export class VersionHistoryItemBuilder {
     version: ContentVersion;
 
     alias: VersionHistoryItemAlias;
+
+    secondaryId: string;
 
     constructor(source?: VersionHistoryItem) {
         if (source) {
@@ -306,6 +311,16 @@ export class VersionHistoryItemBuilder {
 
     setVersion(value: ContentVersion): VersionHistoryItemBuilder {
         this.version = value;
+        return this;
+    }
+
+    setAlias(value: VersionHistoryItemAlias): VersionHistoryItemBuilder {
+        this.alias = value;
+        return this;
+    }
+
+    setSecondaryId(value: string): VersionHistoryItemBuilder {
+        this.secondaryId = value;
         return this;
     }
 
