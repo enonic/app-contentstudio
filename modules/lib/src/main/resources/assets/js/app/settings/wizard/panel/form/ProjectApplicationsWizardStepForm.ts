@@ -43,6 +43,10 @@ export class ProjectApplicationsWizardStepForm
         return this.applicationsFormItem?.getSiteConfigs() || [];
     }
 
+    getNonInheritedApplicationConfigs(): ApplicationConfig[] {
+        return this.applicationsFormItem?.getNonInheritedApplicationConfigs() || [];
+    }
+
     setParentProjects(projects: Project[]) {
         super.setParentProjects(projects);
         this.applicationsFormItem.getComboBox().setParentProjects(projects);

@@ -390,7 +390,7 @@ export class ProjectWizardPanel
             return true;
         }
 
-        const selectedAppsConfigs: ApplicationConfig[] = this.applicationsWizardStepForm?.getApplicationConfigs() || [];
+        const selectedAppsConfigs: ApplicationConfig[] = this.applicationsWizardStepForm?.getNonInheritedApplicationConfigs() || [];
         const persistedSiteConfigs: ApplicationConfig[] = this.getPersistedItem().getSiteConfigs() || [];
 
         return !ObjectHelper.arrayEquals(persistedSiteConfigs, selectedAppsConfigs);
