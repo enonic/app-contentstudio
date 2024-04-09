@@ -11,6 +11,7 @@ import {Page} from '../page/Page';
 import {WorkflowState} from '../content/WorkflowState';
 import {Workflow} from '../content/Workflow';
 import {ContentWizardPanel} from './ContentWizardPanel';
+import {ContentDiffHelper} from '../util/ContentDiffHelper';
 
 export class UpdatePersistedContentRoutine
     extends Flow {
@@ -96,8 +97,8 @@ export class UpdatePersistedContentRoutine
         const viewed: Content = this.viewedContent;
 
         return this.isWorkflowChanged() ||
-               !persisted.dataEquals(viewed.getContentData()) ||
-               !persisted.extraDataEquals(viewed.getAllExtraData()) ||
+               !ContentDiffHelper.dataEquals(persisted.getContentData(), viewed.getContentData()) ||
+               !ContentDiffHelper.extraDataEquals(persisted.getAllExtraData(), viewed.getAllExtraData()) ||
                !ObjectHelper.equals(persisted.getOwner(), viewed.getOwner()) ||
                persisted.getLanguage() !== viewed.getLanguage() ||
                !ObjectHelper.dateEquals(persisted.getPublishFromTime(), viewed.getPublishFromTime()) ||

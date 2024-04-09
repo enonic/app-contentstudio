@@ -24,6 +24,10 @@ import {Form} from '@enonic/lib-admin-ui/form/Form';
 import {FormItemParent} from '@enonic/lib-admin-ui/form/FormItem';
 import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {Permission} from '../access/Permission';
+import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
+import {AccessControlList} from '../access/AccessControlList';
 
 
 export class ContentHelper {
@@ -123,5 +127,26 @@ export class ContentHelper {
         });
 
         return result;
+    }
+
+    public static isAnyPrincipalAllowed(permissions: AccessControlList, principalKeys: PrincipalKey[], permission: Permission): boolean {
+        if (principalKeys.some(key => RoleKeys.isAdmin(key))) {
+            return true;
+        }
+
+        const permissionEntries = permissions.getEntries();
+        for (const permissionEntry of permissionEntries) {
+            if (permissionEntry.isAllowed(permission)) {
+                const principalInEntry = principalKeys.some((principalKey: PrincipalKey) => {
+                    if (principalKey.equals(permissionEntry.getPrincipalKey())) {
+                        return true;
+                    }
+                });
+                if (principalInEntry) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
