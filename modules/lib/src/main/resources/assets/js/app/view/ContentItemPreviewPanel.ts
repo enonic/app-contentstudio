@@ -89,15 +89,14 @@ export class ContentItemPreviewPanel
     }
 
     protected doSetItem(item: ViewItem, force: boolean = false) {
-        this.updatePreview(this.viewItemToContent(item), force);
+        const content = this.viewItemToContent(item);
+
+        if (this.isPreviewUpdateNeeded(content, force)) {
+            this.update(content);
+        }
+
         this.toolbar.setItem(item);
         this.item = item;
-    }
-
-    private updatePreview(item: ContentSummaryAndCompareStatus, force?: boolean) {
-        if (this.isPreviewUpdateNeeded(item, force)) {
-            this.update(item);
-        }
     }
 
     public isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force?: boolean): boolean {
@@ -105,12 +104,17 @@ export class ContentItemPreviewPanel
     }
 
     private isItemAllowsUpdate(item: ContentSummaryAndCompareStatus, force?: boolean): boolean {
-        return item && (force || !this.item || this.isItemChanged(item));
+        return item && (force || this.isOtherContent(item) || this.isItemChanged(item));
+    }
+
+    private isOtherContent(item: ContentSummaryAndCompareStatus): boolean {
+        return item?.getId() != this.item?.getId();
     }
 
     private isItemChanged(item: ContentSummaryAndCompareStatus): boolean {
         const diff = ContentSummaryAndCompareStatusHelper.diff(item, this.item as ContentSummaryAndCompareStatus);
-        return diff.contentSummary || diff.renderable;
+        return diff.renderable || !!diff.contentSummary?.path || !!diff.contentSummary?.displayName || !!diff.contentSummary?.name ||
+               !!diff.contentSummary?.inherit;
     }
 
     protected update(item: ContentSummaryAndCompareStatus) {
