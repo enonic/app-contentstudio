@@ -22,6 +22,7 @@ import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolb
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
+import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -104,7 +105,12 @@ export class ContentItemPreviewPanel
     }
 
     private isItemAllowsUpdate(item: ContentSummaryAndCompareStatus, force?: boolean): boolean {
-        return item && (!item.equals(this.item) || force);
+        return item && (force || !this.item || this.isItemChanged(item));
+    }
+
+    private isItemChanged(item: ContentSummaryAndCompareStatus): boolean {
+        const diff = ContentSummaryAndCompareStatusHelper.diff(item, this.item as ContentSummaryAndCompareStatus);
+        return diff.contentSummary || diff.renderable;
     }
 
     protected update(item: ContentSummaryAndCompareStatus) {
