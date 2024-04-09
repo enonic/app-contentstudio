@@ -144,6 +144,8 @@ import {InspectEvent} from '../event/InspectEvent';
 import {PageNavigationEventSource} from './PageNavigationEventData';
 import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
 import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
+import {ContentDiffHelper} from '../util/ContentDiffHelper';
+import {ContentDiff} from '../content/ContentDiff';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -850,10 +852,15 @@ export class ContentWizardPanel
 
         this.initFormContext(contentClone);
         this.updateWizard(contentClone, true);
-        this.resetLivePanel(contentClone).then(() => {
-            this.contextView.updateWidgetsVisibility();
-            this.toggleLiveEdit();
-        });
+
+        const diff = ContentDiffHelper.diff(viewedContent, newPersistedContent);
+
+        if (this.isReloadLiveEditRequired(diff)) {
+            this.resetLivePanel(contentClone).then(() => {
+                this.contextView.updateWidgetsVisibility();
+                this.toggleLiveEdit();
+            }).catch(DefaultErrorHandler.handle);
+        }
 
         if (!ObjectHelper.equals(PageState.getState(), contentClone.getPage())) {
             this.loadAndSetPageState(contentClone.getPage()).then(() => {
@@ -942,11 +949,15 @@ export class ContentWizardPanel
         this.contentWizardStepForm?.getFormView()?.clean();
         new BeforeContentSavedEvent().fire();
         this.wizardHeader.toggleEnabled(false);
+        const previousPersistedItem = this.getPersistedItem();
 
         return super.saveChanges().then((content: Content) => {
             if (this.reloadPageEditorOnSave) {
                 this.checkIfRenderable(content)
-                    .then(() => this.resetLivePanel(content.clone()))
+                    .then(() => {
+                        const diff = previousPersistedItem ? ContentDiffHelper.diff(previousPersistedItem, content) : null;
+                        return diff && this.isReloadLiveEditRequired(diff) ? this.resetLivePanel(content.clone()) : Q.resolve();
+                    })
                     .then(() => {
                         this.updateButtonsState();
                         this.contextView.updateWidgetsVisibility();
@@ -2594,7 +2605,8 @@ export class ContentWizardPanel
 
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             const hasModifyPermissions: boolean =
-                this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY);
+                ContentHelper.isAnyPrincipalAllowed(this.getPersistedItem().getPermissions(), loginResult.getPrincipals(),
+                    Permission.MODIFY);
 
             if (!hasModifyPermissions) {
                 NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
@@ -2743,5 +2755,9 @@ export class ContentWizardPanel
                 this.debouncedAppsChangeHandler();
             }
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    private isReloadLiveEditRequired(diff: ContentDiff): boolean {
+        return !!diff.data || !!diff.pageObj || !!diff.extraData || !!diff.path || !!diff.displayName || !!diff.name || !!diff.inherit;
     }
 }
