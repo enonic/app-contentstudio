@@ -678,7 +678,8 @@ module.exports = {
             await browsePanel.waitForGridLoaded(appConst.longTimeout);
             return browsePanel;
         } catch (err) {
-            throw new Error('Error when switching to Content Studio App ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_switch');
+            throw new Error(`Error occurred after switching to Content Studio App, screenshot: ${screenshot} ` + err);
         }
     },
     async doSwitchToHome() {
