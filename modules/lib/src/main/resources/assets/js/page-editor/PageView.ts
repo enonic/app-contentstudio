@@ -193,9 +193,11 @@ export class PageView
             this.resetAction.setEnabled(false);
         }
 
-        actions.push(new Action(i18n('live.view.saveAs.template')).onExecuted(() => {
-            new SaveAsTemplateEvent().fire();
-        }));
+        if (!this.liveEditParams.isPageTemplate) {
+            actions.push(new Action(i18n('live.view.saveAs.template')).onExecuted(() => {
+                new SaveAsTemplateEvent().fire();
+            }));
+        }
 
         this.addContextMenuActions(actions);
     }

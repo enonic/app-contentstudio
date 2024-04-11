@@ -21,7 +21,6 @@ import {PageNavigationEventType} from './PageNavigationEventType';
 import {PageNavigationEventData} from './PageNavigationEventData';
 import {ContentUrlHelper} from '../util/ContentUrlHelper';
 import {TextComponent} from '../page/region/TextComponent';
-import {EditTextComponentViewEvent} from '../../page-editor/event/incoming/manipulation/EditTextComponentViewEvent';
 import {ContentContext} from './ContentContext';
 
 export class PageActionsHelper {
@@ -32,9 +31,9 @@ export class PageActionsHelper {
                 new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(ComponentPath.root())));
         });
 
-        if (page.isFragment()) {
-            const result = [inspectAction];
+        const result = [inspectAction];
 
+        if (page.isFragment()) {
             if (!page.getFragment().isEmpty()) {
                 result.push(new Action(i18n('action.component.reset')).onExecuted(() => {
                     PageEventsManager.get().notifyComponentResetRequested(page.getPath());
@@ -54,11 +53,18 @@ export class PageActionsHelper {
             PageEventsManager.get().notifyPageResetRequested();
         });
 
-        const saveAsTemplateAction = new Action(i18n('action.saveAsTemplate')).onExecuted(() => {
-            SaveAsTemplateAction.get().execute();
-        });
+        result.push(pageResetAction);
 
-        return [inspectAction, pageResetAction, saveAsTemplateAction];
+
+        if (!ContentContext.get().getContent().getType().isPageTemplate()) {
+            const saveAsTemplateAction = new Action(i18n('action.saveAsTemplate')).onExecuted(() => {
+                SaveAsTemplateAction.get().execute();
+            });
+
+            result.push(saveAsTemplateAction);
+        }
+
+        return result;
     }
 
     static getComponentActions(component: Component, isInvalid?: boolean): Action[] {
