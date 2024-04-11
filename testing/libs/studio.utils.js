@@ -297,6 +297,12 @@ module.exports = {
         await this.doCloseCurrentBrowserTab();
         return await this.doSwitchToContentBrowsePanel();
     },
+    async doCloseWizardAndSwitchContentStudioTab() {
+        await this.doCloseCurrentBrowserTab();
+        let browsePanel = new BrowsePanel();
+        await this.getBrowser().switchWindow(appConst.BROWSER_TITLES.CONTENT_STUDIO);
+        await browsePanel.pause(400);
+    },
     async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
         //1. Open new site-wizard:
