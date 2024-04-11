@@ -5,6 +5,8 @@ export interface LiveEditParams {
 
     isFragmentAllowed?: boolean;
 
+    isPageTemplate?: boolean;
+
     displayName?: string;
 
     locked?: boolean;
