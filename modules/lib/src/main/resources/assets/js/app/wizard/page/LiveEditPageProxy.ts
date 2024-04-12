@@ -85,6 +85,8 @@ import {TextEditModeChangedEvent} from '../../../page-editor/event/outgoing/navi
 import {EditContentFromComponentViewEvent} from '../../../page-editor/event/outgoing/manipulation/EditContentFromComponentViewEvent';
 import {ContentUrlHelper} from '../../util/ContentUrlHelper';
 import {TextComponent} from '../../page/region/TextComponent';
+import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
+import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -728,6 +730,8 @@ export class LiveEditPageProxy
                 } else {
                     new AddComponentViewEvent(event.getPath(), event.getComponent().getType()).fire(this.liveEditWindow);
                 }
+
+                new PageStateEvent(PageState.getState().toJson()).fire(this.liveEditWindow);
             }
         });
 
@@ -737,8 +741,13 @@ export class LiveEditPageProxy
                     // do nothing since component is being moved
                 } else {
                     new RemoveComponentViewEvent(event.getPath()).fire(this.liveEditWindow);
+                    new PageStateEvent(PageState.getState().toJson()).fire(this.liveEditWindow);
                 }
             }
+        });
+
+        PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
+            new PageStateEvent(PageState.getState().toJson()).fire(this.liveEditWindow);
         });
 
         BeforeContentSavedEvent.on(() => {

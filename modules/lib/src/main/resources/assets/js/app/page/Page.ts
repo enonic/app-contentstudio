@@ -128,33 +128,11 @@ export class Page
     }
 
     toJson(): PageJson {
-        let componentJson: ComponentJson;
-        if (this.fragment) {
-            const json = this.fragment.toJson();
-            switch (this.fragment.getType()) {
-            case ImageComponentType.get():
-                componentJson = json.ImageComponent;
-                break;
-            case TextComponentType.get():
-                componentJson = json.TextComponent;
-                break;
-            case PartComponentType.get():
-                componentJson = json.PartComponent;
-                break;
-            case LayoutComponentType.get():
-                componentJson = json.LayoutComponent;
-                break;
-            case FragmentComponentType.get():
-                componentJson = json.FragmentComponent;
-                break;
-            }
-        }
-
         return {
             controller: this.controller ? this.controller.toString() : undefined,
             template: this.template ? this.template.toString() : undefined,
             regions: this.regions ? this.regions.toJson() : undefined,
-            fragment: componentJson,
+            fragment: this.fragment?.toJson() || null,
             config: this.config ? this.config.toJson() : undefined,
         };
     }
@@ -266,7 +244,7 @@ export class PageBuilder {
                        : null);
 
         if (json.fragment) {
-            let component: Component = ComponentFactory.createFromJson(json.fragment as ComponentTypeWrapperJson, 0, null);
+            let component: Component = ComponentFactory.createFromJson(json.fragment, 0, null);
             this.setFragment(component);
         }
 

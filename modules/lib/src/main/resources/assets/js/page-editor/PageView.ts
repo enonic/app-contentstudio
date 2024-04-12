@@ -20,7 +20,6 @@ import {ItemViewSelectedEventConfig, SelectComponentEvent} from './event/outgoin
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {TextItemType} from './text/TextItemType';
 import {TextComponentView} from './text/TextComponentView';
-import {Shader} from './Shader';
 import {DeselectComponentEvent} from './event/outgoing/navigation/DeselectComponentEvent';
 import {PageLockedEvent} from './event/outgoing/manipulation/PageLockedEvent';
 import {PageUnlockedEvent} from './event/outgoing/manipulation/PageUnlockedEvent';

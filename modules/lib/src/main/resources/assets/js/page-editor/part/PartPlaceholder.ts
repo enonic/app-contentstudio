@@ -1,15 +1,13 @@
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
-import {PartComponentView} from './PartComponentView';
-import {ComponentViewPlaceholder} from '../ComponentViewPlaceholder';
-import {PartComponent} from '../../app/page/region/PartComponent';
+import {DescriptorBasedComponentViewPlaceholder} from '../DescriptorBasedComponentViewPlaceholder';
 import {ComponentType} from '../../app/page/region/ComponentType';
 import {PartComponentType} from '../../app/page/region/PartComponentType';
 
 export class PartPlaceholder
-    extends ComponentViewPlaceholder<PartComponent> {
+    extends DescriptorBasedComponentViewPlaceholder {
 
-    constructor(partView: PartComponentView) {
-        super(partView);
+    constructor() {
+        super();
         this.addClassEx('part-placeholder').addClass(StyleHelper.getCommonIconCls('part'));
     }
 

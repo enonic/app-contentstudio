@@ -1,6 +1,6 @@
 import {PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
-import {ComponentJson} from './region/ComponentJson';
 import {RegionJson} from './region/RegionJson';
+import {ComponentTypeWrapperJson} from './region/ComponentTypeWrapperJson';
 
 export interface PageJson {
 
@@ -10,7 +10,7 @@ export interface PageJson {
 
     regions: RegionJson[];
 
-    fragment: ComponentJson;
+    fragment: ComponentTypeWrapperJson;
 
     config: PropertyArrayJson[];
 

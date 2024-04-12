@@ -12,9 +12,15 @@
     }
   }
 
-  &.empty {
+  &.empty.has-descriptor {
     .@{_CLS_PREFIX}item-placeholder {
-      height: @placeholder-height;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .empty-descriptor-block {
+        position: relative; // works as setting the z-index to 1
+      }
     }
   }
 

@@ -5,6 +5,8 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {JSONObject} from '@enonic/lib-admin-ui/types';
 import {ProjectJson} from '../app/settings/resource/json/ProjectJson';
 import {LiveEditParams} from './LiveEditParams';
+import {PageJson} from '../app/page/PageJson';
+import {PageState} from '../app/wizard/page/PageState';
 
 export class InitializeLiveEditEvent
     extends Event {
@@ -15,11 +17,14 @@ export class InitializeLiveEditEvent
 
     private readonly liveEditParams: LiveEditParams;
 
+    private readonly pageJson: PageJson;
+
     constructor(liveEditParams?: LiveEditParams) {
         super();
         this.projectJson = ProjectContext.get().getProject().toJson();
         this.config = CONFIG.getConfig();
         this.liveEditParams = liveEditParams;
+        this.pageJson = PageState.getState()?.toJson();
     }
 
     getProjectJson(): ProjectJson {
@@ -32,6 +37,10 @@ export class InitializeLiveEditEvent
 
     getParams(): LiveEditParams {
         return this.liveEditParams;
+    }
+
+    getPageJson(): PageJson {
+        return this.pageJson;
     }
 
     static on(handler: (event: InitializeLiveEditEvent) => void, contextWindow: Window = window) {

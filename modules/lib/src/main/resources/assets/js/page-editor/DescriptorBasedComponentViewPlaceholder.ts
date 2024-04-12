@@ -2,31 +2,32 @@ import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {ComponentDescriptorsComboBox} from './ComponentDescriptorsComboBox';
 import {Descriptor} from '../app/page/Descriptor';
-import {ComponentView} from './ComponentView';
-import {DescriptorBasedComponent} from '../app/page/region/DescriptorBasedComponent';
 import {ComponentType} from '../app/page/region/ComponentType';
 import {ContentId} from '../app/content/ContentId';
 import {SetComponentDescriptorEvent} from './event/outgoing/manipulation/SetComponentDescriptorEvent';
+import {DescriptorBasedComponentView} from './DescriptorBasedComponentView';
 
-export abstract class ComponentViewPlaceholder<T extends DescriptorBasedComponent>
+export abstract class DescriptorBasedComponentViewPlaceholder
     extends ItemViewPlaceholder {
 
     private comboBox: ComponentDescriptorsComboBox;
 
-    private readonly componentView: ComponentView;
+    private componentView: DescriptorBasedComponentView;
 
-    protected constructor(componentView: ComponentView) {
+    protected constructor() {
         super();
-
-        this.componentView = componentView;
 
         this.initElements();
         this.initListeners();
     }
 
+    setComponentView(componentView: DescriptorBasedComponentView): void {
+        this.componentView = componentView;
+        this.reloadDescriptors(new ContentId(this.componentView.getLiveEditParams().contentId));
+    }
+
     protected initElements(): void {
         this.comboBox = new ComponentDescriptorsComboBox(this.getType());
-        this.comboBox.setContentId(new ContentId(this.componentView.getLiveEditParams().contentId));
         this.appendChild(this.comboBox);
     }
 
@@ -42,29 +43,25 @@ export abstract class ComponentViewPlaceholder<T extends DescriptorBasedComponen
         this.comboBox.onTouchEnd((event: TouchEvent) => {
             event.stopPropagation();
         });
-
-        const contentId = new ContentId(this.componentView.getLiveEditParams().contentId);
-        const listener = () => this.reloadDescriptors(contentId);
-
-        // handle application events and trigger listener
-
     }
 
     getType(): ComponentType {
         throw new Error('Must be implemented by inheritors');
     }
 
-    private reloadDescriptors(contentId: ContentId) {
+    private reloadDescriptors(contentId: ContentId): void {
         this.comboBox.setContentId(contentId);
         this.comboBox.getLoader().load();
     }
 
-    select() {
-        this.comboBox.show();
-        this.comboBox.giveFocus();
+    select(): void {
+        if (!this.componentView.hasDescriptor()) {
+            this.comboBox.show();
+            this.comboBox.giveFocus();
+        }
     }
 
-    deselect() {
+    deselect(): void {
         this.comboBox.hide();
     }
 }
