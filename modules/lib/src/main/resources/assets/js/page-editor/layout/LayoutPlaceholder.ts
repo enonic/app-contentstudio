@@ -1,15 +1,13 @@
-import {LayoutComponentView} from './LayoutComponentView';
-import {LayoutComponent} from '../../app/page/region/LayoutComponent';
-import {ComponentViewPlaceholder} from '../ComponentViewPlaceholder';
+import {DescriptorBasedComponentViewPlaceholder} from '../DescriptorBasedComponentViewPlaceholder';
 import {ComponentType} from '../../app/page/region/ComponentType';
 import {LayoutComponentType} from '../../app/page/region/LayoutComponentType';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 
 export class LayoutPlaceholder
-    extends ComponentViewPlaceholder<LayoutComponent> {
+    extends DescriptorBasedComponentViewPlaceholder {
 
-    constructor(layoutView: LayoutComponentView) {
-        super(layoutView);
+    constructor() {
+        super();
 
         this.addClassEx('layout-placeholder').addClass(StyleHelper.getCommonIconCls('layout'));
     }

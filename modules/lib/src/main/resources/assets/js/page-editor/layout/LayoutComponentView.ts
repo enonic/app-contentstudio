@@ -1,6 +1,6 @@
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ComponentView, ComponentViewBuilder} from '../ComponentView';
+import {ComponentViewBuilder} from '../ComponentView';
 import {LayoutItemType} from './LayoutItemType';
 import {ItemViewAddedEvent} from '../ItemViewAddedEvent';
 import {ItemViewRemovedEvent} from '../ItemViewRemovedEvent';
@@ -8,10 +8,11 @@ import {LayoutPlaceholder} from './LayoutPlaceholder';
 import {ItemView} from '../ItemView';
 import {ItemType} from '../ItemType';
 import {RegionItemType} from '../RegionItemType';
-import {DragAndDrop} from '../DragAndDrop';
 import {RegionView, RegionViewBuilder} from '../RegionView';
-import {LayoutComponent} from '../../app/page/region/LayoutComponent';
 import {ComponentPath} from '../../app/page/region/ComponentPath';
+import {DescriptorBasedComponentView} from '../DescriptorBasedComponentView';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DescriptorBasedComponent} from '../../app/page/region/DescriptorBasedComponent';
 
 export class LayoutComponentViewBuilder
     extends ComponentViewBuilder {
@@ -23,7 +24,7 @@ export class LayoutComponentViewBuilder
 }
 
 export class LayoutComponentView
-    extends ComponentView {
+    extends DescriptorBasedComponentView {
 
     private regionViews: RegionView[];
 
@@ -34,13 +35,9 @@ export class LayoutComponentView
     public static debug: boolean = false;
 
     constructor(builder: LayoutComponentViewBuilder) {
-        super(builder.setInspectActionRequired(true));
+        super(builder.setInspectActionRequired(true).setPlaceholder(new LayoutPlaceholder()));
 
-        this.setPlaceholder(new LayoutPlaceholder(this));
         this.regionViews = [];
-
-        LayoutComponentView.debug = false;
-
         this.itemViewAddedListener = (event: ItemViewAddedEvent) => this.notifyItemViewAdded(event.getView(), event.isNewlyCreated());
         this.itemViewRemovedListener = (event: ItemViewRemovedEvent) => this.notifyItemViewRemoved(event.getView());
 
@@ -76,6 +73,11 @@ export class LayoutComponentView
             array = array.concat(itemsInRegion);
         });
         return array;
+    }
+
+    protected makeEmptyDescriptorText(component: DescriptorBasedComponent): string {
+        const descriptorName = component.getName()?.toString() || component.getDescriptorKey().toString();
+        return `${i18n('field.layout')} "${descriptorName}"`;
     }
 
     private parseRegions() {

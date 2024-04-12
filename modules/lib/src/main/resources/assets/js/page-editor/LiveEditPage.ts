@@ -66,6 +66,9 @@ import {SetPageLockStateEvent} from './event/incoming/manipulation/SetPageLockSt
 import {SetModifyAllowedEvent} from './event/incoming/manipulation/SetModifyAllowedEvent';
 import {CreateOrDestroyDraggableEvent} from './event/incoming/manipulation/CreateOrDestroyDraggableEvent';
 import {ResetComponentViewEvent} from './event/incoming/manipulation/ResetComponentViewEvent';
+import {PageStateEvent} from './event/incoming/common/PageStateEvent';
+import {PageState} from '../app/wizard/page/PageState';
+import {PageBuilder} from '../app/page/Page';
 
 export class LiveEditPage {
 
@@ -115,6 +118,8 @@ export class LiveEditPage {
 
     private resetComponentViewRequestListener: (event: ResetComponentViewEvent) => void;
 
+    private pageStateListener: (event: PageStateEvent) => void;
+
     private static debug: boolean = false;
 
     constructor() {
@@ -129,7 +134,7 @@ export class LiveEditPage {
         InitializeLiveEditEvent.on(this.initializeListener);
     }
 
-    private init(event: InitializeLiveEditEvent) {
+    private init(event: InitializeLiveEditEvent): void {
         let startTime = Date.now();
         if (LiveEditPage.debug) {
             console.debug('LiveEditPage: starting live edit initialization');
@@ -137,6 +142,7 @@ export class LiveEditPage {
 
         CONFIG.setConfig(event.getConfig());
         ProjectContext.get().setProject(Project.fromJson(event.getProjectJson()));
+        PageState.setState(event.getPageJson() ? new PageBuilder().fromJson(event.getPageJson()).build() : null);
 
         // content is used for text components, but the best thing is to avoid extra server call to fetch entire content
         // could be optimized by: a) Using content id in HtmlArea b) Sending state's Page.toJson() to live edit frame
@@ -418,6 +424,12 @@ export class LiveEditPage {
         };
 
         ResetComponentViewEvent.on(this.resetComponentViewRequestListener);
+
+        this.pageStateListener = (event: PageStateEvent): void => {
+            PageState.setState(event.getPageJson() ? new PageBuilder().fromJson(event.getPageJson()).build() : null);
+        };
+
+        PageStateEvent.on(this.pageStateListener);
     }
 
     private getItemViewByPath(path: ComponentPath): ItemView {
@@ -463,6 +475,8 @@ export class LiveEditPage {
         CreateOrDestroyDraggableEvent.un(this.createOrDestroyDraggableListener);
 
         ResetComponentViewEvent.un(this.resetComponentViewRequestListener);
+
+        PageStateEvent.un(this.pageStateListener);
     }
 
     public loadComponent(componentView: ComponentView, componentUrl: string,): Q.Promise<string> {

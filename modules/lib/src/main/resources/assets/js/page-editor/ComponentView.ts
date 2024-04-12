@@ -152,7 +152,8 @@ export class ComponentView
             this.getParentItemView().registerComponentViewInParent(this, builder.positionIndex);
         }
 
-        this.empty = StringHelper.isEmpty(builder.element?.getHtml());
+        this.empty = StringHelper.isEmpty(builder.element?.getHtml()) ||
+                     (this.getChildren().length === 1 && this.getChildren()[0] === this.placeholder);
         this.initListeners();
         this.addComponentContextMenuActions(builder.inspectActionRequired);
         this.initKeyBoardBindings();

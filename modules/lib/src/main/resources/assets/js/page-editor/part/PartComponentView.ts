@@ -1,8 +1,9 @@
-import {ComponentView, ComponentViewBuilder} from '../ComponentView';
+import {ComponentViewBuilder} from '../ComponentView';
 import {PartItemType} from './PartItemType';
 import {PartPlaceholder} from './PartPlaceholder';
-import {DragAndDrop} from '../DragAndDrop';
-import {PartComponent} from '../../app/page/region/PartComponent';
+import {DescriptorBasedComponentView} from '../DescriptorBasedComponentView';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DescriptorBasedComponent} from '../../app/page/region/DescriptorBasedComponent';
 
 export class PartComponentViewBuilder
     extends ComponentViewBuilder {
@@ -14,18 +15,18 @@ export class PartComponentViewBuilder
 }
 
 export class PartComponentView
-    extends ComponentView {
+    extends DescriptorBasedComponentView {
 
     constructor(builder: PartComponentViewBuilder) {
-        super(builder.setInspectActionRequired(true));
+        super(builder.setInspectActionRequired(true).setPlaceholder(new PartPlaceholder()));
 
-        this.createPlaceholder();
         this.resetHrefForRootLink(builder);
         this.disableLinks();
     }
 
-    private createPlaceholder() {
-        this.setPlaceholder(new PartPlaceholder(this));
+    protected makeEmptyDescriptorText(component: DescriptorBasedComponent): string {
+        const descriptorName = component.getName()?.toString() || component.getDescriptorKey().toString();
+        return `${i18n('field.part')} "${descriptorName}"`;
     }
 
     private resetHrefForRootLink(builder: PartComponentViewBuilder) {

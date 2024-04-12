@@ -1,8 +1,6 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
-import {ComponentViewDragStoppedEvent} from './ComponentViewDraggingStoppedEvent';
-import {Component} from '../app/page/region/Component';
 
 export class ComponentViewDragCanceledEvent
     extends Event {
