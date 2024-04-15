@@ -116,6 +116,7 @@ class LiveFormPanel extends Page {
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Text component should be empty"});
     }
 
+    // Gets a text from a text-component in LiveEdit frame
     async getTextInLayoutComponent() {
         try {
             let selector = xpath.layoutComponentView + xpath.sectionTextComponentView + '/p';
@@ -125,6 +126,18 @@ class LiveFormPanel extends Page {
             let screenshot = await this.saveScreenshotUniqueName('err_txt_layout');
             throw new Error('Error when getting text in the layout component! screenshot: ' + screenshot + ' ' + err);
         }
+    }
+
+    // dropdown should not be displayed for null-layout
+    async isOptionsFilterInputInLayoutComponentNotDisplayed() {
+        let contentWizard = new ContentWizard();
+        let locator = xpath.layoutComponentView;
+        await contentWizard.switchToLiveEditFrame();
+        let layoutComponentElements = await this.findElements(locator);
+        let filterInputElement = await layoutComponentElements[0].$$('.' + lib.COMBO_BOX_OPTION_FILTER_INPUT);
+        let result = await filterInputElement[0].isDisplayed();
+        await contentWizard.switchToParentFrame();
+        return result;
     }
 
     async getTextInEditableLayoutComponent() {
@@ -261,6 +274,15 @@ class LiveFormPanel extends Page {
         let columns = await this.getDisplayedElements(xpath.layoutComponentView + "//div[contains(@id,'RegionView')]");
         await contentWizard.switchToMainFrame();
         return columns.length;
+    }
+
+    // get text in null-layout
+    async getTextFromEmptyLayout() {
+        let contentWizard = new ContentWizard();
+        await contentWizard.switchToLiveEditFrame();
+        let text = await this.getTextInDisplayedElements(xpath.layoutComponentView + "//div[contains(@class,'empty-descriptor-block')]");
+        await contentWizard.switchToMainFrame();
+        return text;
     }
 
     getErrorMessage() {
