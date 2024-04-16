@@ -372,15 +372,17 @@ export class LiveEditPageProxy
                     console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
                 }
 
-                if (this.liveEditModel) {
+                if (this.isLiveEditAllowed()) {
                     new InitializeLiveEditEvent(this.createLiveEditParams()).fire(this.liveEditWindow);
+                } else {
+                    PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
                 }
             } else {
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.handleIframeLoadedEvent: notify live edit ready at ' + new Date().toISOString());
                 }
 
-                if (this.liveEditModel) {
+                if (this.isLiveEditAllowed()) {
                     PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
                 }
             }
@@ -782,5 +784,14 @@ export class LiveEditPageProxy
         };
 
         PageState.getEvents().onPageUpdated(listener);
+    }
+
+    private isLiveEditAllowed(): boolean {
+        // if content is rendered, but has no controller nor template, we should not allow live edit
+
+        return this.liveEditModel ? this.liveEditModel.getContent().isPageTemplate() ||
+                                    PageState.getState()?.hasController() ||
+                                    this.liveEditModel.getContent().getType().isFragment() ||
+                                    this.liveEditModel.getDefaultModels().hasDefaultPageTemplate() : false;
     }
 }
