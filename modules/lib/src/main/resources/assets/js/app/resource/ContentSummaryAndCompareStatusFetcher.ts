@@ -11,13 +11,11 @@ import {CompareContentResult} from './CompareContentResult';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryRequest} from './ContentSummaryRequest';
-import {IsRenderableRequest} from './IsRenderableRequest';
 import {ContentSummary} from '../content/ContentSummary';
 import {ChildOrder} from './order/ChildOrder';
 import {ContentId} from '../content/ContentId';
 import {FieldOrderExpr, FieldOrderExprBuilder} from './order/FieldOrderExpr';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 
 export class ContentSummaryAndCompareStatusFetcher {
 
@@ -72,7 +70,7 @@ export class ContentSummaryAndCompareStatusFetcher {
                     .then((contents: ContentSummaryAndCompareStatus[]) => contents[0]);
     }
 
-    private fetchByIds(ids: ContentId[]): Q.Promise<ContentSummary[]> {
+    fetchByIds(ids: ContentId[]): Q.Promise<ContentSummary[]> {
         if (ids.length === 0) {
             return Q([]);
         }
