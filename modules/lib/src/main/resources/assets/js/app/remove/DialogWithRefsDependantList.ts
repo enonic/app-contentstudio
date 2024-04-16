@@ -2,12 +2,12 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ArchiveCheckableItem} from '../dialog/ArchiveCheckableItem';
 import {DependantArchiveItemViewer} from '../dialog/DependantArchiveItemViewer';
 import {compareItems, DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
-import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDeleteResult';
+import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
 
-export class DeleteDialogDependantList
+export class DialogWithRefsDependantList
     extends DialogDependantItemsList {
 
-    private resolveDependenciesResult: ResolveContentForDeleteResult;
+    private resolveDependenciesResult: ContentWithRefsResult;
 
     constructor(observer: Omit<ObserverConfig, 'sort'>) {
         super({
@@ -24,7 +24,7 @@ export class DeleteDialogDependantList
         return new ArchiveCheckableItem({viewer, item});
     }
 
-    setResolveDependenciesResult(resolveDependenciesResult: ResolveContentForDeleteResult) {
+    setResolveDependenciesResult(resolveDependenciesResult: ContentWithRefsResult) {
         this.resolveDependenciesResult = resolveDependenciesResult;
     }
 

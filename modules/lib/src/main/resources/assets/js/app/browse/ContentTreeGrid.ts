@@ -31,6 +31,7 @@ import {ContentId} from '../content/ContentId';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ContentPath} from '../content/ContentPath';
 import {ContentTreeGridDeselectAllEvent} from './ContentTreeGridDeselectAllEvent';
+import {Branch} from '../versioning/Branch';
 
 export enum State {
     ENABLED, DISABLED
@@ -48,6 +49,8 @@ export class ContentTreeGrid
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     private doubleClickListeners: (() => void)[] = [];
+
+    private branch: Branch = Branch.DRAFT;
 
     constructor() {
         const builder: TreeGridBuilder<ContentSummaryAndCompareStatus> =
@@ -158,6 +161,10 @@ export class ContentTreeGrid
             this.getToolbar().disable();
             this.disableKeys();
         }
+    }
+
+    setTargetBranch(branch: Branch): void {
+        this.branch = branch;
     }
 
     clean() {
@@ -283,7 +290,9 @@ export class ContentTreeGrid
     private makeContentQueryRequest(from: number, size: number): ContentQueryRequest<ContentSummaryJson, ContentSummary> {
         this.filterQuery.setFrom(from).setSize(size);
 
-        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(this.filterQuery).setExpand(Expand.SUMMARY);
+        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(this.filterQuery)
+            .setTargetBranch(this.branch)
+            .setExpand(Expand.SUMMARY);
     }
 
     private processContentQueryResponse(node: TreeNode<ContentSummaryAndCompareStatus>,

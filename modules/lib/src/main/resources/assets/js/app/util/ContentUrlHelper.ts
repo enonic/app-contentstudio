@@ -72,7 +72,7 @@ export class ContentUrlHelper {
     static generateDependenciesURL(params: DependencyParams): string {
         const typePostfix: string = params.getContentType() ? `/${params.getContentType().toString()}` : '';
         const relativeUrl: string =
-            `${params.getProject().getName()}/${params.getDependencyType()}/${params.getContentId().toString()}${typePostfix}`;
+            `${params.getProject().getName()}/${params.getDependencyType()}/${params.getBranch()}/${params.getContentId().toString()}${typePostfix}`;
 
         return UrlHelper.getPrefixedUrl(relativeUrl);
     }

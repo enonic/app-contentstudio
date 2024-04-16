@@ -74,6 +74,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentQueryJs
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSelectorQueryJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentTreeSelectorJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentTreeSelectorQueryJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentWithRefsResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.CreateContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.CreateMediaFromUrlJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.DeleteAttachmentJson;
@@ -84,6 +85,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.EffectivePermi
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.EffectivePermissionMemberJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.FindIdsByParentsResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetContentVersionsJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDependenciesJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDependenciesResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDescendantsOfContents;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.HasUnpublishedChildrenResultJson;
@@ -95,7 +97,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContent
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildrenJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolveContentForDeleteResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolvePublishContentResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolvePublishDependenciesJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
@@ -118,6 +119,7 @@ import com.enonic.xp.attachment.AttachmentNames;
 import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.attachment.CreateAttachment;
 import com.enonic.xp.attachment.CreateAttachments;
+import com.enonic.xp.branch.Branch;
 import com.enonic.xp.branch.Branches;
 import com.enonic.xp.content.CompareContentResult;
 import com.enonic.xp.content.CompareContentResults;
@@ -570,7 +572,17 @@ public final class ContentResource
 
     @POST
     @Path("getDependencies")
-    public GetDependenciesResultJson getDependencies( final ContentIdsJson params )
+    public GetDependenciesResultJson getDependencies( final GetDependenciesJson params )
+    {
+        final boolean isMasterQuery = ContentConstants.BRANCH_MASTER.equals( params.getBranch() );
+
+        return ContextBuilder.from( ContextAccessor.current() )
+            .branch( isMasterQuery ? ContentConstants.BRANCH_MASTER : ContentConstants.BRANCH_DRAFT )
+            .build()
+            .callWith( () -> new GetDependenciesResultJson( doGetDependencies( params ) ) );
+    }
+
+    private Map<String, DependenciesJson> doGetDependencies( final GetDependenciesJson params )
     {
         final Map<String, DependenciesJson> result = new HashMap<>();
 
@@ -590,7 +602,7 @@ public final class ContentResource
             result.put( id.toString(), new DependenciesJson( inbound, outbound ) );
         } ) );
 
-        return new GetDependenciesResultJson( result );
+        return result;
     }
 
     @POST
@@ -734,7 +746,8 @@ public final class ContentResource
             .setDependentContents(
                 this.problematicDependantsOnTop( sortedDependentContentIds, requestedContentIds, sortedProblematicContentIds ) )
             .setRequiredContents( requiredDependantIds )
-            .setNotPublishableContents( notPublishableContentIds ).setSomePublishable( isSomePublishable )
+            .setNotPublishableContents( notPublishableContentIds )
+            .setSomePublishable( isSomePublishable )
             .setContainsInvalid( !notValidContentIds.isEmpty() )
             .setInvalidContents( notValidContentIds )
             .setContainsNotReady( !notReadyContentIds.isEmpty() )
@@ -1164,35 +1177,25 @@ public final class ContentResource
 
     @POST
     @Path("resolveForUnpublish")
-    public List<ContentIdJson> resolveForUnpublish( final ContentIdsJson params )
+    public ContentWithRefsResultJson resolveForUnpublish( final ContentIdsJson params )
     {
         return ContextBuilder.from( ContextAccessor.current() )
             .attribute( "ignorePublishTimes", Boolean.TRUE )
             .branch( ContentConstants.BRANCH_MASTER )
             .build()
-            .callWith( () -> {
-
-                final Contents parents = contentService.getByIds( new GetContentByIdsParams( params.getContentIds() ) );
-
-                final FindContentIdsByQueryResult children = ContentQueryWithChildren.create()
-                    .contentService( this.contentService )
-                    .contentsPaths( parents.getPaths() )
-                    .size( GET_ALL_SIZE_FLAG )
-                    .build()
-                    .find();
-
-                return ContentIds.create().addAll( parents.getIds() ).addAll( children.getContentIds() ).build();
-            } )
-            .stream()
-            .map( ContentIdJson::new )
-            .collect( Collectors.toList() );
+            .callWith( () -> doResolveReferences( params.getContentIds() ) );
     }
 
     @POST
     @Path("resolveForDelete")
-    public ResolveContentForDeleteResultJson resolveForDelete( final ContentIdsJson params )
+    public ContentWithRefsResultJson resolveForDelete( final ContentIdsJson params )
     {
-        final Contents parents = contentService.getByIds( new GetContentByIdsParams( params.getContentIds() ) );
+        return doResolveReferences( params.getContentIds() );
+    }
+
+    private ContentWithRefsResultJson doResolveReferences( final ContentIds contentIds )
+    {
+        final Contents parents = contentService.getByIds( new GetContentByIdsParams( contentIds ) );
 
         final FindContentIdsByQueryResult children = ContentQueryWithChildren.create()
             .contentService( this.contentService )
@@ -1201,29 +1204,31 @@ public final class ContentResource
             .build()
             .find();
 
-        final List<ContentId> idsToRemove =
-            Stream.concat( parents.getIds().stream(), children.getContentIds().stream().filter( id -> !parents.getIds().contains( id ) ) )
-                .collect( Collectors.toList() );
+        final List<ContentId> idsToRemove = Stream.concat( parents.getIds().stream(), children.getContentIds()
+            .stream()
+            .filter( id -> !parents.getIds().contains( id ) ) ).collect( Collectors.toList() );
 
         final List<String> idsToRemoveAsStrings = idsToRemove.stream().map( ContentId::toString ).collect( Collectors.toList() );
 
         final BooleanFilter inboundDependenciesFilter = BooleanFilter.create()
             .must( BooleanFilter.create()
-                       .should(
-                           IdFilter.create().fieldName( ContentIndexPath.REFERENCES.getPath() ).values( idsToRemoveAsStrings ).build() )
+                       .should( IdFilter.create()
+                                    .fieldName( ContentIndexPath.REFERENCES.getPath() )
+                                    .values( idsToRemoveAsStrings )
+                                    .build() )
                        .build() )
             .mustNot( IdFilter.create().fieldName( ContentIndexPath.ID.getPath() ).values( idsToRemoveAsStrings ).build() )
             .build();
 
-        final ContentIds inboundDependencies =
-            this.contentService.find( ContentQuery.create().queryFilter( inboundDependenciesFilter ).size( GET_ALL_SIZE_FLAG ).build() )
-                .getContentIds();
+        final ContentIds inboundDependencies = this.contentService.find(
+            ContentQuery.create().queryFilter( inboundDependenciesFilter ).size( GET_ALL_SIZE_FLAG ).build() ).getContentIds();
 
         final Map<ContentId, Set<ContentId>> map = new HashMap<>();
 
         inboundDependencies.forEach( inboundDependencyId -> {
             final ContentIds outboundRefs = contentService.getOutboundDependencies( inboundDependencyId );
-            final Set<ContentId> referencedIds = outboundRefs.stream().filter( idsToRemove::contains ).collect( Collectors.toSet() );
+            final Set<ContentId> referencedIds =
+                outboundRefs.stream().filter( idsToRemove::contains ).collect( Collectors.toSet() );
 
             referencedIds.forEach( referencedId -> {
                 final Set<ContentId> inbounds = map.computeIfAbsent( referencedId, ( id ) -> new HashSet() );
@@ -1232,11 +1237,11 @@ public final class ContentResource
 
         } );
 
-        return ResolveContentForDeleteResultJson.create()
+        return ContentWithRefsResultJson.create()
             .addContentIds( idsToRemove )
             .addInboundDependencies( map.entrySet()
                                          .stream()
-                                         .map( entry -> ResolveContentForDeleteResultJson.InboundDependenciesJson.create()
+                                         .map( entry -> ContentWithRefsResultJson.InboundDependenciesJson.create()
                                              .id( entry.getKey() )
                                              .addInboundDependencies( entry.getValue() )
                                              .build() )
@@ -1283,17 +1288,24 @@ public final class ContentResource
             return FindContentByQuertResultJsonFactory.create().expand( contentQueryJson.getExpand() ).build().execute();
         }
 
-        final FindContentIdsByQueryResult findResult = contentService.find( contentQuery );
+        final boolean isMasterQuery = ContentConstants.BRANCH_MASTER.equals( contentQueryJson.getBranch() );
 
-        return FindContentByQuertResultJsonFactory.create()
-            .contents( this.contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) )
-            .aggregations( findResult.getAggregations() )
-            .jsonObjectsFactory( jsonObjectsFactory )
-            .expand( contentQueryJson.getExpand() )
-            .hits( findResult.getHits() )
-            .totalHits( findResult.getTotalHits() )
-            .build()
-            .execute();
+        final Branch branch = isMasterQuery ? ContentConstants.BRANCH_MASTER : ContentConstants.BRANCH_DRAFT;
+
+        return ContextBuilder.from( ContextAccessor.current() ).branch( branch ).build().callWith( () -> {
+            final FindContentIdsByQueryResult findResult = contentService.find( contentQuery );
+            final Contents contents = contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) );
+
+            return FindContentByQuertResultJsonFactory.create()
+                .contents( contents )
+                .aggregations( findResult.getAggregations() )
+                .jsonObjectsFactory( jsonObjectsFactory )
+                .expand( contentQueryJson.getExpand() )
+                .hits( findResult.getHits() )
+                .totalHits( findResult.getTotalHits() )
+                .build()
+                .execute();
+        } );
     }
 
     @GET

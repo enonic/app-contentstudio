@@ -95,6 +95,7 @@ export class ContentBrowsePanel
         });
 
         this.filterPanel.onSearchEvent((query?: ContentQuery) => {
+            this.treeGrid.setTargetBranch(this.filterPanel.getTargetBranch());
             this.treeGrid.setFilterQuery(query);
         });
 
@@ -204,6 +205,7 @@ export class ContentBrowsePanel
             }
 
             this.showFilterPanel();
+            this.filterPanel.setTargetBranch(event.getBranch());
             this.filterPanel.setDependencyItem(event.getContent(), event.isInbound(), event.getType());
         });
 

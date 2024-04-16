@@ -1,4 +1,3 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
@@ -7,29 +6,19 @@ import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import * as Q from 'q';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
 import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselectAllEvent';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ArchiveCheckableItem} from '../dialog/ArchiveCheckableItem';
-import {ArchiveSelectableItem} from '../dialog/ArchiveSelectableItem';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {DialogStateBar} from '../dialog/DialogStateBar';
-import {DialogStateEntry} from '../dialog/DialogStateEntry';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
-import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
-import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDeleteResult';
 import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
 import {ConfirmValueDialog} from './ConfirmValueDialog';
 import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
-import {DeleteDialogDependantList} from './DeleteDialogDependantList';
-import {DeleteDialogItemList} from './DeleteDialogItemList';
+import {DependantItemsWithReferencesDialog} from '../dialog/DependantItemsWithReferencesDialog';
 
 enum ActionType {
     DELETE = 'delete',
@@ -37,7 +26,7 @@ enum ActionType {
 }
 
 export class ContentDeleteDialog
-    extends DependantItemsWithProgressDialog {
+    extends DependantItemsWithReferencesDialog {
 
     private yesCallback: (exclude?: CompareStatus[]) => void;
 
@@ -52,14 +41,6 @@ export class ContentDeleteDialog
     private menuButton: MenuButton;
 
     private confirmExecutionDialog?: ConfirmValueDialog;
-
-    private stateBar: DialogStateBar;
-
-    private inboundErrorsEntry: DialogStateEntry;
-
-    private resolveDependenciesResult: ResolveContentForDeleteResult;
-
-    private referenceIds: ContentId[];
 
     private actionInProgressType: ActionType;
 
@@ -76,7 +57,7 @@ export class ContentDeleteDialog
         } satisfies DependantItemsWithProgressDialogConfig);
     }
 
-    protected initElements() {
+    protected initElements(): void {
         super.initElements();
 
         this.archiveAction = new Action(i18n('dialog.archive.action'));
@@ -87,15 +68,6 @@ export class ContentDeleteDialog
 
         this.menuButton = this.getButtonRow().makeActionMenu(this.archiveAction, [this.deleteNowAction]);
         this.actionButton = this.menuButton.getActionButton();
-
-        this.stateBar = new DialogStateBar({hideIfResolved: true});
-        this.inboundErrorsEntry = this.stateBar.addErrorEntry({
-            text: i18n('dialog.archive.warning.text'),
-            actionButtons: [{
-                label: i18n('dialog.archive.warning.ignore'),
-                markIgnored: true,
-            }],
-        });
     }
 
     getButtonRow(): ContentDeleteDialogButtonRow {
@@ -105,17 +77,6 @@ export class ContentDeleteDialog
     protected initListeners() {
         super.initListeners();
 
-        this.getItemList().onItemsRemoved(() => this.onListItemsRemoved());
-
-        const itemsAddedHandler = (items: ContentSummaryAndCompareStatus[], itemList: ListBox<ContentSummaryAndCompareStatus>) => {
-            if (this.resolveDependenciesResult) {
-                this.updateItemViewsWithInboundDependencies(items.map(item => itemList.getItemView(item) as ArchiveCheckableItem));
-            }
-        };
-
-        this.getItemList().onItemsAdded(items => itemsAddedHandler(items, this.getItemList()));
-        this.getDependantList().onItemsAdded(items => itemsAddedHandler(items, this.getDependantList()));
-
         this.progressManager.onProgressComplete((task: TaskState) => {
             if (this.actionInProgressType === ActionType.ARCHIVE && task === TaskState.FINISHED) {
                 const msg: string = this.totalItemsToDelete > 1 ? i18n('dialog.archive.success.multiple', this.totalItemsToDelete) :
@@ -123,157 +84,10 @@ export class ContentDeleteDialog
                 NotifyManager.get().showSuccess(msg);
             }
         });
-
-        this.stateBar.onResolvedStateChange(resolved => this.toggleControls(resolved));
-
-        const handleRefsChange = (items: ContentSummaryAndCompareStatus[] | ContentServerChangeItem[]): void => {
-            if (!this.isOpen()) {
-                return;
-            }
-            const contentIds = items.map(item => item.getContentId());
-            const referringWasUpdated = this.referenceIds.find(id => contentIds.some(contentId => contentId.equals(id)));
-            if (referringWasUpdated) {
-                this.refreshInboundRefs();
-            }
-        };
-
-        ContentServerEventsHandler.getInstance().onContentUpdated(handleRefsChange);
-        ContentServerEventsHandler.getInstance().onContentDeleted(handleRefsChange);
     }
 
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.addCancelButtonToBottom();
-            this.prependChildToContentPanel(this.stateBar);
-
-            return rendered;
-        });
-    }
-
-    private onListItemsRemoved() {
-        if (this.isIgnoreItemsChanged()) {
-            return;
-        }
-
-        this.updateSubTitle();
-
-        this.manageDescendants();
-    }
-
-    protected createItemList(): DeleteDialogItemList {
-        return new DeleteDialogItemList();
-    }
-
-    protected getItemList(): DeleteDialogItemList {
-        return super.getItemList() as DeleteDialogItemList;
-    }
-
-    protected createDependantList(): DeleteDialogDependantList {
-        const observer = this.createObserverConfig();
-        return new DeleteDialogDependantList(observer);
-    }
-
-    protected getDependantList(): DeleteDialogDependantList {
-        return super.getDependantList() as DeleteDialogDependantList;
-    }
-
-    private updateItemViewsWithInboundDependencies(itemViews: (ArchiveCheckableItem | ArchiveSelectableItem)[]) {
-        itemViews.forEach((itemView) => {
-            const hasInbound = this.hasInboundRef(itemView.getItem().getId());
-            itemView.setHasInbound(hasInbound);
-        });
-    }
-
-    private hasInboundRef(id: string): boolean {
-        return this.resolveDependenciesResult?.hasInboundDependency(id);
-    }
-
-    private refreshInboundRefs(): Q.Promise<void> {
-        return this.resolveDescendants()
-            .then(() => this.resolveItemsWithInboundRefs(true))
-            .then(() => {
-                if (!this.resolveDependenciesResult.hasInboundDependencies()) {
-                    this.unlockMenu();
-                }
-            }).catch(DefaultErrorHandler.handle);
-    }
-
-    private manageDescendants() {
-        this.showLoadMask();
-        this.lockControls();
-
-        this.loadDescendantIds().then(() => {
-            this.resolveItemsWithInboundRefs();
-
-            return this.cleanLoadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
-                this.setDependantItems(descendants);
-                return Q(null);
-            }).finally(() => {
-                this.notifyResize();
-                this.hideLoadMask();
-                this.unlockControls();
-                this.countItemsToDeleteAndUpdateButtonCounter();
-                this.updateTabbable();
-                this.actionButton.giveFocus();
-
-                const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
-                if (hasInboundDeps) {
-                    this.lockMenu();
-                }
-            });
-        }).catch((reason: unknown) => {
-            DefaultErrorHandler.handle(reason);
-        });
-    }
-
-    private resolveItemsWithInboundRefs(forceUpdate?: boolean): void {
-        this.getDependantList().setResolveDependenciesResult(this.resolveDependenciesResult);
-
-        const itemsWithInboundRefs: ContentId[] =
-            this.dependantIds.filter((id: ContentId) => this.hasInboundRef(id.toString()));
-        this.dependantIds = this.dependantIds.filter((contentId: ContentId) => !this.hasInboundRef(contentId.toString()));
-        this.dependantIds.unshift(...itemsWithInboundRefs);
-
-        const inboundCount = this.resolveDependenciesResult.getInboundDependencies().length;
-        this.updateWarningLine(inboundCount);
-
-        const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
-
-        if (hasInboundDeps || forceUpdate) {
-            const views = [...this.getItemList().getItemViews(), ...this.getDependantList().getItemViews()];
-            this.updateItemViewsWithInboundDependencies(views);
-        }
-    }
-
-    private resolveReferanceIds(): void {
-        this.referenceIds = this.resolveDependenciesResult.getInboundDependencies().reduce((prev, curr) => {
-            return prev.concat(curr.getInboundDependencies());
-        }, [] as ContentId[]);
-    }
-
-    private updateWarningLine(inboundCount: number): void {
-        const dependenciesExist = inboundCount > 0;
-
-        if (dependenciesExist) {
-            this.stateBar.markChecking(true);
-        }
-
-        this.inboundErrorsEntry.updateCount(inboundCount);
-
-        if (dependenciesExist) {
-            setTimeout(() => {
-                this.stateBar.markChecking(false);
-            }, 1000);
-        }
-    }
-
-    protected resolveDescendants(): Q.Promise<ContentId[]> {
-        const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
-        return new ResolveDeleteRequest(ids).sendAndParse().then((result: ResolveContentForDeleteResult) => {
-            this.resolveDependenciesResult = result;
-            this.resolveReferanceIds();
-            return result.getContentIds();
-        });
+    protected createResolveRequest(ids: ContentId[]): ResolveDeleteRequest {
+        return new ResolveDeleteRequest(ids);
     }
 
     manageContentToDelete(contents: ContentSummaryAndCompareStatus[]): ContentDeleteDialog {
@@ -309,15 +123,15 @@ export class ContentDeleteDialog
         this.setProcessingLabel(label);
     }
 
-    private archive() {
+    private archive(): void {
         this.executeAction(ActionType.ARCHIVE);
     }
 
-    private delete() {
+    private delete(): void {
         this.executeAction(ActionType.DELETE);
     }
 
-    private executeAction(type: ActionType) {
+    private executeAction(type: ActionType): void {
         this.actionInProgressType = type;
 
         if (this.totalItemsToDelete > 1 || this.isAnySiteToBeDeleted()) {
@@ -327,7 +141,7 @@ export class ContentDeleteDialog
         }
     }
 
-    private confirmAndExecute() {
+    private confirmAndExecute(): void {
         const totalItemsToProcess: number = this.totalItemsToDelete;
         const yesCallback: () => void = this.createConfirmExecutionCallback();
 
@@ -360,7 +174,7 @@ export class ContentDeleteDialog
         };
     }
 
-    private executeNow() {
+    private executeNow(): void {
         if (this.yesCallback) {
             this.yesCallback();
         }
@@ -391,7 +205,7 @@ export class ContentDeleteDialog
             });
     }
 
-    private countItemsToDeleteAndUpdateButtonCounter() {
+    private countItemsToDeleteAndUpdateButtonCounter(): void {
         this.actionButton.getAction().setLabel(i18n('dialog.archive.action'));
 
         this.totalItemsToDelete = this.countTotal();
@@ -433,7 +247,7 @@ export class ContentDeleteDialog
         });
     }
 
-    private updateSubTitle() {
+    private updateSubTitle(): void {
         const items: ContentSummaryAndCompareStatus[] = this.getItemList().getItems();
 
         super.setSubTitle(this.doAnyHaveChildren(items) ? i18n('dialog.archive.subname') : '');
@@ -458,16 +272,10 @@ export class ContentDeleteDialog
         }
     }
 
-    protected lockControls(): void {
-        super.lockControls();
-        this.lockMenu();
-        this.stateBar.setEnabled(false);
-    }
+    protected handleDescendantsLoaded(): void {
+        super.handleDescendantsLoaded();
 
-    protected unlockControls(): void {
-        super.unlockControls();
-        this.unlockMenu();
-        this.stateBar.setEnabled(true);
+        this.countItemsToDeleteAndUpdateButtonCounter();
     }
 
     protected lockMenu(): void {
@@ -482,12 +290,6 @@ export class ContentDeleteDialog
         this.menuButton.setDropdownHandleEnabled(true);
     }
 
-    close() {
-        super.close();
-
-        this.stateBar.reset();
-        this.resolveDependenciesResult = null;
-    }
 }
 
 export class ContentDeleteDialogButtonRow
