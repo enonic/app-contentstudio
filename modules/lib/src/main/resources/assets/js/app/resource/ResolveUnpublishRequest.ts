@@ -3,9 +3,11 @@ import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 import {ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
+import {ContentWithRefsResult} from './ContentWithRefsResult';
+import {ContentWithRefsResultJson} from './json/ContentWithRefsResultJson';
 
 export class ResolveUnpublishRequest
-    extends CmsContentResourceRequest<ContentId[]> {
+    extends CmsContentResourceRequest<ContentWithRefsResult> {
 
     private ids: ContentId[];
 
@@ -22,7 +24,7 @@ export class ResolveUnpublishRequest
         };
     }
 
-    protected parseResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
-        return response.getResult().map((item => new ContentId(item.id)));
+    protected parseResponse(response: JsonResponse<ContentWithRefsResultJson>): ContentWithRefsResult {
+        return ContentWithRefsResult.fromJson(response.getResult());
     }
 }

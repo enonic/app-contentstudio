@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.filter.FilterJson;
+import com.enonic.xp.branch.Branch;
+import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.schema.content.ContentTypeNames;
 
@@ -33,6 +35,8 @@ public class ContentQueryJson
 
     private final List<Map<String, Object>> querySort;
 
+    private final Branch branch;
+
     @JsonCreator
     public ContentQueryJson(@JsonProperty("queryExpr") final String queryExprString, //
                             @JsonProperty("from") final Integer from, //
@@ -43,7 +47,8 @@ public class ContentQueryJson
                             @JsonProperty("aggregationQueries") final List<AggregationQueryJson> aggregationQueries, //
                             @JsonProperty("queryFilters") final List<FilterJson> queryFilters,
                             @JsonProperty("query") final Map<String, Object> query,
-                            @JsonProperty("querySort") final List<Map<String, Object>> querySort
+                            @JsonProperty("querySort") final List<Map<String, Object>> querySort,
+                            @JsonProperty("branch") final String branch
                             )
     {
 
@@ -57,6 +62,7 @@ public class ContentQueryJson
         this.query = query;
         this.querySort = querySort;
         this.expand = expand != null ? expand : "none";
+        this.branch = branch != null ? Branch.from( branch ) : ContentConstants.BRANCH_DRAFT;
     }
 
     @JsonIgnore
@@ -117,6 +123,12 @@ public class ContentQueryJson
     public List<Map<String, Object>> getQuerySort()
     {
         return querySort;
+    }
+
+    @JsonIgnore
+    public Branch getBranch()
+    {
+        return branch;
     }
 
 }

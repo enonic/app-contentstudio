@@ -3,11 +3,14 @@ import {ResolveDependenciesResult, ResolveDependenciesResultJson} from './Resolv
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {Branch} from '../versioning/Branch';
 
 export class ResolveDependenciesRequest
     extends CmsContentResourceRequest<ResolveDependenciesResult> {
 
     private ids: ContentId[];
+
+    private target: Branch;
 
     constructor(contentIds: ContentId[]) {
         super();
@@ -16,9 +19,15 @@ export class ResolveDependenciesRequest
         this.addRequestPathElements('getDependencies');
     }
 
+    setTarget(target: Branch): ResolveDependenciesRequest {
+        this.target = target;
+        return this;
+    }
+
     getParams(): Object {
         return {
-            contentIds: this.ids.map(id => id.toString())
+            contentIds: this.ids.map(id => id.toString()),
+            target: this.target?.toString() || Branch.DRAFT,
         };
     }
 

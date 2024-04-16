@@ -1,21 +1,33 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ContentSummary} from '../content/ContentSummary';
+import {Branch} from '../versioning/Branch';
+
+export interface ToggleSearchPanelWithDependenciesConfig {
+    item: ContentSummary;
+    inbound: boolean;
+    branch?: Branch;
+    type?: string;
+}
 
 export class ToggleSearchPanelWithDependenciesEvent
     extends Event {
 
-    private item: ContentSummary;
+    private readonly item: ContentSummary;
 
-    private inbound: boolean;
+    private readonly inbound: boolean;
 
-    private type: string;
+    private readonly type: string;
 
-    constructor(item: ContentSummary, inbound: boolean, type?: string) {
+    private readonly branch: Branch;
+
+    constructor(config: ToggleSearchPanelWithDependenciesConfig) {
         super();
-        this.item = item;
-        this.inbound = inbound;
-        this.type = type;
+
+        this.item = config.item;
+        this.inbound = config.inbound;
+        this.type = config.type;
+        this.branch = config.branch || Branch.DRAFT;
     }
 
     getContent(): ContentSummary {
@@ -28,6 +40,10 @@ export class ToggleSearchPanelWithDependenciesEvent
 
     getType(): string {
         return this.type;
+    }
+
+    getBranch(): Branch {
+        return this.branch;
     }
 
     static on(handler: (event: ToggleSearchPanelWithDependenciesEvent) => void, contextWindow: Window = window) {

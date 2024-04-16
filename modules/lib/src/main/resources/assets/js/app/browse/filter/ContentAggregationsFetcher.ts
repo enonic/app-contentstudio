@@ -16,6 +16,7 @@ import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {WorkflowState} from '../../content/WorkflowState';
 import {AggregationsQueryResult} from './AggregationsQueryResult';
 import {ContentResourceRequest} from '../../resource/ContentResourceRequest';
+import {Branch} from '../../versioning/Branch';
 
 export class ContentAggregationsFetcher {
 
@@ -23,6 +24,7 @@ export class ContentAggregationsFetcher {
     private dependency?: { isInbound: boolean, dependencyId: ContentId };
     private constraintItems?: string[];
     private rootPath?: string;
+    private targetBranch?: Branch;
     private readonly aggregationsNames: string[];
 
     constructor(aggregationsNames?: string[]) {
@@ -36,6 +38,11 @@ export class ContentAggregationsFetcher {
 
     setDependency(value: { isInbound: boolean, dependencyId: ContentId }): ContentAggregationsFetcher {
         this.dependency = value;
+        return this;
+    }
+
+    setTargetBranch(value: Branch): ContentAggregationsFetcher {
+        this.targetBranch = value;
         return this;
     }
 
@@ -102,6 +109,7 @@ export class ContentAggregationsFetcher {
         return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(query)
             .setContentRootPath(this.rootPath || ContentResourceRequest.CONTENT_PATH)
             .setExpand(expand ?? Expand.NONE)
+            .setTargetBranch(this.targetBranch)
             .sendAndParse();
     }
 

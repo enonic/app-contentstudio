@@ -1,8 +1,8 @@
 import {ContentId} from '../content/ContentId';
-import {ResolveContentForDeleteJson} from './json/ResolveContentForDeleteJson';
+import {ContentWithRefsResultJson} from './json/ContentWithRefsResultJson';
 import {InboundDependenciesResult} from './InboudDependenciesResult';
 
-export class ResolveContentForDeleteResult {
+export class ContentWithRefsResult {
 
     private readonly contentIds: ContentId[];
 
@@ -30,7 +30,7 @@ export class ResolveContentForDeleteResult {
         return this.inboundDependencies.some((dep: InboundDependenciesResult) => dep.getId().toString() === id);
     }
 
-    static fromJson(json: ResolveContentForDeleteJson): ResolveContentForDeleteResult {
+    static fromJson(json: ContentWithRefsResultJson): ContentWithRefsResult {
 
         const contentIds: ContentId[] = json.contentIds
                                         ? json.contentIds.map(item => new ContentId(item.id))
@@ -40,6 +40,6 @@ export class ResolveContentForDeleteResult {
                                                  : [];
 
 
-        return new ResolveContentForDeleteResult(contentIds, inboundDependencies);
+        return new ContentWithRefsResult(contentIds, inboundDependencies);
     }
 }

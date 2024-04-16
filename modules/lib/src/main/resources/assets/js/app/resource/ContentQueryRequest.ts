@@ -18,6 +18,7 @@ import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 import {ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
 import {ContentId} from '../content/ContentId';
 import {Content} from '../content/Content';
+import {Branch} from '../versioning/Branch';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends CmsContentResourceRequest<ContentQueryResult<CONTENT, CONTENT_JSON>> {
@@ -30,6 +31,8 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
 
     private results: CONTENT[] = [];
 
+    private targetBranch?: Branch;
+
     constructor(contentQuery: ContentQuery) {
         super();
         this.setMethod(HttpMethod.POST);
@@ -41,8 +44,13 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         return this.contentQuery;
     }
 
-    setExpand(expand: Expand): ContentQueryRequest<CONTENT_JSON, CONTENT> {
+    setExpand(expand: Expand): this {
         this.expand = expand;
+        return this;
+    }
+
+    setTargetBranch(value: Branch): this {
+        this.targetBranch = value;
         return this;
     }
 
@@ -68,7 +76,8 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
             aggregationQueries: this.aggregationQueriesToJson(this.contentQuery.getAggregationQueries()),
             queryFilters: this.queryFiltersToJson(this.contentQuery.getQueryFilters()),
             query: this.contentQuery.getQuery(),
-            querySort: this.contentQuery.getQuerySort()
+            querySort: this.contentQuery.getQuerySort(),
+            branch: this.targetBranch || Branch.DRAFT,
         };
     }
 

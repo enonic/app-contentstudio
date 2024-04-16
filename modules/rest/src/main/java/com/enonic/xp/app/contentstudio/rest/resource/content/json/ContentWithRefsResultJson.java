@@ -10,13 +10,13 @@ import com.google.common.collect.ImmutableList;
 import com.enonic.xp.app.contentstudio.json.content.ContentIdJson;
 import com.enonic.xp.content.ContentId;
 
-public class ResolveContentForDeleteResultJson
+public class ContentWithRefsResultJson
 {
     private final List<ContentIdJson> contentIds;
 
     private final List<InboundDependenciesJson> inboundDependencies;
 
-    public ResolveContentForDeleteResultJson( final Builder builder )
+    public ContentWithRefsResultJson( final Builder builder )
     {
         this.contentIds = builder.contentIds.build().stream().map( ContentIdJson::new ).collect( Collectors.toList() );
         this.inboundDependencies = builder.inboundDependencies.build();
@@ -120,9 +120,9 @@ public class ResolveContentForDeleteResultJson
             return this;
         }
 
-        public ResolveContentForDeleteResultJson build()
+        public ContentWithRefsResultJson build()
         {
-            return new ResolveContentForDeleteResultJson( this );
+            return new ContentWithRefsResultJson( this );
         }
     }
 

@@ -66,9 +66,11 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentIdsJson
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentPathsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentQueryJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentTreeSelectorQueryJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentWithRefsResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.DeleteContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.DuplicateContentsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetContentVersionsJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDependenciesJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDependenciesResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDescendantsOfContents;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.HasUnpublishedChildrenResultJson;
@@ -79,7 +81,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.MoveContentJso
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildrenJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolveContentForDeleteResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentResultJson;
@@ -1639,8 +1640,9 @@ public class ContentResourceTest
             .thenReturn(
                 ContentDependencies.create().inboundDependencies( new HashSet<>() ).outboundDependencies( new HashSet<>() ).build() );
 
-        GetDependenciesResultJson result =
-            contentResource.getDependencies( new ContentIdsJson( List.of( content1.getId().toString(), content2.getId().toString() ) ) );
+        GetDependenciesResultJson result = contentResource.getDependencies(
+            new GetDependenciesJson( List.of( content1.getId().toString(), content2.getId().toString() ),
+                                     ContentConstants.BRANCH_DRAFT.getValue() ) );
 
         assertEquals( 1, result.getDependencies().get( content1.getId().toString() ).getInbound().size() );
         assertEquals( 2L, result.getDependencies().get( content1.getId().toString() ).getInbound().get( 0 ).getCount() );
@@ -1925,19 +1927,18 @@ public class ContentResourceTest
 
         Mockito.when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( "content-id1", "content-id2" ) ) ) )
             .thenReturn( Contents.from( content1, content2 ) );
-
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) ).thenReturn( findResult );
+        Mockito.when( contentService.getOutboundDependencies( ContentId.from( "content-id1" ) ) )
+            .thenReturn( ContentIds.from( "content-id1", "content-id2" ) );
+        Mockito.when( contentService.getOutboundDependencies( ContentId.from( "content-id2" ) ) )
+            .thenReturn( ContentIds.from( "content-id1" ) );
 
-        List<ContentIdJson> result = contentResource.resolveForUnpublish( new ContentIdsJson( List.of( "content-id1", "content-id2" ) ) );
+        ContentWithRefsResultJson result = contentResource.resolveForUnpublish( new ContentIdsJson( List.of( "content-id1", "content-id2" ) ) );
 
-        Mockito.verify( this.contentService, Mockito.times( 1 ) ).find( argumentCaptor.capture() );
+        Mockito.verify( this.contentService, Mockito.times( 2 ) ).find( argumentCaptor.capture() );
 
-        assertEquals(
-            "((_path LIKE '/content/content-name1/*' OR _path LIKE '/content/content-name2/*') AND _path NOT IN ('/content/content-name1', '/content/content-name2')) ORDER BY _path ASC",
-            argumentCaptor.getValue().getQueryExpr().toString() );
-
-        assertTrue( result.contains( new ContentIdJson( content1.getId() ) ) );
-        assertTrue( result.contains( new ContentIdJson( content2.getId() ) ) );
+        assertTrue( result.getContentIds().contains( new ContentIdJson( content1.getId() ) ) );
+        assertTrue( result.getContentIds().contains( new ContentIdJson( content2.getId() ) ) );
     }
 
     @Test
@@ -1971,7 +1972,7 @@ public class ContentResourceTest
         Mockito.when( contentService.getOutboundDependencies( ContentId.from( "content-id4" ) ) )
             .thenReturn( ContentIds.from( "content-id1" ) );
 
-        final ResolveContentForDeleteResultJson result =
+        final ContentWithRefsResultJson result =
             contentResource.resolveForDelete( new ContentIdsJson( List.of( "content-id1", "content-id2" ) ) );
 
         assertEquals( 2, result.getContentIds().size() );
@@ -2020,8 +2021,9 @@ public class ContentResourceTest
         Mockito.when( contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) )
             .thenReturn( Contents.from( content ) );
 
-        AbstractContentQueryResultJson result =
-            contentResource.query( new ContentQueryJson( "", 0, 10, new ArrayList<>(), null, null, null, null, null, null ) );
+        AbstractContentQueryResultJson result = contentResource.query(
+            new ContentQueryJson( "", 0, 10, new ArrayList<>(), null, null, null, null, null, null,
+                                  ContentConstants.BRANCH_DRAFT.getValue() ) );
 
         assertEquals( 1, result.getContents().size() );
         assertTrue( result.getContents().contains( new ContentIdJson( content.getId() ) ) );

@@ -2,11 +2,11 @@ import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {ResolveContentForDeleteJson} from './json/ResolveContentForDeleteJson';
-import {ResolveContentForDeleteResult} from './ResolveContentForDeleteResult';
+import {ContentWithRefsResultJson} from './json/ContentWithRefsResultJson';
+import {ContentWithRefsResult} from './ContentWithRefsResult';
 
 export class ResolveDeleteRequest
-    extends CmsContentResourceRequest<ResolveContentForDeleteResult> {
+    extends CmsContentResourceRequest<ContentWithRefsResult> {
 
     private ids: ContentId[];
 
@@ -23,7 +23,7 @@ export class ResolveDeleteRequest
         };
     }
 
-    protected parseResponse(response: JsonResponse<ResolveContentForDeleteJson>): ResolveContentForDeleteResult {
-        return ResolveContentForDeleteResult.fromJson(response.getResult());
+    protected parseResponse(response: JsonResponse<ContentWithRefsResultJson>): ContentWithRefsResult {
+        return ContentWithRefsResult.fromJson(response.getResult());
     }
 }

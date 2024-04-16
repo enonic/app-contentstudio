@@ -1,5 +1,5 @@
 import {ContentId} from '../content/ContentId';
-import {ResolveContentForDeleteJson} from './json/ResolveContentForDeleteJson';
+import {ContentWithRefsResultJson} from './json/ContentWithRefsResultJson';
 import {InboundDependenciesJson} from './json/InboundDependenciesJson';
 
 export class InboundDependenciesResult {

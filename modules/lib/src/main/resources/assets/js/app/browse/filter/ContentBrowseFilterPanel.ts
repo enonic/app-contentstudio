@@ -11,7 +11,6 @@ import {BrowseFilterPanel} from '@enonic/lib-admin-ui/app/browse/filter/BrowseFi
 import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {BucketAggregationView} from '@enonic/lib-admin-ui/aggregation/BucketAggregationView';
-import {ContentIds} from '../../content/ContentIds';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ProjectContext} from '../../project/ProjectContext';
 import {ContentSummary} from '../../content/ContentSummary';
@@ -29,6 +28,7 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentExportElement} from './ContentExportElement';
 import {ContentDependency} from './ContentDependency';
 import {TextSearchField} from '@enonic/lib-admin-ui/app/browse/filter/TextSearchField';
+import {Branch} from '../../versioning/Branch';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
@@ -42,6 +42,7 @@ export class ContentBrowseFilterPanel
     private dependenciesSection: DependenciesSection;
     private elementsContainer: Element;
     private exportElement?: ContentExportElement;
+    private targetBranch: Branch = Branch.DRAFT;
 
     constructor() {
         super();
@@ -177,6 +178,15 @@ export class ContentBrowseFilterPanel
         this.dependenciesSection.setDependencyItem(item);
     }
 
+    public setTargetBranch(branch: Branch): void {
+        this.targetBranch = branch;
+        this.aggregationsFetcher.setTargetBranch(this.targetBranch);
+    }
+
+    public getTargetBranch(): Branch {
+        return this.targetBranch;
+    }
+
     private selectBucketByTypeOnLoad(type: string): void {
         const handler = () => { // waiting for aggregations views added
             this.unSearchEvent(handler);
@@ -297,6 +307,8 @@ export class ContentBrowseFilterPanel
     }
 
     protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): Q.Promise<void> {
+        this.setTargetBranch(Branch.DRAFT);
+
         return this.getAndUpdateAggregations().then(() => {
             if (!suppressEvent) {
                 this.notifySearchEvent();
