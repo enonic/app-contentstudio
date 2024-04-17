@@ -330,7 +330,6 @@ export class ContentWizardPanel
         const saveOnAppChange = (force: boolean = false) => {
             (force ? Q.resolve(true) : this.checkIfAppsHaveDescriptors(applicationKeys))
                 .then((appsHaveDescriptors: boolean) => appsHaveDescriptors ? this.saveChanges() : Q.resolve())
-                .then(this.debouncedAppsChangeHandler)
                 .finally(() => applicationKeys = []);
         };
 
@@ -367,7 +366,7 @@ export class ContentWizardPanel
                 return;
             }
 
-            this.updateMissingOrStoppedApplications();
+            this.handleMissingOrStoppedApplicationsChange();
         };
 
         this.applicationStoppedListener = (event: ApplicationEvent) => {
@@ -375,7 +374,7 @@ export class ContentWizardPanel
                 return;
             }
 
-            this.updateMissingOrStoppedApplications();
+            this.handleMissingOrStoppedApplicationsChange();
 
             let message = i18n('text.application.not.available', event.getApplicationKey().toString());
 
@@ -405,7 +404,7 @@ export class ContentWizardPanel
             if (!this.isAppUsedByContent(event.getApplicationKey())) {
                 return;
             }
-            this.updateMissingOrStoppedApplications();
+            this.handleMissingOrStoppedApplicationsChange();
         };
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
@@ -887,6 +886,9 @@ export class ContentWizardPanel
             return Q.resolve();
         }
 
+        this.getLivePanel().setHasPage(!!contentClone.getPage());
+        this.getLivePanel().updateHasControllers();
+
         if (this.isRenderable()) {
             if (this.getPersistedItem().getPage() || this.isWithinSite()) {
                 this.updateLiveEditModel(contentClone);
@@ -897,16 +899,14 @@ export class ContentWizardPanel
 
         if (this.getPersistedItem().getPage()) {
             this.updateLiveEditModel(contentClone);
-            return this.handleNonRederablePage();
+            return this.handleNonRenderablePage();
         }
 
         return this.unloadPage();
     }
 
-    private handleNonRederablePage(): Q.Promise<void> {
+    private handleNonRenderablePage(): Q.Promise<void> {
         this.liveEditModel = null;
-        this.getLivePanel().setPageIsNotRenderable();
-
         return Q.resolve();
     }
 
@@ -1113,26 +1113,27 @@ export class ContentWizardPanel
 
     private handleAppChange(): void {
         IsRenderableRequest.clearCache();
+        const wasRenderable = this.isRenderable();
 
         this.checkIfRenderable().then(() => {
-            this.doHandleAppChange();
+            const isRenderable = this.isRenderable();
+
+            if (wasRenderable && !isRenderable) {
+                this.handleStoppedRendering();
+            } else if (!wasRenderable && isRenderable) {
+                this.handleStartedRendering();
+            }
+
+            this.getLivePanel().updateHasControllers();
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private doHandleAppChange(): void {
-        const isAnyAppMissing: boolean = this.missingOrStoppedAppKeys.length > 0;
-        const livePanel: LiveFormPanel = this.getLivePanel();
+    private handleStoppedRendering(): void {
+        //
+    }
 
-        if (livePanel) {
-            if (!isAnyAppMissing) {
-                if (this.isRenderable()) {
-                    this.debouncedEditorReload(false);
-                }
-                livePanel.clearErrorMissingApps();
-            } else {
-                livePanel.setErrorMissingApps();
-            }
-        }
+    private handleStartedRendering(): void {
+        this.debouncedEditorReload(false);
     }
 
     public checkContentCanBePublished(): boolean {
@@ -1769,16 +1770,16 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.initLiveEditor at ' + new Date().toISOString());
         }
 
+        this.updateMissingOrStoppedApplications().catch(DefaultErrorHandler.handle);
+
         if (!this.getLivePanel()) {
             return Q(null);
         }
 
         this.setupWizardLiveEdit();
+        this.getLivePanel().setHasPage(!!this.getPersistedItem().getPage());
+        this.getLivePanel().updateHasControllers();
         this.toggleLiveEdit();
-
-        if (!this.isRenderable() && this.getPersistedItem().getPage()) {
-            this.getLivePanel().setPageIsNotRenderable();
-        }
 
         if (this.isRenderable() && !this.isWithinSite()) {
             this.debouncedEditorReload(false);
@@ -1842,7 +1843,7 @@ export class ContentWizardPanel
                 } else {
                     this.showForm();
                 }
-            });
+            }).catch(DefaultErrorHandler.handle);
         } else {
             this.showForm();
         }
@@ -1881,7 +1882,6 @@ export class ContentWizardPanel
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(content).then(() => {
                 this.contextView.updateWidgetsVisibility();
-                this.updateMissingOrStoppedApplications();
 
                 return this.createWizardStepForms().then(() => {
                     const steps: ContentWizardStep[] = this.createSteps();
@@ -2483,6 +2483,7 @@ export class ContentWizardPanel
             const renderable = statusCode === StatusCode.OK;
             this.renderable = renderable;
             this.contextView?.setIsPageRenderable(renderable);
+            this.livePanel?.setIsRenderable(renderable);
 
             return renderable;
         });
@@ -2747,11 +2748,20 @@ export class ContentWizardPanel
         return new ContentWizardStepsPanel(this.stepNavigator, this.formPanel);
     }
 
-    private updateMissingOrStoppedApplications() {
-        this.fetchMissingOrStoppedAppKeys().then((missingApps: ApplicationKey[]) => {
+    private updateMissingOrStoppedApplications(): Q.Promise<void> {
+        return this.fetchMissingOrStoppedAppKeys().then((missingApps: ApplicationKey[]) => {
             this.missingOrStoppedAppKeys = missingApps;
+            this.getLivePanel()?.setHasMissingApps(this.missingOrStoppedAppKeys.length > 0);
+        });
+    }
 
-            if (missingApps.length > 0) {
+    private handleMissingOrStoppedApplicationsChange(): void {
+        const currentAppsCount = this.missingOrStoppedAppKeys?.length ?? 0;
+
+        this.updateMissingOrStoppedApplications().then(() => {
+            const fetchedAppCount = this.missingOrStoppedAppKeys.length;
+
+            if (currentAppsCount !== fetchedAppCount) { // can also sort arrays and check array equality
                 this.debouncedAppsChangeHandler();
             }
         }).catch(DefaultErrorHandler.handle);

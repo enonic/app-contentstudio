@@ -28,7 +28,7 @@ export class LiveEditPagePlaceholder
         this.contentType = type;
     }
 
-    setHasControllers(hasControllers: boolean): void {
+    setHasControllersMode(hasControllers: boolean): void {
         this.initPagePlaceholderInfoBlock();
         this.removeClass('page-not-renderable');
 
@@ -75,14 +75,6 @@ export class LiveEditPagePlaceholder
         return controllerDropdown;
     }
 
-    hasSelectedController(): boolean {
-        return this.controllerDropdown?.hasSelectedOption();
-    }
-
-    getSelectedController(): Descriptor {
-        return this.controllerDropdown?.getSelectedOption()?.getDisplayValue();
-    }
-
     deselectOptions(): void {
         this.controllerDropdown?.deselectOptions();
     }
@@ -96,7 +88,7 @@ export class LiveEditPagePlaceholder
         this.enabled = value;
     }
 
-    setPageIsNotRenderable(): void {
+    setPageIsNotRenderableMode(): void {
         this.initPagePlaceholderInfoBlock();
         this.removeClass('icon-insert-template');
         this.controllerDropdown?.hide();

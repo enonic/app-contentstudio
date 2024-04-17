@@ -49,7 +49,6 @@ import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentIds} from '../../content/ContentIds';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
@@ -58,7 +57,6 @@ import {BrEl} from '@enonic/lib-admin-ui/dom/BrEl';
 import {ContentId} from '../../content/ContentId';
 import {InspectEvent} from '../../event/InspectEvent';
 import {ContextPanelMode} from '../../view/context/ContextSplitPanel';
-import {ContextPanelStateEvent} from '../../view/context/ContextPanelStateEvent';
 import {LiveEditPagePlaceholder} from './LiveEditPagePlaceholder';
 import {Descriptor} from '../../page/Descriptor';
 import {ContentType} from '../../inputtype/schema/ContentType';
@@ -89,6 +87,7 @@ import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedE
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {PageHelper} from '../../util/PageHelper';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export interface LiveFormPanelConfig {
 
@@ -173,11 +172,21 @@ export class LiveFormPanel
 
     private hasContentEventListeners: boolean;
 
-    private isPageNotRenderable: boolean;
+    private isRenderable: boolean;
+
+    private hasPage: boolean;
+
+    private hasMissingApps: boolean;
+
+    private hasAvailableControllers: boolean;
 
     private lastInspectedItemPath: ComponentPath;
 
     private saveAction: Action;
+
+    private getDescriptorsPromise: Q.Promise<Descriptor[]>;
+
+    private debouncedUpdateFunc: () => void;
 
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
@@ -192,6 +201,7 @@ export class LiveFormPanel
         this.content = config.content;
         this.contentType = config.contentType;
         this.liveEditPageProxy = config.liveEditPage;
+        this.debouncedUpdateFunc = AppHelper.debounce(this.updateRenderingState.bind(this), 500);
 
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
@@ -202,24 +212,33 @@ export class LiveFormPanel
     protected initElements(): void {
         if (!this.content.getPage()) {
             this.createLiveEditPagePlaceholder();
-            this.updatePlaceholder();
         }
 
         this.initPageRequiredElements();
     }
 
-    private updatePlaceholder(): void {
-        this.hasControllers().then((hasControllers: boolean) => {
-            this.placeholder.setHasControllers(hasControllers);
+    updateHasControllers(): Q.Promise<void> {
+        this.getDescriptorsPromise = this.createControllersRequest().sendAndParse();
+
+        return this.getDescriptorsPromise.then((descriptors: Descriptor[]) => {
+            const isChanged =
+                !ObjectHelper.isDefined(this.hasAvailableControllers) || this.hasAvailableControllers !== descriptors.length > 0;
+
+            this.hasAvailableControllers = descriptors.length > 0;
+
+            if (isChanged) {
+                this.debouncedUpdateFunc();
+            }
+
+            return Q.resolve();
         }).catch(DefaultErrorHandler.handle);
     }
 
     hasControllers(): Q.Promise<boolean> {
-        return this.createControllersRequest().sendAndParse().then((descriptors: Descriptor[]) => {
-            return Q.resolve(descriptors.length > 0);
-        }).catch((err) => {
-            DefaultErrorHandler.handle(err);
-            return Q.resolve(false);
+        this.getDescriptorsPromise = this.getDescriptorsPromise ?? this.createControllersRequest().sendAndParse();
+
+        return this.getDescriptorsPromise.then((descriptors: Descriptor[]) => {
+            return descriptors.length > 0;
         });
     }
 
@@ -354,11 +373,6 @@ export class LiveFormPanel
 
     private handleThisContentUpdated(updated: ContentSummaryAndCompareStatus): void {
         SaveAsTemplateAction.get()?.setContentSummary(updated.getContentSummary());
-
-        if (!this.isPageNotRenderable && this.placeholder && !this.placeholder.hasSelectedController()) {
-            this.updatePlaceholder();
-        }
-
     }
 
     private handleFragmentUpdate(fragment: ContentSummaryAndCompareStatus): void {
@@ -495,15 +509,11 @@ export class LiveFormPanel
         this.togglePreviewErrors();
     }
 
-    private setErrorRenderingFailed() {
-        this.addErrorMessage(ErrorType.RENDER_ERROR, 'field.preview.failed.description');
-    }
-
-    setErrorMissingApps() {
+    private setErrorMissingApps(): void {
         this.addErrorMessage(ErrorType.APP_MISSING, 'field.preview.missing.description');
     }
 
-    clearErrorMissingApps() {
+    private clearErrorMissingApps() {
         if (!this.errorMessages.length) {
             return;
         }
@@ -547,7 +557,6 @@ export class LiveFormPanel
     setModel(liveEditModel: LiveEditModel) {
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
-        this.isPageNotRenderable = false;
 
         const site: Site = this.content.isSite()
                            ? this.content as Site
@@ -905,10 +914,8 @@ export class LiveFormPanel
         if (this.placeholder) {
             this.placeholder.deselectOptions();
             this.placeholder.show();
-            this.updatePlaceholder();
         } else {
             this.createLiveEditPagePlaceholder();
-            this.updatePlaceholder();
         }
 
         this.removeContentEventListeners();
@@ -920,16 +927,31 @@ export class LiveFormPanel
         this.hasContentEventListeners = false;
     }
 
-    setPageIsNotRenderable(): void {
-        this.isPageNotRenderable = true;
+    setHasPage(hasPage: boolean): void {
+        const isChanged = !ObjectHelper.isDefined(this.hasPage) || hasPage !== this.hasPage;
+        this.hasPage = hasPage;
 
-        if (!this.placeholder) {
-            this.createLiveEditPagePlaceholder();
+        if (isChanged) {
+            this.debouncedUpdateFunc();
         }
+    }
 
-        this.frameContainer?.hide();
-        this.placeholder.setPageIsNotRenderable();
-        this.placeholder.show();
+    setHasMissingApps(hasMissingApps: boolean): void {
+        const isChanged = !ObjectHelper.isDefined(this.hasMissingApps) || this.hasMissingApps !== hasMissingApps;
+        this.hasMissingApps = hasMissingApps;
+
+        if (isChanged) {
+            this.debouncedUpdateFunc();
+        }
+    }
+
+    setIsRenderable(isRenderable: boolean): void {
+        const isChanged = !ObjectHelper.isDefined(this.isRenderable) || this.isRenderable !== isRenderable;
+        this.isRenderable = isRenderable;
+
+        if (isChanged) {
+            this.debouncedUpdateFunc();
+        }
     }
 
     getContextWindow(): ContextWindow {
@@ -986,5 +1008,44 @@ export class LiveFormPanel
 
     setSaveEnabled(enabled: boolean): void {
         this.saveAction.setEnabled(enabled);
+    }
+
+    private updateRenderingState(): void {
+        if (this.isRenderable) {
+            this.clearErrorMissingApps();
+            return;
+        }
+
+        // live edit is not rendered, setting state depending on the reason
+
+        if (!this.hasPage) {  // no page, OK, nothing to render, just show placeholder
+            this.handleNoPage();
+            return;
+        }
+
+        // has page, but not renderable, not OK
+
+        if (this.hasMissingApps) { // some apps are missing, assuming error is because of that (actually maybe not but we can't know)
+            this.setErrorMissingApps();
+        } else { // some other error
+            this.handleErrorRenderingPage();
+        }
+    }
+
+    private handleNoPage(): void {
+        this.clearErrorMissingApps();
+        this.placeholder?.setHasControllersMode(this.hasAvailableControllers);
+    }
+
+    private handleErrorRenderingPage(): void {
+        this.clearErrorMissingApps();
+
+        if (!this.placeholder) {
+            this.createLiveEditPagePlaceholder();
+        }
+
+        this.frameContainer?.hide();
+        this.placeholder.setPageIsNotRenderableMode();
+        this.placeholder.show();
     }
 }
