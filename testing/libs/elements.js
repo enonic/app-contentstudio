@@ -78,6 +78,7 @@ module.exports = Object.freeze({
         DEPENDENT_ITEM_LIST_UL: "//ul[contains(@id,'DialogDependantItemsList')]",
         DEPENDENT_ITEM_LIST_UL_2: "//ul[contains(@id,'PublishDialogDependantList')]",
         DEPENDANT_ITEM_VIEWER: "//div[contains(@id,'DependantItemViewer')]",
+        DEPENDANT_ITEM_LIST_UNPUBLISH_DIALOG:"//ul[contains(@id,'DialogWithRefsDependantList')]",
     },
     tabBarItemByName: name => {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `

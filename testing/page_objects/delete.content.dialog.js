@@ -7,9 +7,9 @@ const XPATH = {
     archiveOrDeleteMenu: `//div[contains(@id,'MenuButton')]`,
     deleteMenuItem: `//li[contains(@id,'MenuItem') and contains(.,'Delete')]`,
     cancelButton: `//button/span[text()='Cancel']`,
-    itemToDeleteList: `//ul[contains(@id,'DeleteDialogItemList')]`,
+    itemToDeleteList: `//ul[contains(@id,'DialogWithRefsItemList')]`,
     itemViewer: `//div[contains(@id,'DeleteItemViewer']`,
-    dependantListUl: "//ul[contains(@id,'DeleteDialogDependantList')]",
+    dependantListUl: "//ul[contains(@id,'DialogWithRefsDependantList')]",
     dependantsHeader: "//div[@class='dependants-header']/span[@class='dependants-title']",
     itemToDeleteByDisplayName: displayName => {
         return `//div[contains(@id,'NamesAndIconView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]`
