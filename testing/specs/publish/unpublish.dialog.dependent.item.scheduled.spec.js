@@ -69,6 +69,7 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             let actualNumber = await contentUnpublishDialog.getNumberInUnpublishButton();
             assert.equal(actualNumber, '2', '2 items will be unpablished');
         });
+    
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {

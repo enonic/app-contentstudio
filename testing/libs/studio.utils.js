@@ -274,11 +274,35 @@ module.exports = {
         await contentWizardPanel.waitAndClickOnSave();
         return await this.doCloseWizardAndSwitchToGrid();
     },
+    async doAddPublishedShortcut(shortcut) {
+        let contentWizardPanel = new ContentWizardPanel();
+        //Open new shortcut-wizard:
+        await this.openContentWizard(appConst.contentTypes.SHORTCUT);
+        await contentWizardPanel.typeData(shortcut);
+        await contentWizardPanel.clickOnMarkAsReadyButton();
+        let contentPublishDialog = new ContentPublishDialog();
+        await contentPublishDialog.clickOnPublishNowButton();
+        await contentPublishDialog.waitForDialogClosed();
+        await contentWizardPanel.waitForNotificationMessage();
+        return await this.doCloseWizardAndSwitchToGrid();
+    },
     async doAddReadyFolder(folder) {
         let contentWizardPanel = new ContentWizardPanel();
         await this.openContentWizard(appConst.contentTypes.FOLDER);
         await contentWizardPanel.typeData(folder);
         await contentWizardPanel.clickOnMarkAsReadyButton();
+        await this.doCloseWizardAndSwitchToGrid();
+        return await this.getBrowser().pause(1000);
+    },
+    async doAddPublishedFolder(folder) {
+        let contentWizardPanel = new ContentWizardPanel();
+        await this.openContentWizard(appConst.contentTypes.FOLDER);
+        await contentWizardPanel.typeData(folder);
+        await contentWizardPanel.clickOnMarkAsReadyButton();
+        let contentPublishDialog = new ContentPublishDialog();
+        await contentPublishDialog.clickOnPublishNowButton();
+        await contentPublishDialog.waitForDialogClosed();
+        await contentWizardPanel.waitForNotificationMessage();
         await this.doCloseWizardAndSwitchToGrid();
         return await this.getBrowser().pause(1000);
     },
