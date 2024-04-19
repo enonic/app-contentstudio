@@ -34,7 +34,8 @@ class BaseBrowsePanel extends Page {
             await this.waitForElementDisplayed(this.treeGrid, timeout);
             await this.waitForSpinnerNotVisible(timeout);
         } catch (err) {
-            throw new Error('Browse panel was not loaded in ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_switch');
+            throw new Error(`Error occurred in grid,  screenshot: ${screenshot} ` + err);
         }
     }
 
