@@ -177,6 +177,22 @@ class InsertLinkDialogContentPanel extends Page {
         await this.clickOnElement(locator + "//input");
     }
 
+    async waitForRemoveSelectedOptionIconDisplayed(displayName) {
+        let locator = XPATH.contentPanel + lib.CONTENT_SELECTOR.selectedOptionByName(displayName);
+        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    async clickOnRemoveSelectedOptionIcon(displayName) {
+        let locator = XPATH.contentPanel + lib.CONTENT_SELECTOR.selectedOptionByName(displayName) +lib.REMOVE_ICON;
+        await this.waitForRemoveSelectedOptionIconDisplayed(displayName);
+        await this.clickOnElement(locator);
+    }
+
+    waitForUploadContentButtonDisplayed(){
+        let locator = XPATH.container + "//button[contains(@id,'upload-button')]";
+        return this.waitForElementDisplayed(locator,appConst.mediumTimeout);
+    }
+
     async clickOnAddAnchorButton() {
         await this.waitForAddAnchorButtonDisplayed();
         return await this.clickOnElement(this.addAnchorButton);
