@@ -59,7 +59,7 @@ class HtmlAreaForm extends OccurrencesFormView {
             return this.getIdOfHtmlAreas();
         }).then(ids => {
             const promises = [].concat(texts).map((text, index) => {
-                return this.execute(XPATH.typeText([].concat(ids)[index], text));
+                return this.execute(XPATH.typeText(ids[index], text));
             });
             return Promise.all(promises);
         }).then(() => {

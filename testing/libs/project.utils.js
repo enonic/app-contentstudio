@@ -38,13 +38,10 @@ module.exports = {
     },
     async fillParentNameStep(parents) {
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-        if (Array.isArray(parents)) {
-            //parents = [].concat(parents);
-            //let multiParents = parents.slice(1);
+        parents = [].concat(parents);
             for (let name of parents) {
                 await parentProjectStep.selectParentProject(name);
             }
-        }
         await parentProjectStep.clickOnNextButton();
         return new ProjectWizardDialogLanguageStep();
     },
