@@ -39,9 +39,9 @@ module.exports = {
     async fillParentNameStep(parents) {
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
         parents = [].concat(parents);
+        let selectedItems = await parentProjectStep.getSelectedProjects();
         for (let name of parents) {
-            let selectedItems = await parentProjectStep.getSelectedProjects();
-            if (selectedItems.length === 0 && !this.isProjectSelected(selectedItems, name)) {
+            if (selectedItems.length === 0 || this.isProjectSelected(selectedItems, name)) {
                 await parentProjectStep.selectParentProject(name);
             }
         }
@@ -49,7 +49,12 @@ module.exports = {
         return new ProjectWizardDialogLanguageStep();
     },
     isProjectSelected(arr, text) {
-        return arr.find((item) => item.includes(text));
+         arr.find((item) => {
+            if (item.includes(text)){
+                return true;
+            }
+        });
+         return false;
     },
     async fillLanguageStep(language) {
         let languageStep = new ProjectWizardDialogLanguageStep();
