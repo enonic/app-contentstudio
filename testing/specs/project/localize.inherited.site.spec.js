@@ -27,7 +27,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             // 1.Select 'Default' project and open wizard for new layer:
-            await projectUtils.selectParentAndOpenProjectWizardDialog('Default');
+            await projectUtils.clickOnNewAndOpenProjectWizardDialog();
             let layer = projectUtils.buildLayer('Default', null, appConst.PROJECT_ACCESS_MODE.PUBLIC, null,
                 null, LAYER_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
