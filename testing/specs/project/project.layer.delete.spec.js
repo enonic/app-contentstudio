@@ -33,7 +33,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let layerWizard = new LayerWizardPanel();
             // 1.Create new layer in the Default project:
-            await projectUtils.selectParentAndOpenProjectWizardDialog(PROJECT_DISPLAY_NAME);
+            await projectUtils.clickOnNewAndOpenProjectWizardDialog();
             let layer = projectUtils.buildLayer(PROJECT_DISPLAY_NAME, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, null,
                 null, LAYER_DISPLAY_NAME);
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);

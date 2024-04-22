@@ -59,7 +59,6 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     async getSelectedProjects() {
         try {
             let locator = XPATH.container + XPATH.projectSelectedOptionView + lib.H6_DISPLAY_NAME;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(locator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_proj_parent_step');
