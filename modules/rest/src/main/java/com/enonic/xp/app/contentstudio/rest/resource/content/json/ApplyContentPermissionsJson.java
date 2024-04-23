@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.enonic.xp.content.ApplyContentPermissionsParams;
 import com.enonic.xp.content.ContentId;
+import com.enonic.xp.node.ApplyPermissionsScope;
 import com.enonic.xp.security.acl.AccessControlList;
 
 public class ApplyContentPermissionsJson
@@ -17,20 +18,24 @@ public class ApplyContentPermissionsJson
 
     final AccessControlList permissions;
 
-    final boolean inheritPermissions;
+    final AccessControlList addPermissions;
 
-    final boolean overwriteChildPermissions;
+    final AccessControlList removePermissions;
+
+    final ApplyPermissionsScope scope;
 
     @JsonCreator
     ApplyContentPermissionsJson( @JsonProperty("contentId") final String contentId,
                                  @JsonProperty("permissions") final List<AccessControlEntryJson> permissions,
-                                 @JsonProperty("inheritPermissions") final boolean inheritPermissions,
-                                 @JsonProperty("overwriteChildPermissions") final boolean overwriteChildPermissions )
+                                 @JsonProperty("addPermissions") final List<AccessControlEntryJson> addPermissions,
+                                 @JsonProperty("removePermissions") final List<AccessControlEntryJson> removePermissions,
+                                 @JsonProperty("scope") final ApplyPermissionsScope scope )
     {
         this.contentId = ContentId.from( contentId );
         this.permissions = parseAcl( permissions );
-        this.inheritPermissions = inheritPermissions;
-        this.overwriteChildPermissions = overwriteChildPermissions;
+        this.addPermissions = parseAcl( addPermissions );
+        this.removePermissions = parseAcl( removePermissions );
+        this.scope = scope;
     }
 
     @JsonIgnore
@@ -46,29 +51,41 @@ public class ApplyContentPermissionsJson
     }
 
     @JsonIgnore
-    public boolean isInheritPermissions()
+    public AccessControlList getAddPermissions()
     {
-        return inheritPermissions;
+        return addPermissions;
     }
 
     @JsonIgnore
-    public boolean isOverwriteChildPermissions()
+    public AccessControlList getRemovePermissions()
     {
-        return overwriteChildPermissions;
+        return removePermissions;
+    }
+
+    @JsonIgnore
+    public ApplyPermissionsScope getScope()
+    {
+        return scope;
     }
 
     public ApplyContentPermissionsParams toParams()
     {
         return ApplyContentPermissionsParams.create().
             contentId( this.contentId ).
-            permissions( this.permissions ).
-            inheritPermissions( this.inheritPermissions ).
-            overwriteChildPermissions( this.overwriteChildPermissions ).
+            permissions( this.permissions ).addPermissions( this.addPermissions )
+            .removePermissions( this.removePermissions )
+            .applyPermissionsScope( this.scope )
+            .
             build();
     }
 
     private AccessControlList parseAcl( final List<AccessControlEntryJson> accessControlListJson )
     {
+        if ( accessControlListJson == null )
+        {
+            return AccessControlList.empty();
+        }
+
         final AccessControlList.Builder builder = AccessControlList.create();
         for ( final AccessControlEntryJson entryJson : accessControlListJson )
         {
