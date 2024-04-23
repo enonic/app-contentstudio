@@ -19,7 +19,7 @@
         "NAME",
         "SORT"
     ],
-    "inheritPermissions": true,
+    "inheritPermissions": false,
     "isPage": false,
     "isRoot": true,
     "isValid": true,
